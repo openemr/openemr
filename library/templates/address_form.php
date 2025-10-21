@@ -9,7 +9,7 @@
  *
  * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -18,27 +18,24 @@ use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Common\Twig\TwigContainer;
 
-global $pid;
-$pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
-
 // Initialize services
 $contactService = new ContactService();
 $contactAddressService = new ContactAddressService();
 
 // Get or create contact for patient
-$contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+$contact = $contactService->getOrCreateForEntity($foreign_table_name, $foreign_id);
 $addresses = [];
 
 if ($contact) {
     // Get all addresses including inactive for editing
     $addressRecords = $contactAddressService->getAddressesForContact($contact->get_id(), true);
-    
+
     // Transform to edit format
     foreach ($addressRecords as $record) {
         $addresses[] = [
-            'id' => $record['id'],
+            'contact_address_id' => $record['contact_address_id'],
             'contact_id' => $record['contact_id'],
-            'address_id' => $record['address_id'],
+            'addresses_id' => $record['addresses_id'],
             'use' => $record['use'] ?? 'home',
             'type' => $record['type'] ?? 'both',
             'line1' => $record['line1'] ?? '',
@@ -80,6 +77,7 @@ $widgetConstants = [
 
 // Prepare template variables
 $templateVars = [
+    'foreign_table_name' => $foreign_table_name,
     'table_id' => $table_id,
     'addresses' => $addresses,
     'list_address_types' => $list_address_types,

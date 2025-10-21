@@ -14,18 +14,21 @@
 
 <div id="{{ table_id|attr }}" class="row mt-3">
     <div class="table_text_addresses col-12">
-        <div class="text_addresses_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.1rem; background-color: var(--gray300)">
-            <div>{{ 'Additional Addresses'|xlt }}</div>
-            {% if addresses|length > 0 %}
-            <div class="form-check mr-3" style="margin-bottom: 0;">
-                <input type="checkbox" class="form-check-input" id="show_inactive_addresses_display_{{ table_id|attr }}" onchange="toggleInactiveAddressesDisplay('{{ table_id|attr }}')">
-                <label class="form-check-label" for="show_inactive_addresses_display_{{ table_id|attr }}" style="font-size: 0.9em;">
-                    {{ 'Show Inactive'|xlt }}
-                </label>
-            </div>
-            {% endif %}
+    <div class="text_addresses_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
+        {% if foreign_table_name == 'patient_data' %}
+        <div>{{ 'Additional Addresses'|xlt }}</div>
+        {% else %}
+        <div>{{ 'Addresses'|xlt }}</div>
+        {% endif %}
+        {% if addresses|length > 0 %}
+        <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+            <input type="checkbox" class="form-check-input" id="show_inactive_addresses_display_{{ table_id|attr }}" onchange="toggleInactiveAddressesDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
+            <label class="form-check-label" for="show_inactive_addresses_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
+                {{ 'Show Inactive'|xlt }}
+            </label>
         </div>
-
+        {% endif %}
+    </div>
         {% set has_active_addresses = false %}
         {% for address in addresses %}
             {% if address.status == 'A' %}
@@ -91,11 +94,15 @@
                         {% if address.city %}
                             {% set addr2 = addr2|merge([address.city]) %}
                         {% endif %}
-                        {% if address.state %}
-                            {% set addr2 = addr2|merge([address.state]) %}
-                        {% endif %}
-                        {% if address.postalcode %}
-                            {% set addr2 = addr2|merge([address.postalcode]) %}
+                        {% if address.state or address.zip %}
+                            {% set state_zip = [] %}
+                            {% if address.state %}
+                                {% set state_zip = state_zip|merge([address.state]) %}
+                            {% endif %}
+                            {% if address.zip %}
+                                {% set state_zip = state_zip|merge([address.zip]) %}
+                            {% endif %}
+                            {% set addr2 = addr2|merge([state_zip|join(' ')]) %}
                         {% endif %}
                         {% if address.country %}
                             {% set addr2 = addr2|merge([address.country]) %}
@@ -108,7 +115,7 @@
                 </div>
             </div>
         </div>
-        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        <hr class="m-0 p-0 {{ is_inactive ? 'address-inactive-display d-none' : '' }}" style="border-top-width: 2px; border-color: var(--gray300)" />
         {% endfor %}
     </div>
 </div>
@@ -117,20 +124,20 @@
     function toggleInactiveAddressesDisplay(tableId) {
         const checkbox = document.getElementById('show_inactive_addresses_display_' + tableId);
         const table = document.getElementById(tableId);
-        
+
         if (!table) {
             console.error('Table not found:', tableId);
             return;
         }
-        
+
         const inactiveAddresses = table.querySelectorAll('.address-inactive-display');
-        
+
         console.log('Toggle inactive addresses:', {
             tableId: tableId,
             checked: checkbox.checked,
             foundAddresses: inactiveAddresses.length
         });
-        
+
         inactiveAddresses.forEach(function(address) {
             if (checkbox.checked) {
                 address.classList.remove('d-none');

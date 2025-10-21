@@ -23,7 +23,7 @@ use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * Save addresses for a patient from form data
- * 
+ *
  * @param int $pid Patient ID
  * @param array $addressData Address form data
  * @return array Array of saved ContactAddress records
@@ -35,13 +35,13 @@ function saveAddressesForPatient($pid, $addressData)
 
     $contactService = new ContactService();
     $addressService = new ContactAddressService();
-    
+
     $savedAddresses = [];
-    
+
     try {
         // Get or create contact for patient
         $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
-        
+
         if (!$contact) {
             $logger->error("Failed to get or create contact for patient", ['pid' => $pid]);
             return [];
@@ -55,7 +55,7 @@ function saveAddressesForPatient($pid, $addressData)
         // Process each address
         for ($i = 0; $i < $count; $i++) {
             $action = $addressData['data_action'][$i] ?? '';
-            
+
             // Skip empty entries
             if (empty($action) || ($action != 'ADD' && empty($addressData['id'][$i]))) {
                 continue;
@@ -69,14 +69,15 @@ function saveAddressesForPatient($pid, $addressData)
                             $savedAddresses[] = $result;
                         }
                         break;
-                        
+
                     case 'UPDATE':
                         $result = handleUpdateAddress($addressData, $i, $addressService);
                         if ($result) {
                             $savedAddresses[] = $result;
                         }
                         break;
-                        
+
+
                     case 'INACTIVATE':
                         $result = handleInactivateAddress($addressData, $i, $addressService);
                         if ($result) {
@@ -114,10 +115,10 @@ function saveAddressesForPatient($pid, $addressData)
 function handleAddAddress(Contact $contact, array $addressData, int $index, ContactAddressService $addressService)
 {
     $logger = new SystemLogger();
-    
+
     // Build address data array
     $data = extractAddressDataFromForm($addressData, $index);
-    
+
     // Validate address data
     $validation = $addressService->validateAddress($data);
     if (!$validation->isValid()) {
@@ -130,19 +131,19 @@ function handleAddAddress(Contact $contact, array $addressData, int $index, Cont
     // Create new address
     $contactAddress = new ContactAddress();
     $contactAddress->setContact($contact);
-    
+
     // Set address data
     $address = $contactAddress->getAddress();
     populateAddressFromData($address, $data);
-    
+
     // Set contact address metadata
     populateContactAddressFromData($contactAddress, $data);
-    
+
     // Save
     if ($contactAddress->persist()) {
         return $contactAddress->toArray();
     }
-    
+
     return null;
 }
 
@@ -152,17 +153,17 @@ function handleAddAddress(Contact $contact, array $addressData, int $index, Cont
 function handleUpdateAddress(array $addressData, int $index, ContactAddressService $addressService)
 {
     $logger = new SystemLogger();
-    $addressId = $addressData['id'][$index] ?? null;
-    
-    if (!$addressId) {
+    $contactAddressId = $addressData['contact_address_id'][$index] ?? null;
+
+    if (!$contactAddressId) {
         $logger->warning("No address ID provided for update", ['index' => $index]);
         return null;
     }
 
     // Load existing address
-    $contactAddress = new ContactAddress($addressId);
+    $contactAddress = new ContactAddress($contactAddressId);
     if (empty($contactAddress->get_id())) {
-        $logger->warning("Address not found for update", ['id' => $addressId]);
+        $logger->warning("Address not found for update", ['id' => $contactAddressId]);
         return null;
     }
 
@@ -179,36 +180,36 @@ function handleUpdateAddress(array $addressData, int $index, ContactAddressServi
     // Update address
     $address = $contactAddress->getAddress();
     populateAddressFromData($address, $data);
-    
+
     // Update contact address metadata
     populateContactAddressFromData($contactAddress, $data);
-    
+
     // Save
     if ($contactAddress->persist()) {
         return $contactAddress->toArray();
     }
-    
+
     return null;
 }
 
 /**
  * Handle inactivating an address
  */
-function handleInactivateAddress(array $addressData, int $index, ContactAddressService $addressService)
+function handleInactivateAddress(array $addressData, int $index, ContactAddressService $cotactAddressService)
 {
     $logger = new SystemLogger();
-    $addressId = $addressData['id'][$index] ?? null;
-    
-    if (!$addressId) {
+    $contactAddressId = $addressData['contact_address_id'][$index] ?? null;
+
+    if (!$contactAddressId) {
         return null;
     }
 
     $reason = $addressData['inactivated_reason'][$index] ?? 'User deleted';
-    
-    if ($addressService->deactivateAddress($addressId, $reason)) {
-        return ['id' => $addressId, 'status' => 'INACTIVATED'];
+
+    if ($cotactAddressService->deactivateAddress($contactAddressId, $reason)) {
+        return ['contact_address_id' => $contactAddressId, 'status' => 'INACTIVATED'];
     }
-    
+
     return null;
 }
 
@@ -255,11 +256,11 @@ function populateAddressFromData(Address $address, array $data): void
 function populateContactAddressFromData(ContactAddress $contactAddress, array $data): void
 {
     $logger = new SystemLogger();
-    
+
     // Set type and use
     $contactAddress->set_type($data['type']);
     $contactAddress->set_use($data['use']);
-    
+
     // Set dates
     if (!empty($data['period_start'])) {
         $periodStart = \DateTime::createFromFormat('Y-m-d', $data['period_start']);
@@ -269,7 +270,7 @@ function populateContactAddressFromData(ContactAddress $contactAddress, array $d
             $logger->warning("Invalid period_start date format", ['date' => $data['period_start']]);
         }
     }
-    
+
     if (!empty($data['period_end'])) {
         $periodEnd = \DateTime::createFromFormat('Y-m-d', $data['period_end']);
         if ($periodEnd !== false) {
@@ -278,7 +279,7 @@ function populateContactAddressFromData(ContactAddress $contactAddress, array $d
             $logger->warning("Invalid period_end date format", ['date' => $data['period_end']]);
         }
     }
-    
+
     // Set metadata
     $contactAddress->set_notes($data['notes'] ?? '');
     $contactAddress->set_priority((int)($data['priority'] ?? 0));

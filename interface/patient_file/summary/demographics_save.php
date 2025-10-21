@@ -1,7 +1,7 @@
 <?php
 
 /**
- * demographics_save.php - WITH DEBUG LOGGING (PHP 7.4+ Compatible)
+ * demographics_save.php - Complete Save Handler with Address, Telecom, and Relation Support
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -15,6 +15,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -52,22 +54,29 @@ foreach ($_POST as $key => $val) {
 // Update patient_data and employer_data
 $newdata = array();
 $newdata['patient_data']['id'] = $_POST['db_id'];
+
+// Arrays to hold special field types for processing after main data save
+$addressFieldsToSave = array();
+$telecomFieldsToSave = array();
+$relationFieldsToSave = array();
+
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_id, seq");
 
-$addressFieldsToSave = array();
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
+    
+    // Skip data type 52 (provider list)
     if ((int)$data_type === 52) {
         continue;
     }
+    
     $field_id = $frow['field_id'];
     $colname = $field_id;
     $table = 'patient_data';
-    
-    // PHP 7.4 compatible version of str_starts_with
-    if (substr($field_id, 0, 3) === 'em_') {
+
+    if (str_starts_with($field_id, 'em_')) {
         $colname = substr($field_id, 3);
         $table = 'employer_data';
     }
@@ -77,15 +86,14 @@ while ($frow = sqlFetchArray($fres)) {
         try {
             // Try get_layout_form_value first
             $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
-            
-            // DEBUG: Log what we received
+
             $logger->debug("Address field collected via get_layout_form_value", [
                 'field_id' => $field_id,
                 'data_type' => $data_type,
                 'is_array' => is_array($addressFieldsToSave[$field_id]),
                 'raw_data_keys' => is_array($addressFieldsToSave[$field_id]) ? array_keys($addressFieldsToSave[$field_id]) : 'not_array'
             ]);
-            
+
             // Check if POST data exists and is different
             $post_field_name = "form_" . $field_id;
             if (isset($_POST[$post_field_name])) {
@@ -94,7 +102,7 @@ while ($frow = sqlFetchArray($fres)) {
                     'post_field_name' => $post_field_name,
                     'post_keys' => array_keys($_POST[$post_field_name])
                 ]);
-                
+
                 // If get_layout_form_value returned empty or wrong format, use POST directly
                 if (empty($addressFieldsToSave[$field_id]) || !is_array($addressFieldsToSave[$field_id]) || !isset($addressFieldsToSave[$field_id]['data_action'])) {
                     $logger->warning("get_layout_form_value returned invalid data, using POST directly");
@@ -113,8 +121,61 @@ while ($frow = sqlFetchArray($fres)) {
                 'error' => $e->getMessage()
             ]);
         }
-        
-    } elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
+    }
+    // Handle telecom list fields (data_type 55)
+    elseif ($data_type == 55) {
+        try {
+            $telecomFieldsToSave[$field_id] = get_layout_form_value($frow);
+
+            $logger->debug("Telecom field collected via get_layout_form_value", [
+                'field_id' => $field_id,
+                'data_type' => $data_type,
+                'is_array' => is_array($telecomFieldsToSave[$field_id]),
+                'raw_data_keys' => is_array($telecomFieldsToSave[$field_id]) ? array_keys($telecomFieldsToSave[$field_id]) : 'not_array'
+            ]);
+
+            $post_field_name = "form_" . $field_id;
+            if (isset($_POST[$post_field_name])) {
+                if (empty($telecomFieldsToSave[$field_id]) || !is_array($telecomFieldsToSave[$field_id]) || !isset($telecomFieldsToSave[$field_id]['data_action'])) {
+                    $logger->warning("get_layout_form_value returned invalid data for telecom, using POST directly");
+                    $telecomFieldsToSave[$field_id] = $_POST[$post_field_name];
+                }
+            }
+        } catch (Exception $e) {
+            $logger->error("Error collecting telecom field", [
+                'field_id' => $field_id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    // Handle relation list fields (data_type 56)
+    elseif ($data_type == 56) {
+        try {
+            $relationFieldsToSave[$field_id] = get_layout_form_value($frow);
+
+            $logger->debug("Relation field collected via get_layout_form_value", [
+                'field_id' => $field_id,
+                'data_type' => $data_type,
+                'is_array' => is_array($relationFieldsToSave[$field_id]),
+                'raw_data_keys' => is_array($relationFieldsToSave[$field_id]) ? array_keys($relationFieldsToSave[$field_id]) : 'not_array'
+            ]);
+
+            $post_field_name = "form_" . $field_id;
+            if (isset($_POST[$post_field_name])) {
+                if (empty($relationFieldsToSave[$field_id]) || !is_array($relationFieldsToSave[$field_id]) || !isset($relationFieldsToSave[$field_id]['data_action'])) {
+                    $logger->warning("get_layout_form_value returned invalid data for relation, using POST directly");
+                    $relationFieldsToSave[$field_id] = $_POST[$post_field_name];
+                }
+            }
+        } catch (Exception $e) {
+            $logger->error("Error collecting relation field", [
+                'field_id' => $field_id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    // Handle all other standard field types
+    elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
@@ -172,7 +233,7 @@ if (!empty($addressFieldsToSave)) {
 
                     // Get or create contact for this patient
                     $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
-                    
+
                     if ($contact) {
                         // Use the generic method that works with any entity
                         $savedRecords = $contactAddressService->saveAddressesForContact(
@@ -215,6 +276,162 @@ if (!empty($addressFieldsToSave)) {
             'trace' => $e->getTraceAsString()
         ]);
         error_log("Fatal error in address processing: " . $e->getMessage());
+    }
+}
+
+// Handle telecom fields through ContactTelecomService
+if (!empty($telecomFieldsToSave)) {
+    try {
+        $contactService = new ContactService();
+        $telecomService = new ContactTelecomService();
+        
+        $logger->info("Starting telecom save process", [
+            'pid' => $pid,
+            'field_count' => count($telecomFieldsToSave)
+        ]);
+        
+        foreach ($telecomFieldsToSave as $fieldId => $telecomFieldData) {
+            try {
+                $logger->debug("Processing telecom field", [
+                    'field_id' => $fieldId,
+                    'data_type' => gettype($telecomFieldData),
+                    'is_array' => is_array($telecomFieldData),
+                    'data_sample' => is_array($telecomFieldData) ? array_keys($telecomFieldData) : 'not_array'
+                ]);
+                
+                if (is_array($telecomFieldData) && !empty($telecomFieldData)) {
+                    // Log the structure
+                    if (isset($telecomFieldData['data_action'])) {
+                        $logger->info("Telecom data structure detected", [
+                            'field_id' => $fieldId,
+                            'action_count' => count($telecomFieldData['data_action']),
+                            'actions' => $telecomFieldData['data_action'],
+                            'has_value' => isset($telecomFieldData['value']),
+                            'sample_keys' => array_keys($telecomFieldData)
+                        ]);
+                    } else {
+                        $logger->warning("No data_action found in telecom data", [
+                            'field_id' => $fieldId,
+                            'keys_found' => array_keys($telecomFieldData)
+                        ]);
+                    }
+                    
+                    $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+                    
+                    if ($contact) {
+                        $savedRecords = $telecomService->saveTelecomsForContact(
+                            $contact->get_id(),
+                            $telecomFieldData
+                        );
+                        
+                        $logger->info("Telecoms saved successfully", [
+                            'pid' => $pid,
+                            'contact_id' => $contact->get_id(),
+                            'field_id' => $fieldId,
+                            'saved_count' => count($savedRecords)
+                        ]);
+                    } else {
+                        $logger->error("Failed to get/create contact for patient", [
+                            'pid' => $pid,
+                            'field_id' => $fieldId
+                        ]);
+                    }
+                } else {
+                    $logger->warning("Telecom field data invalid", [
+                        'field_id' => $fieldId,
+                        'is_array' => is_array($telecomFieldData),
+                        'is_empty' => empty($telecomFieldData)
+                    ]);
+                }
+            } catch (Exception $e) {
+                $logger->error("Exception processing telecom field", [
+                    'field_id' => $fieldId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                error_log("Exception in telecom processing: " . $e->getMessage());
+            }
+        }
+    } catch (Exception $e) {
+        $logger->error("Fatal error in telecom processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        error_log("Fatal error in telecom processing: " . $e->getMessage());
+    }
+}
+
+// Handle relation fields through ContactRelationService
+if (!empty($relationFieldsToSave)) {
+    try {
+        $relationService = new ContactRelationService();
+        
+        $logger->info("Starting relation save process", [
+            'pid' => $pid,
+            'field_count' => count($relationFieldsToSave)
+        ]);
+        
+        foreach ($relationFieldsToSave as $fieldId => $relationFieldData) {
+            try {
+                $logger->debug("Processing relation field", [
+                    'field_id' => $fieldId,
+                    'data_type' => gettype($relationFieldData),
+                    'is_array' => is_array($relationFieldData),
+                    'data_sample' => is_array($relationFieldData) ? array_keys($relationFieldData) : 'not_array'
+                ]);
+                
+                if (is_array($relationFieldData) && !empty($relationFieldData)) {
+                    // Log the structure
+                    if (isset($relationFieldData['data_action'])) {
+                        $logger->info("Relation data structure detected", [
+                            'field_id' => $fieldId,
+                            'action_count' => count($relationFieldData['data_action']),
+                            'actions' => $relationFieldData['data_action'],
+                            'has_contact_id' => isset($relationFieldData['contact_id']),
+                            'sample_keys' => array_keys($relationFieldData)
+                        ]);
+                    } else {
+                        $logger->warning("No data_action found in relation data", [
+                            'field_id' => $fieldId,
+                            'keys_found' => array_keys($relationFieldData)
+                        ]);
+                    }
+                    
+                    $savedRecords = $relationService->saveRelationsForEntity(
+                        'patient_data',
+                        $pid,
+                        $relationFieldData
+                    );
+                    
+                    $logger->info("Relations saved successfully", [
+                        'pid' => $pid,
+                        'field_id' => $fieldId,
+                        'saved_count' => count($savedRecords)
+                    ]);
+                } else {
+                    $logger->warning("Relation field data invalid", [
+                        'field_id' => $fieldId,
+                        'is_array' => is_array($relationFieldData),
+                        'is_empty' => empty($relationFieldData)
+                    ]);
+                }
+            } catch (Exception $e) {
+                $logger->error("Exception processing relation field", [
+                    'field_id' => $fieldId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                error_log("Exception in relation processing: " . $e->getMessage());
+            }
+        }
+    } catch (Exception $e) {
+        $logger->error("Fatal error in relation processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        error_log("Fatal error in relation processing: " . $e->getMessage());
     }
 }
 

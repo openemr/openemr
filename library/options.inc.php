@@ -5,7 +5,7 @@
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 // Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
 // Copyright (c) 2021 Robert Down <robertdown@live.com>
-// Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+// Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -1677,17 +1677,34 @@ function generate_form_field($frow, $currvalue): void
             }
         }
         echo "</select>";
-    
-    // Address List Field
+
+    // Address List Field - Input
     } elseif ($data_type == 54) {
+        global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+    	$foreign_table_name = 'patient_data';
+    	$foreign_id = $pid;
+
         include "templates/address_form.php";
 
-    // Address List Field    
-    }
-    elseif ($data_type == 55) {
-        include "templates/related_person_form.php";
-    }
+    // Telecom Field - Input
+    } elseif ($data_type == 55) {
+        global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+    	$foreign_table_name = 'patient_data';
+    	$foreign_id = $pid;
 
+        include "templates/telecom_form.php";
+
+    // Related List Field - Input
+    } elseif ($data_type == 56) {
+        global $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+    	$foreign_table_name = 'patient_data';
+    	$foreign_id = $pid;
+
+        include "templates/relation_form.php";
+    }
 }
 
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
@@ -2905,9 +2922,27 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 54) {
-        include "templates/address_display.php";
-    }
+        $pid = $_SESSION['pid'] ?? null;
+    	$foreign_table_name = 'patient_data';
+    	$foreign_id = $pid;
 
+        include "templates/address_display.php";
+
+    } elseif ($data_type == 55) {
+        $pid = $_SESSION['pid'] ?? null;
+    	$foreign_table_name = 'patient_data';
+    	$foreign_id = $pid;
+
+        include "templates/telecom_display.php";
+
+    } elseif ($data_type == 56) {
+        $pid = $_SESSION['pid'] ?? null;
+    	$foreign_table_name = 'patient_data';
+    	$foreign_id = $pid;
+
+        include "templates/relation_display.php";
+
+    }
     return $s;
 }
 

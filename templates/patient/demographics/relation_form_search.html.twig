@@ -1,0 +1,683 @@
+{#
+  Person Search and Create Component - Unified
+  Single form that searches as you type and can create if no match found
+  Included by relation_form.html.twig
+#}
+
+<style>
+    /* Inline add person section styles */
+    #addPersonSection {
+        border: 2px solid #007bff;
+        border-radius: 0.5rem;
+        background-color: #f8f9fa;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
+        animation: slideDown 0.3s ease-out;
+        margin-top: 0.5rem !important;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #addPersonSection .card-header {
+        background-color: #007bff;
+        border-bottom: 1px solid #0056b3;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    #addPersonSection .card-header button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    #addPersonSection .card-body {
+        padding: 1rem;
+    }
+
+    .person-form-section {
+        background-color: #fff;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    .section-header {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #495057;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+    }
+
+    #personSearchResults {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    #personSearchResults:empty {
+        display: none;
+    }
+
+    .person-search-result {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        transition: all 0.2s;
+        background-color: #fff;
+    }
+
+    .person-search-result:hover {
+        background-color: #e9ecef;
+        border-color: #007bff;
+        transform: translateX(2px);
+    }
+
+    .live-search-indicator {
+        display: none;
+        color: #007bff;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background-color: #e7f3ff;
+        border-radius: 0.25rem;
+    }
+
+    .live-search-indicator.searching {
+        display: block;
+    }
+
+    .person-form-section .form-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .person-form-section label {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .action-buttons {
+        border-top: 2px solid #e9ecef;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    .search-results-header {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+{# Inline Person Search and Create Section #}
+<div id="addPersonSection" class="d-none mt-3" data-csrf-token="{{ csrfToken }}">
+    <div class="card">
+        <div class="card-header text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-0">
+                    <i class="fas fa-user-plus mr-2"></i>{{ 'Add Related Person'|xlt }}
+                </div>
+                <button type="button" class="btn btn-sm btn-light" onclick="closeAddPersonSection()" aria-label="{{ 'Close'|xla }}">
+                    <i class="fas fa-times"></i> {{ 'Close'|xlt }}
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="person-form-section">
+                <div class="section-header">
+                    <i class="fas fa-user mr-2"></i>{{ 'Person Information'|xlt }}
+                </div>
+
+                <form id="personForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="required-field">{{ 'First Name'|xlt }}</label>
+                                <input type="text" id="person_firstname" class="form-control" required autocomplete="given-name" placeholder="{{ 'Enter first name'|xla }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="required-field">{{ 'Last Name'|xlt }}</label>
+                                <input type="text" id="person_lastname" class="form-control" required autocomplete="family-name" placeholder="{{ 'Enter last name'|xla }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{ 'Middle Name'|xlt }}</label>
+                                <input type="text" id="person_middlename" class="form-control" autocomplete="additional-name">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{ 'Date of Birth'|xlt }}</label>
+                                <input type="date" id="person_dob" class="form-control" autocomplete="bday">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{ 'Gender'|xlt }}</label>
+                                <select id="person_gender" class="form-control">
+                                    <option value="">{{ 'Select'|xlt }}</option>
+                                    <option value="Male">{{ 'Male'|xlt }}</option>
+                                    <option value="Female">{{ 'Female'|xlt }}</option>
+                                    <option value="Other">{{ 'Other'|xlt }}</option>
+                                    <option value="Unknown">{{ 'Unknown'|xlt }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ 'Phone'|xlt }}</label>
+                                <input type="tel" id="person_phone" class="form-control" placeholder="(555) 123-4567" autocomplete="tel">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{ 'Email'|xlt }}</label>
+                                <input type="email" id="person_email" class="form-control" placeholder="email@example.com" autocomplete="email">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>{{ 'Notes'|xlt }}</label>
+                                <textarea id="person_notes" class="form-control" rows="2" placeholder="{{ 'Optional notes about this person'|xla }}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="live-search-indicator" id="liveSearchIndicator">
+                        <i class="fas fa-spinner fa-spin mr-1"></i>{{ 'Searching...'|xlt }}
+                    </div>
+
+                    <div id="personSearchResults"></div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-success btn-block btn-lg" onclick="createNewPerson()">
+                            <i class="fas fa-plus-circle mr-2"></i>{{ 'Create New Person and Add Relationship'|xlt }}
+                        </button>
+                        <p class="text-muted text-center mt-2 mb-0" style="font-size: 0.85rem;">
+                            {{ 'Or select an existing person from the search results above'|xlt }}
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // ============= UNIFIED PERSON SEARCH AND CREATE =============
+
+    let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
+    let searchTimeout = null;
+    let lastSearchParams = { firstname: '', lastname: '', dob: '', phone: '', email: '' };
+
+    console.log('csrfToken '+csrfToken)
+
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+    }
+
+
+    function openPersonSearch() {
+        const section = document.getElementById('addPersonSection');
+        section.classList.remove('d-none');
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Focus on first input after animation
+        setTimeout(() => {
+            document.getElementById('person_firstname').focus();
+        }, 300);
+
+        // Setup live search listeners
+        setupLiveSearch();
+    }
+
+    function closeAddPersonSection() {
+        const section = document.getElementById('addPersonSection');
+        section.classList.add('d-none');
+        clearAllFields();
+        document.getElementById('personSearchResults').innerHTML = '';
+        lastSearchParams = { firstname: '', lastname: '', dob: '', phone: '', email: '' };
+    }
+
+    function clearAllFields() {
+        document.getElementById('person_firstname').value = '';
+        document.getElementById('person_lastname').value = '';
+        document.getElementById('person_middlename').value = '';
+        document.getElementById('person_dob').value = '';
+        document.getElementById('person_gender').value = '';
+        document.getElementById('person_phone').value = '';
+        document.getElementById('person_email').value = '';
+        document.getElementById('person_notes').value = '';
+    }
+
+    function setupLiveSearch() {
+        const inputs = [
+            document.getElementById('person_firstname'),
+            document.getElementById('person_lastname'),
+            document.getElementById('person_dob'),
+            document.getElementById('person_phone'),
+            document.getElementById('person_email')
+        ];
+
+        // Remove existing listeners by cloning
+        inputs.forEach((input, index) => {
+            if (input) {
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                inputs[index] = newInput;
+
+                newInput.addEventListener('input', function() {
+                    triggerLiveSearch();
+                });
+            }
+        });
+    }
+
+    function triggerLiveSearch() {
+        // Clear existing timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        // Get current values
+        const firstname = document.getElementById('person_firstname').value.trim();
+        const lastname = document.getElementById('person_lastname').value.trim();
+        const dob = document.getElementById('person_dob')?.value || '';
+        const phone = document.getElementById('person_phone').value.trim();
+        const email = document.getElementById('person_email').value.trim();
+
+        // Check if anything has changed
+        if (firstname === lastSearchParams.firstname &&
+            lastname === lastSearchParams.lastname &&
+            dob === lastSearchParams.dob &&
+            phone === lastSearchParams.phone &&
+            email === lastSearchParams.email) {
+            return;
+        }
+
+        // If all fields are empty, clear results
+        if (!firstname && !lastname && !dob && !phone && !email) {
+            document.getElementById('personSearchResults').innerHTML = '';
+            hideLiveSearchIndicator();
+            return;
+        }
+
+        // Show searching indicator
+        showLiveSearchIndicator();
+
+        // Debounce search - wait 500ms after user stops typing
+        searchTimeout = setTimeout(() => {
+            performSearch(firstname, lastname, dob, phone, email);
+        }, 500);
+    }
+
+    function performSearch(firstname, lastname, dob, phone, email) {
+        lastSearchParams = { firstname, lastname, dob, phone, email };
+
+        const resultsContainer = document.getElementById('personSearchResults');
+
+        fetch(relationTableConfig.webroot + '/interface/patient_file/summary/person_search_ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                action: 'search_persons',
+                csrf_token: csrfToken,
+                firstname: firstname,
+                lastname: lastname,
+                birth_date: dob,
+                phone: phone,
+                email: email,
+                foreign_table: relationTableConfig.foreignTable,
+                foreign_id: relationTableConfig.foreignId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(text => {
+            hideLiveSearchIndicator();
+
+            // Log the raw response for debugging
+            console.log('Raw response:', text);
+
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                console.error('Response text:', text);
+                resultsContainer.innerHTML = '<div class="alert alert-danger">' +
+                    '<i class="fas fa-times-circle mr-2"></i>' +
+                    '<strong>Server Error:</strong><br>' +
+                    '<pre style="max-height: 300px; overflow: auto; font-size: 11px;">' +
+                    escapeHtml(text) +
+                    '</pre>' +
+                    '</div>';
+                return;
+            }
+
+            if (data.success) {
+                displaySearchResults(data.persons);
+            } else {
+                resultsContainer.innerHTML = '<div class="alert alert-warning">' +
+                    '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                    escapeHtml(data.message || window.xl('Search failed')) +
+                    '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            hideLiveSearchIndicator();
+            resultsContainer.innerHTML = '<div class="alert alert-danger">' +
+                '<i class="fas fa-times-circle mr-2"></i>' +
+                window.xl('Error performing search. Please try again.') +
+                '<br><small>' + escapeHtml(error.message) + '</small>' +
+                '</div>';
+        });
+    }
+
+    function showLiveSearchIndicator() {
+        document.getElementById('liveSearchIndicator').classList.add('searching');
+    }
+
+    function hideLiveSearchIndicator() {
+        document.getElementById('liveSearchIndicator').classList.remove('searching');
+    }
+
+    function displaySearchResults(persons) {
+        const container = document.getElementById('personSearchResults');
+        container.innerHTML = '';
+
+        if (!persons || persons.length === 0) {
+            return; // Just hide results if nothing found
+        }
+
+        const header = document.createElement('div');
+        header.className = 'search-results-header';
+        header.innerHTML = '<i class="fas fa-users mr-2"></i>' +
+            window.xl('Found') + ' ' + persons.length + ' ' +
+            (persons.length === 1 ? window.xl('existing person') : window.xl('existing persons')) + ':';
+        container.appendChild(header);
+
+        persons.forEach(person => {
+            const div = document.createElement('div');
+            div.className = 'person-search-result';
+
+            // Determine badges to show
+            let badges = '';
+
+            if (person.is_patient && !person.is_linked) {
+                badges += '<span class="badge badge-info ml-2">' +
+                         (person.patient_label || window.xl('Patient')) + '</span>';
+            }
+
+            if (person.is_also_patient) {
+                badges += '<span class="badge badge-success ml-2">' +
+                         '<i class="fas fa-link"></i> ' + window.xl('Also Patient') +
+                         ' ' + escapeHtml(person.linked_patient_pid) + '</span>';
+            }
+
+            if (person.is_linked && person.source === 'patient_data') {
+                badges += '<span class="badge badge-secondary ml-2">' +
+                         '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
+            }
+
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <strong>${escapeHtml(person.firstname)} ${person.middlename ? escapeHtml(person.middlename) + ' ' : ''}${escapeHtml(person.lastname)}</strong>
+                        ${badges}
+                        <br>
+                        <small class="text-muted">
+                            ${person.birth_date ? window.xl('DOB') + ': ' + escapeHtml(person.birth_date) : ''}
+                            ${person.gender ? ' | ' + escapeHtml(person.gender) : ''}
+                            ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}
+                            ${person.email ? ' | ' + escapeHtml(person.email) : ''}
+                        </small>
+                    </div>
+                    <button class="btn btn-primary btn-sm ml-2">
+                        <i class="fas fa-check mr-1"></i>${window.xl('Select')}
+                    </button>
+                </div>
+            `;
+
+            div.onclick = function() {
+                selectPerson(person);
+            };
+
+            container.appendChild(div);
+        });
+    }
+
+    function selectPerson(person) {
+        closeAddPersonSection();
+        addRelationForPerson(person);
+    }
+
+    function addRelationForPerson(person) {
+        // Hide "no relations" message
+        let noRelationsElement = document.querySelector(".no_relations");
+        if (noRelationsElement && !noRelationsElement.classList.contains('d-none')) {
+            noRelationsElement.classList.add('d-none');
+        }
+
+        const container = document.querySelector(".table_edit_relations");
+        const template = document.querySelector(".template_add_relation");
+        const clone = template.content.cloneNode(true);
+
+        // Set person data in hidden fields
+        const contactIdInput = clone.querySelector('.form_relations_contact_id');
+        const personIdInput = clone.querySelector('.form_relations_person_id');
+        const nameDisplay = clone.querySelector('.display_relations_name');
+
+        if (contactIdInput) contactIdInput.value = person.contact_id || '';
+        if (personIdInput) personIdInput.value = person.id;
+        if (nameDisplay) {
+            let displayName = person.firstname;
+            if (person.middlename) displayName += ' ' + person.middlename;
+            displayName += ' ' + person.lastname;
+            nameDisplay.textContent = displayName;
+
+            if (person.birth_date) {
+                const dobSpan = document.createElement('small');
+                dobSpan.className = 'text-muted';
+                dobSpan.textContent = ' (' + window.xl('DOB') + ': ' + person.birth_date + ')';
+                nameDisplay.appendChild(dobSpan);
+            }
+        }
+
+        container.appendChild(clone);
+
+        // Expand the new relation for editing
+        const newRelation = container.querySelector('.relations_group:last-child');
+        if (newRelation) {
+            const formDiv = newRelation.querySelector('.form_relations');
+            if (formDiv) {
+                formDiv.classList.remove('d-none');
+
+                const icon = newRelation.querySelector('.btn-edit-relation');
+                if (icon) {
+                    icon.classList.remove('fa-caret-right');
+                    icon.classList.add('fa-caret-down');
+                }
+
+                newRelation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                setTimeout(() => {
+                    const firstSelect = formDiv.querySelector('select');
+                    if (firstSelect) {
+                        firstSelect.focus();
+                    }
+                }, 300);
+            }
+        }
+
+        if (typeof relationUpdated === 'function') {
+            relationUpdated();
+        }
+    }
+
+    function createNewPerson() {
+        const firstname = document.getElementById('person_firstname').value.trim();
+        const lastname = document.getElementById('person_lastname').value.trim();
+        const middlename = document.getElementById('person_middlename').value.trim();
+        const dob = document.getElementById('person_dob').value;
+        const gender = document.getElementById('person_gender').value;
+        const phone = document.getElementById('person_phone').value.trim();
+        const email = document.getElementById('person_email').value.trim();
+        const notes = document.getElementById('person_notes').value.trim();
+
+        // Validation
+        if (!firstname || !lastname) {
+            alert(window.xl('First name and last name are required'));
+            document.getElementById('person_firstname').focus();
+            return;
+        }
+
+        // Email validation if provided
+        if (email && !isValidEmail(email)) {
+            alert(window.xl('Please enter a valid email address'));
+            document.getElementById('person_email').focus();
+            return;
+        }
+
+        // Show loading state
+        const createBtn = event.target;
+        const originalBtnText = createBtn.innerHTML;
+        createBtn.disabled = true;
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
+
+        // Create person via AJAX
+        fetch(relationTableConfig.webroot + '/interface/patient_file/summary/person_search_ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                action: 'create_person',
+                csrf_token: csrfToken,
+                firstname: firstname,
+                lastname: lastname,
+                middlename: middlename,
+                birth_date: dob,
+                gender: gender,
+                phone: phone,
+                email: email,
+                notes: notes
+            })
+        })
+        .then(response => {
+            // Get raw text first to handle errors better
+            return response.text().then(text => {
+                console.log('Create person raw response:', text);
+
+                // Try to parse as JSON
+                try {
+                    const data = JSON.parse(text);
+                    return { ok: response.ok, status: response.status, data: data };
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    console.error('Response text:', text);
+                    throw new Error('Server returned invalid JSON. Response: ' + text.substring(0, 200));
+                }
+            });
+        })
+        .then(result => {
+            createBtn.disabled = false;
+            createBtn.innerHTML = originalBtnText;
+
+            console.log('Create person result:', result);
+
+            if (result.data.success && result.data.person) {
+                showSuccessMessage(window.xl('Person created successfully'));
+                closeAddPersonSection();
+                addRelationForPerson(result.data.person);
+            } else {
+                alert(window.xl('Error creating person') + ': ' + (result.data.message || window.xl('Unknown error')));
+            }
+        })
+        .catch(error => {
+            console.error('Error creating person:', error);
+            createBtn.disabled = false;
+            createBtn.innerHTML = originalBtnText;
+            alert(window.xl('Error creating person') + ': ' + error.message);
+        });
+    }
+    // Utility Functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function showSuccessMessage(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.minWidth = '300px';
+        alertDiv.innerHTML = `
+            <i class="fas fa-check-circle mr-2"></i>${escapeHtml(message)}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }, 3000);
+    }
+</script>

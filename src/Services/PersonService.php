@@ -2,7 +2,7 @@
 
 /**
  * Person Service
- * Manages Person entities (non-patient individuals)
+ * Manages Person entities with complete CRUD operations and relationship awareness
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -11,69 +11,100 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class PersonService extends BaseService
 {
     public const TABLE_NAME = 'person';
-    
-    /**
-     * Default constructor.
-     */
+
+
+    // Default constructor
     public function __construct($base_table = null)
     {
         parent::__construct($base_table ?? self::TABLE_NAME);
     }
-    
+
+
     /**
      * Create a new person
-     * 
+     *
      * @param array $data Person data
      * @return ProcessingResult
      */
     public function create(array $data): ProcessingResult
     {
+        //Future:  if $data has telecom or email, create rows in contactService and contact_telecom
+
         $processingResult = new ProcessingResult();
-        
+
         try {
-            // Validate required fields
-            $validation = $this->validate($data);
+            // Validate data
+            $validation = $this->validatePerson($data);
             if (!$validation->isValid()) {
                 return $validation;
             }
-            
-            // Prepare data for insertion
-            $fields = $this->prepareData($data);
-            
-            // Build insert query
-            $columns = array_keys($fields);
-            $placeholders = array_fill(0, count($columns), '?');
-            
-            $sql = "INSERT INTO person (`" . implode('`, `', $columns) . "`) 
-                    VALUES (" . implode(', ', $placeholders) . ")";
-            
-            $personId = sqlInsert($sql, array_values($fields));
-            
-            // Fetch and return the created person
-            $person = $this->get($personId);
-            $processingResult->addData($person);
-            
-            $this->getLogger()->info("Person created", ['id' => $personId]);
-            
+
+            // Create person
+            $person = new Person();
+            $this->populatePersonFromArray($person, $data);
+
+            if (!$person->persist()) {
+                $this->getLogger()->error("Person persist() returned false", [
+                    'data' => $data
+                ]);
+                $processingResult->addInternalError("Failed to create person");
+                return $processingResult;
+            }
+
+            // CRITICAL FIX: Verify the person actually has an ID after persist
+            $personId = $person->get_id();
+            if (empty($personId)) {
+                $this->getLogger()->error("Person persist() succeeded but ID is empty", [
+                    'data' => $data
+                ]);
+                $processingResult->addInternalError("Failed to create person: no ID generated");
+                return $processingResult;
+            }
+
+            $this->getLogger()->info("Person created successfully", ['id' => $personId]);
+
+            // Get the array representation
+            $personArray = $person->toArray();
+
+            // Additional safety check: ensure the array has an id
+            if (!isset($personArray['id']) || empty($personArray['id'])) {
+                $this->getLogger()->error("Person toArray() returned invalid data", [
+                    'person_id' => $personId,
+                    'array_has_id_key' => isset($personArray['id']),
+                    'array_id_value' => $personArray['id'] ?? 'NOT_SET',
+                    'array_keys' => array_keys($personArray)
+                ]);
+                $processingResult->addInternalError("Failed to create person: invalid data structure");
+                return $processingResult;
+            }
+
+            $processingResult->addData($personArray);
+
         } catch (\Exception $e) {
-            $this->getLogger()->error("Error creating person", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $this->getLogger()->error("Exception during person creation", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $data
+            ]);
+            $processingResult->addInternalError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
+
     /**
-     * Update a person
-     * 
+     * Update an existing person
+     *
      * @param int $personId
      * @param array $data
      * @return ProcessingResult
@@ -81,405 +112,559 @@ class PersonService extends BaseService
     public function update(int $personId, array $data): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
-            // Check if person exists
-            if (!$this->exists($personId)) {
-                $processingResult->addProcessingError("Person not found");
+            $person = new Person($personId);
+            if (empty($person->get_id())) {
+                $processingResult->addInternalError("Person not found");
                 return $processingResult;
             }
-            
+
             // Validate data
-            $validation = $this->validate($data, false); // false = not required for update
+            $validation = $this->validatePerson($data, $personId);
             if (!$validation->isValid()) {
                 return $validation;
             }
-            
-            // Prepare data for update
-            $fields = $this->prepareData($data);
-            
-            if (empty($fields)) {
-                $processingResult->addProcessingError("No valid fields to update");
-                return $processingResult;
+
+            // Update person
+            $this->populatePersonFromArray($person, $data);
+
+            if ($person->persist()) {
+                $this->getLogger()->info("Person updated", ['id' => $personId]);
+                $processingResult->addData($person->toArray());
+            } else {
+                $processingResult->addInternalError("Failed to update person");
             }
-            
-            // Build update query
-            $setClauses = [];
-            $values = [];
-            foreach ($fields as $field => $value) {
-                $setClauses[] = "`$field` = ?";
-                $values[] = $value;
-            }
-            $values[] = $personId;
-            
-            $sql = "UPDATE person SET " . implode(', ', $setClauses) . " WHERE id = ?";
-            sqlStatement($sql, $values);
-            
-            // Return updated person
-            $person = $this->get($personId);
-            $processingResult->addData($person);
-            
-            $this->getLogger()->info("Person updated", ['id' => $personId]);
-            
+
         } catch (\Exception $e) {
-            $this->getLogger()->error("Error updating person", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $this->getLogger()->error("Error updating person", [
+                'id' => $personId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
-    /**
+
+
+        /**
      * Get a person by ID
-     * 
+     *
      * @param int $personId
-     * @return array|null
+     * @return ProcessingResult
      */
-    public function get(int $personId): ?array
+    public function get(int $personId): ProcessingResult
     {
-        $sql = "SELECT * FROM person WHERE id = ?";
-        $result = sqlQuery($sql, [$personId]);
-        
-        return $result ?: null;
+        $processingResult = new ProcessingResult();
+
+        try {
+            $person = new Person($personId);
+            if (!empty($person->get_id())) {
+                $processingResult->addData($person->toArray());
+            } else {
+                $processingResult->addInternalError("Person not found");
+            }
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error getting person", [
+                'id' => $personId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
+        }
+
+        return $processingResult;
     }
-    
+
+
     /**
      * Delete a person
-     * 
+     *
      * @param int $personId
      * @return ProcessingResult
      */
     public function delete(int $personId): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
-            // Check for dependent records
-            $dependents = $this->getDependentRecords($personId);
-            
-            if (!empty($dependents)) {
-                $processingResult->addProcessingError(
-                    "Cannot delete person with dependent records: " . 
-                    implode(", ", array_keys($dependents))
+            // Check for dependencies
+            $dependencies = $this->checkDependencies($personId);
+            if (!empty($dependencies)) {
+                $processingResult->addInternalError(
+                    "Cannot delete person with dependencies: " . implode(", ", array_keys($dependencies))
                 );
                 return $processingResult;
             }
-            
+
             $sql = "DELETE FROM person WHERE id = ?";
             sqlStatement($sql, [$personId]);
-            
+
             $this->getLogger()->info("Person deleted", ['id' => $personId]);
             $processingResult->addData(['deleted' => true, 'id' => $personId]);
-            
+
         } catch (\Exception $e) {
-            $this->getLogger()->error("Error deleting person", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $this->getLogger()->error("Error deleting person", [
+                'id' => $personId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
+
+
     /**
-     * Check if a person exists
-     * 
-     * @param int $personId
-     * @return bool
-     */
-    public function exists(int $personId): bool
-    {
-        $sql = "SELECT id FROM person WHERE id = ?";
-        $result = sqlQuery($sql, [$personId]);
-        
-        return !empty($result);
-    }
-    
-    /**
-     * Search for persons
-     * 
-     * @param array $criteria Search criteria
-     * @param int $limit
-     * @param int $offset
+     * Find or create a person (prevents duplicates)
+     *
+     * @param array $searchCriteria Criteria to search for existing person
+     * @param array $createData Data to create person if not found
      * @return ProcessingResult
      */
-    public function search(array $criteria, int $limit = 100, int $offset = 0): ProcessingResult
+
+    public function findOrCreate(array $searchCriteria, array $createData = []): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
-            $where = [];
-            $params = [];
-            
-            // Build search conditions
-            if (!empty($criteria['firstname'])) {
-                $where[] = "firstname LIKE ?";
-                $params[] = '%' . $criteria['firstname'] . '%';
+            $existingResult = $this->search($searchCriteria);
+
+            if ($existingResult->hasData()) {
+                $data = $existingResult->getData();
+                if (!empty($data)) {
+                    $this->getLogger()->debug("Found existing person", [
+                        'id' => $data[0]['id']
+                    ]);
+                    $processingResult->addData($data[0]);
+                    return $processingResult;
+                }
             }
-            
-            if (!empty($criteria['lastname'])) {
-                $where[] = "lastname LIKE ?";
-                $params[] = '%' . $criteria['lastname'] . '%';
-            }
-            
-            if (!empty($criteria['email'])) {
-                $where[] = "email = ?";
-                $params[] = $criteria['email'];
-            }
-            
-            if (!empty($criteria['phone'])) {
-                $where[] = "(phone = ? OR workphone = ?)";
-                $params[] = $criteria['phone'];
-                $params[] = $criteria['phone'];
-            }
-            
-            if (!empty($criteria['gender'])) {
-                $where[] = "gender = ?";
-                $params[] = $criteria['gender'];
-            }
-            
-            if (!empty($criteria['birth_date'])) {
-                $where[] = "birth_date = ?";
-                $params[] = $criteria['birth_date'];
-            }
-            
-            // Build query
-            $sql = "SELECT * FROM person";
-            
-            if (!empty($where)) {
-                $sql .= " WHERE " . implode(" AND ", $where);
-            }
-            
-            $sql .= " ORDER BY lastname, firstname";
-            $sql .= " LIMIT ? OFFSET ?";
-            
-            $params[] = $limit;
-            $params[] = $offset;
-            
-            $results = QueryUtils::fetchRecords($sql, $params) ?? [];
-            
-            foreach ($results as $person) {
-                $processingResult->addData($person);
-            }
-            
+
+            // Create new person if not found
+            $dataToCreate = array_merge($searchCriteria, $createData);
+            return $this->create($dataToCreate);
+
         } catch (\Exception $e) {
-            $this->getLogger()->error("Error searching persons", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
+            $this->getLogger()->error("Error in findOrCreate", ['error' => $e->getMessage()]);
+            $processingResult->addInternalError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
+
+
     /**
-     * Find persons related to patients
-     * 
-     * @return array
-     */
-    public function findRelatedToPatients(): array
-    {
-        $sql = "SELECT DISTINCT p.*, 
-                COUNT(DISTINCT r.id) as relationship_count,
-                GROUP_CONCAT(DISTINCT r.relationship) as relationships
-                FROM person p
-                JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
-                JOIN relationship r ON r.contact_id = c.id
-                WHERE r.related_foreign_table_name = 'patient_data'
-                GROUP BY p.id
-                ORDER BY p.lastname, p.firstname";
-        
-        return QueryUtils::fetchRecords($sql) ?? [];
-    }
-    
-    /**
-     * Get dependent records for a person
-     * 
-     * @param int $personId
-     * @return array
-     */
-    private function getDependentRecords(int $personId): array
-    {
-        $dependents = [];
-        
-        // Check if person is referenced in contact table
-        $sql = "SELECT COUNT(*) as count FROM contact 
-                WHERE foreign_table_name = 'person' AND foreign_id = ?";
-        $result = sqlQuery($sql, [$personId]);
-        if ($result['count'] > 0) {
-            $dependents['contact'] = $result['count'];
-            
-            // Check relationships through contact
-            $sql = "SELECT COUNT(*) as count FROM relationship r
-                    JOIN contact c ON r.contact_id = c.id
-                    WHERE c.foreign_table_name = 'person' AND c.foreign_id = ?";
-            $result = sqlQuery($sql, [$personId]);
-            if ($result['count'] > 0) {
-                $dependents['relationship'] = $result['count'];
-            }
-        }
-        
-        return $dependents;
-    }
-    
-    /**
-     * Validate person data
-     * 
-     * @param array $data
-     * @param bool $required Whether fields are required (true for create, false for update)
+     * Search for persons with multiple criteria
+     *
+     * @param array|string $search Search criteria (array) or search string
+     * @param bool $isAndCondition Whether to AND or OR conditions (for compatibility)
+     * @param int $limit Maximum results to return
+     * @param int $offset Offset for pagination
      * @return ProcessingResult
      */
-    private function validate(array $data, bool $required = true): ProcessingResult
+    public function search($search, $isAndCondition = true, $limit = 100, $offset = 0): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        try {
+            // Handle both array and string search formats for compatibility
+            $criteria = is_array($search) ? $search : [];
+
+            $sql = "SELECT * FROM person WHERE 1=1";
+            $params = [];
+
+            // Build WHERE clause dynamically
+            if (!empty($criteria['firstname'])) {
+                $sql .= " AND firstname LIKE ?";
+                $params[] = $criteria['firstname'] . '%';
+            }
+
+            if (!empty($criteria['lastname'])) {
+                $sql .= " AND lastname LIKE ?";
+                $params[] = $criteria['lastname'] . '%';
+            }
+
+            if (!empty($criteria['birth_date'])) {
+                $sql .= " AND birth_date = ?";
+                $params[] = $criteria['birth_date'];
+            }
+
+            if (!empty($criteria['gender'])) {
+                $sql .= " AND gender = ?";
+                $params[] = $criteria['gender'];
+            }
+
+            if (!empty($criteria['full_name'])) {
+                $sql .= " AND CONCAT(firstname, ' ', lastname) LIKE ?";
+                $params[] = '%' . $criteria['full_name'] . '%';
+            }
+
+            $sql .= " ORDER BY lastname, firstname LIMIT ? OFFSET ?";
+            $params[] = $limit;
+            $params[] = $offset;
+
+            $results = QueryUtils::fetchRecords($sql, $params) ?? [];
+
+            foreach ($results as $result) {
+                $processingResult->addData($result);
+            }
+
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error searching persons", ['error' => $e->getMessage()]);
+            $processingResult->addInternalError($e->getMessage());
+        }
+
+        return $processingResult;
+    }
+
+
+    /**
+     * Find persons related to a specific patient
+     *
+     * @param int $patientId
+     * @param array $filters Optional filters (relationship type, role, etc.)
+     * @return ProcessingResult
+     */
+    public function findPersonsRelatedToPatient(int $patientId, array $filters = []): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        try {
+            $sql = "SELECT p.*, cr.relationship, cr.role, cr.is_emergency_contact, c.id as contact_id
+                    FROM person p
+                    JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                    JOIN contact_relation cr ON cr.contact_id = c.id
+                    WHERE cr.related_foreign_table_name = 'patient_data'
+                    AND cr.related_foreign_table_id = ?
+                    AND cr.active = 1";
+
+            $params = [$patientId];
+
+            // Apply filters
+            if (!empty($filters['relationship'])) {
+                $sql .= " AND cr.relationship = ?";
+                $params[] = $filters['relationship'];
+            }
+
+            if (!empty($filters['role'])) {
+                $sql .= " AND cr.role = ?";
+                $params[] = $filters['role'];
+            }
+
+            if (!empty($filters['is_emergency_contact'])) {
+                $sql .= " AND cr.is_emergency_contact = ?";
+                $params[] = $filters['is_emergency_contact'];
+            }
+
+            $sql .= " ORDER BY cr.contact_priority ASC, p.lastname, p.firstname";
+
+            $results = QueryUtils::fetchRecords($sql, $params) ?? [];
+
+            foreach ($results as $result) {
+                $processingResult->addData($result);
+            }
+
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error finding related persons", [
+                'patient_id' => $patientId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
+        }
+
+        return $processingResult;
+    }
+
+
+       /**
+     * Find persons with specific relationship to any entity
+     *
+     * @param string $foreignTable
+     * @param int $foreignId
+     * @param array $filters
+     * @return ProcessingResult
+     */
+    public function findPersonsRelatedToEntity(string $foreignTable, int $foreignId, array $filters = []): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        try {
+            $sql = "SELECT p.*, cr.relationship, cr.role, cr.contact_priority,
+                    c.id as contact_id, cr.id as relation_id
+                    FROM person p
+                    JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                    JOIN contact_relation cr ON cr.contact_id = c.id
+                    WHERE cr.related_foreign_table_name = ?
+                    AND cr.related_foreign_table_id = ?
+                    AND cr.active = 1";
+
+            $params = [$foreignTable, $foreignId];
+
+            if (!empty($filters['relationship'])) {
+                $sql .= " AND cr.relationship = ?";
+                $params[] = $filters['relationship'];
+            }
+
+            $sql .= " ORDER BY cr.contact_priority ASC, p.lastname, p.firstname";
+
+            $results = QueryUtils::fetchRecords($sql, $params) ?? [];
+
+            foreach ($results as $result) {
+                $processingResult->addData($result);
+            }
+
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error finding related persons", [
+                'foreign_table' => $foreignTable,
+                'foreign_id' => $foreignId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
+        }
+
+        return $processingResult;
+    }
+
+
+    /**
+     * Get all relationships for a person
+     *
+     * @param int $personId
+     * @return ProcessingResult
+     */
+    public function getPersonRelationships(int $personId): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        try {
+            $sql = "SELECT cr.*, c.id as contact_id,
+                    c.foreign_table_name as person_table, c.foreign_id as person_id
+                    FROM contact c
+                    JOIN contact_relation cr ON cr.contact_id = c.id
+                    WHERE c.foreign_table_name = 'person'
+                    AND c.foreign_id = ?
+                    AND cr.active = 1
+                    ORDER BY cr.contact_priority ASC";
+
+            $results = QueryUtils::fetchRecords($sql, [$personId]) ?? [];
+
+            foreach ($results as $result) {
+                $processingResult->addData($result);
+            }
+
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error getting person relationships", [
+                'person_id' => $personId,
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
+        }
+
+        return $processingResult;
+    }
+
+
+    /**
+     * Validate person data
+     *
+     * @param array $data
+     * @param int|null $personId For updates
+     * @return ProcessingResult
+     */
+    private function validatePerson(array $data, ?int $personId = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();
         $errors = [];
-        
-        if ($required) {
-            // Required fields for creation
-            if (empty($data['firstname'])) {
-                $errors['firstname'] = "First name is required";
-            }
-            
-            if (empty($data['lastname'])) {
-                $errors['lastname'] = "Last name is required";
-            }
+
+        // Required fields
+        if (empty($data['firstname']) && empty($data['lastname'])) {
+            $errors['name'] = "Either firstname or lastname is required";
         }
-        
-        // Validate email format if provided
-        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = "Invalid email format";
-        }
-        
-        // Validate phone format if provided (basic US phone validation)
-        if (!empty($data['phone'])) {
-            $phone = preg_replace('/[^0-9]/', '', $data['phone']);
-            if (strlen($phone) !== 10 && strlen($phone) !== 11) {
-                $errors['phone'] = "Invalid phone number format";
-            }
-        }
-        
-        if (!empty($data['workphone'])) {
-            $workphone = preg_replace('/[^0-9]/', '', $data['workphone']);
-            if (strlen($workphone) !== 10 && strlen($workphone) !== 11) {
-                $errors['workphone'] = "Invalid work phone number format";
-            }
-        }
-        
-        // Validate gender if provided
-        if (!empty($data['gender'])) {
-            $validGenders = ['Male', 'Female', 'Other', 'Unknown'];
-            if (!in_array($data['gender'], $validGenders)) {
-                $errors['gender'] = "Invalid gender value";
-            }
-        }
-        
-        // Validate birth date format if provided
+
+        // Date validation
         if (!empty($data['birth_date'])) {
-            $date = \DateTime::createFromFormat('Y-m-d', $data['birth_date']);
-            if (!$date || $date->format('Y-m-d') !== $data['birth_date']) {
-                $errors['birth_date'] = "Invalid date format (use YYYY-MM-DD)";
+            $birthDate = DateFormatterUtils::dateStringToDateTime($data['birth_date']);
+            if ($birthDate === false) {
+                $errors['birth_date'] = "Invalid birth date format";
+            } elseif ($birthDate > new \DateTime()) {
+                $errors['birth_date'] = "Birth date cannot be in the future";
             }
         }
-        
+
+        if (!empty($data['death_date'])) {
+            $deathDate = DateFormatterUtils::dateStringToDateTime($data['death_date']);
+            if ($deathDate === false) {
+                $errors['death_date'] = "Invalid death date format";
+            }
+
+            // Check if death date is after birth date
+            if (!empty($data['birth_date']) && isset($birthDate) && isset($deathDate)) {
+                if ($deathDate < $birthDate) {
+                    $errors['death_date'] = "Death date cannot be before birth date";
+                }
+            }
+        }
+
+        // Check for duplicates (unless updating)
+        if (empty($personId)) {
+            $duplicateCheck = $this->checkForDuplicates($data);
+            if (!empty($duplicateCheck)) {
+                $errors['duplicate'] = "Possible duplicate person found: ID " . $duplicateCheck['id'];
+            }
+        }
+
         if (!empty($errors)) {
             $processingResult->setValidationMessages($errors);
         } else {
             $processingResult->addData($data);
         }
-        
+
         return $processingResult;
     }
-    
-    /**
-     * Prepare data for database operations
-     * 
+
+
+     /**
+     * Check for duplicate persons
+     *
      * @param array $data
+     * @return array|null
+     */
+    private function checkForDuplicates(array $data): ?array
+    {
+        if (empty($data['firstname']) || empty($data['lastname']) || empty($data['birth_date'])) {
+            return null;
+        }
+
+        $sql = "SELECT id FROM person
+                WHERE firstname = ?
+                AND lastname = ?
+                AND birth_date = ?
+                LIMIT 1";
+
+        return sqlQuery($sql, [
+            $data['firstname'],
+            $data['lastname'],
+            $data['birth_date']
+        ]) ?: null;
+    }
+
+
+    /**
+     * Check dependencies before deletion
+     *
+     * @param int $personId
      * @return array
      */
-    private function prepareData(array $data): array
+    private function checkDependencies(int $personId): array
     {
-        $allowedFields = [
-            'firstname', 'lastname', 'gender', 'birth_date',
-            'communication', 'phone', 'workphone', 'email'
-        ];
-        
-        $prepared = [];
-        foreach ($allowedFields as $field) {
-            if (array_key_exists($field, $data)) {
-                $prepared[$field] = $data[$field];
+        $dependencies = [];
+
+        // Check for contact
+        $sql = "SELECT id FROM contact WHERE foreign_table_name = 'person' AND foreign_id = ?";
+        $result = sqlQuery($sql, [$personId]);
+        if ($result) {
+            $contactId = $result['id'];
+
+            // Check for relationships
+            $sql = "SELECT COUNT(*) as count FROM contact_relation WHERE contact_id = ?";
+            $result = sqlQuery($sql, [$contactId]);
+            if ($result['count'] > 0) {
+                $dependencies['relationships'] = $result['count'];
+            }
+
+            // Check for addresses
+            $sql = "SELECT COUNT(*) as count FROM contact_address WHERE contact_id = ?";
+            $result = sqlQuery($sql, [$contactId]);
+            if ($result['count'] > 0) {
+                $dependencies['addresses'] = $result['count'];
+            }
+
+            // Check for telecoms
+            $sql = "SELECT COUNT(*) as count FROM contact_telecom WHERE contact_id = ?";
+            $result = sqlQuery($sql, [$contactId]);
+            if ($result['count'] > 0) {
+                $dependencies['telecoms'] = $result['count'];
             }
         }
-        
-        return $prepared;
+
+        return $dependencies;
     }
-    
+
+
     /**
-     * Find or create a person based on demographic data
-     * 
-     * @param array $data Must include firstname and lastname
-     * @return ProcessingResult
+     * Populate Person object from array data
+     *
+     * @param Person $person
+     * @param array $data
      */
-    public function findOrCreate(array $data): ProcessingResult
+
+    private function populatePersonFromArray(Person $person, array $data): void
     {
-        $processingResult = new ProcessingResult();
-        
-        try {
-            // Try to find existing person (exact match on name and birth date if provided)
-            $where = ["firstname = ?", "lastname = ?"];
-            $params = [$data['firstname'], $data['lastname']];
-            
-            if (!empty($data['birth_date'])) {
-                $where[] = "birth_date = ?";
-                $params[] = $data['birth_date'];
-            }
-            
-            $sql = "SELECT * FROM person WHERE " . implode(" AND ", $where) . " LIMIT 1";
-            $existing = sqlQuery($sql, $params);
-            
-            if ($existing) {
-                $processingResult->addData($existing);
-                return $processingResult;
-            }
-            
-            // Create new person
-            return $this->create($data);
-            
-        } catch (\Exception $e) {
-            $this->getLogger()->error("Error in findOrCreate", ['error' => $e->getMessage()]);
-            $processingResult->addProcessingError($e->getMessage());
-            return $processingResult;
+        if (isset($data['firstname'])) {
+            $person->set_firstname($data['firstname']);
         }
-    }
-    
-    /**
-     * Get statistics about persons
-     * 
-     * @return array
-     */
-    public function getStatistics(): array
-    {
-        $stats = [];
-        
-        // Total persons
-        $sql = "SELECT COUNT(*) as total FROM person";
-        $result = sqlQuery($sql);
-        $stats['total_persons'] = (int)$result['total'];
-        
-        // Persons with relationships
-        $sql = "SELECT COUNT(DISTINCT p.id) as count 
-                FROM person p
-                JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
-                JOIN relationship r ON r.contact_id = c.id";
-        $result = sqlQuery($sql);
-        $stats['with_relationships'] = (int)$result['count'];
-        
-        // Gender distribution
-        $sql = "SELECT gender, COUNT(*) as count 
-                FROM person 
-                WHERE gender IS NOT NULL 
-                GROUP BY gender";
-        $results = QueryUtils::fetchRecords($sql) ?? [];
-        $stats['by_gender'] = [];
-        foreach ($results as $row) {
-            $stats['by_gender'][$row['gender']] = (int)$row['count'];
+
+        if (isset($data['lastname'])) {
+            $person->set_lastname($data['lastname']);
         }
-        
-        return $stats;
+
+        if (isset($data['middlename'])) {
+            $person->set_middlename($data['middlename']);
+        }
+
+        if (isset($data['title'])) {
+            $person->set_title($data['title']);
+        }
+
+        if (isset($data['preferred_name'])) {
+            $person->set_preferred_name($data['preferred_name']);
+        }
+
+        if (isset($data['gender'])) {
+            $person->set_gender($data['gender']);
+        }
+
+        if (isset($data['marital_status'])) {
+            $person->set_marital_status($data['marital_status']);
+        }
+
+        if (isset($data['race'])) {
+            $person->set_race($data['race']);
+        }
+
+        if (isset($data['ethnicity'])) {
+            $person->set_ethnicity($data['ethnicity']);
+        }
+
+        if (isset($data['preferred_language'])) {
+            $person->set_preferred_language($data['preferred_language']);
+        }
+
+        if (isset($data['communication'])) {
+            $person->set_communication($data['communication']);
+        }
+
+        if (isset($data['ssn'])) {
+            $person->set_ssn($data['ssn']);
+        }
+
+        if (isset($data['notes'])) {
+            $person->set_notes($data['notes']);
+        }
+
+        if (!empty($data['birth_date'])) {
+            $birthDate = DateFormatterUtils::dateStringToDateTime($data['birth_date']);
+            if ($birthDate !== false) {
+                $person->set_birth_date($birthDate);
+            }
+        }
+
+        if (!empty($data['death_date'])) {
+            $deathDate = DateFormatterUtils::dateStringToDateTime($data['death_date']);
+            if ($deathDate !== false) {
+                $person->set_death_date($deathDate);
+            }
+        }
     }
 }

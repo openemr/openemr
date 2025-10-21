@@ -1,0 +1,180 @@
+{#
+  Relation Display Template
+  Displays relationships with addresses and telecoms included
+#}
+
+<style>
+    .relation-inactive-display {
+        opacity: 0.6;
+        background-color: #f8f9fa;
+        font-style: italic;
+    }
+    .relation-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        background-color: #fff;
+    }
+    .relation-card-header {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .relation-card-body {
+        padding: 1rem;
+    }
+    .relation-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+</style>
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_text_relations col-12">
+        <div class="text_relations_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
+            <div>{{ 'Related Persons'|xlt }}</div>
+            {% if relations|length > 0 %}
+            <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_relations_display_{{ table_id|attr }}" onchange="toggleInactiveRelationsDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
+                <label class="form-check-label" for="show_inactive_relations_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
+                    {{ 'Show Inactive'|xlt }}
+                </label>
+            </div>
+            {% endif %}
+        </div>
+
+        {% set has_active_relations = false %}
+        {% for relation in relations %}
+            {% if relation.active %}
+                {% set has_active_relations = true %}
+            {% endif %}
+        {% endfor %}
+
+        {% if not has_active_relations %}
+        <div class="no_relations">
+            <span class="text data pl-1">{{ 'NO RELATED PERSONS'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {% for relation in relations %}
+        {% set is_inactive = not relation.active %}
+        <div class="relation-card {{ is_inactive ? 'relation-inactive-display d-none' : '' }}" data-active="{{ relation.active ? '1' : '0' }}">
+            <div class="relation-card-header">
+                <div>
+                    <h5 class="mb-0">
+                        {{ relation.firstname|text }} {{ relation.lastname|text }}
+                        {% if is_inactive %}
+                            <span class="badge badge-secondary ml-2">{{ 'Inactive'|xlt }}</span>
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">
+                        {% if relation.relationship %}
+                            {{ list_relationships[relation.relationship]|text }}
+                        {% endif %}
+                        {% if relation.role %}
+                            - {{ list_roles[relation.role]|text }}
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="text-right">
+                    {% if relation.is_emergency_contact %}
+                        <span class="badge badge-danger">{{ 'Emergency Contact'|xlt }}</span>
+                    {% endif %}
+                    {% if relation.is_primary_contact %}
+                        <span class="badge badge-primary">{{ 'Primary Contact'|xlt }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="relation-card-body">
+                {# Basic Information #}
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if relation.gender %}
+                        <p class="mb-1"><strong>{{ 'Gender'|xlt }}:</strong> {{ relation.gender|text }}</p>
+                        {% endif %}
+                        {% if relation.birth_date %}
+                        <p class="mb-1"><strong>{{ 'Birth Date'|xlt }}:</strong> {{ relation.birth_date|shortDate }}</p>
+                        {% endif %}
+                        {% if relation.email %}
+                        <p class="mb-1"><strong>{{ 'Email'|xlt }}:</strong> <a href="mailto:{{ relation.email|attr }}">{{ relation.email|text }}</a></p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if relation.can_make_medical_decisions %}
+                        <p class="mb-1"><i class="fas fa-check-circle text-success"></i> {{ 'Can Make Medical Decisions'|xlt }}</p>
+                        {% endif %}
+                        {% if relation.can_receive_medical_info %}
+                        <p class="mb-1"><i class="fas fa-check-circle text-success"></i> {{ 'Can Receive Medical Information'|xlt }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Addresses Section #}
+                {% if relation.addresses|length > 0 %}
+                <div class="relation-section">
+                    <h6>{{ 'Addresses'|xlt }}</h6>
+                    {% set address_table_id = 'addresses_' ~ relation.contact_id %}
+                    {% include 'patient/demographics/address_display.html.twig' with {
+                        'table_id': address_table_id,
+                        'addresses': relation.addresses,
+                        'list_address_types': list_address_types,
+                        'list_address_uses': list_address_uses,
+                        'foreign_table_name': 'person'
+                    } only %}
+                </div>
+                {% endif %}
+
+                {# Telecoms Section #}
+                {% if relation.telecoms|length > 0 %}
+                <div class="relation-section">
+                    <h6>{{ 'Contact Information'|xlt }}</h6>
+                    {% set telecom_table_id = 'telecoms_' ~ relation.contact_id %}
+                    {% include 'patient/demographics/telecom_display.html.twig' with {
+                        'table_id': telecom_table_id,
+                        'telecoms': relation.telecoms,
+                        'list_telecom_systems': list_telecom_systems,
+                        'list_telecom_uses': list_telecom_uses
+                    } only %}
+                </div>
+                {% endif %}
+
+                {# Notes #}
+                {% if relation.notes %}
+                <div class="relation-section">
+                    <h6>{{ 'Notes'|xlt }}</h6>
+                    <p class="text-muted">{{ relation.notes|text }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+    function toggleInactiveRelationsDisplay(tableId) {
+        const checkbox = document.getElementById('show_inactive_relations_display_' + tableId);
+        const table = document.getElementById(tableId);
+
+        if (!table) {
+            console.error('Table not found:', tableId);
+            return;
+        }
+
+        const inactiveRelations = table.querySelectorAll('.relation-inactive-display');
+
+        inactiveRelations.forEach(function(relation) {
+            if (checkbox.checked) {
+                relation.classList.remove('d-none');
+            } else {
+                relation.classList.add('d-none');
+            }
+        });
+    }
+</script>
