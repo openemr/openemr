@@ -24,8 +24,8 @@ require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -180,12 +180,13 @@ if (!empty($_POST['form_save'])) {
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno
-    $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
-    sqlStatement(
-        "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
-        [$invoice_refno, $encounter, $form_pid]
-    );
+    // Update the invoice_refno
+    if ($invoice_refno = BillingUtilities::updateInvoiceRefNumber()) {
+        sqlStatement(
+            "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
+            [$invoice_refno, $encounter, $form_pid]
+        );
+    }
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
