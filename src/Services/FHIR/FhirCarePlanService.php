@@ -2,11 +2,14 @@
 
 /**
  * FhirCarePlanService.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @package    openemr
+ * @link       http://www.open-emr.org
+ * @author     Stephen Nielson <stephen@nielson.org>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\FHIR;
@@ -53,12 +56,13 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Returns an array mapping FHIR CarePlan Resource search parameters to OpenEMR CarePlan search parameters
+     *
      * @return array The search parameters
      */
     // In FhirCarePlanService.php - Update loadSearchParameters()
     protected function loadSearchParameters()
     {
-        return  [
+        return [
             'patient' => $this->getPatientContextSearchField(),
             // Map to the REAL column, not the derived alias
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['care_plan_type']),
@@ -70,6 +74,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Get the last modified search field definition
+     *
      * @return FhirSearchParameterDefinition|null
      */
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
@@ -80,6 +85,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Get the patient context search field definition
+     *
      * @return FhirSearchParameterDefinition
      */
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
@@ -90,8 +96,8 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Parses an OpenEMR record, returning the equivalent FHIR Resource
      *
-     * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param array   $dataRecord The source OpenEMR data record
+     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCarePlan
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

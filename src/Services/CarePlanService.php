@@ -2,11 +2,14 @@
 
 /**
  * CarePlanService.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @package    openemr
+ * @link       http://www.open-emr.org
+ * @author     Stephen Nielson <stephen@nielson.org>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
@@ -92,11 +95,12 @@ class CarePlanService extends BaseService
 
     /**
      * Returns a list of all care plan resources.  Search array can be a simple key => value array which does an exact
-     * match on passed in value.  For more complicated searching @see CarePlanService::search().
-     * @param $search a key => value array
-     * @param bool $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
-     * @param string $puuidBind- Optional variable to only allow visibility of the patient with this puuid.
+     * match on passed in value.  For more complicated searching @param $search a key => value array
+     *
+     * @param bool   $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
+     * @param string $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
+     * @see CarePlanService::search().
      */
     public function getAll($search, $isAndCondition = true, $puuidBind = null)
     {
@@ -268,8 +272,9 @@ class CarePlanService extends BaseService
     /**
      * Take our uuid surrogate key and populate the underlying data elements representing the form_care_plan id column
      * and the connected encounter uuid.
+     *
      * @param TokenSearchField $fieldUUID The uuid search field with the 1..* values to search on
-     * @param $search Hashmap of search operators
+     * @param                  $search    Hashmap of search operators
      */
     private function populateSurrogateSearchFieldsForUUID(TokenSearchField $fieldUUID, &$search)
     {
@@ -311,6 +316,7 @@ class CarePlanService extends BaseService
     /**
      * Given a database record representing a form_care_plan row containing a 'form_id' and 'euuid' column generate the
      * surrogate key.  If either column is empty it uses an empty string as the value.
+     *
      * @param array $record An array containing a 'form_id' and 'euuid' element.
      * @return string The surrogate key.
      */
@@ -331,16 +337,17 @@ class CarePlanService extends BaseService
 
     /**
      * Given the surrogate key representing a Care Plan, split the key into its component parts.
+     *
      * @param $key string the key to parse
      * @return array The broken up key parts.
      */
     public function splitSurrogateKeyIntoParts($key)
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
-        if (str_contains((string) $key, self::SURROGATE_KEY_SEPARATOR_V1)) {
+        if (str_contains((string)$key, self::SURROGATE_KEY_SEPARATOR_V1)) {
             $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
         }
-        $parts = explode($delimiter, (string) $key);
+        $parts = explode($delimiter, (string)$key);
         $key = [
             "euuid" => $parts[0] ?? "",
             "form_id" => $parts[1] ?? "",
