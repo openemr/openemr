@@ -247,6 +247,17 @@ jobs:
         . ci/ciLibrary.source
         install_configure
 
+    - name: PHP info
+      run: |
+        curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
+
+    - name: Upload PHP info to GitHub
+      uses: actions/upload-artifact@v4
+      if: ${{ hashFiles('phpinfo.html') != '' }}
+      with:
+        name: phpinfo-${{ matrix.configurations.docker_dir }}.html
+        path: phpinfo.html
+
     - name: Prepare for coverage reporting
       if: ${{ env.ENABLE_COVERAGE == 'true' }}
       run: |
