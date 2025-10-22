@@ -13,12 +13,12 @@ namespace OpenEMR\Services\FHIR\Enum;
 
 enum FHIRMedicationStatusEnum: string
 {
-    const ACTIVE = "active";
-    const ON_HOLD = "on-hold";
-    const CANCELLED = "cancelled";
-    const COMPLETED = "completed";
-    const ENTERED_IN_ERROR = "draft";
-    const STOPPED = "stopped";
-    const DRAFT = "draft";
-    const UNKNOWN = "unknown";
+    case ACTIVE = "active";
+    case ON_HOLD = "on-hold";
+    case CANCELLED = "cancelled";
+    case COMPLETED = "completed";
+    case ENTERED_IN_ERROR = "entered-in-error";
+    case STOPPED = "stopped";
+    case DRAFT = "draft";
+    case UNKNOWN = "unknown";
 }

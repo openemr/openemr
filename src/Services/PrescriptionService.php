@@ -176,8 +176,8 @@ class PrescriptionService extends BaseService
                         ,lists.title AS drug
                         ,activity AS active
                         ,lists.enddate AS end_date
-                        ,lists_medication.request_intent AS intent
-                        ,lists_medication.request_intent_title AS intent_title
+                        ,IF(lists_medication.request_intent IS NULL, 'plan', lists_medication.request_intent) AS intent
+                        ,IF(lists_medication.request_intent_title IS NULL, 'Plan', lists_medication.request_intent_title) AS intent_title
                         ,lists_medication.usage_category AS category
                         ,lists_medication.usage_category_title AS category_title
                         ,lists.diagnosis AS rxnorm_drugcode

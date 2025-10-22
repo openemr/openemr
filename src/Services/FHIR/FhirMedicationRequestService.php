@@ -18,6 +18,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationRequest\FHIRMedicationRequestDispenseRequest;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationStatusEnum;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -483,12 +484,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateIntent(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        if (isset($dataRecord['intent'])) {
-            $medRequestResource->setIntent($dataRecord['intent']);
+        $intent = FHIRMedicationIntentEnum::tryFrom($dataRecord['intent'] ?? 'plan');
+        if ($intent != null) {
+            $medRequestResource->setIntent($intent->value);
         } else {
             // if we are missing the intent for whatever reason we should convey the code that does the least harm
             // which is that this is a plan but does not have authorization
-            $medRequestResource->setIntent(self::MEDICATION_REQUEST_INTENT_PLAN);
+            $medRequestResource->setIntent(FHIRMedicationIntentEnum::PLAN);
         }
     }
 
