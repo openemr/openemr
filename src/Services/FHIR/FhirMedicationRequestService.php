@@ -331,7 +331,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateMedicationAdherenceExtension(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
-
+        // INFERNO doesn't like data absence reasons on the base types even though FHIR allows it.
+        // so we are going to skip adding the extension if ANY of the required elements are missing
+        if (empty($dataRecord['medication_adherence'])
+            || empty($dataRecord['adherence_assertion_date'])
+            || empty($dataRecord['adherence_information_source'])
+        ) {
+            return;
+        }
         $codeTypeService = $this->getCodeTypesService();
         $extension = new FHIRExtension();
         $extension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence");
