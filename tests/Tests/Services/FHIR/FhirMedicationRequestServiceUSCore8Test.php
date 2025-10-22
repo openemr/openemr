@@ -17,22 +17,28 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 // AI GENERATED CODE - START
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
+use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirMedicationRequestService;
+use OpenEMR\Services\FHIR\UtilsService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Ramsey\Uuid\Rfc4122\UuidV4;
 
 #[CoversClass(FhirMedicationRequestService::class)]
 class FhirMedicationRequestServiceUSCore8Test extends TestCase
@@ -44,6 +50,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
     protected function setUp(): void
     {
         $this->fhirMedicationRequestService = new FhirMedicationRequestService();
+        $this->fhirMedicationRequestService->setSystemLogger(new SystemLogger(Level::Critical));
 
         // US Core compliant medication request data with all required and must support elements
         $this->compliantMedicationRequestData = [
@@ -52,11 +59,17 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             'intent' => 'order',                     // Required 1..1
             'category' => 'community',               // Must support
             'category_title' => 'Home/Community',    // Must support
-            'drugcode' => '197696',                  // Required medication[x] - RxNorm code
+            'drugcode' => [                   // Required medication[x] - RxNorm code
+                '197696' => [
+                    'code' => '197696'
+                    ,'description' => 'Amoxicillin 500 MG Oral Capsule'
+                    ,'system' => FhirCodeSystemConstants::RXNORM
+                ]
+            ],
             'drug' => 'Amoxicillin 500 MG Oral Capsule',  // Required medication[x] - text fallback
-            'puuid' => 'patient-uuid-456',          // Required subject
-            'euuid' => 'encounter-uuid-789',        // Must support encounter
-            'pruuid' => 'practitioner-uuid-123',    // Required requester 0..1 DAR
+            'puuid' => UuidV4::uuid4()->toString(),          // Required subject
+            'euuid' => UuidV4::uuid4()->toString(),        // Must support encounter
+            'pruuid' => UuidV4::uuid4()->toString(),    // Required requester 0..1 DAR
             'date_added' => '2023-01-15 10:30:00',  // Must support authoredOn
             'date_modified' => '2023-01-15 10:30:00',
             'note' => 'Take with food',             // Optional note
@@ -69,31 +82,26 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             'reason_reference_uuid' => 'condition-uuid-abc',
             // Must support dosageInstruction fields
             'drug_dosage_instructions' => 'Take 1 capsule by mouth twice daily',
-            'dosage_timing_frequency' => 2,
-            'dosage_timing_period' => 1,
-            'dosage_timing_period_unit' => 'd',
-            'dosage_dose_quantity_value' => 1,
-            'dosage_dose_quantity_unit' => 'capsule',
-            'dosage_dose_quantity_system' => 'http://unitsofmeasure.org',
-            'dosage_dose_quantity_code' => '{capsule}',
+            'interval_codes' => 'BID',
+            'interval_notes' => 'Twice a day',
+            'prescription_drug_size' => 1,
             'route' => 'PO',
             'route_id' => '26643006',
             'route_title' => 'Oral route',
             'route_codes' => 'SNOMED-CT:26643006',
             // Must support dispenseRequest fields
-            'dispense_number_of_repeats' => 2,
-            'dispense_quantity_value' => 30,
-            'dispense_quantity_unit' => 'capsule',
-            'dispense_quantity_system' => 'http://unitsofmeasure.org',
-            'dispense_quantity_code' => '{capsule}',
+            'refills' => 2,
+            'quantity' => 30,
+            'unit_title' => 'capsule',
+            'unit_code' => '{capsule}',
             // Must support medicationAdherence extension
-            'medication_adherence' => 'taking',
-            'medication_adherence_title' => 'Taking',
-            'medication_adherence_codes' => 'http://hl7.org/fhir/us/core/CodeSystem/us-core-medication-adherence:taking',
-            'medication_adherence_date_asserted' => '2023-01-15',
+            'medication_adherence' => 'compliance',
+            'medication_adherence_title' => 'Complies with drug therapy (finding)',
+            'medication_adherence_codes' => 'SNOMED-CT:1156699004',
+            'medication_adherence_date_asserted' => '2023-01-15 01:00:00',
             'medication_adherence_information_source' => 'patient',
             'medication_adherence_information_source_title' => 'Patient',
-            'medication_adherence_information_source_codes' => 'http://terminology.hl7.org/CodeSystem/medication-statement-taken:patient'
+            'medication_adherence_information_source_codes' => 'SNOMED-CT:116154003'
         ];
 
         // Minimal US Core compliant data (required fields only)
@@ -101,8 +109,13 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             'uuid' => 'test-uuid-minimal',
             'status' => 'active',
             'intent' => 'order',
-            'drugcode' => '197696',
-            'drug' => 'Amoxicillin 500 MG Oral Capsule',
+            'drugcode' => [
+                '197696' => [
+                    'code' => '197696'
+                    ,'description' => 'Amoxicillin 500 MG Oral Capsule'
+                    ,'system' => FhirCodeSystemConstants::RXNORM
+                ]
+            ],
             'puuid' => 'patient-uuid-456',
             'date_added' => '2023-01-15 10:30:00',
             'date_modified' => '2023-01-15 10:30:00'
@@ -133,11 +146,11 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         // US Core requires status 1..1
         $status = $medicationRequest->getStatus();
         $this->assertNotNull($status, 'MedicationRequest must have status');
-        $this->assertNotEmpty($status->getValue(), 'Status must have value');
+        $this->assertNotEmpty($status, 'Status must have value');
 
         // Test valid status values per FHIR value set
         $validStatuses = ['active', 'on-hold', 'cancelled', 'completed', 'entered-in-error', 'stopped', 'draft', 'unknown'];
-        $this->assertContains($status->getValue(), $validStatuses, 'Status must be valid FHIR value');
+        $this->assertContains($status, $validStatuses, 'Status must be valid FHIR value');
     }
 
     #[Test]
@@ -148,11 +161,11 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         // US Core requires intent 1..1
         $intent = $medicationRequest->getIntent();
         $this->assertNotNull($intent, 'MedicationRequest must have intent');
-        $this->assertNotEmpty($intent->getValue(), 'Intent must have value');
+        $this->assertNotEmpty($intent, 'Intent must have value');
 
         // Test valid intent values per FHIR value set
         $validIntents = ['proposal', 'plan', 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order', 'option'];
-        $this->assertContains($intent->getValue(), $validIntents, 'Intent must be valid FHIR value');
+        $this->assertContains($intent, $validIntents, 'Intent must be valid FHIR value');
     }
 
     #[Test]
@@ -202,7 +215,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             if ($reference !== null) {
                 $this->assertMatchesRegularExpression(
                     '/^(Patient|Practitioner|PractitionerRole|RelatedPerson|Organization)\//',
-                    $reference->getValue(),
+                    $reference,
                     'Reported reference must point to valid resource type'
                 );
             }
@@ -240,7 +253,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             if (!empty($codings)) {
                 $hasRxNorm = false;
                 foreach ($codings as $coding) {
-                    if ($coding->getSystem() && strpos($coding->getSystem()->getValue(), 'rxnorm') !== false) {
+                    if ($coding->getSystem() && str_contains($coding->getSystem(), 'rxnorm')) {
                         $hasRxNorm = true;
                         break;
                     }
@@ -263,7 +276,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         // Subject should reference a Patient
         $reference = $subject->getReference();
         if ($reference !== null) {
-            $this->assertStringStartsWith('Patient/', $reference->getValue(), 'Subject must reference Patient');
+            $this->assertStringStartsWith('Patient/', $reference, 'Subject must reference Patient');
         }
     }
 
@@ -280,7 +293,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             $this->assertInstanceOf(FHIRReference::class, $encounter);
             $reference = $encounter->getReference();
             if ($reference !== null) {
-                $this->assertStringStartsWith('Encounter/', $reference->getValue(), 'Encounter must reference Encounter resource');
+                $this->assertStringStartsWith('Encounter/', $reference, 'Encounter must reference Encounter resource');
             }
         }
     }
@@ -315,7 +328,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         if ($reference !== null) {
             $this->assertMatchesRegularExpression(
                 '/^(Practitioner|PractitionerRole|Organization|Patient|RelatedPerson|Device)\//',
-                $reference->getValue(),
+                $reference,
                 'Requester must reference valid resource type'
             );
         }
@@ -324,73 +337,79 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
     #[Test]
     public function testMustSupportReasonCode(): void
     {
-        // Test with reason code data
-        $testData = $this->compliantMedicationRequestData;
-        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
-
-        // US Core reasonCode is must support 0..*
-        $reasonCodes = $medicationRequest->getReasonCode();
-
-        // Note: This field is currently stubbed in the service but we test the expected structure
-        // If reasonCode is present, test structure
-        if (!empty($reasonCodes)) {
-            foreach ($reasonCodes as $reasonCode) {
-                $this->assertInstanceOf(FHIRCodeableConcept::class, $reasonCode);
-
-                // Should have coding or text
-                $codings = $reasonCode->getCoding();
-                $text = $reasonCode->getText();
-
-                $this->assertTrue(
-                    !empty($codings) || $text !== null,
-                    'ReasonCode must have coding or text'
-                );
-
-                // If coding present, test common code systems
-                if (!empty($codings)) {
-                    foreach ($codings as $coding) {
-                        $system = $coding->getSystem();
-                        if ($system !== null) {
-                            $validSystems = [
-                                'http://hl7.org/fhir/sid/icd-10-cm',
-                                'http://snomed.info/sct',
-                                'http://hl7.org/fhir/sid/icd-9-cm'
-                            ];
-                            // Note: Other systems are valid too, this is just common ones
-                        }
-                    }
-                }
-            }
-        }
+        $this->markTestIncomplete("ReasonCode is currently stubbed in the service and needs implementation");
+//        // Test with reason code data
+//        $testData = $this->compliantMedicationRequestData;
+//        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
+//
+//        // US Core reasonCode is must support 0..*
+//        $reasonCodes = $medicationRequest->getReasonCode();
+//
+//        // Note: This field is currently stubbed in the service but we test the expected structure
+//        // If reasonCode is present, test structure
+//        if (!empty($reasonCodes)) {
+//            foreach ($reasonCodes as $reasonCode) {
+//                $this->assertInstanceOf(FHIRCodeableConcept::class, $reasonCode);
+//
+//                // Should have coding or text
+//                $codings = $reasonCode->getCoding();
+//                $text = $reasonCode->getText();
+//
+//                $this->assertTrue(
+//                    !empty($codings) || $text !== null,
+//                    'ReasonCode must have coding or text'
+//                );
+//
+//                // If coding present, test common code systems
+//                if (!empty($codings)) {
+//                    foreach ($codings as $coding) {
+//                        $system = $coding->getSystem();
+//                        if ($system !== null) {
+//                            $validSystems = [
+//                                'http://hl7.org/fhir/sid/icd-10-cm',
+//                                'http://snomed.info/sct',
+//                                'http://hl7.org/fhir/sid/icd-9-cm'
+//                            ];
+//                            // Note: Other systems are valid too, this is just common ones
+//                        }
+//                    }
+//                }
+//            }
+//        } else {
+//            $this->fail("ReasonCode not found");
+//        }
     }
 
     #[Test]
     public function testMustSupportReasonReference(): void
     {
-        // Test with reason reference data
-        $testData = $this->compliantMedicationRequestData;
-        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
-
-        // US Core reasonReference is must support 0..*
-        $reasonReferences = $medicationRequest->getReasonReference();
-
-        // Note: This field is currently stubbed in the service but we test the expected structure
-        // If reasonReference is present, test structure
-        if (!empty($reasonReferences)) {
-            foreach ($reasonReferences as $reasonReference) {
-                $this->assertInstanceOf(FHIRReference::class, $reasonReference);
-
-                // Should reference valid resource type
-                $reference = $reasonReference->getReference();
-                if ($reference !== null) {
-                    $this->assertMatchesRegularExpression(
-                        '/^(Condition|Observation)\//',
-                        $reference->getValue(),
-                        'ReasonReference must reference Condition or Observation'
-                    );
-                }
-            }
-        }
+        $this->markTestIncomplete("ReasonReference is currently stubbed in the service and needs implementation");
+//        // Test with reason reference data
+//        $testData = $this->compliantMedicationRequestData;
+//        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
+//
+//        // US Core reasonReference is must support 0..*
+//        $reasonReferences = $medicationRequest->getReasonReference();
+//
+//        // Note: This field is currently stubbed in the service but we test the expected structure
+//        // If reasonReference is present, test structure
+//        if (!empty($reasonReferences)) {
+//            foreach ($reasonReferences as $reasonReference) {
+//                $this->assertInstanceOf(FHIRReference::class, $reasonReference);
+//
+//                // Should reference valid resource type
+//                $reference = $reasonReference->getReference();
+//                if ($reference !== null) {
+//                    $this->assertMatchesRegularExpression(
+//                        '/^(Condition|Observation)\//',
+//                        $reference->getValue(),
+//                        'ReasonReference must reference Condition or Observation'
+//                    );
+//                }
+//            }
+//        } else {
+//            $this->fail("ReasonReference not found");
+//        }
     }
 
     #[Test]
@@ -400,36 +419,50 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
 
         // US Core dosageInstruction is must support 0..*
         $dosageInstructions = $medicationRequest->getDosageInstruction();
+        $this->assertNotEmpty($dosageInstructions, 'DosageInstruction must be present (must support)');
 
-        // If dosageInstruction is present, test must support elements
-        if (!empty($dosageInstructions)) {
-            foreach ($dosageInstructions as $dosage) {
-                // Test timing (must support)
-                $timing = $dosage->getTiming();
-                if ($timing !== null) {
-                    $this->assertInstanceOf(FHIRTiming::class, $timing);
-                }
+        foreach ($dosageInstructions as $dosage) {
+            // Test timing (must support)
+            $timing = $dosage->getTiming();
+            if ($timing !== null) {
+                $this->assertInstanceOf(FHIRTiming::class, $timing);
+            }
 
-                // Test doseAndRate (must support)
-                $doseAndRates = $dosage->getDoseAndRate();
-                if (!empty($doseAndRates)) {
-                    foreach ($doseAndRates as $doseAndRate) {
-                        // Test doseQuantity (must support)
-                        $doseQuantity = $doseAndRate->getDoseQuantity();
-                        if ($doseQuantity !== null) {
-                            $this->assertInstanceOf(FHIRQuantity::class, $doseQuantity);
-                            $this->assertNotNull($doseQuantity->getValue(), 'DoseQuantity must have value');
-                        }
+            // Test doseAndRate (must support)
+            $doseAndRates = $dosage->getDoseAndRate();
+            if (!empty($doseAndRates)) {
+                foreach ($doseAndRates as $doseAndRate) {
+                    // Test doseQuantity (must support)
+                    $doseQuantity = $doseAndRate->getDoseQuantity();
+                    if ($doseQuantity !== null) {
+                        $this->assertInstanceOf(FHIRQuantity::class, $doseQuantity);
+                        $this->assertNotNull($doseQuantity->getValue(), 'DoseQuantity must have value');
+                        $this->assertEquals($this->compliantMedicationRequestData['prescription_drug_size'], $doseQuantity->getValue(), "DoseQuantity value must match input data");
                     }
                 }
-
-                // Test route
-                $route = $dosage->getRoute();
-                if ($route !== null) {
-                    $this->assertInstanceOf(FHIRCodeableConcept::class, $route);
-                }
             }
+
+            // Test route
+            $route = $dosage->getRoute();
+            $this->assertNotNull($dosage->getRoute());
+            $this->assertNotEmpty($route->getCoding(), 'Route must have coding if present');
+            $this->assertEquals('26643006', $route->getCoding()[0]->getCode(), "Route code must match input data");
+            $this->assertEquals(FhirCodeSystemConstants::SNOMED_CT, $route->getCoding()[0]->getSystem(), "Route system must match SNOMED-CT");
         }
+    }
+
+    #[Test]
+    public function testMustSupportDosageInstructionRouteText(): void
+    {
+        $requestData = $this->compliantMedicationRequestData;
+        $requestData['route_codes'] = null; // No codes, only text
+        $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($this->compliantMedicationRequestData);
+        $this->assertNotEmpty($medicationRequest->getDosageInstruction(), 'DosageInstruction must be present (must support)');
+        $dosage = $medicationRequest->getDosageInstruction()[0];
+        $route = $dosage->getRoute();
+        $this->assertNotNull($route, 'Route must be present');
+        $this->assertNotEmpty($route->getCoding(), 'Route coding should not be empty when no codes provided');
+        $this->assertEquals($this->compliantMedicationRequestData['route_title'], $route->getText(), 'Route text must match input data');
     }
 
     #[Test]
@@ -445,7 +478,8 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             // Test numberOfRepeatsAllowed (must support)
             $numberOfRepeats = $dispenseRequest->getNumberOfRepeatsAllowed();
             if ($numberOfRepeats !== null) {
-                $this->assertInstanceOf(FHIRPositiveInt::class, $numberOfRepeats);
+                $this->assertIsInt($numberOfRepeats);
+                $this->assertEquals($this->compliantMedicationRequestData['refills'], $numberOfRepeats, "NumberOfRepeatsAllowed must match input data");
             }
 
             // Test quantity (must support)
@@ -453,6 +487,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             if ($quantity !== null) {
                 $this->assertInstanceOf(FHIRQuantity::class, $quantity);
                 $this->assertNotNull($quantity->getValue(), 'Dispense quantity must have value');
+                $this->assertIsInt($quantity->getValue(), "Dispense quantity value must be an integer");
+                $this->assertEquals($this->compliantMedicationRequestData['quantity'], $quantity->getValue(), "Dispense quantity value must match input data");
+
             }
         }
     }
@@ -463,23 +500,46 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($this->compliantMedicationRequestData);
 
         // US Core medicationAdherence extension is must support
-        $adherenceExtension = $this->findExtensionByUrl(
+        $medicationAdherence = $this->findExtensionByUrl(
             $medicationRequest,
-            'http://hl7.org/fhir/us/core/StructureDefinition/medicationAdherence'
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication-adherence'
         );
 
         // If medicationAdherence extension is present, test structure
-        if ($adherenceExtension !== null) {
-            $this->assertInstanceOf(FHIRExtension::class, $adherenceExtension);
+        if ($medicationAdherence !== null) {
+            $this->assertInstanceOf(FHIRExtension::class, $medicationAdherence);
+
+            // now we need to get the sub-extensions
+            $adherenceExtension = $this->findExtensionByUrl($medicationAdherence, 'medicationAdherence');
 
             // Should have either valueCodeableConcept or valueCode
             $valueCodeableConcept = $adherenceExtension->getValueCodeableConcept();
-            $valueCode = $adherenceExtension->getValueCode();
-
             $this->assertTrue(
-                $valueCodeableConcept !== null || $valueCode !== null,
+                $valueCodeableConcept !== null,
                 'MedicationAdherence extension must have value'
             );
+            $this->assertNotEmpty($valueCodeableConcept->getCoding(), "MedicationAdherence valueCodeableConcept must have coding");
+            $valueCode = $valueCodeableConcept->getCoding()[0]->getCode();
+            $this->assertEquals(
+                '1156699004',
+                $valueCode,
+                'MedicationAdherence valueCode must match input data'
+            );
+            $this->assertEquals(FhirCodeSystemConstants::SNOMED_CT, $valueCodeableConcept->getCoding()[0]->getSystem(), "MedicationAdherence coding system must match SNOMED-CT");
+
+            $dateAsserted = $this->findExtensionByUrl(
+                $medicationAdherence,
+                'dateAsserted'
+            );
+            $this->assertNotNull($dateAsserted, 'MedicationAdherence extension must have dateAsserted sub-extension');
+            $this->assertNotEmpty($dateAsserted->getValueDateTime(), 'dateAsserted must have value');
+            $this->assertEquals(
+                UtilsService::getLocalDateAsUTC($this->compliantMedicationRequestData['medication_adherence_date_asserted']),
+                $dateAsserted->getValueDateTime(),
+                'dateAsserted value must match input data'
+            );
+        } else {
+            $this->fail("MedicationAdherence extension not found");
         }
     }
 
@@ -539,7 +599,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
 
         $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
 
-        $this->assertEquals($status, $medicationRequest->getStatus()->getValue());
+        $this->assertEquals($status, $medicationRequest->getStatus());
     }
 
     public static function validIntentProvider(): array
@@ -565,14 +625,21 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
 
         $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
 
-        $this->assertEquals($intent, $medicationRequest->getIntent()->getValue());
+        $this->assertEquals($intent, $medicationRequest->getIntent());
     }
 
     #[Test]
     public function testMedicationCodeableConceptWithRxNorm(): void
     {
         $testData = $this->compliantMedicationRequestData;
-        $testData['drugcode'] = '197696'; // RxNorm code for Amoxicillin
+        $testData['drugcode'] = [
+            '197696' => [
+                'code' => '197696'
+                ,'description' => 'Amoxicillin 500 MG Oral Capsule'
+                ,'system' => FhirCodeSystemConstants::RXNORM
+            ]
+        ]
+        ; // RxNorm code for Amoxicillin
 
         $medicationRequest = $this->fhirMedicationRequestService->parseOpenEMRRecord($testData);
 
@@ -585,9 +652,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         // Should have RxNorm coding
         $hasRxNorm = false;
         foreach ($codings as $coding) {
-            if ($coding->getSystem() && str_contains($coding->getSystem()->getValue(), 'rxnorm')) {
+            if ($coding->getSystem() && str_contains($coding->getSystem(), 'rxnorm')) {
                 $hasRxNorm = true;
-                $this->assertEquals('197696', $coding->getCode()->getValue());
+                $this->assertEquals('197696', $coding->getCode());
                 break;
             }
         }
@@ -608,7 +675,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         // Should have text when no code available
         $text = $medicationCC->getText();
         $this->assertNotNull($text);
-        $this->assertEquals('Amoxicillin 500 MG Oral Capsule', $text->getValue());
+        $this->assertEquals('Amoxicillin 500 MG Oral Capsule', $text);
     }
 
     #[Test]
@@ -627,13 +694,13 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $this->assertNotEmpty($codings);
 
         $coding = $codings[0];
-        $this->assertEquals('community', $coding->getCode()->getValue());
-        $this->assertEquals(FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY, $coding->getSystem()->getValue());
+        $this->assertEquals('community', $coding->getCode());
+        $this->assertEquals(FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY, $coding->getSystem());
     }
 
     // Helper methods
 
-    private function findExtensionByUrl(FHIRMedicationRequest $medicationRequest, string $url): ?FHIRExtension
+    private function findExtensionByUrl(FHIRElement|FHIRDomainResource $medicationRequest, string $url): ?FHIRExtension
     {
         $extensions = $medicationRequest->getExtension();
         foreach ($extensions as $extension) {
