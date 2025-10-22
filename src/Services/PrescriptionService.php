@@ -104,6 +104,7 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.date_added
                 ,combined_prescriptions.date_modified
                 ,combined_prescriptions.medication_adherence_date_asserted
+                ,combined_prescriptions.prescription_drug_size
                 ,patient.puuid
                 ,encounter.euuid
                 ,practitioner.pruuid

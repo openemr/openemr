@@ -340,7 +340,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     {
         // INFERNO doesn't like data absence reasons on the base types even though FHIR allows it.
         // so we are going to skip adding the extension if ANY of the required elements are missing
-        if (empty($dataRecord['medication_adherence'])
+        if (
+            empty($dataRecord['medication_adherence'])
             || empty($dataRecord['medication_adherence_date_asserted'])
             || empty($dataRecord['medication_adherence_information_source'])
         ) {
