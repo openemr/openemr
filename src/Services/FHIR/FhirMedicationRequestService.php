@@ -257,7 +257,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateDosageInstruction(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
-        if (empty($dataRecord['dosage']) && empty($dataRecord['prescription_route'])) {
+        if (empty($dataRecord['drug_dosage_instructions']) && empty($dataRecord['dosage']) && empty($dataRecord['prescription_route'])) {
             return;
         }
 
@@ -266,8 +266,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         // Text instruction (prescription will set dosage to be a single numeric value even though its a textfield)
         // simple prescriptions will put the entire SIG in the dosage field
-        if (!empty($dataRecord['dosage']) && !is_numeric($dataRecord['dosage'])) {
-            $dosage->setText($dataRecord['dosage']);
+        $dosageInstructions = $dataRecord['drug_dosage_instructions'] ?? $dataRecord['dosage'];
+        if (!empty($dosageInstructions) && !is_numeric($dosageInstructions)) {
+            $dosage->setText($dosageInstructions);
             // TODO: @adunsulag if we have a SIG text should we just return it even if we might have some structured data?
         }
         // Dose and Rate

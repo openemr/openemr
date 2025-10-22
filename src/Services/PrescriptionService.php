@@ -99,6 +99,7 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.route
                 ,combined_prescriptions.note
                 ,combined_prescriptions.status
+                ,combined_prescriptions.dosage
                 ,combined_prescriptions.drug_dosage_instructions
                 ,combined_prescriptions.date_added
                 ,combined_prescriptions.date_modified
@@ -163,6 +164,7 @@ class PrescriptionService extends BaseService
                                 WHEN prescriptions.active = '1' THEN 'active'
                                 ELSE 'stopped'
                             END as 'status'
+                            ,prescriptions.dosage
 
                     FROM
                         prescriptions
@@ -201,6 +203,7 @@ class PrescriptionService extends BaseService
                                 WHEN lists.activity = 1 THEN 'active'
                                 ELSE 'stopped'
                         END as 'status'
+                        ,NULL as dosage
                     FROM
                         lists
                     LEFT JOIN
