@@ -105,6 +105,7 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.date_modified
                 ,combined_prescriptions.medication_adherence_date_asserted
                 ,combined_prescriptions.prescription_drug_size
+                ,combined_prescriptions.quantity
                 ,patient.puuid
                 ,encounter.euuid
                 ,practitioner.pruuid
@@ -157,6 +158,7 @@ class PrescriptionService extends BaseService
                             ,provider_id
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
+                            ,prescriptions.quantity
                             ,NULL AS medication_adherence_date_asserted
                             ,NULL AS medication_adherence
                             ,NULL AS medication_adherence_information_source
@@ -195,6 +197,7 @@ class PrescriptionService extends BaseService
                         ,issues_encounter.issues_encounter_encounter as encounter
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
+                        ,NULL as quantity
                         ,lists_medication.drug_dosage_instructions
                         ,lists_medication.medication_adherence_date_asserted
                         ,lists_medication.medication_adherence
