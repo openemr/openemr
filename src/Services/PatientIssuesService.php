@@ -160,6 +160,9 @@ class PatientIssuesService extends BaseService
                 ,medications.drug_dosage_instructions
                 ,medications.request_intent
                 ,medications.request_intent_title
+                ,medications.medication_adherence_information_source
+                ,medications.medication_adherence
+                ,medications.medication_adherence_date_asserted
                 FROM lists
                 LEFT JOIN (
                     SELECT
@@ -170,6 +173,9 @@ class PatientIssuesService extends BaseService
                         ,drug_dosage_instructions
                         ,request_intent
                         ,request_intent_title
+                        ,medication_adherence_information_source
+                        ,medication_adherence
+                        ,medication_adherence_date_asserted
                     FROM lists_medication
                 ) medications ON medications.list_id = lists.id";
 
@@ -192,7 +198,9 @@ class PatientIssuesService extends BaseService
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
         if (!empty($record['lists_medication_id'])) {
-            $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title', 'drug_dosage_instructions'];
+            $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title'
+                , 'drug_dosage_instructions', 'medication_adherence_information_source', 'medication_adherence'
+                , 'medication_adherence_date_asserted'];
             $record['medication'] = [
                 'id' => $row['lists_medication_id']
                 ,'erx_source' => $row['erx_source']

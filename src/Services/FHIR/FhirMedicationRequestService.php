@@ -370,7 +370,9 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $dateExtension = new FHIRExtension();
         $dateExtension->setUrl("dateAsserted");
-        if (!empty($dataRecord['medication_adherence_date_asserted'])) {
+        $dateAsserted = $dataRecord['medication_adherence_date_asserted'];
+        // empty date
+        if ('0000-00-00 00:00:00' !== $dateAsserted) {
             $formattedDate = UtilsService::getLocalDateAsUTC($dataRecord['medication_adherence_date_asserted']);
             $dateExtension->setValueDateTime($formattedDate);
             $extension->addExtension($dateExtension);
