@@ -26,6 +26,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -181,12 +182,9 @@ if (!empty($_POST['form_save'])) {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     // Update the invoice_refno
-    if ($invoice_refno = BillingUtilities::updateInvoiceRefNumber()) {
-        sqlStatement(
-            "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
-            [$invoice_refno, $encounter, $form_pid]
-        );
-    }
+    $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
+    $sql = "UPDATE `form_encounter` SET `invoice_refno` = ? WHERE `encounter` = ? AND `pid` = ?";
+    QueryUtils::sqlStatementThrowException($sql, [$invoice_refno, $encounter, $form_pid]);
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
@@ -629,7 +627,7 @@ function toencounter(enc, datestr, topframe) {
                                 <th><?php echo xlt('Date'); ?></th>
                             </tr>
                             <tr class="text-center">
-                                <td class="text-center"><?php echo text($invoice_refno); ?></td>
+                                <td class="text-center"><?php echo text($invoice_refno ?? ''); ?></td>
                                 <td class="text-center"><?php echo text(oeFormatSDFT(strtotime((string) $payrow['dtime']))); ?></td>
                             </tr>
                         </table>
