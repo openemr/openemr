@@ -567,7 +567,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function getFhirOrganizationService(): FhirOrganizationService
     {
-        if (!isset($this->prescriptionService)) {
+        if (!isset($this->fhirOrganizationService)) {
             $this->fhirOrganizationService = new FhirOrganizationService();
         }
         return $this->fhirOrganizationService;
