@@ -326,9 +326,10 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     {
         $dispenseRequest = new FHIRMedicationRequestDispenseRequest();
         $dispenseRequest->setNumberOfRepeatsAllowed($dataRecord['refills'] ?? 0);
-        if (!empty($dataRecord['quantity'])) {
+        if (!empty($dataRecord['quantity']) && is_numeric($dataRecord['quantity'])) {
+            $quantity = intval($dataRecord['quantity']);
             $dispenseRequest->setQuantity(UtilsService::createQuantity(
-                $dataRecord['quantity'],
+                $quantity,
                 $dataRecord['unit_title'] ?? '',
                 $dataRecord['unit_title'] ?? ''
             ));
