@@ -36,6 +36,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\LogoService;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
@@ -236,22 +237,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                     echo genPatientHeaderFooter($pid);
                 }
 
-                // Use logo if it exists as 'practice_logo.gif' in the site dir
-                // old code used the global custom dir which is no longer a valid
-                $practice_logo = "";
-                $plogo = glob("$OE_SITE_DIR/images/*");// let's give the user a little say in image format.
-                $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
-                if (!empty($plogo)) {
-                    $k = current(array_keys($plogo));
-                    $practice_logo = $plogo[$k];
-                }
-
-                $logo = "";
-                if (file_exists($practice_logo)) {
-                    $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename((string) $practice_logo);
-                }
-
-                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo); ?>
+                $customReportLogo = (new LogoService())->getLogo('core/report/custom');
+                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $customReportLogo); ?>
 
             <?php } else { // not printable
                 ?>

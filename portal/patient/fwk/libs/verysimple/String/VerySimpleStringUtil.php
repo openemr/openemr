@@ -415,10 +415,10 @@ class VerySimpleStringUtil
      */
     static function unicode_string_to_array($string)
     {
-        $array =  [];
+        $array = [];
         $strlen = mb_strlen($string);
         while ($strlen) {
-            $array [] = mb_substr($string, 0, 1, "UTF-8");
+            $array[] = mb_substr($string, 0, 1, "UTF-8");
             $string = mb_substr($string, 1, $strlen, "UTF-8");
             $strlen = mb_strlen($string);
         }
