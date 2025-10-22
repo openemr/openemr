@@ -1014,7 +1014,7 @@ function getCodeText($code)
                                        value="<?php echo text(DateFormatterUtils::oeFormatShortDate($irow['medication']['medication_adherence_assertion_date'] ?? date("Y-m-d"))); ?>" />
                             </div>
                             <div class="form-group col-sm-12 col-md-6">
-                                <label class="col-form-label" for="form_medication[medication_adherence]"><?php echo xlt('Information Source'); ?>:</label>
+                                <label class="col-form-label" for="form_medication[medication_adherence]"><?php echo xlt('Current Adherence to Medication'); ?>:</label>
                                 <?php
                                 generate_form_field(['data_type' => 1, 'field_id' => 'medication[medication_adherence]', 'list_id' => 'medication_adherence'], $irow['medication']['medication_adherence'] ?? null);
                                 ?>
@@ -1022,7 +1022,7 @@ function getCodeText($code)
                             <div class="form-group col-sm-12 col-md-6">
                                 <label class="col-form-label" for="form_medication[medication_adherence_information_source]"><?php echo xlt('Information Source'); ?>:</label>
                                 <?php
-                                generate_form_field(['data_type' => 1, 'field_id' => 'medication[medication_adherence_information_source]', 'list_id' => 'medication_medication_adherence_information_source'], $irow['medication']['medication_adherence_information_source'] ?? null);
+                                generate_form_field(['data_type' => 1, 'field_id' => 'medication[medication_adherence_information_source]', 'list_id' => 'medication_adherence_information_source'], $irow['medication']['medication_adherence_information_source'] ?? null);
                                 ?>
                             </div>
                         </div>
