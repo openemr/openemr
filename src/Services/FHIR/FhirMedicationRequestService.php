@@ -241,9 +241,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateReasonCodeAndReference(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
     {
+        if (empty($dataRecord['puuid'])) {
+            return;
+        }
         // TODO: populate reasonCode and reasonReference from OpenEMR data, for now we are stubbing it out with
         // fake data
         $fhirConditionService = new FhirConditionService();
+        $fhirConditionService->setSystemLogger($this->getSystemLogger());
         $conditions = $fhirConditionService->getAll(['patient' => $dataRecord['puuid']]);
         if ($conditions->hasData()) {
             /**
@@ -302,15 +306,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
 
         // Route if available
-        if (!empty($dataRecord['route_codes'])) {
-            $codeTypesService = $this->getCodeTypesService();
-            $parsedCodes = $codeTypesService->parseCodesIntoCodeableConcepts($dataRecord['route_codes']);
-            $route = UtilsService::createCodeableConcept($parsedCodes);
-        } else {
-            $route = new FHIRCodeableConcept();
+        if (!empty($dataRecord['route_codes']) || !empty($dataRecord['route_title'])) {
+            // we only add the route if we have something to put in there
+            if (!empty($dataRecord['route_codes'])) {
+                $codeTypesService = $this->getCodeTypesService();
+                $parsedCodes = $codeTypesService->parseCodesIntoCodeableConcepts($dataRecord['route_codes']);
+                $route = UtilsService::createCodeableConcept($parsedCodes);
+            } else {
+                $route = new FHIRCodeableConcept();
+            }
+            $route->setText($dataRecord['route_title']);
+            $dosage->setRoute($route);
         }
-        $route->setText($dataRecord['route_title']);
-        $dosage->setRoute($route);
 
         $medRequestResource->addDosageInstruction($dosage);
     }
@@ -326,7 +333,6 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
                 $dataRecord['unit_title'] ?? ''
             ));
         }
-        $dispenseRequest->setQuantity($dataRecord['quantity']);
         $medRequestResource->setDispenseRequest($dispenseRequest);
     }
 
@@ -335,8 +341,8 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // INFERNO doesn't like data absence reasons on the base types even though FHIR allows it.
         // so we are going to skip adding the extension if ANY of the required elements are missing
         if (empty($dataRecord['medication_adherence'])
-            || empty($dataRecord['adherence_assertion_date'])
-            || empty($dataRecord['adherence_information_source'])
+            || empty($dataRecord['medication_adherence_date_asserted'])
+            || empty($dataRecord['medication_adherence_information_source'])
         ) {
             return;
         }
@@ -346,12 +352,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $adherenceExtension = new FHIRExtension();
         $adherenceExtension->setUrl("medicationAdherence");
 
-        if (!empty($dataRecord['medication_adherence'])) {
+        if (!empty($dataRecord['medication_adherence']) && !empty($dataRecord['medication_adherence_title'])) {
             $parsedCode = $codeTypeService->parseCode($dataRecord['medication_adherence_codes']);
             $concept = UtilsService::createCodeableConcept([
                 $parsedCode['code'] => [
                     'code' => $parsedCode['code'],
-                    'description' => $parsedCode['adherence_type_title'],
+                    'description' => $dataRecord['medication_adherence_title'],
                     'system' => $codeTypeService->getSystemForCodeType($parsedCode['code_type'])
                 ]
             ]);
@@ -363,23 +369,20 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $dateExtension = new FHIRExtension();
         $dateExtension->setUrl("dateAsserted");
-        if (!empty($dataRecord['adherence_assertion_date'])) {
-            $dateExtension->setValueDateTime(UtilsService::getLocalDateAsUTC($dataRecord['adherence_assertion_date']));
-        } else {
-            $dateTime = new OpenEMRFHIRDateTime();
-            $dateTime->addExtension(UtilsService::createDataMissingExtension());
-            $dateExtension->setValueDateTime($dateTime);
+        if (!empty($dataRecord['medication_adherence_date_asserted'])) {
+            $formattedDate = UtilsService::getLocalDateAsUTC($dataRecord['medication_adherence_date_asserted']);
+            $dateExtension->setValueDateTime($formattedDate);
+            $extension->addExtension($dateExtension);
         }
-        $extension->addExtension($dateExtension);
 
         $sourceExtension = new FHIRExtension();
         $sourceExtension->setUrl("informationSource");
-        if (!empty($dataRecord['adherence_information_source'])) {
-            $parsedCode = $codeTypeService->parseCode($dataRecord['adherence_information_source']);
+        if (!empty($dataRecord['medication_adherence_information_source']) && !empty($dataRecord['medication_adherence_information_source_title'])) {
+            $parsedCode = $codeTypeService->parseCode($dataRecord['medication_adherence_information_source']);
             $concept = UtilsService::createCodeableConcept([
                 $parsedCode['code'] => [
                     'code' => $parsedCode['code'],
-                    'description' => $parsedCode['adherence_information_source_title'],
+                    'description' => $dataRecord['medication_adherence_information_source_title'],
                     'system' => $codeTypeService->getSystemForCodeType($parsedCode['code_type'])
                 ]
             ]);
@@ -459,7 +462,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!empty($dataRecord['drugcode'])) {
             $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
             $medRequestResource->setMedicationCodeableConcept($rxnormCode);
-        } else {
+        } else if (!empty($dataRecord['drug'])) {
             $textOnlyCode = new FHIRCodeableConcept();
             $textOnlyCode->setText($dataRecord['drug']);
             $medRequestResource->setMedicationCodeableConcept($textOnlyCode);
@@ -504,7 +507,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateStatus(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        $enum = FHIRMedicationStatusEnum::tryFrom($dataRecord['status']);
+        $enum = FHIRMedicationStatusEnum::tryFrom($dataRecord['status'] ?? 'unknown');
         if ($enum != null) {
             $medRequestResource->setStatus($enum->value);
         } else {

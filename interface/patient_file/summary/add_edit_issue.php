@@ -1009,9 +1009,9 @@ function getCodeText($code)
                         <div class="row">
 
                             <div class="form-group col-sm-12 col-md-6">
-                                <label class="col-form-label" for="form_medication[medication_adherence_assertion_date]"><?php echo xlt('Date Asserted'); ?>:</label>
-                                <input type="text" class="form-control datepicker" name='form_medication[medication_adherence_assertion_date]' id='form_medication[medication_adherence_assertion_date]'
-                                       value="<?php echo text(DateFormatterUtils::oeFormatShortDate($irow['medication']['medication_adherence_assertion_date'] ?? date("Y-m-d"))); ?>" />
+                                <label class="col-form-label" for="form_medication[medication_adherence_date_asserted]"><?php echo xlt('Date Asserted'); ?>:</label>
+                                <input type="text" class="form-control datepicker" name='form_medication[medication_adherence_date_asserted]' id='form_medication[medication_adherence_date_asserted]'
+                                       value="<?php echo text(DateFormatterUtils::oeFormatShortDate($irow['medication']['medication_adherence_date_asserted'] ?? date("Y-m-d"))); ?>" />
                             </div>
                             <div class="form-group col-sm-12 col-md-6">
                                 <label class="col-form-label" for="form_medication[medication_adherence]"><?php echo xlt('Current Adherence to Medication'); ?>:</label>

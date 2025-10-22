@@ -60,6 +60,14 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $this->conditionService = new ConditionService();
     }
 
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->systemLogger = $systemLogger;
+        foreach ($this->getMappedServices() as $service) {
+            $service->setSystemLogger($systemLogger);
+        }
+    }
+
     /**
      * Returns an array mapping FHIR Condition Resource search parameters to OpenEMR Condition search parameters
      *
