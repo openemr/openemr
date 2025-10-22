@@ -197,8 +197,8 @@ class PrescriptionService extends BaseService
                         ,issues_encounter.issues_encounter_encounter as encounter
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
-                        ,NULL as quantity
                         ,lists_medication.drug_dosage_instructions
+                        ,NULL as quantity
                         ,lists_medication.medication_adherence_date_asserted
                         ,lists_medication.medication_adherence
                         ,lists_medication.medication_adherence_information_source
