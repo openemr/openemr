@@ -1695,9 +1695,10 @@ UPDATE `list_options` SET codes='MO', notes='Monthly - Once per month' WHERE lis
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','medication_adherence_information_source','Information Source for Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.11 (InformationSourceForMedicationAdherence)',1);
 
+-- this is an example value set which means the value set can be nearly anything we want here so we can expand in the future if needed
 INSERT INTO list_options (list_id, option_id, title, seq, codes)
-VALUES ('medication_adherence_information_source', 'professional_nurse', 'Professional Nurse (occupation)', 10, 'SNOMEDCT:106292003'),
-        ('medication_adherence_information_source', 'patient', 'Patient (person)', 20, 'SNOMEDCT:116154003'),
+VALUES ('medication_adherence_information_source', 'professional_nurse', 'Professional Nurse (occupation)', 10, 'SNOMED-CT:106292003'),
+        ('medication_adherence_information_source', 'patient', 'Patient (person)', 20, 'SNOMED-CT:116154003'),
        ('medication_adherence_information_source', 'pharmacy', 'Pharmacy', 30, 'HSOC:1179-1'),
        ('medication_adherence_information_source', 'home_care', 'Home Care', 40, 'HSOC:1192-4'),
        ('medication_adherence_information_source', 'location_outside_facility', 'Location Outside Facility', 50, 'HSOC:1204-7'),
@@ -1710,8 +1711,8 @@ INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_val
 VALUES ('lists','medication_adherence','Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1240.8 (rMedicationAdherence)',1);
 
 INSERT INTO list_options (list_id, option_id, title, seq, codes)
-VALUES ('medication_adherence', 'compliance', 'Complies with drug therapy (finding)', 10, 'SNOMEDCT:1156699004'),
-       ('medication_adherence', 'non_compliance', 'Does not take medication (finding)', 20, 'SNOMEDCT:715036001'),
+VALUES ('medication_adherence', 'compliance', 'Complies with drug therapy (finding)', 10, 'SNOMED-CT:1156699004'),
+       ('medication_adherence', 'non_compliance', 'Does not take medication (finding)', 20, 'SNOMED-CT:715036001'),
        ('medication_adherence', 'asked_declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined'),
        ('medication_adherence', 'asked_unknown', 'Asked But Unknown', 40, 'DataAbsentReason:asked-unknown'),
        ('medication_adherence', 'not_asked', 'Not Asked', 50, 'DataAbsentReason:not-asked'),
