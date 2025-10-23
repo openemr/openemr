@@ -17,6 +17,12 @@
 namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -391,11 +397,11 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
      * This ensures we use the correct LOINC display text from COLUMN_MAPPINGS instead of
      * relying on code table lookups which may return incorrect or generic descriptions
      *
-     * @param \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation $observation
+     * @param FHIRObservation $observation
      * @param array $dataRecord
      * @return void
      */
-    protected function setObservationCode(\OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation $observation, array $dataRecord): void
+    protected function setObservationCode(FHIRObservation $observation, array $dataRecord): void
     {
         if (empty($dataRecord['code'])) {
             throw new \InvalidArgumentException("Code is required for observation");
@@ -404,30 +410,27 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
         // If code_coding array is provided (which we do for advance directives), use it directly
         // This allows us to control the exact display text instead of relying on code table lookups
         if (!empty($dataRecord['code_coding']) && is_array($dataRecord['code_coding'])) {
-            $codeableConcept = new \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept();
+            $codeableConcept = new FHIRCodeableConcept();
 
             foreach ($dataRecord['code_coding'] as $codingData) {
-                $coding = new \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding();
+                $coding = new FHIRCoding();
 
                 if (!empty($codingData['system'])) {
-                    $coding->setSystem(new \OpenEMR\FHIR\R4\FHIRElement\FHIRUri($codingData['system']));
+                    $coding->setSystem(new FHIRUri($codingData['system']));
                 }
 
                 if (!empty($codingData['code'])) {
-                    $coding->setCode(new \OpenEMR\FHIR\R4\FHIRElement\FHIRCode($codingData['code']));
+                    $coding->setCode(new FHIRCode($codingData['code']));
                 }
 
                 if (!empty($codingData['display'])) {
-                    $coding->setDisplay(new \OpenEMR\FHIR\R4\FHIRElement\FHIRString($codingData['display']));
+                    $coding->setDisplay(new FHIRString($codingData['display']));
                 }
 
                 $codeableConcept->addCoding($coding);
             }
 
             $observation->setCode($codeableConcept);
-        } else {
-            // Fall back to the trait's default behavior for codes without pre-defined coding
-            parent::setObservationCode($observation, $dataRecord);
         }
     }
 }
