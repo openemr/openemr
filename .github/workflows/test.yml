@@ -191,6 +191,7 @@ jobs:
       run: |
         . ci/ciLibrary.source
         configure_coverage
+        echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP}/coverage-e2e-raw" >> "${GITHUB_ENV}"
 
     - name: Unit testing
       if: ${{ success() || failure() }}
@@ -386,10 +387,29 @@ jobs:
       env:
         # Change this to just 'selenium' to disable video recording.
         COMPOSE_PROFILES: video-recording
-        ENABLE_COVERAGE: 'false'
       run: |
         . ci/ciLibrary.source
         build_test e2e
+
+    - name: Copy E2E coverage files from container
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${COVERAGE_RAW_TMPDIR}"
+        dc cp openemr:/tmp/openemr-coverage/e2e "${COVERAGE_RAW_TMPDIR}" || true
+        find "${COVERAGE_RAW_TMPDIR}" -type f -name '*.php' |
+          wc -l |
+          xargs echo 'Found raw E2E coverage files:'
+
+    - name: Convert E2E coverage to .cov format
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        mkdir -p coverage
+        sudo chmod -R 777 coverage
+        ./ci/convert-e2e-coverage "${COVERAGE_RAW_TMPDIR}/e2e" \
+                                  coverage/coverage.e2e.cov \
+                                  --clover=coverage.e2e.clover.xml
+        ls -lah coverage.e2e.clover.xml coverage/coverage.e2e.cov
 
     ##
     # The logs for the e2e run are directly in the container logs for nginx/php-fpm
@@ -425,6 +445,14 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-e2e.xml
         flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Upload e2e test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.e2e.clover.xml
+        flags: e2e,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
 
     - name: Upload E2E test videos to GitHub
       if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}

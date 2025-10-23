@@ -199,9 +199,14 @@ setup_e2e_bookends() {
     _exec sh -c "cat '/tmp/${shutdown_marker}'"
 }
 
+##
+# Coverage is mainly enabled for E2e through ci/e2e_prepend.php
+# However, we still need longer timeouts.
 enable_e2e_coverage() {
-    echo 'not implemented' >&2
-    false
+    # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
+    export SELENIUM_IMPLICIT_WAIT=90
+    export SELENIUM_PAGE_LOAD_TIMEOUT=180
+    echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
 }
 
 build_test_e2e() {
@@ -214,11 +219,6 @@ build_test_e2e() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         echo 'Enabling E2E coverage collection…'
         enable_e2e_coverage
-
-        # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
-        export SELENIUM_IMPLICIT_WAIT=90
-        export SELENIUM_PAGE_LOAD_TIMEOUT=180
-        echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
     fi
 
     selenium_video_start
