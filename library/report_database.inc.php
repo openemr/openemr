@@ -136,14 +136,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
         foreach ($fields as $key => $value) {
             // skip the special tokens
             if (
-                ($key == "type") ||
-                ($key == "data") ||
-                ($key == "progress") ||
-                ($key == "progress_items") ||
-                ($key == "total_items") ||
-                ($key == "date_report") ||
-                ($key == "date_report_complete") ||
-                ($key == "bookmark")
+                in_array($key, ["type", "data", "progress", "progress_items", "total_items", "date_report", "date_report_complete", "bookmark"])
             ) {
                 continue;
             }
@@ -319,7 +312,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                 // We have a hit, build on the $dispTitle created above
                 if (isset($row['is_main'])) {
                     $tempCqmAmcString = "";
-                    if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+                    if (in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"])) {
                         if (!empty($row['cqm_pqri_code'])) {
                             $tempCqmAmcString .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
                         }

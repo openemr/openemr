@@ -42,9 +42,7 @@ function smarty_function_config_load($params, &$smarty): void
         }
 
         if (isset($_scope)) {
-            if ($_scope != 'local' &&
-                $_scope != 'parent' &&
-                $_scope != 'global') {
+            if (!in_array($_scope, ['local', 'parent', 'global'])) {
                 $smarty->trigger_error("invalid 'scope' attribute value", E_USER_ERROR, __FILE__, __LINE__);
             }
         } else {

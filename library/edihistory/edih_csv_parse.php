@@ -191,7 +191,7 @@ function edih_835_csv_data($obj835)
                             $ret_ar[$icn]['claim'][$cdx]['PtName'] = '';
                             $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
                             //
-                            if ($sar[2] == '4' || $sar[2] == '22' || $sar[2] == '23') {
+                            if (in_array($sar[2], ['4', '22', '23'])) {
                                 $denied++;
                             }
 
@@ -1420,7 +1420,7 @@ function edih_271_csv_data($obj270)
                     $sar = explode($de, (string) $seg);
                     //
                     if (isset($sar[2])) {
-                        if ($sar[2] == '6' || $sar[2] == '7' || $sar[2] == '8') {
+                        if (in_array($sar[2], ['6', '7', '8'])) {
                             $status = 'Inactive';
                         } elseif ($sar[2] == 'I') {
                             $status = 'Non-Covered';
@@ -1442,7 +1442,7 @@ function edih_271_csv_data($obj270)
                             $rej_ct++;
                         } elseif ($sar[2] == '1') {
                             $status = 'Active';
-                        } elseif ($sar[2] == '2' || $sar[2] == '3' || $sar[2] == '4') {
+                        } elseif (in_array($sar[2], ['2', '3', '4'])) {
                             $status = 'Active Cap';
                         }
                     }

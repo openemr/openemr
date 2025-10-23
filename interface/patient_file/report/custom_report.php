@@ -585,7 +585,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 unlink($tempFileName);
                             }
 
-                            if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
+                            if (in_array($extension, [".png", ".jpg", ".jpeg", ".gif"])) {
                                 if ($PDF_OUTPUT) {
                                     // OK to link to the image file because it will be accessed by the
                                     // mPDF parser and not the browser.

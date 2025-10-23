@@ -159,7 +159,7 @@ class BaseService implements BaseServiceInterface
      */
     public function queryFields($map = null, $data = null)
     {
-        $value = $data == null || $data == "*" || $data == "all" ? "*" : implode(", ", $data);
+        $value = in_array($data, [null, "*", "all"]) ? "*" : implode(", ", $data);
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
     }

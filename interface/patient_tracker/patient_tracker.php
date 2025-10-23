@@ -522,10 +522,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
                                 } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
                                     if (
-                                        ($appointment[$row['msg_type']]['stage'] != "CONFIRMED") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "READ") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "SENT") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "FAILED")
+                                        !in_array($appointment[$row['msg_type']]['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
                                     ) {
                                         $appointment[$row['msg_type']]['stage'] = "QUEUED";
                                         $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];

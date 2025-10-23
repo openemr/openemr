@@ -1639,7 +1639,7 @@ function build_PMSFH($pid)
         $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";
         $order = "ORDER BY title";
-        if ($panel_type == "FH" || $panel_type == "SOCH" || $panel_type == "ROS") {
+        if (in_array($panel_type, ["FH", "SOCH", "ROS"])) {
             /*
              *  We are going to build SocHx, FH and ROS separately below since they don't feed off of
              *  the pre-existing ISSUE_TYPE array - so for now do nothing
@@ -2125,7 +2125,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $row_count = 1;
 
     foreach ($PMSFH[0] as $key => $value) {
-        if ($key == "FH" || $key == "SOCH" || $key == "ROS") {
+        if (in_array($key, ["FH", "SOCH", "ROS"])) {
             // We are going to build SocHx, FH and ROS separately below since they are different..
             continue;
         }

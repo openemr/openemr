@@ -1047,7 +1047,7 @@ if (!isset($_GET["mode"])) {
                         // get dollar amounts to appear on pat,ins payments and copays
 
                         if ($iter['code_type'] != 'payment_info') {
-                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') { ?>
+                            if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) { ?>
                                 <tr>
                                     <td class='text text-center' width='70'>
                                         <?php echo text(date("Y-m-d", strtotime((string) $iter['date']))); ?>
@@ -1189,7 +1189,7 @@ if (!isset($_GET["mode"])) {
                                     }
                             }
 
-                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
+                            if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true) || $iter['fee'] != 0) {
                                 $res_count++;
                             }
 

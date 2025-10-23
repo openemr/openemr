@@ -93,13 +93,7 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
             if (
-                $row['Field'] == 'id' ||
-                $row['Field'] == 'pid' ||
-                $row['Field'] == 'user' ||
-                $row['Field'] == 'groupname' ||
-                $row['Field'] == 'authorized' ||
-                $row['Field'] == 'activity' ||
-                $row['Field'] == 'date'
+                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'date'])
             ) {
                 continue;
             }
@@ -255,15 +249,7 @@ if ($_REQUEST['REFTYPE']) {
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
             if (
-                $row['Field'] == 'id' ||
-                $row['Field'] == 'pid' ||
-                $row['Field'] == 'user' ||
-                $row['Field'] == 'groupname' ||
-                $row['Field'] == 'authorized' ||
-                $row['Field'] == 'activity' ||
-                $row['Field'] == 'RXTYPE' ||
-                $row['Field'] == 'REFDATE' ||
-                $row['Field'] == 'date'
+                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'RXTYPE', 'REFDATE', 'date'])
             ) {
                 continue;
             }

@@ -105,7 +105,7 @@ trait G10ApiTestTrait
     {
         foreach ($results as $result) {
             $failMessage = '';
-            if ($result['result'] === 'skip' || $result['result'] === 'pass' || $result['result'] === 'omit') {
+            if (in_array($result['result'], ['skip', 'pass', 'omit'], true)) {
                 continue; // skip this test if it's skipped
             }
             if (!empty($result['test_id'])) {

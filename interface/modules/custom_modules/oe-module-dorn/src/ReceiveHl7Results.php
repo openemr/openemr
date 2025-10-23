@@ -318,7 +318,7 @@ class ReceiveHl7Results
                 // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
                 if (strstr($a[8], "ORU^R01")) {
                     $msgtype = 'ORU';
-                } elseif ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
+                } elseif (in_array($a[8], ['MDM^T02', 'MDM^T04', 'MDM^T08'])) {
                     $msgtype = 'MDM';
                     $mdm_datetime = '';
                     $mdm_docname = '';

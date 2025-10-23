@@ -66,7 +66,7 @@ class SphereRevert
     {
         $this->logger = new SystemLogger();
 
-        if (($front != 'patient') && ($front != 'clinic-phone') && ($front != 'clinic-retail')) {
+        if (!in_array($front, ['patient', 'clinic-phone', 'clinic-retail'])) {
             $this->logger->error("SphereRevert getToken front needs to be patient or clinic-phone or clinic-retail. Exiting.");
             exit;
         }

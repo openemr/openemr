@@ -77,10 +77,7 @@ $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " 
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
     if (
-        $fid == 'fname'
-        || $fid == 'mname'
-        || $fid == 'lname'
-        || $fid == 'additional_addresses'
+        in_array($fid, ['fname', 'mname', 'lname', 'additional_addresses'])
     ) {
         continue;
     }
@@ -463,9 +460,7 @@ if (!empty($_POST['form_submit'])) {
         }
 
         if (
-            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-            $askey == 'contrastart' || $askey == 'referral_source'
+            in_array($askey, ['regdate', 'sex', 'DOB', 'lname', 'fname', 'mname', 'contrastart', 'referral_source'])
         ) {
             continue;
         }

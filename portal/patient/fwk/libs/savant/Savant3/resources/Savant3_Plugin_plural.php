@@ -12,7 +12,7 @@ class Savant3_Plugin_plural extends Savant3_Plugin
             return substr((string) $string, 0, - 1) . 'ies';
         }
 
-        if ($lastletter == 's' || $lastletter == 'x' || $lastletter == 'z') {
+        if (in_array($lastletter, ['s', 'x', 'z'])) {
             return $string . 'es';
         }
 

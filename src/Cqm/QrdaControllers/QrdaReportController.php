@@ -88,7 +88,7 @@ class QrdaReportController
     public function getConsolidatedCategoryIIIReport($pids = null, $measures = [], $options = []): string
     {
         // Handle different measure parameter types
-        if ($measures === [] || $measures === '' || $measures === null) {
+        if (in_array($measures, [[], '', null], true)) {
             $measures = $this->reportMeasures;
         }
 
@@ -434,7 +434,7 @@ class QrdaReportController
     {
         try {
             // Handle different measure parameter types
-            if ($measures === [] || $measures === '' || $measures === null) {
+            if (in_array($measures, [[], '', null], true)) {
                 $measures = $this->reportMeasures;
             } elseif (!is_array($measures) && $measures === 'all') {
                 $measures = $this->reportMeasures;

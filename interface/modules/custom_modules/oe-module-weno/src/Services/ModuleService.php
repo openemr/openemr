@@ -167,10 +167,7 @@ class ModuleService
         foreach ($keys as $key) {
             // these are always required to run module.
             if (
-                $key === 'weno_rx_enable'
-                || $key === 'weno_admin_username'
-                || $key === 'weno_admin_password'
-                || $key === 'weno_encryption_key'
+                in_array($key, ['weno_rx_enable', 'weno_admin_username', 'weno_admin_password', 'weno_encryption_key'], true)
             ) {
                 $value = $config[$key] ?? null;
                 if (empty($value)) {

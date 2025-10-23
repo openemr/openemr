@@ -30,8 +30,7 @@ $provider_id = (isset($_GET['provider_id'])) ? trim((string) $_GET['provider_id'
 $report_view = collectReportDatabase($report_id);
 $dataSheet = json_decode((string) $report_view['data'], true);
 $type_report = $report_view['type'];
-$type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014") ||
-                  ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) ? $type_report : "standard";
+$type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "cqm_2011", "cqm_2014"])) ? $type_report : "standard";
 
 ?>
 <html>
@@ -184,7 +183,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if (isset($row['is_main'])) {
                     echo "<b>" . generate_display_field(['data_type' => '1','list_id' => 'clinical_rules'], $row['id']) . "</b>";
                     $tempCqmAmcString = "";
-                    if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+                    if (in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"])) {
                         if (!empty($row['cqm_pqri_code'])) {
                             $tempCqmAmcString .= " " .  xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
                         }

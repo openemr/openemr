@@ -874,7 +874,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
         if($this->_reg_objects[$object][2]) {
             // smarty object argument format
-            $args = "array(".implode(',', (array)$arg_list)."), \$this";
+            $args = "array(".implode(',', $arg_list)."), \$this";
         } else {
             // traditional argument format
             $args = implode(',', array_values($attrs));
@@ -1004,7 +1004,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             "\$_smarty_tpl_vars = \$this->_tpl_vars;\n";
 
 
-        $_params = "array('smarty_include_tpl_file' => " . $include_file . ", 'smarty_include_vars' => array(".implode(',', (array)$arg_list)."))";
+        $_params = "array('smarty_include_tpl_file' => " . $include_file . ", 'smarty_include_vars' => array(".implode(',', $arg_list)."))";
         $output .= "\$this->_smarty_include($_params);\n" .
         "\$this->_tpl_vars = \$_smarty_tpl_vars;\n" .
         "unset(\$_smarty_tpl_vars);\n";
