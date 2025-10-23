@@ -35,7 +35,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
     use FhirObservationTrait;
 
     const CATEGORY_ASSESSMENT = 'assessment';
-    
+
     // LOINC codes for advance directive types
     const ADI_LIVING_WILL_CODE = '75320-2';
     const ADI_POWER_OF_ATTORNEY_CODE = '75787-2';
@@ -207,14 +207,14 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             $patientUuidBytes = null;
             if (isset($openEMRSearchParameters['puuid'])) {
                 $puuidField = $openEMRSearchParameters['puuid'];
-                
+
                 // Extract the UUID bytes from the search field
                 if (is_object($puuidField) && method_exists($puuidField, 'getValues')) {
                     $values = $puuidField->getValues();
                     if (!empty($values)) {
                         // Get first value from the array
                         $firstValue = is_array($values) ? reset($values) : $values;
-                        
+
                         // Extract the UUID using the proper getter method
                         if (is_object($firstValue)) {
                             // ReferenceSearchValue objects typically have getId() or getReference() methods
@@ -224,15 +224,6 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
                                 $patientUuidBytes = $firstValue->getReference();
                             } elseif (method_exists($firstValue, 'getValue')) {
                                 $patientUuidBytes = $firstValue->getValue();
-                            } else {
-                                // Log available methods for debugging
-                                $this->getSystemLogger()->error(
-                                    "FhirObservationAdvanceDirectiveService - ReferenceSearchValue has no getter method",
-                                    [
-                                        'class' => get_class($firstValue),
-                                        'methods' => get_class_methods($firstValue)
-                                    ]
-                                );
                             }
                         } else {
                             // It's already a raw value (string/binary)
@@ -256,7 +247,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
                 );
                 return $processingResult;
             }
-            
+
             // Validate it's the right length (16 bytes for binary UUID)
             if (!is_string($patientUuidBytes) || strlen($patientUuidBytes) !== 16) {
                 $this->getSystemLogger()->error(
@@ -273,7 +264,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             // Query patient_data to get PID using binary UUID
             $sql = "SELECT pid FROM patient_data WHERE uuid = ?";
             $result = sqlQuery($sql, [$patientUuidBytes]);
-            
+
             if (empty($result['pid'])) {
                 $this->getSystemLogger()->debug(
                     "FhirObservationAdvanceDirectiveService->searchForOpenEMRRecords() - Patient not found for UUID",
@@ -281,7 +272,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
                 );
                 return $processingResult;
             }
-            
+
             $pid = (int)$result['pid'];
 
             // Get advance directive data using the service
@@ -297,7 +288,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             // Transform observations to OpenEMR record format
             foreach ($adiData['observations'] as $observation) {
                 $code = $observation['code'];
-                
+
                 // Skip if this code is not in our requested codes
                 if (!in_array($code, $observationCodesToReturn)) {
                     continue;
@@ -397,7 +388,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
 
     /**
      * Override setObservationCode to use pre-defined code_coding array for advance directives
-     * This ensures we use the correct LOINC display text from COLUMN_MAPPINGS instead of 
+     * This ensures we use the correct LOINC display text from COLUMN_MAPPINGS instead of
      * relying on code table lookups which may return incorrect or generic descriptions
      *
      * @param \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation $observation
@@ -414,25 +405,25 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
         // This allows us to control the exact display text instead of relying on code table lookups
         if (!empty($dataRecord['code_coding']) && is_array($dataRecord['code_coding'])) {
             $codeableConcept = new \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept();
-            
+
             foreach ($dataRecord['code_coding'] as $codingData) {
                 $coding = new \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding();
-                
+
                 if (!empty($codingData['system'])) {
                     $coding->setSystem(new \OpenEMR\FHIR\R4\FHIRElement\FHIRUri($codingData['system']));
                 }
-                
+
                 if (!empty($codingData['code'])) {
                     $coding->setCode(new \OpenEMR\FHIR\R4\FHIRElement\FHIRCode($codingData['code']));
                 }
-                
+
                 if (!empty($codingData['display'])) {
                     $coding->setDisplay(new \OpenEMR\FHIR\R4\FHIRElement\FHIRString($codingData['display']));
                 }
-                
+
                 $codeableConcept->addCoding($coding);
             }
-            
+
             $observation->setCode($codeableConcept);
         } else {
             // Fall back to the trait's default behavior for codes without pre-defined coding
