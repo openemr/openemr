@@ -104,8 +104,25 @@ jobs:
           composer config cache-files-dir
         } >> $GITHUB_OUTPUT
 
-    - name: Composer Cache
+    ##
+    # Restore everything that composer installed for the given key
+    # We don't need to run composer install at all if we get a hit.
+    - name: Restore vendor artifacts
+      id: vendor-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: vendor/
+        key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-
+          ${{ runner.os }}-vendor-
+
+    ##
+    # Restore composer's own cache
+    # This can still save us time if we miss the vendor cache
+    - name: Restore composer downloads
       id: composer-cache-restore
+      if: ${{ steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
       uses: actions/cache/restore@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -113,6 +130,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-
           ${{ runner.os }}-composer-
+
+    - name: Composer Install
+      if: ${{ steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        composer_install
 
     - name: Install npm package
       uses: actions/setup-node@v6
@@ -127,42 +150,26 @@ jobs:
           npm config get cache
         } >> "$GITHUB_OUTPUT"
 
-    - name: Cache node modules
-      # Use explicit restore and save actions to control
-      # precisely when in the workflow the cache is
-      # restored and saved.
-      id: npm-cache-restore
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-node-
-
-    - name: Restore vendor artifacts
-      id: vendor-cache-restore
-      uses: actions/cache/restore@v4
-      with:
-        path: vendor/
-        key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-
-          ${{ runner.os }}-vendor-
-
-    - name: Restore main build artifacts
-      id: main-build-cache-restore
+    ##
+    # Restore everything that node built for the given key.
+    # We don't need to run npm ci && npm build at all if we get a hit.
+    # This does not include ccda.
+    - name: Restore npm build artifacts
+      id: npm-build-cache-restore
       uses: actions/cache/restore@v4
       with:
         path: |
           node_modules/
           public/assets/
           public/themes/
-        key: ${{ runner.os }}-main-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-main-build-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-main-build-
+          ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-npm-build-
 
+    ##
+    # Restore everything that node built for CCDA for the given key.
+    # We don't need to run npm ci in ccdaservice at all if we get a hit.
     - name: Restore CCDA build artifacts
       id: ccda-build-cache-restore
       uses: actions/cache/restore@v4
@@ -173,28 +180,67 @@ jobs:
           ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
           ${{ runner.os }}-ccda-build-
 
-    - name: Main build
-      if: steps.vendor-cache-restore.outputs.cache-hit != 'true' || steps.main-build-cache-restore.outputs.cache-hit != 'true'
+    ##
+    # Restore npm's own cache
+    # This can still save us time if we miss the npm build caches
+    - name: Cache node modules
+      if: ${{ steps.npm-build-cache-restore.outputs.cache-hit != 'true' || steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
+      id: npm-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-node-
+
+    - name: NPM Build
+      if: ${{ steps.npm-build-cache-restore.outputs.cache-hit != 'true' }}
       run: |
         . ci/ciLibrary.source
-        composer_github_auth
-        main_build
+        npm_build
 
     - name: CCDA build
-      if: steps.ccda-build-cache-restore.outputs.cache-hit != 'true'
+      if: ${{ steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
       run: |
         . ci/ciLibrary.source
         ccda_build
 
-    - name: Save node cache
-      if: ${{ inputs.save_node_cache && steps.npm-cache-restore.outputs.cache-hit != 'true' }}
+    - name: Cleanup after Build
+      if: ${{ steps.vendor-cache-restore.outputs.cache-hit != 'true' || steps.npm-build-cache-restore.outputs.cache-hit != 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        post_build_cleanup
+
+    ##
+    # Save caches: base caches before derived caches
+    # This ensures proper cache layering and only saves caches we actually attempted to restore
+    - name: Save node modules cache
+      if: ${{ inputs.save_node_cache && steps.npm-cache-restore.outputs.cache-hit != 'true' && (steps.npm-build-cache-restore.outputs.cache-hit != 'true' || steps.ccda-build-cache-restore.outputs.cache-hit != 'true') }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
 
+    - name: Save CCDA build artifacts
+      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ccdaservice/node_modules/
+        key: ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}
+
+    - name: Save NPM build artifacts
+      if: ${{ inputs.save_node_cache && steps.npm-build-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          node_modules/
+          public/assets/
+          public/themes/
+        key: ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
+
     - name: Save composer cache
-      if: ${{ inputs.save_composer_cache && steps.composer-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.save_composer_cache && steps.composer-cache-restore.outputs.cache-hit != 'true' && steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -207,22 +253,11 @@ jobs:
         path: vendor/
         key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
 
-    - name: Save main build artifacts
-      if: ${{ inputs.save_node_cache && steps.main-build-cache-restore.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@v4
-      with:
-        path: |
-          node_modules/
-          public/assets/
-          public/themes/
-        key: ${{ runner.os }}-main-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
-
-    - name: Save CCDA build artifacts
-      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@v4
-      with:
-        path: ccdaservice/node_modules/
-        key: ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}
+    - name: Chmod
+      run: |
+        # HACK Docker runs with a different uid/gid than the host.
+        # See #9233
+        sudo chmod -R 0777 .
 
     - name: Docker Compose Config Output
       run: |
