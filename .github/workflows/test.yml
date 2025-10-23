@@ -373,10 +373,10 @@ jobs:
     ##
     # Activate prepend and shutdown code for webserver for e2e tests
     - name: E2e setup
-      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
       run: |
         . ci/ciLibrary.source
-        setup_e2e_bookends ${{ matrix.configurations.webserver }}
+        setup_e2e_bookends ${{ steps.parse.outputs.webserver }}
 
     ##
     # To skip E2E tests for specific docker directories,
