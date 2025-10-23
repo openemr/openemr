@@ -140,13 +140,48 @@ jobs:
           ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
           ${{ runner.os }}-node-
 
+    - name: Restore vendor artifacts
+      id: vendor-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: vendor/
+        key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-
+          ${{ runner.os }}-vendor-
+
+    - name: Restore main build artifacts
+      id: main-build-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          node_modules/
+          public/assets/
+          public/themes/
+        key: ${{ runner.os }}-main-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-main-build-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-main-build-
+
+    - name: Restore CCDA build artifacts
+      id: ccda-build-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ccdaservice/node_modules/
+        key: ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-ccda-build-
+
     - name: Main build
+      if: steps.vendor-cache-restore.outputs.cache-hit != 'true' || steps.main-build-cache-restore.outputs.cache-hit != 'true'
       run: |
         . ci/ciLibrary.source
         composer_github_auth
         main_build
 
     - name: CCDA build
+      if: steps.ccda-build-cache-restore.outputs.cache-hit != 'true'
       run: |
         . ci/ciLibrary.source
         ccda_build
@@ -164,6 +199,30 @@ jobs:
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: Save vendor artifacts
+      if: ${{ inputs.save_composer_cache && steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: vendor/
+        key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: Save main build artifacts
+      if: ${{ inputs.save_node_cache && steps.main-build-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          node_modules/
+          public/assets/
+          public/themes/
+        key: ${{ runner.os }}-main-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Save CCDA build artifacts
+      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ccdaservice/node_modules/
+        key: ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}
 
     - name: Docker Compose Config Output
       run: |
