@@ -1450,7 +1450,13 @@ CREATE TABLE `drug_sales` (
   `selector` varchar(255) default '' comment 'references drug_templates.selector',
   `trans_type` tinyint NOT NULL DEFAULT 1 COMMENT '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment',
   `chargecat` varchar(31) default '',
-  PRIMARY KEY  (`sale_id`)
+  `pharmacy_supply_type` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=pharmacy_supply_type to indicate type of dispensing first order, refil, emergency, partial order, etc',
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that last updated this entry',
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that created this entry',
+  PRIMARY KEY  (`sale_id`),
+  UNIQUE INDEX `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

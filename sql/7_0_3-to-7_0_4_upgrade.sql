@@ -1576,49 +1576,49 @@ ALTER TABLE `drug_sales` ADD `updated_by` BIGINT(20) DEFAULT NULL;
 ALTER TABLE `drug_sales` ADD `created_by` BIGINT(20) DEFAULT NULL;
 #EndIf
 
-#IfNotRow3D list_options list_id drug_interval option_id 1 codes BID
+#IfNotRow4D list_options list_id drug_interval option_id 15 codes Q1H title h
 -- Empty/default option
 UPDATE `list_options` SET codes='', notes='No specific dosing interval specified' WHERE list_id='drug_interval' AND option_id='0';
 
 -- Standard frequency intervals
-UPDATE `list_options` SET codes='BID', notes='Twice daily (bis in die) - Two times a day at institution specified time' WHERE list_id='drug_interval' AND option_id='1';
-UPDATE `list_options` SET codes='TID', notes='Three times daily (ter in die) - Three times a day at institution specified time' WHERE list_id='drug_interval' AND option_id='2';
-UPDATE `list_options` SET codes='QID', notes='Four times daily (quater in die) - Four times a day at institution specified time' WHERE list_id='drug_interval' AND option_id='3';
+UPDATE `list_options` SET codes='BID', notes='Twice daily (bis in die) - Two times a day at institution specified time' WHERE list_id='drug_interval' AND option_id='1' AND title='b.i.d.';
+UPDATE `list_options` SET codes='TID', notes='Three times daily (ter in die) - Three times a day at institution specified time' WHERE list_id='drug_interval' AND option_id='2' AND title='t.i.d.';
+UPDATE `list_options` SET codes='QID', notes='Four times daily (quater in die) - Four times a day at institution specified time' WHERE list_id='drug_interval' AND option_id='3' AND title='q.i.d.';
 
 -- Hour-based intervals
-UPDATE `list_options` SET codes='Q3H', notes='Every 3 hours - Administer medication every three hours' WHERE list_id='drug_interval' AND option_id='4';
-UPDATE `list_options` SET codes='Q4H', notes='Every 4 hours - Administer medication every four hours' WHERE list_id='drug_interval' AND option_id='5';
-UPDATE `list_options` SET codes='', notes='Every 5 hours - No standard FHIR code available' WHERE list_id='drug_interval' AND option_id='6';
-UPDATE `list_options` SET codes='Q6H', notes='Every 6 hours - Administer medication every six hours' WHERE list_id='drug_interval' AND option_id='7';
-UPDATE `list_options` SET codes='Q8H', notes='Every 8 hours - Administer medication every eight hours' WHERE list_id='drug_interval' AND option_id='8';
+UPDATE `list_options` SET codes='Q3H', notes='Every 3 hours - Administer medication every three hours' WHERE list_id='drug_interval' AND option_id='4' AND title='q.3h';
+UPDATE `list_options` SET codes='Q4H', notes='Every 4 hours - Administer medication every four hours' WHERE list_id='drug_interval' AND option_id='5' AND title='q.4h';
+UPDATE `list_options` SET codes='', notes='Every 5 hours - No standard FHIR code available' WHERE list_id='drug_interval' AND option_id='6' AND title='q.5h';
+UPDATE `list_options` SET codes='Q6H', notes='Every 6 hours - Administer medication every six hours' WHERE list_id='drug_interval' AND option_id='7' AND title='q.6h';
+UPDATE `list_options` SET codes='Q8H', notes='Every 8 hours - Administer medication every eight hours' WHERE list_id='drug_interval' AND option_id='8' AND title='q.8h';
 
 -- Daily dosing
-UPDATE `list_options` SET codes='QD', notes='Once daily (quaque die) - Daily at institution specified time' WHERE list_id='drug_interval' AND option_id='9';
+UPDATE `list_options` SET codes='QD', notes='Once daily (quaque die) - Daily at institution specified time' WHERE list_id='drug_interval' AND option_id='9' AND title='Daily';
 
 -- Meal-related timing (no FHIR codes available for these)
-UPDATE `list_options` SET codes='', notes='Before meals (ante cibum) - Take medication before eating' WHERE list_id='drug_interval' AND option_id='10';
-UPDATE `list_options` SET codes='', notes='After meals (post cibum) - Take medication after eating' WHERE list_id='drug_interval' AND option_id='11';
+UPDATE `list_options` SET codes='', notes='Before meals (ante cibum) - Take medication before eating' WHERE list_id='drug_interval' AND option_id='10' AND title='a.c.';
+UPDATE `list_options` SET codes='', notes='After meals (post cibum) - Take medication after eating' WHERE list_id='drug_interval' AND option_id='11' AND title='p.c.';
 
 -- Time of day
-UPDATE `list_options` SET codes='AM', notes='Morning (ante meridiem) - Administer in the morning hours' WHERE list_id='drug_interval' AND option_id='12';
-UPDATE `list_options` SET codes='PM', notes='Evening (post meridiem) - Administer in the evening hours' WHERE list_id='drug_interval' AND option_id='13';
+UPDATE `list_options` SET codes='AM', notes='Morning (ante meridiem) - Administer in the morning hours' WHERE list_id='drug_interval' AND option_id='12' AND title='a.m.';
+UPDATE `list_options` SET codes='PM', notes='Evening (post meridiem) - Administer in the evening hours' WHERE list_id='drug_interval' AND option_id='13' AND title='p.m.';
 
 -- "Ante" means "before"
-UPDATE `list_options` SET codes='', notes='Before - General instruction meaning "before" (ante)' WHERE list_id='drug_interval' AND option_id='14';
+UPDATE `list_options` SET codes='', notes='Before - General instruction meaning "before" (ante)' WHERE list_id='drug_interval' AND option_id='14' AND title='ante';
 
 -- Hour unit
-UPDATE `list_options` SET codes='Q1H', notes='Every 1 hour - Administer medication every hour' WHERE list_id='drug_interval' AND option_id='15';
+UPDATE `list_options` SET codes='Q1H', notes='Every 1 hour - Administer medication every hour' WHERE list_id='drug_interval' AND option_id='15' AND title='h';
 
 -- Bedtime
-UPDATE `list_options` SET codes='HS', notes='At bedtime (hora somni) - Administer at bedtime or hour of sleep' WHERE list_id='drug_interval' AND option_id='16';
+UPDATE `list_options` SET codes='HS', notes='At bedtime (hora somni) - Administer at bedtime or hour of sleep' WHERE list_id='drug_interval' AND option_id='16' AND title='h.s.';
 
 -- As needed (should be PRN, but nothing in FHIR)
-UPDATE `list_options` SET codes='', notes='As needed (pro re nata) - Take medication when necessary or as required' WHERE list_id='drug_interval' AND option_id='17';
+UPDATE `list_options` SET codes='', notes='As needed (pro re nata) - Take medication when necessary or as required' WHERE list_id='drug_interval' AND option_id='17' AND title='p.r.n.';
 
 -- Immediately (should be STAT but nothing in FHIR)
-UPDATE `list_options` SET codes='', notes='Immediately (statim) - Administer medication immediately' WHERE list_id='drug_interval' AND option_id='18';
+UPDATE `list_options` SET codes='', notes='Immediately (statim) - Administer medication immediately' WHERE list_id='drug_interval' AND option_id='18' AND title='stat';
 
 -- Extended intervals
-UPDATE `list_options` SET codes='WK', notes='Weekly - Once per week' WHERE list_id='drug_interval' AND option_id='19';
-UPDATE `list_options` SET codes='MO', notes='Monthly - Once per month' WHERE list_id='drug_interval' AND option_id='20';
+UPDATE `list_options` SET codes='WK', notes='Weekly - Once per week' WHERE list_id='drug_interval' AND option_id='19' AND title='Weekly';
+UPDATE `list_options` SET codes='MO', notes='Monthly - Once per month' WHERE list_id='drug_interval' AND option_id='20' AND title='Monthly';
 #EndIf
