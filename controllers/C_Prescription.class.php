@@ -41,7 +41,8 @@ class C_Prescription extends Controller
     public $prescriptions;
     public CodeTypesService $codeTypesService;
 
-    public function getCodeTypesService() {
+    public function getCodeTypesService()
+    {
         if (!isset($this->codeTypesService)) {
             $this->codeTypesService = new CodeTypesService();
         }
