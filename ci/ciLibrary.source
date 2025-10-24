@@ -139,15 +139,15 @@ install_configure() {
 
 ##
 # Add a php auto prepend file we can use for telemetry
-# and measuring code coverage.
+# and measuring code coverage for both E2E and API tests.
 # Arguments:
 #   $1 - webserver type (apache or nginx)
 setup_e2e_bookends() {
     local webserver="${1:-apache}"
     local php_scan_dir
-    local prepend_file='ci/e2e_prepend.php'
-    local prepend_marker='openemr-e2e-PREPEND_EXECUTED'
-    local shutdown_marker='openemr-e2e-SHUTDOWN_EXECUTED'
+    local prepend_file='ci/auto_prepend.php'
+    local prepend_marker='openemr-autoprepend-PREPEND_EXECUTED'
+    local shutdown_marker='openemr-autoprepend-SHUTDOWN_EXECUTED'
     local webserver_host
 
     # Map webserver types to their hostnames
@@ -190,12 +190,12 @@ setup_e2e_bookends() {
     echo 'Testing prepend/shutdown behavior…'
     _exec rm -f "${prepend_marker}" "${shutdown_marker}"
 
-    echo "Verifying E2E prepend configuration via web server (${webserver} at ${webserver_host})…"
+    echo "Verifying auto prepend configuration via web server (${webserver} at ${webserver_host})…"
     _exec sh -c "curl -fsSL http://${webserver_host}/ci/phpinfo.php | grep -E auto_prepend_file"
 
     sleep 1  # Give filesystem time to flush
 
-    _exec sh -c 'ls /tmp/openemr-e2e-*_EXECUTED'
+    _exec sh -c 'ls /tmp/openemr-autoprepend-*_EXECUTED'
 
     echo 'Checking prepend marker file after web request:'
     _exec sh -c "cat '/tmp/${prepend_marker}'"
@@ -205,8 +205,8 @@ setup_e2e_bookends() {
 }
 
 ##
-# Coverage is mainly enabled for E2e through ci/e2e_prepend.php
-# However, we still need longer timeouts.
+# Coverage is mainly enabled for E2E and API tests through ci/auto_prepend.php
+# However, E2E tests still need longer timeouts.
 enable_e2e_coverage() {
     # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
     export SELENIUM_IMPLICIT_WAIT=90
@@ -327,13 +327,15 @@ phpunit() {
 
 ##
 # Run the tests, enabling coverage if set.
-# Coverage is not handled for api or e2e tests.
+# API and E2E tests use ci/auto_prepend.php for coverage collection.
+# Other tests use PHPUnit's native coverage collection.
 build_test() {
     local testsuite=$1
     local -a args=( --testsuite "${testsuite}" )
     shift
     case "${testsuite}" in
-        api) phpunit "${args[@]}" "$@"
+        api) # API tests collect coverage via auto_prepend.php
+             phpunit "${args[@]}" "$@"
              return
              ;;
         e2e) build_test_e2e "$@"

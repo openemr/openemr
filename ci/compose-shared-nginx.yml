@@ -2,7 +2,7 @@ services:
   openemr:
     environment:
       OPENEMR_BASE_URL_API: "https://nginx"
-      OPENEMR_E2E_ENABLE_CI_PHP: "1"
+      OPENEMR_ENABLE_CI_PHP: "1"
       ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
       SELENIUM_BASE_URL: "http://nginx"
     volumes:
