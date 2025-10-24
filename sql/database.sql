@@ -7340,6 +7340,30 @@ VALUES ('act_pharmacy_supply_type', 'DF', 'Daily Fill', 10, 'DF', 'A fill provid
        ('act_pharmacy_supply_type', 'TB', 'Trial Balance', 240, 'TB', 'A fill where the remainder of a complete fill is provided after a trial fill'),
        ('act_pharmacy_supply_type', 'TBS', 'Trial Balance Partial Strength', 250, 'TBS', 'A fill where the remainder is provided after a trial fill and strength is less than ordered'),
        ('act_pharmacy_supply_type', 'UDE', 'Unit Dose Equivalent', 260, 'UDE', 'A supply action that provides sufficient material for a single dose via multiple products');
+
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','medication_adherence_information_source','Information Source for Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.11 (InformationSourceForMedicationAdherence)',1);
+
+-- this is an example value set which means the value set can be nearly anything we want here so we can expand in the future if needed
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('medication_adherence_information_source', 'professional_nurse', 'Professional Nurse (occupation)', 10, 'SNOMED-CT:106292003'),
+        ('medication_adherence_information_source', 'patient', 'Patient (person)', 20, 'SNOMED-CT:116154003'),
+       ('medication_adherence_information_source', 'pharmacy', 'Pharmacy', 30, 'HSOC:1179-1'),
+       ('medication_adherence_information_source', 'home_care', 'Home Care', 40, 'HSOC:1192-4'),
+       ('medication_adherence_information_source', 'location_outside_facility', 'Location Outside Facility', 50, 'HSOC:1204-7'),
+       ('medication_adherence_information_source', 'adm_physician', 'admitting physician', 60, 'ParticipationFunction:ADMPHYS'),
+       ('medication_adherence_information_source', 'parent', 'Parent', 70, 'ParticipationFunction:PRN');
+
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
+VALUES ('lists','medication_adherence','Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1240.8 (rMedicationAdherence)',1);
+
+INSERT INTO list_options (list_id, option_id, title, seq, codes)
+VALUES ('medication_adherence', 'compliance', 'Complies with drug therapy (finding)', 10, 'SNOMED-CT:1156699004'),
+       ('medication_adherence', 'non_compliance', 'Does not take medication (finding)', 20, 'SNOMED-CT:715036001'),
+       ('medication_adherence', 'asked_declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined'),
+       ('medication_adherence', 'asked_unknown', 'Asked But Unknown', 40, 'DataAbsentReason:asked-unknown'),
+       ('medication_adherence', 'not_asked', 'Not Asked', 50, 'DataAbsentReason:not-asked'),
+       ('medication_adherence', 'unknown', 'Unknown', 60, 'DataAbsentReason:unknown');
 --
 -- Table structure for table `lists`
 --
@@ -7399,6 +7423,10 @@ CREATE TABLE `lists_medication` (
     , `usage_category_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category'
     , `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent'
     , `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent'
+    , `medication_adherence_information_source` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence_information_source to indicate who provided the medication adherence information'
+    , `medication_adherence` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence to indicate if patient is complying with medication regimen'
+    , `medication_adherence_date_asserted` DATETIME DEFAULT NULL COMMENT 'Date when the medication adherence information was asserted'
+    , `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record'
     , PRIMARY KEY (`id`)
     , INDEX `lists_med_usage_category_idx`(`usage_category`)
     , INDEX `lists_med_request_intent_idx`(`request_intent`)
@@ -8409,6 +8437,7 @@ CREATE TABLE `prescriptions` (
   `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
   `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
   `drug_dosage_instructions` longtext COMMENT 'Medication dosage instructions',
+  `diagnosis` TEXT COMMENT 'Diagnosis or reason for the prescription',
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   PRIMARY KEY  (`id`),

@@ -26,6 +26,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
@@ -282,6 +283,7 @@ if (!empty($_POST['form_save'])) {
     // now populate medication
     if (isset($_POST['form_medication'])) {
         $issueRecord['medication'] = $_POST['form_medication'];
+        $issueRecord['medication']['medication_adherence_date_asserted'] = !empty($issueRecord['medication']['medication_adherence_date_asserted']) ? DateTimeToYYYYMMDDHHMMSS($issueRecord['medication']['medication_adherence_date_asserted']) : null;
     }
 
     $patientIssuesService = new PatientIssuesService();
@@ -847,11 +849,11 @@ function getCodeText($code)
                             </div>
                             <div class="form-group col-sm-12 col-md-3">
                                 <label for="form_begin"><?php echo xlt('Begin Date and Time'); ?>:</label>
-                                <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(trim(oeFormatDateTime($irow['begdate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of onset, surgery or start of medication'); ?>' />
+                                <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(trim(DateFormatterUtils::oeFormatDateTime($irow['begdate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of onset, surgery or start of medication'); ?>' />
                             </div>
                             <div class="form-group col-sm-12 col-md-3" id='row_enddate'>
                                 <label for="form_begin"><?php echo xlt('End Date and Time'); ?>:</label>
-                                <input type='text' class='datepicker form-control' placeholder="<?php echo xlt('leave blank if still active'); ?>" name='form_end' id='form_end' value='<?php echo attr(trim(oeFormatDateTime($irow['enddate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of recovery or end of medication'); ?>' />
+                                <input type='text' class='datepicker form-control' placeholder="<?php echo xlt('leave blank if still active'); ?>" name='form_end' id='form_end' value='<?php echo attr(trim(DateFormatterUtils::oeFormatDateTime($irow['enddate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of recovery or end of medication'); ?>' />
                             </div>
                         </div>
                         <div class="row">
@@ -999,6 +1001,33 @@ function getCodeText($code)
                                 </div>
                             </div>
                         </div>
+                        <?php if (!empty($irow['id']) && ($irow['type'] ?? '') == 'medication') : ?>
+                        <div class="row">
+                            <div class="col-12">
+                                <h5><?php echo xlt("Medication Adherence"); ?></h5>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="form-group col-sm-12 col-md-6">
+                                <label class="col-form-label" for="form_medication[medication_adherence_date_asserted]"><?php echo xlt('Date Asserted'); ?>:</label>
+                                <input type="text" class="form-control datepicker" name='form_medication[medication_adherence_date_asserted]' id='form_medication[medication_adherence_date_asserted]'
+                                       value="<?php echo text(DateFormatterUtils::oeFormatDateTime($irow['medication']['medication_adherence_date_asserted'] ?? date("Y-m-d H:i:s"))); ?>" />
+                            </div>
+                            <div class="form-group col-sm-12 col-md-6">
+                                <label class="col-form-label" for="form_medication[medication_adherence]"><?php echo xlt('Current Adherence to Medication'); ?>:</label>
+                                <?php
+                                generate_form_field(['data_type' => 1, 'field_id' => 'medication[medication_adherence]', 'list_id' => 'medication_adherence'], $irow['medication']['medication_adherence'] ?? null);
+                                ?>
+                            </div>
+                            <div class="form-group col-sm-12 col-md-6">
+                                <label class="col-form-label" for="form_medication[medication_adherence_information_source]"><?php echo xlt('Information Source'); ?>:</label>
+                                <?php
+                                generate_form_field(['data_type' => 1, 'field_id' => 'medication[medication_adherence_information_source]', 'list_id' => 'medication_adherence_information_source'], $irow['medication']['medication_adherence_information_source'] ?? null);
+                                ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                         <div class="row">
                             <div class="col d-flex justify-content-end">
                                 <button type="button" class="btn btn-text mr-3" data-toggle="collapse" data-target="#expanded_options" aria-expanded="false" aria-controls="expanded_options"><?php echo xlt("Show More Fields"); ?>&nbsp;<i class="fa fa-angles-down"></i></button>

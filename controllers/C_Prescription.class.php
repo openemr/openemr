@@ -25,6 +25,8 @@ use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\PatientIssuesService;
 
 class C_Prescription extends Controller
 {
@@ -33,7 +35,19 @@ class C_Prescription extends Controller
     public $is_faxing = false;
     public $is_print_to_fax = false;
     public $RxList;
+    /**
+     * @var Prescription[]
+     */
     public $prescriptions;
+    public CodeTypesService $codeTypesService;
+
+    public function getCodeTypesService()
+    {
+        if (!isset($this->codeTypesService)) {
+            $this->codeTypesService = new CodeTypesService();
+        }
+        return $this->codeTypesService;
+    }
 
     function __construct(public $template_mod = "general")
     {
@@ -131,6 +145,11 @@ class C_Prescription extends Controller
         if (!empty($patient_id)) {
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
+
+        $urlCodes = $this->getCodeTypesService()->collectCodeTypes("diagnosis", "csv");
+        $url = $GLOBALS['webroot'] . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
+        $this->assign('diagnosisCodes', $this->getDiagnosisCodesList($this->prescriptions[0]));
+        $this->assign("addCodeUrl", $url);
 
         $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
 
@@ -1114,5 +1133,50 @@ class C_Prescription extends Controller
             $prescription = new Prescription($ids[0]);
         }
         return [$html, $prescription->patient];
+    }
+
+    private function getDiagnosisCodesList(Prescription $prescription)
+    {
+        $codeTypesService = $this->getCodeTypesService();
+        $listsService = new PatientIssuesService();
+        $activeIssues = $listsService->getActiveIssues($prescription->get_patient_id());
+        $formattedCodes = [];
+        $diagnosis = $prescription->get_diagnosis();
+        $selectedCodes = !empty($diagnosis) ? explode(';', $prescription->get_diagnosis() ?? '') : [];
+        $selectedCodes = array_combine($selectedCodes, $selectedCodes);
+        $formattedCodesByCode = [];
+        if ($activeIssues->hasData()) {
+            foreach ($activeIssues->getData() as $issue) {
+                $codes = $issue['diagnosis'];
+                $issueCodes = !empty($codes) ? explode(';', (string) $codes) : [];
+                foreach ($issueCodes as $code) {
+                    // already exists in the list so we skip over it.
+                    if (isset($formattedCodesByCode[$code])) {
+                        continue;
+                    }
+                    $description = $codeTypesService->lookup_code_description($code);
+                    $formattedCodes[] = [
+                        'value' => $code,
+                        'text' => $description . ' (' . $code . ')',
+                        'selected' => isset($selectedCodes[$code])
+                    ];
+                    $formattedCodesByCode[$code] = true;
+                    // clear it out so we don't show duplicates
+                    if (isset($selectedCodes[$code])) {
+                        unset($selectedCodes[$code]);
+                    }
+                }
+            }
+        }
+        // add any remaining selected codes that were not in active issues, but do exist in the prescription
+        foreach ($selectedCodes as $code) {
+            $description = $codeTypesService->lookup_code_description($code);
+            $formattedCodes[] = [
+                'value' => $code,
+                'text' => $description . ' (' . $code . ')',
+                'selected' => true
+            ];
+        }
+        return $formattedCodes;
     }
 }

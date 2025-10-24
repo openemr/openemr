@@ -126,4 +126,8 @@ class FhirCodeSystemConstants
     const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';
 
     const HL7_TIMING_ABBREVIATION = 'http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation';
+
+    const HL7_ROLE_CODE = "http://terminology.hl7.org/CodeSystem/role-code";
+
+    const HSOC = "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html";
 }
