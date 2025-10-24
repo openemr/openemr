@@ -36,6 +36,8 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -112,6 +114,25 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             [self::PROCEDURE_ORDER_TEST_TYPE],
             SearchModifier::NOT_EQUALS_EXACT
         );
+
+        // date has to be a compound search
+        if (isset($openEMRSearchParameters['report_date'])) {
+            // need to have a condition of report_date = x OR (report_date is null AND date_ordered = x)
+            $reportDateField = $openEMRSearchParameters['report_date'];
+            unset($openEMRSearchParameters['report_date']);
+
+            $orderedDateOrMissingReportDate = new CompositeSearchField('ordered_date_missing_report_date', [], true);
+            $dateOrderedField = new DateSearchField('date_ordered', $reportDateField->getValues());
+            $reportDateMissingField = new TokenSearchField('report_date', [new TokenSearchValue(true)]);
+            $reportDateMissingField->setModifier(SearchModifier::MISSING);
+            $orderedDateOrMissingReportDate->addChild($reportDateMissingField);
+            $orderedDateOrMissingReportDate->addChild($dateOrderedField);
+
+            $compositeField = new CompositeSearchField('performed_date', [], false);
+            $compositeField->addChild($reportDateField);
+            $compositeField->addChild($orderedDateOrMissingReportDate);
+            $openEMRSearchParameters['performed_date'] = $compositeField;
+        }
 
         // FIXED: Don't require reports - we want to show all procedure orders
         // Remove the report_uuid filter to include orders without reports
