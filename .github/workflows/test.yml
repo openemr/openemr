@@ -463,7 +463,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.e2e.clover.xml
-        flags: e2e,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload E2E test videos to GitHub
       if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
