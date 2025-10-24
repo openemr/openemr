@@ -138,10 +138,6 @@ try {
          * '$quantity', '$fee' "  .
          * ")");
          *******************************************************************/
-
-        if (!$sale_id) {
-            throw new Exception(xl('Internal error, no drug ID specified!'));
-        }
     } // end if not $sale_id
 } catch (Exception $e) {
     // TODO: we moved the die statements out of the service into exceptions, but this is still terrible and needs to be
