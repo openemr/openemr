@@ -1691,7 +1691,7 @@ UPDATE `list_options` SET codes='WK', notes='Weekly - Once per week' WHERE list_
 UPDATE `list_options` SET codes='MO', notes='Monthly - Once per month' WHERE list_id='drug_interval' AND option_id='20' AND title='Monthly';
 #EndIf
 
-#IfNotRow list_options list_id medication_adherence_information_source professional_nurse
+#IfNotRow2D list_options list_id medication_adherence_information_source option_id professional_nurse
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','medication_adherence_information_source','Information Source for Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1267.11 (InformationSourceForMedicationAdherence)',1);
 
@@ -1706,7 +1706,7 @@ VALUES ('medication_adherence_information_source', 'professional_nurse', 'Profes
        ('medication_adherence_information_source', 'parent', 'Parent', 70, 'ParticipationFunction:PRN');
 #EndIf
 
-#IfNotRow list_options list_id medication_adherence complies
+#IfNotRow2D list_options list_id medication_adherence option_id compliance
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','medication_adherence','Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1240.8 (rMedicationAdherence)',1);
 
@@ -1723,4 +1723,15 @@ VALUES ('medication_adherence', 'compliance', 'Complies with drug therapy (findi
 ALTER TABLE lists_medication ADD COLUMN `medication_adherence_information_source` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence_information_source to indicate who provided the medication adherence information';
 ALTER TABLE lists_medication ADD COLUMN `medication_adherence` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence to indicate if patient is complying with medication regimen';
 ALTER TABLE lists_medication ADD COLUMN `medication_adherence_date_asserted` DATETIME DEFAULT NULL COMMENT 'Date when the medication adherence information was asserted';
+#EndIf
+
+#IfMissingColumn prescriptions diagnosis
+-- prescriptions has an indication column which would normally be this diagnosis but Weno and other tables seem to use
+-- this as some kind of identifier so we can't use that column
+ALTER TABLE prescriptions ADD COLUMN diagnosis TEXT COMMENT 'Diagnosis or reason for the prescription';
+#EndIf
+
+#IfMissingColumn lists_medication prescription_id
+-- instead of linking medications by their title, we can link them by prescription_id to the prescriptions table
+ALTER TABLE lists_medication ADD COLUMN `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record';
 #EndIf

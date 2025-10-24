@@ -7426,6 +7426,7 @@ CREATE TABLE `lists_medication` (
     , `medication_adherence_information_source` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence_information_source to indicate who provided the medication adherence information'
     , `medication_adherence` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence to indicate if patient is complying with medication regimen'
     , `medication_adherence_date_asserted` DATETIME DEFAULT NULL COMMENT 'Date when the medication adherence information was asserted'
+    , `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record'
     , PRIMARY KEY (`id`)
     , INDEX `lists_med_usage_category_idx`(`usage_category`)
     , INDEX `lists_med_request_intent_idx`(`request_intent`)
@@ -8436,6 +8437,7 @@ CREATE TABLE `prescriptions` (
   `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
   `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
   `drug_dosage_instructions` longtext COMMENT 'Medication dosage instructions',
+  `diagnosis` TEXT COMMENT 'Diagnosis or reason for the prescription',
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   PRIMARY KEY  (`id`),

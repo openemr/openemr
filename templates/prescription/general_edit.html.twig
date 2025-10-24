@@ -285,6 +285,42 @@
                 </div>
             {% endif %}
         </div>
+        <div class="form-group row mt-3">
+            <div class="col-12">
+                <label>{{'Encounter'|xlt}}</label>
+            </div>
+            <div class="col-12">
+                {{ encounterSelectList('encounter', prescription.patient.id, defaultEncounterId, 'Select Encounter'|xl, {empty_name:'Select Encounter'|xl}) }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-12" id='row_selected_codes'>
+                <label for="form_selected_codes" class="col-form-label">{{ 'Coding'|xlt }}:</label>
+                <select name='diagnosis[]' id='form_selected_codes' class= "form-control" multiple size='4'>
+                    {% for code in diagnosisCodes %}
+                    <option value='{{ code.value|attr }}' {% if code.selected %}selected="selected"{% endif %}>{{ code.text|text}}</option>
+                    {% endfor %}
+                </select>
+                <input type="button" value="{{ "Add New Code"|xla }}" class="btn btn-secondary btn-sm mb-2 btn-add-code" />
+                <p class="mb-0">{{ "To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues."|xlt }}</p>
+            </div>
+        </div>
+        <div class="form-group row mt-3">
+            <div class="col-12">
+                <label>{{'Medication Usage'|xlt}}</label>
+            </div>
+            <div class="col-12">
+                {{ selectList('usage_category', 'medication-usage-category', prescription.usage_category, 'Medication Request Intent'|xl, {empty_title: 'SKIP'}) }}
+            </div>
+        </div>
+        <div class="form-group row mt-3">
+            <div class="col-12">
+                <label>{{'Medication Request Intent'|xlt}}</label>
+            </div>
+            <div class="col-12">
+                {{ selectList('request_intent', 'medication-request-intent', prescription.request_intent, 'Medication Request Intent'|xl) }}
+            </div>
+        </div>
         <div class="form-group mt-3">
             <label>{{'Notes'|xlt}}</label>
             <textarea class="form-control" name="note" cols="30" rows="1" wrap="virtual">{{prescription.note|text}}</textarea>
@@ -320,14 +356,6 @@
                     </select>
                 </div>
             {% endif %}
-        </div>
-        <div class="form-group row mt-3">
-            <div class="col-12">
-                <label>{{'Encounter'|xlt}}</label>
-            </div>
-            <div class="col-12">
-                {{ encounterSelectList('encounter', prescription.patient.id, defaultEncounterId, 'Select Encounter'|xl, {empty_name:'Select Encounter'|xl}) }}
-            </div>
         </div>
         {% if bottomActionBarDisplay %}
             <div class="row">
@@ -432,6 +460,9 @@ $(function () {
         $("#clearButton",window.parent.document).css("display", "none");
         $("#backButton",window.parent.document).css("display", "none");
         $("#addButton",window.parent.document).css("display", "");
+    });
+    $(".btn-add-code").on("click", function() {
+        onAddCode();
     });
 
 
@@ -564,7 +595,25 @@ $(function () {
         , showSeconds: false
         , formatInput: true
     });
-});</script>
+});
+function onAddCode() {
+    dlgopen('{{ addCodeUrl }}', '_blank', 985, 800, '', {{"Select Codes"|xlj }});
+}
+
+// This is for callback by the select codes popup.
+// Appends to or erases the current list of diagnoses.
+function OnCodeSelected(codetype, code, selector, codedesc) {
+    var codeKey = codetype + ':' + code
+    let option = document.createElement('option');
+    option.value = codeKey; // escaped via DOM
+    option.textContent = codeKey + ' (' + codedesc + ')'; // escaped via DOM
+    let select = document.getElementById('form_selected_codes');
+    if (!select) {
+        console.error("Could not find selected codes element");
+    }
+    select.appendChild(option);
+}
+</script>
 
 
 

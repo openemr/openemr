@@ -106,6 +106,7 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.medication_adherence_date_asserted
                 ,combined_prescriptions.prescription_drug_size
                 ,combined_prescriptions.quantity
+                ,combined_prescriptions.diagnosis
                 ,patient.puuid
                 ,encounter.euuid
                 ,practitioner.pruuid
@@ -138,10 +139,10 @@ class PrescriptionService extends BaseService
                             ,prescriptions.drug
                             ,prescriptions.active
                             ,prescriptions.end_date
-                            ,'order' AS intent
-                            ,'Order' AS intent_title
-                            ,'community' AS category
-                            ,'Home/Community' as category_title
+                            ,COALESCE(prescriptions.request_intent, 'order') AS intent
+                            ,COALESCE(prescriptions.request_intent_title, 'Order') AS intent_title
+                            ,COALESCE(prescriptions.usage_category, 'community') AS category
+                            ,COALESCE(prescriptions.usage_category_title, 'Home/Community') as category_title
                             ,IF(prescriptions.rxnorm_drugcode!=''
                                 ,prescriptions.rxnorm_drugcode
                                 ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
@@ -168,12 +169,22 @@ class PrescriptionService extends BaseService
                                 ELSE 'stopped'
                             END as 'status'
                             ,prescriptions.dosage
+                            ,diagnosis
 
                     FROM
                         prescriptions
                     LEFT JOIN
                         -- @brady.miller so drug_id in my databases appears to always be 0 so I'm not sure I can grab anything here.. I know WENO doesn't populate this value...
                         drugs ON prescriptions.drug_id = drugs.drug_id
+                    LEFT JOIN (
+                        SELECT
+                            id AS meds_id,
+                            medication_adherence_information_source,
+                            medication_adherence,
+                            medication_adherence_date_asserted,
+                            prescription_id AS meds_prescription_id
+                        FROM lists_medication
+                    ) meds ON prescriptions.id = meds.meds_prescription_id
                     UNION
                     SELECT
                         lists.uuid
@@ -208,6 +219,7 @@ class PrescriptionService extends BaseService
                                 ELSE 'stopped'
                         END as 'status'
                         ,NULL as dosage
+                        ,diagnosis
                     FROM
                         lists
                     LEFT JOIN
@@ -225,6 +237,7 @@ class PrescriptionService extends BaseService
                     ) issues_encounter ON lists.pid = issues_encounter.issues_encounter_pid AND lists.id = issues_encounter.issues_encounter_list_id
                     WHERE
                         type = 'medication'
+                        AND lists_medication.prescription_id IS NULL
                 ) combined_prescriptions
                 LEFT JOIN
                 (

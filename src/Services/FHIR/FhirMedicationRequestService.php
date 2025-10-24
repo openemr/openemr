@@ -244,19 +244,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (empty($dataRecord['puuid'])) {
             return;
         }
-        // TODO: populate reasonCode and reasonReference from OpenEMR data, for now we are stubbing it out with
-        // fake data
-        $fhirConditionService = new FhirConditionService();
-        $fhirConditionService->setSystemLogger($this->getSystemLogger());
-        $conditions = $fhirConditionService->getAll(['patient' => $dataRecord['puuid']]);
-        if ($conditions->hasData()) {
-            /**
-             * @var FHIRCondition $firstCondition
-             */
-            $firstCondition = $conditions->getData()[0];
-            $medRequestResource->addReasonReference(UtilsService::createRelativeReference('Condition', $firstCondition->getId()->getValue()));
-            $medRequestResource->addReasonCode($firstCondition->getCode());
+        if (!empty($dataRecord['diagnosis'])) {
+            $codes = $this->getCodeTypesService()->parseCodesIntoCodeableConcepts($dataRecord['diagnosis']);
+            $medRequestResource->addReasonCode(UtilsService::createCodeableConcept($codes, FhirCodeSystemConstants::SNOMED_CT, ''));
         }
+        // TODO: if we want a linkage to the Condition resource we need to implement that in OpenEMR first
     }
 
     public function populateDosageInstruction(FHIRMedicationRequest $medRequestResource, array $dataRecord): void
