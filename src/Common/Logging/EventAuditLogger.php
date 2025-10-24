@@ -917,7 +917,7 @@ MSG;
             return "Patient Insurance";
         } elseif ($table == 'patient_data' || $table == 'employer_data') {
             return "Patient Demographics";
-        } elseif ($table == 'payments' || $table == "billing" || $table == "claims") {
+        } elseif (in_array($table, ['payments', "billing", "claims"])) {
             return "Billing";
         } elseif ($table == 'pnotes') {
             return "Clinical Mail";

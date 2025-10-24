@@ -218,7 +218,7 @@ function edih_disp_file_process()
             $dh = opendir($fdir);
             if ($dh) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..' && $file != "process_bills.log") {
+                    if (!in_array($file, ['.', '..', "process_bills.log"])) {
                         $checkdir = true;
                         break;
                     }

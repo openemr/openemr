@@ -308,7 +308,7 @@ class RequestUtil
         $port = $domainport [1] ?? $server_port;
 
         // ports 80 and 443 are generally not included in the url
-        $port = ($port == "" || $port == "80" || $port == "443") ? "" : (":" . $port);
+        $port = (in_array($port, ["", "80", "443"])) ? "" : (":" . $port);
 
         if (isset($_SERVER ['REQUEST_URI'])) {
             // REQUEST_URI is more accurate but isn't always defined on windows

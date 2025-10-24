@@ -200,7 +200,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
                         for ($i = 0; false != ($fname = readdir($dp)); $i++) {
                             if (
-                                $fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
+                                !in_array($fname, [".", "..", "CVS", "LBF"]) &&
                                 (is_dir($dpath . $fname) || stristr($fname, ".tar.gz") ||
                                 stristr($fname, ".tar") || stristr($fname, ".zip") ||
                                 stristr($fname, ".gz"))

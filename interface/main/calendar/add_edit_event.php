@@ -384,7 +384,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
             $time = strtotime((string) $event_date);
             $my_repeat_on_day = 0 + date('w', $time);
             $my_repeat_on_freq = $my_repeat_freq;
-            if ($my_repeat_type == 5 || $my_repeat_type == 7 || $my_repeat_type == 8 || $my_repeat_type == 9) { //Added conditions for 7th, 8th, 9th.
+            if (in_array($my_repeat_type, [5, 7, 8, 9])) { //Added conditions for 7th, 8th, 9th.
                 $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
             } else {
                 // Last occurence of this weekday on the month

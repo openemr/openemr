@@ -348,8 +348,7 @@ function endClient($pid, &$encarray): void
             }
 
             if (
-                $key == 'id' || $key == 'type' || $key == 'begdate' ||
-                $key == 'enddate' || $key == 'title' || $key == 'diagnosis'
+                in_array($key, ['id', 'type', 'begdate', 'enddate', 'title', 'diagnosis'])
             ) {
                 continue;
             }

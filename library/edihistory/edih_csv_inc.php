@@ -892,7 +892,7 @@ function csv_dirfile_list($type)
     if (is_dir($search_dir)) {
         if ($dh = opendir($search_dir)) {
             while (($file = readdir($dh)) !== false) {
-                if ($file == '.' || $file == '..' || $file == "process_bills.log") {
+                if (in_array($file, ['.', '..', "process_bills.log"])) {
                     continue;
                 } elseif ($tp == 'f837' && ($file == 'history' || $file == 'README.txt')) {
                     continue;

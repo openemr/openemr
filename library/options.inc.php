@@ -653,7 +653,7 @@ function generate_form_field($frow, $currvalue): void
 
     // generic single-selection list or single-selection list with search or single-selection list with comment support.
     // These data types support backup lists.
-    if ($data_type == 1 || $data_type == 43 || $data_type == 46) {
+    if (in_array($data_type, [1, 43, 46])) {
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $lbfchange = "processCommentField(" . attr_js($field_id) . ");" . $lbfchange;
@@ -1716,7 +1716,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     // if (false && ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46)) {
     // We used to show all the list options but this was undone per CV request 2017-12-07
     // (see alternative code below).
-    if ($data_type == 1 || $data_type == 26 || $data_type == 33 || $data_type == 43 || $data_type == 46) {
+    if (in_array($data_type, [1, 26, 33, 43, 46])) {
         if (empty($fld_length)) {
             $fld_length = $list_id == 'titles' ? 3 : 10;
         }
@@ -2365,7 +2365,7 @@ function generate_display_field($frow, $currvalue)
 
     // generic selection list or the generic selection list with add on the fly
     // feature
-    if ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46) {
+    if (in_array($data_type, [1, 26, 43, 46])) {
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", (string) $currvalue);
@@ -2377,7 +2377,7 @@ function generate_display_field($frow, $currvalue)
           $s = htmlspecialchars((string) xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43,46
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
+        if ($lrow == 0 && !empty($backup_list) && (in_array($data_type, [1, 26, 43, 46]))) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$currvalue]);
               $s = htmlspecialchars((string) xl_list_label($lrow['title']), ENT_NOQUOTES);
@@ -2860,7 +2860,7 @@ function generate_plaintext_field($frow, $currvalue)
     // generic selection list or the generic selection list with add on the fly
     // feature, or radio buttons
     //  Supports backup lists (for datatypes 1,26,43)
-    if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 43 || $data_type == 46) {
+    if (in_array($data_type, [1, 26, 27, 43, 46])) {
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", (string) $currvalue);
@@ -2875,7 +2875,7 @@ function generate_plaintext_field($frow, $currvalue)
         $s = xl_list_label($lrow['title'] ?? '');
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
+        if ($lrow == 0 && !empty($backup_list) && (in_array($data_type, [1, 26, 43, 46]))) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list, $currvalue]);
             $s = xl_list_label($lrow['title']);
@@ -3377,7 +3377,7 @@ function isSkipped(&$frow, $currvalue)
         if ($src_datatype == 21 && $src_list_id) { // array of checkboxes
             $tmp = explode('|', (string) $srcvalue);
             $srcvalue = in_array($itemid, $tmp);
-        } elseif ($src_datatype == 22 || $src_datatype == 23 || $src_datatype == 25) {
+        } elseif (in_array($src_datatype, [22, 23, 25])) {
             $tmp = explode('|', (string) $srcvalue);
             $srcvalue = '';
             foreach ($tmp as $tmp2) {
@@ -4263,7 +4263,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 $tmparr[$key][3] = $valarr['3'];
             }
             $value .= json_encode($tmparr);
-        } elseif ($data_type == 36 || $data_type == 44 || $data_type == 45 || $data_type == 33) {
+        } elseif (in_array($data_type, [36, 44, 45, 33])) {
             $value_array = $_POST["form_$field_id"];
             $i = 0;
             foreach ($value_array as $valueofkey) {

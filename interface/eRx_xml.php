@@ -141,7 +141,7 @@ function user_role($doc, $r): void
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
     if ($userRole['newcrop_user_role'] == 'doctor') {
         $userRole['eRxUser'] = 'LicensedPrescriber';
-    } elseif ($userRole['newcrop_user_role'] == 'admin' || $userRole['newcrop_user_role'] == 'manager' || $userRole['newcrop_user_role'] == 'nurse') {
+    } elseif (in_array($userRole['newcrop_user_role'], ['admin', 'manager', 'nurse'])) {
         $userRole['eRxUser'] = 'Staff';
     } elseif ($userRole['newcrop_user_role'] == 'midlevelPrescriber') {
         $userRole['eRxUser'] = 'MidlevelPrescriber';
@@ -866,7 +866,7 @@ function PatientFreeformAllergy($doc, $r, $pid)
             $b->appendChild($allergyName);
         }
 
-        if ($val['title2'] && ($val['title2'] == 'Mild' || $val['title2'] == 'Moderate' || $val['title2'] == 'Severe')) {
+        if ($val['title2'] && (in_array($val['title2'], ['Mild', 'Moderate', 'Severe']))) {
             $allergySeverityTypeID = $doc->createElement("allergySeverityTypeID");
             $allergySeverityTypeID->appendChild(
                 $doc->createTextNode($val['title2'])

@@ -1161,7 +1161,7 @@ function fixDate($date, $default = "0000-00-00")
 function pdValueOrNull($key, $value)
 {
     if (
-        ($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
+        (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
         str_starts_with((string) $key, 'userdate') || $key == 'deceased_date') &&
         (empty($value) || $value == '0000-00-00')
     ) {

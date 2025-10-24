@@ -101,8 +101,7 @@ function ros_report($pid, $encounter, $cols, $id): void
 
             // skip the N/A values -- cfapress, Jan 2009 OR blank or zero date values
             if (
-                $value == "N/A" || $value == "" ||
-                $value == "0000-00-00" || $value == "0000-00-00 00:00:00"
+                in_array($value, ["N/A", "", "0000-00-00", "0000-00-00 00:00:00"])
             ) {
                 continue;
             }

@@ -241,7 +241,7 @@ function create_HTML_statement($stmt)
         $description = $GLOBALS['use_custom_statement'] ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr((string) $description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -720,7 +720,7 @@ function create_statement($stmt)
         $description = $GLOBALS['use_custom_statement'] ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr((string) $description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 
@@ -985,7 +985,7 @@ function osp_create_HTML_statement($stmt)
         $description = $GLOBALS['use_custom_statement'] ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr((string) $description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+        if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
 

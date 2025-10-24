@@ -444,7 +444,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     }
     // Tax rates, contraceptive methods and LBF names have an additional attribute.
     //
-    if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames' || $list_id == 'transactions') {
+    if (in_array($list_id, ['taxrate', 'contrameth', 'lbfnames', 'transactions'])) {
         echo "  <td>";
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][value]' value='" .
             attr($value) . "' size='8' maxlength='15' class='optin' />";
@@ -1335,7 +1335,7 @@ function writeITLine($it_array): void
                     <th><?php
                     if ($list_id == 'language') {
                         echo xlt('ISO 639 Code');
-                    } elseif ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route') {
+                    } elseif (in_array($list_id, ['personal_relationship', 'religious_affiliation', 'ethnicity', 'race', 'drug_route'])) {
                         echo xlt('HL7-V3 Concept Code');
                     } elseif ($list_id == 'Immunization_Completion_Status') {
                         echo xlt('Treatment Completion Status');

@@ -42,11 +42,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 
         foreach ($data as $key => $value) {
             if (
-                $key == "uuid" ||
-                $key == "id" || $key == "pid" ||
-                $key == "user" || $key == "groupname" ||
-                $key == "authorized" || $key == "activity" ||
-                $key == "date" || $value == "" ||
+                in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" ||
                 $value == "0000-00-00 00:00:00" || $value == "0.0"
             ) {
                 // skip certain data
@@ -103,7 +99,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
 
                 $vitals .= "</div></td>";
-            } elseif ($key == "Height" || $key == "Waist Circ"  || $key == "Head Circ") {
+            } elseif (in_array($key, ["Height", "Waist Circ", "Head Circ"])) {
                 $value = floatval($value);
                 $convValue = number_format(round($value * 2.54, 1), 2);
                 // show appropriate units
@@ -129,7 +125,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 } else { // = 1 or not set
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('F') . " (" . text($convValue) . " " . xlt('C')  . ")</div></td>";
                 }
-            } elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI" || $key == "Oxygen Flow Rate") {
+            } elseif (in_array($key, ["Pulse", "Respiration", "Oxygen Saturation", "BMI", "Oxygen Flow Rate"])) {
                 $value = floatval($value);
                 $c_value = number_format($value, 0);
                 if ($key == "Oxygen Saturation") {
@@ -142,7 +138,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 } else { //pulse and respirations
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($c_value) . " " . xlt('per min') . "</div></td>";
                 }
-            } elseif ($key == "Ped Weight Height" || $key == 'Ped Bmi' || $key == 'Ped Head Circ') {
+            } elseif (in_array($key, ["Ped Weight Height", 'Ped Bmi', 'Ped Head Circ'])) {
                 $value = floatval($value);
                 if ($is_pediatric_patient) {
                     $c_value = number_format($value, 0);
