@@ -15,6 +15,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureOEProcedureService;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureSurgeryService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -39,12 +40,26 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
     use FhirBulkExportDomainResourceTrait;
     use VersionedProfileTrait;
 
-    const FHIR_PROCEDURE_STATUS_COMPLETED = "completed";
-    const FHIR_PROCEDURE_STATUS_IN_PROGRESS = "in-progress";
-    const FHIR_PROCEDURE_STATUS_STOPPED = "stopped";
-    const FHIR_PROCEDURE_STATUS_UNKNOWN = "unknown";
+    /**
+     * @deprecated use EventStatusEnum::COMPLETED.
+     */
+    const FHIR_PROCEDURE_STATUS_COMPLETED = EventStatusEnum::COMPLETED->value;
+    /**
+     * @deprecated use EventStatusEnum::IN_PROGRESS.
+     */
+    const FHIR_PROCEDURE_STATUS_IN_PROGRESS = EventStatusEnum::IN_PROGRESS->value;
 
-    const PROCEDURE_STATUS_COMPLETED = "completed";
+    /**
+     * @deprecated use EventStatusEnum::STOPPED.
+     */
+    const FHIR_PROCEDURE_STATUS_STOPPED = EventStatusEnum::STOPPED->value;
+
+    /**
+     * @deprecated use EventStatusEnum::UNKNOWN.
+     */
+    const FHIR_PROCEDURE_STATUS_UNKNOWN = EventStatusEnum::UNKNOWN->value;
+
+    const PROCEDURE_STATUS_COMPLETED = EventStatusEnum::COMPLETED->value;
     const PROCEDURE_STATUS_PENDING = "pending";
     const PROCEDURE_STATUS_CANCELLED = "cancelled";
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure";

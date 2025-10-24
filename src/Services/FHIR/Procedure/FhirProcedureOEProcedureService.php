@@ -26,6 +26,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProcedureService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -230,29 +231,38 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $procedureResource->setCode($fhirCodeableConcept);
 
         // FIXED: Determine status based on whether reports exist
-        $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_COMPLETED;
+        $status = EventStatusEnum::COMPLETED;
         if (empty($report)) {
             // No report yet - procedure has been ordered but not performed
-            $status = 'preparation'; // or 'in-progress' depending on your workflow
+            $status = EventStatusEnum::PREPARATION; // or 'in-progress' depending on your workflow
         } elseif (!empty($report['results'])) {
             foreach ($report['results'] as $result) {
                 if ($result['status'] != 'final') {
-                    $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_IN_PROGRESS;
+                    $status = EventStatusEnum::IN_PROGRESS;
                     break;
                 }
             }
         }
-        $procedureResource->setStatus($status);
-
         // FIXED: Use report date if available, otherwise order date
         if (!empty($report['date'])) {
             $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
         } elseif (!empty($dataRecord['date_ordered'])) {
             // Order placed but not yet performed
-            $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
+            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
         } else {
-            $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
+            if ($status == EventStatusEnum::IN_PROGRESS || $status == EventStatusEnum::COMPLETED) {
+                // we CAN'T by spec have in-progress or completed without a date
+                $status = EventStatusEnum::UNKNOWN;
+            }
+            if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_3_1_1) {
+                // Profile 3.1.1 says to use data-absent-unknown for performedDateTime if not known
+                // Profile 6.1.0+ says to skip the performedDateTime if not known
+                $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
+            } // else for 6.1.0+ we just skip setting performedDateTime
         }
+
+        $procedureResource->setStatus($status->value);
+
 
         if (!empty($report['notes'])) {
             $annotation = new FHIRAnnotation();
@@ -357,5 +367,15 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $profile = new FHIRCanonical();
         $profile->setValue($profileUri);
         return $profile;
+    }
+
+    public function getSupportedVersions()
+    {
+        $highestVersion = $this->getHighestCompatibleUSCoreProfileVersion();
+        // version 3.1.1 is NOT compatible with 7.0.0 and later due to breaking changes in Procedure resource with how performed[x] is handled
+        return match ($highestVersion) {
+            self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
+            default => self::PROFILE_VERSIONS_V2
+        };
     }
 }
