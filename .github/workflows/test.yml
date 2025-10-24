@@ -104,39 +104,6 @@ jobs:
           composer config cache-files-dir
         } >> $GITHUB_OUTPUT
 
-    ##
-    # Restore everything that composer installed for the given key
-    # We don't need to run composer install at all if we get a hit.
-    - name: Restore vendor artifacts
-      id: vendor-cache-restore
-      uses: actions/cache/restore@v4
-      with:
-        path: vendor/
-        key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-
-          ${{ runner.os }}-vendor-
-
-    ##
-    # Restore composer's own cache
-    # This can still save us time if we miss the vendor cache
-    - name: Restore composer downloads
-      id: composer-cache-restore
-      if: ${{ steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-
-          ${{ runner.os }}-composer-
-
-    - name: Composer Install
-      if: ${{ steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
-      run: |
-        . ci/ciLibrary.source
-        composer_install
-
     - name: Install npm package
       uses: actions/setup-node@v6
       with:
@@ -151,6 +118,82 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     ##
+    # These are reused a bunch so it's neater to collect them here
+    - name: Collect cache keys
+      id: cache-keys
+      run: |
+        {
+          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
+          echo 'ccda-build=${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
+          echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
+        } >> "$GITHUB_OUTPUT"
+
+    ##
+    # Restore everything that composer installed for the given key
+    # We don't need to run composer install at all if we get a hit.
+    - name: Restore vendor artifacts
+      id: vendor-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.vendor }}
+        path: vendor/
+        restore-keys: |
+          ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-
+          ${{ runner.os }}-vendor-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check vendor artifacts cache
+      id: vendor-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.vendor }}'
+        matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    ##
+    # Restore composer's own cache
+    # This can still save us time if we miss the vendor cache
+    - name: Restore composer downloads
+      id: composer-cache-restore
+      if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.composer }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-
+          ${{ runner.os }}-composer-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check composer cache
+      id: composer-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.composer }}'
+        matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    - name: Composer Install
+      if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        composer_install
+
+    ##
     # Restore everything that node built for the given key.
     # We don't need to run npm ci && npm build at all if we get a hit.
     # This does not include ccda.
@@ -158,14 +201,29 @@ jobs:
       id: npm-build-cache-restore
       uses: actions/cache/restore@v4
       with:
+        key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
           node_modules/
           public/assets/
           public/themes/
-        key: ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-
           ${{ runner.os }}-npm-build-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check npm build cache
+      id: npm-build-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.npm-build }}'
+        matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
 
     ##
     # Restore everything that node built for CCDA for the given key.
@@ -175,83 +233,113 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ccdaservice/node_modules/
-        key: ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}
+        key: ${{ steps.cache-keys.outputs.ccda-build }}
         restore-keys: |
           ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
           ${{ runner.os }}-ccda-build-
 
     ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check ccda build cache
+      id: ccda-build-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.ccda-build }}'
+        matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    ##
     # Restore npm's own cache
     # This can still save us time if we miss the npm build caches
-    - name: Cache node modules
-      if: ${{ steps.npm-build-cache-restore.outputs.cache-hit != 'true' || steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
+    - name: Restore npm cache
+      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
       uses: actions/cache/restore@v4
       with:
+        key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
           ${{ runner.os }}-node-
 
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check npm cache
+      id: npm-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.npm }}'
+        matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
     - name: NPM Build
-      if: ${{ steps.npm-build-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}
       run: |
         . ci/ciLibrary.source
         npm_build
 
     - name: CCDA build
-      if: ${{ steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
       run: |
         . ci/ciLibrary.source
         ccda_build
 
     - name: Cleanup after Build
-      if: ${{ steps.vendor-cache-restore.outputs.cache-hit != 'true' || steps.npm-build-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ steps.vendor-cache-check.outputs.hit != 'true' || steps.npm-build-cache-check.outputs.hit != 'true' }}
       run: |
         . ci/ciLibrary.source
         post_build_cleanup
 
     ##
     # Save caches: base caches before derived caches
-    # This ensures proper cache layering and only saves caches we actually attempted to restore
-    - name: Save node modules cache
-      if: ${{ inputs.save_node_cache && steps.npm-cache-restore.outputs.cache-hit != 'true' && (steps.npm-build-cache-restore.outputs.cache-hit != 'true' || steps.ccda-build-cache-restore.outputs.cache-hit != 'true') }}
+    # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
+    - name: Save npm cache
+      if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v4
       with:
+        key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
 
     - name: Save CCDA build artifacts
-      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v4
       with:
+        key: ${{ steps.cache-keys.outputs.ccda-build }}
         path: ccdaservice/node_modules/
-        key: ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}
 
     - name: Save NPM build artifacts
-      if: ${{ inputs.save_node_cache && steps.npm-build-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v4
       with:
+        key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
           node_modules/
           public/assets/
           public/themes/
-        key: ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
 
     - name: Save composer cache
-      if: ${{ inputs.save_composer_cache && steps.composer-cache-restore.outputs.cache-hit != 'true' && steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v4
       with:
+        key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
 
     - name: Save vendor artifacts
-      if: ${{ inputs.save_composer_cache && steps.vendor-cache-restore.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' }}
       uses: actions/cache/save@v4
       with:
+        key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
-        key: ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
 
     - name: Chmod
       run: |
