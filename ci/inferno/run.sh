@@ -70,37 +70,35 @@ initialize_openemr() {
     echo 'Initializing OpenEMR'
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-        repo_root="$(git rev-parse --show-toplevel)" || exit 1
-        cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        composer_install
-        npm_build
-        post_build_cleanup
-        ccda_build
-        cd -
-        dockers_env_start
-        install_configure
-        "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-        "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-        # configure_coverage
-        echo 'OpenEMR initialized'
-    )
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    composer_install
+    npm_build
+    post_build_cleanup
+    ccda_build
+    cd -
+    dockers_env_start
+    install_configure
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+    # configure_coverage
+    echo 'OpenEMR initialized'
 }
 run_testsuite() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
-        cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        cd -
-        phpunit --testsuite certification -c "${OPENEMR_DIR}/phpunit.xml"
-        # merge_coverage
-        echo 'Certification Tests Executed'
-    )
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    cd -
+    phpunit --testsuite certification -c "${OPENEMR_DIR}/phpunit.xml"
+    # merge_coverage
+    echo 'Certification Tests Executed'
 }
 
 fix_redis_permissions() {
