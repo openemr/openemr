@@ -17,6 +17,7 @@ namespace OpenEMR\Services\FHIR\Procedure;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -31,6 +32,7 @@ use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -47,6 +49,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use VersionedProfileTrait;
 
 
     /**
@@ -59,6 +62,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      * @var ProcedureService
      */
     private $service;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure';
 
     public function __construct($fhirApiURL = null)
     {
@@ -143,7 +148,9 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
-        $meta->addProfile(new FHIRUri(['value' => 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure']));
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($this->createProfile($profile));
+        }
 
         $procedureResource->setMeta($meta);
 
@@ -344,5 +351,11 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             return 'http://loinc.org';
         }
         return $hint;
+    }
+    private function createProfile(string $profileUri): FHIRCanonical
+    {
+        $profile = new FHIRCanonical();
+        $profile->setValue($profileUri);
+        return $profile;
     }
 }
