@@ -342,6 +342,15 @@ class PrescriptionService extends BaseService
             }
             $record['drugcode'] = $updatedCodes;
         }
+        // TODO: @adunsulag should we change the table definitions to be null?
+        // the title columns historical data was set to be empty, so fixing this
+        if (empty($row['request_intent_title']) && $row['source_table'] == 'prescriptions') {
+            $record['request_intent_title'] = 'Order';
+        }
+        if (empty($row['category_title']) && $record['source_table'] == 'prescriptions') {
+            // fix for missing category title in prescriptions table
+            $record['category_title'] = 'Home/Community';
+        }
 
         return $record;
     }
