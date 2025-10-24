@@ -75,7 +75,9 @@ initialize_openemr() {
         cd -P "${repo_root}"
         # shellcheck source-path=../..
         . ci/ciLibrary.source
-        main_build
+        composer_install
+        npm_build
+        post_build_cleanup
         ccda_build
         cd -
         dockers_env_start
