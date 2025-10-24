@@ -192,9 +192,7 @@ class Practice extends Base
             $result2 = sqlFetchArray($test2);
             //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
             if (
-                $result2['pc_apptstatus'] == '*' ||  //confirmed
-                $result2['pc_apptstatus'] == '%' ||  //cancelled < 24hour
-                $result2['pc_apptstatus'] == 'x'
+                in_array($result2['pc_apptstatus'], ['*', '%', 'x'])
             ) { //cancelled
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, [$result2['pc_apptstatus'],$result2['msg_uid']]);

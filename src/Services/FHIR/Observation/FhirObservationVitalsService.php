@@ -11,15 +11,22 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
+use InvalidArgumentException;
+use BadMethodCallException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -29,12 +36,14 @@ use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\VitalsCalculatedService;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -53,8 +62,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     const USCDI_URI_BASE_PATH = 'http://hl7.org/fhir/us/core/StructureDefinition/';
     const USCDI_PROFILE_HEART_RATE_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/heartrate';
     const USCDI_PROFILE_HEART_RATE = self::USCDI_URI_BASE_PATH . 'us-core-heart-rate';
-    const USCDI_PROFILE_OXYGEN_SATURATION = self::USCDI_URI_BASE_PATH . 'us-core-pulse-oximetry';
-
     const USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 = 'http://hl7.org/fhir/StructureDefinition/bp';
     const USCDI_PROFILE_BLOOD_PRESSURE = self::USCDI_URI_BASE_PATH . 'us-core-blood-pressure';
     const USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE = self::USCDI_URI_BASE_PATH . 'us-core-average-blood-pressure';
@@ -82,6 +89,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * @var VitalsService
      */
     private VitalsService $service;
+
+    /**
+     * @var VitalsCalculatedService the calculated service that manages calculated vital statistics
+     */
+    private VitalsCalculatedService $calculatedService;
 
     const CATEGORY = "vital-signs";
 
@@ -310,6 +322,44 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         ]
         // need pediatric weight for height observations...
     ];
+    const AVERAGE_BLOOD_PRESSURE_LOINC_CODE = '96607-7';
+
+    const CALCULATED_MAPPING_CODES = [
+        self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE
+    ];
+
+    const COLUMN_CALCULATED_MAPPINGS = [
+        'bp-MeanLast5' => [
+            'fullcode' => 'LOINC:' . self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE,
+            'code' => self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE,
+            'description' => 'Blood pressure panel mean systolic and mean diastolic',
+            'calculation_type' => 'bp-MeanLast5',
+            'in_vitals_panel' => false,
+            'profiles' => [
+                self::USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
+        ],
+        'bp-Mean3Day' => [
+            'fullcode' => 'LOINC:' . self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE,
+            'code' => self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE,
+            'description' => 'Blood pressure panel mean systolic and mean diastolic',
+            'calculation_type' => 'bp-Mean3Day',
+            'in_vitals_panel' => false,
+            'profiles' => [
+                self::USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
+        ],
+        'bp-MeanEncounter' => [
+            'fullcode' => 'LOINC:' . self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE,
+            'code' => self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE,
+            'description' => 'Blood pressure panel mean systolic and mean diastolic',
+            'calculation_type' => 'bp-MeanEncounter',
+            'in_vitals_panel' => false,
+            'profiles' => [
+                self::USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
+            ]
+        ]
+    ];
 
     public function __construct($fhirApiURL = null)
     {
@@ -324,21 +374,34 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return $query_vars['code'] ?? null;
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return ($category === self::CATEGORY);
     }
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
-        return array_search($code, array_keys(self::COLUMN_MAPPINGS)) !== false;
+        return in_array($code, array_keys(self::COLUMN_MAPPINGS))
+            // our only calculated vital sign at the moment
+            || in_array($code, self::CALCULATED_MAPPING_CODES);
     }
 
+    public function setVitalsCalculatedService(VitalsCalculatedService $service): void
+    {
+        $this->calculatedService = $service;
+    }
 
+    public function getVitalsCalculatedService(): VitalsCalculatedService
+    {
+        if (!isset($this->calculatedService)) {
+            $this->calculatedService = new VitalsCalculatedService();
+        }
+        return $this->calculatedService;
+    }
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
@@ -376,9 +439,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             }
 
             if (isset($openEMRSearchParameters['code'])) {
-                /**
-                 * @var TokenSearchField
-                 */
                 $code = $openEMRSearchParameters['code'];
                 if (!($code instanceof TokenSearchField)) {
                     throw new SearchFieldException('code', "Invalid code");
@@ -398,19 +458,37 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
             if (empty($observationCodesToReturn)) {
                 // grab everything
-                $observationCodesToReturn = array_keys(self::COLUMN_MAPPINGS);
+                $observationCodesToReturn = array_merge(array_keys(self::COLUMN_MAPPINGS), self::CALCULATED_MAPPING_CODES);
                 $observationCodesToReturn = array_combine($observationCodesToReturn, $observationCodesToReturn);
             }
 
             // convert vital sign records from 1:many
 
-            $result = $this->service->search($openEMRSearchParameters, true);
+            $result = $this->service->search($openEMRSearchParameters);
+            if (!$result->isValid()) {
+                return $result;
+            }
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
             foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseVitalsIntoObservationRecords($processingResult, $record, $observationCodesToReturn);
+            }
+
+
+            // TODO: @adunsulag should the calculated vitals be pulled into a separate service class, its starting to behave
+            // different enough that it might make sense.
+            if (!empty($observationCodesToReturn[self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE])) {
+                if (isset($openEMRSearchParameters['date'])) {
+                    $openEMRSearchParameters['date_start'] = new DateSearchField('date_start', $openEMRSearchParameters['date']->getValues());
+                    unset($openEMRSearchParameters['date']);
+                }
+                $calculatedVitalsResult = $this->searchCalculatedVitals($openEMRSearchParameters);
+                if (!$calculatedVitalsResult->isValid()) {
+                    return $calculatedVitalsResult;
+                }
+                $processingResult->addProcessingResult($calculatedVitalsResult);
             }
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -419,7 +497,56 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return $processingResult;
     }
 
-    private function parseVitalsIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn)
+    private function searchCalculatedVitals($openEMRSearchParameters): ProcessingResult
+    {
+        // Search calculated vitals using the VitalsCalculatedService
+        $calculatedService = $this->getVitalsCalculatedService();
+        $result = $calculatedService->search($openEMRSearchParameters);
+        // Transform calculated records for FHIR compatibility
+        $transformedResult = new ProcessingResult();
+        foreach ($result->getData() as $record) {
+            $transformedRecord = $this->transformCalculatedRecord($record);
+            if ($transformedRecord !== null) {
+                $transformedResult->addData($transformedRecord);
+            }
+        }
+
+        return $transformedResult;
+    }
+
+    private function transformCalculatedRecord(array $calculatedRecord): ?array
+    {
+        // Transform calculated vitals record to FHIR-compatible format
+        $calculationId = $calculatedRecord['calculation_id'];
+
+        if (!isset(self::COLUMN_CALCULATED_MAPPINGS[$calculationId])) {
+            return null;
+        }
+
+        $mapping = self::COLUMN_CALCULATED_MAPPINGS[$calculationId];
+
+        return [
+            'uuid' => $calculatedRecord['uuid'],
+            'pid' => $calculatedRecord['pid'],
+            'puuid' => $calculatedRecord['puuid'],
+            'encounter' => $calculatedRecord['encounter'] ?? null,
+            'encounter_uuid' => $calculatedRecord['euuid'] ?? null,
+            'date' => $calculatedRecord['date_start'],
+            'date_end' => $calculatedRecord['date_end'],
+            'code' => $mapping['code'],
+            'category' => self::CATEGORY,
+            'description' => $mapping['description'],
+            'user_uuid' => $calculatedRecord['created_by_uuid'] ?? null,
+            'last_updated_time' => $calculatedRecord['updated_at'],
+            'parent_observation_uuid' => $calculatedRecord['parent_observation_uuid'] ?? [],
+            'components' => $calculatedRecord['components'] ?? [],
+            'profiles' => $mapping['profiles'],
+            'is_calculated' => true,
+            'calculation_type' => $calculationId
+        ];
+    }
+
+    private function parseVitalsIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn): void
     {
         $uuidMappings = $this->getVitalSignsUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
@@ -432,17 +559,20 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                     , "category" => self::CATEGORY
                     , "puuid" => $record['puuid']
                     , "euuid" => $record['euuid']
-                    , "members" => []
+                    , "status" => self::VITALS_DEFAULT_OBSERVATION_STATUS
+                    , "sub_observations" => []
                     , "uuid" => UuidRegistry::uuidToString($uuidMappings[self::VITALS_PANEL_LOINC_CODE])
                     , "user_uuid" => $record['user_uuid']
                     , "date" => $record['date']
                     , "last_updated" => $record['last_updated']
+                    , "notes" => $record['note'] ?? null
+
                 ];
                 foreach ($uuidMappings as $code => $uuid) {
                     if (!$this->isVitalSignPanelCodes($code)) {  // we will skip over our vital signs code, and any pediatric stuff
                         continue;
                     }
-                    $vitalsRecord["members"][$code] = UuidRegistry::uuidToString($uuid);
+                    $vitalsRecord["sub_observations"][$code] = ['uuid' => UuidRegistry::uuidToString($uuid) ];
                 }
                 $processingResult->addData($vitalsRecord);
                 unset($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE]);
@@ -450,7 +580,15 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 (new SystemLogger())->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
             }
         }
+
         foreach ($observationCodesToReturn as $code) {
+            if (!isset(self::COLUMN_MAPPINGS[$code])) {
+                // we only support the codes we know about
+                continue;
+            }
+            $codeMapping = self::COLUMN_MAPPINGS[$code];
+            // uuid mappings are binary values, we need to convert them to string
+            $uuid = UuidRegistry::uuidToString($uuidMappings[$code] ?? null);
             $vitalsRecord = [
                 "code" => $code
                 ,"description" => $this->getDescriptionForCode($code)
@@ -458,9 +596,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 , "puuid" => $record['puuid']
                 , "euuid" => $record['euuid']
                 , "user_uuid" => $record['user_uuid']
-                ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
+                ,"uuid" => $uuid
                 ,"date" => $record['date']
                 , "last_updated" => $record['last_updated']
+                , "profiles" => $codeMapping['profiles'] ?? []
+                ,"sub_observations" => []
             ];
 
             $columns = $this->getColumnsForCode($code);
@@ -475,7 +615,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
     }
 
-    private function getVitalSignsUuidMappings($uuid)
+    private function getVitalSignsUuidMappings($uuid): array
     {
         $mappedRecords = UuidMapping::getMappedRecordsForTableUUID($uuid);
         $codeMappings = [];
@@ -496,12 +636,16 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @param array $dataRecord The source OpenEMR data record
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return FHIRDomainResource|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
     {
+        if (empty($dataRecord)) {
+            throw new InvalidArgumentException("Data record cannot be empty");
+        }
+
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
@@ -511,13 +655,19 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation->setId($id);
 
         if (!empty($dataRecord['date'])) {
-            $observation->setEffectiveDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $startDate = new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            if (!empty($dataRecord['date_end'])) {
+                $endDate = new FhirDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_end']));
+                $observation->setEffectivePeriod(new FHIRPeriod(['start' => $startDate, 'end' => $endDate]));
+            } else {
+                $observation->setEffectiveDateTime($startDate);
+            }
         } else {
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
 
         $code = $dataRecord['code'];
-        $description = $this->getDescriptionForCode($code);
+        $description = $dataRecord['description'] ?? $this->getDescriptionForCode($code);
 
         $categoryCoding = new FHIRCoding();
         $categoryCode = new FHIRCodeableConcept();
@@ -528,7 +678,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $categoryCode->addCoding($categoryCoding);
             $observation->setCode($categoryCode);
         }
-
 
         $observation->setStatus(self::VITALS_DEFAULT_OBSERVATION_STATUS);
 
@@ -562,7 +711,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $this->populateBasicQuantityObservation($basic_codes[$code], $observation, $dataRecord);
         }
         $lookUp = self::COLUMN_MAPPINGS[$code] ?? [];
-        $profiles = $lookUp['profiles'] ?? [];
+        $profiles = $lookUp['profiles'] ?? $dataRecord['profiles'] ?? [];
         // more complicated codes
         match ($code) {
             // vital-signs panel
@@ -586,6 +735,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ),
             '2708-6' => $this->populateCoding($observation, '59408-5'),
             '59408-5' => $this->populatePulseOximetryObservation($observation, $dataRecord),
+            self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE => $this->addAverageBPComponents($observation, $dataRecord['components'] ?? []),
             default => $observation,
         };
 
@@ -604,10 +754,14 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             }
         }
         $observation->setMeta($meta);
-        return $observation;
+        if ($encode) {
+            return json_encode($observation);
+        } else {
+            return $observation;
+        }
     }
 
-    private function getColumnsForCode($code)
+    private function getColumnsForCode($code): array
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
         if (isset($codeMapping)) {
@@ -625,7 +779,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return "";
     }
 
-    private function populateCoding(FHIRObservation $observation, $code)
+    private function populateCoding(FHIRObservation $observation, $code): void
     {
         // add additional oxygen-saturation coding
         $oxSaturation = new FHIRCoding();
@@ -636,7 +790,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation->getCode()->addCoding($oxSaturation);
     }
 
-    private function populatePulseOximetryObservation(FHIRObservation $observation, $dataRecord)
+    private function populatePulseOximetryObservation(FHIRObservation $observation, $dataRecord): void
     {
         $this->populateCoding($observation, '2708-6');
         if (
@@ -663,7 +817,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
     }
 
-    private function populateVitalSignsPanelObservation(FHIRObservation $observation, $record)
+    private function populateVitalSignsPanelObservation(FHIRObservation $observation, $record): void
     {
         if (!empty($record['members'])) {
             foreach ($record['members'] as $code => $uuid) {
@@ -683,7 +837,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return false;
     }
 
-    private function populateBasicQuantityObservation($column, FHIRObservation $observation, $record)
+    private function populateBasicQuantityObservation($column, FHIRObservation $observation, $record): void
     {
         $quantity = $this->getFHIRQuantityForColumn($column, $record);
         if ($quantity != null) {
@@ -709,7 +863,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return null;
     }
 
-    private function getFHIRQuantityForColumn($column, $record)
+    private function getFHIRQuantityForColumn($column, $record): ?FHIRQuantity
     {
         if ($this->columnHasPositiveFloatValue($column, $record)) {
             $quantity = new FHIRQuantity();
@@ -734,12 +888,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return null;
     }
 
-    private function columnHasPositiveFloatValue($column, $record)
+    private function columnHasPositiveFloatValue($column, $record): bool
     {
         return (isset($record[$column]) && floatval($record[$column]) > 0.00);
     }
 
-    private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord)
+    private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord): void
     {
             // Based on conversations with Jerry Padget and Brady Miller on August 14th 2021 we decided that if the values
             // were both 0 for bpd and bps we would treat this as a data absent reason.  In this case an attempt was made
@@ -763,7 +917,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             );
     }
 
-    private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description)
+    private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description): void
     {
         $component = new FHIRObservationComponent();
         $coding = UtilsService::createCodeableConcept(
@@ -784,7 +938,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation->addComponent($component);
     }
 
-    private function populateBodyTemperatureLocation(FHIRObservation $observation, $record)
+    private function populateBodyTemperatureLocation(FHIRObservation $observation, $record): void
     {
         if (empty($record['temp_method'])) {
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
@@ -797,14 +951,14 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @param array|FHIRObservation $dataRecord The source OpenEMR data record
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return FHIRProvenance|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string
     {
         if (!($dataRecord instanceof FHIRObservation)) {
-            throw new \BadMethodCallException("Data record should be correct instance class");
+            throw new BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
@@ -836,6 +990,56 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 }
             }
         }
+        foreach ($this->getProfileForVersions(self::USCDI_PROFILE_AVERAGE_BLOOD_PRESSURE, self::PROFILE_VERSIONS_V2) as $profile) {
+            $profiles[$profile] = $profile;
+        }
         return array_values($profiles);
+    }
+
+    private function addAverageBPComponents(FHIRObservation $observation, array $components): void
+    {
+        foreach ($components as $component) {
+            $comp = new FHIRObservationComponent();
+
+            // Set component code based on vitals_column
+            $code = null;
+            $description = null;
+
+            switch ($component['vitals_column']) {
+                case 'bps':
+                    $code = '96608-5'; // Systolic blood pressure
+                    $description = 'Systolic blood pressure mean';
+                    break;
+                case 'bpd':
+                    $code = '96609-3'; // Diastolic blood pressure
+                    $description = 'Diastolic blood pressure mean';
+                    break;
+                default:
+                    continue 2; // Skip unknown components
+            }
+
+            $codeableConcept = UtilsService::createCodeableConcept([
+                $code => [
+                    'code' => $code,
+                    'description' => $description,
+                    'system' => FhirCodeSystemConstants::LOINC
+                ]
+            ]);
+            $comp->setCode($codeableConcept);
+
+            // Set value
+            if (!empty($component['value'])) {
+                $quantity = new FHIRQuantity();
+                $quantity->setValue(floatval($component['value']));
+                $quantity->setUnit($component['value_unit']);
+                $quantity->setSystem(new FHIRUri(FhirCodeSystemConstants::UNITS_OF_MEASURE));
+                $quantity->setCode($component['value_unit']); // mm[Hg]
+                $comp->setValueQuantity($quantity);
+            } else {
+                $comp->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+            }
+
+            $observation->addComponent($comp);
+        }
     }
 }

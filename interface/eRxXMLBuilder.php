@@ -543,7 +543,7 @@ class eRxXMLBuilder
             $elements[] = $this->getLicensedPrescriber($authUserId);
         }
 
-        if ($userRole == 'manager' || $userRole == 'admin' || $userRole == 'nurse') {
+        if (in_array($userRole, ['manager', 'admin', 'nurse'])) {
             $elements[] = $this->getStaff($authUserId);
         } elseif ($userRole == 'supervisingDoctor') {
             $elements[] = $this->getSupervisingDoctor($authUserId);
@@ -683,7 +683,7 @@ class eRxXMLBuilder
                 $element->appendChild($this->createElementText('allergyName', $this->trimData($this->stripSpecialCharacter($allergy['title1']), 70)));
             }
 
-            if ($allergy['title2'] == 'Mild' || $allergy['title2'] == 'Moderate' || $allergy['title2'] == 'Severe') {
+            if (in_array($allergy['title2'], ['Mild', 'Moderate', 'Severe'])) {
                 $element->appendChild($this->createElementText('allergySeverityTypeID', $allergy['title2']));
             }
 

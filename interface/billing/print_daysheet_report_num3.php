@@ -342,7 +342,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 print "<tr><td colspan='10'><hr><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
                 //==================================
 
-                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {
                       print "<td class='w-100'><span class='text'><center><strong>" . xlt("Units") . "</strong></center>";
                       print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Fee") . "</strong></center>" ;
                       print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Code") . "</strong></center>" ;
@@ -370,7 +370,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
             // get dollar amounts to appear on pat,ins payments and copays
 
             if ($iter['code_type'] != 'payment_info') {
-                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {
                        print "<td class='w-100'><span class='text'><center>" . "1" . "</center>" ;
 
                       // start fee output

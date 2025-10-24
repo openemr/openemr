@@ -23,7 +23,7 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 $job_id = (($_REQUEST['jobId'] ?? null));
 $search = (($_REQUEST['pop_add_chart'] ?? null)) == 1;
 $data = json_decode(($_REQUEST['data'] ?? ''), true);
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = (in_array($GLOBALS['full_new_patient_form'], ['2', '3', '4']));
 $title = xlt('Create Patient');
 if ($search) {
     $title = xlt('Copy Fax to Patient');

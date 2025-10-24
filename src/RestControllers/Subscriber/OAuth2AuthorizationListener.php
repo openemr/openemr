@@ -127,7 +127,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         if (false !== stripos((string) $end_point, '/openid-configuration')) {
             $oauth2DiscoverController = new OAuth2DiscoveryController(
                 new ClaimRepository(),
-                $authServer->getScopeRepository($request, $request->getSession()),
+                $authServer->getScopeRepository($session),
                 $globalsBag,
                 $authServer->authBaseFullUrl
             );

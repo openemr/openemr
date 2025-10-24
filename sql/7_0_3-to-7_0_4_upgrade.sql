@@ -195,6 +195,9 @@ CREATE TABLE `care_teams` (
 ) ENGINE=InnoDB;
 #EndIf
 
+#IfNotRow2D list_options list_id lists option_id care_team_roles
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','care_team_roles','Care Team Roles');
+#EndIf
 #IfNotRow list_options list_id care_team_roles
 INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
    ('care_team_roles', 'primary_care_provider', 'Primary Care Provider', 10, 'SNOMED-CT:62247001', ''),
@@ -206,7 +209,6 @@ INSERT INTO list_options (list_id, option_id, title, seq, codes, notes) VALUES
    ('care_team_roles', 'specialist', 'Specialist', 70, 'SNOMED-CT:419772000', ''),
    ('care_team_roles', 'other', 'Other', 80, 'SNOMED-CT:106292003', '');
 #EndIf
-
 
 -- ---------------------------------------------------------------------------------------------------------------------------------
 --
@@ -1490,6 +1492,72 @@ ALTER TABLE `form_misc_billing_options` ADD UNIQUE `encounter` (`encounter`);
 #EndIf
 
 #IfMBOEncounterNeeded
+#EndIf
+-- ------------------------------------------------------------------- 10-17-2025 sjp -----------------------------------------------------------------------------
+-- Care Team Roles: parent list entry --Bug fix
+-- Care Team Roles: add if missing
+
+UPDATE `list_options` SET option_id = 'family_medicine_specialist', title = 'Family Medicine Specialist'
+WHERE list_id = 'care_team_roles' AND option_id = 'primary_care_provider' AND codes = 'SNOMED-CT:62247001';
+
+#IfNotRow2D list_options list_id lists option_id care_team_roles
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','care_team_roles','Care Team Roles');
+#EndIf
+#IfNotRow2D list_options list_id care_team_roles option_id healthcare_professional
+INSERT IGNORE INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`is_default`,`codes`,`activity`) VALUES
+     ('care_team_roles','physician','Physician',90,0,'SNOMED-CT:158965000',1),
+     ('care_team_roles','nurse_practitioner','Nurse Practitioner',100,0,'SNOMED-CT:224571005',1),
+     ('care_team_roles','physician_assistant','Physician Assistant',110,0,'SNOMED-CT:449161006',1),
+     ('care_team_roles','therapist','Clinical Therapist',120,0,'SNOMED-CT:224538006',1),
+     ('care_team_roles','primary_care_provider','Primary Care Provider',130,0,'SNOMED-CT:446050000',1),
+     ('care_team_roles','dietitian','Dietitian',140,0,'SNOMED-CT:159033005',1),
+     ('care_team_roles','mental_health','Mental Health Professional',150,0,'SNOMED-CT:224597008',1),
+     ('care_team_roles','healthcare_professional','Healthcare Professional',160,0,'SNOMED-CT:223366009',1);
+#EndIf
+
+#IfNotTable form_vitals_calculation
+CREATE TABLE `form_vitals_calculation` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `uuid` binary(16) DEFAULT NULL,
+   `encounter` bigint(20) DEFAULT NULL COMMENT 'fk to form_encounter.id',
+   `pid` bigint(20) NOT NULL COMMENT 'fk to patient_data.pid',
+   `date_start` datetime DEFAULT NULL,
+   `date_end` datetime DEFAULT NULL,
+   `created_at` datetime DEFAULT NULL,
+   `updated_at` datetime DEFAULT NULL,
+   `created_by` bigint(20) DEFAULT NULL,
+   `updated_by` bigint(20) DEFAULT NULL,
+   `calculation_id` varchar(64) DEFAULT NULL COMMENT 'application identifier representing calculation e.g., bp-MeanLast5, bp-Mean3Day, bp-MeanEncounter',
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `unq_uuid` (`uuid`),
+   KEY `idx_pid` (`pid`),
+   KEY `idx_encounter` (`encounter`),
+   KEY `idx_calculation_id` (`calculation_id`)
+) ENGINE=InnoDB COMMENT = 'Main calculation records - one per logical calculation (e.g., average BP)';
+#EndIf
+
+#IfNotTable form_vitals_calculation_components
+CREATE TABLE `form_vitals_calculation_components` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
+  `vitals_column` varchar(64) NOT NULL COMMENT 'Component type: bps, bpd, pulse, etc.',
+  `value` DECIMAL(12,6) DEFAULT NULL COMMENT 'Calculated numeric component value',
+  `value_string` varchar(255) DEFAULT NULL COMMENT 'Calculated non-numeric component value',
+  `value_unit` varchar(16) DEFAULT NULL COMMENT 'Unit for this component value',
+  `component_order` int NOT NULL DEFAULT 0 COMMENT 'Display order for components',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unq_fvc_component` (`fvc_uuid`, `vitals_column`),
+  KEY `idx_vitals_column` (`vitals_column`),
+  KEY `idx_component_order` (`fvc_uuid`, `component_order`)
+) ENGINE=InnoDB COMMENT = 'Component values for calculations (e.g., systolic=120, diastolic=80)';
+#EndIf
+
+#IfNotTable form_vitals_calculation_form_vitals
+CREATE TABLE `form_vitals_calculation_form_vitals` (
+    `fvc_uuid` binary(16) NOT NULL COMMENT 'fk to form_vitals_calculation.uuid',
+    `vitals_id` bigint(20) NOT NULL COMMENT 'fk to form_vitals.id',
+    PRIMARY KEY (`fvc_uuid`, `vitals_id`)
+) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
 #EndIf
 
 #IfMissingColumn drug_sales uuid

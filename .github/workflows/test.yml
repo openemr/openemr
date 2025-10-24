@@ -1,160 +1,86 @@
 ##
-# OpenEMR has two different kinds of tests:
-# - "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
-# - "Tests": Tests that require a database and initialization before they can run or pass.
-# This workflow runs the kind that requires initialization.
+# Reusable workflow for running OpenEMR tests
+# Accepts a docker directory name and parses all configuration from it
 
 name: Test
 
+run-name: ${{ inputs.display_name || inputs.docker_dir }}
+
 on:
-  push:
-    branches:
-    - master
-    - rel-*
-  pull_request:
-    branches:
-    - master
-    - rel-*
+  workflow_call:
+    inputs:
+      docker_dir:
+        required: true
+        type: string
+        description: 'Docker directory name (e.g., apache_84_114)'
+      display_name:
+        required: false
+        type: string
+        description: 'Display name for the workflow run (defaults to docker_dir)'
+        default: ''
+      enable_coverage:
+        required: false
+        type: boolean
+        description: 'Toggle coverage collection and reporting'
+        default: false
+      save_composer_cache:
+        required: false
+        type: boolean
+        description: 'Save composer cache (only first job per PHP version should)'
+        default: false
+      save_node_cache:
+        required: false
+        type: boolean
+        description: 'Save node cache (only first job per Node version should)'
+        default: false
+  workflow_dispatch:
+    inputs:
+      docker_dir:
+        description: 'Docker directory name'
+        required: true
+        type: choice
+        options:
+          - apache_84_114
+          - apache_84_57
+          - apache_83_114
+          - nginx_84_114
+          - nginx_83_114
+        default: 'apache_84_114'
+      enable_coverage:
+        description: 'Enable coverage collection and reporting'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
-  collect:
+  run:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout Code
       uses: actions/checkout@v5
 
-    - name: Collect Docker Dirs
-      id: docker-dirs
-      ##
-      # Parse out the test parameters from the ci subdirectories that contain
-      # docker-compose.yml files. We'll use that output as a test matrix
-      # in github actions.
+    - name: Parse Configuration
+      id: parse
       run: |
-        shopt -s nullglob
-        dirs=( ci/*/docker-compose.yml )
-        # Remove compose-shared-* from the list
-        filtered_dirs=()
-        for dir in "${dirs[@]}"; do
-          dirname=$(basename "$(dirname "$dir")")
-          if [[ ! $dirname == compose-shared-* ]]; then
-            filtered_dirs+=("$dir")
-          fi
-        done
-        dirs=("${filtered_dirs[@]}")
-        if (( "${#dirs[@]}" == 0 )); then
-          echo 'No docker-compose.yml files found in ci subdirectories.' >&2
-          exit 1
-        fi
-        node_version=22
-        # Avoid trying to save the cache in duplicate for every matrix element.
-        declare -A seen_composer_cache_keys
-        declare -A seen_npm_cache_keys
-        dirs=( "${dirs[@]%/docker-compose.yml}" )
-        dirs=( "${dirs[@]#ci/}" )
-        # Everything inside this for loop that goes to stdout ends up
-        # in the github output, so it must be valid json.
-        for docker_dir in "${dirs[@]}"; do
-            IFS=: read -r database db < <(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
-            IFS=_ read -r webserver php _ <<< "${docker_dir}"
+        # Run the parsing script and save JSON output
+        ci/parse_docker_dir.sh "${{ inputs.docker_dir }}" | tee parsed_config.json
 
-            # collect docker-compose.yml templates that will be used in the docker compose up merge
-            selenium_template=$(yq '.x-includes.selenium-template' "ci/${docker_dir}/docker-compose.yml")
-            webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
-            database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
-            mailpit_template=$(yq '.x-includes.mailpit-template' "ci/${docker_dir}/docker-compose.yml")
+        # Extract outputs and write to GITHUB_OUTPUT
+        jq -r '.[0].output | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_OUTPUT"
 
-            # If docker_dir ends with "_no-e2e", we want to skip the e2e tests for this configuration.
-            [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
+        # Extract env vars and write to GITHUB_ENV
+        jq -r '.[0].env | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_ENV"
 
-            printf -v php '%d.%d' "${php::1}" "${php:1}"
-            if [[ -z ${seen_composer_cache_keys[$php]} ]]; then
-                seen_composer_cache_keys[$php]=true
-                save_composer_cache=true
-            else
-                save_composer_cache=false
-            fi
-            if [[ -z ${seen_npm_cache_keys[$node_version]} ]]; then
-                seen_npm_cache_keys[$node_version]=true
-                save_node_cache=true
-            else
-                save_node_cache=false
-            fi
-
-            case "$webserver" in
-                apache)
-                    openemr_dir=/var/www/localhost/htdocs/openemr
-                    ;;
-                nginx)
-                    openemr_dir=/usr/share/nginx/html/openemr
-                    ;;
-                *)
-                    echo "Unknown webserver: $webserver" >&2;
-                    exit 1
-                    ;;
-            esac
-            # Determine if this job should save caches (only first job with each version)
-            [[ $docker_dir = apache_84_114 ]] && save_cache=true || save_cache="false"
-
-            printf '{
-                "database": "%s",
-                "database_template": "%s",
-                "db": "%s",
-                "docker_dir": "%s",
-                "e2e_enabled": "%s",
-                "mailpit_template": "%s",
-                "node_version": "%s",
-                "openemr_dir": "%s",
-                "php": "%s",
-                "save_composer_cache": "%s",
-                "save_node_cache": "%s",
-                "selenium_template": "%s",
-                "webserver": "%s",
-                "webserver_template": "%s"
-            }\n' "$database" \
-                 "$database_template" \
-                 "$db" \
-                 "$docker_dir" \
-                 "$e2e_enabled" \
-                 "$mailpit_template" \
-                 "$node_version" \
-                 "$openemr_dir" \
-                 "$php" \
-                 "$save_composer_cache" \
-                 "$save_node_cache" \
-                 "$selenium_template" \
-                 "$webserver" \
-                 "$webserver_template"
-        done | {
-            printf 'configurations='
-            jq -cs .
-        } >> "$GITHUB_OUTPUT"
-    outputs:
-      configurations: ${{ steps.docker-dirs.outputs.configurations }}
-  build:
-    name: PHP ${{ matrix.configurations.php }} - ${{ matrix.configurations.webserver }} - ${{ matrix.configurations.database }} ${{ matrix.configurations.db }}
-    runs-on: ubuntu-24.04
-    needs: collect
-    strategy:
-      fail-fast: false
-      matrix:
-        configurations: ${{ fromJson(needs.collect.outputs.configurations) }}
-    env:
-      DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
-      ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
-      OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
-      # Note that the first entry in the COMPOSE_FILE needs to be in ci/ (if it has a subdirectory then it breaks things)
-      COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.mailpit_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v5
+        # Add ENABLE_COVERAGE to GITHUB_ENV
+        echo "ENABLE_COVERAGE=${{ inputs.enable_coverage }}" >> "$GITHUB_ENV"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.configurations.php }}
+        php-version: ${{ steps.parse.outputs.php }}
 
     - name: Report PHP Version
       run: php -v
@@ -168,18 +94,19 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Composer Cache
+      id: composer-cache-restore
       uses: actions/cache/restore@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.configurations.php }}-
+          ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-
           ${{ runner.os }}-composer-
 
     - name: Install npm package
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
-        node-version: ${{ matrix.configurations.node_version }}
+        node-version: ${{ steps.parse.outputs.node_version }}
 
     - name: Get NPM Cache Directory
       id: npm-cache-dir
@@ -193,12 +120,13 @@ jobs:
       # Use explicit restore and save actions to control
       # precisely when in the workflow the cache is
       # restored and saved.
+      id: npm-cache-restore
       uses: actions/cache/restore@v4
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-
+          ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
           ${{ runner.os }}-node-
 
     - name: Main build
@@ -213,18 +141,18 @@ jobs:
         ccda_build
 
     - name: Save node cache
-      if: ${{ matrix.configurations.save_node_cache == 'true' }}
+      if: ${{ inputs.save_node_cache && steps.npm-cache-restore.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}
 
     - name: Save composer cache
-      if: ${{ matrix.configurations.save_composer_cache == 'true' }}
+      if: ${{ inputs.save_composer_cache && steps.composer-cache-restore.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}
 
     - name: Docker Compose Config Output
       run: |
@@ -237,7 +165,7 @@ jobs:
         dockers_env_start
 
     - name: Wait for MySQL to initialize
-      if: ${{ matrix.configurations.database == 'mysql' }}
+      if: ${{ steps.parse.outputs.database == 'mysql' }}
       run: |
         echo "Waiting 60 seconds for MySQL to initialize..."
         sleep 60
@@ -246,6 +174,17 @@ jobs:
       run: |
         . ci/ciLibrary.source
         install_configure
+
+    - name: PHP info
+      run: |
+        curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
+
+    - name: Upload PHP info to GitHub
+      uses: actions/upload-artifact@v4
+      if: ${{ hashFiles('phpinfo.html') != '' }}
+      with:
+        name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
+        path: phpinfo.html
 
     - name: Prepare for coverage reporting
       if: ${{ env.ENABLE_COVERAGE == 'true' }}
@@ -265,7 +204,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-unit.xml
-        flags: unit,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload unit test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
@@ -273,10 +212,12 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.unit.clover.xml
-        flags: unit,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Api testing
       if: ${{ success() || failure() }}
+      env:
+        ENABLE_COVERAGE: 'false'
       run: |
         . ci/ciLibrary.source
         build_test api
@@ -287,7 +228,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-api.xml
-        flags: api,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload api test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
@@ -295,7 +236,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.api.clover.xml
-        flags: api,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Fixtures testing
       if: ${{ success() || failure() }}
@@ -309,7 +250,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-fixtures.xml
-        flags: fixtures,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload fixtures test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
@@ -317,7 +258,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.fixtures.clover.xml
-        flags: fixtures,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Services testing
       if: ${{ success() || failure() }}
@@ -331,7 +272,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-services.xml
-        flags: services,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload services test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
@@ -339,7 +280,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.services.clover.xml
-        flags: services,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Validators testing
       if: ${{ success() || failure() }}
@@ -353,7 +294,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-validators.xml
-        flags: validators,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload validators test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
@@ -361,7 +302,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.validators.clover.xml
-        flags: validators,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Controllers testing
       if: ${{ success() || failure() }}
@@ -375,7 +316,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-controllers.xml
-        flags: controllers,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload controllers test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
@@ -383,7 +324,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.controllers.clover.xml
-        flags: controllers,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Common testing
       if: ${{ success() || failure() }}
@@ -397,7 +338,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-common.xml
-        flags: common,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload common test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
@@ -405,7 +346,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.common.clover.xml
-        flags: common,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Email testing
       if: ${{ success() || failure() }}
@@ -419,7 +360,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-email.xml
-        flags: email,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload email test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
@@ -427,19 +368,55 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.email.clover.xml
-        flags: email,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    ##
+    # Activate prepend and shutdown code for webserver for e2e tests
+    - name: E2e setup
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        setup_e2e_bookends ${{ steps.parse.outputs.webserver }}
 
     ##
     # To skip E2E tests for specific docker directories,
     # rename the docker directory to end with "_no-e2e".
     - name: E2e testing
-      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
       env:
         # Change this to just 'selenium' to disable video recording.
         COMPOSE_PROFILES: video-recording
+        ENABLE_COVERAGE: 'false'
       run: |
         . ci/ciLibrary.source
         build_test e2e
+
+    ##
+    # The logs for the e2e run are directly in the container logs for nginx/php-fpm
+    # but in /var/log/apache2/error.log for apache.
+    - name: E2e container logs
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs openemr
+
+    - name: E2e error logs
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && steps.parse.outputs.webserver == 'apache' }}
+      run: |
+        . ci/ciLibrary.source
+        dump_error_log ${{ steps.parse.outputs.webserver }}
+
+    - name: E2e selenium logs
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs selenium
+
+    - name: E2e video logs
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs video
 
     - name: Upload e2e test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
@@ -447,20 +424,20 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-e2e.xml
-        flags: e2e,php${{ matrix.configurations.php }},${{ matrix.configurations.webserver }},${{ matrix.configurations.database }}${{ matrix.configurations.db }}
+        flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     - name: Upload E2E test videos to GitHub
-      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
       uses: actions/upload-artifact@v4
       with:
-        name: e2e-test-videos-${{ matrix.configurations.docker_dir }}
+        name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
         path: selenium-videos/
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
       uses: actions/upload-artifact@v4
       with:
-        name: junit-test-results-${{ matrix.configurations.docker_dir }}
+        name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml
 
     - name: Combine coverage
@@ -489,3 +466,28 @@ jobs:
       with:
         name: htmlcov
         path: ./htmlcov/
+
+    - name: Test Summary
+      if: ${{ always() }}
+      run: |
+        # Determine status emoji
+        case "${{ job.status }}" in
+          success)
+            status_emoji="✅"
+            ;;
+          failure)
+            status_emoji="❌"
+            ;;
+          cancelled)
+            status_emoji="🚫"
+            ;;
+          *)
+            status_emoji="❓"
+            ;;
+        esac
+
+        {
+          echo "| Status | PHP | Webserver | Database | E2E | Coverage | Docker Dir |"
+          echo "| --- | --- | --- | --- | --- | --- | --- |"
+          echo "| ${status_emoji} ${{ job.status }} | ${{ steps.parse.outputs.php }} | ${{ steps.parse.outputs.webserver }} | ${{ steps.parse.outputs.database }} ${{ steps.parse.outputs.db }} | ${{ steps.parse.outputs.e2e_enabled }} | ${{ env.ENABLE_COVERAGE }} | ${{ steps.parse.outputs.docker_dir }} |"
+        } >> $GITHUB_STEP_SUMMARY

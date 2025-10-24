@@ -149,7 +149,7 @@ $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " 
   "ORDER BY group_name, seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
-    if ($fid == 'fname' || $fid == 'mname' || $fid == 'lname') {
+    if (in_array($fid, ['fname', 'mname', 'lname'])) {
         continue;
     }
 
@@ -1011,8 +1011,7 @@ function process_referral($row): void
 
 function uses_description($form_by)
 {
-    return ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
-    $form_by === '10' || $form_by === '20' || $form_by === '104');
+    return (in_array($form_by, ['4', '102', '9', '10', '20', '104'], true));
 }
 
   // If we are doing the CSV export then generate the needed HTTP headers.
@@ -1283,9 +1282,7 @@ if ($_POST['form_submit']) {
         }
 
         if (
-            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-            $askey == 'contrastart' || $askey == 'referral_source'
+            in_array($askey, ['regdate', 'sex', 'DOB', 'lname', 'fname', 'mname', 'contrastart', 'referral_source'])
         ) {
             continue;
         }
@@ -1377,7 +1374,7 @@ if ($_POST['form_submit']) {
     }
 
     // Get referrals and related patient data.
-    if ($form_content != 5 && ($form_by === '9' || $form_by === '10' || $form_by === '20' || $form_by === '1')) {
+    if ($form_content != 5 && (in_array($form_by, ['9', '10', '20', '1'], true))) {
         $exttest = "t.refer_external = '1'";
         $datefld = "t.refer_date";
 

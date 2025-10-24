@@ -214,11 +214,11 @@ function SetAutoPageBreak($auto, $margin=0)
 function SetDisplayMode($zoom, $layout='default')
 {
 	// Set display mode in viewer
-	if($zoom=='fullpage' || $zoom=='fullwidth' || $zoom=='real' || $zoom=='default' || !is_string($zoom))
+	if(in_array($zoom, ['fullpage', 'fullwidth', 'real', 'default']) || !is_string($zoom))
 		$this->ZoomMode = $zoom;
 	else
 		$this->Error('Incorrect zoom display mode: '.$zoom);
-	if($layout=='single' || $layout=='continuous' || $layout=='two' || $layout=='default')
+	if(in_array($layout, ['single', 'continuous', 'two', 'default']))
 		$this->LayoutMode = $layout;
 	else
 		$this->Error('Incorrect layout display mode: '.$layout);

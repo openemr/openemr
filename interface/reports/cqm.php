@@ -55,7 +55,7 @@ if (!empty($report_id)) {
     $type_report = $report_view['type'];
 
     $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
-    $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
+    $is_cqm_report = in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"]);
     $type_report = ($is_amc_report || $is_cqm_report) ? $type_report : "standard";
     $rule_filter = $report_view['type'];
 
@@ -80,7 +80,7 @@ if (!empty($report_id)) {
     $type_report = (isset($_GET['type'])) ? trim((string) $_GET['type']) : "standard";
 
     $is_amc_report = CertificationReportTypes::isAMCReportType($type_report);
-    $is_cqm_report = ($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014");
+    $is_cqm_report = in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"]);
 
     if (($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
         $type_report = "cqm";
@@ -166,7 +166,7 @@ $formData = [
     , 'collate_outer' => $provider == 'collate_outer'
     , 'datasheet' => $dataSheet
 ];
-if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+if (in_array($type_report, ["cqm", "cqm_2011", "cqm_2014"])) {
     $formData['widthDyn'] = '410px';
     $formData['rule_filters'] = [
         ['value' => 'cqm', 'selected' => $type_report == 'cqm', 'label' => xl('All Clinical Quality Measures (CQM)')]

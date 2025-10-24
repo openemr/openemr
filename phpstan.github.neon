@@ -3420,38 +3420,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 1
     path: interface/billing/sl_eob_invoice.php
-  - message: '#^Static method OpenEMR\\Billing\\ParseERA\:\:parseERAForCheck\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Static method OpenEMR\\Billing\\SLEOB\:\:arPostAdjustment\(\) invoked with 11 parameters, 8\-10 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Static method OpenEMR\\Billing\\SLEOB\:\:arPostCharge\(\) invoked with 11 parameters, 9\-10 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$InsertionId might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$StringToEcho might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$codetype on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 2
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$cpt might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/billing/sl_eob_process.php
-  - message: '#^Variable \$cpts might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: interface/billing/sl_eob_process.php
   - message: '#^Variable \$STMT_PRINT_CMD might not be defined\.$#'
     identifier: variable.undefined
     count: 1
@@ -5282,7 +5250,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$ODIOPTARGETS might not be defined\.$#'
     identifier: variable.undefined
-    count: 2
+    count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$ODIOPTARGET_values might not be defined\.$#'
     identifier: variable.undefined
@@ -5490,7 +5458,7 @@ parameters:
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$OSIOPTARGETS might not be defined\.$#'
     identifier: variable.undefined
-    count: 2
+    count: 1
     path: interface/forms/eye_mag/php/eye_mag_functions.php
   - message: '#^Variable \$OSIOPTARGET_values might not be defined\.$#'
     identifier: variable.undefined
@@ -9192,10 +9160,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/forms/prior_auth/view.php
-  - message: '#^Function gen_hl7_order invoked with 3 parameters, 2 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: interface/forms/procedure_order/common.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 1

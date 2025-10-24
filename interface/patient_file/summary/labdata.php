@@ -282,7 +282,7 @@ function checkAll(bx) {
                                 echo "<td class='list_item'>" . text($myrow['result_text']) . "</td>";
 
 
-                                if ($myrow['abnormal'] == 'No' || $myrow['abnormal'] == 'no'  || $myrow['abnormal'] == '' || $myrow['abnormal'] == null) {
+                                if (in_array($myrow['abnormal'], ['No', 'no', '', null])) {
                                     echo "<td class='list_result'>&nbsp;&nbsp;&nbsp;" . text($myrow['result']) . "&nbsp;&nbsp;</td>";
                                 } else {
                                     echo "<td class='list_result_abnorm'>&nbsp;" ;
@@ -446,7 +446,7 @@ function checkAll(bx) {
                                     if ($value_matrix[$i]['result'] == null) {
                                         echo "<td class='matrix_result'> </td>";
                                     } else {
-                                        if ($value_matrix[$i]['abnormal'] == 'No' || $value_matrix[$i]['abnormal'] == 'no'  || $value_matrix[$i]['abnormal'] == '' || $value_matrix[$i]['abnormal'] == null) {
+                                        if (in_array($value_matrix[$i]['abnormal'], ['No', 'no', '', null])) {
                                             echo "<td class='matrix_result'>&nbsp;&nbsp;&nbsp;" . text($value_matrix[$i]['result']) . "&nbsp;&nbsp;</td>";
                                         } else {
                                             echo "<td class='matrix_result_abnorm'>&nbsp;&nbsp;" ;

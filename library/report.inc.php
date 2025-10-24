@@ -378,7 +378,7 @@ function getRecHistoryData($pid)
 
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
-            if ($key == "pid" || $key == "date" || $key == "id") {
+            if (in_array($key, ["pid", "date", "id"])) {
                 continue;
             } else {
                 $curdate = $result["date"];
@@ -405,7 +405,7 @@ function getRecEmployerData($pid)
     $retar = [];
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
-            if ($key == "pid" || $key == "date" || $key == "id") {
+            if (in_array($key, ["pid", "date", "id"])) {
                 continue;
             } else {
                 $curdate = $result["date"];
@@ -435,7 +435,7 @@ function getRecPatientData($pid)
     $arcount = [];
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
-            if ($key == "pid" || $key == "date" || $key == "id" || $key == "uuid") {
+            if (in_array($key, ["pid", "date", "id", "uuid"])) {
                 continue;
             } else {
                 $curdate = $result["date"];
@@ -464,7 +464,7 @@ function getRecInsuranceData($pid, $ins_type)
     $arcount = [];
     while ($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
-            if ($key == "pid" || $key == "date" || $key == "id" || $key == "uuid") {
+            if (in_array($key, ["pid", "date", "id", "uuid"])) {
                 continue;
             } else {
                 $curdate = $result["date"];

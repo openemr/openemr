@@ -481,7 +481,7 @@ class Savant3 implements \Stringable
      */
     public function setEscape()
     {
-        $this->__config ['escape'] = (array) @func_get_args();
+        $this->__config ['escape'] = @func_get_args();
     }
 
     /**
@@ -507,7 +507,7 @@ class Savant3 implements \Stringable
      */
     public function addEscape()
     {
-        $args = (array) @func_get_args();
+        $args = @func_get_args();
         $this->__config ['escape'] = array_merge($this->__config ['escape'], $args);
     }
 
@@ -1088,7 +1088,7 @@ class Savant3 implements \Stringable
      */
     public function setFilters()
     {
-        $this->__config ['filters'] = (array) @func_get_args();
+        $this->__config ['filters'] = @func_get_args();
     }
 
     /**
@@ -1107,7 +1107,7 @@ class Savant3 implements \Stringable
     {
         // add the new filters to the static config variable
         // via the reference
-        foreach ((array) @func_get_args() as $callback) {
+        foreach (@func_get_args() as $callback) {
             $this->__config ['filters'] [] = $callback;
         }
     }

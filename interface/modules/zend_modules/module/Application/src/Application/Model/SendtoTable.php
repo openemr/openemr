@@ -102,6 +102,7 @@ class SendtoTable extends AbstractTableGateway
                 'medical_devices' => 'Medical Devices',
                 'goals' => 'Goals',
                 'payers' => 'Health Insurance Providers',
+                'advance_directives' => 'Advance Directives',
             ];
         }
         return $components;

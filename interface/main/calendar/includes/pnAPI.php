@@ -121,8 +121,7 @@ function pnConfigInit()
         [$k, $v] = $dbresult->fields;
         $dbresult->MoveNext();
         if (
-            ($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
-                && ($k != 'dbname') && ($k != 'system') && ($k != 'prefix') && ($k != 'encoded')
+            !in_array($k, ['dbtype', 'dbhost', 'dbuname', 'dbpass', 'dbname', 'system', 'prefix', 'encoded'])
         ) {
             $pnconfig[$k] = $v;
         }

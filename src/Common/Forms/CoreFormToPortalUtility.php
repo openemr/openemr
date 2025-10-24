@@ -165,9 +165,7 @@ class CoreFormToPortalUtility
         $formDirs = scandir($GLOBALS['srcdir'] . "/../interface/forms/");
         foreach ($formDirs as $formDir) {
             if (
-                $formDir != "." &&
-                $formDir != ".." &&
-                $formDir != "LBF" &&
+                !in_array($formDir, [".", "..", "LBF"]) &&
                 file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $formDir . "/patient_portal.php")
             ) {
                 $dirFormNames[] = $formDir;

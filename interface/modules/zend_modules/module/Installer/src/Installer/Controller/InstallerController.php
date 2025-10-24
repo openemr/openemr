@@ -99,7 +99,7 @@ class InstallerController extends AbstractActionController
         $dp = opendir($dir_path);
         $inDirCustom = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
-            if ($file_name != "." && $file_name != ".." && $file_name != "Application" && is_dir($dir_path . $file_name)) {
+            if (!in_array($file_name, [".", "..", "Application"]) && is_dir($dir_path . $file_name)) {
                 $inDirCustom[$i] = $file_name;
             }
         }

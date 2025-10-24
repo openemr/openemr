@@ -528,9 +528,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             while ($trow = sqlFetchArray($tres)) {
                 $tblname = array_shift($trow);
                 if (
-                    $tblname == 'patient_data'
-                    || $tblname == 'history_data'
-                    || $tblname == 'insurance_data'
+                    in_array($tblname, ['patient_data', 'history_data', 'insurance_data'])
                 ) {
                     deleteRows($tblname, 'pid', $source_pid, $target_pid);
                 } elseif ($tblname == 'chart_tracker') {

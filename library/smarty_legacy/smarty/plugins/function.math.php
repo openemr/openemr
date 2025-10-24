@@ -59,7 +59,7 @@ function smarty_function_math($params, &$smarty)
     }
 
     foreach ($params as $key => $val) {
-        if ($key != "equation" && $key != "format" && $key != "assign") {
+        if (!in_array($key, ["equation", "format", "assign"])) {
             // make sure value is not empty
             if (strlen((string) $val) == 0) {
                 trigger_error("math: parameter '{$key}' is empty", E_USER_WARNING);
@@ -86,7 +86,7 @@ function smarty_function_math($params, &$smarty)
     }
 
     foreach ($params as $key => $val) {
-        if ($key != "equation" && $key != "format" && $key != "assign") {
+        if (!in_array($key, ["equation", "format", "assign"])) {
             $equation = preg_replace("/\b$key\b/", " \$params['$key'] ", (string) $equation);
         }
     }
