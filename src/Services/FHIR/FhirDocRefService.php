@@ -94,7 +94,7 @@ class FhirDocRefService
 
         // if no start & end, return current CCD
         if ($this->shouldReturnMostCurrentCCD($oeSearchParameters)) {
-            $documentReference = $this->getMostCurrentCCDReference($oeSearchParameters, $fhirSearchResult);
+            $documentReference = $this->getMostCurrentCCDReference($oeSearchParameters);
         } else {
             // else
             // generate CCD using start & end

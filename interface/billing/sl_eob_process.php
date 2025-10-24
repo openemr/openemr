@@ -653,7 +653,6 @@ function era_callback(array &$out): void
                         debug: $debug,
                         time: '',
                         codetype: $codetype,
-                        // Note: $out['payer_claim_id'] was being passed but function only has 10 params
                     );
                     $invoice_total -= $adj['amount'];
                 }

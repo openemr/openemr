@@ -197,7 +197,7 @@ class DocumentTemplateRender
                     $formname = '';
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
-                $content_fetch = $this->templateService->fetchTemplate($form_id, $formname)['template_content'];
+                $content_fetch = $this->templateService->fetchTemplate($form_id)['template_content'];
                 $content = 'data:application/pdf;base64,' . base64_encode((string) $content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";

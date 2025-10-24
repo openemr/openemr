@@ -33,7 +33,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
     $c = new C_FormVitals();
-    echo $c->default_action_process($_POST);
+    echo $c->default_action_process();
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'

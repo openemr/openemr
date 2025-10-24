@@ -365,16 +365,16 @@ function ippfReceiptDetailLine(
     echo "  <td>" . text($code) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
     echo "  <td class='text-center'>" . ($isadjust ? '' : $quantity) . "</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false, true)) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false)) . "</td>\n";
 
     if (!empty($GLOBALS['gbl_checkout_charges'])) {
-        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false, true)) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false)) . "</td>\n";
     }
 
     if (!$TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
@@ -386,13 +386,13 @@ function ippfReceiptDetailLine(
     // Adjustment and its description.
     if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
         echo "  <td class='text-right'>" . text($memo) . "</td>\n";
-        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false, true)) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false)) . "</td>\n";
     }
 
     if ($TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 

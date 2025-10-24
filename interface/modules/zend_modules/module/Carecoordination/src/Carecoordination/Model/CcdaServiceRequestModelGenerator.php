@@ -212,7 +212,7 @@ class CcdaServiceRequestModelGenerator
         }
 
         if ($this->exportwithDocuments) {
-            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid, $encounter);
+            $this->data .= $this->getEncounterccdadispatchTable()->getDocumentsForExport($pid);
         }
 
         /***************CCDA Body Information***************/
