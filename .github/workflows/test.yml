@@ -390,6 +390,14 @@ jobs:
         configure_coverage
         echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP}/coverage-e2e-raw" >> "${GITHUB_ENV}"
 
+    ##
+    # Setup auto_prepend.php for API and E2E test coverage collection
+    - name: Setup auto_prepend for coverage
+      if: ${{ env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        setup_e2e_bookends ${{ steps.parse.outputs.webserver }}
+
     - name: Unit testing
       if: ${{ success() || failure() }}
       run: |
@@ -414,11 +422,13 @@ jobs:
 
     - name: Api testing
       if: ${{ success() || failure() }}
-      env:
-        ENABLE_COVERAGE: 'false'
       run: |
         . ci/ciLibrary.source
         build_test api
+        if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+          echo "Checking for API coverage files in container..."
+          dc exec openemr sh -c 'ls -laR /tmp/openemr-coverage/api 2>/dev/null || echo "No API coverage directory found"'
+        fi
 
     - name: Upload api test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
@@ -427,6 +437,34 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-api.xml
         flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Copy API coverage files from container
+      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${RUNNER_TEMP}/coverage-api-raw"
+        dc cp openemr:/tmp/openemr-coverage/api "${RUNNER_TEMP}/coverage-api-raw" || true
+        echo "Listing contents of coverage-api-raw:"
+        ls -laR "${RUNNER_TEMP}/coverage-api-raw" || true
+        find "${RUNNER_TEMP}/coverage-api-raw" -type f -name '*.php' |
+          wc -l |
+          xargs echo 'Found raw API coverage files:'
+
+    - name: Convert API coverage to .cov format
+      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        mkdir -p coverage
+        sudo chmod -R 777 coverage
+        if [[ -d "${RUNNER_TEMP}/coverage-api-raw/api" ]]; then
+          ./ci/convert-coverage "${RUNNER_TEMP}/coverage-api-raw/api" \
+                                 coverage/coverage.api.cov \
+                                 --clover=coverage.api.clover.xml
+          ls -lah coverage.api.clover.xml coverage/coverage.api.cov
+        else
+          echo "Warning: No API coverage files found in ${RUNNER_TEMP}/coverage-api-raw/api"
+          echo "This likely means no API tests were executed or coverage collection failed"
+          exit 0
+        fi
 
     - name: Upload api test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
@@ -569,14 +607,6 @@ jobs:
         flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
 
     ##
-    # Activate prepend and shutdown code for webserver for e2e tests
-    - name: E2e setup
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
-      run: |
-        . ci/ciLibrary.source
-        setup_e2e_bookends ${{ steps.parse.outputs.webserver }}
-
-    ##
     # To skip E2E tests for specific docker directories,
     # rename the docker directory to end with "_no-e2e".
     - name: E2e testing
@@ -603,9 +633,9 @@ jobs:
       run: |
         mkdir -p coverage
         sudo chmod -R 777 coverage
-        ./ci/convert-e2e-coverage "${COVERAGE_RAW_TMPDIR}/e2e" \
-                                  coverage/coverage.e2e.cov \
-                                  --clover=coverage.e2e.clover.xml
+        ./ci/convert-coverage "${COVERAGE_RAW_TMPDIR}/e2e" \
+                              coverage/coverage.e2e.cov \
+                              --clover=coverage.e2e.clover.xml
         ls -lah coverage.e2e.clover.xml coverage/coverage.e2e.cov
 
     ##

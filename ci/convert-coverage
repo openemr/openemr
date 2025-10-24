@@ -2,15 +2,19 @@
 <?php
 
 /**
- * Converts raw E2E coverage PHP files to PHPUnit .cov format.
+ * Converts raw coverage PHP files (E2E or API) to PHPUnit .cov format.
  *
  * This script loads all the raw xdebug coverage arrays and merges them
  * into a proper SebastianBergmann\CodeCoverage\CodeCoverage object.
  *
  * Usage:
- *   ./convert-e2e-coverage <input-dir> <output-file>
- *   ./convert-e2e-coverage <input-dir> <output-file> --clover=<clover-file>
- *   ./convert-e2e-coverage <input-dir> <output-file> --no-clover
+ *   ./convert-coverage <input-dir> <output-file>
+ *   ./convert-coverage <input-dir> <output-file> --clover=<clover-file>
+ *   ./convert-coverage <input-dir> <output-file> --no-clover
+ *
+ * Examples:
+ *   ./convert-coverage /tmp/coverage/e2e coverage/coverage.e2e.cov --clover=coverage.e2e.clover.xml
+ *   ./convert-coverage /tmp/coverage/api coverage/coverage.api.cov --clover=coverage.api.clover.xml
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -60,16 +64,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ConvertE2ECoverageCommand extends Command
+class ConvertCoverageCommand extends Command
 {
     protected static $defaultName = 'convert';
-    protected static $defaultDescription = 'Convert raw E2E coverage files to PHPUnit format';
+    protected static $defaultDescription = 'Convert raw coverage files to PHPUnit format';
 
     protected function configure(): void
     {
         $this
             ->setDescription(self::$defaultDescription)
-            ->setHelp('This command merges raw Xdebug coverage arrays into a CodeCoverage object and optionally generates a Clover report.')
+            ->setHelp('This command merges raw Xdebug coverage arrays (from E2E or API tests) into a CodeCoverage object and optionally generates a Clover report.')
             ->addArgument(
                 'input',
                 InputArgument::REQUIRED,
@@ -104,11 +108,13 @@ class ConvertE2ECoverageCommand extends Command
         $noClover = $input->getOption('no-clover');
 
         // Auto-generate clover filename if not specified and not disabled
+        // Extract test type from output filename (e.g., coverage.api.cov -> api)
         if (!$cloverFile && !$noClover) {
-            $cloverFile = dirname($outputFile) . '/coverage.e2e.clover.xml';
+            $outputBasename = basename($outputFile, '.cov');
+            $cloverFile = dirname($outputFile) . '/' . $outputBasename . '.clover.xml';
         }
 
-        $io->title('E2E Coverage Converter');
+        $io->title('Coverage Converter');
 
         // Validate input directory
         if (!is_dir($coverageDir)) {
@@ -222,7 +228,7 @@ class ConvertE2ECoverageCommand extends Command
 }
 
 // Create and run the application
-$application = new Application('E2E Coverage Converter', '1.0.0');
-$application->add(new ConvertE2ECoverageCommand());
+$application = new Application('Coverage Converter', '1.0.0');
+$application->add(new ConvertCoverageCommand());
 $application->setDefaultCommand('convert', true);
 $application->run();
