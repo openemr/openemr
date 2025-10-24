@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR\Procedure;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -23,6 +24,7 @@ use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -35,6 +37,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure';
 
     /**
      * @var SurgeryService
@@ -95,6 +100,9 @@ class FhirProcedureSurgeryService extends FhirServiceBase
             $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_modified']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($this->createProfile($profile));
         }
         $procedureResource->setMeta($meta);
 
@@ -174,5 +182,12 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         } else {
             return $fhirProvenance;
         }
+    }
+
+    private function createProfile(string $profileUri): FHIRCanonical
+    {
+        $profile = new FHIRCanonical();
+        $profile->setValue($profileUri);
+        return $profile;
     }
 }
