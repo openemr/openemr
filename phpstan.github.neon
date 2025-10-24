@@ -14624,14 +14624,6 @@ parameters:
     identifier: arguments.count
     count: 1
     path: library/classes/Pharmacy.class.php
-  - message: '#^Method Prescription\:\:gen_lists_medication\(\) invoked with 2 parameters, 1 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: library/classes/Prescription.class.php
-  - message: '#^Undefined variable\: \$dosageInstructions$#'
-    identifier: variable.undefined
-    count: 1
-    path: library/classes/Prescription.class.php
   - message: '#^Variable \$arr might not be defined\.$#'
     identifier: variable.undefined
     count: 1

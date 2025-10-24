@@ -313,10 +313,12 @@ class Prescription extends ORDataObject
 
         // First try to find by prescription_id if we have one (more reliable and direct)
         if (!empty($this->id)) {
-            $dataRow = QueryUtils::fetchRecords("select l.id from lists l join lists_medication lm on l.id = lm.list_id where "
+            $dataRow = QueryUtils::fetchRecords(
+                "select l.id from lists l join lists_medication lm on l.id = lm.list_id where "
                 . " l.type = 'medication' and l.activity = 1 and (l.enddate is null or cast(now() as date) < l.enddate) and "
-                . " lm.prescription_id = ? and l.pid = ? limit 1"
-            , [$this->id, $this->patient->id]);
+                . " lm.prescription_id = ? and l.pid = ? limit 1",
+                [$this->id, $this->patient->id]
+            );
             $dataRow = $dataRow[0] ?? [];
         }
 
@@ -342,18 +344,22 @@ class Prescription extends ORDataObject
 
             // First try to find inactive medication by prescription_id if we have one
             if (!empty($this->id)) {
-                $dataRow = QueryUtils::fetchRecords("select l.id from lists l join lists_medication lm on "
+                $dataRow = QueryUtils::fetchRecords(
+                    "select l.id from lists l join lists_medication lm on "
                     . " l.id = lm.list_id where l.type = 'medication' and l.activity = 0 AND (l.enddate is null or cast(now() as date) < l.enddate) "
                     . " and lm.prescription_id = ? and l.pid = ? limit 1",
-                    [$this->id, $this->patient->id]);
+                    [$this->id, $this->patient->id]
+                );
                 $inactiveDataRow = $dataRow[0] ?? [];
             }
 
             // If not found by prescription_id, fall back to title matching for inactive medications
             if (empty($inactiveDataRow['id'])) {
-                $dataRow = QueryUtils::fetchRecords("select id from lists where type = 'medication' "
-                    . "and activity = 0 AND (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim(?)) and pid = ? limit 1"
-                    , [$this->original_drug, $this->patient->id]);
+                $dataRow = QueryUtils::fetchRecords(
+                    "select id from lists where type = 'medication' "
+                    . "and activity = 0 AND (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim(?)) and pid = ? limit 1",
+                    [$this->original_drug, $this->patient->id]
+                );
                 $inactiveDataRow = $dataRow[0] ?? [];
             }
 
@@ -363,19 +369,25 @@ class Prescription extends ORDataObject
 
             if (!isset($inactiveDataRow['id'])) {
                 //add the record to the medication list
-                $medListId = QueryUtils::sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) "
-                . " values (now(),cast(now() as date),'medication',1,?,?,?,?)"
-                , [$this->patient->id, $_SESSION['authUser'], $_SESSION['authProvider'], $this->drug]);
+                $medListId = QueryUtils::sqlInsert(
+                    "insert into lists(date,begdate,type,activity,pid,user,groupname,title) "
+                    . " values (now(),cast(now() as date),'medication',1,?,?,?,?)",
+                    [$this->patient->id, $_SESSION['authUser'], $_SESSION['authProvider'], $this->drug]
+                );
                 $this->gen_lists_medication($medListId);
             } else {
-                QueryUtils::sqlStatementThrowException('update lists set activity = 1,user = ?, groupname = ? where id = ?',
-                [$_SESSION['authUser'], $_SESSION['authProvider'], $inactiveDataRow['id']]);
+                QueryUtils::sqlStatementThrowException(
+                    'update lists set activity = 1,user = ?, groupname = ? where id = ?',
+                    [$_SESSION['authUser'], $_SESSION['authProvider'], $inactiveDataRow['id']]
+                );
                 $this->gen_lists_medication($inactiveDataRow["id"]);
             }
         } elseif (!$this->medication && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
-            QueryUtils::sqlStatementThrowException('update lists set activity = 0,user = ?, groupname = ? where id = ?'
-                ,[$_SESSION['authUser'], $_SESSION['authProvider'], $dataRow['id']]);
+            QueryUtils::sqlStatementThrowException(
+                'update lists set activity = 0,user = ?, groupname = ? where id = ?',
+                [$_SESSION['authUser'], $_SESSION['authProvider'], $dataRow['id']]
+            );
         } elseif ($this->medication && isset($dataRow['id'])) {
             $this->gen_lists_medication($dataRow["id"]);
         }
@@ -397,18 +409,24 @@ class Prescription extends ORDataObject
 
             // First try to find by prescription_id if we have one (more reliable and direct)
             if (!empty($this->id)) {
-                $dataRow = QueryUtils::fetchRecords("select l.id from lists l join lists_medication lm on "
-                . " l.id = lm.list_id where l.type = 'medication' and (l.enddate is null or cast(now() as date) < l.enddate) "
-                . " and lm.prescription_id = ? and l.pid = ? limit 1",
-                [$this->id], $this->patient->id);
+                $dataRow = QueryUtils::fetchRecords(
+                    "select l.id from lists l join lists_medication lm on "
+                    . " l.id = lm.list_id where l.type = 'medication' and (l.enddate is null or cast(now() as date) < l.enddate) "
+                    . " and lm.prescription_id = ? and l.pid = ? limit 1",
+                    [$this->id],
+                    $this->patient->id
+                );
                 $dataRow = $dataRow[0] ?? [];
             }
 
             // If not found by prescription_id, fall back to original drug title matching (legacy logic)
             if (empty($dataRow['id'])) {
-                $dataRow = QueryUtils::fetchRecords("select id from lists where type = 'medication' and "
-                . "(enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim(?)) and pid = ? limit 1"
-                , [$this->original_drug], $this->patient->id);
+                $dataRow = QueryUtils::fetchRecords(
+                    "select id from lists where type = 'medication' and "
+                    . "(enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim(?)) and pid = ? limit 1",
+                    [$this->original_drug],
+                    $this->patient->id
+                );
                 $dataRow = $dataRow[0] ?? [];
             }
 
@@ -417,9 +435,11 @@ class Prescription extends ORDataObject
             // ===============================================================================================
 
             if (isset($dataRow['id'])) {
-                QueryUtils::sqlStatementThrowException('update lists set activity = 1'
-                    . " ,user = ?, groupname = ?, title = ? where id = ?"
-                    , [$_SESSION['authUser'], $_SESSION['authProvider'], $this->drug, $dataRow['id']]);
+                QueryUtils::sqlStatementThrowException(
+                    'update lists set activity = 1'
+                    . " ,user = ?, groupname = ?, title = ? where id = ?",
+                    [$_SESSION['authUser'], $_SESSION['authProvider'], $this->drug, $dataRow['id']]
+                );
                 $this->gen_lists_medication($dataRow["id"]);
             }
         }
