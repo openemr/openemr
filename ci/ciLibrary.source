@@ -81,13 +81,18 @@ actions_chmod() {
     sudo chmod "$@"
 }
 
-main_build() {
-    actions_chmod -R 0777 .
-    local composer_home
-    composer_home=$(composer --no-interaction config --global --absolute home) 2> /dev/null
+composer_install() {
     composer install --prefer-dist --no-progress
+}
+
+npm_build() {
     npm ci
     npm run build
+}
+
+post_build_cleanup() {
+    local composer_home
+    composer_home=$(composer --no-interaction config --global --absolute home) 2> /dev/null
     composer global require phing/phing
     "${composer_home}/vendor/bin/phing" vendor-clean
     "${composer_home}/vendor/bin/phing" assets-clean
