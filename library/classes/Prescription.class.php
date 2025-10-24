@@ -665,7 +665,7 @@ class Prescription extends ORDataObject
                 QueryUtils::sqlStatementThrowException($sql, $bind);
             } else {
                 QueryUtils::sqlInsert("insert into lists_medication(list_id, drug_dosage_instructions, prescription_id"
-                . ",usage_category, request_intent ) values (?, ?, ?, ?, ?)", [$list_id, $instructions, $this->id
+                . ",usage_category, usage_category_title, request_intent,  request_intent_title ) values (?, ?, ?, ?, ?, ?, ?)", [$list_id, $instructions, $this->id
                     , $this->usage_category ?? '', $this->usage_category_title ?? ''
                     , $this->request_intent ?? '', $this->request_intent_title ?? '']);
             }
