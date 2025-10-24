@@ -40,11 +40,22 @@ on:
         required: true
         type: choice
         options:
-          - apache_84_114
-          - apache_84_57
-          - apache_83_114
-          - nginx_84_114
-          - nginx_83_114
+        - apache_82_118
+        - apache_83_118
+        - apache_84_1011
+        - apache_84_106
+        - apache_84_114
+        - apache_84_118
+        - apache_84_120
+        - apache_84_57
+        - apache_84_80
+        - apache_84_84
+        - apache_84_93
+        - nginx_82
+        - nginx_83
+        - nginx_84
+        - nginx_85
+        - nginx_86
         default: 'apache_84_114'
       enable_coverage:
         description: 'Enable coverage collection and reporting'
