@@ -37,6 +37,7 @@ use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
 use OpenEMR\RestControllers\FHIR\FhirGroupRestController;
 use OpenEMR\RestControllers\FHIR\FhirLocationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
+use OpenEMR\RestControllers\FHIR\FhirMedicationDispenseRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
@@ -2871,6 +2872,209 @@ return [
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRestController())->getOne($uuid);
+        }
+
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/MedicationDispense",
+     *      description="Returns a list of MedicationDispense resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the MedicationDispense resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="status",
+     *          in="query",
+     *          description="The status of the MedicationDispense resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="The type of the MedicationDispense resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/MedicationDispense"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/MedicationDispense" => function (HttpRestRequest $request) {
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirMedicationDispenseRestController())->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "med");
+            $return = (new FhirMedicationDispenseRestController())->getAll($getParams);
+        }
+
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/MedicationDispense/{uuid}",
+     *      description="Returns a single MedicationDispense resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the MedicationDispense resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "946da61d-9cff-4416-8d27-805f19f9d7d8",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2021-09-20T04:03:14+00:00"
+     *                      },
+     *                      "resourceType": "MedicationDispense",
+     *                      "status": "completed",
+     *                      "medicationCodeableConcept": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+     *                                  "code": "1738139",
+     *                                  "display": "Acetaminophen 325 MG Oral Tablet"
+     *                              }
+     *                          }
+     *                      },
+     *                      "subject": {
+     *                          "reference": "Patient/946da617-1a4a-4b2c-ae66-93b84377cb1e",
+     *                          "type": "Patient"
+     *                      },
+     *                      "context": {
+     *                          "reference": "Encounter/946da61d-ac5f-4fdc-b3f2-7b58dc49976b",
+     *                          "type": "Encounter"
+     *                      },
+     *                      "authorizingPrescription": {
+     *                          {
+     *                              "reference": "MedicationRequest/946da61d-ac5f-4fdc-b3f2-7b58dc49976b",
+     *                              "type": "MedicationRequest"
+     *                          }
+     *                      },
+     *                      "type": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType",
+     *                                  "code": "FF",
+     *                                  "display": "Final Fill"
+     *                              }
+     *                          }
+     *                      },
+     *                      "quantity": {
+     *                          "value": 30,
+     *                          "unit": "tablet"
+     *                      },
+     *                      "whenHandedOver": "2021-09-18T00:00:00+00:00"
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/MedicationDispense/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirMedicationDispenseRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "med");
+            $return = (new FhirMedicationDispenseRestController())->getOne($uuid);
         }
 
         return $return;

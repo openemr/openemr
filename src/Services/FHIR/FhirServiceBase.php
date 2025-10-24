@@ -6,6 +6,7 @@ use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
@@ -35,8 +36,9 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
+     * @var array<string, FhirSearchParameterDefinition> Hashmap of FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected $resourceSearchParameters = [];
+    protected array $resourceSearchParameters = [];
 
     /**
      * Url to the base fhir api location
@@ -79,6 +81,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
+     * @return array<string, FhirSearchParameterDefinition> Hashmap of FHIR Resource search parameters to OpenEMR search parameters
      */
     abstract protected function loadSearchParameters();
 
@@ -286,6 +289,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /*
     * public function to return search params
+    * @return array<string, FhirSearchParameterDefinition> Hashmap of FHIR Resource search parameters to OpenEMR search parameters
     */
     public function getSearchParams()
     {

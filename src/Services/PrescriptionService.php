@@ -218,7 +218,7 @@ class PrescriptionService extends BaseService
                     ,title AS interval_title
                     ,codes AS interval_codes
                   FROM list_options
-                  WHERE list_id='drug_route'
+                  WHERE list_id='drug_interval'
                 ) intervals_list ON intervals_list.interval_id = combined_prescriptions.interval
                 LEFT JOIN
                 (
@@ -227,7 +227,7 @@ class PrescriptionService extends BaseService
                     ,title AS unit_title
                     ,codes AS unit_codes
                   FROM list_options
-                  WHERE list_id='drug_route'
+                  WHERE list_id='drug_units'
                 ) units_list ON units_list.unit_id = combined_prescriptions.unit
                 LEFT JOIN (
                     select uuid AS puuid
