@@ -248,7 +248,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
         } elseif (!empty($dataRecord['date_ordered'])) {
             // Order placed but not yet performed
-            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
+            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
         } else {
             if ($status == EventStatusEnum::IN_PROGRESS || $status == EventStatusEnum::COMPLETED) {
                 // we CAN'T by spec have in-progress or completed without a date
