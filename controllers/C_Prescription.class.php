@@ -1143,18 +1143,23 @@ class C_Prescription extends Controller
         $diagnosis = $prescription->get_diagnosis();
         $selectedCodes = !empty($diagnosis) ? explode(';', $prescription->get_diagnosis() ?? '') : [];
         $selectedCodes = array_combine($selectedCodes, $selectedCodes);
-
+        $formattedCodesByCode = [];
         if ($activeIssues->hasData()) {
             foreach ($activeIssues->getData() as $issue) {
                 $codes = $issue['diagnosis'];
                 $issueCodes = !empty($codes) ? explode(';', (string) $codes) : [];
                 foreach ($issueCodes as $code) {
+                    // already exists in the list so we skip over it.
+                    if (isset($formattedCodesByCode[$code])) {
+                        continue;
+                    }
                     $description = $codeTypesService->lookup_code_description($code);
                     $formattedCodes[] = [
                         'value' => $code,
                         'text' => $description . ' (' . $code . ')',
                         'selected' => isset($selectedCodes[$code])
                     ];
+                    $formattedCodesByCode[$code] = true;
                     // clear it out so we don't show duplicates
                     if (isset($selectedCodes[$code])) {
                         unset($selectedCodes[$code]);
