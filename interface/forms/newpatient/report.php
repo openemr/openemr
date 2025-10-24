@@ -22,6 +22,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
+use OpenEMR\Services\PatientService;
 
 function newpatient_report($pid, $encounter, $cols, $id): void
 {
@@ -61,7 +62,7 @@ function newpatient_report($pid, $encounter, $cols, $id): void
         $globalsBag = $GLOBALS['globalsBag'];
         if ($globalsBag->getInt(GlobalFeaturesEnum::INHOUSE_PHARMACY->value, 0) === 1) {
             $encounterUuid = UuidRegistry::uuidToString($result['uuid']);
-            $patientService = new \OpenEMR\Services\PatientService();
+            $patientService = new PatientService();
             $patientUuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
             $localDispensary = new FhirMedicationDispenseLocalDispensaryService();
             $medications = $localDispensary->getDispensedMedicationSummaryForEncounter($patientUuid, $encounterUuid);
