@@ -489,7 +489,6 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
                 $this->assertNotNull($quantity->getValue(), 'Dispense quantity must have value');
                 $this->assertIsInt($quantity->getValue(), "Dispense quantity value must be an integer");
                 $this->assertEquals($this->compliantMedicationRequestData['quantity'], $quantity->getValue(), "Dispense quantity value must match input data");
-
             }
         }
     }
