@@ -196,7 +196,8 @@ class PrescriptionService extends BaseService
                         ,IF(lists_medication.request_intent_title IS NULL, 'Plan', lists_medication.request_intent_title) AS intent_title
                         ,lists_medication.usage_category AS category
                         ,lists_medication.usage_category_title AS category_title
-                        ,lists.diagnosis AS rxnorm_drugcode
+                        -- we don't have rxnorm codes for free text meds
+                        ,NULL AS rxnorm_drugcode
                         ,`date` AS date_added
                         ,`modifydate` AS date_modified
                         ,NULL as unit
