@@ -232,7 +232,9 @@ jobs:
       id: ccda-build-cache-restore
       uses: actions/cache/restore@v4
       with:
-        path: ccdaservice/node_modules/
+        path: |
+          ccdaservice/node_modules/
+          ccdaservice/packages/oe-cqm-service/node_modules/
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         restore-keys: |
           ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
@@ -315,7 +317,9 @@ jobs:
       uses: actions/cache/save@v4
       with:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
-        path: ccdaservice/node_modules/
+        path: |
+          ccdaservice/node_modules/
+          ccdaservice/packages/oe-cqm-service/node_modules/
 
     - name: Save NPM build artifacts
       if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
