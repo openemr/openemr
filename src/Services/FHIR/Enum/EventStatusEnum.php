@@ -1,4 +1,5 @@
 <?php
+
 /*
  * EventStatusEnum.php
  * @package openemr
@@ -10,7 +11,8 @@
 
 namespace OpenEMR\Services\FHIR\Enum;
 
-enum EventStatusEnum: string {
+enum EventStatusEnum: string
+{
 // preparation | in-progress | not-done | on-hold | stopped | completed | entered-in-error | unknown
 
     case PREPARATION = 'preparation';
