@@ -79,16 +79,19 @@ initialize_openemr() {
     npm_build
     post_build_cleanup
     ccda_build
-    cd -
-    dockers_env_start
-    install_configure
-    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+
+    # Configure coverage while still in repo root (before cd -)
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         configure_coverage
         setup_e2e_bookends apache
         echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP:-/tmp}/coverage-inferno-raw"
     fi
+
+    cd -
+    dockers_env_start
+    install_configure
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
     echo 'OpenEMR initialized'
 }
 run_testsuite() {
