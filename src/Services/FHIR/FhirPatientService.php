@@ -352,22 +352,22 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
 
         if (!empty($dataRecord['phone_home'])) {
-            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_home'], 'home'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['phone_home'], 'phone','home'));
         }
 
         if (!empty($dataRecord['phone_biz'])) {
-            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_biz'], 'work'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['phone_biz'], 'phone', 'work'));
         }
 
         if (!empty($dataRecord['phone_cell'])) {
-            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_cell'], 'mobile'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['phone_cell'],'phone',  'mobile'));
         }
 
         if (!empty($dataRecord['email'])) {
-            $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email'], 'home'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['email'],'email',  'home'));
         }
         if (!empty($dataRecord['email_direct'])) {
-            $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email_direct'], 'mobile'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['email_direct'],'email','mobile'));
             // "mobile" per spec:
             //    "A telecommunication device that moves and stays with its owner.
             //    May have characteristics of all other use codes, suitable for urgent matters,
@@ -736,15 +736,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $identifier->setSystem(new FHIRUri($systemUri));
         $identifier->setValue(new FHIRString($value));
         return $identifier;
-    }
-
-    private function createContactPoint($system, $value, $use): FHIRContactPoint
-    {
-        $contactPoint = new FHIRContactPoint();
-        $contactPoint->setSystem(new FHIRContactPointSystem(['value' => $system]));
-        $contactPoint->setValue(new FHIRString($value));
-        $contactPoint->setUse(new FHIRContactPointUse(['value' => $use]));
-        return $contactPoint;
     }
 
     /**

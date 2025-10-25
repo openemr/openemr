@@ -63,6 +63,7 @@ use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormSer
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
 use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
+use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -6110,6 +6111,18 @@ return [
             $return = (new FhirProcedureRestController())->getAll($request->getQueryParams());
         }
 
+        return $return;
+    },
+
+    // TODO: @adunsulag add docblock here for api
+    "GET /fhir/RelatedPerson" => function (HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams());
+        }
         return $return;
     },
 
