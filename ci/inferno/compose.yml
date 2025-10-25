@@ -30,6 +30,7 @@ services:
     environment:
       EMPTY: "yes"
       FORCE_NO_BUILD_MODE: "yes"
+      OPENEMR_ENABLE_CI_PHP: "1"
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_host: couchdb
       OPENEMR_SETTING_couchdb_pass: password
@@ -40,10 +41,12 @@ services:
       MYSQL_ROOT_PASS: root
       MYSQL_USER: openemr
       MYSQL_PASS: openemr
-        #ENABLE_COVERAGE: "false"
-        #OPENEMR_COVERAGE_DIR: "coverage"
-        #XDEBUG_ON: 1
-        #XDEBUG_MODE: coverage
+      # Coverage settings - controlled by ENABLE_COVERAGE variable
+      # Set ENABLE_COVERAGE=true in run.sh to enable coverage collection
+      ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
+      INFERNO_TEST: "${INFERNO_TEST:-false}"
+      XDEBUG_ON: "${XDEBUG_ON:-0}"
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
     depends_on:
       couchdb:
         condition: service_started
