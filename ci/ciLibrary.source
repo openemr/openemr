@@ -178,10 +178,11 @@ setup_e2e_bookends() {
     "
 
     echo 'Configuring PHP to use auto_prepend'
+    local prepend_ini_file="${RUNNER_TEMP:-/tmp}/php_prepend.ini"
     {
         echo "auto_prepend_file=${OPENEMR_DIR}/${prepend_file}"
-    } > php_prepend.ini
-    dc cp php_prepend.ini "openemr:${php_scan_dir}/php_prepend.ini"
+    } > "${prepend_ini_file}"
+    dc cp "${prepend_ini_file}" "openemr:${php_scan_dir}/php_prepend.ini"
 
     echo 'Restarting services to pick up the new PHP configuration'
     dc restart openemr
