@@ -3,7 +3,8 @@
 
 # environment vars
 .env
-
+.env.dev
+.env.test
 # vendor and assets
 node_modules
 /vendor/*
