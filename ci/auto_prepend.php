@@ -25,9 +25,17 @@ const SHUTDOWN_MARKER = '/tmp/openemr-autoprepend-SHUTDOWN_EXECUTED';
 const COVERAGE_DIR = '/tmp/openemr-coverage';
 
 // Detect test type based on the request URI or environment
+// Priority order: inferno > api > e2e
+// Inferno tests are identified by INFERNO_TEST environment variable
 // API tests use /apis/ endpoints, E2E tests use other routes
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-$testType = (strpos($requestUri, '/apis/') !== false) ? 'api' : 'e2e';
+if (getenv('INFERNO_TEST') === 'true') {
+    $testType = 'inferno';
+} elseif (strpos($requestUri, '/apis/') !== false) {
+    $testType = 'api';
+} else {
+    $testType = 'e2e';
+}
 
 define('TEST_TYPE', $testType);
 define('COVERAGE_SUBDIR', COVERAGE_DIR . '/' . $testType);
