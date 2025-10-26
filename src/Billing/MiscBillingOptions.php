@@ -51,7 +51,7 @@ class MiscBillingOptions
         ];
     }
 
-    public function generateDateQualifierSelect($name, $options, $obj)
+    public function generateDateQualifierSelect(string $name, array $options, array $obj): void
     {
     /* ai generated code by google-labs-jules starts */
         $current_value = $obj[$name] ?? null;
@@ -76,13 +76,13 @@ class MiscBillingOptions
         echo     "</select>";
     }
 
-    public function getReferringProviders()
+    public function getReferringProviders(): array
     {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' AND npi IS NOT NULL ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
 
-    public function genReferringProviderSelect($selname, $toptext, $default = 0, $disabled = false)
+    public function genReferringProviderSelect(string $selname, string $toptext, int $default = 0, bool $disabled = false): void
     {
         $providers = $this->getReferringProviders();
         echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
@@ -105,13 +105,13 @@ class MiscBillingOptions
         echo "</select>\n";
     }
 
-    public function getOrderingProviders()
+    public function getOrderingProviders(): array
     {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
 
-    public function genOrderingProviderSelect($selname, $toptext, $default = 0, $disabled = false)
+    public function genOrderingProviderSelect(string $selname, string $toptext, int $default = 0, bool $disabled = false): void
     {
         $orderingProviders = $this->getOrderingProviders();
         echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
@@ -134,9 +134,20 @@ class MiscBillingOptions
         echo "</select>\n";
     }
 
-    public function qual_id_to_description($qual_type, $value)
+    public function qual_id_to_description(string $qual_type, string $value): ?string
     {
+        // Return null if qual_type doesn't exist
+        if (!isset($this->hcfa_date_quals[$qual_type])) {
+            return null;
+        }
+
         $options = $this->hcfa_date_quals[$qual_type];
+
+        // Return null if options is not an array (shouldn't happen, but type-safe)
+        if (!is_array($options)) {
+            return null;
+        }
+
         for ($idx = 0; $idx < count($options); $idx++) {
             if ($options[$idx][1] == $value) {
                 return $options[$idx][0];
