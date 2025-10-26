@@ -40,7 +40,8 @@ class CareTeamService extends BaseService
      */
     public function __construct()
     {
-        UuidRegistry::createMissingUuidsForTables([
+        UuidRegistry::createMissingUuidsForTables(
+            [
             self::PATIENT_TABLE,
             self::PRACTITIONER_TABLE,
             self::FACILITY_TABLE,
@@ -312,8 +313,8 @@ class CareTeamService extends BaseService
     /**
      * Returns a single careTeam record by id.
      *
-     * @param $uuid      - The careTeam uuid identifier in string format.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $uuid      - The careTeam uuid identifier in string format.
+     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
     public function getOne(string $uuid, $puuidBind = null)
@@ -684,6 +685,19 @@ class CareTeamService extends BaseService
         //     CareTeamUpdateEvent::EVENT_HANDLE
         // );
     }
+
+    /**
+     * Update care team status (for deactivation/reactivation)
+     */
+    public function updateCareTeamStatus($pid, $teamName, $status)
+    {
+        $sql = "UPDATE " . self::CARE_TEAMS_TABLE . "
+                SET status = ?, date_updated = NOW()
+                WHERE pid = ? AND team_name = ?";
+
+        return sqlStatement($sql, [$status, $pid, $teamName]);
+    }
+
 
     /**
      * Legacy

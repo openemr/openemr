@@ -2,7 +2,8 @@
 
 /**
  * FhirRelatedPersonRestController.php
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -52,13 +53,14 @@ class FhirRelatedPersonRestController
 
     /**
      * Queries for a single FHIR person resource by FHIR id
-     * @param string $fhirId The FHIR person resource id (uuid)
+     *
+     * @param   string $fhirId The FHIR person resource id (uuid)
      * @returns Response 200 if the operation completes successfully
      */
     public function getOne(string $fhirId): Response
     {
         $this->logger->debug("FhirPersonRestController->getOne(fhirId)", ["fhirId" => $fhirId]);
-        $processingResult = $this->fhirRelatedPersonService->getOne($fhirId, true);
+        $processingResult = $this->fhirRelatedPersonService->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -76,6 +78,7 @@ class FhirRelatedPersonRestController
      * - name (title, first name, middle name, last name)
      * - phone (phone, work, cell)
      * - telecom (email, phone)
+     *
      * @return JsonResponse|Response FHIR bundle with query results, if found
      */
     public function getAll($searchParams): JsonResponse|Response
