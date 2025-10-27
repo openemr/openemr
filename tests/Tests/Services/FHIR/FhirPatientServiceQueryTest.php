@@ -8,7 +8,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,7 +23,6 @@ use PHPUnit\Framework\Attributes\Test;
  *
  */
 
-#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceQueryTest extends TestCase
 {
     private $fixtureManager;

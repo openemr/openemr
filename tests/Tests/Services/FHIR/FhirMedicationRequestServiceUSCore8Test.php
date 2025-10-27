@@ -34,13 +34,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\UtilsService;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
-#[CoversClass(FhirMedicationRequestService::class)]
 class FhirMedicationRequestServiceUSCore8Test extends TestCase
 {
     private FhirMedicationRequestService $fhirMedicationRequestService;
