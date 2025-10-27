@@ -226,13 +226,10 @@ class CarePlanService extends BaseService
              LEFT JOIN `list_options` l ON l.option_id = fcp.care_plan_type 
                 AND l.list_id = 'Plan_of_Care_Type'
              LEFT JOIN (
-                -- Get related goals for this care plan
-                -- Returns care_plan_id values to build unique 2-part surrogate keys
-                -- Note: forms.form_id = form_care_plan.id, so we only need care_plan_id
                 SELECT 
                     fcp_goal.pid,
                     fcp_goal.encounter,
-                    GROUP_CONCAT(fcp_goal.id SEPARATOR ',') AS goal_care_plan_ids
+                    GROUP_CONCAT(DISTINCT fcp_goal.id SEPARATOR ',') AS goal_care_plan_ids
                 FROM form_care_plan fcp_goal
                 WHERE fcp_goal.care_plan_type = 'goal'
                 GROUP BY fcp_goal.pid, fcp_goal.encounter
