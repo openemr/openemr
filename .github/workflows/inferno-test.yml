@@ -324,6 +324,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-inferno.xml
         flags: inferno,certification,php${{ matrix.php-version }}
+        disable_search: true
 
     - name: Upload PHPUnit coverage to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('coverage.inferno-phpunit.clover.xml') != '' }}
