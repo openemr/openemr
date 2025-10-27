@@ -18,7 +18,7 @@
         <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
-                    {% if foreign_table_name == 'patient_data' %}
+                    {% if foreign_table == 'patient_data' %}
                         {{ 'Additional Telecom Contacts'|xlt }}
                     {% else %}
                         {{ 'Telecom Contacts'|xlt }}

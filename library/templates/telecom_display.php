@@ -20,7 +20,7 @@ $contactService = new ContactService();
 $telecomService = new ContactTelecomService();
 
 // Get contact for entity
-$contact = $contactService->getOrCreateForEntity($foreign_table_name, $foreign_id);
+$contact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
 
 // Transfer records to array
 $telecoms = [];
@@ -55,7 +55,7 @@ $table_id = uniqid("table_text_telecoms_");
 
 // Prepare template variables
 $templateVars = [
-    'foreign_table_name' => $foreign_table_name,
+    'foreign_table' => $foreign_table,
     'table_id' => $table_id,
     'telecoms' => $telecoms,
     'list_telecom_systems' => $list_telecom_systems,

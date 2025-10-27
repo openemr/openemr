@@ -21,7 +21,7 @@ class Contact extends ORDataObject
     /**
      * @var string
      */
-    private $foreign_table_name;
+    private $foreign_table;
 
     /**
      * @var int
@@ -44,10 +44,10 @@ class Contact extends ORDataObject
         }
     }
 
-    public function setContactRecord(string $foreign_table_name, int $foreign_id): void
+    public function setContactRecord(string $foreign_table, int $foreign_id): void
     {
         // we set our type to be patient_id and our table type here.
-        $this->foreign_table_name = $foreign_table_name;
+        $this->foreign_table = $foreign_table;
         $this->foreign_id = $foreign_id;
 
         $this->setContactIdIfExist();
@@ -63,7 +63,7 @@ class Contact extends ORDataObject
 
     private function setContactIdIfExist(): void
     {
-        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table_name` = ? AND `foreign_id` = ?", [$this->foreign_table_name, $this->foreign_id])['id'] ?? null;
+        $id = sqlQuery("SELECT `id` FROM `contact` WHERE `foreign_table` = ? AND `foreign_id` = ?", [$this->foreign_table, $this->foreign_id])['id'] ?? null;
         if (!empty($id)) {
             // the contact entry already exists for this foreign table name and foreign id, so set it
             $this->id = $id;
@@ -91,18 +91,18 @@ class Contact extends ORDataObject
     /**
      * @return string
      */
-    public function get_foreign_table_name(): ?string
+    public function get_foreign_table(): ?string
     {
-        return $this->foreign_table_name;
+        return $this->foreign_table;
     }
 
     /**
-     * @param string $foreign_table_name
+     * @param string $foreign_table
      * @return Contact
      */
-    public function set_foreign_table_name(string $foreign_table_name): Contact
+    public function set_foreign_table(string $foreign_table): Contact
     {
-        $this->foreign_table_name = $foreign_table_name;
+        $this->foreign_table = $foreign_table;
         return $this;
     }
 

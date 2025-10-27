@@ -7,12 +7,12 @@
 DROP TABLE IF EXISTS `contact`;
 CREATE TABLE `contact` (
    	`id` BIGINT(20) NOT NULL auto_increment,
-   	`foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   	`foreign_table` VARCHAR(255) NOT NULL DEFAULT '',
    	`foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
    	PRIMARY KEY (`id`),
    	KEY (`foreign_id`),
-	INDEX idx_contact_foreign (foreign_table_name, foreign_id),
-	INDEX idx_contact_lookup (foreign_table_name, foreign_id, id)
+	INDEX idx_contact_foreign (foreign_table, foreign_id),
+	INDEX idx_contact_lookup (foreign_table, foreign_id, id)
 ) ENGINE = InnoDB;
 
 -- --------------------------------------------------------
@@ -65,11 +65,11 @@ DROP TABLE IF EXISTS `contact_telecom`;
     `id` BIGINT(20) NOT NULL auto_increment,
     `contact_id` BIGINT(20) NOT NULL,
     `rank` INT(11) NULL COMMENT 'Specify preferred order of use (1 = highest)',
-    `system` VARCHAR(255) NULL 
+    `system` VARCHAR(255) NULL
     	COMMENT 'FK to list_options.option_id for list_id telecom-systems [phone, fax, email, pager, url, sms, other]',
-    `use` VARCHAR(255) NULL 
+    `use` VARCHAR(255) NULL
     	COMMENT 'FK to list_options.option_id for list_id telecom-uses [home, work, temp, old, mobile]',
-    `value` varchar(255) default NULL,    
+    `value` varchar(255) default NULL,
     `notes` TINYTEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
@@ -87,9 +87,9 @@ CREATE TABLE `person` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
     `uuid` BINARY(16) DEFAULT NULL,
     `title` VARCHAR(31) DEFAULT NULL COMMENT 'Mr., Mrs., Dr., etc.',
-    `firstname` VARCHAR(63) DEFAULT NULL,
-    `middlename` VARCHAR(63) DEFAULT NULL,
-    `lastname` VARCHAR(63) DEFAULT NULL,
+    `first_name` VARCHAR(63) DEFAULT NULL,
+    `middle_name` VARCHAR(63) DEFAULT NULL,
+    `last_name` VARCHAR(63) DEFAULT NULL,
     `preferred_name` VARCHAR(63) DEFAULT NULL COMMENT 'Name person prefers to be called',
     `gender` VARCHAR(31) DEFAULT NULL,
     `birth_date` DATE DEFAULT NULL,
@@ -110,9 +110,9 @@ CREATE TABLE `person` (
     `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uuid` (`uuid`),
-    KEY `idx_person_name` (`lastname`, `firstname`),
+    KEY `idx_person_name` (`last_name`, `first_name`),
     KEY `idx_person_dob` (`birth_date`),
-    KEY `idx_person_search` (`lastname`, `firstname`, `birth_date`),
+    KEY `idx_person_search` (`last_name`, `first_name`, `birth_date`),
     KEY `idx_person_active` (`active`),
     CONSTRAINT `fk_person_created_by` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_person_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
@@ -124,8 +124,8 @@ CREATE TABLE `person` (
 CREATE TABLE `contact_relation` (
     `id`  BIGINT(20) NOT NULL auto_increment,
     `contact_id`  BIGINT(20) NOT NULL,
-    `related_foreign_table_name`  VARCHAR(255) NOT NULL DEFAULT '',
-    `related_foreign_table_id`  BIGINT(20) NOT NULL,
+    `target_table`  VARCHAR(255) NOT NULL DEFAULT '',
+    `target_id`  BIGINT(20) NOT NULL,
     `active` BOOLEAN DEFAULT TRUE,
     `role` VARCHAR(63)  DEFAULT NULL,
     `relationship` VARCHAR(63)  DEFAULT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE `contact_relation` (
     `notes` TEXT,
    PRIMARY KEY (`id`),
    KEY (`contact_id`),
-   INDEX idx_contact_relation_foreign (related_foreign_table_name, related_foreign_table_id);
+   INDEX idx_contact_target_table (target_table, target_id);
 ) ENGINE = InnoDB;
 #EndIf
 
@@ -158,16 +158,31 @@ CREATE TABLE `person_patient_link` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_active_link` (`person_id`, `patient_id`, `active`),
-    CONSTRAINT `fk_ppl_person` FOREIGN KEY (`person_id`) 
+    CONSTRAINT `fk_ppl_person` FOREIGN KEY (`person_id`)
         REFERENCES `person`(`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_ppl_patient` FOREIGN KEY (`patient_id`) 
+    CONSTRAINT `fk_ppl_patient` FOREIGN KEY (`patient_id`)
         REFERENCES `patient_data`(`id`) ON DELETE CASCADE,
     KEY `idx_ppl_person` (`person_id`),
     KEY `idx_ppl_patient` (`patient_id`),
     KEY `idx_ppl_active` (`active`),
     KEY `idx_ppl_linked_date` (`linked_date`),
-    KEY `idx_ppl_method` (`link_method`)   
+    KEY `idx_ppl_method` (`link_method`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Links person records to patient_data records when person becomes patient';
+
+
+
+
+#IfNotColumnType contact foreign_table VARCHAR(255)
+ALTER TABLE `contact`
+  	CHANGE COLUMN `foreign_table_name` `foreign_table`
+  	VARCHAR(255) NOT NULL DEFAULT '';
+#EndIf
+
+or
+ALTER TABLE `contact`
+	CHANGE COLUMN `foreign_table_name` `foreign_table`
+	VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '';
+
 
 
 
@@ -189,7 +204,7 @@ VALUES
     ('related_person-relationship','DOMPART','domestic partner',40,0,1),
     ('related_person-relationship','SIGOTHR','significant other',50,0,1),
     ('related_person-relationship','FMRSPS','former spouse',60,0,1),
-    
+
     -- Parents
     ('related_person-relationship','PRN','parent',70,0,1),
     ('related_person-relationship','NPRN','natural parent',80,0,1),
@@ -207,7 +222,7 @@ VALUES
     ('related_person-relationship','STPMTH','stepmother',200,0,1),
     ('related_person-relationship','STPPRN','step parent',210,0,1),
     ('related_person-relationship','GESTM','gestational mother',220,0,1),
-    
+
     -- Children
     ('related_person-relationship','CHILD','Child',230,0,1),
     ('related_person-relationship','NCHILD','natural child',240,0,1),
@@ -224,7 +239,7 @@ VALUES
     ('related_person-relationship','STPCHLD','step child',350,0,1),
     ('related_person-relationship','STPDAU','stepdaughter',360,0,1),
     ('related_person-relationship','STPSON','stepson',370,0,1),
-    
+
     -- Siblings
     ('related_person-relationship','SIB','sibling',380,0,1),
     ('related_person-relationship','NSIB','natural sibling',390,0,1),
@@ -247,7 +262,7 @@ VALUES
     ('related_person-relationship','ITWIN','identical twin',560,0,1),
     ('related_person-relationship','ITWINBRO','identical twin brother',570,0,1),
     ('related_person-relationship','ITWINSIS','identical twin sister',580,0,1),
-    
+
     -- Grandparents
     ('related_person-relationship','GRPRN','grandparent',590,0,1),
     ('related_person-relationship','GRFTH','grandfather',600,0,1),
@@ -258,7 +273,7 @@ VALUES
     ('related_person-relationship','PGRPRN','paternal grandparent',650,0,1),
     ('related_person-relationship','PGRFTH','paternal grandfather',660,0,1),
     ('related_person-relationship','PGRMTH','paternal grandmother',670,0,1),
-    
+
     -- Great Grandparents
     ('related_person-relationship','GGRPRN','great grandparent',680,0,1),
     ('related_person-relationship','GGRFTH','great grandfather',690,0,1),
@@ -269,12 +284,12 @@ VALUES
     ('related_person-relationship','PGGRPRN','paternal great-grandparent',740,0,1),
     ('related_person-relationship','PGGRFTH','paternal great-grandfather',750,0,1),
     ('related_person-relationship','PGGRMTH','paternal great-grandmother',760,0,1),
-    
+
     -- Grandchildren
     ('related_person-relationship','GRNDCHILD','grandchild',770,0,1),
     ('related_person-relationship','GRNDDAU','granddaughter',780,0,1),
     ('related_person-relationship','GRNDSON','grandson',790,0,1),
-    
+
     -- Extended Family
     ('related_person-relationship','FAMMEMB','Family Member',800,0,1),
     ('related_person-relationship','EXT','extended family member',810,0,1),
@@ -289,7 +304,7 @@ VALUES
     ('related_person-relationship','PCOUSN','paternal cousin',900,0,1),
     ('related_person-relationship','NEPHEW','nephew',910,0,1),
     ('related_person-relationship','NIECE','niece',920,0,1),
-    
+
     -- In-Laws
     ('related_person-relationship','INLAW','inlaw',930,0,1),
     ('related_person-relationship','PRNINLAW','parent in-law',940,0,1),
@@ -300,19 +315,19 @@ VALUES
     ('related_person-relationship','SISINLAW','sister-in-law',990,0,1),
     ('related_person-relationship','DAUINLAW','daughter in-law',1000,0,1),
     ('related_person-relationship','SONINLAW','son in-law',1010,0,1),
-    
+
     -- Legal/Guardian Relationships
     -- ('related_person-relationship','GUARD','guardian',1020,0,1),
     -- ('related_person-relationship','GUADLTM','guardian ad lidem',1030,0,1),
     -- ('related_person-relationship','POWATT','power of attorney',1040,0,1),
     -- ('related_person-relationship','SPOWATT','special power of attorney',1050,0,1),
     -- ('related_person-relationship','HPOWATT','healthcare power of attorney',1060,0,1),
-    
+
     -- Other Relationships
     ('related_person-relationship','FRND','unrelated friend',1070,0,1),
     ('related_person-relationship','NBOR','neighbor',1080,0,1),
     ('related_person-relationship','ROOM','Roommate',1090,0,1),
-    
+
     -- Self
     ('related_person-relationship','ONESELF','self',1100,0,1);
 
@@ -360,7 +375,7 @@ VALUES
     ('telecom-systems','PAGER','pager',40,0,1),
     ('telecom-systems','URL','url',50,0,1),
     ('telecom-systems','SMS','sms',60,0,1),
-    ('telecom-systems','OHTER','other',70,0,1);
+    ('telecom-systems','OTHER','other',70,0,1);
 
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
     VALUES ('lists','telecom-uses','Telecom Uses',0, 1, 0);
@@ -374,20 +389,20 @@ VALUES
     ('telecom-uses','OLD','old',40,0,1),
     ('telecom-uses','MOBILE','mobile',50,0,1);
 
-INSERT IGNORE INTO list_options 
-	(list_id, option_id, title, seq, is_default) 
-VALUES 
+INSERT IGNORE INTO list_options
+	(list_id, option_id, title, seq, is_default)
+VALUES
 	('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);
 
-INSERT INTO list_options 
-	(list_id, option_id, title, seq, is_default, option_value, notes) 
+INSERT INTO list_options
+	(list_id, option_id, title, seq, is_default, option_value, notes)
 VALUES
     ('person_patient_link_method', 'manual', 'Manually Linked by User', 10, 1, 0, 'User explicitly linked person to patient'),
     ('person_patient_link_method', 'auto_detected', 'Auto-Detected at Registration', 20, 0, 0, 'System detected match during patient registration'),
     ('person_patient_link_method', 'migrated', 'Migrated from Legacy System', 30, 0, 0, 'Link created during data migration'),
     ('person_patient_link_method', 'import', 'Imported from External System', 40, 0, 0, 'Link created during data import'),
     ('person_patient_link_method', 'merge', 'Merged Duplicate Records', 50, 0, 0, 'Link created when merging duplicate records')
-ON DUPLICATE KEY UPDATE 
+ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     seq = VALUES(seq);
 
@@ -438,7 +453,7 @@ WHERE grp_title = 'Guardian'
 #IfNotRow2D layout_options form_id DEM field_id additional_telecoms
     #IfRow2D layout_options form_id DEM field_id additional_addresses
     SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='additional_addresses' AND form_id='DEM');
-    SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');    
+    SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
     UPDATE layout_options SET seq = @max_seq+19 WHERE form_id = 'DEM' AND field_id = 'additional_addresses';
     INSERT INTO `layout_options`
         (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)

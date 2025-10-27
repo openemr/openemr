@@ -275,14 +275,14 @@ class PersonService extends BaseService
             $params = [];
 
             // Build WHERE clause dynamically
-            if (!empty($criteria['firstname'])) {
-                $sql .= " AND firstname LIKE ?";
-                $params[] = $criteria['firstname'] . '%';
+            if (!empty($criteria['first_name'])) {
+                $sql .= " AND first_name LIKE ?";
+                $params[] = $criteria['first_name'] . '%';
             }
 
-            if (!empty($criteria['lastname'])) {
-                $sql .= " AND lastname LIKE ?";
-                $params[] = $criteria['lastname'] . '%';
+            if (!empty($criteria['last_name'])) {
+                $sql .= " AND last_name LIKE ?";
+                $params[] = $criteria['last_name'] . '%';
             }
 
             if (!empty($criteria['birth_date'])) {
@@ -296,11 +296,11 @@ class PersonService extends BaseService
             }
 
             if (!empty($criteria['full_name'])) {
-                $sql .= " AND CONCAT(firstname, ' ', lastname) LIKE ?";
+                $sql .= " AND CONCAT(first_name, ' ', last_name) LIKE ?";
                 $params[] = '%' . $criteria['full_name'] . '%';
             }
 
-            $sql .= " ORDER BY lastname, firstname LIMIT ? OFFSET ?";
+            $sql .= " ORDER BY last_name, first_name LIMIT ? OFFSET ?";
             $params[] = $limit;
             $params[] = $offset;
 
@@ -331,12 +331,15 @@ class PersonService extends BaseService
         $processingResult = new ProcessingResult();
 
         try {
-            $sql = "SELECT p.*, cr.relationship, cr.role, cr.is_emergency_contact, c.id as contact_id
+            $sql = "SELECT p.*,
+                    cr.*,
+                    cr.id as contact_relation_id,
+                    c.id as contact_id
                     FROM person p
-                    JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                    JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                     JOIN contact_relation cr ON cr.contact_id = c.id
-                    WHERE cr.related_foreign_table_name = 'patient_data'
-                    AND cr.related_foreign_table_id = ?
+                    WHERE cr.target_table = 'patient_data'
+                    AND cr.target_id = ?
                     AND cr.active = 1";
 
             $params = [$patientId];
@@ -357,7 +360,7 @@ class PersonService extends BaseService
                 $params[] = $filters['is_emergency_contact'];
             }
 
-            $sql .= " ORDER BY cr.contact_priority ASC, p.lastname, p.firstname";
+            $sql .= " ORDER BY cr.contact_priority ASC, p.last_name, p.first_name";
 
             $results = QueryUtils::fetchRecords($sql, $params) ?? [];
 
@@ -385,28 +388,34 @@ class PersonService extends BaseService
      * @param array $filters
      * @return ProcessingResult
      */
-    public function findPersonsRelatedToEntity(string $foreignTable, int $foreignId, array $filters = []): ProcessingResult
-    {
+    public function findPersonsRelatedToEntity(
+        string $targetTable,
+        int $targetID,
+        array $filters = []
+    ): ProcessingResult {
         $processingResult = new ProcessingResult();
 
         try {
-            $sql = "SELECT p.*, cr.relationship, cr.role, cr.contact_priority,
-                    c.id as contact_id, cr.id as relation_id
+            $sql = "SELECT p.*,
+                    cr.*,
+                    p.id as person_id,
+                    cr.id as contact_relation_id,
+                    c.id as contact_id
                     FROM person p
-                    JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                    JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                     JOIN contact_relation cr ON cr.contact_id = c.id
-                    WHERE cr.related_foreign_table_name = ?
-                    AND cr.related_foreign_table_id = ?
+                    WHERE cr.target_table = ?
+                    AND cr.target_id = ?
                     AND cr.active = 1";
 
-            $params = [$foreignTable, $foreignId];
+            $params = [$targetTable, $targetId];
 
             if (!empty($filters['relationship'])) {
                 $sql .= " AND cr.relationship = ?";
                 $params[] = $filters['relationship'];
             }
 
-            $sql .= " ORDER BY cr.contact_priority ASC, p.lastname, p.firstname";
+            $sql .= " ORDER BY cr.contact_priority ASC, p.last_name, p.first_name";
 
             $results = QueryUtils::fetchRecords($sql, $params) ?? [];
 
@@ -438,14 +447,18 @@ class PersonService extends BaseService
         $processingResult = new ProcessingResult();
 
         try {
-            $sql = "SELECT cr.*, c.id as contact_id,
-                    c.foreign_table_name as person_table, c.foreign_id as person_id
+           $sql = "SELECT cr.*,
+                    cr.id as contact_relation_id,
+                    c.id as contact_id,
+                    c.foreign_table as owner_table,
+                    c.foreign_id as owner_id
                     FROM contact c
                     JOIN contact_relation cr ON cr.contact_id = c.id
-                    WHERE c.foreign_table_name = 'person'
+                    WHERE c.foreign_table = 'person'
                     AND c.foreign_id = ?
                     AND cr.active = 1
                     ORDER BY cr.contact_priority ASC";
+
 
             $results = QueryUtils::fetchRecords($sql, [$personId]) ?? [];
 
@@ -478,8 +491,8 @@ class PersonService extends BaseService
         $errors = [];
 
         // Required fields
-        if (empty($data['firstname']) && empty($data['lastname'])) {
-            $errors['name'] = "Either firstname or lastname is required";
+        if (empty($data['first_name']) && empty($data['last_name'])) {
+            $errors['name'] = "Either first name or last name is required";
         }
 
         // Date validation
@@ -532,19 +545,19 @@ class PersonService extends BaseService
      */
     private function checkForDuplicates(array $data): ?array
     {
-        if (empty($data['firstname']) || empty($data['lastname']) || empty($data['birth_date'])) {
+        if (empty($data['first_name']) || empty($data['last_name']) || empty($data['birth_date'])) {
             return null;
         }
 
         $sql = "SELECT id FROM person
-                WHERE firstname = ?
-                AND lastname = ?
+                WHERE first_name = ?
+                AND last_name = ?
                 AND birth_date = ?
                 LIMIT 1";
 
         return sqlQuery($sql, [
-            $data['firstname'],
-            $data['lastname'],
+            $data['first_name'],
+            $data['last_name'],
             $data['birth_date']
         ]) ?: null;
     }
@@ -561,7 +574,7 @@ class PersonService extends BaseService
         $dependencies = [];
 
         // Check for contact
-        $sql = "SELECT id FROM contact WHERE foreign_table_name = 'person' AND foreign_id = ?";
+        $sql = "SELECT id FROM contact WHERE foreign_table = 'person' AND foreign_id = ?";
         $result = sqlQuery($sql, [$personId]);
         if ($result) {
             $contactId = $result['id'];
@@ -601,16 +614,16 @@ class PersonService extends BaseService
 
     private function populatePersonFromArray(Person $person, array $data): void
     {
-        if (isset($data['firstname'])) {
-            $person->set_firstname($data['firstname']);
+        if (isset($data['first_name'])) {
+            $person->set_first_name($data['first_name']);
         }
 
-        if (isset($data['lastname'])) {
-            $person->set_lastname($data['lastname']);
+        if (isset($data['last_name'])) {
+            $person->set_last_name($data['last_name']);
         }
 
         if (isset($data['middlename'])) {
-            $person->set_middlename($data['middlename']);
+            $person->set_middle_name($data['middle_name']);
         }
 
         if (isset($data['title'])) {

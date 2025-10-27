@@ -20,7 +20,7 @@ use OpenEMR\Validators\ProcessingResult;
 class ContactService extends BaseService
 {
     public const TABLE_NAME = 'contact';
-    
+
     /**
      * Default constructor.
      */
@@ -28,10 +28,10 @@ class ContactService extends BaseService
     {
         parent::__construct($base_table ?? self::TABLE_NAME);
     }
-    
+
     /**
      * Get or create a contact for an entity (ensures 1:1 relationship)
-     * 
+     *
      * @param string $foreignTable The table this contact relates to
      * @param int $foreignId The ID in the foreign table
      * @return Contact
@@ -39,122 +39,122 @@ class ContactService extends BaseService
     public function getOrCreateForEntity(string $foreignTable, int $foreignId): Contact
     {
         // First try to find existing contact
-        $sql = "SELECT * FROM contact 
-                WHERE foreign_table_name = ? 
+        $sql = "SELECT * FROM contact
+                WHERE foreign_table = ?
                 AND foreign_id = ?
                 LIMIT 1";
-        
+
         $result = sqlQuery($sql, [$foreignTable, $foreignId]);
-        
+
         if ($result) {
             $contact = new Contact();
             $contact->populate_array($result);
             return $contact;
         }
-        
+
         // Create new contact if none exists
         $contact = new Contact();
         $contact->setContactRecord($foreignTable, $foreignId);
         $contact->persist();
-        
+
         $this->getLogger()->debug("Contact created for entity", [
             'id' => $contact->get_id(),
             'foreign_table' => $foreignTable,
             'foreign_id' => $foreignId
         ]);
-        
+
         return $contact;
     }
-    
+
     /**
      * Get a contact by ID
-     * 
+     *
      * @param int $contactId
      * @return Contact|null
      */
     public function get(int $contactId): ?Contact
     {
         $contact = new Contact($contactId);
-        
+
         if (empty($contact->get_id())) {
             return null;
         }
-        
+
         return $contact;
     }
-    
+
     /**
      * Get contact for a specific entity
-     * 
+     *
      * @param string $foreignTable
      * @param int $foreignId
      * @return Contact|null
      */
     public function getForEntity(string $foreignTable, int $foreignId): ?Contact
     {
-        $sql = "SELECT * FROM contact 
-                WHERE foreign_table_name = ? 
+        $sql = "SELECT * FROM contact
+                WHERE foreign_table = ?
                 AND foreign_id = ?
                 LIMIT 1";
-        
+
         $result = sqlQuery($sql, [$foreignTable, $foreignId]);
-        
+
         if (!$result) {
             return null;
         }
-        
+
         $contact = new Contact();
         $contact->populate_array($result);
         return $contact;
     }
-    
+
     /**
      * Check if an entity has a contact
-     * 
+     *
      * @param string $foreignTable
      * @param int $foreignId
      * @return bool
      */
     public function entityHasContact(string $foreignTable, int $foreignId): bool
     {
-        $sql = "SELECT id FROM contact 
-                WHERE foreign_table_name = ? 
+        $sql = "SELECT id FROM contact
+                WHERE foreign_table = ?
                 AND foreign_id = ?
                 LIMIT 1";
-        
+
         $result = sqlQuery($sql, [$foreignTable, $foreignId]);
-        
+
         return !empty($result);
     }
-    
+
     /**
      * Delete a contact (checks for dependent records first)
-     * 
+     *
      * @param int $contactId
      * @return ProcessingResult
      */
     public function delete(int $contactId): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
             // Check for dependent records
             $dependents = $this->getDependentRecords($contactId);
-            
+
             if (!empty($dependents)) {
                 $processingResult->addProcessingError(
-                    "Cannot delete contact with dependent records: " . 
+                    "Cannot delete contact with dependent records: " .
                     implode(", ", array_keys($dependents))
                 );
                 return $processingResult;
             }
-            
+
             $sql = "DELETE FROM contact WHERE id = ?";
             sqlStatement($sql, [$contactId]);
-            
+
             $this->getLogger()->info("Contact deleted", ['id' => $contactId]);
             $processingResult->addData(['deleted' => true, 'id' => $contactId]);
-            
+
         } catch (\Exception $e) {
             $this->getLogger()->error("Error deleting contact", [
                 'id' => $contactId,
@@ -162,13 +162,13 @@ class ContactService extends BaseService
             ]);
             $processingResult->addProcessingError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
+
     /**
      * Delete contact for a specific entity
-     * 
+     *
      * @param string $foreignTable
      * @param int $foreignId
      * @return ProcessingResult
@@ -176,48 +176,48 @@ class ContactService extends BaseService
     public function deleteForEntity(string $foreignTable, int $foreignId): ProcessingResult
     {
         $contact = $this->getForEntity($foreignTable, $foreignId);
-        
+
         if (!$contact) {
             $processingResult = new ProcessingResult();
             $processingResult->addProcessingError("No contact found for entity");
             return $processingResult;
         }
-        
+
         return $this->delete($contact->get_id());
     }
-    
+
     /**
      * Get dependent records for a contact
-     * 
+     *
      * @param int $contactId
      * @return array Array of table names with counts
      */
     public function getDependentRecords(int $contactId): array
     {
         $dependents = [];
-        
+
         // Check contact_address table
         $sql = "SELECT COUNT(*) as count FROM contact_address WHERE contact_id = ?";
         $result = sqlQuery($sql, [$contactId]);
         if ($result['count'] > 0) {
             $dependents['contact_address'] = $result['count'];
         }
-        
+
         // Check relationship table
         $sql = "SELECT COUNT(*) as count FROM relationship WHERE contact_id = ?";
         $result = sqlQuery($sql, [$contactId]);
         if ($result['count'] > 0) {
             $dependents['relationship'] = $result['count'];
         }
-        
+
         // Future: Add checks for contact_telephone, contact_email, etc.
-        
+
         return $dependents;
     }
-    
+
     /**
      * Validate that a contact exists and belongs to a specific entity
-     * 
+     *
      * @param int $contactId
      * @param string $foreignTable
      * @param int $foreignId
@@ -225,19 +225,19 @@ class ContactService extends BaseService
      */
     public function validateOwnership(int $contactId, string $foreignTable, int $foreignId): bool
     {
-        $sql = "SELECT id FROM contact 
-                WHERE id = ? 
-                AND foreign_table_name = ? 
+        $sql = "SELECT id FROM contact
+                WHERE id = ?
+                AND foreign_table = ?
                 AND foreign_id = ?";
-        
+
         $result = sqlQuery($sql, [$contactId, $foreignTable, $foreignId]);
-        
+
         return !empty($result);
     }
-    
+
     /**
      * Transfer a contact from one entity to another
-     * 
+     *
      * @param int $contactId
      * @param string $newForeignTable
      * @param int $newForeignId
@@ -246,7 +246,7 @@ class ContactService extends BaseService
     public function transferContact(int $contactId, string $newForeignTable, int $newForeignId): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
             // Check if destination already has a contact
             if ($this->entityHasContact($newForeignTable, $newForeignId)) {
@@ -255,37 +255,37 @@ class ContactService extends BaseService
                 );
                 return $processingResult;
             }
-            
+
             // Get the contact
             $contact = $this->get($contactId);
             if (!$contact) {
                 $processingResult->addProcessingError("Contact not found");
                 return $processingResult;
             }
-            
+
             // Update the contact
             $contact->setContactRecord($newForeignTable, $newForeignId);
             $contact->persist();
-            
+
             $this->getLogger()->info("Contact transferred", [
                 'contact_id' => $contactId,
                 'new_table' => $newForeignTable,
                 'new_id' => $newForeignId
             ]);
-            
+
             $processingResult->addData($contact->toArray());
-            
+
         } catch (\Exception $e) {
             $this->getLogger()->error("Error transferring contact", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
+
     /**
      * Merge two contacts (useful when consolidating duplicate entities)
-     * 
+     *
      * @param int $sourceContactId Contact to merge from
      * @param int $targetContactId Contact to merge into
      * @return ProcessingResult
@@ -293,51 +293,51 @@ class ContactService extends BaseService
     public function mergeContacts(int $sourceContactId, int $targetContactId): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
             if ($sourceContactId === $targetContactId) {
                 $processingResult->addProcessingError("Cannot merge a contact with itself");
                 return $processingResult;
             }
-            
+
             // Update all dependent records to point to target contact
             $tables = [
                 'contact_address',
                 'relationship',
                 // Add future tables here: contact_telephone, contact_email, etc.
             ];
-            
+
             foreach ($tables as $table) {
                 $sql = "UPDATE $table SET contact_id = ? WHERE contact_id = ?";
                 sqlStatement($sql, [$targetContactId, $sourceContactId]);
             }
-            
+
             // Delete the source contact
             $sql = "DELETE FROM contact WHERE id = ?";
             sqlStatement($sql, [$sourceContactId]);
-            
+
             $this->getLogger()->info("Contacts merged", [
                 'source_id' => $sourceContactId,
                 'target_id' => $targetContactId
             ]);
-            
+
             $processingResult->addData([
                 'merged' => true,
                 'source_id' => $sourceContactId,
                 'target_id' => $targetContactId
             ]);
-            
+
         } catch (\Exception $e) {
             $this->getLogger()->error("Error merging contacts", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
-    
+
     /**
      * Find contacts by foreign table type
-     * 
+     *
      * @param string $foreignTable
      * @param int $limit
      * @param int $offset
@@ -345,42 +345,42 @@ class ContactService extends BaseService
      */
     public function findByForeignTable(string $foreignTable, int $limit = 100, int $offset = 0): array
     {
-        $sql = "SELECT c.*, 
+        $sql = "SELECT c.*,
                 (SELECT COUNT(*) FROM contact_address WHERE contact_id = c.id) as address_count,
                 (SELECT COUNT(*) FROM relationship WHERE contact_id = c.id) as relationship_count
                 FROM contact c
-                WHERE c.foreign_table_name = ?
+                WHERE c.foreign_table = ?
                 ORDER BY c.id ASC
                 LIMIT ? OFFSET ?";
-        
+
         return QueryUtils::fetchRecords($sql, [$foreignTable, $limit, $offset]) ?? [];
     }
-    
+
     /**
      * Get statistics about contacts
-     * 
+     *
      * @return array
      */
     public function getStatistics(): array
     {
         $stats = [];
-        
+
         // Total contacts
         $sql = "SELECT COUNT(*) as total FROM contact";
         $result = sqlQuery($sql);
         $stats['total_contacts'] = (int)$result['total'];
-        
+
         // Contacts by foreign table
-        $sql = "SELECT foreign_table_name, COUNT(*) as count 
-                FROM contact 
-                GROUP BY foreign_table_name";
+        $sql = "SELECT foreign_table, COUNT(*) as count
+                FROM contact
+                GROUP BY foreign_table";
         $results = QueryUtils::fetchRecords($sql) ?? [];
-        
+
         $stats['by_table'] = [];
         foreach ($results as $row) {
-            $stats['by_table'][$row['foreign_table_name']] = (int)$row['count'];
+            $stats['by_table'][$row['foreign_table']] = (int)$row['count'];
         }
-        
+
         // Contacts with addresses
         $sql = "SELECT COUNT(DISTINCT c.id) as count
                 FROM contact c
@@ -388,41 +388,41 @@ class ContactService extends BaseService
                 WHERE ca.status = 'A'";
         $result = sqlQuery($sql);
         $stats['with_active_addresses'] = (int)$result['count'];
-        
+
         // Contacts in relationships
-        $sql = "SELECT COUNT(DISTINCT contact_id) as count 
-                FROM relationship 
+        $sql = "SELECT COUNT(DISTINCT contact_id) as count
+                FROM relationship
                 WHERE active = 1";
         $result = sqlQuery($sql);
         $stats['in_active_relationships'] = (int)$result['count'];
-        
+
         // Orphaned contacts (no addresses, no relationships)
         $sql = "SELECT COUNT(*) as count FROM contact c
                 WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
                 AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
         $result = sqlQuery($sql);
         $stats['orphaned_contacts'] = (int)$result['count'];
-        
+
         return $stats;
     }
-    
+
     /**
      * Clean up orphaned contacts (contacts with no dependent records)
-     * 
+     *
      * @param bool $dryRun If true, only returns what would be deleted
      * @return ProcessingResult
      */
     public function cleanupOrphaned(bool $dryRun = true): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
             $sql = "SELECT c.* FROM contact c
                     WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
                     AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
-            
+
             $orphaned = QueryUtils::fetchRecords($sql) ?? [];
-            
+
             if ($dryRun) {
                 $processingResult->addData([
                     'dry_run' => true,
@@ -436,20 +436,20 @@ class ContactService extends BaseService
                     sqlStatement($sql, [$contact['id']]);
                     $deletedCount++;
                 }
-                
+
                 $this->getLogger()->info("Orphaned contacts cleaned up", ['count' => $deletedCount]);
-                
+
                 $processingResult->addData([
                     'dry_run' => false,
                     'deleted_count' => $deletedCount
                 ]);
             }
-            
+
         } catch (\Exception $e) {
             $this->getLogger()->error("Error cleaning up orphaned contacts", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
 }

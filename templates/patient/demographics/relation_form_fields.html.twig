@@ -16,7 +16,7 @@
                     'list_id': 'related_person-relationship',
                     'empty_name': 'Select Relationship',
                     'edit_options': edit_options
-                }, relation.relationship|default('')) }}
+                }, relatedPerson.relationship|default('')) }}
                 <small class="form-text text-muted">{{ 'How this person is related (e.g., spouse, parent, sibling)'|xlt }}</small>
             </div>
         </div>
@@ -30,7 +30,7 @@
                     'list_id': 'related_person-role',
                     'empty_name': 'Select Role',
                     'edit_options': edit_options
-                }, relation.role|default('')) }}
+                }, relatedPerson.role|default('')) }}
                 <small class="form-text text-muted">{{ 'Their role in care (e.g., emergency contact, guarantor)'|xlt }}</small>
             </div>
         </div>
@@ -49,7 +49,7 @@
                 <input type="checkbox" class="form-check-input form_relations_is_primary_contact" 
                        name="{{ name_field_id|attr }}[is_primary_contact][]" 
                        value="1" 
-                       {{ relation.is_primary_contact ? 'checked' : '' }}
+                       {{ relatedPerson.is_primary_contact ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_primary_{{ loop.index0|default('new') }}">
                 <label class="form-check-label" for="{{ field_id_esc|attr }}_primary_{{ loop.index0|default('new') }}">
                     <strong>{{ 'Primary Contact'|xlt }}</strong>
@@ -63,7 +63,7 @@
                 <input type="checkbox" class="form-check-input form_relations_is_emergency_contact" 
                        name="{{ name_field_id|attr }}[is_emergency_contact][]" 
                        value="1" 
-                       {{ relation.is_emergency_contact ? 'checked' : '' }}
+                       {{ relatedPerson.is_emergency_contact ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_emergency_{{ loop.index0|default('new') }}">
                 <label class="form-check-label" for="{{ field_id_esc|attr }}_emergency_{{ loop.index0|default('new') }}">
                     <strong>{{ 'Emergency Contact'|xlt }}</strong>
@@ -77,7 +77,7 @@
                 <input type="checkbox" class="form-check-input form_relations_can_make_medical_decisions" 
                        name="{{ name_field_id|attr }}[can_make_medical_decisions][]" 
                        value="1" 
-                       {{ relation.can_make_medical_decisions ? 'checked' : '' }}
+                       {{ relatedPerson.can_make_medical_decisions ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_medical_{{ loop.index0|default('new') }}">
                 <label class="form-check-label" for="{{ field_id_esc|attr }}_medical_{{ loop.index0|default('new') }}">
                     <strong>{{ 'Medical Decisions'|xlt }}</strong>
@@ -91,7 +91,7 @@
                 <input type="checkbox" class="form-check-input form_relations_can_receive_medical_info" 
                        name="{{ name_field_id|attr }}[can_receive_medical_info][]" 
                        value="1" 
-                       {{ relation.can_receive_medical_info ? 'checked' : '' }}
+                       {{ relatedPerson.can_receive_medical_info ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_info_{{ loop.index0|default('new') }}">
                 <label class="form-check-label" for="{{ field_id_esc|attr }}_info_{{ loop.index0|default('new') }}">
                     <strong>{{ 'Receive Medical Info'|xlt }}</strong>
@@ -120,7 +120,7 @@
                     'smallform': smallform ~ ' form_relations_priority',
                     'fld_length': 2,
                     'max_length': 2
-                }, relation.contact_priority|default('1')) }}
+                }, relatedPerson.contact_priority|default('1')) }}
                 <small class="form-text text-muted">{{ 'Lower number = higher priority (1 is highest)'|xlt }}</small>
             </div>
         </div>
@@ -131,7 +131,7 @@
                     'data_type': widget_constants.textDate,
                     'field_id': field_id_esc ~ '[start_date][]',
                     'smallform': smallform ~ ' form_relations_start_date datepicker'
-                }, relation.start_date|default('now'|date('Y-m-d'))) }}
+                }, relatedPerson.start_date|default('now'|date('Y-m-d'))) }}
                 <small class="form-text text-muted">{{ 'When this relationship began'|xlt }}</small>
             </div>
         </div>
@@ -142,7 +142,7 @@
                     'data_type': widget_constants.textDate,
                     'field_id': field_id_esc ~ '[end_date][]',
                     'smallform': smallform ~ ' form_relations_end_date datepicker'
-                }, relation.end_date|default('')) }}
+                }, relatedPerson.end_date|default('')) }}
                 <small class="form-text text-muted">{{ 'Leave blank if relationship is ongoing'|xlt }}</small>
             </div>
         </div>
@@ -157,7 +157,7 @@
                           name="{{ name_field_id|attr }}[notes][]"
                           rows="3"
                           placeholder="{{ 'Add any additional information about this relationship, special instructions, or important details...'|xla }}"
-                          maxlength="1000">{{ relation.notes|default('')|text }}</textarea>
+                          maxlength="1000">{{ relatedPerson.notes|default('')|text }}</textarea>
                 <small class="form-text text-muted">
                     <span id="notes_char_count_{{ loop.index0|default('new') }}">0</span>/1000 {{ 'characters'|xlt }}
                 </small>
@@ -184,7 +184,7 @@
     {% endif %}
     
     {# Warning for HIPAA-sensitive permissions #}
-    {% if relation.can_receive_medical_info or relation.can_make_medical_decisions %}
+    {% if relatedPerson.can_receive_medical_info or relatedPerson.can_make_medical_decisions %}
     <div class="alert alert-warning mb-2" role="alert">
         <div class="d-flex align-items-start">
             <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
@@ -200,8 +200,8 @@
     
     {# Hidden fields for maintaining state #}
     {% if not is_new %}
-    <input type="hidden" name="{{ name_field_id|attr }}[original_relationship][]" value="{{ relation.relationship|attr }}" />
-    <input type="hidden" name="{{ name_field_id|attr }}[original_role][]" value="{{ relation.role|attr }}" />
+    <input type="hidden" name="{{ name_field_id|attr }}[original_relationship][]" value="{{ relatedPerson.relationship|attr }}" />
+    <input type="hidden" name="{{ name_field_id|attr }}[original_role][]" value="{{ relatedPerson.role|attr }}" />
     {% endif %}
 </div>
 

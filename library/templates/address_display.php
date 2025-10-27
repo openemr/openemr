@@ -24,7 +24,7 @@ $contactService = new ContactService();
 $contactAddressService = new ContactAddressService();
 
 // Get contact for patient
-$contact = $contactService->getOrCreateForEntity($foreign_table_name, $foreign_id);
+$contact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
 $addresses = [];
 
 if ($contact) {
@@ -62,7 +62,7 @@ $table_id = uniqid("table_text_addresses_");
 
 // Prepare template variables
 $templateVars = [
-    'foreign_table_name' => $foreign_table_name,
+    'foreign_table' => $foreign_table,
     'table_id' => $table_id,
     'addresses' => $addresses,
     'list_address_types' => $list_address_types,
