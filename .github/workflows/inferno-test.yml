@@ -332,6 +332,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.inferno-phpunit.clover.xml
         flags: inferno,phpunit,php${{ matrix.php-version }}
+        disable_search: true
 
     - name: Upload HTTP coverage to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('coverage.inferno-http.clover.xml') != '' }}
@@ -340,6 +341,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.inferno-http.clover.xml
         flags: inferno,http,php${{ matrix.php-version }}
+        disable_search: true
 
     - name: Upload combined coverage to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('coverage.clover.xml') != '' }}
@@ -348,6 +350,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.clover.xml
         flags: inferno,combined,php${{ matrix.php-version }}
+        disable_search: true
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-inferno.xml') != '' }}
