@@ -21,12 +21,10 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceUSCore8Test extends TestCase
 {
     // AI Generated code

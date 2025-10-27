@@ -5,7 +5,6 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -19,7 +18,6 @@ use PHPUnit\Framework\Attributes\Test;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(PractitionerService::class)]
 class PractitionerServiceTest extends TestCase
 {
     /**

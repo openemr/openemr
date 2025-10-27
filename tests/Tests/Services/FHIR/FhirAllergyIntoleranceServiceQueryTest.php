@@ -9,7 +9,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,7 +23,6 @@ use PHPUnit\Framework\Attributes\Test;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(FhirAllergyIntoleranceService::class)]
 class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 {
     /**
