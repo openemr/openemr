@@ -17372,10 +17372,6 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: src/Rx/RxList.php
-  - message: '#^Variable \$code on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/Services/CarePlanService.php
   - message: '#^Variable \$ct_id might not be defined\.$#'
     identifier: variable.undefined
     count: 2
