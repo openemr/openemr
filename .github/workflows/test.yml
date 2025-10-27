@@ -419,6 +419,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.unit.clover.xml
         flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Api testing
       if: ${{ success() || failure() }}
@@ -473,6 +474,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.api.clover.xml
         flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Fixtures testing
       if: ${{ success() || failure() }}
@@ -495,6 +497,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.fixtures.clover.xml
         flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Services testing
       if: ${{ success() || failure() }}
@@ -517,6 +520,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.services.clover.xml
         flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Validators testing
       if: ${{ success() || failure() }}
@@ -539,6 +543,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.validators.clover.xml
         flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Controllers testing
       if: ${{ success() || failure() }}
@@ -561,6 +566,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.controllers.clover.xml
         flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Common testing
       if: ${{ success() || failure() }}
@@ -583,6 +589,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.common.clover.xml
         flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Email testing
       if: ${{ success() || failure() }}
@@ -605,6 +612,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.email.clover.xml
         flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     ##
     # To skip E2E tests for specific docker directories,
@@ -680,6 +688,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.e2e.clover.xml
         flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload E2E test videos to GitHub
       if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}

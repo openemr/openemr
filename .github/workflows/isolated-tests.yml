@@ -116,3 +116,4 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
         flags: isolated,php${{ matrix.php-version }}
+        disable_search: true
