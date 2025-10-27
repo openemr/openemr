@@ -1682,7 +1682,7 @@ function generate_form_field($frow, $currvalue): void
     } elseif ($data_type == 54) {
         global $pid;
         $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
-    	$foreign_table_name = 'patient_data';
+    	$foreign_table = 'patient_data';
     	$foreign_id = $pid;
 
         include "templates/address_form.php";
@@ -1691,7 +1691,7 @@ function generate_form_field($frow, $currvalue): void
     } elseif ($data_type == 55) {
         global $pid;
         $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
-    	$foreign_table_name = 'patient_data';
+    	$foreign_table = 'patient_data';
     	$foreign_id = $pid;
 
         include "templates/telecom_form.php";
@@ -1700,7 +1700,7 @@ function generate_form_field($frow, $currvalue): void
     } elseif ($data_type == 56) {
         global $pid;
         $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
-    	$foreign_table_name = 'patient_data';
+    	$foreign_table = 'patient_data';
     	$foreign_id = $pid;
 
         include "templates/relation_form.php";
@@ -2923,21 +2923,21 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 54) {
         $pid = $_SESSION['pid'] ?? null;
-    	$foreign_table_name = 'patient_data';
+    	$foreign_table = 'patient_data';
     	$foreign_id = $pid;
 
         include "templates/address_display.php";
 
     } elseif ($data_type == 55) {
         $pid = $_SESSION['pid'] ?? null;
-    	$foreign_table_name = 'patient_data';
+    	$foreign_table = 'patient_data';
     	$foreign_id = $pid;
 
         include "templates/telecom_display.php";
 
     } elseif ($data_type == 56) {
         $pid = $_SESSION['pid'] ?? null;
-    	$foreign_table_name = 'patient_data';
+    	$foreign_table = 'patient_data';
     	$foreign_id = $pid;
 
         include "templates/relation_display.php";

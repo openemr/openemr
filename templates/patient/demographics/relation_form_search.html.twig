@@ -14,6 +14,7 @@
         box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
         animation: slideDown 0.3s ease-out;
         margin-top: 0.5rem !important;
+        padding: 0;
     }
 
     @keyframes slideDown {
@@ -27,30 +28,92 @@
         }
     }
 
+    #addPersonSection .card {
+        padding: 0rem;
+        border: 0rem;
+    }
+
     #addPersonSection .card-header {
         background-color: #007bff;
         border-bottom: 1px solid #0056b3;
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        padding: 0rem 1rem;
+        font-size: 0.8rem;
         font-weight: 600;
     }
 
     #addPersonSection .card-header button {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
+        padding: 0rem 0.5rem;
+        font-size: 0.7rem;
         font-weight: 600;
+        margin: 0.2rem 0rem;
     }
 
     #addPersonSection .card-body {
         padding: 1rem;
     }
 
+    #addPersonSection .card-body .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    #addPersonSection .card-body .row > div[class*="col-"] {
+        /* Override Bootstrap's behavior - use flexible sizing instead of fixed percentages */
+        flex: 1 1 0%;
+
+        /* Set minimum width to accommodate label + input
+           Adjust this value (200-280px) based on your longest label and input field width */
+        min-width: 250px;
+
+        /* Maximum width ensures columns don't get too wide */
+        max-width: 100%;
+
+        /* Keep Bootstrap's padding */
+        padding-right: 7px;
+        padding-left: 7px;
+    }
+
+    /*
+     * Fine-tuning: Adjust min-width for different screen sizes
+     * This ensures better wrapping behavior across devices
+     */
+
+    /* Large screens: Keep 3 columns when there's plenty of space */
+    @media (min-width: 900px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 250px; /* Slightly larger minimum for comfort */
+        }
+    }
+
+    /* Medium screens: Allow tighter packing, will naturally wrap to 2 columns if needed */
+    @media (min-width: 600px) and (max-width: 899px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 220px; /* Comfortable minimum for 2 columns */
+        }
+    }
+
+    /* Small screens: Tighter minimum, will stack earlier if needed */
+    @media (max-width: 599px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 200px; /* Can still fit 2 columns on some devices */
+        }
+    }
+
+    /* Extra small screens: Force single column for very narrow screens */
+    @media (max-width: 480px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 100%;
+            flex-basis: 100%;
+        }
+    }
+
+
     .person-form-section {
         background-color: #fff;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        border: 1px solid #dee2e6;
-        margin-bottom: 1rem;
+        padding: 0rem;
+        margin: 0rem;
     }
 
     .section-header {
@@ -105,13 +168,13 @@
     }
 
     .person-form-section .form-group {
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.1rem;
     }
 
     .person-form-section label {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         margin-bottom: 0.25rem;
-        font-weight: 500;
+        font-weight: 700;
     }
 
     .required-field::after {
@@ -146,44 +209,46 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="person-form-section">
-                <div class="section-header">
-                    <i class="fas fa-user mr-2"></i>{{ 'Person Information'|xlt }}
-                </div>
-
+            <div class="person-form-section ">
                 <form id="personForm">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-sm-4">
                             <div class="form-group">
-                                <label class="required-field">{{ 'First Name'|xlt }}</label>
-                                <input type="text" id="person_firstname" class="form-control" required autocomplete="given-name" placeholder="{{ 'Enter first name'|xla }}">
+                                <label class="required-field pr-1">{{ 'First Name:'|xlt }}</label>
+                                <input type="text" id="person_first_name" class="form-control form-control-sm mb-1" size=11 required autocomplete="given-name" placeholder="{{ 'Enter first name'|xla }}">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-4">
                             <div class="form-group">
-                                <label class="required-field">{{ 'Last Name'|xlt }}</label>
-                                <input type="text" id="person_lastname" class="form-control" required autocomplete="family-name" placeholder="{{ 'Enter last name'|xla }}">
+                                <label class="pr-1">{{ 'Middle Name:'|xlt }}</label>
+                                <input type="text" id="person_middle_name" class="form-control form-control-sm mb-1" size=11 autocomplete="additional-name">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="required-field pr-1">{{ 'Last Name:'|xlt }}</label>
+                                <input type="text" id="person_last_name" class="form-control form-control-sm mb-1" size=12 required autocomplete="family-name" placeholder="{{ 'Enter last name'|xla }}">
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-sm-4">
                             <div class="form-group">
-                                <label>{{ 'Middle Name'|xlt }}</label>
-                                <input type="text" id="person_middlename" class="form-control" autocomplete="additional-name">
+                                <label class="pr-1">{{ 'Phone:'|xlt }}</label>
+                                <input type="tel" id="person_phone" class="form-control form-control-sm mb-1" size=12 placeholder="(xxx) xxx-xxxx" autocomplete="tel">
+                        	</div>
+                        </div>
+                         <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">{{ 'Date of Birth:'|xlt }}</label>
+                                <input type="date" id="person_dob" class="form-control form-control-sm mb-1" size=10 autocomplete="bday">
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-sm-4">
                             <div class="form-group">
-                                <label>{{ 'Date of Birth'|xlt }}</label>
-                                <input type="date" id="person_dob" class="form-control" autocomplete="bday">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>{{ 'Gender'|xlt }}</label>
-                                <select id="person_gender" class="form-control">
+                                <label class="pr-1">{{ 'Gender:'|xlt }}</label>
+                                <select id="person_gender" class="form-control form-control-sm mb-1">
                                     <option value="">{{ 'Select'|xlt }}</option>
                                     <option value="Male">{{ 'Male'|xlt }}</option>
                                     <option value="Female">{{ 'Female'|xlt }}</option>
@@ -195,25 +260,10 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-sm-12">
                             <div class="form-group">
-                                <label>{{ 'Phone'|xlt }}</label>
-                                <input type="tel" id="person_phone" class="form-control" placeholder="(555) 123-4567" autocomplete="tel">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>{{ 'Email'|xlt }}</label>
-                                <input type="email" id="person_email" class="form-control" placeholder="email@example.com" autocomplete="email">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label>{{ 'Notes'|xlt }}</label>
-                                <textarea id="person_notes" class="form-control" rows="2" placeholder="{{ 'Optional notes about this person'|xla }}"></textarea>
+                                <label>{{ 'Notes:'|xlt }}</label>
+                                <textarea id="person_notes" class="form-control form-control-sm mb-1 mw-100" rows="1" placeholder="{{ 'Optional notes about this person'|xla }}"></textarea>
                             </div>
                         </div>
                     </div>
@@ -225,12 +275,9 @@
                     <div id="personSearchResults"></div>
 
                     <div class="action-buttons">
-                        <button type="button" class="btn btn-success btn-block btn-lg" onclick="createNewPerson()">
+                        <button type="button" class="btn btn-success btn-sm" onclick="createNewPerson()">
                             <i class="fas fa-plus-circle mr-2"></i>{{ 'Create New Person and Add Relationship'|xlt }}
                         </button>
-                        <p class="text-muted text-center mt-2 mb-0" style="font-size: 0.85rem;">
-                            {{ 'Or select an existing person from the search results above'|xlt }}
-                        </p>
                     </div>
                 </form>
             </div>
@@ -243,7 +290,7 @@
 
     let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
     let searchTimeout = null;
-    let lastSearchParams = { firstname: '', lastname: '', dob: '', phone: '', email: '' };
+    let lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
 
     console.log('csrfToken '+csrfToken)
 
@@ -259,7 +306,7 @@
 
         // Focus on first input after animation
         setTimeout(() => {
-            document.getElementById('person_firstname').focus();
+            document.getElementById('person_first_name').focus();
         }, 300);
 
         // Setup live search listeners
@@ -271,27 +318,25 @@
         section.classList.add('d-none');
         clearAllFields();
         document.getElementById('personSearchResults').innerHTML = '';
-        lastSearchParams = { firstname: '', lastname: '', dob: '', phone: '', email: '' };
+        lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
     }
 
     function clearAllFields() {
-        document.getElementById('person_firstname').value = '';
-        document.getElementById('person_lastname').value = '';
-        document.getElementById('person_middlename').value = '';
+        document.getElementById('person_first_name').value = '';
+        document.getElementById('person_last_name').value = '';
+        document.getElementById('person_middle_name').value = '';
         document.getElementById('person_dob').value = '';
         document.getElementById('person_gender').value = '';
         document.getElementById('person_phone').value = '';
-        document.getElementById('person_email').value = '';
-        document.getElementById('person_notes').value = '';
+         document.getElementById('person_notes').value = '';
     }
 
     function setupLiveSearch() {
         const inputs = [
-            document.getElementById('person_firstname'),
-            document.getElementById('person_lastname'),
+            document.getElementById('person_first_name'),
+            document.getElementById('person_last_name'),
             document.getElementById('person_dob'),
             document.getElementById('person_phone'),
-            document.getElementById('person_email')
         ];
 
         // Remove existing listeners by cloning
@@ -315,23 +360,21 @@
         }
 
         // Get current values
-        const firstname = document.getElementById('person_firstname').value.trim();
-        const lastname = document.getElementById('person_lastname').value.trim();
+        const first_name = document.getElementById('person_first_name').value.trim();
+        const last_name = document.getElementById('person_last_name').value.trim();
         const dob = document.getElementById('person_dob')?.value || '';
         const phone = document.getElementById('person_phone').value.trim();
-        const email = document.getElementById('person_email').value.trim();
 
         // Check if anything has changed
-        if (firstname === lastSearchParams.firstname &&
-            lastname === lastSearchParams.lastname &&
+        if (first_name === lastSearchParams.first_name &&
+            last_name === lastSearchParams.last_name &&
             dob === lastSearchParams.dob &&
-            phone === lastSearchParams.phone &&
-            email === lastSearchParams.email) {
+            phone === lastSearchParams.phone) {
             return;
         }
 
         // If all fields are empty, clear results
-        if (!firstname && !lastname && !dob && !phone && !email) {
+        if (!first_name && !last_name && !dob && !phone ) {
             document.getElementById('personSearchResults').innerHTML = '';
             hideLiveSearchIndicator();
             return;
@@ -342,12 +385,12 @@
 
         // Debounce search - wait 500ms after user stops typing
         searchTimeout = setTimeout(() => {
-            performSearch(firstname, lastname, dob, phone, email);
+            performSearch(first_name, last_name, dob, phone);
         }, 500);
     }
 
-    function performSearch(firstname, lastname, dob, phone, email) {
-        lastSearchParams = { firstname, lastname, dob, phone, email };
+    function performSearch(first_name, last_name, dob, phone) {
+        lastSearchParams = { first_name, last_name, dob, phone };
 
         const resultsContainer = document.getElementById('personSearchResults');
 
@@ -360,11 +403,10 @@
             body: JSON.stringify({
                 action: 'search_persons',
                 csrf_token: csrfToken,
-                firstname: firstname,
-                lastname: lastname,
+                first_name: first_name,
+                last_name: last_name,
                 birth_date: dob,
                 phone: phone,
-                email: email,
                 foreign_table: relationTableConfig.foreignTable,
                 foreign_id: relationTableConfig.foreignId
             })
@@ -459,7 +501,7 @@
                          ' ' + escapeHtml(person.linked_patient_pid) + '</span>';
             }
 
-            if (person.is_linked && person.source === 'patient_data') {
+            if (person.is_linked && person.target_table === 'patient_data') {
                 badges += '<span class="badge badge-secondary ml-2">' +
                          '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
             }
@@ -467,14 +509,13 @@
             div.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="flex-grow-1">
-                        <strong>${escapeHtml(person.firstname)} ${person.middlename ? escapeHtml(person.middlename) + ' ' : ''}${escapeHtml(person.lastname)}</strong>
+                        <strong>${escapeHtml(person.first_name)} ${person.middle_name ? escapeHtml(person.middle_name) + ' ' : ''}${escapeHtml(person.last_name)}</strong>
                         ${badges}
                         <br>
                         <small class="text-muted">
                             ${person.birth_date ? window.xl('DOB') + ': ' + escapeHtml(person.birth_date) : ''}
                             ${person.gender ? ' | ' + escapeHtml(person.gender) : ''}
                             ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}
-                            ${person.email ? ' | ' + escapeHtml(person.email) : ''}
                         </small>
                     </div>
                     <button class="btn btn-primary btn-sm ml-2">
@@ -508,16 +549,19 @@
         const clone = template.content.cloneNode(true);
 
         // Set person data in hidden fields
-        const contactIdInput = clone.querySelector('.form_relations_contact_id');
-        const personIdInput = clone.querySelector('.form_relations_person_id');
+        const ownerContactIdInput = clone.querySelector('.form_relations_owner_contact_id');
+        const targetTableInput = clone.querySelector('.form_relations_target_table');
+        const targetIdInput = clone.querySelector('.form_relations_target_id');
         const nameDisplay = clone.querySelector('.display_relations_name');
 
-        if (contactIdInput) contactIdInput.value = person.contact_id || '';
-        if (personIdInput) personIdInput.value = person.id;
+        if (ownerContactIdInput) ownerContactIdInput.value = {{ owner_contact_id }} || '';
+        if (targetIdInput) targetIdInput.value = person.id;
+        if (targetTableInput) targetTableInput.value = person.target_table || 'person';
+
         if (nameDisplay) {
-            let displayName = person.firstname;
-            if (person.middlename) displayName += ' ' + person.middlename;
-            displayName += ' ' + person.lastname;
+            let displayName = person.first_name;
+            if (person.middlename) displayName += ' ' + person.middle_name;
+            displayName += ' ' + person.last_name;
             nameDisplay.textContent = displayName;
 
             if (person.birth_date) {
@@ -560,28 +604,27 @@
     }
 
     function createNewPerson() {
-        const firstname = document.getElementById('person_firstname').value.trim();
-        const lastname = document.getElementById('person_lastname').value.trim();
-        const middlename = document.getElementById('person_middlename').value.trim();
+        const first_name = document.getElementById('person_first_name').value.trim();
+        const last_name = document.getElementById('person_last_name').value.trim();
+        const middle_name = document.getElementById('person_middle_name').value.trim();
         const dob = document.getElementById('person_dob').value;
         const gender = document.getElementById('person_gender').value;
         const phone = document.getElementById('person_phone').value.trim();
-        const email = document.getElementById('person_email').value.trim();
         const notes = document.getElementById('person_notes').value.trim();
 
         // Validation
-        if (!firstname || !lastname) {
+        if (!first_name || !last_name) {
             alert(window.xl('First name and last name are required'));
-            document.getElementById('person_firstname').focus();
+            document.getElementById('person_first_name').focus();
             return;
         }
 
         // Email validation if provided
-        if (email && !isValidEmail(email)) {
+        /*if (email && !isValidEmail(email)) {
             alert(window.xl('Please enter a valid email address'));
             document.getElementById('person_email').focus();
             return;
-        }
+        }*/
 
         // Show loading state
         const createBtn = event.target;
@@ -599,13 +642,12 @@
             body: JSON.stringify({
                 action: 'create_person',
                 csrf_token: csrfToken,
-                firstname: firstname,
-                lastname: lastname,
-                middlename: middlename,
+                first_name: first_name,
+                last_name: last_name,
+                middle_name: middle_name,
                 birth_date: dob,
                 gender: gender,
                 phone: phone,
-                email: email,
                 notes: notes
             })
         })

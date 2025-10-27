@@ -66,12 +66,12 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
-    
+
     // Skip data type 52 (provider list)
     if ((int)$data_type === 52) {
         continue;
     }
-    
+
     $field_id = $frow['field_id'];
     $colname = $field_id;
     $table = 'patient_data';
@@ -284,12 +284,12 @@ if (!empty($telecomFieldsToSave)) {
     try {
         $contactService = new ContactService();
         $telecomService = new ContactTelecomService();
-        
+
         $logger->info("Starting telecom save process", [
             'pid' => $pid,
             'field_count' => count($telecomFieldsToSave)
         ]);
-        
+
         foreach ($telecomFieldsToSave as $fieldId => $telecomFieldData) {
             try {
                 $logger->debug("Processing telecom field", [
@@ -298,7 +298,7 @@ if (!empty($telecomFieldsToSave)) {
                     'is_array' => is_array($telecomFieldData),
                     'data_sample' => is_array($telecomFieldData) ? array_keys($telecomFieldData) : 'not_array'
                 ]);
-                
+
                 if (is_array($telecomFieldData) && !empty($telecomFieldData)) {
                     // Log the structure
                     if (isset($telecomFieldData['data_action'])) {
@@ -315,15 +315,15 @@ if (!empty($telecomFieldsToSave)) {
                             'keys_found' => array_keys($telecomFieldData)
                         ]);
                     }
-                    
+
                     $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
-                    
+
                     if ($contact) {
                         $savedRecords = $telecomService->saveTelecomsForContact(
                             $contact->get_id(),
                             $telecomFieldData
                         );
-                        
+
                         $logger->info("Telecoms saved successfully", [
                             'pid' => $pid,
                             'contact_id' => $contact->get_id(),
@@ -366,12 +366,12 @@ if (!empty($telecomFieldsToSave)) {
 if (!empty($relationFieldsToSave)) {
     try {
         $relationService = new ContactRelationService();
-        
+
         $logger->info("Starting relation save process", [
             'pid' => $pid,
             'field_count' => count($relationFieldsToSave)
         ]);
-        
+
         foreach ($relationFieldsToSave as $fieldId => $relationFieldData) {
             try {
                 $logger->debug("Processing relation field", [
@@ -380,7 +380,7 @@ if (!empty($relationFieldsToSave)) {
                     'is_array' => is_array($relationFieldData),
                     'data_sample' => is_array($relationFieldData) ? array_keys($relationFieldData) : 'not_array'
                 ]);
-                
+
                 if (is_array($relationFieldData) && !empty($relationFieldData)) {
                     // Log the structure
                     if (isset($relationFieldData['data_action'])) {
@@ -397,13 +397,13 @@ if (!empty($relationFieldsToSave)) {
                             'keys_found' => array_keys($relationFieldData)
                         ]);
                     }
-                    
-                    $savedRecords = $relationService->saveRelationsForEntity(
+
+                    $savedRecords = $relationService->batchSaveRelationships(
                         'patient_data',
                         $pid,
                         $relationFieldData
                     );
-                    
+
                     $logger->info("Relations saved successfully", [
                         'pid' => $pid,
                         'field_id' => $fieldId,

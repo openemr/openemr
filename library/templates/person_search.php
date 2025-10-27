@@ -41,8 +41,8 @@ $logger = new SystemLogger();
 // Get JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 
-$firstname = $input['firstname'] ?? '';
-$lastname = $input['lastname'] ?? '';
+$first_name = $input['first_name'] ?? '';
+$last_name = $input['last_name'] ?? '';
 $foreignTable = $input['foreign_table'] ?? '';
 $foreignId = $input['foreign_id'] ?? 0;
 
@@ -55,11 +55,11 @@ try {
     
     // Build search criteria
     $criteria = [];
-    if (!empty($firstname)) {
-        $criteria['firstname'] = $firstname;
+    if (!empty($first_name)) {
+        $criteria['first_name'] = $first_name;
     }
-    if (!empty($lastname)) {
-        $criteria['lastname'] = $lastname;
+    if (!empty($last_name)) {
+        $criteria['last_name'] = $last_name;
     }
     
     // Search for persons
@@ -90,8 +90,8 @@ try {
         $results[] = [
             'id' => $person['id'],
             'contact_id' => $contact ? $contact->get_id() : null,
-            'firstname' => $person['firstname'] ?? '',
-            'lastname' => $person['lastname'] ?? '',
+            'first_name' => $person['first_name'] ?? '',
+            'last_name' => $person['last_name'] ?? '',
             'birth_date' => $person['birth_date'] ?? '',
             'email' => $person['email'] ?? '',
             'gender' => $person['gender'] ?? '',

@@ -29,6 +29,7 @@
     }
 </style>
 
+
 <div id="{{ table_id|attr }}" class="row mt-3">
     <div class="table_edit_relations col-12">
         <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
@@ -45,9 +46,11 @@
         </div>
 
         {# Include Person Search and Create Component #}
-        {% include 'patient/demographics/relation_form_search.html.twig' %}
+        {% include 'patient/demographics/relation_form_search.html.twig'  with {
+                        'owner_contact_id': owner_contact_id
+        } %}
 
-        {% if relations|length == 0 %}
+        {% if relatedPersons|length == 0 %}
         <div class="no_relations">
             <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NO RELATED PERSONS'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
@@ -55,38 +58,53 @@
         {% endif %}
 
         {# Render existing relations #}
-        {% for relation in relations %}
-        {% set is_inactive = not relation.active %}
-        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relation.active ? '1' : '0' }}">
+        {% for relatedPerson in relatedPersons %}
+        {% set is_inactive = not relatedPerson.active %}
+        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}">
 
             {# Hidden fields - always submitted #}
-            <input type="hidden" class="form_relations_data_action" name="{{ name_field_id|attr }}[data_action][]" value="NO CHANGE" />
-            <input type="hidden" class="form_relations_relation_id" name="{{ name_field_id|attr }}[relation_id][]" value="{{ relation.relation_id|attr }}" />
-            <input type="hidden" class="form_relations_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ relation.contact_id|attr }}" />
-            <input type="hidden" class="form_relations_person_id" name="{{ name_field_id|attr }}[person_id][]" value="{{ relation.person_id|attr }}" />
-            <input type="hidden" class="form_relations_active" name="{{ name_field_id|attr }}[active][]" value="{{ relation.active ? '1' : '0' }}" />
+            <input type="hidden" class="form_relations_data_action"
+                    name="{{ name_field_id|attr }}[data_action][]" value="NO CHANGE" />
+
+            <input type="hidden" class="form_relations_owner_contact_relation_id"
+                    name="{{ name_field_id|attr }}[owner_contact_relation_id][]" value="{{ relatedPerson.owner_contact_relation_id|attr }}" />
+
+            <input type="hidden" class="form_relations_owner_contact_id"
+                    name="{{ name_field_id|attr }}[owner_contact_id][]" value="{{ relatedPerson.owner_contact_id|attr }}" />
+
+            <input type="hidden" class="form_relations_target_table"
+                    name="{{ name_field_id|attr }}[target_table][]" value="{{ relatedPerson.target_table|attr }}" />
+
+            <input type="hidden" class="form_relations_target_id"
+                    name="{{ name_field_id|attr }}[target_id][]" value="{{ relatedPerson.target_id|attr }}" />
+
+            <input type="hidden" class="form_relations_active"
+                    name="{{ name_field_id|attr }}[active][]" value="{{ relatedPerson.active ? '1' : '0' }}" />
 
             <div class="relation-card">
                 <div class="relation-card-header" onclick="toggleRelationEdit(this)">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation mr-2"></i>
-                            <strong class="display_relations_name">{{ relation.person_name|text }}</strong>
-                            {% if relation.person_dob %}
-                                <small class="text-muted">({{ 'DOB'|xlt }}: {{ relation.person_dob|text }})</small>
+                            <strong class="display_relations_name">{{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}</strong>
+                            {% if is_inactive %}
+                                <span class="badge badge-secondary ml-2">{{ 'Inactive'|xlt }}</span>
+                            {% endif %}
+                            {% if relatedPerson.birth_date %}
+                                <small class="text-muted">({{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }})</small>
                             {% endif %}
                             <br>
                             <small class="text-muted ml-4 display_relations_relationship">
-                                {{ relation.relationship|text }}
-                                {% if relation.role %} - {{ relation.role|text }}{% endif %}
+                                {{ relatedPerson.relationship|text }}
+                                {% if relatedPerson.role %} - {{ relatedPerson.role|text }}{% endif %}
                             </small>
                         </div>
                         <div>
                             <span class="display_relations_badges">
-                                {% if relation.is_emergency_contact %}
+                                {% if relatedPerson.is_emergency_contact %}
                                     <span class="badge badge-danger mr-1">{{ 'Emergency'|xlt }}</span>
                                 {% endif %}
-                                {% if relation.is_primary_contact %}
+                                {% if relatedPerson.is_primary_contact %}
                                     <span class="badge badge-primary mr-1">{{ 'Primary'|xlt }}</span>
                                 {% endif %}
                             </span>
@@ -120,11 +138,24 @@
     <div class="relations_group col-12 pl-0" data-active="1">
 
         {# Hidden fields #}
-        <input type="hidden" class="form_relations_data_action" name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
-        <input type="hidden" class="form_relations_relation_id" name="{{ name_field_id|attr }}[relation_id][]" value="" />
-        <input type="hidden" class="form_relations_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="" />
-        <input type="hidden" class="form_relations_person_id" name="{{ name_field_id|attr }}[person_id][]" value="" />
-        <input type="hidden" class="form_relations_active" name="{{ name_field_id|attr }}[active][]" value="1" />
+
+        <input type="hidden" class="form_relations_data_action"
+                name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
+
+        <input type="hidden" class="form_relations_owner_contact_relation_id"
+                name="{{ name_field_id|attr }}[owner_contact_relation_id][]" value="" />
+
+        <input type="hidden" class="form_relations_owner_contact_id"
+                name="{{ name_field_id|attr }}[owner_contact_id][]" value="" />
+
+        <input type="hidden" class="form_relations_target_table"
+                name="{{ name_field_id|attr }}[target_table][]" value="" />
+
+        <input type="hidden" class="form_relations_target_id"
+                name="{{ name_field_id|attr }}[target_id][]" value="" />
+
+        <input type="hidden" class="form_relations_active"
+                name="{{ name_field_id|attr }}[active][]" value="1" />
 
         <div class="relation-card">
             <div class="relation-card-header" onclick="toggleRelationEdit(this)">
@@ -174,7 +205,7 @@
         tableId: {{ table_id|js_escape|raw }},
         listRelationships: {{ list_relationships|json_encode|raw }},
         listRoles: {{ list_roles|json_encode|raw }},
-        foreignTable: {{ foreign_table_name|js_escape|raw }},
+        foreignTable: {{ foreign_table|js_escape|raw }},
         foreignId: {{ foreign_id|js_escape|raw }},
         webroot: {{ webroot|js_escape|raw }}
     };
@@ -196,9 +227,9 @@
 
         inactiveRelations.forEach(function(relation) {
             if (checkbox.checked) {
-                relation.classList.remove('d-none');
+                relatedPerson.classList.remove('d-none');
             } else {
-                relation.classList.add('d-none');
+                relatedPerson.classList.add('d-none');
             }
         });
     }

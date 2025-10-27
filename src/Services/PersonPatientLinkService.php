@@ -187,10 +187,10 @@ class PersonPatientLinkService extends BaseService
         $sql = "SELECT ppl.*, 
                        u.username as linked_by_username,
                        CONCAT(u.fname, ' ', u.lname) as linked_by_name,
-                       p.firstname as person_firstname,
-                       p.lastname as person_lastname,
-                       pd.fname as patient_firstname,
-                       pd.lname as patient_lastname,
+                       p.first_name as person_first_name,
+                       p.last_name as person_last_name,
+                       pd.fname as patient_first_name,
+                       pd.lname as patient_last_name,
                        pd.pid as patient_pid
                 FROM person_patient_link ppl
                 LEFT JOIN users u ON u.id = ppl.linked_by
@@ -229,7 +229,7 @@ class PersonPatientLinkService extends BaseService
         $sql = "SELECT p.*, c.id as contact_id, ppl.linked_date, ppl.link_method
                 FROM person p
                 JOIN person_patient_link ppl ON ppl.person_id = p.id
-                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                 WHERE ppl.patient_id = ? AND ppl.active = 1
                 LIMIT 1";
         
@@ -240,14 +240,14 @@ class PersonPatientLinkService extends BaseService
      * Check if person exists for patient by matching demographics
      * Used during patient registration to detect potential matches
      *
-     * @param string $firstname
-     * @param string $lastname
+     * @param string $first_name
+     * @param string $last_name
      * @param string $birthDate
      * @return array Array of potential person matches
      */
     public function findPotentialPersonMatches(
-        string $firstname,
-        string $lastname,
+        string $first_name,
+        string $last_name,
         string $birthDate
     ): array {
         $sql = "SELECT p.*, 
@@ -263,13 +263,13 @@ class PersonPatientLinkService extends BaseService
                            SEPARATOR '; '
                        ) as relationships_summary
                 FROM person p
-                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 LEFT JOIN patient_data pd_related ON 
-                    cr.related_foreign_table_name = 'patient_data' AND 
-                    cr.related_foreign_table_id = pd_related.id
-                WHERE p.firstname = ? 
-                  AND p.lastname = ? 
+                    cr.target_table = 'patient_data' AND 
+                    cr.target_id = pd_related.id
+                WHERE p.first_name = ? 
+                  AND p.last_name = ? 
                   AND p.birth_date = ?
                   AND NOT EXISTS (
                       SELECT 1 FROM person_patient_link ppl 
@@ -278,7 +278,7 @@ class PersonPatientLinkService extends BaseService
                 GROUP BY p.id
                 ORDER BY relationship_count DESC";
         
-        $result = sqlStatement($sql, [$firstname, $lastname, $birthDate]);
+        $result = sqlStatement($sql, [$first_name, $last_name, $birthDate]);
         
         $matches = [];
         while ($row = sqlFetchArray($result)) {
@@ -298,28 +298,28 @@ class PersonPatientLinkService extends BaseService
     {
         $sql = "SELECT 
                     cr.*,
-                    p_related.firstname as related_person_firstname,
-                    p_related.lastname as related_person_lastname,
+                    p_related.first_name as related_person_first_name,
+                    p_related.last_name as related_person_last_name,
                     p_related.birth_date as related_person_dob,
                     p_related.phone_contact as related_person_phone,
-                    pd_related.fname as related_patient_firstname,
-                    pd_related.lname as related_patient_lastname,
+                    pd_related.fname as related_patient_first_name,
+                    pd_related.lname as related_patient_last_name,
                     pd_related.pid as related_patient_pid
                 FROM person_patient_link ppl
                 JOIN person p ON p.id = ppl.person_id
-                JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                 JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 LEFT JOIN contact c_related ON c_related.id = (
                     SELECT c2.id FROM contact c2 
-                    WHERE c2.foreign_table_name = cr.related_foreign_table_name 
-                      AND c2.foreign_id = cr.related_foreign_table_id
+                    WHERE c2.foreign_table = cr.target_table 
+                      AND c2.foreign_id = cr.target_id
                     LIMIT 1
                 )
                 LEFT JOIN person p_related ON 
-                    cr.related_foreign_table_name = 'person' AND 
+                    cr.target_table = 'person' AND 
                     c_related.foreign_id = p_related.id
                 LEFT JOIN patient_data pd_related ON 
-                    cr.related_foreign_table_name = 'patient_data' AND 
+                    cr.target_table = 'patient_data' AND 
                     c_related.foreign_id = pd_related.id
                 WHERE ppl.patient_id = ? 
                   AND ppl.active = 1
@@ -346,8 +346,8 @@ class PersonPatientLinkService extends BaseService
     {
         $sql = "SELECT 
                     p.id as person_id,
-                    p.firstname,
-                    p.lastname,
+                    p.first_name,
+                    p.last_name,
                     p.birth_date,
                     pd.id as patient_id,
                     pd.pid,
@@ -355,10 +355,10 @@ class PersonPatientLinkService extends BaseService
                     COUNT(DISTINCT cr.id) as relationship_count
                 FROM person p
                 JOIN patient_data pd ON 
-                    pd.fname = p.firstname AND 
-                    pd.lname = p.lastname AND 
+                    pd.fname = p.first_name AND 
+                    pd.lname = p.last_name AND 
                     pd.DOB = p.birth_date
-                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 WHERE NOT EXISTS (
                     SELECT 1 FROM person_patient_link ppl 
@@ -441,11 +441,11 @@ class PersonPatientLinkService extends BaseService
     {
         $sql = "SELECT 
                     ppl.*,
-                    p.firstname as person_firstname,
-                    p.lastname as person_lastname,
+                    p.first_name as person_first_name,
+                    p.last_name as person_last_name,
                     p.birth_date as person_dob,
-                    pd.fname as patient_firstname,
-                    pd.lname as patient_lastname,
+                    pd.fname as patient_first_name,
+                    pd.lname as patient_last_name,
                     pd.pid as patient_pid,
                     u.username as linked_by_username,
                     COUNT(DISTINCT cr.id) as relationship_count
@@ -453,7 +453,7 @@ class PersonPatientLinkService extends BaseService
                 JOIN person p ON p.id = ppl.person_id
                 JOIN patient_data pd ON pd.id = ppl.patient_id
                 LEFT JOIN users u ON u.id = ppl.linked_by
-                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 WHERE ppl.active = 1
                 GROUP BY ppl.id

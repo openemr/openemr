@@ -622,8 +622,8 @@ VALUES ('sdoh_instruments', 'hunger_vital_sign', 'Hunger Vital Sign (2-item)', 1
 #IfNotTable person
 CREATE TABLE `person` (
     `id`  BIGINT(20) NOT NULL auto_increment,
-    `firstname`    VARCHAR(63)  DEFAULT NULL,
-    `lastname`     VARCHAR(63)  DEFAULT NULL,
+    `first_name`    VARCHAR(63)  DEFAULT NULL,
+    `last_name`     VARCHAR(63)  DEFAULT NULL,
     `gender`          VARCHAR(31)  DEFAULT NULL,
     `birth_date`      DATE  DEFAULT NULL,
     `death_date`      DATE  DEFAULT NULL,
@@ -645,8 +645,8 @@ CREATE TABLE `contact_relation` (
     `id`  BIGINT(20) NOT NULL auto_increment,
     `contact_id`  BIGINT(20) NOT NULL,
     `uuid`      binary(16)   DEFAULT NULL,
-    `related_foreign_table_name`  VARCHAR(255) NOT NULL DEFAULT '',
-    `related_foreign_table_id`  BIGINT(20) NOT NULL,
+    `target_table`  VARCHAR(255) NOT NULL DEFAULT '',
+    `target_id`  BIGINT(20) NOT NULL,
     `active` BOOLEAN DEFAULT TRUE,
     `role` VARCHAR(63)  DEFAULT NULL,
     `relationship` VARCHAR(63)  DEFAULT NULL,

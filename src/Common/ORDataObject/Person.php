@@ -23,9 +23,9 @@ class Person extends ORDataObject implements \JsonSerializable
     private $id;
     private $uuid;
     private $title;
-    private $firstname;
-    private $middlename;
-    private $lastname;
+    private $first_name;
+    private $middle_name;
+    private $last_name;
     private $preferred_name;
     private $gender;
     private $birth_date;
@@ -59,9 +59,9 @@ class Person extends ORDataObject implements \JsonSerializable
         $this->id = $id;
         $this->uuid = null;
         $this->title = "";
-        $this->firstname = "";
-        $this->middlename = "";
-        $this->lastname = "";
+        $this->first_name = "";
+        $this->middle_name = "";
+        $this->last_name = "";
         $this->preferred_name = "";
         $this->gender = "";
         $this->birth_date = null;
@@ -77,7 +77,7 @@ class Person extends ORDataObject implements \JsonSerializable
         $this->inactive_date = null;
         $this->notes = "";
         $this->created_date = new DateTime();
-        $this->created_by = $_SESSION['authUser'] ?? null;
+        $this->created_by = $_SESSION['authUserID'] ?? null;
         $this->updated_date = null;
         $this->updated_by = null;
 
@@ -145,7 +145,7 @@ class Person extends ORDataObject implements \JsonSerializable
 
         // Set updated timestamp and user
         $this->updated_date = new DateTime();
-        $this->updated_by = $_SESSION['authUser'] ?? $this->created_by;
+        $this->updated_by = $_SESSION['authUserID'] ?? $this->created_by;
 
         return parent::persist();
     }
@@ -188,38 +188,38 @@ class Person extends ORDataObject implements \JsonSerializable
         return $this;
     }
 
-    public function get_firstname(): string
+    public function get_first_name(): string
     {
-        return $this->firstname ?? "";
+        return $this->first_name ?? "";
     }
 
-    public function set_firstname(string $firstname): self
+    public function set_first_name(string $first_name): self
     {
-        $this->firstname = $firstname;
+        $this->first_name = $first_name;
         $this->setIsObjectModified(true);
         return $this;
     }
 
-    public function get_middlename(): string
+    public function get_middle_name(): string
     {
-        return $this->middlename ?? "";
+        return $this->middle_name ?? "";
     }
 
-    public function set_middlename(string $middlename): self
+    public function set_middle_name(string $middlename): self
     {
-        $this->middlename = $middlename;
+        $this->middle_name = $middle_name;
         $this->setIsObjectModified(true);
         return $this;
     }
 
-    public function get_lastname(): string
+    public function get_last_name(): string
     {
-        return $this->lastname ?? "";
+        return $this->last_name ?? "";
     }
 
-    public function set_lastname(string $lastname): self
+    public function set_last_name(string $last_name): self
     {
-        $this->lastname = $lastname;
+        $this->last_name = $last_name;
         $this->setIsObjectModified(true);
         return $this;
     }
@@ -443,31 +443,31 @@ class Person extends ORDataObject implements \JsonSerializable
     // ==================== HELPER METHODS ====================
 
     /**
-     * Get full name (firstname + middlename + lastname)
+     * Get full name (first_name + middle_name + last_name)
      *
      * @return string
      */
     public function get_full_name(): string
     {
         $parts = array_filter([
-            $this->firstname,
-            $this->middlename,
-            $this->lastname
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name
         ]);
         return implode(" ", $parts);
     }
 
     /**
-     * Get display name (preferred_name or firstname + lastname)
+     * Get display name (preferred_name or first_name + last_name)
      *
      * @return string
      */
     public function get_display_name(): string
     {
         if (!empty($this->preferred_name)) {
-            return $this->preferred_name . " " . $this->lastname;
+            return $this->preferred_name . " " . $this->last_name;
         }
-        return $this->firstname . " " . $this->lastname;
+        return $this->first_name . " " . $this->last_name;
     }
 
     /**
@@ -556,9 +556,9 @@ class Person extends ORDataObject implements \JsonSerializable
             'id' => $this->id,
             'uuid' => $this->get_uuid(),
             'title' => $this->title,
-            'firstname' => $this->firstname,
-            'middlename' => $this->middlename,
-            'lastname' => $this->lastname,
+            'first_name' => $this->first_name,
+            'middle_name' => $this->middle_name,
+            'last_name' => $this->last_name,
             'preferred_name' => $this->preferred_name,
             'full_name' => $this->get_full_name(),
             'display_name' => $this->get_display_name(),

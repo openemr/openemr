@@ -441,7 +441,7 @@ class PatientService extends BaseService
                     FROM contact
                     INNER JOIN contact_address ON contact.id = contact_address.contact_id
                     INNER JOIN addresses ON contact_address.address_id = addresses.id
-                    WHERE `contact_address`.`status`='A' AND contact.foreign_table_name='patient_data'
+                    WHERE `contact_address`.`status`='A' AND contact.foreign_table='patient_data'
                 ) patient_additional_addresses ON patient_data.pid = patient_additional_addresses.contact_address_patient_id";
         $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

@@ -250,13 +250,12 @@ try {
  */
 function handleSearchPersons($input, $personService, $contactService, $linkService, $logger)
 {
-    $firstname = trim($input['firstname'] ?? '');
-    $lastname = trim($input['lastname'] ?? '');
+    $first_name = trim($input['first_name'] ?? '');
+    $last_name = trim($input['last_name'] ?? '');
     $birthDate = trim($input['birth_date'] ?? '');
     $phone = trim($input['phone'] ?? '');
-    $email = trim($input['email'] ?? '');
 
-    if (empty($firstname) && empty($lastname) && empty($birthDate) && empty($phone) && empty($email)) {
+    if (empty($first_name) && empty($last_name) && empty($birthDate) && empty($phone)) {
         echo json_encode([
             'success' => false,
             'message' => xl('Please provide at least one search criterion')
@@ -267,27 +266,27 @@ function handleSearchPersons($input, $personService, $contactService, $linkServi
     $results = [];
 
     // Search person table
-    $personResults = searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $contactService, $linkService);
+    $personResults = searchPersonTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService);
     $results = array_merge($results, $personResults);
 
     // Search patient_data table
-    $patientResults = searchPatientDataTable($firstname, $lastname, $birthDate, $phone, $email, $contactService, $linkService);
+    $patientResults = searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService);
     $results = array_merge($results, $patientResults);
 
     // Remove duplicates
     $results = deduplicateResults($results);
 
-    // Sort by lastname, firstname
+    // Sort by last_name, first_name
     usort($results, function($a, $b) {
-        $lastCompare = strcasecmp($a['lastname'], $b['lastname']);
+        $lastCompare = strcasecmp($a['last_name'], $b['last_name']);
         if ($lastCompare !== 0) {
             return $lastCompare;
         }
-        return strcasecmp($a['firstname'], $b['firstname']);
+        return strcasecmp($a['first_name'], $b['first_name']);
     });
 
     $logger->debug("Person search completed", [
-        'criteria' => compact('firstname', 'lastname', 'birthDate', 'phone', 'email'),
+        'criteria' => compact('first_name', 'last_name', 'birthDate', 'phone'),
         'result_count' => count($results)
     ]);
 
@@ -301,7 +300,7 @@ function handleSearchPersons($input, $personService, $contactService, $linkServi
 /**
  * Search person table with link information and contact telecom data
  */
-function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $contactService, $linkService)
+function searchPersonTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService)
 {
     $sql = "SELECT p.*,
                    c.id as contact_id,
@@ -312,7 +311,7 @@ function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $c
                    GROUP_CONCAT(DISTINCT CASE WHEN ct.system = 'phone' THEN ct.value END) as phone,
                    GROUP_CONCAT(DISTINCT CASE WHEN ct.system = 'email' THEN ct.value END) as email
             FROM person p
-            LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+            LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
             LEFT JOIN person_patient_link ppl ON ppl.person_id = p.id AND ppl.active = 1
             LEFT JOIN patient_data pd ON pd.id = ppl.patient_id
             LEFT JOIN contact_telecom ct ON ct.contact_id = c.id
@@ -320,14 +319,14 @@ function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $c
 
     $params = [];
 
-    if (!empty($firstname)) {
-        $sql .= " AND p.firstname LIKE ?";
-        $params[] = "%$firstname%";
+    if (!empty($first_name)) {
+        $sql .= " AND p.first_name LIKE ?";
+        $params[] = "%$first_name%";
     }
 
-    if (!empty($lastname)) {
-        $sql .= " AND p.lastname LIKE ?";
-        $params[] = "%$lastname%";
+    if (!empty($last_name)) {
+        $sql .= " AND p.last_name LIKE ?";
+        $params[] = "%$last_name%";
     }
 
     if (!empty($birthDate)) {
@@ -345,7 +344,7 @@ function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $c
         $params[] = "%$phone%";
     }
 
-    if (!empty($email)) {
+    /*if (!empty($email)) {
         $sql .= " AND EXISTS (
             SELECT 1 FROM contact_telecom ct3
             WHERE ct3.contact_id = c.id
@@ -353,10 +352,10 @@ function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $c
             AND ct3.value LIKE ?
         )";
         $params[] = "%$email%";
-    }
+    }*/
 
     $sql .= " GROUP BY p.id, c.id, ppl.patient_id, pd.pid, ppl.link_method, ppl.linked_date";
-    $sql .= " ORDER BY p.lastname, p.firstname LIMIT 50";
+    $sql .= " ORDER BY p.last_name, p.first_name LIMIT 50";
 
     $result = sqlStatement($sql, $params);
 
@@ -364,11 +363,11 @@ function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $c
     while ($row = sqlFetchArray($result)) {
         $persons[] = [
             'id' => $row['id'],
-            'source' => 'person',
+            'target_table' => 'person',
             'contact_id' => $row['contact_id'],
-            'firstname' => $row['firstname'],
-            'middlename' => $row['middlename'] ?? '',
-            'lastname' => $row['lastname'],
+            'first_name' => $row['first_name'],
+            'middle_name' => $row['middle_name'] ?? '',
+            'last_name' => $row['last_name'],
             'birth_date' => $row['birth_date'],
             'gender' => $row['sex'] ?? '',
             'phone' => $row['phone'] ?? '',
@@ -388,7 +387,7 @@ function searchPersonTable($firstname, $lastname, $birthDate, $phone, $email, $c
 /**
  * Search patient_data table with link information
  */
-function searchPatientDataTable($firstname, $lastname, $birthDate, $phone, $email, $contactService, $linkService)
+function searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService)
 {
     $sql = "SELECT pd.*,
                    c.id as contact_id,
@@ -396,20 +395,20 @@ function searchPatientDataTable($firstname, $lastname, $birthDate, $phone, $emai
                    ppl.link_method,
                    ppl.linked_date
             FROM patient_data pd
-            LEFT JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pd.id
+            LEFT JOIN contact c ON c.foreign_table = 'patient_data' AND c.foreign_id = pd.id
             LEFT JOIN person_patient_link ppl ON ppl.patient_id = pd.id AND ppl.active = 1
             WHERE 1=1";
 
     $params = [];
 
-    if (!empty($firstname)) {
+    if (!empty($first_name)) {
         $sql .= " AND pd.fname LIKE ?";
-        $params[] = "%$firstname%";
+        $params[] = "%$first_name%";
     }
 
-    if (!empty($lastname)) {
+    if (!empty($last_name)) {
         $sql .= " AND pd.lname LIKE ?";
-        $params[] = "%$lastname%";
+        $params[] = "%$last_name%";
     }
 
     if (!empty($birthDate)) {
@@ -438,11 +437,11 @@ function searchPatientDataTable($firstname, $lastname, $birthDate, $phone, $emai
         $patients[] = [
             'id' => $row['id'],
             'pid' => $row['pid'],
-            'source' => 'patient_data',
+            'target_table' => 'patient_data',
             'contact_id' => $row['contact_id'],
-            'firstname' => $row['fname'],
-            'middlename' => $row['mname'] ?? '',
-            'lastname' => $row['lname'],
+            'first_name' => $row['fname'],
+            'middle_name' => $row['mname'] ?? '',
+            'last_name' => $row['lname'],
             'birth_date' => $row['DOB'],
             'gender' => $row['sex'] ?? '',
             'phone' => $row['phone_cell'] ?? $row['phone_home'] ?? $row['phone_contact'] ?? '',
@@ -466,7 +465,7 @@ function deduplicateResults($results)
     $unique = [];
 
     foreach ($results as $result) {
-        $key = strtolower($result['firstname'] . '|' . $result['lastname'] . '|' . $result['birth_date']);
+        $key = strtolower($result['first_name'] . '|' . $result['last_name'] . '|' . $result['birth_date']);
 
         if (!isset($seen[$key])) {
             $seen[$key] = true;
@@ -474,7 +473,7 @@ function deduplicateResults($results)
         } else {
             if ($result['source'] === 'person') {
                 foreach ($unique as $i => $existing) {
-                    $existingKey = strtolower($existing['firstname'] . '|' . $existing['lastname'] . '|' . $existing['birth_date']);
+                    $existingKey = strtolower($existing['first_name'] . '|' . $existing['last_name'] . '|' . $existing['birth_date']);
                     if ($existingKey === $key && $existing['source'] === 'patient_data') {
                         $unique[$i] = $result;
                         break;
@@ -497,10 +496,10 @@ function deduplicateResults($results)
 function handleCreatePerson($input, $personService, $contactService, $logger)
 {
     // Validate required fields
-    if (empty($input['firstname']) || empty($input['lastname'])) {
+    if (empty($input['first_name']) || empty($input['last_name'])) {
         $logger->debug("Person creation rejected: missing required fields", [
-            'has_firstname' => !empty($input['firstname']),
-            'has_lastname' => !empty($input['lastname'])
+            'has_first_name' => !empty($input['first_name']),
+            'has_last_name' => !empty($input['last_name'])
         ]);
         echo json_encode([
             'success' => false,
@@ -511,9 +510,9 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
 
     // Build person data array - NO EMAIL OR PHONE (those go in contact_telecom)
     $personData = [
-        'firstname' => trim($input['firstname']),
-        'lastname' => trim($input['lastname']),
-        'middlename' => trim($input['middlename'] ?? ''),
+        'first_name' => trim($input['first_name']),
+        'last_name' => trim($input['last_name']),
+        'middle_name' => trim($input['middle_name'] ?? ''),
         'birth_date' => $input['birth_date'] ?? null,
         'gender' => $input['gender'] ?? '',
         'notes' => trim($input['notes'] ?? '')
@@ -521,7 +520,7 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
 
     // Store email/phone separately for contact_telecom
     $phone = trim($input['phone'] ?? '');
-    $email = trim($input['email'] ?? '');
+    /*$email = trim($input['email'] ?? '');*/
 
     $logger->debug("Attempting to create person", [
         'personData' => $personData,
@@ -597,7 +596,7 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
 
     $logger->info("Person created successfully via AJAX", [
         'person_id' => $personId,
-        'name' => $personArray['firstname'] . ' ' . $personArray['lastname']
+        'name' => $personArray['first_name'] . ' ' . $personArray['last_name']
     ]);
 
     // Create or get contact for this person
@@ -686,13 +685,14 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
         'message' => xl('Person created successfully'),
         'person' => [
             'id' => $personId,
+            'target_table' => 'person',  // Newly created persons are always in person table
             'contact_id' => $contactId,
-            'firstname' => $personArray['firstname'] ?? '',
-            'lastname' => $personArray['lastname'] ?? '',
-            'middlename' => $personArray['middlename'] ?? '',
+            'first_name' => $personArray['first_name'] ?? '',
+            'last_name' => $personArray['last_name'] ?? '',
+            'middle_name' => $personArray['middle_name'] ?? '',
             'birth_date' => $personArray['birth_date'] ?? '',
             'gender' => $personArray['gender'] ?? '',
-            'full_name' => ($personArray['firstname'] ?? '') . ' ' . ($personArray['lastname'] ?? ''),
+            'full_name' => ($personArray['first_name'] ?? '') . ' ' . ($personArray['last_name'] ?? ''),
             // Include the telecoms we just added
             'phone' => $phone,  // Return what was submitted
             'email' => $email,  // Return what was submitted
