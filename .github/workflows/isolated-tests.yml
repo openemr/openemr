@@ -84,7 +84,9 @@ jobs:
       uses: codecov/test-results-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit.xml
         flags: isolated,php${{ matrix.php-version }}
+        disable_search: true
 
     - name: Upload JUnit test results to GitHub
       if: ${{ success() || failure() }}

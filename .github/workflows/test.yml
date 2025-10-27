@@ -411,6 +411,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-unit.xml
         flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload unit test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
@@ -438,6 +439,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-api.xml
         flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Copy API coverage files from container
       if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
@@ -489,6 +491,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-fixtures.xml
         flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload fixtures test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
@@ -512,6 +515,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-services.xml
         flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload services test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
@@ -535,6 +539,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-validators.xml
         flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload validators test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
@@ -558,6 +563,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-controllers.xml
         flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload controllers test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
@@ -581,6 +587,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-common.xml
         flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload common test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
@@ -604,6 +611,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-email.xml
         flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload email test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
@@ -680,6 +688,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-e2e.xml
         flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        disable_search: true
 
     - name: Upload e2e test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
