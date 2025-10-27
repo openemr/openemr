@@ -2,7 +2,8 @@
 
 /**
  * SocialHistoryService.php
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -44,11 +45,11 @@ class SocialHistoryService extends BaseService
         }
 
         if ($dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [$pid,$dateStart,$dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [$pid, $dateStart, $dateEnd]);
         } elseif ($dateStart && !$dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", [$pid,$dateStart]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date >= ? order by date DESC limit 0,1", [$pid, $dateStart]);
         } elseif (!$dateStart && $dateEnd) {
-            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", [$pid,$dateEnd]);
+            $res = sqlQuery("select $given from history_data where $where pid = ? and date <= ? order by date DESC limit 0,1", [$pid, $dateEnd]);
         } else {
             $res = sqlQuery("select $given from history_data where $where pid=? order by date DESC limit 0,1", [$pid]);
         }
@@ -124,7 +125,7 @@ class SocialHistoryService extends BaseService
         }
 
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
@@ -141,7 +142,10 @@ class SocialHistoryService extends BaseService
         $tobacco = explode('|', $tobaccoColumn);
         if (!empty($tobacco[3])) {
             $listOption = $listService->getListOption('smoking_status', $tobacco[3]) ?? "";
-            $record['smoking_status_codes'] = $this->addCoding($listOption['codes']);
+            $record['smoking_status_codes'] = '';
+            if (!empty($listOption['codes'])) {
+                $record['smoking_status_codes'] = $this->addCoding($listOption['codes']);
+            }
         }
 
         return $record;
