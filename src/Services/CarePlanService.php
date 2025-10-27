@@ -391,7 +391,7 @@ class CarePlanService extends BaseService
         // - care_plan_id: form_care_plan table id (unique per goal row)
         // Note: forms.form_id = form_care_plan.id, so we only need care_plan_id
         if (!empty($row['goal_care_plan_ids']) && !empty($record['euuid'])) {
-            $goalIds = explode(',', $row['goal_care_plan_ids']);
+            $goalIds = explode(',', (string) $row['goal_care_plan_ids']);
             $goalUuids = [];
             $separator = self::SURROGATE_KEY_SEPARATOR_V2;
             if (intval($creationTimestamp) <= self::V2_TIMESTAMP) {

@@ -330,7 +330,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         // Parse comma-separated goal UUIDs
-        $goalUuids = explode(',', $dataRecord['related_goal_uuids']);
+        $goalUuids = explode(',', (string) $dataRecord['related_goal_uuids']);
 
         foreach ($goalUuids as $goalUuid) {
             $goalUuid = trim($goalUuid);
@@ -454,9 +454,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
             // Procedure/Service-related codes
             if (
-                $codeSystem === FhirCodeSystemConstants::LOINC ||
-                $codeSystem === FhirCodeSystemConstants::AMA_CPT ||
-                $codeSystem === FhirCodeSystemConstants::SNOMED_CT ||
+                in_array($codeSystem, [FhirCodeSystemConstants::LOINC, FhirCodeSystemConstants::AMA_CPT, FhirCodeSystemConstants::SNOMED_CT], true) ||
                 str_contains($codeSystem, 'loinc') ||
                 str_contains($codeSystem, 'cpt') ||
                 str_contains($codeSystem, 'snomed')
