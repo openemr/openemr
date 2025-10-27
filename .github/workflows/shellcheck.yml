@@ -155,7 +155,7 @@ jobs:
         notices-as-warnings: true
     - name: Upload shellcheck results
       if: ${{ failure() && hashFiles('checkstyle-shellcheck.xml') != '' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: shellcheck-results
         path: checkstyle-shellcheck.xml

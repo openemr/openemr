@@ -70,7 +70,7 @@ jobs:
     # Upload baseline only if baseline.neon file exists
     - name: Upload PHPStan Baseline
       if: hashFiles('baseline.neon') != ''
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
         path: baseline.neon

@@ -88,7 +88,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ success() || failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: junit-isolated-tests-php-${{ matrix.php-version }}
         path: junit.xml
@@ -102,7 +102,7 @@ jobs:
 
     - name: Upload coverage reports to GitHub
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && steps.check-files.outputs.html_exists == 'true' && (success() || failure()) }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: coverage-isolated-tests-php-${{ matrix.php-version }}
         path: |
