@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26a0c3f19d3a38b549daec7fce8d00d9",
+    "content-hash": "63e4007f31d98859cb0f5d84844737b1",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -3978,16 +3978,16 @@
         },
         {
             "name": "league/csv",
-            "version": "9.27.0",
+            "version": "9.27.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/csv.git",
-                "reference": "cb491b1ba3c42ff2bcd0113814f4256b42bae845"
+                "reference": "26de738b8fccf785397d05ee2fc07b6cd8749797"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/csv/zipball/cb491b1ba3c42ff2bcd0113814f4256b42bae845",
-                "reference": "cb491b1ba3c42ff2bcd0113814f4256b42bae845",
+                "url": "https://api.github.com/repos/thephpleague/csv/zipball/26de738b8fccf785397d05ee2fc07b6cd8749797",
+                "reference": "26de738b8fccf785397d05ee2fc07b6cd8749797",
                 "shasum": ""
             },
             "require": {
@@ -4065,7 +4065,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-16T08:22:09+00:00"
+            "time": "2025-10-25T08:35:20+00:00"
         },
         {
             "name": "league/event",
