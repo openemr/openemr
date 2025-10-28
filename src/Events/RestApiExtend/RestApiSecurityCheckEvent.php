@@ -54,7 +54,7 @@ class RestApiSecurityCheckEvent extends Event
         $this->scopeType = "";
         $this->resource = "";
         $this->securityCheckFailedResponse = null;
-        $this->skipSecurityCheck = false;
+        $this->skipSecurityCheck = true;
     }
 
     /**

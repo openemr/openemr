@@ -389,7 +389,8 @@ class DatabaseManager
         $recordset = $this->execute($statement, $binds);
 
         if (0 === $recordset->NumRows()) {
-            throw new NoResultDatabaseResultException($statement);
+            return $default;
+//            throw new NoResultDatabaseResultException($statement);
         }
 
         if ($recordset->NumRows() > 1) {
