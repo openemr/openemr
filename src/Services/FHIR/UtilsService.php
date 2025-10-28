@@ -129,8 +129,12 @@ class UtilsService
         // make sure there are no whitespaces.
         $coding = new FHIRCoding();
         $coding->setCode($code);
-        $coding->setDisplay(trim($display ?? ""));
-        $coding->setSystem(trim($system ?? ""));
+        if (!empty($display)) {
+            $coding->setDisplay(trim($display));
+        }
+        if (!empty(($system))) {
+            $coding->setSystem(trim($system));
+        }
         return $coding;
     }
 
