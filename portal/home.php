@@ -30,8 +30,9 @@ use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\ServiceLocator;
 use OpenEMR\Services\Utils\TranslationService;
-use OpenEMR\Telemetry\TelemetryService;
+use OpenEMR\Telemetry\TelemetryServiceInterface;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -327,7 +328,7 @@ $ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_servic
 // Available Themes
 $styleArray = collectStyles();
 // Is telemetry enabled?
-$isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
+$isTelemetryAllowed = ServiceLocator::get(TelemetryServiceInterface::class)->isTelemetryEnabled();
 
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
