@@ -82,7 +82,7 @@
         "php-http/discovery": "1.20.0",
         "php81_bc/strftime": "0.7.6",
         "phpmailer/phpmailer": "6.12.0",
-        "phpoffice/phpspreadsheet": "5.1.0",
+        "phpoffice/phpspreadsheet": "5.2.0",
         "phpseclib/phpseclib": "3.0.47",
         "predis/predis": "3.2.0",
         "psr/log": "3.0.2",
