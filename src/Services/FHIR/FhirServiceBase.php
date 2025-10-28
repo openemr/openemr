@@ -11,6 +11,8 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Base class for FHIR Service implementations.
@@ -46,6 +48,8 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
      */
     private ?string $fhirApiURL;
 
+    private ?SessionInterface $session = null;
+
     public function __construct(?string $fhirApiURL = null)
     {
         $params = $this->loadSearchParameters();
@@ -53,6 +57,17 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
         $this->setSearchFieldFactory($searchFieldFactory);
         $this->setFhirApiUrl($fhirApiURL);
+    }
+
+
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
     }
 
     /**

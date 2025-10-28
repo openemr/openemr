@@ -40,6 +40,7 @@ use OpenEMR\Modules\EhiExporter\Models\ExportState;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use Ramsey\Uuid\Rfc4122\UuidV4;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Environment;
 
 use function xl;
@@ -66,6 +67,8 @@ class EhiExporter
     private readonly CryptoGen $cryptoGen;
     private readonly EhiExportJobService $jobService;
 
+    private ?Session $session = null;
+
     public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();
@@ -73,6 +76,11 @@ class EhiExporter
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
         $this->cryptoGen = new CryptoGen();
+    }
+
+    public function setSession(Session $session): void
+    {
+        $this->session = $session;
     }
 
 
@@ -452,6 +460,9 @@ class EhiExporter
         $exportedResult = $exportState->getExportResult();
         $document = $this->generateZipfile($jobTask, $exportedResult, $exportState);
         $documentService = new DocumentService();
+        if (!empty($this->session)) {
+            $documentService->setSession($this->session);
+        }
         $exportedResult->downloadLink = $documentService->getDownloadLink($document->get_id());
         $jobTask->exportedResult = $exportedResult;
         $jobTask->document = $document;
