@@ -992,6 +992,10 @@ VALUES ('OccupationODH','23-1011.00','Lawyers',10,'23-1011.00.031000',1),
 #IfMissingColumn form_care_plan plan_status
 ALTER TABLE `form_care_plan` ADD COLUMN `plan_status` VARCHAR(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)';
 #EndIf
+-- Add proposed_date to care plan
+#IfMissingColumn form_care_plan proposed_date
+ALTER TABLE `form_care_plan` ADD COLUMN `proposed_date` DATETIME NULL COMMENT 'Target or Achieve-by date for the goal';
+#EndIf
 
 #IfNotIndex form_care_plan idx_status_date
 ALTER TABLE `form_care_plan` ADD INDEX `idx_status_date` (`plan_status`, `date`, `date_end`);

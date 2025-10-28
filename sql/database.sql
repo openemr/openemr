@@ -12513,6 +12513,7 @@ CREATE TABLE `form_care_plan` (
   `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
   `reason_status` varchar(31) DEFAULT NULL,
   `plan_status` varchar(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)',
+  `proposed_date` DATETIME NULL COMMENT 'Target or Achieve-by date for the goal',
   KEY `idx_status_date` (`plan_status`,`date`,`date_end`)
 ) ENGINE=InnoDB;
 

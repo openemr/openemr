@@ -131,6 +131,13 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         // Set author (practitioner reference)
         $this->setAuthor($carePlanResource, $dataRecord);
 
+        // Set reasonCode (health concerns / clinical indications)
+        // Note: Requires reasonCode property added to FHIRCarePlan class
+        $this->setReasonCodes($carePlanResource, $dataRecord);
+
+        // Set goal references (US Core 8.0 and USCDI v5)
+        $this->setGoals($carePlanResource, $dataRecord);
+
         // Process activities from details
         $this->setActivities($carePlanResource, $dataRecord);
 
@@ -146,11 +153,15 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * Set resource metadata including version and last updated timestamp
+     * US Core 8.0 requires profile declaration
      */
     private function setResourceMetadata(FHIRCarePlan $carePlanResource, array $dataRecord): void
     {
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
+
+        // US Core 8.0 requirement: Must declare conformance to US Core CarePlan profile
+        $fhirMeta->addProfile(self::USCGI_PROFILE_URI);
 
         if (!empty($dataRecord['creation_date'])) {
             $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['creation_date']));
@@ -251,6 +262,88 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     }
 
     /**
+     * Set reasonCode (clinical indication / health concerns for the care plan)
+     * US Core Must Support element for US Core 8.0 and USCDI v5
+     *
+     * Note: Requires reasonCode property added to FHIRCarePlan class
+     * See ADD_REASONCODE_TO_FHIRPLAN.md for adding the missing property
+     */
+    private function setReasonCodes(FHIRCarePlan $carePlanResource, array $dataRecord): void
+    {
+        // Collect unique reason codes from all activities
+        $reasonCodesAdded = [];
+
+        if (!empty($dataRecord['details'])) {
+            foreach ($dataRecord['details'] as $detail) {
+                if (!empty($detail['reason_code'])) {
+                    $reasonCode = $detail['reason_code'];
+
+                    // Skip if we've already added this code
+                    if (isset($reasonCodesAdded[$reasonCode])) {
+                        continue;
+                    }
+
+                    // Parse the code to determine system
+                    $codeSystem = $this->getCodeSystem($reasonCode);
+                    $codeValue = $this->extractCodeValue($reasonCode);
+
+                    if (!empty($codeValue)) {
+                        $codeableConcept = new FHIRCodeableConcept();
+
+                        // Add the primary coding
+                        $coding = new FHIRCoding();
+                        if (!empty($codeSystem)) {
+                            $coding->setSystem($codeSystem);
+                        }
+                        $coding->setCode($codeValue);
+
+                        // Add display text if available
+                        if (!empty($detail['reason_description'])) {
+                            $coding->setDisplay($detail['reason_description']);
+                        }
+
+                        $codeableConcept->addCoding($coding);
+
+                        // Set text element for human-readable description
+                        if (!empty($detail['reason_description'])) {
+                            $codeableConcept->setText($detail['reason_description']);
+                        }
+
+                        // Add to CarePlan (method added via patch)
+                        $carePlanResource->addReasonCode($codeableConcept);
+                        $reasonCodesAdded[$reasonCode] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Set goal references for the care plan
+     * US Core 8.0 and USCDI v5 Goals element
+     * Links to Goal resources that are objectives of this care plan
+     */
+    private function setGoals(FHIRCarePlan $carePlanResource, array $dataRecord): void
+    {
+        if (empty($dataRecord['related_goal_uuids'])) {
+            return;
+        }
+
+        // Parse comma-separated goal UUIDs
+        $goalUuids = explode(',', (string) $dataRecord['related_goal_uuids']);
+
+        foreach ($goalUuids as $goalUuid) {
+            $goalUuid = trim($goalUuid);
+            if (!empty($goalUuid)) {
+                // Create Goal reference
+                $goalReference = UtilsService::createRelativeReference("Goal", $goalUuid);
+                $carePlanResource->addGoal($goalReference);
+            }
+        }
+    }
+
+
+    /**
      * Set activities from care plan details
      */
     private function setActivities(FHIRCarePlan $carePlanResource, array $dataRecord): void
@@ -264,11 +357,18 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
             $activityDetail = new FHIRCarePlanDetail();
 
             // Set activity code if present
+            $activityCode = null;
             if (!empty($detail['code'])) {
                 $activityCode = $this->createActivityCode($detail);
                 if ($activityCode !== null) {
                     $activityDetail->setCode($activityCode);
                 }
+            }
+
+            // Set activity kind based on code system (US Core enhancement)
+            $kind = $this->determineActivityKind($detail);
+            if (!empty($kind)) {
+                $activityDetail->setKind($kind);
             }
 
             // Set activity description
@@ -278,6 +378,17 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
             // Set activity status
             $activityStatus = $this->mapActivityStatus($detail['moodCode'] ?? null);
+
+            // Ensure activity status is consistent with CarePlan status
+            // If CarePlan is completed/revoked/entered-in-error, activities should not be active
+            $carePlanStatus = $dataRecord['plan_status'] ?? '';
+            if (in_array(strtolower($carePlanStatus), ['completed', 'revoked', 'entered-in-error'])) {
+                // Override active statuses to match the completed plan
+                if (in_array($activityStatus, ['not-started', 'scheduled', 'in-progress', 'on-hold'])) {
+                    $activityStatus = 'completed';
+                }
+            }
+
             $activityDetail->setStatus($activityStatus);
 
             // Set scheduled period if dates are present
@@ -292,9 +403,68 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
                 $activityDetail->setScheduledPeriod($scheduledPeriod);
             }
 
+            // Set performer (who will perform the activity) - use author if available
+            if (!empty($dataRecord['provider_uuid'])) {
+                $performer = UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']);
+                $activityDetail->addPerformer($performer);
+            }
+
+            // Set goal/target date if available and different from scheduled start
+            // Only use scheduledString if it's a future target date (for goals)
+            if (!empty($detail['proposed_date'])) {
+                $proposedDate = $detail['proposed_date'];
+                $scheduledStart = $detail['date'] ?? '';
+
+                // Only add scheduledString if it's different from the start date
+                // This represents a target/goal date rather than redundant scheduling info
+                if ($proposedDate !== $scheduledStart) {
+                    $activityDetail->setScheduledString($proposedDate);
+                }
+            }
+
             $activity->setDetail($activityDetail);
             $carePlanResource->addActivity($activity);
         }
+    }
+
+    /**
+     * Determine the activity kind based on the code system
+     * Helps categorize activities as ServiceRequest, MedicationRequest, etc.
+     *
+     * @param array $detail Activity detail record
+     * @return string|null The FHIR kind value
+     */
+    private function determineActivityKind(array $detail): ?string
+    {
+        if (empty($detail['code'])) {
+            return null;
+        }
+
+        $codeSystem = $this->getCodeSystem($detail['code']);
+
+        // Map code systems to appropriate FHIR request types
+        if (!empty($codeSystem)) {
+            // Medication-related codes
+            if (
+                $codeSystem === FhirCodeSystemConstants::RXNORM ||
+                str_contains($codeSystem, 'rxnorm')
+            ) {
+                return 'MedicationRequest';
+            }
+
+            // Procedure/Service-related codes
+            if (
+                in_array($codeSystem, [FhirCodeSystemConstants::LOINC, FhirCodeSystemConstants::AMA_CPT, FhirCodeSystemConstants::SNOMED_CT], true) ||
+                str_contains($codeSystem, 'loinc') ||
+                str_contains($codeSystem, 'cpt') ||
+                str_contains($codeSystem, 'snomed')
+            ) {
+                return 'ServiceRequest';
+            }
+        }
+
+        // Default to ServiceRequest as it's the most general
+        return 'ServiceRequest';
     }
 
     /**
@@ -358,10 +528,18 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         $descriptions = [];
         foreach ($details as $detail) {
-            // Use description or fallback on codetext if needed
             $text = $detail['description'] ?? $detail['codetext'] ?? "";
-            if (!empty(trim($text))) {
-                $descriptions[] = trim($text);
+            $text = trim($text);
+
+            if (!empty($text)) {
+                // Clean up text: remove excess whitespace, normalize line breaks
+                $text = preg_replace('/\s+/', ' ', $text);
+                $text = str_replace(["\r\n", "\r", "\n"], ' ', $text);
+                $text = trim($text);
+
+                if (!empty($text)) {
+                    $descriptions[] = $text;
+                }
             }
         }
 
@@ -371,7 +549,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         ];
 
         if (!empty($descriptions)) {
+            // Properly escape HTML entities for each description
             $escapedDescriptions = array_map('text', $descriptions);
+            // Build compact XHTML with each description in a paragraph
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $escapedDescriptions) . "</p>";
         }
 

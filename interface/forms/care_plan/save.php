@@ -34,6 +34,7 @@ $code             = $_POST["code"]         ?? [];
 $code_text        = $_POST["codetext"]     ?? [];
 $code_date        = $_POST["code_date"]    ?? [];
 $end_date         = $_POST["end_date"]     ?? [];
+$proposed_date     = $_POST["proposed_date"] ?? [];
 $status           = $_POST["plan_status"]       ?? [];
 $code_des         = $_POST["description"]  ?? [];
 $count            = $_POST["count"]        ?? [];
@@ -76,6 +77,9 @@ if (!empty($count)) {
         $end_date_val = trim($end_date[$key] ?? '');
         $end_date_val = ($end_date_val !== '') ? $end_date_val : null;
 
+        $proposed_date_val = trim($proposed_date[$key] ?? '');
+        $proposed_date_val = ($proposed_date_val !== '') ? $proposed_date_val : null;
+
         $plan_status_val = trim($status[$key] ?? '');
         $plan_status_val = ($plan_status_val !== '') ? $plan_status_val : null;
 
@@ -108,6 +112,7 @@ if (!empty($count)) {
             description = ?,
             date = ?,
             date_end = ?, 
+            proposed_date = ?, 
             plan_status = ?, 
             care_plan_type = ?,
             note_related_to = ?,
@@ -131,6 +136,7 @@ if (!empty($count)) {
                 $description_val,
                 $start_date_val,
                 $end_date_val,
+                $proposed_date_val,
                 $plan_status_val,
                 $care_plan_type_val,
                 $note_relations,
