@@ -38,31 +38,38 @@ class CareTeamService extends BaseService
      */
     public function __construct()
     {
-        UuidRegistry::createMissingUuidsForTables([
+        UuidRegistry::createMissingUuidsForTables(
+            [
             self::PATIENT_TABLE,
             self::PRACTITIONER_TABLE,
             self::FACILITY_TABLE,
             self::CARE_TEAMS_TABLE
-        ]);
+            ]
+        );
         parent::__construct(self::CARE_TEAMS_TABLE);
     }
 
     public function search($search, $isAndCondition = true)
     {
         // Build the base query for care teams
-        $sql = "SELECT 
+        $sql = "SELECT
                     ct.uuid,
                     ct.team_name,
                     ct.status as care_team_status,
                     ct.date_updated as date,
-                    pd.uuid as puuid,
+                    pd.puuid,
                     pd.pid,
                     GROUP_CONCAT(DISTINCT ct.id) as member_ids,
                     lo.title as care_team_status_title
                 FROM
                     care_teams ct
-                JOIN
-                    patient_data pd ON ct.pid = pd.pid
+                JOIN (
+                    SELECT
+                        uuid AS puuid,
+                        pid
+                    FROM
+                        patient_data
+                ) pd ON ct.pid = pd.pid
                 LEFT JOIN
                     list_options lo ON lo.option_id = ct.status AND lo.list_id = 'Care_Team_Status'";
 
@@ -249,8 +256,8 @@ class CareTeamService extends BaseService
     /**
      * Returns a single careTeam record by id.
      *
-     * @param $uuid      - The careTeam uuid identifier in string format.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $uuid      - The careTeam uuid identifier in string format.
+     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
     public function getOne($uuid, $puuidBind = null)
@@ -329,8 +336,8 @@ class CareTeamService extends BaseService
      */
     public function updateCareTeamStatus($pid, $teamName, $status)
     {
-        $sql = "UPDATE " . self::CARE_TEAMS_TABLE . " 
-                SET status = ?, date_updated = NOW() 
+        $sql = "UPDATE " . self::CARE_TEAMS_TABLE . "
+                SET status = ?, date_updated = NOW()
                 WHERE pid = ? AND team_name = ?";
 
         return sqlStatement($sql, [$status, $pid, $teamName]);
