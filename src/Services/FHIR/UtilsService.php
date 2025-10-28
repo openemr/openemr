@@ -2,7 +2,8 @@
 
 /**
  * UtilsService holds helper methods for dealing with fhir objects in the services  layer.
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -70,9 +71,9 @@ class UtilsService
     {
         $parsed_url = [
             'localResource' => false
-            ,'validUrl' => false
-            ,'resource' => null
-            ,'uuid' => null
+            , 'validUrl' => false
+            , 'resource' => null
+            , 'uuid' => null
         ];
         if (empty($url)) {
             return $parsed_url;
@@ -130,10 +131,10 @@ class UtilsService
         $coding = new FHIRCoding();
         $coding->setCode($code);
         if (!empty($display)) {
-            $coding->setDisplay(trim($display));
+            $coding->setDisplay(trim((string)$display));
         }
         if (!empty(($system))) {
-            $coding->setSystem(trim($system));
+            $coding->setSystem(trim((string)$system));
         }
         return $coding;
     }
@@ -307,8 +308,8 @@ class UtilsService
         return self::createCodeableConcept([
             self::UNKNOWNABLE_CODE_NULL_FLAVOR => [
                 'code' => self::UNKNOWNABLE_CODE_NULL_FLAVOR
-                ,'description' => 'unknown'
-                ,'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
+                , 'description' => 'unknown'
+                , 'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
             ]]);
     }
 
@@ -334,7 +335,8 @@ class UtilsService
      * Given a FHIRPeriod object return an array containing the timestamp in milliseconds of the start and end points
      * of the period.  If the passed in object is null it will return null values for the 'start' and 'end' properties.
      * If the start has no value or if the end period has no value it will return null values for the properties.
-     * @param FHIRPeriod $period  The object representing the period interval.
+     *
+     * @param FHIRPeriod $period The object representing the period interval.
      * @return array Containing two keys of 'start' and 'end' representing the period.
      */
     public static function getPeriodTimestamps(?FHIRPeriod $period)
@@ -436,8 +438,8 @@ class UtilsService
     {
         $parsed_reference = [
             'localResource' => false
-            ,'uuid' => null
-            ,'type' => null
+            , 'uuid' => null
+            , 'type' => null
         ];
         if (empty($parsed_reference) || empty($reference->getReference())) {
             return $parsed_reference;
