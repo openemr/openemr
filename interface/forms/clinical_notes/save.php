@@ -110,7 +110,7 @@ if (!empty($count)) {
         // AI Generated
         // Handle linked documents
         if (isset($linked_documents[$key]) && !empty($linked_documents[$key])) {
-            $documentsData = json_decode($linked_documents[$key], true);
+            $documentsData = json_decode((string) $linked_documents[$key], true);
             if (is_array($documentsData)) {
                 $clinicalNotesService->saveLinkedDocuments($clinicalNoteId, $documentsData, $_SESSION["authUser"]);
             }
@@ -121,7 +121,7 @@ if (!empty($count)) {
 
         // Handle linked results
         if (isset($linked_results[$key]) && !empty($linked_results[$key])) {
-            $resultsData = json_decode($linked_results[$key], true);
+            $resultsData = json_decode((string) $linked_results[$key], true);
             if (is_array($resultsData)) {
                 $clinicalNotesService->saveLinkedResults($clinicalNoteId, $resultsData, $_SESSION["authUser"]);
             }
