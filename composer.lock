@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f45378835f94f0892a922b17679c2d6d",
+    "content-hash": "7066f4eb8b2d2cd15f58db6608a034bb",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
