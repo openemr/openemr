@@ -1088,12 +1088,12 @@ class SQLUpgradeService implements ISQLUpgradeService
                 $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
                 if ($parts[0] != $prev) {
                     $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                    SqlStatement($sql1, ['lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List']);
+                    sqlStatement($sql1, ['lists', $parts[0] . '_issue_list', ucwords(str_replace("_", " ", $parts[0])) . ' Issue List']);
                     $seq = 10;
                 }
 
                 $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
-                SqlStatement($sql2, [$parts[0] . '_issue_list', $parts[1], $parts[1], $seq]);
+                sqlStatement($sql2, [$parts[0] . '_issue_list', $parts[1], $parts[1], $seq]);
                 $seq += 10;
                 $prev = $parts[0];
             }

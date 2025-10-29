@@ -30,7 +30,7 @@ if (!(function_exists('xl'))) {
         "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
         "lang_id=? AND constant_name = ? LIMIT 1";
         $res = sqlStatementNoLog($sql, [$lang_id,$constant]);
-        $row = SqlFetchArray($res);
+        $row = sqlFetchArray($res);
         $string = $row['definition'] ?? '';
         if ($string == '') {
             $string = "$constant";
