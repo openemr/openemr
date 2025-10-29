@@ -10,6 +10,7 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -31,7 +32,12 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
+abstract class FhirServiceBase implements
+    IResourceSearchableService,
+    IResourceReadableService,
+    IResourceCreatableService,
+    IResourceUpdateableService,
+    SessionAwareInterface
 {
     use ResourceServiceSearchTrait;
     use SystemLoggerAwareTrait;

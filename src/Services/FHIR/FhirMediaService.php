@@ -62,6 +62,8 @@ class FhirMediaService extends FhirServiceBase implements IFhirExportableResourc
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
             'patient' => $this->getPatientContextSearchField(),
+            'content-type' => new FhirSearchParameterDefinition('content-type', SearchFieldType::STRING, ['mimetype']),
+            'title' => new FhirSearchParameterDefinition('title', SearchFieldType::STRING, ['name']),
         ];
     }
 
@@ -73,7 +75,7 @@ class FhirMediaService extends FhirServiceBase implements IFhirExportableResourc
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     /**
@@ -126,11 +128,27 @@ class FhirMediaService extends FhirServiceBase implements IFhirExportableResourc
             $openEMRSearchParameters['patient']->setModifier(SearchModifier::MISSING);
         }
         // only pull in media with supported mimetypes
-        $openEMRSearchParameters['mimetype'] = new StringSearchField(
-            'mimetype',
-            ['application/dicom', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'video/mp4', 'video/quicktime'],
-            SearchModifier::EXACT
-        );
+        $supportedMimetypes = ['application/dicom', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'video/mp4', 'video/quicktime'];
+        if (isset($openEMRSearchParameters['mimetype'])) {
+            // grab all of the mime type codes
+            /**
+             * @var StringSearchField
+             */
+            $mimetype = $openEMRSearchParameters['mimetype'];
+            $mimetypeValues = $mimetype->getValues();
+            $filteredMimetypes = array_intersect($mimetypeValues, $supportedMimetypes);
+            $openEMRSearchParameters['mimetype'] = new StringSearchField(
+                'mimetype',
+                array_values($filteredMimetypes),
+                SearchModifier::EXACT
+            );
+        } else {
+            $openEMRSearchParameters['mimetype'] = new StringSearchField(
+                'mimetype',
+                $supportedMimetypes,
+                SearchModifier::EXACT
+            );
+        }
 
         return $this->service->search($openEMRSearchParameters);
     }

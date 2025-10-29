@@ -130,9 +130,8 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         $fhirOrganizationService = new FhirOrganizationService();
 
         if (!empty($dataRecord['user_uuid'])) {
-            if (!empty($dataRecord['user_npi'])) {
+            if (!empty($dataRecord['npi'])) {
                 $responsibleParty = UtilsService::createRelativeReference('Practitioner', $dataRecord['user_uuid']);
-                $report->addPerformer();
             } else {
                 $responsibleParty = $fhirOrganizationService->getOrganizationReferenceForUser($dataRecord['user_uuid']);
             }
