@@ -215,6 +215,10 @@ function lookupNPI(loadMore = false) {
 
 function displayNextBatch() {
     const resultsDiv = $('#npi-lookup-results');
+
+    // Remove loading indicator
+    $('.npi-loading').remove();
+    
     const startIdx = displayOffset;
     const endIdx = Math.min(displayOffset + 50, allResults.length);
     const batch = allResults.slice(startIdx, endIdx);
@@ -226,9 +230,6 @@ function displayNextBatch() {
         html += `<div style="padding: 10px;">
             <h6>Select a Provider (${jsText(totalResultCount)} total results)</h6>
         </div>`;
-    } else {
-        // Remove loading indicator
-        $('.npi-loading').remove();
     }
 
     // Add results
@@ -271,23 +272,23 @@ function displayNextBatch() {
  function displayNPIResults(data, append = false) {
      const resultsDiv = $('#npi-lookup-results');
 
-     // Always remove any loading spinner first
+     // ALWAYS remove loading spinner first, regardless of append mode
      $('.npi-loading').remove();
 
      if (!data.results || data.results.length === 0) {
-                if (!append) {
-         resultsDiv.html('<div class="npi-error">' + <?php echo xlj('No results found'); ?> + '</div>');
-         setTimeout(() => resultsDiv.hide(), 3000);
-                }
-         return;
+        if (!append) {
+            resultsDiv.html('<div class="npi-error">' + <?php echo xlj('No results found'); ?> + '</div>');
+            setTimeout(() => resultsDiv.hide(), 3000);
+        }
+        return;
      }
 
      let html = '';
 
      if (!append) {
-html += `<div style="padding: 10px;">
+         html += `<div style="padding: 10px;">
             <h6>Select a Provider (${jsText(data.result_count)} total results, showing ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
-        </div>`;
+            </div>`;
      }
 
      data.results.forEach(result => {
