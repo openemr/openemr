@@ -19,7 +19,6 @@
     "MCRYPT_RIJNDAEL_256",
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
-    "OpenApi\\Generator",
     "OpenEMR\\Common\\Auth\\u2flib_server\\Error",
     "OpenEMR\\Common\\Http\\UploadedFile",
     "OpenEMR\\Common\\Utils\\Error",
