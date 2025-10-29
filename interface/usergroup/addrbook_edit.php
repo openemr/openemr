@@ -224,7 +224,7 @@ function displayNextBatch() {
     if (displayOffset === 0) {
         // First display - show header
         html += `<div style="padding: 10px;">
-            <h6>Select a Provider (${totalResultCount} total results)</h6>
+            <h6>Select a Provider (${jsText(totalResultCount)} total results)</h6>
         </div>`;
     } else {
         // Remove loading indicator
@@ -241,11 +241,11 @@ function displayNextBatch() {
                      `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
 
         html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
-            <h6>${name}</h6>
+            <h6>${jsText(name)}</h6>
             <div class="text-muted">
-                <strong>NPI:</strong> ${result.number}<br>
-                ${taxonomy ? '<strong>Specialty:</strong> ' + taxonomy.desc + '<br>' : ''}
-                ${addr ? '<strong>Address:</strong> ' + addr.address_1 + ', ' + addr.city + ', ' + addr.state + ' ' + addr.postal_code : ''}
+                <strong>NPI:</strong> ${jsText(result.number)}<br>
+                ${taxonomy ? '<strong>Specialty:</strong> ' + jsText(taxonomy.desc) + '<br>' : ''}
+                ${addr ? '<strong>Address:</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
             </div>
         </div>`;
     });
@@ -256,7 +256,7 @@ function displayNextBatch() {
     if (displayOffset < allResults.length || displayOffset < totalResultCount) {
         html += `<div style="padding: 10px; text-align: center;">
             <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
-                Load More Results (showing ${displayOffset} of ${totalResultCount})
+                Load More Results (showing ${jsText(displayOffset)} of ${jsText(totalResultCount)})
             </button>
         </div>`;
     }
@@ -271,6 +271,9 @@ function displayNextBatch() {
  function displayNPIResults(data, append = false) {
      const resultsDiv = $('#npi-lookup-results');
 
+     // Always remove any loading spinner first
+     $('.npi-loading').remove();
+
      if (!data.results || data.results.length === 0) {
                 if (!append) {
          resultsDiv.html('<div class="npi-error">' + <?php echo xlj('No results found'); ?> + '</div>');
@@ -283,11 +286,8 @@ function displayNextBatch() {
 
      if (!append) {
 html += `<div style="padding: 10px;">
-            <h6>Select a Provider (${data.result_count} total results, showing ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
+            <h6>Select a Provider (${jsText(data.result_count)} total results, showing ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
         </div>`;
-     } else {
-        // Remove loading indicator
-        $('.npi-loading').remove();
      }
 
      data.results.forEach(result => {
@@ -301,11 +301,11 @@ html += `<div style="padding: 10px;">
                       `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
 
          html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
-             <h6>${name}</h6>
+             <h6>${jsText(name)}</h6>
              <div class="text-muted">
-                 <strong>NPI:</strong> ${result.number}<br>
-                 ${taxonomy ? '<strong>Specialty:</strong> ' + taxonomy.desc + '<br>' : ''}
-                 ${addr ? '<strong>Address:</strong> ' + addr.address_1 + ', ' + addr.city + ', ' + addr.state + ' ' + addr.postal_code : ''}
+                 <strong>NPI:</strong> ${jsText(result.number)}<br>
+                 ${taxonomy ? '<strong>Specialty:</strong> ' + jsText(taxonomy.desc) + '<br>' : ''}
+                 ${addr ? '<strong>Address:</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
              </div>
          </div>`;
      });
