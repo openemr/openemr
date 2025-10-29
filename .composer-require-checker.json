@@ -7,8 +7,6 @@
     "Carecoordination\\Model\\CarecoordinationTable",
     "FPDF_FONTPATH",
     "GenericProductRegistrationException",
-    "Http\\Message\\Encoding\\GzipDecodeStream",
-    "Http\\Message\\Encoding\\GzipEncodeStream",
     "IS_WINDOWS",
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
