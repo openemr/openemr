@@ -106,6 +106,7 @@
         "symfony/finder": "6.4.24",
         "symfony/http-client": "6.4.26",
         "symfony/http-foundation": "6.4.26",
+        "symfony/http-kernel": "^7.2",
         "symfony/psr-http-message-bridge": "6.4.24",
         "symfony/yaml": "6.4.26",
         "twig/twig": "3.21.1",
