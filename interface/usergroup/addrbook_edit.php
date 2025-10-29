@@ -141,74 +141,165 @@ function invalue($name)
   }
  }
 
- // NPI Lookup Functions
- function lookupNPI() {
-     const npi = $('#form_npi').val().trim();
-     const firstName = $('#form_fname').val().trim();
-     const lastName = $('#form_lname').val().trim();
-     const organization = $('#form_organization').val().trim();
-     
-     if (!npi && !lastName && !organization) {
-         alert(<?php echo xlj('Please enter an NPI number, last name, or organization name to search'); ?>);
-         return;
-     }
-     
-     // Build query parameters for our PHP proxy
-     let queryParams = [];
-     queryParams.push('csrf_token=' + encodeURIComponent(<?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>));
-     if (npi) queryParams.push('number=' + encodeURIComponent(npi));
-     if (firstName) queryParams.push('first_name=' + encodeURIComponent(firstName));
-     if (lastName) queryParams.push('last_name=' + encodeURIComponent(lastName));
-     if (organization) queryParams.push('organization_name=' + encodeURIComponent(organization));
-     queryParams.push('limit=10');
-     
-     // Use our PHP proxy instead of direct API call
-     const proxyUrl = 'npi_lookup.php?' + queryParams.join('&');
-     
-     // Show loading state
+let lastSearchParams = {};
+let allResults = []; // Store all fetched results
+let displayOffset = 0; // Track what we've shown to user
+let totalResultCount = 0;
+
+function lookupNPI(loadMore = false) {
+    const npi = $('#form_npi').val().trim();
+    const firstName = $('#form_fname').val().trim();
+    const lastName = $('#form_lname').val().trim();
+    const organization = $('#form_organization').val().trim();
+
+    if (!npi && !lastName && !organization) {
+        alert('Please enter search criteria');
+        return;
+    }
+
+    // Reset if new search
+    if (!loadMore) {
+        currentSkip = 0;
+        displayOffset = 0;
+        allResults = [];
+        lastSearchParams = { npi, firstName, lastName, organization };
+    }
+
+    // Check if we need to fetch more from API or just display cached results
+    if (displayOffset < allResults.length) {
+        // We have cached results, just display next 50
+        displayNextBatch();
+        return;
+    }
+
+    // Need to fetch more from NPPES
+    let queryParams = [];
+    queryParams.push('csrf_token=' + encodeURIComponent(<?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>));
+    if (npi) queryParams.push('number=' + encodeURIComponent(npi));
+    if (firstName) queryParams.push('first_name=' + encodeURIComponent(firstName));
+    if (lastName) queryParams.push('last_name=' + encodeURIComponent(lastName));
+    if (organization) {
+        queryParams.push('organization_name=' + encodeURIComponent(organization + '*'));
+        queryParams.push('enumeration_type=NPI-2'); // Filter for organizations only
+    }
+    queryParams.push('limit=200'); // Request 200 from NPPES
+    queryParams.push('skip=' + currentSkip);
+
+    const proxyUrl = 'npi_lookup.php?' + queryParams.join('&');
+    const resultsDiv = $('#npi-lookup-results');
+
+    if (loadMore) {
+        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i> Loading more...</div>');
+    } else {
+        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i> Searching...</div>');
+    }
+
+    fetch(proxyUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) throw new Error(data.error);
+
+            // Store the new results
+            allResults = allResults.concat(data.results);
+            totalResultCount = data.result_count;
+            currentSkip += 200; // Move API skip forward by 200
+
+            // Display first 50 of the new batch
+            displayNextBatch();
+        })
+        .catch(error => {
+            $('.npi-loading').remove();
+            resultsDiv.html('<div class="npi-error">Error: ' + error.message + '</div>');
+        });
+}
+
+function displayNextBatch() {
+    const resultsDiv = $('#npi-lookup-results');
+    const startIdx = displayOffset;
+    const endIdx = Math.min(displayOffset + 50, allResults.length);
+    const batch = allResults.slice(startIdx, endIdx);
+
+    let html = '';
+
+    if (displayOffset === 0) {
+        // First display - show header
+        html += `<div style="padding: 10px;">
+            <h6>Select a Provider (${totalResultCount} total results)</h6>
+        </div>`;
+    } else {
+        // Remove loading indicator
+        $('.npi-loading').remove();
+    }
+
+    // Add results
+    batch.forEach(result => {
+        const basic = result.basic;
+        const addr = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
+        const taxonomy = result.taxonomies?.[0];
+        const isOrg = result.enumeration_type === 'NPI-2';
+        const name = isOrg ? basic.organization_name :
+                     `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
+
+        html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
+            <h6>${name}</h6>
+            <div class="text-muted">
+                <strong>NPI:</strong> ${result.number}<br>
+                ${taxonomy ? '<strong>Specialty:</strong> ' + taxonomy.desc + '<br>' : ''}
+                ${addr ? '<strong>Address:</strong> ' + addr.address_1 + ', ' + addr.city + ', ' + addr.state + ' ' + addr.postal_code : ''}
+            </div>
+        </div>`;
+    });
+
+    displayOffset = endIdx; // Update display offset
+
+    // Show Load More button if there are more results (either cached or on server)
+    if (displayOffset < allResults.length || displayOffset < totalResultCount) {
+        html += `<div style="padding: 10px; text-align: center;">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
+                Load More Results (showing ${displayOffset} of ${totalResultCount})
+            </button>
+        </div>`;
+    }
+
+    if (displayOffset === 50 && startIdx === 0) {
+        resultsDiv.html(html); // First display
+    } else {
+        resultsDiv.append(html); // Append to existing
+    }
+}
+
+ function displayNPIResults(data, append = false) {
      const resultsDiv = $('#npi-lookup-results');
-     resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i> ' + <?php echo xlj('Searching NPPES Registry...'); ?> + '</div>');
-     
-     // Make API call through our proxy
-     fetch(proxyUrl)
-         .then(response => {
-             if (!response.ok) {
-                 throw new Error('HTTP ' + response.status);
-             }
-             return response.json();
-         })
-         .then(data => {
-             if (data.error) {
-                 throw new Error(data.error);
-             }
-             displayNPIResults(data);
-         })
-         .catch(error => {
-             resultsDiv.html('<div class="npi-error">' + <?php echo xlj('Error connecting to NPPES Registry'); ?> + ': ' + error.message + '</div>');
-         });
- }
- 
- function displayNPIResults(data) {
-     const resultsDiv = $('#npi-lookup-results');
-     
+
      if (!data.results || data.results.length === 0) {
+                if (!append) {
          resultsDiv.html('<div class="npi-error">' + <?php echo xlj('No results found'); ?> + '</div>');
          setTimeout(() => resultsDiv.hide(), 3000);
+                }
          return;
      }
-     
-     let html = '<div style="padding: 10px;"><h6>' + <?php echo xlj('Select a Provider'); ?> + ' (' + data.result_count + ' ' + <?php echo xlj('results'); ?> + ')</h6></div>';
-     
+
+     let html = '';
+
+     if (!append) {
+html += `<div style="padding: 10px;">
+            <h6>Select a Provider (${data.result_count} total results, showing ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
+        </div>`;
+     } else {
+        // Remove loading indicator
+        $('.npi-loading').remove();
+     }
+
      data.results.forEach(result => {
          const basic = result.basic;
          const addr = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
          const taxonomy = result.taxonomies?.[0];
-         
+
          // Determine if individual or organization
          const isOrg = result.enumeration_type === 'NPI-2';
-         const name = isOrg ? basic.organization_name : 
+         const name = isOrg ? basic.organization_name :
                       `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
-         
+
          html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
              <h6>${name}</h6>
              <div class="text-muted">
@@ -218,20 +309,36 @@ function invalue($name)
              </div>
          </div>`;
      });
-     
-     resultsDiv.html(html);
+
+     // Load More button
+    if (data.result_count > currentSkip + data.results.length) {
+        html += `<div style="padding: 10px; text-align: center;">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
+                Load More Results
+            </button>
+        </div>`;
+    }
+
+    if (append) {
+        resultsDiv.append(html);
+    } else {
+        resultsDiv.html(html);
+    }
  }
- 
+
  function fillNPIData(result) {
      const basic = result.basic;
      const isOrg = result.enumeration_type === 'NPI-2';
      const location = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
      const mailing = result.addresses?.find(a => a.address_purpose === 'MAILING');
      const taxonomy = result.taxonomies?.[0];
-     
+
+     // Fill Type
+     $('#form_abook_type').val('external_provider');
+
      // Fill NPI
      $('#form_npi').val(result.number);
-     
+
      // Fill name fields based on type
      if (isOrg) {
          // Organization
@@ -250,13 +357,13 @@ function invalue($name)
          $('#form_suffix').val(basic.credential || '');
          $('#form_organization').val(basic.organization_name || '');
      }
-     
+
      // Fill taxonomy/specialty
      if (taxonomy) {
          $('#form_taxonomy').val(taxonomy.code || '');
          $('#form_specialty').val(taxonomy.desc || '');
      }
-     
+
      // Fill location address (main address)
      if (location) {
          $('#form_street').val(location.address_1 || '');
@@ -267,7 +374,7 @@ function invalue($name)
          $('#form_phonew1').val(location.telephone_number || '');
          $('#form_fax').val(location.fax_number || '');
      }
-     
+
      // Fill mailing address (alt address) if different
      if (mailing) {
          $('#form_street2').val(mailing.address_1 || '');
@@ -276,14 +383,14 @@ function invalue($name)
          $('#form_state2').val(mailing.state || '').trigger('change');
          $('#form_zip2').val(mailing.postal_code || '');
      }
-     
+
      // Hide results
      $('#npi-lookup-results').hide();
-     
+
      // Show success message
      alert(<?php echo xlj('Provider information populated from NPPES Registry'); ?>);
  }
- 
+
  // Close results when clicking outside
  $(document).click(function(e) {
      if (!$(e.target).closest('#npi-lookup-results, #btn-npi-lookup').length) {

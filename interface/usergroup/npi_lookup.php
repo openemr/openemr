@@ -14,7 +14,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 
@@ -70,7 +70,12 @@ if (!isset($queryParams['version'])) {
     $queryParams['version'] = '2.1';
 }
 if (!isset($queryParams['limit'])) {
-    $queryParams['limit'] = '10';
+    $queryParams['limit'] = '50'; // Default to 20 results
+}
+
+// Enforce maximum limit of 200 (NPPES API maximum)
+if (isset($queryParams['limit']) && $queryParams['limit'] > 200) {
+    $queryParams['limit'] = '200';
 }
 
 // API base URL (Guzzle will handle query parameters)
@@ -111,7 +116,6 @@ try {
         ]);
         exit;
     }
-
 } catch (ConnectException $e) {
     // Connection/network errors
     error_log("NPI Lookup Connection Error: " . $e->getMessage());
@@ -121,7 +125,6 @@ try {
         'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Connection error'
     ]);
     exit;
-
 } catch (RequestException $e) {
     // HTTP errors (4xx, 5xx)
     $statusCode = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500;
@@ -136,7 +139,6 @@ try {
         'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Registry error'
     ]);
     exit;
-
 } catch (\Exception $e) {
     // Other errors
     error_log("NPI Lookup Error: " . $e->getMessage());
