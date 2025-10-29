@@ -4453,6 +4453,18 @@ if ($refresh and $refresh != 'fullscreen') {
             <?php
         }
         ?>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('dblclick', function(event) {
+                const target = event.target;
+                // Only for textarea or text input (skip elements with class 'skip-template-editor')
+                if (target.matches('textarea') || (target.matches('input[type="text"]') && !target.classList.contains('skip-template-editor'))) {
+                    let context = target.nodeName === 'TEXTAREA' ? target.dataset.textcontext || '' : 'Sentence';
+                    // Call the same CustomTemplateApi function
+                    doTemplateEditor(target, event, context);
+                }
+            });
+        });
     </script>
   </body>
 </html>
