@@ -31,7 +31,7 @@ if (!$thisauth) {
 $defaultLangID = 3;
 
 $sqlLanguages = "SELECT *, lang_description as trans_lang_description FROM lang_languages ORDER BY lang_id";
-$resLanguages = SqlStatement($sqlLanguages);
+$resLanguages = sqlStatement($sqlLanguages);
 $languages = [];
 while ($row = sqlFetchArray($resLanguages)) {
     array_push($languages, $row);
@@ -57,10 +57,10 @@ while ($row = sqlFetchArray($resLanguages)) {
                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                 "ld.lang_id = ? " .
                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-            $res = SqlStatement($sql, [$mainLangID]);
+            $res = sqlStatement($sql, [$mainLangID]);
             // collect the default selected language id, and then display list
             $tempLangID = $_POST['language_id'] ?? $mainLangID;
-            while ($row = SqlFetchArray($res)) {
+            while ($row = sqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
                     echo "<option value='" . attr($row['lang_id']) . "' selected>" .
                         text($row['lang_description']) . "</option>";
