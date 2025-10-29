@@ -18,11 +18,13 @@ class ADODB_mysqli_log extends ADODB_mysqli
     /**
      * ADODB Execute function wrapper to ensure proper auditing in OpenEMR.
      *
-     * @param  string  $sql         query
-     * @param  array   $inputarr    binded variables array (optional)
-     * @return boolean              returns false if error
+     * @param string     $sql      SQL statement to execute, or possibly an array
+     *                             holding prepared statement ($sql[0] will hold sql text)
+     * @param array|bool $inputarr holds the input data to bind to.
+     *                             Null elements will be set to null.
+     * @return ADORecordSet|ADORecordSet_empty|false
      */
-    function Execute($sql, $inputarr = false, $insertNeedReturn = false)
+    function Execute($sql, $inputarr = false, $insertNeedReturn = false): ADORecordSet|ADORecordSet_empty|false
     {
         $retval = parent::Execute($sql, $inputarr);
         if ($retval === false) {
@@ -53,9 +55,9 @@ class ADODB_mysqli_log extends ADODB_mysqli
      *
      * @param  string  $sql         query
      * @param  array   $inputarr    binded variables array (optional)
-     * @return boolean              returns false if error
+     * @return ADORecordSet|ADORecordSet_empty|false
      */
-    function ExecuteNoLog($sql, $inputarr = false)
+    function ExecuteNoLog($sql, $inputarr = false): ADORecordSet|ADORecordSet_empty|false
     {
         return parent::Execute($sql, $inputarr);
     }
