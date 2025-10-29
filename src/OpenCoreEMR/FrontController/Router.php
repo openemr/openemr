@@ -12,7 +12,7 @@
  * @link      http://www.open-emr.org
  * @author    OpenCoreEMR, Inc.
  * @copyright Copyright (c) 2025 OpenCoreEMR, Inc.
- * @license   GPLv3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenCoreEMR\FrontController;
@@ -28,7 +28,7 @@ class Router
     {
         $this->baseDir = realpath($baseDir);
         // Ensure baseDir is valid
-        if ($this->baseDir === false || $this->baseDir === '') {
+        if (!$this->baseDir) {
             throw new \RuntimeException('Invalid base directory provided to Router');
         }
         $this->config = $config ?? new RouteConfig();
@@ -98,7 +98,7 @@ class Router
      */
     public function resolveTargetFile(): ?string
     {
-        $targetFile = realpath($this->baseDir . '/' . $this->route);
+        $targetFile = realpath($this->baseDir . DIRECTORY_SEPARATOR . $this->route);
 
         // Path traversal prevention
         if ($targetFile === false || !str_starts_with($targetFile, $this->baseDir . DIRECTORY_SEPARATOR)) {

@@ -36,25 +36,9 @@ class FrontControllerEvent extends Event
      */
     public const EVENT_LATE = 'front_controller.late';
 
-    /**
-     * FrontControllerEvent constructor.
-     *
-     * @param string $route The route being processed
-     * @param string $siteId The multisite identifier
-     * @param array $context Additional context data
-     */
     public function __construct(
-        /**
-         * The route being processed
-         */
         private readonly string $route = '',
-        /**
-         * The site ID (multisite identifier)
-         */
         private readonly string $siteId = 'default',
-        /**
-         * Context data for the event
-         */
         private array $context = []
     ) {
     }
@@ -93,9 +77,9 @@ class FrontControllerEvent extends Event
      * Set context data
      *
      * @param array $context
-     * @return FrontControllerEvent
+     * @return static
      */
-    public function setContext(array $context): FrontControllerEvent
+    public function setContext(array $context): static
     {
         $this->context = $context;
         return $this;
@@ -117,9 +101,9 @@ class FrontControllerEvent extends Event
      *
      * @param string $key
      * @param mixed $value
-     * @return FrontControllerEvent
+     * @return static
      */
-    public function setContextValue(string $key, $value): FrontControllerEvent
+    public function setContextValue(string $key, $value): static
     {
         $this->context[$key] = $value;
         return $this;

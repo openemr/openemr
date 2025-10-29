@@ -28,8 +28,6 @@
 // prevent UI redressing and set security headers
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
-Header("X-Content-Type-Options: nosniff");
-Header("X-XSS-Protection: 1; mode=block");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\Core\TemplatePageEvent;

@@ -12,7 +12,7 @@
  * @link      http://www.open-emr.org
  * @author    OpenCoreEMR, Inc.
  * @copyright Copyright (c) 2025 OpenCoreEMR, Inc.
- * @license   GPLv3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenCoreEMR\FrontController\Router;
@@ -21,11 +21,6 @@ use OpenEMR\Events\FrontController\FrontControllerEvent;
 use Dotenv\Dotenv;
 
 require_once __DIR__ . '/vendor/autoload.php';
-
-// Set security headers
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: SAMEORIGIN');
-header('X-XSS-Protection: 1; mode=block');
 
 // Load .env variables using Dotenv library
 $dotenv = Dotenv::createImmutable(__DIR__);
@@ -43,7 +38,7 @@ if ((getenv('OPENEMR_ENABLE_FRONT_CONTROLLER') ?: '0') !== '1') {
     }
 
     // Resolve and validate target file
-    $targetFile = __DIR__ . '/' . ltrim($route, '/');
+    $targetFile = __DIR__ . DIRECTORY_SEPARATOR . ltrim($route, '/');
 
     // Block .inc and .inc.php files even when front controller is disabled
     if (preg_match('/\.inc(?:\.php)?$/i', $route)) {
@@ -132,18 +127,23 @@ if ($targetFile === null) {
     exit('Not Found');
 }
 
-// Route to target file with error handling and shutdown function registration
-// Register shutdown function to dispatch late event even if target file exits early
-register_shutdown_function(function () use ($route, $router) {
+// Helper function to dispatch late event
+$dispatchLateEvent = function (array $context) use ($route, $router) {
     if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
-        $error = error_get_last();
-        $context = [
-            'completed_normally' => $error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR]),
-            'error' => $error,
-        ];
         $event = new FrontControllerEvent($route, $router->getSiteId(), $context);
         $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, FrontControllerEvent::EVENT_LATE);
     }
+};
+
+// Route to target file with error handling and shutdown function registration
+// Register shutdown function to dispatch late event even if target file exits early
+register_shutdown_function(function () use ($dispatchLateEvent) {
+    $error = error_get_last();
+    $context = [
+        'completed_normally' => $error === null || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR]),
+        'error' => $error,
+    ];
+    $dispatchLateEvent($context);
 });
 
 try {
@@ -152,14 +152,11 @@ try {
     // Log exception and dispatch late event with error context
     error_log("Front Controller: Exception in target file $targetFile: " . $e->getMessage());
 
-    if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
-        $context = [
-            'completed_normally' => false,
-            'exception' => $e,
-        ];
-        $event = new FrontControllerEvent($route, $router->getSiteId(), $context);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, FrontControllerEvent::EVENT_LATE);
-    }
+    $context = [
+        'completed_normally' => false,
+        'exception' => $e,
+    ];
+    $dispatchLateEvent($context);
 
     // Re-throw to preserve normal error handling
     throw $e;
