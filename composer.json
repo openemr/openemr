@@ -53,6 +53,7 @@
         "ezyang/htmlpurifier": "4.19.0",
         "google/apiclient": "2.18.4",
         "guzzlehttp/guzzle": "7.10.0",
+        "guzzlehttp/psr7": "^2.8",
         "html2text/html2text": "4.3.2",
         "kamermans/guzzle-oauth2-subscriber": "1.1.1",
         "knplabs/knp-snappy": "1.5.1",
