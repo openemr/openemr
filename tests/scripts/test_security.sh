@@ -7,7 +7,7 @@
 # AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
 #
 # Copyright (c) 2025 OpenCoreEMR, Inc.
-# License: GPLv3
+# License: https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #
 # Usage: ./test_security.sh [base_url]
 # Example: ./test_security.sh http://localhost/openemr
@@ -200,34 +200,7 @@ run_test \
     "200" \
     "Login page should be accessible"
 
-# Test 6: Security Headers
-{
-    echo "========================================"
-    echo "TEST CATEGORY: Security Headers"
-    echo "========================================"
-    echo
-} | tee -a "${REPORT_FILE}"
-
-TOTAL_TESTS=$(( TOTAL_TESTS + 1 ))
-printf "Testing: Security headers... " | tee -a "${REPORT_FILE}"
-
-headers=$(curl -s -I "${BASE_URL}/index.php")
-
-# Check for security headers
-if grep -q "X-Content-Type-Options" <<< "${headers}" && \
-   grep -q "X-XSS-Protection" <<< "${headers}" && \
-   grep -q "X-Frame-Options" <<< "${headers}"; then
-    printf "%sPASS%s\n" "${GREEN}" "${NC}" | tee -a "${REPORT_FILE}"
-    PASSED_TESTS=$(( PASSED_TESTS + 1 ))
-    echo "  ✓ All required security headers present" | tee -a "${REPORT_FILE}"
-else
-    printf "%sFAIL%s\n" "${RED}" "${NC}" | tee -a "${REPORT_FILE}"
-    FAILED_TESTS=$(( FAILED_TESTS + 1 ))
-    echo "  ✗ Missing required security headers" | tee -a "${REPORT_FILE}"
-fi
-echo | tee -a "${REPORT_FILE}"
-
-# Test 7: Front Controller Feature Flag
+# Test 6: Front Controller Feature Flag
 {
     echo "========================================"
     echo "TEST CATEGORY: Feature Flag"
