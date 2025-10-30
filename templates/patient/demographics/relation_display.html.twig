@@ -110,7 +110,7 @@
 
                 {# Telecoms Section #}
                 <div class="relation-section1">
-                    {% set telecom_table_id = 'telecoms_' ~ relatedPerson.contact_id %}
+                    {% set telecom_table_id = 'telecoms_' ~ relatedPerson.target_contact_id %}
                     {% include 'patient/demographics/telecom_display.html.twig' with {
                         'table_id': telecom_table_id,
                         'telecoms': relatedPerson.telecoms,
@@ -121,7 +121,7 @@
 
                 {# Addresses Section #}
                 <div class="relation-section2">
-                    {% set address_table_id = 'addresses_' ~ relatedPerson.contact_id %}
+                    {% set address_table_id = 'addresses_' ~ relatedPerson.target_contact_id %}
                     {% include 'patient/demographics/address_display.html.twig' with {
                         'table_id': address_table_id,
                         'addresses': relatedPerson.addresses,

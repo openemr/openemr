@@ -15,17 +15,18 @@
     .relation-card {
         border: 1px solid #dee2e6;
         border-radius: 0.25rem;
-        margin-bottom: 1rem;
+        margin: 0.5rem 0rem;
         background-color: #fff;
+
     }
     .relation-card-header {
         background-color: #f8f9fa;
-        padding: 0.75rem 1rem;
+        padding: 0.3rem 0.3rem;
         border-bottom: 1px solid #dee2e6;
         cursor: pointer;
     }
     .relation-card-body {
-        padding: 1rem;
+        padding: 0.8rem 2rem;
     }
 </style>
 
@@ -84,20 +85,30 @@
             <div class="relation-card">
                 <div class="relation-card-header" onclick="toggleRelationEdit(this)">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation mr-2"></i>
-                            <strong class="display_relations_name">{{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}</strong>
-                            {% if is_inactive %}
-                                <span class="badge badge-secondary ml-2">{{ 'Inactive'|xlt }}</span>
-                            {% endif %}
-                            {% if relatedPerson.birth_date %}
-                                <small class="text-muted">({{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }})</small>
-                            {% endif %}
-                            <br>
-                            <small class="text-muted ml-4 display_relations_relationship">
-                                {{ relatedPerson.relationship|text }}
-                                {% if relatedPerson.role %} - {{ relatedPerson.role|text }}{% endif %}
-                            </small>
+                        <div class="display_related_person form-row">
+
+                            <div class="col-2;">
+                                <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;">
+                                    {{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}
+                                    {% if is_inactive %}
+                                        <span class="badge badge-secondary ml-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_relationship">
+                                    {{ list_relationships[relatedPerson.relationship]|text }}
+                                    {% if relatedPerson.role %} - {{ list_roles[relatedPerson.role]|text }}{% endif %}
+                                </small>
+                            </div>
+
+                            <div class="col-2;">
+                                {% if relatedPerson.birth_date %}
+                                <small class="text-muted">{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}</small>
+                                {% endif %}
+                            </div>
                         </div>
                         <div>
                             <span class="display_relations_badges">
@@ -123,7 +134,7 @@
 
                 <div class='d-none form_relations relation-card-body'>
                     {% include 'patient/demographics/relation_form_fields.html.twig' with {
-                        'relation': relation,
+                        'relatedPerson': relatedPerson,
                         'is_new': false
                     } %}
                 </div>
@@ -177,7 +188,7 @@
 
             <div class='form_relations relation-card-body'>
                 {% include 'patient/demographics/relation_form_fields.html.twig' with {
-                    'relation': {
+                    'relatedPerson': {
                         'relationship': '',
                         'role': '',
                         'contact_priority': 1,

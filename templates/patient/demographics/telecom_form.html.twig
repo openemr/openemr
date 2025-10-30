@@ -86,6 +86,8 @@
             <div class='d-none form_telecoms form-row mx-3 my-2'>
                 {% include 'patient/demographics/telecom_form_fields.html.twig' with {
                     'telecom': telecom,
+                    'field_id_esc': field_id_esc ~ '[telecoms]',
+                    'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
                     'is_new': false
                 } %}
             </div>
@@ -129,8 +131,10 @@
                     'system': 'phone',
                     'use': 'home',
                     'rank': 1,
-                    'period_start': 'now'|date('Y-m-d')
+                    'period_start': 'now'|date('Y-m-d'),
                 },
+                'field_id_esc': field_id_esc ~ '[telecoms]',
+                'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
                 'is_new': true
             } %}
         </div>

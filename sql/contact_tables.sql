@@ -30,10 +30,13 @@ DROP TABLE IF EXISTS `contact_address`;
     `notes` TINYTEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `period_start` DATETIME NULL COMMENT 'Date the address became active',
     `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
     `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
     PRIMARY KEY (`id`),
     KEY (`contact_id`),
     KEY (`address_id`),
@@ -70,14 +73,17 @@ DROP TABLE IF EXISTS `contact_telecom`;
     `use` VARCHAR(255) NULL
     	COMMENT 'FK to list_options.option_id for list_id telecom-uses [home, work, temp, old, mobile]',
     `value` varchar(255) default NULL,
-    `notes` TINYTEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `notes` TINYTEXT,
     `period_start` DATETIME NULL COMMENT 'Date the telecom became active',
     `period_end` DATETIME NULL COMMENT 'Date the telecom became deactivated',
     `inactivated_reason` VARCHAR(45) DEFAULT NULL COMMENT '[Values: ???, etc]',
-    PRIMARY KEY (`id`),
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+   PRIMARY KEY (`id`),
     KEY (`contact_id`)
 ) ENGINE = InnoDB ;
 
@@ -137,6 +143,10 @@ CREATE TABLE `contact_relation` (
     `start_date` DATE,
     `end_date` DATE,
     `notes` TEXT,
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
    PRIMARY KEY (`id`),
    KEY (`contact_id`),
    INDEX idx_contact_target_table (target_table, target_id);
@@ -154,8 +164,6 @@ CREATE TABLE `person_patient_link` (
     `link_method` VARCHAR(50) DEFAULT 'manual' COMMENT 'How link was created: manual, auto_detected, migrated, import',
     `notes` TEXT COMMENT 'Optional notes about why/how they were linked',
     `active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Whether link is active (allows soft delete)',
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_active_link` (`person_id`, `patient_id`, `active`),
     CONSTRAINT `fk_ppl_person` FOREIGN KEY (`person_id`)
@@ -317,11 +325,8 @@ VALUES
     ('related_person-relationship','SONINLAW','son in-law',1010,0,1),
 
     -- Legal/Guardian Relationships
-    -- ('related_person-relationship','GUARD','guardian',1020,0,1),
     -- ('related_person-relationship','GUADLTM','guardian ad lidem',1030,0,1),
-    -- ('related_person-relationship','POWATT','power of attorney',1040,0,1),
     -- ('related_person-relationship','SPOWATT','special power of attorney',1050,0,1),
-    -- ('related_person-relationship','HPOWATT','healthcare power of attorney',1060,0,1),
 
     -- Other Relationships
     ('related_person-relationship','FRND','unrelated friend',1070,0,1),
