@@ -108,6 +108,7 @@
         "symfony/console": "6.4.26",
         "symfony/dependency-injection": "6.4.26",
         "symfony/event-dispatcher": "6.4.25",
+        "symfony/event-dispatcher-contracts": "^3.6",
         "symfony/filesystem": "6.4.24",
         "symfony/finder": "6.4.24",
         "symfony/http-client": "6.4.26",

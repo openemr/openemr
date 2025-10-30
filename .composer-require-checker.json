@@ -32,8 +32,6 @@
     "SebastianBergmann\\CodeCoverage\\Report\\PHP",
     "SebastianBergmann\\FileIterator\\Facade",
     "Symfony\\Component\\Debug\\ExceptionHandler",
-    "Symfony\\Contracts\\EventDispatcher\\Event",
-    "Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface",
     "addForm",
     "addPnote",
     "areCredentialsCreated",
