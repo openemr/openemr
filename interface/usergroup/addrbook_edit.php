@@ -143,19 +143,20 @@ function invalue($name)
   }
  }
 
-let lastSearchParams = {};
-let allResults = []; // Store all fetched results
-let displayOffset = 0; // Track what we've shown to user
-let totalResultCount = 0;
+    let lastSearchParams = {};
+    let allResults = []; // Store all fetched results
+    let displayOffset = 0; // Track what we've shown to user
+    let totalResultCount = 0;
+    let limit = 200; // max available from NPPES
 
-function lookupNPI(loadMore = false) {
+    function lookupNPI(loadMore = false) {
     const npi = $('#form_npi').val().trim();
     const firstName = $('#form_fname').val().trim();
     const lastName = $('#form_lname').val().trim();
     const organization = $('#form_organization').val().trim();
 
     if (!npi && !lastName && !organization) {
-        alert('Please enter search criteria');
+        alert(xlj('Please enter search criteria'));
         return;
     }
 
@@ -169,237 +170,238 @@ function lookupNPI(loadMore = false) {
 
     // Check if we need to fetch more from API or just display cached results
     if (displayOffset < allResults.length) {
-        // We have cached results, just display next 50
+        // We have cached results, just display next
         displayNextBatch();
         return;
     }
 
-    // Need to fetch more from NPPES
+    // Need to fetch more
     let queryParams = [];
     queryParams.push('csrf_token=' + encodeURIComponent(<?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>));
     if (npi) queryParams.push('number=' + encodeURIComponent(npi));
-    if (firstName) queryParams.push('first_name=' + encodeURIComponent(firstName));
-    if (lastName) queryParams.push('last_name=' + encodeURIComponent(lastName));
+    if (firstName) queryParams.push('first_name=' + encodeURIComponent(firstName + '*'));
+    if (lastName) queryParams.push('last_name=' + encodeURIComponent(lastName + '*'));
     if (organization) {
         queryParams.push('organization_name=' + encodeURIComponent(organization + '*'));
         queryParams.push('enumeration_type=NPI-2'); // Filter for organizations only
     }
-    queryParams.push('limit=200'); // Request 200 from NPPES
+    queryParams.push('limit=' + limit);
     queryParams.push('skip=' + currentSkip);
 
     const proxyUrl = 'npi_lookup.php?' + queryParams.join('&');
     const resultsDiv = $('#npi-lookup-results');
 
     if (loadMore) {
-        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i> Loading more...</div>');
+        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + <?php echo xlj("Loading more ..."); ?> + '</div>');
     } else {
-        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i> Searching...</div>');
+        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + <?php echo xlj("Searching..."); ?> + '</div>');
+
     }
 
-    fetch(proxyUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) throw new Error(data.error);
+        fetch(proxyUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
 
-            // Store the new results
-            allResults = allResults.concat(data.results);
-            totalResultCount = data.result_count;
-            currentSkip += 200; // Move API skip forward by 200
+                // Store the new results
+                allResults = allResults.concat(data.results);
+                totalResultCount = data.result_count;
+                currentSkip += 200; // Move API skip forward by 200
 
-            // Display first 50 of the new batch
-            displayNextBatch();
-        })
-        .catch(error => {
-            $('.npi-loading').remove();
-            resultsDiv.html('<div class="npi-error">Error: ' + error.message + '</div>');
+                // Display first results of the new batch
+                displayNextBatch();
+            })
+            .catch(error => {
+                $('.npi-loading').remove();
+                resultsDiv.html('<div class="npi-error">' + jsText(xl("Error")) + ': ' + jsText(xl(error.message)) + '</div>');
+            });
+    }
+
+    function displayNextBatch() {
+        const resultsDiv = $('#npi-lookup-results');
+
+        // Remove loading indicator
+        $('.npi-loading').remove();
+
+        const startIdx = displayOffset;
+        const endIdx = Math.min(displayOffset + 50, allResults.length);
+        const batch = allResults.slice(startIdx, endIdx);
+
+        let html = '';
+
+        if (displayOffset === 0) {
+            // First display - show header
+            html += `<div style="padding: 10px;">
+                <h6>` + jsText(xl("Select a Provider ")) + `(${jsText(totalResultCount)}` + jsText(xl(" total results")) + `)</h6>
+            </div>`;
+        }
+
+        // Add results
+        batch.forEach(result => {
+            const basic = result.basic;
+            const addr = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
+            const taxonomy = result.taxonomies?.[0];
+            const isOrg = result.enumeration_type === 'NPI-2';
+            const name = isOrg ? basic.organization_name :
+                            `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
+
+            html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
+                <h6>${jsText(name)}</h6>
+                <div class="text-muted">
+                    <strong>` + jsText(xl('NPI')) + ':' + `</strong> ${jsText(result.number)}<br>
+                    ${taxonomy ? '<strong>' + jsText(xl('Specialty')) + ':</strong> ' + jsText(xl(taxonomy.desc)) + '<br>' : ''}
+                    ${addr ? '<strong>' + jsText(xl('Address')) + ':</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
+                </div>
+            </div>`;
         });
-}
 
-function displayNextBatch() {
-    const resultsDiv = $('#npi-lookup-results');
+        displayOffset = endIdx; // Update display offset
 
-    // Remove loading indicator
-    $('.npi-loading').remove();
+        // Show Load More button if there are more results (either cached or on server)
+        if (displayOffset < allResults.length || displayOffset < totalResultCount) {
+            html += `<div style="padding: 10px; text-align: center;">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">`
+                    + jsText(xl('Load More Results')) + ' (' + jsText(xl('showing ')) + `${jsText(displayOffset)}` + jsText(xl(' of ')) +  `${jsText(totalResultCount)})
+                </button>
+            </div>`;
+        }
 
-    const startIdx = displayOffset;
-    const endIdx = Math.min(displayOffset + 50, allResults.length);
-    const batch = allResults.slice(startIdx, endIdx);
-
-    let html = '';
-
-    if (displayOffset === 0) {
-        // First display - show header
-        html += `<div style="padding: 10px;">
-            <h6>Select a Provider (${jsText(totalResultCount)} total results)</h6>
-        </div>`;
+        if (displayOffset === 50 && startIdx === 0) {
+            resultsDiv.html(html); // First display
+        } else {
+            resultsDiv.append(html); // Append to existing
+        }
     }
 
-    // Add results
-    batch.forEach(result => {
-        const basic = result.basic;
-        const addr = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
-        const taxonomy = result.taxonomies?.[0];
-        const isOrg = result.enumeration_type === 'NPI-2';
-        const name = isOrg ? basic.organization_name :
-                     `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
+    function displayNPIResults(data, append = false) {
+        const resultsDiv = $('#npi-lookup-results');
 
-        html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
-            <h6>${jsText(name)}</h6>
-            <div class="text-muted">
-                <strong>NPI:</strong> ${jsText(result.number)}<br>
-                ${taxonomy ? '<strong>Specialty:</strong> ' + jsText(taxonomy.desc) + '<br>' : ''}
-                ${addr ? '<strong>Address:</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
-            </div>
-        </div>`;
-    });
+        // ALWAYS remove loading spinner first, regardless of append mode
+        $('.npi-loading').remove();
 
-    displayOffset = endIdx; // Update display offset
-
-    // Show Load More button if there are more results (either cached or on server)
-    if (displayOffset < allResults.length || displayOffset < totalResultCount) {
-        html += `<div style="padding: 10px; text-align: center;">
-            <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
-                Load More Results (showing ${jsText(displayOffset)} of ${jsText(totalResultCount)})
-            </button>
-        </div>`;
-    }
-
-    if (displayOffset === 50 && startIdx === 0) {
-        resultsDiv.html(html); // First display
-    } else {
-        resultsDiv.append(html); // Append to existing
-    }
-}
-
- function displayNPIResults(data, append = false) {
-     const resultsDiv = $('#npi-lookup-results');
-
-     // ALWAYS remove loading spinner first, regardless of append mode
-     $('.npi-loading').remove();
-
-     if (!data.results || data.results.length === 0) {
+        if (!data.results || data.results.length === 0) {
         if (!append) {
-            resultsDiv.html('<div class="npi-error">' + <?php echo xlj('No results found'); ?> + '</div>');
+            resultsDiv.html('<div class="npi-error">' + jsText(xl('No results found')) + '</div>');
             setTimeout(() => resultsDiv.hide(), 3000);
         }
         return;
-     }
+        }
 
-     let html = '';
+        let html = '';
 
-     if (!append) {
-         html += `<div style="padding: 10px;">
-            <h6>Select a Provider (${jsText(data.result_count)} total results, showing ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
+        if (!append) {
+            html += `<div style="padding: 10px;">
+            <h6>` + jsText(xl('Select a Provider ')) + `(${jsText(data.result_count)}` + jsText(xl(' total results ')) + ', ' + jsText(xl('showing ')) + `${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
             </div>`;
-     }
+        }
 
-     data.results.forEach(result => {
-         const basic = result.basic;
-         const addr = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
-         const taxonomy = result.taxonomies?.[0];
+        data.results.forEach(result => {
+            const basic = result.basic;
+            const addr = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
+            const taxonomy = result.taxonomies?.[0];
 
-         // Determine if individual or organization
-         const isOrg = result.enumeration_type === 'NPI-2';
-         const name = isOrg ? basic.organization_name :
-                      `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
+            // Determine if individual or organization
+            const isOrg = result.enumeration_type === 'NPI-2';
+            const name = isOrg ? basic.organization_name :
+                        `${basic.first_name || ''} ${basic.middle_name || ''} ${basic.last_name || ''}`.trim();
 
-         html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
-             <h6>${jsText(name)}</h6>
-             <div class="text-muted">
-                 <strong>NPI:</strong> ${jsText(result.number)}<br>
-                 ${taxonomy ? '<strong>Specialty:</strong> ' + jsText(taxonomy.desc) + '<br>' : ''}
-                 ${addr ? '<strong>Address:</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
-             </div>
-         </div>`;
-     });
+            html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
+                <h6>${jsText(name)}</h6>
+                <div class="text-muted">
+                    <strong>NPI:</strong> ${jsText(result.number)}<br>
+                    ${taxonomy ? '<strong>Specialty:</strong> ' + jsText(taxonomy.desc) + '<br>' : ''}
+                    ${addr ? '<strong>Address:</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
+                </div>
+            </div>`;
+        });
 
-     // Load More button
-    if (data.result_count > currentSkip + data.results.length) {
-        html += `<div style="padding: 10px; text-align: center;">
-            <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
-                Load More Results
-            </button>
-        </div>`;
+        // Load More button
+        if (data.result_count > currentSkip + data.results.length) {
+            html += `<div style="padding: 10px; text-align: center;">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">`
+                    + jsText(xl('Load More Results')) +
+                `</button>
+            </div>`;
+        }
+
+        if (append) {
+            resultsDiv.append(html);
+        } else {
+            resultsDiv.html(html);
+        }
     }
 
-    if (append) {
-        resultsDiv.append(html);
-    } else {
-        resultsDiv.html(html);
+    function fillNPIData(result) {
+        const basic = result.basic;
+        const isOrg = result.enumeration_type === 'NPI-2';
+        const location = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
+        const mailing = result.addresses?.find(a => a.address_purpose === 'MAILING');
+        const taxonomy = result.taxonomies?.[0];
+
+        // Fill Type
+        $('#form_abook_type').val('external_provider');
+
+        // Fill NPI
+        $('#form_npi').val(result.number);
+
+        // Fill name fields based on type
+        if (isOrg) {
+            // Organization
+            $('#form_organization').val(basic.organization_name || '');
+            if (basic.authorized_official_first_name) {
+                $('#form_director_fname').val(basic.authorized_official_first_name);
+                $('#form_director_lname').val(basic.authorized_official_last_name);
+                $('#form_director_mname').val(basic.authorized_official_middle_name || '');
+                $('#form_director_title').val(basic.authorized_official_title_or_position || '');
+            }
+        } else {
+            // Individual
+            $('#form_fname').val(basic.first_name || '');
+            $('#form_lname').val(basic.last_name || '');
+            $('#form_mname').val(basic.middle_name || '');
+            $('#form_suffix').val(basic.credential || '');
+            $('#form_organization').val(basic.organization_name || '');
+        }
+
+        // Fill taxonomy/specialty
+        if (taxonomy) {
+            $('#form_taxonomy').val(taxonomy.code || '');
+            $('#form_specialty').val(taxonomy.desc || '');
+        }
+
+        // Fill location address (main address)
+        if (location) {
+            $('#form_street').val(location.address_1 || '');
+            $('#form_streetb').val(location.address_2 || '');
+            $('#form_city').val(location.city || '');
+            $('#form_state').val(location.state || '').trigger('change');
+            $('#form_zip').val(location.postal_code || '');
+            $('#form_phonew1').val(location.telephone_number || '');
+            $('#form_fax').val(location.fax_number || '');
+        }
+
+        // Fill mailing address (alt address) if different
+        if (mailing) {
+            $('#form_street2').val(mailing.address_1 || '');
+            $('#form_streetb2').val(mailing.address_2 || '');
+            $('#form_city2').val(mailing.city || '');
+            $('#form_state2').val(mailing.state || '').trigger('change');
+            $('#form_zip2').val(mailing.postal_code || '');
+        }
+
+        // Hide results
+        $('#npi-lookup-results').hide();
+
+        // Show success message
+        alert(<?php echo xlj('Provider information populated from NPPES Registry'); ?>);
     }
- }
 
- function fillNPIData(result) {
-     const basic = result.basic;
-     const isOrg = result.enumeration_type === 'NPI-2';
-     const location = result.addresses?.find(a => a.address_purpose === 'LOCATION') || result.addresses?.[0];
-     const mailing = result.addresses?.find(a => a.address_purpose === 'MAILING');
-     const taxonomy = result.taxonomies?.[0];
-
-     // Fill Type
-     $('#form_abook_type').val('external_provider');
-
-     // Fill NPI
-     $('#form_npi').val(result.number);
-
-     // Fill name fields based on type
-     if (isOrg) {
-         // Organization
-         $('#form_organization').val(basic.organization_name || '');
-         if (basic.authorized_official_first_name) {
-             $('#form_director_fname').val(basic.authorized_official_first_name);
-             $('#form_director_lname').val(basic.authorized_official_last_name);
-             $('#form_director_mname').val(basic.authorized_official_middle_name || '');
-             $('#form_director_title').val(basic.authorized_official_title_or_position || '');
-         }
-     } else {
-         // Individual
-         $('#form_fname').val(basic.first_name || '');
-         $('#form_lname').val(basic.last_name || '');
-         $('#form_mname').val(basic.middle_name || '');
-         $('#form_suffix').val(basic.credential || '');
-         $('#form_organization').val(basic.organization_name || '');
-     }
-
-     // Fill taxonomy/specialty
-     if (taxonomy) {
-         $('#form_taxonomy').val(taxonomy.code || '');
-         $('#form_specialty').val(taxonomy.desc || '');
-     }
-
-     // Fill location address (main address)
-     if (location) {
-         $('#form_street').val(location.address_1 || '');
-         $('#form_streetb').val(location.address_2 || '');
-         $('#form_city').val(location.city || '');
-         $('#form_state').val(location.state || '').trigger('change');
-         $('#form_zip').val(location.postal_code || '');
-         $('#form_phonew1').val(location.telephone_number || '');
-         $('#form_fax').val(location.fax_number || '');
-     }
-
-     // Fill mailing address (alt address) if different
-     if (mailing) {
-         $('#form_street2').val(mailing.address_1 || '');
-         $('#form_streetb2').val(mailing.address_2 || '');
-         $('#form_city2').val(mailing.city || '');
-         $('#form_state2').val(mailing.state || '').trigger('change');
-         $('#form_zip2').val(mailing.postal_code || '');
-     }
-
-     // Hide results
-     $('#npi-lookup-results').hide();
-
-     // Show success message
-     alert(<?php echo xlj('Provider information populated from NPPES Registry'); ?>);
- }
-
- // Close results when clicking outside
- $(document).click(function(e) {
-     if (!$(e.target).closest('#npi-lookup-results, #btn-npi-lookup').length) {
-         $('#npi-lookup-results').hide();
-     }
- });
+    // Close results when clicking outside
+    $(document).click(function(e) {
+        if (!$(e.target).closest('#npi-lookup-results, #btn-npi-lookup').length) {
+            $('#npi-lookup-results').hide();
+        }
+    });
 </script>
 
 </head>
