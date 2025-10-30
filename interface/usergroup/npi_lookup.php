@@ -28,12 +28,12 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
 }
 
 // Verify CSRF token for security
-if (!empty($_GET['csrf_token'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token'])) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Invalid CSRF token']);
-        exit;
-    }
+if (
+    !CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '')
+){
+    http_response_code(403);
+    echo json_encode(['error' => 'Invalid CSRF token']);
+    exit;
 }
 
 // Set response header
@@ -63,7 +63,7 @@ $allowedParams = [
 // Filter and sanitize parameters
 foreach ($allowedParams as $param) {
     if (isset($_GET[$param]) && $_GET[$param] !== '') {
-        $queryParams[$param] = trim($_GET[$param]);
+        $queryParams[$param] = trim((string) $_GET[$param]);
     }
 }
 
@@ -72,7 +72,7 @@ if (!isset($queryParams['version'])) {
     $queryParams['version'] = '2.1';
 }
 if (!isset($queryParams['limit'])) {
-    $queryParams['limit'] = '50'; // Default to 20 results
+    $queryParams['limit'] = '20'; // Default to 20 results
 }
 
 // Enforce maximum limit of 200 (NPPES API maximum)
