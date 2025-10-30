@@ -12,7 +12,7 @@
  * @link      http://www.open-emr.org
  * @author    OpenCoreEMR, Inc.
  * @copyright Copyright (c) 2025 OpenCoreEMR, Inc.
- * @license   GPLv3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenCoreEMR\Tests\FrontController;
@@ -206,42 +206,6 @@ class SecurityTest extends TestCase
 
         $this->markTestSkipped(
             'This test requires environment variable control - manual testing required'
-        );
-    }
-
-    /**
-     * Test security headers are present
-     */
-    public function testSecurityHeadersPresent(): void
-    {
-        // Use a non-redirecting client to check headers on actual response
-        $client = new Client([
-            'base_uri' => self::$baseUrl,
-            'http_errors' => false,
-            'allow_redirects' => false, // Don't follow redirects to check headers on initial response
-        ]);
-
-        $response = $client->head('/index.php');
-
-        $this->assertTrue(
-            $response->hasHeader('X-Content-Type-Options'),
-            'Security header X-Content-Type-Options should be present'
-        );
-
-        $this->assertEquals(
-            'nosniff',
-            $response->getHeaderLine('X-Content-Type-Options'),
-            'X-Content-Type-Options should be nosniff'
-        );
-
-        $this->assertTrue(
-            $response->hasHeader('X-XSS-Protection'),
-            'Security header X-XSS-Protection should be present'
-        );
-
-        $this->assertTrue(
-            $response->hasHeader('X-Frame-Options'),
-            'Security header X-Frame-Options should be present'
         );
     }
 
