@@ -13,7 +13,6 @@
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
     "Laminas\\Config\\Reader\\Exception\\RuntimeException",
-    "Lcobucci\\Clock\\SystemClock",
     "MCRYPT_MODE_ECB",
     "MCRYPT_RAND",
     "MCRYPT_RIJNDAEL_256",
