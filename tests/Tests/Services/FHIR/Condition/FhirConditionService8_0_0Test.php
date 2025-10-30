@@ -20,9 +20,11 @@ use Monolog\Level;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
+use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
-use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 
@@ -47,9 +49,11 @@ class FhirConditionService8_0_0Test extends TestCase
     private FhirConditionEncounterDiagnosisService $encounterDiagnosisService;
 
     /**
-     * @var FhirConditionProblemsHealthConcernService
+     * @var FhirConditionProblemListItemService
      */
-    private FhirConditionProblemsHealthConcernService $problemsHealthConcernService;
+    private FhirConditionProblemListItemService $problemsService;
+
+    private FhirConditionHealthConcernService $healthConcernsService;
 
     /**
      * @var ConditionFixtureManager
@@ -62,8 +66,10 @@ class FhirConditionService8_0_0Test extends TestCase
         $this->fhirConditionService = new FhirConditionService();
         $this->encounterDiagnosisService = new FhirConditionEncounterDiagnosisService();
         $this->encounterDiagnosisService->setSystemLogger(new SystemLogger(Level::Critical));
-        $this->problemsHealthConcernService = new FhirConditionProblemsHealthConcernService();
-        $this->problemsHealthConcernService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->problemsService = new FhirConditionProblemListItemService();
+        $this->problemsService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->healthConcernsService = new FhirConditionHealthConcernService();
+        $this->healthConcernsService->setSystemLogger(new SystemLogger(Level::Critical));
         $this->fixtureManager = new ConditionFixtureManager();
     }
 
@@ -116,8 +122,8 @@ class FhirConditionService8_0_0Test extends TestCase
         ]);
 
         // Act
-        $supportsCategory = $this->problemsHealthConcernService->supportsCategory('problem-list-item');
-        $fhirCondition = $this->problemsHealthConcernService->parseOpenEMRRecord($conditionData);
+        $supportsCategory = $this->problemsService->supportsCategory('problem-list-item');
+        $fhirCondition = $this->problemsService->parseOpenEMRRecord($conditionData);
 
         // Assert
         $this->assertTrue($supportsCategory);
@@ -239,12 +245,11 @@ class FhirConditionService8_0_0Test extends TestCase
             $profileUris,
             'Encounter diagnosis profile should be supported'
         );
-        // TODO: @adunsulag when we bring in problems and health concerns, re-enable this test
-//        $this->assertContains(
-//            FhirConditionProblemsHealthConcernService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI,
-//            $profileUris,
-//            'Problems and health concerns profile should be supported'
-//        );
+        $this->assertContains(
+            FhirConditionHealthConcernService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI,
+            $profileUris,
+            'Problems and health concerns profile should be supported'
+        );
     }
 
     /**
@@ -283,7 +288,7 @@ class FhirConditionService8_0_0Test extends TestCase
         $conditionData = $this->fixtureManager->createTestCondition($patientData);
 
         // Act
-        $fhirCondition = $this->problemsHealthConcernService->parseOpenEMRRecord($conditionData);
+        $fhirCondition = $this->problemsService->parseOpenEMRRecord($conditionData);
 
         // Assert
         $meta = $fhirCondition->getMeta();
@@ -380,7 +385,7 @@ class FhirConditionService8_0_0Test extends TestCase
 
         // Act
         $encounterFhirCondition = $this->encounterDiagnosisService->parseOpenEMRRecord($encounterCondition);
-        $problemFhirCondition = $this->problemsHealthConcernService->parseOpenEMRRecord($problemCondition);
+        $problemFhirCondition = $this->problemsService->parseOpenEMRRecord($problemCondition);
 
         // Assert
         $encounterVerification = $encounterFhirCondition->getVerificationStatus()->getCoding()[0]->getCode();
@@ -418,7 +423,7 @@ class FhirConditionService8_0_0Test extends TestCase
     public function testBackwardsCompatibilityWith3_1_1Profile(): void
     {
         // Act
-        $profileUris = $this->problemsHealthConcernService->getProfileURIs();
+        $profileUris = $this->problemsService->getProfileURIs();
 
         // Assert - Should still support legacy 3.1.1 profile for backwards compatibility
         $this->assertContains(
@@ -435,13 +440,17 @@ class FhirConditionService8_0_0Test extends TestCase
     {
         // This would test the mapped service architecture's routing logic
         // The specific implementation would depend on how the main service delegates to sub-services
+        $this->assertFalse($this->encounterDiagnosisService->supportsCategory(FhirConditionCategory::HEALTH_CONCERNS->value));
+        $this->assertFalse($this->encounterDiagnosisService->supportsCategory(FhirConditionCategory::PROBLEM_LIST_ITEM->value));
+        $this->assertTrue($this->encounterDiagnosisService->supportsCategory(FhirConditionCategory::ENCOUNTER_DIAGNOSIS->value));
 
-        $this->assertTrue($this->encounterDiagnosisService->supportsCategory('encounter-diagnosis'));
-        $this->assertFalse($this->encounterDiagnosisService->supportsCategory('problem-list-item'));
+        $this->assertTrue($this->problemsService->supportsCategory(FhirConditionCategory::PROBLEM_LIST_ITEM->value));
+        $this->assertFalse($this->problemsService->supportsCategory(FhirConditionCategory::HEALTH_CONCERNS->value));
+        $this->assertFalse($this->problemsService->supportsCategory(FhirConditionCategory::ENCOUNTER_DIAGNOSIS->value));
 
-        $this->assertTrue($this->problemsHealthConcernService->supportsCategory('problem-list-item'));
-        $this->assertTrue($this->problemsHealthConcernService->supportsCategory('health-concern'));
-        $this->assertFalse($this->problemsHealthConcernService->supportsCategory('encounter-diagnosis'));
+        $this->assertFalse($this->healthConcernsService->supportsCategory(FhirConditionCategory::PROBLEM_LIST_ITEM->value));
+        $this->assertTrue($this->healthConcernsService->supportsCategory(FhirConditionCategory::HEALTH_CONCERNS->value));
+        $this->assertFalse($this->healthConcernsService->supportsCategory(FhirConditionCategory::ENCOUNTER_DIAGNOSIS->value));
     }
 
     /**

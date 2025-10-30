@@ -24,9 +24,12 @@ use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCategoryTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -38,7 +41,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirConditionProblemListItemService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+class FhirConditionHealthConcernService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
     use MappedServiceTrait;
@@ -51,6 +54,14 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
 
     const USCGI_PROFILE_URI_3_1_1 = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition';
     const USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns';
+
+    // Assessment condition categories for USCDI v4+
+    const CATEGORY_ASSESSMENT_CONDITION_SDOH = 'sdoh';
+    const CATEGORY_ASSESSMENT_CONDITION_FUNCTIONAL_STATUS = 'functional-status';
+    const CATEGORY_ASSESSMENT_CONDITION_DISABILITY_STATUS = 'disability-status';
+    const CATEGORY_ASSESSMENT_CONDITION_COGNITIVE_STATUS = 'cognitive-status';
+    const CATEGORY_ASSESSMENT_CONDITION_TREATMENT_INTERVENTION_STATUS = 'treatment-intervention-status';
+    const CATEGORY_ASSESSMENT_CONDITION_CARE_EXPERIENCE_PREFERENCE = 'care-experience-preference';
 
     const USCDI_PROFILE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns";
 
@@ -78,7 +89,13 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
     public function supportsCategory(string $category): bool
     {
         return in_array($category, [
-            self::CATEGORY_PROBLEM_LIST
+            self::CATEGORY_HEALTH_CONCERN,
+            self::CATEGORY_ASSESSMENT_CONDITION_SDOH,
+            self::CATEGORY_ASSESSMENT_CONDITION_FUNCTIONAL_STATUS,
+            self::CATEGORY_ASSESSMENT_CONDITION_DISABILITY_STATUS,
+            self::CATEGORY_ASSESSMENT_CONDITION_COGNITIVE_STATUS,
+            self::CATEGORY_ASSESSMENT_CONDITION_TREATMENT_INTERVENTION_STATUS,
+            self::CATEGORY_ASSESSMENT_CONDITION_CARE_EXPERIENCE_PREFERENCE
         ]);
     }
 
@@ -89,7 +106,7 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated_time']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['modifydate']);
     }
 
     protected function loadSearchParameters()
@@ -97,11 +114,9 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
         return [
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['diagnosis']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['subtype']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
-            'clinical-status' => new FhirSearchParameterDefinition('clinical-status', SearchFieldType::TOKEN, ['clinical_status']),
-            'verification-status' => new FhirSearchParameterDefinition('verification-status', SearchFieldType::TOKEN, ['verification_status']),
             'onset-date' => new FhirSearchParameterDefinition('onset-date', SearchFieldType::DATE, ['begdate'])
         ];
     }
@@ -115,16 +130,22 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        if (isset($openEMRSearchParameters['category'])) {
-            // there is no category field in the OpenEMR problem list items, so we'll remove the field to avoid confusion
-            // we should never get other categories here because the service is only mapped to the problem list category
-            unset($openEMRSearchParameters['category']);
+        // need to remove the health-concern category from the search parameters as we are only searching for health concerns in this service
+        // so we'll just search on subtype excluding problem-list-item
+        if (isset($openEMRSearchParameters['subtype'])) {
+            /**
+             * @var TokenSearchValue[] $values
+             */
+            $values = $openEMRSearchParameters['subtype']->getValues();
+            $filteredValues = array_filter($values, fn($value): bool => $value->getCode() !== self::CATEGORY_HEALTH_CONCERN);
+            if (!empty($filteredValues)) {
+                $openEMRSearchParameters['subtype'] = new TokenSearchField('subtype', $filteredValues);
+            } else {
+                unset($openEMRSearchParameters['subtype']);
+            }
         }
-        $openEMRSearchParameters['type'] = new StringSearchField('type', ['medical_problem'], SearchModifier::EXACT);
+        $openEMRSearchParameters['type'] = new StringSearchField('type', ['health_concern'], SearchModifier::EXACT);
         $openEMRSearchParameters['activity'] = new StringSearchField('activity', ['1'], SearchModifier::EXACT);
-        // we don't want conditions linked to encounters for problem list items
-        $openEMRSearchParameters['list_id'] = new TokenSearchField('list_id', [new TokenSearchValue(true)]);
-        $openEMRSearchParameters['list_id']->setModifier(SearchModifier::MISSING);
         // This query finds conditions that are NOT linked to specific encounters via issue_encounter
         // These represent ongoing problems/health concerns rather than encounter-specific diagnoses
         $sql = "
@@ -144,8 +165,10 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
             l.occurrence,
             l.outcome,
             l.verification,
+            lo_healthconcerns.health_concern_subtype,
+            lo_healthconcerns.health_concern_subtype_title,
             pd.puuid,
-            COALESCE(l.modifydate, l.date) as last_updated_time
+            l.modifydate AS last_updated_time
         FROM lists l
         INNER JOIN (
             SELECT
@@ -154,11 +177,12 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
             FROM patient_data
         ) pd ON l.pid = pd.patient_id
         LEFT JOIN (
-            SELECT
-                list_id
-                ,pid AS issue_encounter_pid
-            FROM issue_encounter
-        ) ie ON l.id = ie.list_id AND l.pid = ie.issue_encounter_pid
+            select
+                option_id AS health_concern_subtype,
+                title AS health_concern_subtype_title
+            FROM list_options
+            WHERE list_id='Observation_Types'
+        ) AS lo_healthconcerns ON l.subtype = lo_healthconcerns.health_concern_subtype
         ";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters);
@@ -211,7 +235,15 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
         $this->populateId($dataRecord, $conditionResource);
         $this->populateMeta($dataRecord, $conditionResource);
 
-        $this->populateCategory($dataRecord, $conditionResource, FhirConditionCategory::PROBLEM_LIST_ITEM);
+        // Required elements for US Core Problems and Health Concerns
+        if ($this->getHighestCompatibleUSCoreProfileVersion() == self::PROFILE_VERSION_7_0_0) {
+            $system = FhirCodeSystemConstants::HL7_CONDITION_CATEGORY_3_1_1;
+        } else {
+            $system = FhirCodeSystemConstants::HL7_CONDITION_CATEGORY;
+        }
+        // note problem-list-item was deprecated after 3.1.1 so we only use health-concern here
+        $this->populateCategory($dataRecord, $conditionResource, FhirConditionCategory::HEALTH_CONCERNS, FhirCodeSystemConstants::HL7_CONDITION_CATEGORY_3_1_1);
+        $this->populateScreeningAssessmentCategory($dataRecord, $conditionResource);
         $this->populateCode($dataRecord, $conditionResource, 'Problem');
         $this->populateSubject($dataRecord, $conditionResource);
         $this->populateClinicalStatus($dataRecord, $conditionResource);
@@ -268,6 +300,26 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
             return json_encode($fhirProvenance);
         } else {
             return $fhirProvenance;
+        }
+    }
+
+    private function populateScreeningAssessmentCategory(array $dataRecord, FHIRCondition $conditionResource)
+    {
+        // NOTE: version 8.0 changes the system URL to be
+        if (!empty($dataRecord['health_concern_subtype']) && !empty($dataRecord['health_concern_subtype_title'])) {
+            $system = FhirCodeSystemConstants::HL7_US_CORE_CATEGORY_OBSERVATION;
+            if (in_array($dataRecord['health_concern_subtype'], FhirObservationObservationFormService::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
+                $system = FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION;
+            }
+            $category = UtilsService::createCodeableConcept([
+                $dataRecord['health_concern_subtype'] => [
+                    'system' => $system,
+                    'code' => $dataRecord['health_concern_subtype'],
+                    'description' => $dataRecord['health_concern_subtype_title']
+                ]
+            ]);
+            $category->setText($dataRecord['health_concern_subtype_title']);
+            $conditionResource->addCategory($category);
         }
     }
 }

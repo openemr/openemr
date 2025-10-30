@@ -72,13 +72,18 @@ trait FhirConditionTrait
         FhirConditionCategory $category,
         string $defaultSystem = FhirCodeSystemConstants::HL7_CONDITION_CATEGORY
     ) {
-        $conditionResource->addCategory(UtilsService::createCodeableConcept([
+        // note the codesystem w/ problem-list-item was deprecated after 3.1.1 so we use the newer terminology codesystem by default
+        // but health-concern still uses the old terminology codesystem
+
+        $concept = UtilsService::createCodeableConcept([
             $category->value => [
                 'system' => $defaultSystem,
                 'code' => $category->value,
                 'description' => $category->display()->value
             ]
-        ]));
+        ]);
+        $concept->setText($category->display()->value);
+        $conditionResource->addCategory($concept);
     }
 
 

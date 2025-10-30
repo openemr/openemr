@@ -480,6 +480,7 @@ function getCodeText($code)
             // reaction row should be displayed only for medication allergy.
             var alldisp = (index == <?php echo issueTypeIndex('allergy'); ?>) ? '' : 'none';
             var verificationdisp = (index == <?php echo issueTypeIndex('medical_problem'); ?>) ||
+                (index == <?php echo issueTypeIndex('health_concern'); ?>) ||
                 (index == <?php echo issueTypeIndex('allergy'); ?>) ? '' : 'none';
             document.getElementById('row_enddate').style.display = comdisp;
             // Note that by default all the issues will not show the active row
@@ -948,7 +949,9 @@ function getCodeText($code)
                                 <div class="form-group col-sm-12 col-md-4" id='row_subtype'>
                                     <label for="form_subtype"><?php echo xlt('Classification Type'); ?>:</label>
                                     <?php
-                                    echo generate_select_list('form_subtype', 'issue_subtypes', ($irow['subtype'] ?? null), '', 'NA', '', '');
+                                    // health concerns uses the Observation_Types list which comes from the https://www.hl7.org/fhir/us/core/ValueSet-us-core-simple-observation-category.html
+                                    $subTypeListId = $irow['type'] == 'health_concern' ? 'Observation_Types' : 'issue_subtypes';
+                                    echo generate_select_list('form_subtype', $subTypeListId, ($irow['subtype'] ?? null), '', 'NA', '', '');
                                     ?>
                                     <div class="form-group" id='row_classification'>
                                         <label for="form_classification"><?php echo xlt('Classification'); ?>:</label>
