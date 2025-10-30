@@ -51,11 +51,18 @@ try {
 
         // Transfer records to an array
         foreach ($relatedPersonRecords as $record) {
+
+            // Get target person's contact record
+            $targetId = $record['person_id'];
+            $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
+            $targetContactId = $targetContact->get_id();
+
             $relatedPerson = [
                 'owner_contact_relation_id' => $record['owner_contact_relation_id'],
                 'owner_contact_id' => $record['owner_contact_id'],
                 'target_table' =>  'person',
-                'target_id' => $record['person_id'],
+                'target_id' => $targetId,
+                'target_contact_id' => $targetContactId,
                 'first_name' => $record['first_name'] ?? '',
                 'last_name' => $record['last_name'] ?? '',
                 'gender' => $record['gender'] ?? '',
@@ -76,14 +83,11 @@ try {
             ];
 
             if ($record['person_id']) {
-                // Get target person's contact record
-                $targetPersonContact = $contactService->getOrCreateForEntity('person', $record['person_id']);
-                $targetPersonContactId = $targetPersonContact->get_id();
-
                 // Get addresses for this person's contact
-                $addressRecords = $addressService->getAddressesForContact($targetPersonContactId, false);
+                $addressRecords = $addressService->getAddressesForContact($targetContactId, false);
                 foreach ($addressRecords as $addr) {
                     $relatedPerson['addresses'][] = [
+                        'contact_id' => $targetContactId,
                         'contact_address_id' => $addr['contact_address_id'] ?? $addr['id'],
                         'use' => $addr['use'] ?? 'home',
                         'type' => $addr['type'] ?? 'postal',
@@ -100,9 +104,10 @@ try {
                 }
 
                 // Get telecoms for this person's contact
-                $telecomRecords = $telecomService->getTelecomsForContact($targetPersonContactId, false);
+                $telecomRecords = $telecomService->getTelecomsForContact($targetContactId, false);
                 foreach ($telecomRecords as $telecom) {
                     $relatedPerson['telecoms'][] = [
+                        'contact_id' => $targetContactId,
                         'contact_telecom_id' => $telecom['contact_telecom_id'] ?? $telecom['id'],
                         'system' => $telecom['system'] ?? 'phone',
                         'use' => $telecom['use'] ?? 'home',
@@ -129,6 +134,13 @@ try {
 // Get list options for dropdowns
 $list_relationships = generate_list_map("related_person-relationship");
 $list_roles = generate_list_map("related_person-role");
+$list_telecom_systems = generate_list_map("telecom-systems");
+$list_telecom_uses = generate_list_map("telecom-uses");
+$list_address_types = generate_list_map("address-types");
+$list_address_uses = generate_list_map("address-uses");
+$list_states = generate_list_map("state");
+$list_countries = generate_list_map("country");
+
 
 // Generate unique table ID
 $table_id = uniqid("table_edit_relations_");
@@ -149,6 +161,12 @@ $templateVars = [
     'relatedPersons' => $relatedPersons,
     'list_relationships' => $list_relationships,
     'list_roles' => $list_roles,
+    'list_telecom_systems' => $list_telecom_systems,
+    'list_telecom_uses' => $list_telecom_uses,
+    'list_address_types' => $list_address_types,
+    'list_address_uses' => $list_address_uses,
+    'list_states' => $list_states,
+    'list_countries' => $list_countries,
     'name_field_id' => $name_field_id,
     'field_id_esc' => $field_id_esc,
     'smallform' => $smallform,
@@ -157,6 +175,7 @@ $templateVars = [
     'owner_table' => $foreign_table,
     'owner_id' => $foreign_id,
     'owner_contact_id' => $ownerContactId,
+    'target_contact_id' => $targetContactId,
     'webroot' => $GLOBALS['webroot'],
     'srcdir' => $GLOBALS['srcdir'],
     'csrfToken' => CsrfUtils::collectCsrfToken()

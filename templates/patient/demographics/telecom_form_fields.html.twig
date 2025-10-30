@@ -19,7 +19,7 @@
             {{ 'Primary'|xlt }}
         </div>
     </div>
-    
+
     {# Values Row 1 #}
     <div class="form-row">
         <div class="col-3">
@@ -28,7 +28,6 @@
                 'field_id': field_id_esc ~ '[system][]',
                 'smallform': smallform ~ ' form_telecoms_system',
                 'list_id': 'telecom-systems',
-                'empty_name': 'Unassigned',
                 'edit_options': edit_options
             }, telecom.system|default('phone')) }}
         </div>
@@ -38,7 +37,6 @@
                 'field_id': field_id_esc ~ '[use][]',
                 'smallform': smallform ~ ' form_telecoms_use',
                 'list_id': 'telecom-uses',
-                'empty_name': 'Unassigned',
                 'edit_options': edit_options
             }, telecom.use|default('home')) }}
         </div>
@@ -51,15 +49,15 @@
         </div>
         <div class="col-3">
             <div class="form-check mt-2">
-                <input type="checkbox" class="form-check-input form_telecoms_is_primary" 
-                       name="{{ name_field_id|attr }}[is_primary][]" 
-                       value="Y" 
+                <input type="checkbox" class="form-check-input form_telecoms_is_primary"
+                       name="{{ name_field_id|attr }}[is_primary][]"
+                       value="Y"
                        {{ telecom.is_primary == 'Y' ? 'checked' : '' }}>
                 <label class="form-check-label">{{ 'Primary'|xlt }}</label>
             </div>
         </div>
     </div>
-    
+
     {# Header Row 2 #}
     <div class="form-row">
         <div class="col-9 label_custom">
@@ -69,7 +67,7 @@
             {{ 'Active From'|xlt }}
         </div>
     </div>
-    
+
     {# Values Row 2 #}
     <div class="form-row">
         <div class="col-9">
@@ -87,7 +85,7 @@
             }, telecom.period_start|default('now'|date('Y-m-d'))) }}
         </div>
     </div>
-    
+
     {# Notes Row #}
     <div class="form-row">
         <div class="col-12 label_custom">

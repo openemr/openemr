@@ -46,11 +46,18 @@ try {
 
         // For each relationship, get addresses and telecoms
         foreach ($relatedPersonRecords as $record) {
+
+            // Get target person's contact record
+            $targetId = $record['person_id'];
+            $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
+            $targetContactId = $targetContact->get_id();
+
             $relatedPerson = [
                 'owner_contact_relation_id' => $record['owner_contact_relation_id'],
                 'owner_contact_id' => $record['owner_contact_id'],
                 'target_table' => 'person',
-                'target_id' => $record['person_id'],
+                'target_id' => $targetId,
+                'target_contact_id' => $targetContactId,
                 'first_name' => $record['first_name'] ?? '',
                 'last_name' => $record['last_name'] ?? '',
                 'gender' => $record['gender'] ?? '',
@@ -71,11 +78,8 @@ try {
             ];
 
             if ($record['person_id']) {
-                // Get target person's contact record
-                $targetPersonContact = $contactService->getOrCreateForEntity('person', $record['person_id']);
-                $targetPersonContactId = $targetPersonContact->get_id();
                 // Get addresses for this person's contact
-                $addressRecords = $addressService->getAddressesForContact($targetPersonContactId, false);
+                $addressRecords = $addressService->getAddressesForContact($targetContactId, false);
                 foreach ($addressRecords as $addr) {
                     $relatedPerson['addresses'][] = [
                         'contact_address_id' => $addr['contact_address_id'] ?? $addr['id'],
@@ -94,9 +98,10 @@ try {
                 }
 
                 // Get telecoms for this person's contact
-                $telecomRecords = $telecomService->getTelecomsForContact($targetPersonContactId, false);
+                $telecomRecords = $telecomService->getTelecomsForContact($targetContactId, false);
                 foreach ($telecomRecords as $telecom) {
                     $relatedPerson['telecoms'][] = [
+                        'contact_id' => $targetContactId,
                         'contact_telecom_id' => $telecom['contact_telecom_id'] ?? $telecom['id'],
                         'system' => $telecom['system'] ?? 'phone',
                         'use' => $telecom['use'] ?? 'home',
