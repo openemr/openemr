@@ -9,7 +9,7 @@
  * @link      http://www.open-emr.org
  * @author    OpenCoreEMR, Inc.
  * @copyright Copyright (c) 2025 OpenCoreEMR, Inc.
- * @license   GPLv3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $requestedFile = $_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['PHP_SELF'] ?? '';

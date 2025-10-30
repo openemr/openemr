@@ -2,7 +2,6 @@
 /logs
 
 # environment vars
-.env
 
 # vendor and assets
 node_modules
@@ -32,3 +31,4 @@ tests/reports/
 
 # phpstan
 tmp-phpstan/*
+config.bat

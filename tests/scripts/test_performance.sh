@@ -8,7 +8,7 @@
 # AI DISCLOSURE: This file contains code generated using Claude AI (Anthropic)
 #
 # Copyright (c) 2025 OpenCoreEMR, Inc.
-# License: GPLv3
+# License: https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #
 # Usage: ./test_performance.sh [base_url] [iterations]
 # Example: ./test_performance.sh http://localhost/openemr 100
