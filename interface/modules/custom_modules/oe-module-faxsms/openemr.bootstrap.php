@@ -65,7 +65,7 @@ $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 $GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] : false;
 $GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] : false;
 $GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] : false;
-$GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] : false;
+$GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? ($GLOBALS['oe_enable_voice'] ?? '') : false;
 // Set local variables for use in this bootstrap.
 $allowFax = $GLOBALS['oefax_enable_fax'];
 $allowSMS = $GLOBALS['oefax_enable_sms'];

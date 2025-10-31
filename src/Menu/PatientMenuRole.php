@@ -204,10 +204,10 @@ class PatientMenuRole extends MenuRole
                 }
                 $list .= '</ul>';
             } else {
-                $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
+                $link = (($value->pid ?? '') != "true") ? $value->url : $value->url . attr($pid);
                 $class = $value->class ?? '';
                 $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
+                $list .= '<a class="nav-link text-dark" href="' . attr($link) . '" onclick="' . ($value->on_click ?? '') . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
             echo $list . "\r\n";

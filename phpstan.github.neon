@@ -12428,17 +12428,9 @@ parameters:
     identifier: empty.variable
     count: 1
     path: interface/patient_file/front_payment.php
-  - message: '#^Variable \$cryptoGen might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: interface/patient_file/front_payment.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined
     count: 4
-    path: interface/patient_file/front_payment.php
-  - message: '#^Variable \$form_pid might not be defined\.$#'
-    identifier: variable.undefined
-    count: 3
     path: interface/patient_file/front_payment.php
   - message: '#^Variable \$payment_id might not be defined\.$#'
     identifier: variable.undefined

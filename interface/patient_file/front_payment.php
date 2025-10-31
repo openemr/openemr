@@ -24,7 +24,9 @@ require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
@@ -32,8 +34,7 @@ use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-
+use OpenEMR\Services\LogoService;
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -51,6 +52,10 @@ if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
 $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
+
+$cryptoGen = new CryptoGen();
+
+$logo = (new LogoService())->getLogo('core/menu/primary');
 
 ?>
 <!DOCTYPE html>
@@ -160,11 +165,11 @@ $patdata = sqlQuery("SELECT " .
     "i.pid = p.pid AND i.type = 'primary' " .
     "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", [$pid]);
 
-$invoice_refno = BillingUtilities::updateInvoiceRefNumber();
-
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
+// initialize $form_pid
+$form_pid = "0";
 if (!empty($_POST['form_save'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -176,11 +181,10 @@ if (!empty($_POST['form_save'])) {
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno
-    sqlStatement(
-        "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
-        [$invoice_refno, $encounter, $form_pid]
-    );
+    // Update the invoice_refno
+    $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
+    $sql = "UPDATE `form_encounter` SET `invoice_refno` = ? WHERE `encounter` = ? AND `pid` = ?";
+    QueryUtils::sqlStatementThrowException($sql, [$invoice_refno, $encounter, $form_pid]);
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
@@ -581,6 +585,11 @@ function toencounter(enc, datestr, topframe) {
                             <?php echo text("[Phone]" . $frow['phone']) ?><br />
                             <?php echo text("[Email] " . $frow['email']) ?><br />
 
+                            <br />
+                            <bold class="bg-color"><?php echo xlt('Patient Information'); ?></bold> <br /> <br />
+                            <?php echo xlt('Name'); ?>: <?php echo text($patdata['fname'] . ' ' . ($patdata['mname'] ? $patdata['mname'] . ' ' : '') . $patdata['lname']) ?><br />
+                            <?php echo xlt('Chart Number'); ?>: <?php echo text($patdata['pubpid']) ?><br />
+                            <?php echo xlt('Patient ID'); ?>: <?php echo text($form_pid) ?><br />
 
                             <br />
                             <?php echo xlt('How Paid'); ?>:
@@ -611,17 +620,14 @@ function toencounter(enc, datestr, topframe) {
 
                     </div>
                     <div class="section-1">
-                        <?php if (file_exists($GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png")) { ?>
-                            <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
-                        <?php } ?>
-
+                        <img src=<?php echo $logo ?> alt="facility_logo" class="img-fluid">
                         <table class="mini_table text-center">
                             <tr>
                                 <th><?php echo xlt('Invoice No.'); ?></th>
                                 <th><?php echo xlt('Date'); ?></th>
                             </tr>
                             <tr class="text-center">
-                                <td class="text-center"><?php echo text($invoice_refno); ?></td>
+                                <td class="text-center"><?php echo text($invoice_refno ?? ''); ?></td>
                                 <td class="text-center"><?php echo text(oeFormatSDFT(strtotime((string) $payrow['dtime']))); ?></td>
                             </tr>
                         </table>
@@ -1106,7 +1112,7 @@ function make_insurance() {
 }
 </style>
 <title><?php echo xlt('Record Payment'); ?></title>
-    <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
+    <?php $NameNew = $patdata['fname'] . " " . $patdata['mname'] . " " . $patdata['lname']; ?>
     <?php
     $arrOeUiSettings = [
     'heading_title' => xl('Accept Payment'),
@@ -1869,5 +1875,6 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php
+$GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
 </html>
