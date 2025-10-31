@@ -41,8 +41,18 @@ class EncounterReportFormHandler
             $filters['patient_id'] = (int) $formData['patient_id'];
         }
 
+        // Default to details view (checked by default)
+        // Only show summary if details is explicitly unchecked (not present in form data)
         if (isset($formData['details']) && !empty($formData['details'])) {
             $filters['details'] = $formData['details'];
+        } elseif (!isset($formData['date_from']) && !isset($formData['date_to'])) {
+            // On initial page load (no form submission), default to details view
+            $filters['details'] = '1';
+        }
+
+        // Signed encounters only filter
+        if (isset($formData['signed_only']) && !empty($formData['signed_only'])) {
+            $filters['signed_only'] = true;
         }
 
         // ... Add other form fields and validation ...

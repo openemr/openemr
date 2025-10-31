@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * package   OpenEMR
  * link      http://www.open-emr.org
  * author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -11,10 +11,11 @@
 
 namespace OpenEMR\Reports\Encounter;
 
+
 class EncounterReportData
 {
     // START AI GENERATED CODE
-    public function getEncounters(array $filters = []): array
+    public function getEncounters(array $filters = [], $paginate = true): array
     {
         $sql = "
         SELECT
@@ -27,8 +28,19 @@ class EncounterReportData
             CONCAT(u.lname, ', ', u.fname) AS provider,
             CONCAT(p.lname, ', ', p.fname) AS patient,
             GROUP_CONCAT(DISTINCT f.form_name SEPARATOR ', ') AS form_list,
-            SUM(CASE WHEN esf.tid IS NOT NULL THEN 1 ELSE 0 END) AS signed_forms_count,
-            GROUP_CONCAT(DISTINCT CONCAT(signer.lname, ', ', signer.fname) SEPARATOR '; ') AS signers,
+            SUM(CASE WHEN esf.tid IS NOT NULL AND esf.is_lock = 1 THEN 1 ELSE 0 END) AS signed_forms_count,
+            -- Encounter-level signer (if exists and locked)
+            CASE
+                WHEN MAX(CASE WHEN es.tid IS NOT NULL AND es.is_lock = 1 THEN 1 ELSE 0 END) = 1
+                THEN MAX(CASE WHEN es.tid IS NOT NULL AND es.is_lock = 1 THEN CONCAT(es_signer.lname, ', ', es_signer.fname) END)
+                ELSE NULL
+            END AS encounter_signer,
+            -- Form-level signer (if exists and locked)
+            CASE
+                WHEN MAX(CASE WHEN esf.tid IS NOT NULL AND esf.is_lock = 1 THEN 1 ELSE 0 END) = 1
+                THEN MAX(CASE WHEN esf.tid IS NOT NULL AND esf.is_lock = 1 THEN CONCAT(form_signer.lname, ', ', form_signer.fname) END)
+                ELSE NULL
+            END AS form_signer,
             (
                 SELECT GROUP_CONCAT(DISTINCT b.code SEPARATOR ', ')
                 FROM billing b
@@ -39,10 +51,13 @@ class EncounterReportData
         JOIN users u ON u.id = e.provider_id
         JOIN patient_data p ON p.pid = e.pid
         LEFT JOIN openemr_postcalendar_categories pc ON pc.pc_catid = e.pc_catid
-        LEFT JOIN forms f ON f.encounter = e.encounter AND f.pid = e.pid
-        LEFT JOIN esign_signatures es ON es.tid = e.encounter AND es.table = 'form_encounter'
-        LEFT JOIN users signer ON signer.id = es.uid
-        LEFT JOIN esign_signatures esf ON esf.tid = f.form_id AND esf.table = 'forms'
+        LEFT JOIN forms f ON f.encounter = e.encounter AND f.pid = e.pid AND f.deleted = 0
+        -- Encounter-level signatures
+        LEFT JOIN esign_signatures es ON es.tid = e.encounter AND es.`table` = 'form_encounter'
+        LEFT JOIN users es_signer ON es_signer.id = es.uid
+        -- Form-level signatures
+        LEFT JOIN esign_signatures esf ON esf.tid = f.form_id AND esf.`table` = 'forms'
+        LEFT JOIN users form_signer ON form_signer.id = esf.uid
         WHERE 1 = 1
     ";
 
@@ -71,10 +86,18 @@ class EncounterReportData
             $params[] = $filters['provider'];
         }
 
-        // Add this condition after the other WHERE clauses
+        // Signature filtering: Show all signed documents (locked or unlocked)
         if (!empty($filters['signed_only'])) {
-            $sql .= " AND es.tid IS NOT NULL";
+            // Show encounters with encounter-level signatures
+            // This includes both:
+            // 1. Encounters signed at encounter level
+            // 2. Individual forms signed at form level
+            $sql .= " AND (
+                (es.tid IS NOT NULL)
+                OR (esf.tid IS NOT NULL)
+            )";
         }
+        
         $sql .= " AND f.formdir != 'newpatient'";
         $sql .= " GROUP BY e.id ORDER BY e.date DESC";
 
@@ -94,7 +117,8 @@ class EncounterReportData
                 'forms' => $row['form_list'] ?? '',
                 'signed_forms_count' => $row['signed_forms_count'] ?? 0,
                 'coding' => $row['coding'] ?? '',
-                'signedby' => $row['signers'] ?? '',
+                'encounter_signer' => $row['encounter_signer'] ?? null,
+                'form_signer' => $row['form_signer'] ?? null,
             ];
         }
 

@@ -38,7 +38,8 @@ class EncounterReportFormatter
             'encounter_number' => $encounter['encounter_nr'],
             'form' => $encounter['form_id'], // Assuming form_id represents the form
             'coding' => $encounter['coding'], // Assuming pc_cid represents coding
-            'signedby' => $encounter['signedby'],
+            'encounter_signer' => $encounter['encounter_signer'] ?? null,
+            'form_signer' => $encounter['form_signer'] ?? null,
         ];
     }
 
