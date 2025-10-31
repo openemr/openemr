@@ -28,7 +28,6 @@
     "SebastianBergmann\\CodeCoverage\\Filter",
     "SebastianBergmann\\CodeCoverage\\Report\\PHP",
     "SebastianBergmann\\FileIterator\\Facade",
-    "Symfony\\Component\\Debug\\ExceptionHandler",
     "addForm",
     "addPnote",
     "areCredentialsCreated",
