@@ -40,7 +40,7 @@ class USPSAPIV3Test extends TestCase
     public function testAPIV3Endpoint(): void
     {
         $api = new USPSAddressVerify('', 'client_id', 'client_secret');
-        $this->assertEquals('https://api.usps.com/addresses/v3', $api->getEndpoint());
+        $this->assertEquals('https://apis.usps.com/addresses/v3', $api->getEndpoint());
     }
 
     public function testLegacyEndpoint(): void

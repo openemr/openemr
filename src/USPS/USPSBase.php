@@ -30,8 +30,8 @@ use LaLit\XML2Array;
 class USPSBase
 {
     const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
-    const LIVE_API_V3_URL = 'https://api.usps.com/addresses/v3';
-    const OAUTH_TOKEN_URL = 'https://api.usps.com/oauth2/v3/token';
+    const LIVE_API_V3_URL = 'https://apis.usps.com/addresses/v3';
+    const OAUTH_TOKEN_URL = 'https://apis.usps.com/oauth2/v3/token';
   /**
    *  the error code if one exists
    * @var integer
@@ -362,6 +362,10 @@ class USPSBase
    */
     public function isError()
     {
+        if ($this->errorCode || $this->errorMessage) {
+          return true;
+        }
+        
         $headers = $this->getHeaders();
         $response = $this->getArrayResponse();
 
