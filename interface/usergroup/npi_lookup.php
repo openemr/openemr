@@ -30,7 +30,7 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
 // Verify CSRF token for security
 if (
     !CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '')
-){
+) {
     http_response_code(403);
     echo json_encode(['error' => 'Invalid CSRF token']);
     exit;
