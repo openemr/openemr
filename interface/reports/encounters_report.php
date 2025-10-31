@@ -1,252 +1,216 @@
 <?php
 
 /**
- * Encounter Report
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2025 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * package   OpenEMR
+ * link      http://www.open-emr.org
+ * author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * author-AI Gemini, Cascade, and ChatGPT
+ * All rights reserved
+ * Copyright (c) 2025.
  */
 
-// Start timing the script execution
-$startTime = microtime(true);
-
-// Enable output buffering for better performance with large datasets
-ob_start();
-
-// Disable script time limit for large reports
-@set_time_limit(0);
-
-// Disable output buffering for streaming responses
-if (function_exists('apache_setenv')) {
-    @apache_setenv('no-gzip', '1');
-}
-@ini_set('zlib.output_compression', '0');
-@ini_set('implicit_flush', '1');
-@ob_implicit_flush(true);
-
-// Increase memory limit for large datasets
-@ini_set('memory_limit', '512M');
-
-// Disable session write for read-only operations
-if (!isset($GLOBALS['encounter'])) {
-    session_write_close();
-}
-
-require_once dirname(__DIR__) . '/globals.php';
+require_once dirname(__DIR__) . '/globals.php'; // Include globals.php
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Reports\Encounter\EncounterReportData;
+use OpenEMR\Reports\Encounter\EncounterReportFormatter;
+use OpenEMR\Reports\Encounter\EncounterReportFormHandler;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Reports\Encounter\Form\EncounterReportFormHandler;
-use OpenEMR\Reports\Encounter\Service\EncounterReportService;
-use OpenEMR\Reports\Encounter\Formatter\EncounterReportFormatter;
-use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\UserService;
-use OpenEMR\Common\Logging\SystemLogger;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-// Initialize logger
-$logger = new SystemLogger();
 
-try {
-    // Check user access
-    if (!AclMain::aclCheckCore('reports', 'encounters')) {
-        throw new \RuntimeException('Access denied to encounters report');
+if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Encounters Report")]);
+    exit;
+}
+
+if (!empty($_GET['csrf_token_form'])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
+}
 
-    // Initialize services
-    $formHandler = new EncounterReportFormHandler();
-    $reportService = new EncounterReportService();
-    $formatter = new EncounterReportFormatter();
-
-    // Process form submission
-    $formData = [];
-    $errors = [];
-    $showReport = false;
-    $export = $_GET['export'] ?? null;
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        try {
-            $formData = $formHandler->processForm($_POST);
-            $showReport = true;
-        } catch (\Exception $e) {
-            $errors[] = $e->getMessage();
-            $logger->error('Form processing error: ' . $e->getMessage(),
-                ['trace' => $e->getTraceAsString()]);
+// Handle CSV export request
+if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
+    // Add logging for debugging
+    error_log("CSV export requested with parameters: " . json_encode($_GET));
+    
+    try {
+        // Set headers for CSV download
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=encounter_report_' . date('Y-m-d') . '.csv');
+        
+        $formHandler = new EncounterReportFormHandler();
+        $filters = $formHandler->processForm($_GET);
+        error_log("Filters processed: " . json_encode($filters));
+        
+        $data = new EncounterReportData();
+        $formatter = new EncounterReportFormatter();
+        
+        // Create output handle
+        $output = fopen('php://output', 'w');
+        
+        if ($output === false) {
+            error_log("Failed to open output stream");
+            echo "Error: Failed to open output stream";
+            exit;
         }
-    } elseif (!empty($_GET)) {
-        // Handle GET parameters for filtering
-        $formData = array_filter([
-            'date_from' => $_GET['date_from'] ?? null,
-            'date_to' => $_GET['date_to'] ?? null,
-            'facility' => $_GET['facility'] ?? null,
-            'provider' => $_GET['provider'] ?? null,
-            'details' => $_GET['details'] ?? null,
-            'page' => $_GET['page'] ?? 1,
-            'per_page' => $_GET['per_page'] ?? 25
-        ]);
-        $showReport = true;
-    }
-
-    // Get facilities and providers for the form
-    $facilityService = new FacilityService();
-    $userService = new UserService();
-
-    $facilities = $facilityService->getAll(['active' => 1]);
-    $providers = $userService->getAll(['active' => 1, 'authorized' => 1]);
-
-    // Process report data if needed
-    $reportData = [];
-    $pagination = [];
-    $stats = [];
-
-    if ($showReport) {
-        try {
-            // Get statistics
-            $stats = $reportService->getEncounterStatistics($formData);
-
-            // Handle export
-            if ($export) {
-                $exportData = $reportService->exportEncounters($formData, $export);
-                $formattedExport = $formatter->formatForExport($exportData['data'], $export);
-
-                switch ($export) {
-                    case 'csv':
-                        header('Content-Type: text/csv');
-                        header('Content-Disposition: attachment; filename="encounter_report_' . date('Y-m-d') . '.csv"');
-                        $output = fopen('php://output', 'w');
-                        foreach ($formattedExport as $row) {
-                            fputcsv($output, $row);
-                        }
-                        fclose($output);
-                        exit;
-
-                    case 'pdf':
-                        // PDF generation would go here
-                        break;
-
-                    case 'excel':
-                        // Excel generation would go here
-                        break;
-                }
+        
+        // Write UTF-8 BOM for Excel compatibility
+        fwrite($output, "\xEF\xBB\xBF");
+        
+        // Export based on report type (summary or detail)
+        if (empty($filters['details'])) {
+            // Summary export
+            $summaryData = $data->getEncounterSummary($filters);
+            error_log("Summary data retrieved: " . json_encode($summaryData));
+            
+            $formattedSummary = $formatter->formatSummary($summaryData);
+            
+            // Write headers
+            fputcsv($output, [xl('Provider'), xl('Encounters')]);
+            
+            // Write provider rows
+            foreach ($formattedSummary['providers'] as $provider) {
+                fputcsv($output, [$provider['provider_name'], $provider['encounter_count']]);
             }
-
-            // Get paginated data
-            $result = $reportService->getEncounters($formData);
-            $reportData = $formatter->formatEncounters($result['data'] ?? []);
-
-            // Set up pagination
-            $pagination = [
-                'current_page' => $result['page'] ?? 1,
-                'total_pages' => $result['total_pages'] ?? 1,
-                'total_items' => $result['total'] ?? 0,
-                'per_page' => $result['per_page'] ?? 25
-            ];
-
-        } catch (\Exception $e) {
-            $errors[] = 'Error generating report: ' . $e->getMessage();
-            $logger->error('Report generation error: ' . $e->getMessage(),
-                ['trace' => $e->getTraceAsString()]);
+            
+            // Write total row
+            fputcsv($output, [xl('Total'), $formattedSummary['total_encounters']]);
+        } else {
+            // Detailed export - get all encounters without pagination limits
+            error_log("Retrieving detailed encounter data");
+            $encounters = $data->getEncounters($filters, false); // Pass false to disable pagination
+            error_log("Encounters retrieved: " . count($encounters));
+            
+            $formattedEncounters = $formatter->formatEncounters($encounters);
+            
+            // Write headers
+            fputcsv($output, [
+                xl('ID'), 
+                xl('Date'), 
+                xl('Patient'), 
+                xl('Provider'),
+                xl('Visit Type'),
+                xl('Enc#'),
+                xl('Forms'),
+                xl('Coding'),
+                xl('Signed By')
+            ]);
+            
+            // Write encounter rows
+            foreach ($formattedEncounters as $encounter) {
+                // Build signed by field: show both signers if available
+                $encounterSigner = !empty($encounter['encounter_signer']) ? $encounter['encounter_signer'] : '';
+                $formSigner = !empty($encounter['form_signer']) ? $encounter['form_signer'] : '';
+                
+                if ($encounterSigner && $formSigner) {
+                    $signedBy = $encounterSigner . ' / ' . $formSigner;
+                } elseif ($encounterSigner) {
+                    $signedBy = $encounterSigner;
+                } elseif ($formSigner) {
+                    $signedBy = $formSigner;
+                } else {
+                    $signedBy = xl('Not signed');
+                }
+                
+                fputcsv($output, [
+                    $encounter['id'] ?? '',
+                    $encounter['date'] ? date('Y-m-d', strtotime($encounter['date'])) : '',
+                    $encounter['patient'] ?? '',
+                    $encounter['provider'] ?? '',
+                    $encounter['category'] ?? '',
+                    $encounter['encounter'] . '-' . $encounter['pid'],
+                    $encounter['forms'] ?? '',
+                    $encounter['coding'] ?? '',
+                    $signedBy
+                ]);
+            }
         }
-    }
-
-    // Prepare data for the template
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
-    $templateVars = [
-        'formData' => $formData,
-        'reportData' => $reportData,
-        'pagination' => $pagination,
-        'stats' => $formatter->formatStatistics($stats),
-        'facilities' => $facilities,
-        'providers' => $providers,
-        'errors' => $errors,
-        'showReport' => $showReport,
-        'export' => $export,
-        'csrf_token_form' => CsrfUtils::collectCsrfToken('encounters_report'),
-        'performance' => [
-            'execution_time' => round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 4) . 's',
-            'memory_usage' => round(memory_get_peak_usage(true) / 1024 / 1024, 2) . 'MB'
-        ]
-    ];
-
-    // Get the Twig environment
-    $twigEnv = $twig->getTwig();
-
-    // Start output buffering
-    ob_start();
-
-    try {
-        // Render the template
-        $output = $twigEnv->render('reports/encounters/encounters_report.twig', $templateVars);
-
-        // Get any output that might have been generated during rendering
-        $output = ob_get_clean() . $output;
-
-        // Minify HTML output in production
-        if ($GLOBALS['production_env'] ?? false) {
-            $output = preg_replace(
-                ['/\s{2,}/', '/\s*([{}|:;,[\]<>])\s*/', '/;}/'],
-                [' ', '\1', '}'],
-                $output
-            );
-        }
-
-        echo $output;
-
-    } catch (\Exception $e) {
-        // Clean the output buffer if there was an error
-        ob_end_clean();
-        throw $e;
-    }
-
-} catch (\Exception $e) {
-    // Log the error
-    $logger->error('Fatal error in encounters report: ' . $e->getMessage(),
-        ['trace' => $e->getTraceAsString()]);
-
-    // Start a new output buffer
-    ob_start();
-
-    try {
-        // Try to render the error page
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
-        $errorOutput = $twig->getTwig()->render('error/general_error.html.twig', [
-            'errorMessage' => 'An error occurred while generating the report.',
-            'errorDetails' => $GLOBALS['debug'] ? $e->getMessage() : ''
-        ]);
-
-        // Clean any previous output and display the error
-        ob_end_clean();
-        echo $errorOutput;
-
-    } catch (\Exception $errorException) {
-        // If there's an error rendering the error page, show a simple message
-        ob_end_clean();
-        echo 'An error occurred while generating the report. Please try again later.';
-        if ($GLOBALS['debug'] ?? false) {
-            echo ' Error: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
-        }
+        
+        fclose($output);
+    } catch (Exception $e) {
+        error_log("Exception in CSV export: " . $e->getMessage());
+        // Return a plain text error message
+        header('Content-Type: text/plain');
+        echo "Error exporting CSV: " . $e->getMessage();
     }
     exit;
 }
 
-// Log performance metrics at the end of the script
-if (!empty($GLOBALS['debug'])) {
-    $endTime = microtime(true);
-    $executionTime = $endTime - $startTime;
-    $memoryUsage = memory_get_peak_usage(true) / 1024 / 1024; // Convert to MB
+// Initialize Twig
+$loader = new TwigContainer(dirname(__FILE__, 3) . '/templates', $GLOBALS['kernel']);
+$twig = $loader->getTwig();
 
-    error_log(sprintf(
-        'Encounter Report - Time: %.4fs, Memory: %.2fMB',
-        $executionTime,
-        $memoryUsage
-    ));
+global $formattedEncounters, $encounterCount, $filters, $errors;
+
+// Initialize variables
+$encounters = [];
+$encounterCount = 0;
+$filters = [];
+$errors = [];
+$summary = [];
+
+// Fetch facilities from the database
+$facilitiesResult = sqlStatement("SELECT id, name FROM facility");
+$facilities = [];
+if ($facilitiesResult) {
+    while ($facility = sqlFetchArray($facilitiesResult)) {
+        $facilities[] = $facility;
+    }
 }
 
-// Output the rendered content
-echo $output;
+// Fetch providers from the database
+$providersResult = sqlStatement("SELECT id, CONCAT(lname,' ', fname) AS name FROM users WHERE authorized = 1");
+$providers = [];
+if ($providersResult) {
+    while ($provider = sqlFetchArray($providersResult)) {
+        $providers[] = $provider;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['date_from']) && isset($_GET['date_to'])) {
+    $formHandler = new EncounterReportFormHandler();
+    $filters = $formHandler->processForm($_GET); // Use $_REQUEST to handle GET/POST
+
+    if (empty($filters['date_from']) || empty($filters['date_to'])) {
+        $errors[] = "Please select both 'Date From' and 'Date To'.";
+    } else {
+        $data = new EncounterReportData();
+        $formatter = new EncounterReportFormatter();
+
+        $formattedData = []; // Initialize formatted data
+
+        if (empty($filters['details'])) {
+            // Get summary data
+            $summaryData = $data->getEncounterSummary($filters);
+            $formattedEncounters = $formatter->formatSummary($summaryData);
+        } else {
+            // Get detailed encounter data
+            $encounters = $data->getEncounters($filters);
+            $encounterCount = $data->getEncounterCount($filters);
+            $formatter = new EncounterReportFormatter();
+            $formattedEncounters = $formatter->formatEncounters($encounters);
+        }
+    }
+}
+
+$twigData = [
+    'encounters' => $formattedEncounters,
+    'encounterCount' => $encounterCount['encounter_count'] ?? 0,
+    'filters' => $filters,
+    'errors' => $errors,
+    'facilities' => $facilities, // Pass facilities to the template
+    'providers' => $providers,   // Pass providers to the template
+];
+
+// Render the Twig template
+try {
+    echo $twig->render('reports/encounters/encounters_report.twig', $twigData);
+} catch (LoaderError | RuntimeError | SyntaxError $e) {
+    error_log('Twig template error: ' . $e->getMessage());
+    echo 'Template error: ' . $e->getMessage();
+}
