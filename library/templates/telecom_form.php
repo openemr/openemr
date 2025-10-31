@@ -20,6 +20,12 @@ $contactService = new ContactService();
 $telecomService = new ContactTelecomService();
 
 // Get or create contact for entity
+/**
+ * @global string $foreign_table The foreign table name (e.g., 'patient_data')
+ * @global int $foreign_id The foreign ID (e.g., patient ID)
+ */
+$foreign_table ??= '';
+$foreign_id ??= 0;
 $contact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
 $telecoms = [];
 
@@ -46,8 +52,8 @@ if ($contact) {
 }
 
 // Get list options for dropdowns
-$list_telecom_systems = generate_list_map("telecom-systems");
-$list_telecom_uses = generate_list_map("telecom-uses");
+$list_telecom_systems = generate_list_map("telecom_systems");
+$list_telecom_uses = generate_list_map("telecom_uses");
 
 // Generate unique table ID
 $table_id = uniqid("table_edit_telecoms_");

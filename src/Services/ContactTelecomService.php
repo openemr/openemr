@@ -125,7 +125,7 @@ class ContactTelecomService extends BaseService
                     $contactTelecom->set_system($system);
                 } else {
                     $this->getLogger()->error("Telecom system does not exist", ['system' => $system]);
-               	}
+                }
 
                 // Set use
                 $use = $telecomData['use'][$i] ?? 'home';
@@ -174,7 +174,6 @@ class ContactTelecomService extends BaseService
             ]);
 
             return $savedRecords;
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error saving telecoms for contact", [
                 'contact_id' => $contactId,
@@ -424,7 +423,7 @@ class ContactTelecomService extends BaseService
     }
 
 
-	/**
+    /**
      * Get valid telecom systems
      *
      * @return array
@@ -434,7 +433,7 @@ class ContactTelecomService extends BaseService
         static $systems = null;
 
         if ($systems === null) {
-            $systemsList = $this->listService->getOptionsByListName('telecom-systems');
+            $systemsList = $this->listService->getOptionsByListName('telecom_systems');
             $systems = array_reduce($systemsList, function ($map, $item) {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
@@ -455,7 +454,7 @@ class ContactTelecomService extends BaseService
         static $uses = null;
 
         if ($uses === null) {
-            $usesList = $this->listService->getOptionsByListName('telecom-uses');
+            $usesList = $this->listService->getOptionsByListName('telecom_uses');
             $uses = array_reduce($usesList, function ($map, $item) {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
@@ -491,49 +490,39 @@ class ContactTelecomService extends BaseService
             $newTelecom->set_system($sourceTelecom->get_system());
             $newTelecom->set_use($sourceTelecom->get_use());
 
-            $newTelecom−>set_value($newTelecom->set_value($sourceTelecom->get_value()));
-            $newTelecom−>set_rank($sourceTelecom->get_rank());
+            $newTelecom->set_value($sourceTelecom->get_value());
+            $newTelecom->set_rank($sourceTelecom->get_rank());
             $newTelecom->set_status('A');
             $newTelecom->set_is_primary('N');
-            $newTelecom−>set_notes($sourceTelecom->get_notes());
+            $newTelecom->set_notes($sourceTelecom->get_notes());
             $newTelecom->set_period_start(new \DateTime());
 
-        	if ($newTelecom->persist()) {
-            	return $newTelecom;
-        	}
+            if ($newTelecom->persist()) {
+                return $newTelecom;
+            }
 
-        	return null;
+            return null;
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error copying telecom", ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
 
-    		} catch (\Exception $e) {
-        		$this->getLogger()->error("Error copying telecom", ['error' => $e->getMessage()]);
-        		return null;
-    		}
-	}
 
-
-	/**
-	 * Get telecom history for a contact
-	 *
-	 * @param int $contactId
-	 * @return array
-	 */
-	public function getTelecomHistory(int $contactId): array
-	{
-		$sql = "SELECT *
+    /**
+     * Get telecom history for a contact
+     *
+     * @param int $contactId
+     * @return array
+     */
+    public function getTelecomHistory(int $contactId): array
+    {
+        $sql = "SELECT *
 				FROM contact_telecom
 				WHERE contact_id = ?
 				ORDER BY period_start
 				DESC, created_date DESC";
 
-		return QueryUtils::fetchRecords($sql, [$contactId]) ?? [];
-	}
+        return QueryUtils::fetchRecords($sql, [$contactId]) ?? [];
+    }
 }
-
-
-
-
-
-
-
-
-

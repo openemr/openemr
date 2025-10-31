@@ -23,6 +23,12 @@ $contactService = new ContactService();
 $contactAddressService = new ContactAddressService();
 
 // Get or create contact for patient
+/**
+ * @global string $foreign_table The foreign table name (e.g., 'patient_data')
+ * @global int $foreign_id The foreign ID (e.g., patient ID)
+ */
+$foreign_table ??= '';
+$foreign_id ??= 0;
 $contact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
 $addresses = [];
 

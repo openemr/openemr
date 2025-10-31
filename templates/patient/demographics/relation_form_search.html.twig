@@ -242,7 +242,7 @@
                          <div class="col-sm-4">
                             <div class="form-group">
                                 <label class="pr-1">{{ 'Date of Birth:'|xlt }}</label>
-                                <input type="date" id="person_dob" class="form-control form-control-sm mb-1" size=10 autocomplete="bday">
+                                <input type="text" id="person_dob" class="form-control form-control-sm mb-1 datepicker" size=10 autocomplete="bday">
                             </div>
                         </div>
                         <div class="col-sm-4">
@@ -350,6 +350,13 @@
                     triggerLiveSearch();
                 });
             }
+        });
+
+        let datepicker = document.getElementById('person_dob');
+        datetimepickerTranslated(datepicker, {
+            timepicker: false
+            , showSeconds: false
+            , formatInput: true
         });
     }
 

@@ -34,13 +34,21 @@ $addressService = new ContactAddressService();
 $telecomService = new ContactTelecomService();
 
 $relatedPersons = [];
+$ownerContactId = null;
+$targetContactId = null;
 
 try {
     // Get the contact for this entity
+    /**
+     * @global string $foreign_table The foreign table name (e.g., 'patient_data')
+     * @global int $foreign_id The foreign ID (e.g., patient ID)
+     */
+    $foreign_table ??= '';
+    $foreign_id ??= 0;
     $ownerContact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
     $ownerContactId = $ownerContact->get_id();
 
-    if ($ownerContact) {
+    if ($ownerContact && $ownerContactId) {
         // Get relationships with details (including inactive for editing)
         $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContactId, true);
 
@@ -56,6 +64,13 @@ try {
             $targetId = $record['person_id'];
             $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
             $targetContactId = $targetContact->get_id();
+            if (empty($targetContactId)) {
+                $logger->errorLogCaller("No contact found for related person", [
+                    'person_id' => $targetId,
+                    'owner_contact_relation_id' => $record['owner_contact_relation_id']
+                ]);
+                continue;
+            }
 
             $relatedPerson = [
                 'owner_contact_relation_id' => $record['owner_contact_relation_id'],
@@ -125,17 +140,17 @@ try {
     }
 } catch (\Exception $e) {
     $logger->error("Error loading relations for form", [
-        'foreign_table' => $foreign_table_name,
+        'foreign_table' => $foreign_table,
         'foreign_id' => $foreign_id,
         'error' => $e->getMessage()
     ]);
 }
 
 // Get list options for dropdowns
-$list_relationships = generate_list_map("related_person-relationship");
-$list_roles = generate_list_map("related_person-role");
-$list_telecom_systems = generate_list_map("telecom-systems");
-$list_telecom_uses = generate_list_map("telecom-uses");
+$list_relationships = generate_list_map("related_person_relationship");
+$list_roles = generate_list_map("related_person_role");
+$list_telecom_systems = generate_list_map("telecom_systems");
+$list_telecom_uses = generate_list_map("telecom_uses");
 $list_address_types = generate_list_map("address-types");
 $list_address_uses = generate_list_map("address-uses");
 $list_states = generate_list_map("state");

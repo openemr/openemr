@@ -207,7 +207,7 @@ class Person extends ORDataObject implements \JsonSerializable
 
     public function set_middle_name(string $middlename): self
     {
-        $this->middle_name = $middle_name;
+        $this->middle_name = $middlename;
         $this->setIsObjectModified(true);
         return $this;
     }

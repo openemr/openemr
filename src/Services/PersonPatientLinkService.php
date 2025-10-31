@@ -19,7 +19,7 @@ use OpenEMR\Validators\ProcessingResult;
 class PersonPatientLinkService extends BaseService
 {
     public const TABLE_NAME = 'person_patient_link';
-    
+
     private $logger;
 
     public function __construct()
@@ -46,7 +46,7 @@ class PersonPatientLinkService extends BaseService
         ?string $notes = null
     ): ProcessingResult {
         $processingResult = new ProcessingResult();
-        
+
         try {
             // Check if person exists
             $person = sqlQuery("SELECT * FROM person WHERE id = ?", [$personId]);
@@ -54,14 +54,14 @@ class PersonPatientLinkService extends BaseService
                 $processingResult->addInternalError("Person not found: $personId");
                 return $processingResult;
             }
-            
+
             // Check if patient exists
             $patient = sqlQuery("SELECT * FROM patient_data WHERE id = ?", [$patientId]);
             if (!$patient) {
                 $processingResult->addInternalError("Patient not found: $patientId");
                 return $processingResult;
             }
-            
+
             // Check if already linked
             $existing = $this->getActiveLink($personId, $patientId);
             if ($existing) {
@@ -73,12 +73,12 @@ class PersonPatientLinkService extends BaseService
                 ]);
                 return $processingResult;
             }
-            
+
             // Create the link
             $sql = "INSERT INTO person_patient_link 
                     (person_id, patient_id, linked_by, link_method, notes, active) 
                     VALUES (?, ?, ?, ?, ?, 1)";
-            
+
             $result = sqlInsert($sql, [
                 $personId,
                 $patientId,
@@ -86,11 +86,11 @@ class PersonPatientLinkService extends BaseService
                 $linkMethod,
                 $notes
             ]);
-            
+
             if ($result) {
                 $linkData = $this->getLink($result);
                 $processingResult->addData($linkData);
-                
+
                 $this->logger->info("Person linked to patient", [
                     'link_id' => $result,
                     'person_id' => $personId,
@@ -102,7 +102,6 @@ class PersonPatientLinkService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to create link");
             }
-            
         } catch (\Exception $e) {
             $this->logger->error("Error linking person to patient", [
                 'error' => $e->getMessage(),
@@ -111,7 +110,7 @@ class PersonPatientLinkService extends BaseService
             ]);
             $processingResult->addInternalError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
 
@@ -125,14 +124,14 @@ class PersonPatientLinkService extends BaseService
     public function unlinkPersonFromPatient(int $personId, int $patientId): ProcessingResult
     {
         $processingResult = new ProcessingResult();
-        
+
         try {
             $sql = "UPDATE person_patient_link 
                     SET active = 0 
                     WHERE person_id = ? AND patient_id = ? AND active = 1";
-            
+
             $result = sqlStatement($sql, [$personId, $patientId]);
-            
+
             if ($result) {
                 $this->logger->info("Person unlinked from patient", [
                     'person_id' => $personId,
@@ -142,7 +141,6 @@ class PersonPatientLinkService extends BaseService
             } else {
                 $processingResult->addInternalError("Link not found or already inactive");
             }
-            
         } catch (\Exception $e) {
             $this->logger->error("Error unlinking person from patient", [
                 'error' => $e->getMessage(),
@@ -151,7 +149,7 @@ class PersonPatientLinkService extends BaseService
             ]);
             $processingResult->addInternalError($e->getMessage());
         }
-        
+
         return $processingResult;
     }
 
@@ -172,7 +170,7 @@ class PersonPatientLinkService extends BaseService
                 WHERE ppl.person_id = ? 
                   AND ppl.patient_id = ? 
                   AND ppl.active = 1";
-        
+
         return sqlQuery($sql, [$personId, $patientId]) ?: null;
     }
 
@@ -197,7 +195,7 @@ class PersonPatientLinkService extends BaseService
                 LEFT JOIN person p ON p.id = ppl.person_id
                 LEFT JOIN patient_data pd ON pd.id = ppl.patient_id
                 WHERE ppl.id = ?";
-        
+
         return sqlQuery($sql, [$linkId]) ?: null;
     }
 
@@ -214,7 +212,7 @@ class PersonPatientLinkService extends BaseService
                 JOIN person_patient_link ppl ON ppl.patient_id = pd.id
                 WHERE ppl.person_id = ? AND ppl.active = 1
                 LIMIT 1";
-        
+
         return sqlQuery($sql, [$personId]) ?: null;
     }
 
@@ -232,7 +230,7 @@ class PersonPatientLinkService extends BaseService
                 LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
                 WHERE ppl.patient_id = ? AND ppl.active = 1
                 LIMIT 1";
-        
+
         return sqlQuery($sql, [$patientId]) ?: null;
     }
 
@@ -277,14 +275,14 @@ class PersonPatientLinkService extends BaseService
                   )
                 GROUP BY p.id
                 ORDER BY relationship_count DESC";
-        
+
         $result = sqlStatement($sql, [$first_name, $last_name, $birthDate]);
-        
+
         $matches = [];
         while ($row = sqlFetchArray($result)) {
             $matches[] = $row;
         }
-        
+
         return $matches;
     }
 
@@ -324,14 +322,14 @@ class PersonPatientLinkService extends BaseService
                 WHERE ppl.patient_id = ? 
                   AND ppl.active = 1
                 ORDER BY cr.contact_priority, cr.relationship";
-        
+
         $result = sqlStatement($sql, [$patientId]);
-        
+
         $relationships = [];
         while ($row = sqlFetchArray($result)) {
             $relationships[] = $row;
         }
-        
+
         return $relationships;
     }
 
@@ -368,14 +366,14 @@ class PersonPatientLinkService extends BaseService
                 HAVING relationship_count > 0
                 ORDER BY relationship_count DESC, pd.regdate DESC
                 LIMIT ?";
-        
+
         $result = sqlStatement($sql, [$limit]);
-        
+
         $matches = [];
         while ($row = sqlFetchArray($result)) {
             $matches[] = $row;
         }
-        
+
         return $matches;
     }
 
@@ -390,11 +388,11 @@ class PersonPatientLinkService extends BaseService
     public function migrateUnlinkedPersons(int $limit = 100, ?int $userId = null): array
     {
         $unlinked = $this->findUnlinkedPersonsWhoArePatients($limit);
-        
+
         $linked = 0;
         $failed = 0;
         $errors = [];
-        
+
         foreach ($unlinked as $match) {
             $result = $this->linkPersonToPatient(
                 $match['person_id'],
@@ -403,7 +401,7 @@ class PersonPatientLinkService extends BaseService
                 'migrated',
                 "Auto-linked during migration. Has {$match['relationship_count']} relationship(s)."
             );
-            
+
             if ($result->isValid()) {
                 $linked++;
             } else {
@@ -415,13 +413,13 @@ class PersonPatientLinkService extends BaseService
                 ];
             }
         }
-        
+
         $this->logger->info("Migration completed", [
             'linked' => $linked,
             'failed' => $failed,
             'total_processed' => count($unlinked)
         ]);
-        
+
         return [
             'linked' => $linked,
             'failed' => $failed,
@@ -459,14 +457,14 @@ class PersonPatientLinkService extends BaseService
                 GROUP BY ppl.id
                 ORDER BY ppl.linked_date DESC
                 LIMIT ? OFFSET ?";
-        
+
         $result = sqlStatement($sql, [$limit, $offset]);
-        
+
         $links = [];
         while ($row = sqlFetchArray($result)) {
             $links[] = $row;
         }
-        
+
         return $links;
     }
 
@@ -478,17 +476,17 @@ class PersonPatientLinkService extends BaseService
     public function getStatistics(): array
     {
         $stats = [];
-        
+
         // Total active links
         $stats['total_active_links'] = sqlQuery(
             "SELECT COUNT(*) as cnt FROM person_patient_link WHERE active = 1"
         )['cnt'] ?? 0;
-        
+
         // Total inactive links
         $stats['total_inactive_links'] = sqlQuery(
             "SELECT COUNT(*) as cnt FROM person_patient_link WHERE active = 0"
         )['cnt'] ?? 0;
-        
+
         // Links by method
         $methodCounts = sqlStatement(
             "SELECT link_method, COUNT(*) as cnt 
@@ -496,26 +494,26 @@ class PersonPatientLinkService extends BaseService
              WHERE active = 1 
              GROUP BY link_method"
         );
-        
+
         $stats['by_method'] = [];
         while ($row = sqlFetchArray($methodCounts)) {
             $stats['by_method'][$row['link_method']] = $row['cnt'];
         }
-        
+
         // Persons linked to patients
         $stats['persons_linked'] = sqlQuery(
             "SELECT COUNT(DISTINCT person_id) as cnt 
              FROM person_patient_link 
              WHERE active = 1"
         )['cnt'] ?? 0;
-        
+
         // Patients with linked person records
         $stats['patients_linked'] = sqlQuery(
             "SELECT COUNT(DISTINCT patient_id) as cnt 
              FROM person_patient_link 
              WHERE active = 1"
         )['cnt'] ?? 0;
-        
+
         return $stats;
     }
 }

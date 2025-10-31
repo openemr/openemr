@@ -89,7 +89,6 @@ class PersonService extends BaseService
             }
 
             $processingResult->addData($personArray);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Exception during person creation", [
                 'error' => $e->getMessage(),
@@ -135,7 +134,6 @@ class PersonService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to update person");
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error updating person", [
                 'id' => $personId,
@@ -202,7 +200,6 @@ class PersonService extends BaseService
 
             $this->getLogger()->info("Person deleted", ['id' => $personId]);
             $processingResult->addData(['deleted' => true, 'id' => $personId]);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error deleting person", [
                 'id' => $personId,
@@ -244,7 +241,6 @@ class PersonService extends BaseService
             // Create new person if not found
             $dataToCreate = array_merge($searchCriteria, $createData);
             return $this->create($dataToCreate);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error in findOrCreate", ['error' => $e->getMessage()]);
             $processingResult->addInternalError($e->getMessage());
@@ -309,7 +305,6 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error searching persons", ['error' => $e->getMessage()]);
             $processingResult->addInternalError($e->getMessage());
@@ -367,7 +362,6 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error finding related persons", [
                 'patient_id' => $patientId,
@@ -408,7 +402,7 @@ class PersonService extends BaseService
                     AND cr.target_id = ?
                     AND cr.active = 1";
 
-            $params = [$targetTable, $targetId];
+            $params = [$targetTable, $targetID];
 
             if (!empty($filters['relationship'])) {
                 $sql .= " AND cr.relationship = ?";
@@ -422,11 +416,10 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error finding related persons", [
-                'foreign_table' => $foreignTable,
-                'foreign_id' => $foreignId,
+                'foreign_table' => $targetTable,
+                'foreign_id' => $targetID,
                 'error' => $e->getMessage()
             ]);
             $processingResult->addInternalError($e->getMessage());
@@ -447,7 +440,7 @@ class PersonService extends BaseService
         $processingResult = new ProcessingResult();
 
         try {
-           $sql = "SELECT cr.*,
+            $sql = "SELECT cr.*,
                     cr.id as contact_relation_id,
                     c.id as contact_id,
                     c.foreign_table as owner_table,
@@ -465,7 +458,6 @@ class PersonService extends BaseService
             foreach ($results as $result) {
                 $processingResult->addData($result);
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error getting person relationships", [
                 'person_id' => $personId,
@@ -512,7 +504,7 @@ class PersonService extends BaseService
             }
 
             // Check if death date is after birth date
-            if (!empty($data['birth_date']) && isset($birthDate) && isset($deathDate)) {
+            if (!empty($data['birth_date']) && isset($birthDate) && $deathDate !== false) {
                 if ($deathDate < $birthDate) {
                     $errors['death_date'] = "Death date cannot be before birth date";
                 }

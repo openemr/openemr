@@ -33,6 +33,12 @@ $relatedPersons = [];
 
 try {
     // Get the contact for this entity
+    /**
+     * @global string $foreign_table The foreign table name (e.g., 'patient_data')
+     * @global int $foreign_id The foreign ID (e.g., patient ID)
+     */
+    $foreign_table ??= '';
+    $foreign_id ??= 0;
     $ownerContact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
 
     if ($ownerContact) {
@@ -126,12 +132,12 @@ try {
 }
 
 // Get list options
-$list_relationships = generate_list_map("related_person-relationship");
-$list_roles = generate_list_map("related_person-role");
+$list_relationships = generate_list_map("related_person_relationship");
+$list_roles = generate_list_map("related_person_role");
 $list_address_types = generate_list_map("address-types");
 $list_address_uses = generate_list_map("address-uses");
-$list_telecom_systems = generate_list_map("telecom-systems");
-$list_telecom_uses = generate_list_map("telecom-uses");
+$list_telecom_systems = generate_list_map("telecom_systems");
+$list_telecom_uses = generate_list_map("telecom_uses");
 
 // Generate unique table ID
 $table_id = uniqid("table_display_relations_");

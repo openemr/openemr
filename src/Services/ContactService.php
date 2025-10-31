@@ -40,7 +40,7 @@ class ContactService extends BaseService
     {
         // First try to find existing contact
         $sql = "SELECT * FROM contact
-                WHERE foreign_table = ?
+                WHERE foreign_table_name = ?
                 AND foreign_id = ?
                 LIMIT 1";
 
@@ -59,7 +59,7 @@ class ContactService extends BaseService
 
         $this->getLogger()->debug("Contact created for entity", [
             'id' => $contact->get_id(),
-            'foreign_table' => $foreignTable,
+            'foreign_table_name' => $foreignTable,
             'foreign_id' => $foreignId
         ]);
 
@@ -93,7 +93,7 @@ class ContactService extends BaseService
     public function getForEntity(string $foreignTable, int $foreignId): ?Contact
     {
         $sql = "SELECT * FROM contact
-                WHERE foreign_table = ?
+                WHERE foreign_table_name = ?
                 AND foreign_id = ?
                 LIMIT 1";
 
@@ -118,7 +118,7 @@ class ContactService extends BaseService
     public function entityHasContact(string $foreignTable, int $foreignId): bool
     {
         $sql = "SELECT id FROM contact
-                WHERE foreign_table = ?
+                WHERE foreign_table_name = ?
                 AND foreign_id = ?
                 LIMIT 1";
 
@@ -154,7 +154,6 @@ class ContactService extends BaseService
 
             $this->getLogger()->info("Contact deleted", ['id' => $contactId]);
             $processingResult->addData(['deleted' => true, 'id' => $contactId]);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error deleting contact", [
                 'id' => $contactId,
@@ -227,7 +226,7 @@ class ContactService extends BaseService
     {
         $sql = "SELECT id FROM contact
                 WHERE id = ?
-                AND foreign_table = ?
+                AND foreign_table_name = ?
                 AND foreign_id = ?";
 
         $result = sqlQuery($sql, [$contactId, $foreignTable, $foreignId]);
@@ -274,7 +273,6 @@ class ContactService extends BaseService
             ]);
 
             $processingResult->addData($contact->toArray());
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error transferring contact", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
@@ -326,7 +324,6 @@ class ContactService extends BaseService
                 'source_id' => $sourceContactId,
                 'target_id' => $targetContactId
             ]);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error merging contacts", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
@@ -349,7 +346,7 @@ class ContactService extends BaseService
                 (SELECT COUNT(*) FROM contact_address WHERE contact_id = c.id) as address_count,
                 (SELECT COUNT(*) FROM relationship WHERE contact_id = c.id) as relationship_count
                 FROM contact c
-                WHERE c.foreign_table = ?
+                WHERE c.foreign_table_name = ?
                 ORDER BY c.id ASC
                 LIMIT ? OFFSET ?";
 
@@ -371,14 +368,14 @@ class ContactService extends BaseService
         $stats['total_contacts'] = (int)$result['total'];
 
         // Contacts by foreign table
-        $sql = "SELECT foreign_table, COUNT(*) as count
+        $sql = "SELECT foreign_table_name, COUNT(*) as count
                 FROM contact
-                GROUP BY foreign_table";
+                GROUP BY foreign_table_name";
         $results = QueryUtils::fetchRecords($sql) ?? [];
 
         $stats['by_table'] = [];
         foreach ($results as $row) {
-            $stats['by_table'][$row['foreign_table']] = (int)$row['count'];
+            $stats['by_table'][$row['foreign_table_name']] = (int)$row['count'];
         }
 
         // Contacts with addresses
@@ -444,7 +441,6 @@ class ContactService extends BaseService
                     'deleted_count' => $deletedCount
                 ]);
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error cleaning up orphaned contacts", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());

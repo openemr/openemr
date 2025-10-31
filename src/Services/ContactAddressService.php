@@ -209,7 +209,6 @@ class ContactAddressService extends BaseService
             ]);
 
             return $savedRecords;
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error saving addresses for contact", [
                 'contact_id' => $contactId,

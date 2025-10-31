@@ -63,7 +63,7 @@
                     'data_type': widget_constants.listWithAddButton,
                     'field_id': field_id_esc ~ '[relationship][]',
                     'smallform': smallform ~ ' form_relations_relationship',
-                    'list_id': 'related_person-relationship',
+                    'list_id': 'related_person_relationship',
                     'description': 'Select Relationship',
                     'edit_options': edit_options,
                     'description': 'How this person is related (e.g., spouse, parent, sibling)'
@@ -77,7 +77,7 @@
                     'data_type': widget_constants.listWithAddButton,
                     'field_id': field_id_esc ~ '[role][]',
                     'smallform': smallform ~ ' form_relations_role',
-                    'list_id': 'related_person-role',
+                    'list_id': 'related_person_role',
                     'description': 'Select Role',
                     'edit_options': edit_options,
                     'description': 'Their role in care (e.g., emergency contact, guarantor)'
@@ -187,8 +187,6 @@
             </div>
         </div>
     </div>
-    {{field_id_esc}}
-    {{name_field_id}}
     {# Telecoms Section #}
     <div class="form-row">
         <div class="col-12">

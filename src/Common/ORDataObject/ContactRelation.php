@@ -31,8 +31,8 @@ class ContactRelation extends ORDataObject implements \JsonSerializable
     private const IS_PRIMARY_NO = 0;
 
     // List option IDs for validation
-    public const LIST_RELATIONSHIP_TYPES = 'related_person-relationship';
-    public const LIST_ROLE_TYPES = 'related_person-role';
+    public const LIST_RELATIONSHIP_TYPES = 'related_person_relationship';
+    public const LIST_ROLE_TYPES = 'related_person_role';
 
     // Field length constants
     private const MAX_RELATIONSHIP_LENGTH = 63;

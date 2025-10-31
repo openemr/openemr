@@ -20,6 +20,8 @@ $contactService = new ContactService();
 $telecomService = new ContactTelecomService();
 
 // Get contact for entity
+$foreign_table ??= '';
+$foreign_id ??= 0;
 $contact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
 
 // Transfer records to array
@@ -47,8 +49,8 @@ if ($contact) {
 }
 
 // Get list options for dropdowns
-$list_telecom_systems = generate_list_map("telecom-systems");
-$list_telecom_uses = generate_list_map("telecom-uses");
+$list_telecom_systems = generate_list_map("telecom_systems");
+$list_telecom_uses = generate_list_map("telecom_uses");
 
 // Generate unique table ID
 $table_id = uniqid("table_text_telecoms_");

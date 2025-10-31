@@ -73,7 +73,7 @@ $CPR = 4; // cells per row
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common', 'select2', 'erx']);
+    <?php Header::setupHeader(['datetime-picker','datetime-picker-translated', 'common', 'select2', 'erx']);
     ?>
     <title><?php echo xlt('Edit Current Patient'); ?></title>
 

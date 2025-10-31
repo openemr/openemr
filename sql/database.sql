@@ -1182,16 +1182,122 @@ DROP TABLE IF EXISTS `contact_address`;
     `notes` TINYTEXT,
     `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
     `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `period_start` DATETIME NULL COMMENT 'Date the address became active',
     `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
     `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
     PRIMARY KEY (`id`),
     KEY (`contact_id`),
     KEY (`address_id`),
     KEY contact_address_idx (`contact_id`,`address_id`)
 ) ENGINE = InnoDB ;
 
+
+DROP TABLE IF EXISTS `contact_telecom`;
+CREATE TABLE `contact_telecom` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `rank` INT(11) NULL COMMENT 'Specify preferred order of use (1 = highest)',
+    `system` VARCHAR(255) NULL
+    	COMMENT 'FK to list_options.option_id for list_id telecom_systems [phone, fax, email, pager, url, sms, other]',
+    `use` VARCHAR(255) NULL
+    	COMMENT 'FK to list_options.option_id for list_id telecom_uses [home, work, temp, old, mobile]',
+    `value` varchar(255) default NULL,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `notes` TINYTEXT,
+    `period_start` DATETIME NULL COMMENT 'Date the telecom became active',
+    `period_end` DATETIME NULL COMMENT 'Date the telecom became deactivated',
+    `inactivated_reason` VARCHAR(45) DEFAULT NULL COMMENT '[Values: ???, etc]',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+   PRIMARY KEY (`id`),
+    KEY (`contact_id`)
+) ENGINE = InnoDB ;
+
+DROP TABLE IF EXISTS `person`;
+CREATE TABLE `person` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `uuid` BINARY(16) DEFAULT NULL,
+    `title` VARCHAR(31) DEFAULT NULL COMMENT 'Mr., Mrs., Dr., etc.',
+    `first_name` VARCHAR(63) DEFAULT NULL,
+    `middle_name` VARCHAR(63) DEFAULT NULL,
+    `last_name` VARCHAR(63) DEFAULT NULL,
+    `preferred_name` VARCHAR(63) DEFAULT NULL COMMENT 'Name person prefers to be called',
+    `gender` VARCHAR(31) DEFAULT NULL,
+    `birth_date` DATE DEFAULT NULL,
+    `death_date` DATE DEFAULT NULL,
+    `marital_status` VARCHAR(31) DEFAULT NULL,
+    `race` VARCHAR(63) DEFAULT NULL,
+    `ethnicity` VARCHAR(63) DEFAULT NULL,
+    `preferred_language` VARCHAR(63) DEFAULT NULL COMMENT 'ISO 639-1 code',
+    `communication` VARCHAR(254) DEFAULT NULL COMMENT 'Communication preferences/needs',
+    `ssn` VARCHAR(31) DEFAULT NULL COMMENT 'Should be encrypted in application',
+    `active` TINYINT(1) DEFAULT 1 COMMENT '1=active, 0=inactive',
+    `inactive_reason` VARCHAR(255) DEFAULT NULL,
+    `inactive_date` DATETIME DEFAULT NULL,
+    `notes` TEXT DEFAULT NULL,
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`),
+    KEY `idx_person_name` (`last_name`, `first_name`),
+    KEY `idx_person_dob` (`birth_date`),
+    KEY `idx_person_search` (`last_name`, `first_name`, `birth_date`),
+    KEY `idx_person_active` (`active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Core person demographics - contact info in contact_telecom';
+
+DROP TABLE IF EXISTS `contact_relation`;
+CREATE TABLE `contact_relation` (
+    `id`  BIGINT(20) NOT NULL auto_increment,
+    `contact_id`  BIGINT(20) NOT NULL,
+    `target_table`  VARCHAR(255) NOT NULL DEFAULT '',
+    `target_id`  BIGINT(20) NOT NULL,
+    `active` BOOLEAN DEFAULT TRUE,
+    `role` VARCHAR(63)  DEFAULT NULL,
+    `relationship` VARCHAR(63)  DEFAULT NULL,
+    `contact_priority` INT DEFAULT 1 COMMENT '1=highest priority',
+    `is_primary_contact` BOOLEAN DEFAULT FALSE,
+    `is_emergency_contact` BOOLEAN DEFAULT FALSE,
+    `can_make_medical_decisions` BOOLEAN DEFAULT FALSE,
+    `can_receive_medical_info` BOOLEAN DEFAULT FALSE,
+    `start_date` DATE,
+    `end_date` DATE,
+    `notes` TEXT,
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+   PRIMARY KEY (`id`),
+   KEY (`contact_id`),
+   INDEX idx_contact_target_table (target_table, target_id)
+) ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `person_patient_link`;
+CREATE TABLE `person_patient_link` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `person_id` BIGINT(20) NOT NULL COMMENT 'FK to person.id',
+    `patient_id` BIGINT(20) NOT NULL COMMENT 'FK to patient_data.id',
+    `linked_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+    `linked_by` BIGINT(20) DEFAULT NULL COMMENT 'FK to users.id - who created the link',
+    `link_method` VARCHAR(50) DEFAULT 'manual' COMMENT 'How link was created: manual, auto_detected, migrated, import',
+    `notes` TEXT COMMENT 'Optional notes about why/how they were linked',
+    `active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Whether link is active (allows soft delete)',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_active_link` (`person_id`, `patient_id`, `active`),
+    KEY `idx_ppl_person` (`person_id`),
+    KEY `idx_ppl_patient` (`patient_id`),
+    KEY `idx_ppl_active` (`active`),
+    KEY `idx_ppl_linked_date` (`linked_date`),
+    KEY `idx_ppl_method` (`link_method`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Links person records to patient_data records when person becomes patient';
 -- --------------------------------------------------------
 
 --
@@ -7357,13 +7463,217 @@ VALUES ('medication_adherence_information_source', 'professional_nurse', 'Profes
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','medication_adherence','Medication Adherence',0,0,0,'Codeset from valueset http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1240.8 (rMedicationAdherence)',1);
 
-INSERT INTO list_options (list_id, option_id, title, seq, codes)
-VALUES ('medication_adherence', 'compliance', 'Complies with drug therapy (finding)', 10, 'SNOMED-CT:1156699004'),
+INSERT INTO list_options (list_id, option_id, title, seq, codes) VALUES ('medication_adherence', 'compliance', 'Complies with drug therapy (finding)', 10, 'SNOMED-CT:1156699004'),
        ('medication_adherence', 'non_compliance', 'Does not take medication (finding)', 20, 'SNOMED-CT:715036001'),
        ('medication_adherence', 'asked_declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined'),
        ('medication_adherence', 'asked_unknown', 'Asked But Unknown', 40, 'DataAbsentReason:asked-unknown'),
        ('medication_adherence', 'not_asked', 'Not Asked', 50, 'DataAbsentReason:not-asked'),
        ('medication_adherence', 'unknown', 'Unknown', 60, 'DataAbsentReason:unknown');
+
+-- Related Person relationships
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+    VALUES ('lists','related_person_relationship','Related Person Relationships',0, 1, 0);
+
+-- Spouse/Partner
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','SPS','spouse',10,0,1),
+    ('related_person_relationship','HUSB','husband',20,0,1),
+    ('related_person_relationship','WIFE','wife',30,0,1),
+    ('related_person_relationship','DOMPART','domestic partner',40,0,1),
+    ('related_person_relationship','SIGOTHR','significant other',50,0,1),
+    ('related_person_relationship','FMRSPS','former spouse',60,0,1);
+
+    -- Parents
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','PRN','parent',70,0,1),
+    ('related_person_relationship','NPRN','natural parent',80,0,1),
+    ('related_person_relationship','FTH','father',90,0,1),
+    ('related_person_relationship','NFTH','natural father',100,0,1),
+    ('related_person_relationship','MTH','mother',110,0,1),
+    ('related_person_relationship','NMTH','natural mother',120,0,1),
+    ('related_person_relationship','ADOPTF','adoptive father',130,0,1),
+    ('related_person_relationship','ADOPTM','adoptive mother',140,0,1),
+    ('related_person_relationship','ADOPTP','adoptive parent',150,0,1),
+    ('related_person_relationship','FTHFOST','foster father',160,0,1),
+    ('related_person_relationship','MTHFOST','foster mother',170,0,1),
+    ('related_person_relationship','PRNFOST','foster parent',180,0,1),
+    ('related_person_relationship','STPFTH','stepfather',190,0,1),
+    ('related_person_relationship','STPMTH','stepmother',200,0,1),
+    ('related_person_relationship','STPPRN','step parent',210,0,1),
+    ('related_person_relationship','GESTM','gestational mother',220,0,1);
+
+    -- Children
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','CHILD','Child',230,0,1),
+    ('related_person_relationship','NCHILD','natural child',240,0,1),
+    ('related_person_relationship','DAUC','daughter',250,0,1),
+    ('related_person_relationship','DAU','natural daughter',260,0,1),
+    ('related_person_relationship','SONC','son',270,0,1),
+    ('related_person_relationship','SON','natural son',280,0,1),
+    ('related_person_relationship','CHLDADOPT','Adopted Child',290,0,1),
+    ('related_person_relationship','DAUADOPT','Adopted Daughter',300,0,1),
+    ('related_person_relationship','SONADOPT','Adopted Son',310,0,1),
+    ('related_person_relationship','CHLDFOST','Foster Child',320,0,1),
+    ('related_person_relationship','DAUFOST','foster daughter',330,0,1),
+    ('related_person_relationship','SONFOST','foster son',340,0,1),
+    ('related_person_relationship','STPCHLD','step child',350,0,1),
+    ('related_person_relationship','STPDAU','stepdaughter',360,0,1),
+    ('related_person_relationship','STPSON','stepson',370,0,1);
+
+    -- Siblings
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','SIB','sibling',380,0,1),
+    ('related_person_relationship','NSIB','natural sibling',390,0,1),
+    ('related_person_relationship','BRO','brother',400,0,1),
+    ('related_person_relationship','NBRO','natural brother',410,0,1),
+    ('related_person_relationship','SIS','sister',420,0,1),
+    ('related_person_relationship','NSIS','natural sister',430,0,1),
+    ('related_person_relationship','HBRO','half-brother',440,0,1),
+    ('related_person_relationship','HSIS','half-sister',450,0,1),
+    ('related_person_relationship','HSIB','half-sibling',460,0,1),
+    ('related_person_relationship','STPBRO','stepbrother',470,0,1),
+    ('related_person_relationship','STPSIS','stepsister',480,0,1),
+    ('related_person_relationship','STPSIB','step sibling',490,0,1),
+    ('related_person_relationship','TWIN','twin',500,0,1),
+    ('related_person_relationship','TWINBRO','twin brother',510,0,1),
+    ('related_person_relationship','TWINSIS','twin sister',520,0,1),
+    ('related_person_relationship','FTWIN','fraternal twin',530,0,1),
+    ('related_person_relationship','FTWINBRO','fraternal twin brother',540,0,1),
+    ('related_person_relationship','FTWINSIS','fraternal twin sister',550,0,1),
+    ('related_person_relationship','ITWIN','identical twin',560,0,1),
+    ('related_person_relationship','ITWINBRO','identical twin brother',570,0,1),
+    ('related_person_relationship','ITWINSIS','identical twin sister',580,0,1);
+
+    -- Grandparents
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','GRPRN','grandparent',590,0,1),
+    ('related_person_relationship','GRFTH','grandfather',600,0,1),
+    ('related_person_relationship','GRMTH','grandmother',610,0,1),
+    ('related_person_relationship','MGRPRN','maternal grandparent',620,0,1),
+    ('related_person_relationship','MGRFTH','maternal grandfather',630,0,1),
+    ('related_person_relationship','MGRMTH','maternal grandmother',640,0,1),
+    ('related_person_relationship','PGRPRN','paternal grandparent',650,0,1),
+    ('related_person_relationship','PGRFTH','paternal grandfather',660,0,1),
+    ('related_person_relationship','PGRMTH','paternal grandmother',670,0,1);
+
+    -- Great Grandparents
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','GGRPRN','great grandparent',680,0,1),
+    ('related_person_relationship','GGRFTH','great grandfather',690,0,1),
+    ('related_person_relationship','GGRMTH','great grandmother',700,0,1),
+    ('related_person_relationship','MGGRPRN','maternal great-grandparent',710,0,1),
+    ('related_person_relationship','MGGRFTH','maternal great-grandfather',720,0,1),
+    ('related_person_relationship','MGGRMTH','maternal great-grandmother',730,0,1),
+    ('related_person_relationship','PGGRPRN','paternal great-grandparent',740,0,1),
+    ('related_person_relationship','PGGRFTH','paternal great-grandfather',750,0,1),
+    ('related_person_relationship','PGGRMTH','paternal great-grandmother',760,0,1);
+
+    -- Grandchildren
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','GRNDCHILD','grandchild',770,0,1),
+    ('related_person_relationship','GRNDDAU','granddaughter',780,0,1),
+    ('related_person_relationship','GRNDSON','grandson',790,0,1);
+
+    -- Extended Family
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','FAMMEMB','Family Member',800,0,1),
+    ('related_person_relationship','EXT','extended family member',810,0,1),
+    ('related_person_relationship','AUNT','aunt',820,0,1),
+    ('related_person_relationship','MAUNT','maternal aunt',830,0,1),
+    ('related_person_relationship','PAUNT','paternal aunt',840,0,1),
+    ('related_person_relationship','UNCLE','uncle',850,0,1),
+    ('related_person_relationship','MUNCLE','maternal uncle',860,0,1),
+    ('related_person_relationship','PUNCLE','paternal uncle',870,0,1),
+    ('related_person_relationship','COUSN','maternal cousin',880,0,1),
+    ('related_person_relationship','MCOUSN','maternal cousin',890,0,1),
+    ('related_person_relationship','PCOUSN','paternal cousin',900,0,1),
+    ('related_person_relationship','NEPHEW','nephew',910,0,1),
+    ('related_person_relationship','NIECE','niece',920,0,1);
+
+    -- In-Laws
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','INLAW','inlaw',930,0,1),
+    ('related_person_relationship','PRNINLAW','parent in-law',940,0,1),
+    ('related_person_relationship','FTHINLAW','father-in-law',950,0,1),
+    ('related_person_relationship','MTHINLAW','mother-in-law',960,0,1),
+    ('related_person_relationship','SIBINLAW','sibling in-law',970,0,1),
+    ('related_person_relationship','BROINLAW','brother-in-law',980,0,1),
+    ('related_person_relationship','SISINLAW','sister-in-law',990,0,1),
+    ('related_person_relationship','DAUINLAW','daughter in-law',1000,0,1),
+    ('related_person_relationship','SONINLAW','son in-law',1010,0,1);
+
+    -- Legal/Guardian Relationships
+    -- INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    -- ('related_person_relationship','GUADLTM','guardian ad lidem',1030,0,1),
+    -- ('related_person_relationship','SPOWATT','special power of attorney',1050,0,1);
+
+    -- Other Relationships
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','FRND','unrelated friend',1070,0,1),
+    ('related_person_relationship','NBOR','neighbor',1080,0,1),
+    ('related_person_relationship','ROOM','Roommate',1090,0,1);
+
+    -- Self
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_relationship','ONESELF','self',1100,0,1);
+
+-- Related Person Roles
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','related_person_role','Related Person Role',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('related_person_role','ECON','Emergency Contact',10,0,1),
+    ('related_person_role','NOK','Next of Kin',20,0,1),
+    ('related_person_role','GUARD','Guardian',30,0,1),
+    ('related_person_role','DEPEN','Dependent',40,0,1),
+    ('related_person_role','CON','contact',50,0,1),
+    ('related_person_role','EMP','Employee',60,0,1),
+    ('related_person_role','GUAR','Guarantor',70,0,1),
+    ('related_person_role','CAREGIVER','Caregiver',80,0,1),
+    ('related_person_role','POWATT','Power of Attorney',90,0,1),
+    ('related_person_role','DPOWATT','Durable Power of Attorney',100,0,1),
+    ('related_person_role','HPOWATT','Healthcare Power of Attorney',110,0,1),
+    ('related_person_role','BILL','Billing Contact',120,0,1),
+    ('related_person_role','E','Employer',130,0,1),
+    ('related_person_role','POLHOLD','Policy Holder',140,0,1),
+    ('related_person_role','PAYEE','Payee',150,0,1),
+    ('related_person_role','NOT','Notary Public',160,0,1),
+    ('related_person_role','PROV','Healthcare Provider',170,0,1),
+    ('related_person_role','WIT','Witness',180,0,1),
+    ('related_person_role','O','Other',190,0,1),
+    ('related_person_role','U','Unknown',200,0,1);
+#EndIf
+
+-- Telecom System types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
+    VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+    ('telecom_systems','PHONE','phone',10,0,1),
+    ('telecom_systems','FAX','fax',20,0,1),
+    ('telecom_systems','EMAIL','email',30,0,1),
+    ('telecom_systems','PAGER','pager',40,0,1),
+    ('telecom_systems','URL','url',50,0,1),
+    ('telecom_systems','SMS','sms',60,0,1),
+    ('telecom_systems','OTHER','other',70,0,1);
+
+-- Telecome Uses
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity)
+VALUES
+    ('telecom_uses','HOME','home',10,0,1),
+    ('telecom_uses','WORK','work',20,0,1),
+    ('telecom_uses','TEMP','temp',30,0,1),
+    ('telecom_uses','OLD','old',40,0,1),
+    ('telecom_uses','MOBILE','mobile',50,0,1);
+
+-- Person Patient Link Method
+INSERT INTO list_options (list_id, option_id, title, seq, is_default) VALUES ('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes)
+VALUES
+    ('person_patient_link_method', 'manual', 'Manually Linked by User', 10, 1, 0, 'User explicitly linked person to patient'),
+    ('person_patient_link_method', 'auto_detected', 'Auto-Detected at Registration', 20, 0, 0, 'System detected match during patient registration'),
+    ('person_patient_link_method', 'migrated', 'Migrated from Legacy System', 30, 0, 0, 'Link created during data migration'),
+    ('person_patient_link_method', 'import', 'Imported from External System', 40, 0, 0, 'Link created during data import'),
+    ('person_patient_link_method', 'merge', 'Merged Duplicate Records', 50, 0, 0, 'Link created when merging duplicate records');
+
 --
 -- Table structure for table `lists`
 --
@@ -8163,6 +8473,8 @@ CREATE TABLE `patient_data` (
   `sex_identified` TEXT COMMENT 'Patient reported current sex',
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
+  KEY `idx_patient_name` (`lname`, `fname`),
+  KEY `idx_patient_dob` (`DOB`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------

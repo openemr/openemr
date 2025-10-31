@@ -15,6 +15,10 @@ ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
 require_once("../../globals.php");
+/**
+ * @global string $srcdir defined in globals
+ */
+$srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -22,7 +26,8 @@ use OpenEMR\Services\PersonService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\PersonPatientLinkService;
 use OpenEMR\Common\Logging\SystemLogger;
-
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\ContactTelecomService;
 // Initialize logger early
 $logger = new SystemLogger();
 
@@ -194,7 +199,7 @@ $logger->debug("Processing action", [
 try {
     switch ($action) {
         case 'search_persons':
-            handleSearchPersons($jsonInput, $personService, $contactService, $linkService, $logger);
+            handleSearchPersons($jsonInput, $contactService, $linkService, $logger);
             break;
 
         case 'create_person':
@@ -248,7 +253,7 @@ try {
 /**
  * Search for persons in both person and patient_data tables
  */
-function handleSearchPersons($input, $personService, $contactService, $linkService, $logger)
+function handleSearchPersons($input, $contactService, $linkService, $logger): void
 {
     $first_name = trim($input['first_name'] ?? '');
     $last_name = trim($input['last_name'] ?? '');
@@ -266,11 +271,11 @@ function handleSearchPersons($input, $personService, $contactService, $linkServi
     $results = [];
 
     // Search person table
-    $personResults = searchPersonTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService);
+    $personResults = searchPersonTable($first_name, $last_name, $birthDate, $phone);
     $results = array_merge($results, $personResults);
 
     // Search patient_data table
-    $patientResults = searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService);
+    $patientResults = searchPatientDataTable($first_name, $last_name, $birthDate, $phone);
     $results = array_merge($results, $patientResults);
 
     // Remove duplicates
@@ -300,7 +305,7 @@ function handleSearchPersons($input, $personService, $contactService, $linkServi
 /**
  * Search person table with link information and contact telecom data
  */
-function searchPersonTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService)
+function searchPersonTable($first_name, $last_name, $birthDate, $phone): array
 {
     $sql = "SELECT p.*,
                    c.id as contact_id,
@@ -311,7 +316,7 @@ function searchPersonTable($first_name, $last_name, $birthDate, $phone, $contact
                    GROUP_CONCAT(DISTINCT CASE WHEN ct.system = 'phone' THEN ct.value END) as phone,
                    GROUP_CONCAT(DISTINCT CASE WHEN ct.system = 'email' THEN ct.value END) as email
             FROM person p
-            LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+            LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
             LEFT JOIN person_patient_link ppl ON ppl.person_id = p.id AND ppl.active = 1
             LEFT JOIN patient_data pd ON pd.id = ppl.patient_id
             LEFT JOIN contact_telecom ct ON ct.contact_id = c.id
@@ -357,10 +362,10 @@ function searchPersonTable($first_name, $last_name, $birthDate, $phone, $contact
     $sql .= " GROUP BY p.id, c.id, ppl.patient_id, pd.pid, ppl.link_method, ppl.linked_date";
     $sql .= " ORDER BY p.last_name, p.first_name LIMIT 50";
 
-    $result = sqlStatement($sql, $params);
+    $result = QueryUtils::sqlStatementThrowException($sql, $params);
 
     $persons = [];
-    while ($row = sqlFetchArray($result)) {
+    while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
         $persons[] = [
             'id' => $row['id'],
             'target_table' => 'person',
@@ -387,7 +392,7 @@ function searchPersonTable($first_name, $last_name, $birthDate, $phone, $contact
 /**
  * Search patient_data table with link information
  */
-function searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $contactService, $linkService)
+function searchPatientDataTable($first_name, $last_name, $birthDate, $phone): array
 {
     $sql = "SELECT pd.*,
                    c.id as contact_id,
@@ -395,7 +400,7 @@ function searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $co
                    ppl.link_method,
                    ppl.linked_date
             FROM patient_data pd
-            LEFT JOIN contact c ON c.foreign_table = 'patient_data' AND c.foreign_id = pd.id
+            LEFT JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pd.id
             LEFT JOIN person_patient_link ppl ON ppl.patient_id = pd.id AND ppl.active = 1
             WHERE 1=1";
 
@@ -423,17 +428,12 @@ function searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $co
         $params[] = "%$phone%";
     }
 
-    if (!empty($email)) {
-        $sql .= " AND pd.email LIKE ?";
-        $params[] = "%$email%";
-    }
-
     $sql .= " ORDER BY pd.lname, pd.fname LIMIT 50";
 
-    $result = sqlStatement($sql, $params);
+    $result = QueryUtils::sqlStatementThrowException($sql, $params);
 
     $patients = [];
-    while ($row = sqlFetchArray($result)) {
+    while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
         $patients[] = [
             'id' => $row['id'],
             'pid' => $row['pid'],
@@ -459,7 +459,7 @@ function searchPatientDataTable($first_name, $last_name, $birthDate, $phone, $co
 /**
  * Remove duplicate results
  */
-function deduplicateResults($results)
+function deduplicateResults($results): array
 {
     $seen = [];
     $unique = [];
@@ -493,7 +493,7 @@ function deduplicateResults($results)
  * Handle create person request - COMPLETE FIXED VERSION
  * Properly handles email/phone in contact_telecom instead of person table
  */
-function handleCreatePerson($input, $personService, $contactService, $logger)
+function handleCreatePerson($input, PersonService $personService, $contactService, $logger): void
 {
     // Validate required fields
     if (empty($input['first_name']) || empty($input['last_name'])) {
@@ -524,8 +524,7 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
 
     $logger->debug("Attempting to create person", [
         'personData' => $personData,
-        'has_phone' => !empty($phone),
-        'has_email' => !empty($email)
+        'has_phone' => !empty($phone)
     ]);
 
     // Create person via service
@@ -622,56 +621,44 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
     ]);
 
     // Now add phone and email to contact_telecom if provided
-    $telecomService = new \OpenEMR\Services\ContactTelecomService();
+    $telecomService = new ContactTelecomService();
     $addedTelecoms = [];
 
     try {
         if (!empty($phone)) {
-            $phoneResult = $telecomService->create([
-                'contact_id' => $contactId,
-                'system' => 'phone',
-                'value' => $phone,
-                'use' => 'home',
-                'rank' => 1
+            // if the save fails an exception will be thrown
+            $telecomService->saveTelecomsForContact($contactId, [
+                'contact_id' => [$contactId],
+                'system' => ['phone'],
+                'value' => [$phone],
+                'use' => ['home'],
+                'rank' => [1]
             ]);
 
-            if ($phoneResult->isValid()) {
-                $addedTelecoms[] = 'phone';
-                $logger->debug("Phone added to contact_telecom", [
-                    'contact_id' => $contactId,
-                    'phone' => $phone
-                ]);
-            } else {
-                $logger->warning("Failed to add phone to contact_telecom", [
-                    'contact_id' => $contactId,
-                    'errors' => $phoneResult->getInternalErrors()
-                ]);
-            }
-        }
-
-        if (!empty($email)) {
-            $emailResult = $telecomService->create([
+            $addedTelecoms[] = 'phone';
+            $logger->debug("Phone added to contact_telecom", [
                 'contact_id' => $contactId,
-                'system' => 'email',
-                'value' => $email,
-                'use' => 'home',
-                'rank' => 1
+                'phone' => $phone
             ]);
-
-            if ($emailResult->isValid()) {
-                $addedTelecoms[] = 'email';
-                $logger->debug("Email added to contact_telecom", [
-                    'contact_id' => $contactId,
-                    'email' => $email
-                ]);
-            } else {
-                $logger->warning("Failed to add email to contact_telecom", [
-                    'contact_id' => $contactId,
-                    'errors' => $emailResult->getInternalErrors()
-                ]);
-            }
         }
-    } catch (\Exception $e) {
+
+        // email was commented out above, so commenting this out too
+//        if (!empty($email)) {
+//            $emailResult = $telecomService->saveTelecomsForContact($contactId, [
+//                'contact_id' => [$contactId],
+//                'system' => ['email'],
+//                'value' => [$email],
+//                'use' => ['home'],
+//                'rank' => [1]
+//            ]);
+//
+//            $addedTelecoms[] = 'email';
+//            $logger->debug("Email added to contact_telecom", [
+//                'contact_id' => $contactId,
+//                'email' => $email
+//            ]);
+//        }
+    } catch (Exception $e) {
         $logger->error("Exception adding telecoms", [
             'contact_id' => $contactId,
             'error' => $e->getMessage()
@@ -695,7 +682,7 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
             'full_name' => ($personArray['first_name'] ?? '') . ' ' . ($personArray['last_name'] ?? ''),
             // Include the telecoms we just added
             'phone' => $phone,  // Return what was submitted
-            'email' => $email,  // Return what was submitted
+//            'email' => $email,  // Return what was submitted
             'notes' => $personArray['notes'] ?? '',
             'telecoms_added' => $addedTelecoms
         ]
@@ -704,6 +691,6 @@ function handleCreatePerson($input, $personService, $contactService, $logger)
     echo json_encode($response);
 }
 
-function handleCheckPersonMatch($input, $linkService, $logger) { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
-function handleLinkPersonToPatient($input, $linkService, $logger) { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
-function handleUnlinkPersonFromPatient($input, $linkService, $logger) { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+function handleCheckPersonMatch($input, $linkService, $logger): void { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+function handleLinkPersonToPatient($input, $linkService, $logger): void { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+function handleUnlinkPersonFromPatient($input, $linkService, $logger): void { echo json_encode(['success' => false, 'message' => 'Not implemented']); }

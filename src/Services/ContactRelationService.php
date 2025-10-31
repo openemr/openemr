@@ -80,7 +80,6 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error creating relationship", [
                 'contact_id' => $contactId,
@@ -127,7 +126,6 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error updating relationship", [
                 'contact_relation_id' => $relationId,
@@ -169,7 +167,6 @@ class ContactRelationService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to deactivate relationship");
             }
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error deactivating relationship", [
                 'contact_relation_id' => $relationId,
@@ -203,7 +200,6 @@ class ContactRelationService extends BaseService
                 'deleted' => true,
                 'contact_relation_id' => $relationId
             ]);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error deleting relationship", [
                 'contact_relation_id' => $relationId,
@@ -257,7 +253,7 @@ class ContactRelationService extends BaseService
         $sql = "SELECT cr.*,
                 cr.id as contact_relation_id,
                 c.id as contact_id,
-                c.foreign_table as owner_table,
+                c.foreign_table_name as owner_table,
                 c.foreign_id as owner_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
@@ -289,7 +285,7 @@ class ContactRelationService extends BaseService
         $sql = "SELECT cr.*,
                 cr.id as owner_contact_relation_id,
                 c.id as owner_contact_id,
-                c.foreign_table as owner_table,
+                c.foreign_table_name as owner_table,
                 c.foreign_id as owner_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
@@ -375,14 +371,14 @@ class ContactRelationService extends BaseService
      * @return array
      */
     public function getRelationshipBetween(
-        int $owner_contactId,
-        int $target_contactId,
+        int $contactId,
+        int $targetId,
         bool $includeInactive = false
     ): array {
         $sql = "SELECT cr.*,
                 cr.id as contact_relation_id
                 FROM contact_relation cr
-                INNER JOIN contact c ON c.foreign_table = cr.target_table
+                INNER JOIN contact c ON c.foreign_table_name = cr.target_table
                                     AND c.foreign_id = cr.target_id
                 WHERE cr.contact_id = ?
                 AND c.id = ?";
@@ -391,7 +387,7 @@ class ContactRelationService extends BaseService
             $sql .= " AND cr.active = 1";
         }
 
-        return QueryUtils::fetchRecords($sql, [$contactId, $targetTable, $targetId]) ?? [];
+        return QueryUtils::fetchRecords($sql, [$contactId, $targetId]) ?? [];
     }
 
 
@@ -411,11 +407,11 @@ class ContactRelationService extends BaseService
         $sql = "SELECT cr.*,
                 cr.id as contact_relation_id,
                 c.id as contact_id,
-                c.foreign_table as owner_table,
+                c.foreign_table_name as owner_table,
                 c.foreign_id as owner_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
-                WHERE c.foreign_table = ?
+                WHERE c.foreign_table_name = ?
                 AND cr.target_table = ?";
 
         $params = [$ownerTable, $targetTable];
@@ -485,7 +481,7 @@ class ContactRelationService extends BaseService
         static $relationships = null;
 
         if ($relationships === null) {
-            $list = $this->listService->getOptionsByListName('related_person-relationship');
+            $list = $this->listService->getOptionsByListName('related_person_relationship');
             $relationships = array_reduce($list, function ($map, $item) {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
@@ -506,7 +502,7 @@ class ContactRelationService extends BaseService
         static $roles = null;
 
         if ($roles === null) {
-            $list = $this->listService->getOptionsByListName('related_person-role');
+            $list = $this->listService->getOptionsByListName('related_person_role');
             $roles = array_reduce($list, function ($map, $item) {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
@@ -544,7 +540,6 @@ class ContactRelationService extends BaseService
                 'source_contact_id' => $sourceContactId,
                 'destination_contact_id' => $destinationContactId
             ]);
-
         } catch (\Exception $e) {
             $this->getLogger()->error("Error transferring relationships", [
                 'error' => $e->getMessage()
@@ -565,9 +560,9 @@ class ContactRelationService extends BaseService
      */
     public function getEmergencyContacts(string $foreignTable, int $foreignId): array
     {
-        $sql = "SELECT cr.*, c.foreign_table, c.foreign_id,
+        $sql = "SELECT cr.*, c.foreign_table_name, c.foreign_id,
                 CASE
-                    WHEN c.foreign_table = 'person' THEN
+                    WHEN c.foreign_table_name = 'person' THEN
                         (SELECT CONCAT(p.first_name, ' ', p.last_name) FROM person p WHERE p.id = c.foreign_id)
                     ELSE 'Unknown'
                 END as contact_name
@@ -855,16 +850,16 @@ class ContactRelationService extends BaseService
         $stats['total_active'] = (int)$result['total'];
 
         // By entity type
-        $sql = "SELECT c.foreign_table, COUNT(*) as count
+        $sql = "SELECT c.foreign_table_name, COUNT(*) as count
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
                 WHERE cr.active = 1
-                GROUP BY c.foreign_table";
+                GROUP BY c.foreign_table_name";
         $results = QueryUtils::fetchRecords($sql) ?? [];
 
         $stats['by_contact_type'] = [];
         foreach ($results as $row) {
-            $stats['by_contact_type'][$row['foreign_table']] = (int)$row['count'];
+            $stats['by_contact_type'][$row['foreign_table_name']] = (int)$row['count'];
         }
 
         // Emergency contacts
