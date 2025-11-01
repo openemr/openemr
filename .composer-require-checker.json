@@ -13,7 +13,6 @@
     "Laminas\\Config\\Reader\\Exception\\RuntimeException",
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
-    "OpenEMR\\Common\\Auth\\u2flib_server\\Error",
     "OpenEMR\\Common\\Http\\UploadedFile",
     "OpenEMR\\Common\\Utils\\Error",
     "OpenEMR\\Common\\Utils\\Exception",
