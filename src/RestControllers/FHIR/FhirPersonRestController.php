@@ -49,13 +49,14 @@ class FhirPersonRestController
 
     /**
      * Queries for a single FHIR person resource by FHIR id
-     * @param $fhirId The FHIR person resource id (uuid)
+     * @param string $fhirId The FHIR person resource id (uuid)
+     * @param string|null $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne(string $fhirId, ?string $puuidBind = null)
     {
         $this->logger->debug("FhirPersonRestController->getOne(fhirId)", ["fhirId" => $fhirId]);
-        $processingResult = $this->fhirPersonService->getOne($fhirId, true);
+        $processingResult = $this->fhirPersonService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 

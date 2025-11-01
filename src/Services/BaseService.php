@@ -26,6 +26,7 @@ use Particle\Validator\Exception\InvalidValueException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
@@ -57,6 +58,11 @@ class BaseService implements BaseServiceInterface
     private $eventDispatcher;
 
     /**
+     * @var ?SessionInterface For handling session data in the service
+     */
+    private ?SessionInterface $session = null;
+
+    /**
      * Default constructor.
      * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
@@ -67,6 +73,16 @@ class BaseService implements BaseServiceInterface
         $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    }
+
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
     }
 
     public function getEventDispatcher(): EventDispatcher

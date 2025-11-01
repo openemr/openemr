@@ -11,6 +11,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirDiagnosticReportService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -25,10 +26,11 @@ class FhirDiagnosticReportRestController
      */
     private $service;
 
-    public function __construct()
+    public function __construct(HttpRestRequest $request)
     {
         $this->fhirService = new FhirResourcesService();
         $this->service = new FhirDiagnosticReportService();
+        $this->service->setSession($request->getSession());
     }
 
     /**

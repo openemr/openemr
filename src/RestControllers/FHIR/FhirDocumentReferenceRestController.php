@@ -32,6 +32,7 @@ class FhirDocumentReferenceRestController
     {
         $this->fhirService = new FhirResourcesService();
         $this->service = new FhirDocumentReferenceService($request->getApiBaseFullUrl());
+        $this->service->setSession($request->getSession());
     }
 
     /**

@@ -142,6 +142,7 @@ class ServerScopeListEntity
                 'Encounter',
                 'Goal',
                 'Immunization',
+                'Media',
                 'MedicationDispense',
                 'MedicationRequest',
                 'Observation',

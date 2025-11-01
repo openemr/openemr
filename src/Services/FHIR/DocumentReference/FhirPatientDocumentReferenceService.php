@@ -38,6 +38,7 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirPatientDocumentReferenceService extends FhirServiceBase
 {
@@ -47,12 +48,18 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
     /**
      * @var DocumentService
      */
-    private $service;
+    private DocumentService $service;
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
         $this->service = new DocumentService();
+    }
+
+    public function setSession(SessionInterface $session): void
+    {
+        parent::setSession($session);
+        $this->service->setSession($session);
     }
 
 

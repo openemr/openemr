@@ -51,6 +51,7 @@ class FhirProvenanceRestController
         }
         $this->serviceLocator = $serviceLocator;
         $this->provenanceService = new FhirProvenanceService();
+        $this->provenanceService->setSession($request->getSession());
         $this->provenanceService->setServiceLocator($serviceLocator);
     }
 

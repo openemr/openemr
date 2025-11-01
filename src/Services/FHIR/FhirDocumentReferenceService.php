@@ -27,6 +27,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService, IFhirExportableResourceService
 {
@@ -46,6 +47,14 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
         // for regular documents we need to handle the attachment.content.url so we also retrieve all of the documents
         // connected to a patient
         $this->addMappedService(new FhirPatientDocumentReferenceService($fhirApiURL));
+    }
+
+    public function setSession(SessionInterface $session): void
+    {
+        parent::setSession($session);
+        foreach ($this->getMappedServices() as $service) {
+            $service->setSession($session);
+        }
     }
 
     /**
