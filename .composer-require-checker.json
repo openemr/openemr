@@ -13,8 +13,6 @@
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
     "OpenEMR\\Common\\Http\\UploadedFile",
-    "OpenEMR\\Common\\Utils\\Error",
-    "OpenEMR\\Common\\Utils\\Exception",
     "OpenEMR\\Gacl\\Hashed_Cache_Lite",
     "OpenEMR\\Pdf\\MpdfGenericPdfCreator",
     "PHPUnit\\Framework\\Attributes\\Test",
