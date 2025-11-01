@@ -2868,7 +2868,7 @@ return [
     "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirMedicationRestController())->getOne($uuid, $request->getPatientUUIDString());
+            $return = (new FhirMedicationRestController())->getOne($uuid);
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRestController())->getOne($uuid);
@@ -5226,7 +5226,7 @@ return [
             $return = (new FhirPersonRestController())->getOne($uuid);
         } else {
             // if we are a patient bound request we need to make sure we are only bound to the patient
-            $return = (new FhirPersonRestController())->getOne($uuid, $request->getPatientUUIDString());
+            $return = (new FhirPersonRestController())->getOne($uuid);
         }
 
 
