@@ -101,6 +101,8 @@ class FhirCodeSystemConstants
 
     const HL7_CATEGORY_OBSERVATION = 'http://terminology.hl7.org/CodeSystem/observation-category';
 
+    const HL7_US_CORE_CATEGORY_OBSERVATION = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
+
     const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
 
     const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
@@ -121,6 +123,8 @@ class FhirCodeSystemConstants
     const SPECIMEN_STATUS = "http://hl7.org/fhir/specimen-status";
 
     const HL7_CONDITION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/condition-category';
+
+    const HL7_CONDITION_CATEGORY_3_1_1 = ' http://hl7.org/fhir/us/core/CodeSystem/condition-category';
 
     // NCI 2025-04 release of NCI Thesaurus
     const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';

@@ -277,16 +277,8 @@ class HistorySdohService extends BaseService
         ];
     }
 
-    /**
-     * Updated concernsFromCurrentAssessment method with USCDI v3 compliant codes
-     */
-    public static function concernsFromCurrentAssessmentV3(int $pid): array
+    public static function concernsFromAssessmentV3(array $row): array
     {
-        // Pull latest assessment row
-        $row = sqlQuery(
-            "SELECT * FROM `form_history_sdoh` WHERE `pid` = ? ORDER BY COALESCE(`updated_at`,`created_at`) DESC LIMIT 1",
-            [$pid]
-        );
         if (empty($row)) {
             return [];
         }
@@ -357,11 +349,24 @@ class HistorySdohService extends BaseService
                 'assessment' => 'SDOH',
                 'encounter' => (string)$encId,
                 'extension' => base64_encode($site . $encId),
-                'sha_extension' => sha1($site . '|sdoh_concern|' . $pid . '|' . $col . '|' . $assessDt),
+                'sha_extension' => sha1($site . '|sdoh_concern|' . $row['pid'] . '|' . $col . '|' . $assessDt),
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * Updated concernsFromCurrentAssessment method with USCDI v3 compliant codes
+     */
+    public static function concernsFromCurrentAssessmentV3(int $pid): array
+    {
+        // Pull latest assessment row
+        $row = sqlQuery(
+            "SELECT * FROM `form_history_sdoh` WHERE `pid` = ? ORDER BY COALESCE(`updated_at`,`created_at`) DESC LIMIT 1",
+            [$pid]
+        );
+        return self::concernsFromAssessmentV3($row);
     }
 
     /**

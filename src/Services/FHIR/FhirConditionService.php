@@ -11,7 +11,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
-use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -56,7 +57,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     {
         parent::__construct();
         $this->addMappedService(new FhirConditionEncounterDiagnosisService());
-//        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
+        $this->addMappedService(new FhirConditionProblemListItemService());
+        $this->addMappedService(new FhirConditionHealthConcernService());
         $this->conditionService = new ConditionService();
     }
 
@@ -136,12 +138,9 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     public function getProfileURIs(): array
     {
         $profileSets = [];
-        foreach ($this->getMappedServices() as $mappedService) {
-            if ($mappedService instanceof IResourceUSCIGProfileService) {
-                $profileSets[] = $mappedService->getProfileURIs();
-            }
-        }
-
+        $profileSets[] = $this->getProfileForVersions(FhirConditionProblemListItemService::USCGI_PROFILE_URI_3_1_1, ['', '3.1.1']);
+        $profileSets[] = $this->getProfileForVersions(FhirConditionEncounterDiagnosisService::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
+        $profileSets[] = $this->getProfileForVersions(FhirConditionProblemListItemService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
         $profiles = array_merge(...$profileSets);
         return $profiles;
     }
