@@ -91,7 +91,7 @@ class Contact extends ORDataObject
     /**
      * @return string
      */
-    public function get_foreign_tableName(): ?string
+    public function get_foreign_table_name(): ?string
     {
         return $this->foreign_table_name;
     }
@@ -100,7 +100,7 @@ class Contact extends ORDataObject
      * @param string $foreign_table_name
      * @return Contact
      */
-    public function set_foreign_tableName(string $foreign_table_name): Contact
+    public function set_foreign_table_name(string $foreign_table_name): Contact
     {
         $this->foreign_table_name = $foreign_table_name;
         return $this;

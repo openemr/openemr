@@ -59,6 +59,7 @@ class UuidRegistry
         'openemr_postcalendar_events' => ['table_name' => 'openemr_postcalendar_events', 'table_id' => 'pc_eid'],
         'patient_data' => ['table_name' => 'patient_data'],
         'patient_history' => ['table_name' => 'patient_history'],
+        'person' => ['table_name' => 'person'],
         'prescriptions' => ['table_name' => 'prescriptions'],
         'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
         'procedure_providers' => ['table_name' => 'procedure_providers', 'table_id' => 'ppid'],
