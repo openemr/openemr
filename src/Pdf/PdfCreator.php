@@ -59,20 +59,6 @@ class PdfCreator
     }
 
     /**
-     * Generates a PDF from file(s)
-     *
-     * @param string|array $files Path to file or array of file paths
-     * @param array $options Options for PDF generation
-     * @return string|null Generated PDF content, or null on error
-     */
-    public function getPdfFromFile(string|array $files, array $options): ?string
-    {
-        $pdfwk = new Pdf($this->binaryPath);
-        $pdfwk->setTemporaryFolder($this->tempPath);
-        return $pdfwk->getOutput($files, $options);
-    }
-
-    /**
      * Generates a PDF from HTML content
      *
      * @param string|array $htmlin HTML content or array of HTML strings (each element as a page)
@@ -84,20 +70,5 @@ class PdfCreator
         $pdfwk = new Pdf($this->binaryPath);
         $pdfwk->setTemporaryFolder($this->tempPath);
         return $pdfwk->getOutputFromHtml($htmlin, $options);
-    }
-
-    /**
-     * Generates a PDF from an HTML file and writes it to disk
-     *
-     * @param string $html_file Path to the HTML file
-     * @param string $save_to Path where the PDF should be saved
-     * @param array $options Options for PDF generation
-     * @return string Path to the saved PDF file
-     */
-    public function write(string $html_file, string $save_to, array $options): string
-    {
-        $pdfwk = new Pdf($this->binaryPath);
-        $pdfwk->generateFromHtml(file_get_contents($html_file), $save_to);
-        return $save_to;
     }
 }
