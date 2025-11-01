@@ -264,55 +264,6 @@ final class CryptoGenTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testAes256DecryptMycrypt(): void
-    {
-        // Test scenario when mcrypt extension is not loaded
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isMcryptExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isMcryptExtensionLoaded')
-            ->willReturn(false);
-
-        $this->expectException(CryptoGenException::class);
-
-        $mockCryptoGen->aes256Decrypt_mycrypt('test');
-    }
-
-    public function testAes256DecryptMycryptWithMcryptAvailable(): void
-    {
-        // Test scenario when mcrypt extension is loaded
-        $testData = base64_encode('test encrypted data');
-        $expectedDecrypted = 'decrypted';
-
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isMcryptExtensionLoaded', 'pack', 'mcryptGetIvSize', 'mcryptCreateIv', 'mcryptDecrypt'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isMcryptExtensionLoaded')
-            ->willReturn(true);
-
-        $mockCryptoGen->expects($this->once())
-            ->method('pack')
-            ->willReturn('secret_key');
-
-        $mockCryptoGen->expects($this->once())
-            ->method('mcryptGetIvSize')
-            ->willReturn(16);
-
-        $mockCryptoGen->expects($this->once())
-            ->method('mcryptCreateIv')
-            ->willReturn('iv_value');
-
-        $mockCryptoGen->expects($this->once())
-            ->method('mcryptDecrypt')
-            ->willReturn($expectedDecrypted);
-
-        $result = $mockCryptoGen->aes256Decrypt_mycrypt($testData);
-        $this->assertEquals($expectedDecrypted, $result);
-    }
 
     public function testCollectCryptoKeyDriveSource(): void
     {
@@ -829,23 +780,6 @@ final class CryptoGenTest extends TestCase
         $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::DRIVE);
     }
 
-    public function testMcryptLegacyFunction(): void
-    {
-        // Test the legacy mcrypt function behavior without mcrypt extension
-        $testData = base64_encode('test encrypted data');
-
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isMcryptExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isMcryptExtensionLoaded')
-            ->willReturn(false);
-
-        $this->expectException(CryptoGenException::class);
-
-        $mockCryptoGen->aes256Decrypt_mycrypt($testData);
-    }
 
     public function testCustomPasswordEncryptionPaths(): void
     {
@@ -908,54 +842,6 @@ final class CryptoGenTest extends TestCase
         $this->assertFalse($result); // Will fail HMAC validation but covers the code
     }
 
-    public function testMcryptMethodDirectly(): void
-    {
-        // Test the aes256Decrypt_mycrypt method directly using mocks for coverage
-        $testData = base64_encode('test data for mcrypt');
-
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isMcryptExtensionLoaded', 'pack', 'mcryptGetIvSize', 'mcryptCreateIv', 'mcryptDecrypt'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isMcryptExtensionLoaded')
-            ->willReturn(true);
-
-        $mockCryptoGen->expects($this->once())
-            ->method('pack')
-            ->willReturn('secret_key');
-
-        $mockCryptoGen->expects($this->once())
-            ->method('mcryptGetIvSize')
-            ->willReturn(32);
-
-        $mockCryptoGen->expects($this->once())
-            ->method('mcryptCreateIv')
-            ->willReturn('initialization_vector');
-
-        $mockCryptoGen->expects($this->once())
-            ->method('mcryptDecrypt')
-            ->willReturn('decrypted_result');
-
-        $result = $mockCryptoGen->aes256Decrypt_mycrypt($testData);
-        $this->assertEquals('decrypted_result', $result);
-    }
-
-    public function testMcryptMethodDirectlyWithoutExtension(): void
-    {
-        // Test the aes256Decrypt_mycrypt method when mcrypt extension is not available
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isMcryptExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isMcryptExtensionLoaded')
-            ->willReturn(false);
-
-        $this->expectException(CryptoGenException::class);
-
-        $mockCryptoGen->aes256Decrypt_mycrypt('test');
-    }
 
     public function testAllExceptionPaths(): void
     {
