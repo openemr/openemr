@@ -424,26 +424,6 @@ class CryptoGen implements CryptoInterface
         );
     }
 
-    /**
-     * Legacy decryption function using deprecated mcrypt
-     * This function is only used for backward compatibility
-     * TODO: Should be removed in the future
-     *
-     * @param  string $sValue Encrypted data to decrypt
-     * @return string Decrypted data
-     */
-    public function aes256Decrypt_mycrypt(string $sValue): string
-    {
-        if (!$this->isMcryptExtensionLoaded()) {
-            throw new CryptoGenException('The obsolete mcrypt extension is required to decrypt legacy data');
-        }
-        $rawValue = base64_decode($sValue);
-        $sSecretKey = $this->pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
-        $ivSize = $this->mcryptGetIvSize();
-        $ivValue = $this->mcryptCreateIv($ivSize);
-        $data = $this->mcryptDecrypt($sSecretKey, $rawValue, $ivValue);
-        return rtrim($data, "\0");
-    }
 
     /**
      * Function to collect (and create, if needed) the standard keys
@@ -783,78 +763,6 @@ class CryptoGen implements CryptoInterface
         return file_get_contents($filename, $use_include_path, $context, $offset, $length);
     }
 
-    /**
-     * Wrapper for pack to enable better testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param  string $format    The format string
-     * @param  mixed  ...$values The values to pack
-     * @return string The packed binary string
-     */
-    protected function pack(string $format, mixed ...$values): string
-    {
-        return pack($format, ...$values);
-    }
-
-    /**
-     * Wrapper for mcrypt_decrypt to enable better testing.
-     * Since mcrypt is obsolete already, we avoid workarounds
-     * for missing constants by hard-coding some of the arguments.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param  string $key  The encryption key
-     * @param  string $data The data to decrypt
-     * @param  string $iv   The initialization vector
-     * @return string The decrypted data
-     */
-    protected function mcryptDecrypt(string $key, string $data, string $iv): string
-    {
-        return mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $data, MCRYPT_MODE_ECB, $iv);
-    }
-
-    /**
-     * Wrapper for mcrypt_create_iv to enable better testing.
-     * Since mcrypt is obsolete already, we avoid workarounds
-     * for missing constants by hard-coding MCRYPT_RAND.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param  int $size The size of the IV
-     * @return string The initialization vector
-     */
-    protected function mcryptCreateIv(int $size): string
-    {
-        return mcrypt_create_iv($size, MCRYPT_RAND);
-    }
-
-    /**
-     * Wrapper for mcrypt_get_iv_size to enable better testing.
-     * Since mcrypt is obsolete already, we avoid having workarounds
-     * for missing constants by hard-coding the arguments.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return int The IV size for the given cipher and mode
-     */
-    protected function mcryptGetIvSize(): int
-    {
-        return mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
-    }
-
-    /**
-     * Check if the mcrypt extension is loaded.
-     * This is a wrapper to enable better testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return bool
-     */
-    protected function isMcryptExtensionLoaded(): bool
-    {
-        return extension_loaded('mcrypt');
-    }
 
     /**
      * Wrapper for sqlQueryNoLog to enable better testing.

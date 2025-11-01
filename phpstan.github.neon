@@ -16096,10 +16096,6 @@ parameters:
     identifier: return.missing
     count: 2
     path: portal/patient/fwk/libs/util/parsecsv.lib.php
-  - message: '#^Constant MCRYPT_DEV_URANDOM not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/util/password.php
   - message: '#^Call to static method instance\(\) on an unknown class OAuthStore\.$#'
     identifier: class.notFound
     count: 1
@@ -16236,30 +16232,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/patient/fwk/libs/verysimple/DB/Reflection/DBTable.php
-  - message: '#^Constant MCRYPT_MODE_ECB not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Constant MCRYPT_RAND not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Constant MCRYPT_RIJNDAEL_256 not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Function mcrypt_create_iv not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Function mcrypt_decrypt not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
-  - message: '#^Function mcrypt_encrypt not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: portal/patient/fwk/libs/verysimple/Encryption/McryptUtil.php
   - message: '#^Undefined variable\: \$attachment$#'
     identifier: variable.undefined
     count: 4
@@ -17100,30 +17072,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Common/Command/CreateReleaseChangelogCommand.php
-  - message: '#^Constant MCRYPT_MODE_ECB not found\.$#'
-    identifier: constant.notFound
-    count: 2
-    path: src/Common/Crypto/CryptoGen.php
-  - message: '#^Constant MCRYPT_RAND not found\.$#'
-    identifier: constant.notFound
-    count: 1
-    path: src/Common/Crypto/CryptoGen.php
-  - message: '#^Constant MCRYPT_RIJNDAEL_256 not found\.$#'
-    identifier: constant.notFound
-    count: 2
-    path: src/Common/Crypto/CryptoGen.php
-  - message: '#^Function mcrypt_create_iv not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: src/Common/Crypto/CryptoGen.php
-  - message: '#^Function mcrypt_decrypt not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: src/Common/Crypto/CryptoGen.php
-  - message: '#^Function mcrypt_get_iv_size not found\.$#'
-    identifier: function.notFound
-    count: 1
-    path: src/Common/Crypto/CryptoGen.php
   - message: '#^Constructor of class OpenEMR\\Common\\Forms\\FormVitals has an unused parameter \$_prefix\.$#'
     identifier: constructor.unusedParameter
     count: 1
@@ -17300,22 +17248,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/PaymentProcessing/Sphere/SpherePayment.php
-  - message: '#^Caught class Symfony\\Component\\Debug\\ExceptionHandler not found\.$#'
-    identifier: class.notFound
-    count: 3
-    path: src/Pdf/PdfCreator.php
-  - message: '#^Instantiated class Symfony\\Component\\Debug\\ExceptionHandler not found\.$#'
-    identifier: class.notFound
-    count: 1
-    path: src/Pdf/PdfCreator.php
-  - message: '#^Undefined variable\: \$pdfFilePath$#'
-    identifier: variable.undefined
-    count: 1
-    path: src/Pdf/PdfCreator.php
-  - message: '#^Variable \$pdfwkout might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: src/Pdf/PdfCreator.php
   - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:getCurlOptions\(\)\.$#'
     identifier: staticMethod.notFound
     count: 1

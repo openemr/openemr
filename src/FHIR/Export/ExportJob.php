@@ -20,7 +20,6 @@
 
 namespace OpenEMR\FHIR\Export;
 
-use http\Exception\InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -267,7 +266,7 @@ class ExportJob
         } else if (\is_array($resources)) {
             $this->resources = $resources;
         } else {
-            throw new InvalidArgumentException("Resources must be a valid string or array");
+            throw new \InvalidArgumentException("Resources must be a valid string or array");
         }
     }
 
