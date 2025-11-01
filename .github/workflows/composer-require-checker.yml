@@ -6,21 +6,23 @@ on:
     - master
     - rel-*
     paths:
+    - '**.inc'
+    - '**.php'
+    - '.composer-require-checker.json'
+    - '.github/workflows/composer-require-checker.yml'
     - 'composer.json'
     - 'composer.lock'
-    - '**.php'
-    - '**.inc'
-    - '.github/workflows/composer-require-checker.yml'
   pull_request:
     branches:
     - master
     - rel-*
     paths:
+    - '**.inc'
+    - '**.php'
+    - '.composer-require-checker.json'
+    - '.github/workflows/composer-require-checker.yml'
     - 'composer.json'
     - 'composer.lock'
-    - '**.php'
-    - '**.inc'
-    - '.github/workflows/composer-require-checker.yml'
   workflow_dispatch:
 
 permissions:
