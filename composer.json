@@ -134,7 +134,8 @@
         "phpunit/phpunit": "^11.0",
         "rector/rector": "^2.1",
         "squizlabs/php_codesniffer": "^4.0",
-        "symfony/panther": "^2.0"
+        "symfony/panther": "^2.0",
+        "symplify/easy-coding-standard": "^12.6"
     },
     "repositories": [
         {
@@ -224,9 +225,18 @@
         }
     },
     "scripts": {
+        "analyse": [
+            "php -d memory_limit=-1 vendor/bin/phpstan analyse"
+        ],
+        "check-style": [
+            "php -d memory_limit=-1 vendor/bin/ecs",
+            "php -d memory_limit=-1 vendor/bin/phpcs -p -n --extensions=php,inc --standard=ci/phpcs.xml --report=full ."
+        ],
         "checks": [
+            "@check-style",
             "composer validate",
             "composer normalize --dry-run"
-        ]
+        ],
+        "fix-style": "php -d memory_limit=-1 vendor/bin/ecs --fix"
     }
 }
