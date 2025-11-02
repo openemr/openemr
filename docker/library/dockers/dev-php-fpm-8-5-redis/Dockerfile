@@ -27,10 +27,29 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x \
  && apt-get update \
  && apt-get install -y nodejs
 
+# Temporary fix to get magick install working by bypassing below install-php-extensions run (these issues are usually temporary
+#  in dev versions of PHP, so this is not a permanent solution)
+# TODO:
+# TODO: intermittently try to remove this block of code and add back imagick in below ../install-php-extensions run
+# TODO:
+RUN apt-get update && apt-get install -y \
+    libmagickwand-dev \
+    libmagickcore-dev \
+    git \
+ && cd /tmp \
+ && git clone https://github.com/Imagick/imagick.git \
+ && cd imagick \
+ && phpize \
+ && ./configure \
+ && make -j$(nproc) \
+ && make install \
+ && docker-php-ext-enable imagick \
+ && rm -rf /tmp/imagick
+
 # Temporary fix to get redis install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
-# TODO: intermittently try to remove this block of code and uncomment redis in below ../install-php-extensions run
+# TODO: intermittently try to remove this block of code and add back redis in below ../install-php-extensions run
 # TODO:
 # Install Redis from GitHub develop branch
 RUN apt-get update && apt-get install -y git \
@@ -49,6 +68,7 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod uga+x /usr/local/bin/install-php-extensions \
  && sync \
  && install-php-extensions calendar \
+                           dom \
                            gd \
                            gettext \
                            intl \
