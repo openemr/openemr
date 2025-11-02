@@ -16,6 +16,8 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -81,13 +83,25 @@ if (!$GLOBALS['omit_employers']) {
 }
 
 if (!empty($addressFieldsToSave)) {
-    // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
-    // address information
-    // TODO: how are error messages supposed to display if the save fails?
-    foreach ($addressFieldsToSave as $addressFieldData) {
-        // if we need to save other kinds of addresses we could do that here with our field column...
-        $contactService = new ContactService();
-        $contactService->saveContactsForPatient($pid, $addressFieldData);
+    try {
+        // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
+        // address information
+        // TODO: how are error messages supposed to display if the save fails?
+        foreach ($addressFieldsToSave as $fieldId => $addressFieldData) {
+            // if we need to save other kinds of addresses we could do that here with our field column...
+            if (!empty($addressFieldData)) {
+                $contactService = new ContactService();
+                $contact = $contactService->getOrCreateForEntity('patient_data', $pid);
+                $contactAddressService = new ContactAddressService();
+                $contactAddressService->saveAddressesForContact($contact->get_id(), $addressFieldData);
+            }
+        }
+    } catch (Exception $e) {
+        (new SystemLogger())->error("Fatal error in address processing", [
+            'pid' => $pid,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
     }
 }
 

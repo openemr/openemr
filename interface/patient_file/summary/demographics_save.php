@@ -279,7 +279,6 @@ if (!empty($addressFieldsToSave)) {
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
-        error_log("Fatal error in address processing: " . $e->getMessage());
     }
 }
 

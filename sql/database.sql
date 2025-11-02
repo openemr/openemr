@@ -1252,7 +1252,7 @@ CREATE TABLE `person` (
     KEY `idx_person_dob` (`birth_date`),
     KEY `idx_person_search` (`last_name`, `first_name`, `birth_date`),
     KEY `idx_person_active` (`active`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Core person demographics - contact info in contact_telecom';
+) ENGINE=InnoDB COMMENT='Core person demographics - contact info in contact_telecom';
 
 DROP TABLE IF EXISTS `contact_relation`;
 CREATE TABLE `contact_relation` (
@@ -1297,7 +1297,7 @@ CREATE TABLE `person_patient_link` (
     KEY `idx_ppl_active` (`active`),
     KEY `idx_ppl_linked_date` (`linked_date`),
     KEY `idx_ppl_method` (`link_method`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Links person records to patient_data records when person becomes patient';
+) ENGINE=InnoDB COMMENT='Links person records to patient_data records when person becomes patient';
 -- --------------------------------------------------------
 
 --
@@ -3603,8 +3603,7 @@ INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_m
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '4', 'Employer'    , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '5', 'Stats'       , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '6', 'Misc'        , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '8', 'Guardian'    , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '9', 'Related','');
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '8', 'Related'    , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '' , 'Referral'        , 'Transactions');
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '1', 'Referral'        , ''            );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '2', 'Counter-Referral', ''            );
@@ -3790,44 +3789,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianphone'  , '8', 'Phone'  ,90, 2, 1,20,63, '', 1, 1, '', '', 'Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianworkphone'  , '8', 'Work Phone'  ,100, 2, 1,20,63, '', 1, 1, '', '', 'Work Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianemail'  , '8', 'Email'  ,110, 2, 1,20,63, '', 1, 1, '', '', 'Guardian Email Address', 0);
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_firstname_1','9','First Name',10,2,1,25,63,'',1,1,'','','Related First Name',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_lastname_1','9','Last Name',20,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_relationship_1','9','Relationship',30,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_sex_1','9','Sex',40,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_address_1','9','Address',50,2,1,25,63,'',1,1,'','','Address',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_city_1','9','City',60,2,1,15,63,'',1,1,'','','City',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_state_1','9','State',70,26,1,0,0,'state',1,1,'','','State',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_postalcode_1','9','Postal Code',80,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_country_1','9','Country',90,26,1,0,0,'country',1,1,'','','Country',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_phone_1','9','Phone',100,2,1,20,63,'',1,1,'','','Phone',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_workphone_1','9','Work Phone',110,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_email_1','9','Email',120,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_static_1','9','Related Person',125,31,1,0,0,'',1,3,'','[\"K\"]','Patient Second Related Person',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_firstname_2','9','First Name',130,2,1,25,63,'',1,1,'','[\"K\"]','Related First Name',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_lastname_2','9','Last Name',140,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_relationship_2','9','Relationship',150,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_sex_2','9','Sex',160,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_address_2','9','Address',170,2,1,25,63,'',1,1,'','','Address',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_city_2','9','City',180,2,1,15,63,'',1,1,'','','City',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_state_2','9','State',190,26,1,0,0,'state',1,1,'','','State',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_postalcode_2','9','Postal Code',200,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_country_2','9','Country',210,26,1,0,0,'country',1,1,'','','Country',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_phone_2','9','Phone',220,2,1,20,63,'',1,1,'','','Phone',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_workphone_2','9','Work Phone',230,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_email_2','9','Email',240,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_static_2','9','Related Person',245,31,1,0,0,'',1,3,'','[\"K\"]','Patient Third Related Person',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_firstname_3','9','First Name',250,2,1,25,63,'',1,1,'','[\"K\"]','Related First Name',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_lastname_3','9','Last Name',260,2,1,25,63,'',1,1,'','','Last Name',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_relationship_3','9','Relationship',270,1,1,0,0,'personal_relationship',1,1,'','','Relationship',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_sex_3','9','Sex',280,1,1,0,0,'sex',1,1,'','','Sex',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_address_3','9','Address',290,2,1,25,63,'',1,1,'','','Address',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_city_3','9','City',300,2,1,15,63,'',1,1,'','','City',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_state_3','9','State',310,26,1,0,0,'state',1,1,'','','State',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_postalcode_3','9','Postal Code',320,2,1,6,63,'',1,1,'','','Postal Code',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_country_3','9','Country',330,26,1,0,0,'country',1,1,'','','Country',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_phone_3','9','Phone',340,2,1,20,63,'',1,1,'','','Phone',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_workphone_3','9','Work Phone',350,2,1,20,63,'',1,1,'','','Work Phone',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','related_email_3','9','Email',360,2,1,20,63,'',1,1,'','','Related Email Address',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','related_persons','8','',120,56,1,0,0,'',4,4,'','["J","SP"]','Related Persons',0);
 -- ------------------------------------
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_date'      ,'1','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_from'      ,'1','Refer By'                       , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By', 0);
@@ -7483,7 +7445,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','SIGOTHR','significant other',50,0,1),
     ('related_person_relationship','FMRSPS','former spouse',60,0,1);
 
-    -- Parents
+-- Parents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','PRN','parent',70,0,1),
     ('related_person_relationship','NPRN','natural parent',80,0,1),
@@ -7502,7 +7464,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','STPPRN','step parent',210,0,1),
     ('related_person_relationship','GESTM','gestational mother',220,0,1);
 
-    -- Children
+-- Children
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','CHILD','Child',230,0,1),
     ('related_person_relationship','NCHILD','natural child',240,0,1),
@@ -7520,7 +7482,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','STPDAU','stepdaughter',360,0,1),
     ('related_person_relationship','STPSON','stepson',370,0,1);
 
-    -- Siblings
+-- Siblings
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','SIB','sibling',380,0,1),
     ('related_person_relationship','NSIB','natural sibling',390,0,1),
@@ -7544,7 +7506,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','ITWINBRO','identical twin brother',570,0,1),
     ('related_person_relationship','ITWINSIS','identical twin sister',580,0,1);
 
-    -- Grandparents
+-- Grandparents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','GRPRN','grandparent',590,0,1),
     ('related_person_relationship','GRFTH','grandfather',600,0,1),
@@ -7556,7 +7518,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','PGRFTH','paternal grandfather',660,0,1),
     ('related_person_relationship','PGRMTH','paternal grandmother',670,0,1);
 
-    -- Great Grandparents
+-- Great Grandparents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','GGRPRN','great grandparent',680,0,1),
     ('related_person_relationship','GGRFTH','great grandfather',690,0,1),
@@ -7568,13 +7530,13 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','PGGRFTH','paternal great-grandfather',750,0,1),
     ('related_person_relationship','PGGRMTH','paternal great-grandmother',760,0,1);
 
-    -- Grandchildren
+-- Grandchildren
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','GRNDCHILD','grandchild',770,0,1),
     ('related_person_relationship','GRNDDAU','granddaughter',780,0,1),
     ('related_person_relationship','GRNDSON','grandson',790,0,1);
 
-    -- Extended Family
+-- Extended Family
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','FAMMEMB','Family Member',800,0,1),
     ('related_person_relationship','EXT','extended family member',810,0,1),
@@ -7590,7 +7552,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','NEPHEW','nephew',910,0,1),
     ('related_person_relationship','NIECE','niece',920,0,1);
 
-    -- In-Laws
+-- In-Laws
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','INLAW','inlaw',930,0,1),
     ('related_person_relationship','PRNINLAW','parent in-law',940,0,1),
@@ -7602,18 +7564,18 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_relationship','DAUINLAW','daughter in-law',1000,0,1),
     ('related_person_relationship','SONINLAW','son in-law',1010,0,1);
 
-    -- Legal/Guardian Relationships
-    -- INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    -- ('related_person_relationship','GUADLTM','guardian ad lidem',1030,0,1),
-    -- ('related_person_relationship','SPOWATT','special power of attorney',1050,0,1);
+-- Legal/Guardian Relationships
+-- INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
+-- ('related_person_relationship','GUADLTM','guardian ad lidem',1030,0,1),
+-- ('related_person_relationship','SPOWATT','special power of attorney',1050,0,1);
 
-    -- Other Relationships
+-- Other Relationships
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','FRND','unrelated friend',1070,0,1),
     ('related_person_relationship','NBOR','neighbor',1080,0,1),
     ('related_person_relationship','ROOM','Roommate',1090,0,1);
 
-    -- Self
+-- Self
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','ONESELF','self',1100,0,1);
 
@@ -7640,7 +7602,6 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     ('related_person_role','WIT','Witness',180,0,1),
     ('related_person_role','O','Other',190,0,1),
     ('related_person_role','U','Unknown',200,0,1);
-#EndIf
 
 -- Telecom System types
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
@@ -14424,56 +14385,6 @@ CREATE TABLE `onetime_auth` (
     PRIMARY KEY (`id`),
     KEY `pid` (`pid`,`onetime_token`(255))
 ) ENGINE=InnoDB;
-
-
--- --------------------------------------------------------
--- Table Patient Related Person LBF DEM group data table
--- --------------------------------------------------------
-
-DROP TABLE IF EXISTS `patient_related_persons`;
-CREATE TABLE `patient_related_persons`
-(
-    `pid`                    BIGINT UNSIGNED NOT NULL,
-    `uuid`                   BINARY(16)   DEFAULT NULL,
-    `related_firstname_1`    VARCHAR(63)  DEFAULT NULL,
-    `related_lastname_1`     VARCHAR(63)  DEFAULT NULL,
-    `related_relationship_1` VARCHAR(63)  DEFAULT NULL,
-    `related_sex_1`          VARCHAR(31)  DEFAULT NULL,
-    `related_address_1`      VARCHAR(63)  DEFAULT NULL,
-    `related_city_1`         VARCHAR(63)  DEFAULT NULL,
-    `related_state_1`        VARCHAR(31)  DEFAULT NULL,
-    `related_postalcode_1`   VARCHAR(15)  DEFAULT NULL,
-    `related_country_1`      VARCHAR(31)  DEFAULT NULL,
-    `related_phone_1`        VARCHAR(25)  DEFAULT NULL,
-    `related_workphone_1`    VARCHAR(25)  DEFAULT NULL,
-    `related_email_1`        VARCHAR(254) DEFAULT NULL,
-    `related_firstname_2`    VARCHAR(63)  DEFAULT NULL,
-    `related_lastname_2`     VARCHAR(63)  DEFAULT NULL,
-    `related_relationship_2` VARCHAR(63)  DEFAULT NULL,
-    `related_sex_2`          VARCHAR(31)  DEFAULT NULL,
-    `related_address_2`      VARCHAR(63)  DEFAULT NULL,
-    `related_city_2`         VARCHAR(63)  DEFAULT NULL,
-    `related_state_2`        VARCHAR(31)  DEFAULT NULL,
-    `related_postalcode_2`   VARCHAR(15)  DEFAULT NULL,
-    `related_country_2`      VARCHAR(31)  DEFAULT NULL,
-    `related_phone_2`        VARCHAR(25)  DEFAULT NULL,
-    `related_workphone_2`    VARCHAR(25)  DEFAULT NULL,
-    `related_email_2`        VARCHAR(254) DEFAULT NULL,
-    `related_firstname_3`    VARCHAR(63)  DEFAULT NULL,
-    `related_lastname_3`     VARCHAR(63)  DEFAULT NULL,
-    `related_relationship_3` VARCHAR(63)  DEFAULT NULL,
-    `related_sex_3`          VARCHAR(31)  DEFAULT NULL,
-    `related_address_3`      VARCHAR(63)  DEFAULT NULL,
-    `related_city_3`         VARCHAR(63)  DEFAULT NULL,
-    `related_state_3`        VARCHAR(31)  DEFAULT NULL,
-    `related_postalcode_3`   VARCHAR(15)  DEFAULT NULL,
-    `related_country_3`      VARCHAR(31)  DEFAULT NULL,
-    `related_phone_3`        VARCHAR(25)  DEFAULT NULL,
-    `related_workphone_3`    VARCHAR(25)  DEFAULT NULL,
-    `related_email_3`        VARCHAR(254) DEFAULT NULL,
-    PRIMARY KEY (`pid`),
-    KEY `uuid_idx` (`uuid`)
-) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `patient_settings`;
 CREATE TABLE `patient_settings` (
