@@ -11,6 +11,9 @@
  */
 
 /** import supporting libraries */
+
+use OpenEMR\Common\Session\SessionUtil;
+
 require_once("AppBasePortalController.php");
 
 /**
@@ -36,8 +39,9 @@ class ProviderController extends AppBasePortalController
     public function Home()
     {
         $cpid = $cuser = 0;
-        if (isset($_SESSION['authUserID'])) {
-            $cuser = $_SESSION['authUserID'];
+        $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+        if ($session->has('authUserID')) {
+            $cuser = $session->get('authUserID');
         } else {
             header("refresh:4;url= ./provider");
             echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Destroying Onsite Portal session and logging it out........';
