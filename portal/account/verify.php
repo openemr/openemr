@@ -22,8 +22,8 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
-session_regenerate_id(true);
+$session = SessionUtil::portalSessionStart();
+session_regenerate_id(true); // TODO check how to handle this part
 
 unset($_SESSION['itsme']);
 $_SESSION['verifyPortalEmail'] = true;

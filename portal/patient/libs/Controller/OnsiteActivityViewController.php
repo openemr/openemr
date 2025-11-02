@@ -45,9 +45,10 @@ class OnsiteActivityViewController extends AppBasePortalController
      */
     public function ListView()
     {
+        $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
         $user = 0;
-        if (isset($_SESSION['authUser'])) {
-            $user = $_SESSION['authUser'];
+        if ($session->has('authUser')) {
+            $user = $session->get('authUser');
         } else {
             header("refresh:5;url= ./provider");
             echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br /> Shared session not allowed!.';

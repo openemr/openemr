@@ -66,6 +66,8 @@ namespace OpenEMR\Common\Session;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 class SessionUtil
 {
@@ -74,11 +76,15 @@ class SessionUtil
 
     public const API_SESSION_ID = 'apiOpenEMR';
 
+    public const PORTAL_SESSION_ID = 'PortalOpenEMR';
+
     public const API_WEBROOT = '/apis/';
 
     public const OAUTH_WEBROOT = '/oauth2/';
 
     public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
+
+    private static array $SESSION_INSTANCES = [];
 
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
@@ -119,11 +125,20 @@ class SessionUtil
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $key => $value) {
                 $_SESSION[$key] = $value;
+                foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+                    $symfonySessionInstance->set($key, $value);
+                }
             }
         } else {
             $_SESSION[$session_key_or_array] = $session_value;
+            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+                $symfonySessionInstance->set($session_key_or_array, $session_value);
+            }
         }
         session_write_close();
+        foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+            $symfonySessionInstance->save();
+        }
         (new SystemLogger())->debug("SessionUtil: set session value", [
             'session_key_or_array' => $session_key_or_array,
             'session_value' => $session_value
@@ -166,18 +181,44 @@ class SessionUtil
         (new SystemLogger())->debug("SessionUtil: destroyed core session");
     }
 
-    public static function portalSessionStart(): void
+    public static function portalSessionStart(): Session
     {
+        if (self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]) {
+            (new SystemLogger())->debug("SessionUtil: started portal session");
+            return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
+        }
+
         $settings = SessionConfigurationBuilder::forPortal();
-        self::sessionStartWrapper($settings);
+//        self::sessionStartWrapper($settings);
+
+        $storage = new NativeSessionStorage($settings);
+        $session = new Session($storage);
+        if (!$session->isStarted()) {
+            $session->start();
+        }
+
+        self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID] = $session;
+
         (new SystemLogger())->debug("SessionUtil: started portal session");
+
+        return $session;
+    }
+
+    public static function getPortalSession(): ?Session
+    {
+        return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
     }
 
     public static function portalSessionCookieDestroy(): void
     {
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
-        self::standardSessionCookieDestroy();
+//        self::standardSessionCookieDestroy();
+        $session = self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
+        if ($session) {
+            $session->invalidate();
+            unset(self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]);
+        }
         (new SystemLogger())->debug("SessionUtil: destroyed portal session");
     }
 

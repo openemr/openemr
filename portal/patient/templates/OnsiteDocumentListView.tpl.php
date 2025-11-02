@@ -17,7 +17,9 @@ use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Common\Session\SessionUtil;
 
+$session = SessionUtil::portalSessionStart();
 $globalsBag = OEGlobalsBag::getInstance();
 
 $pid = $this->cpid;
@@ -43,7 +45,7 @@ $allow_portal_uploads = $globalsBag->get('allow_portal_uploads');
 
 // for location assign
 $referer = "$webroot/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
-$referer_portal = "../home.php?site=" . (urlencode((string) $_SESSION['site_id']) ?? null) ?: 'default';
+$referer_portal = "../home.php?site=" . (urlencode((string) $session->get('site_id', null) ?: 'default'));
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -64,8 +66,8 @@ if (!$docid) {
 }
 
 $isnew = false;
-$ptName = $_SESSION['ptName'] ?? $pid;
-$cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
+$ptName = $session->get('ptName', $pid);
+$cuser = $session->get('sessionUser') ?? $session->get('authUserID');
 
 $templateService = new DocumentTemplateService();
 ?>
@@ -564,7 +566,7 @@ $templateService = new DocumentTemplateService();
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
                 <?php } elseif (!$is_module && !$is_dashboard) {
-                    $referer_portal = "../home.php?site=" . (urlencode((string) $_SESSION['site_id']) ?? null) ?: 'default';
+                    $referer_portal = "../home.php?site=" . (urlencode((string) $session->get('site_id')) ?? null) ?: 'default';
                     ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                 <?php }
