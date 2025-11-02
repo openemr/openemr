@@ -14988,8 +14988,3 @@ INSERT INTO `preference_value_sets`
     ('103980-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
     ('95541-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
     ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
-
--- Hide dashboard cards global settings
-INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES
-  ('hide_dashboard_cards', 0, 'card_care_experience'),
-  ('hide_dashboard_cards', 1, 'card_treatment_preferences');
