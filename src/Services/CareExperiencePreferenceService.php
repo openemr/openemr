@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -89,8 +90,10 @@ class CareExperiencePreferenceService extends BaseService
      */
     public function insert($data)
     {
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_NAME)->createUuid();
         $sql = "INSERT INTO " . escape_table_name(self::TABLE_NAME) . " 
                 SET patient_id = ?,
+                    uuid = ?,
                     observation_code = ?,
                     observation_code_text = ?,
                     value_type = ?,
@@ -105,6 +108,7 @@ class CareExperiencePreferenceService extends BaseService
 
         $params = [
             $data['patient_id'],
+            $data['uuid'],
             $data['observation_code'] ?? null,
             $data['observation_code_text'] ?? null,
             $data['value_type'] ?? 'coded',
@@ -210,7 +214,7 @@ class CareExperiencePreferenceService extends BaseService
             'subject' => [
                 'reference' => 'Patient/' . $patientUuid['uuid']
             ],
-            'effectiveDateTime' => date('c', strtotime($pref['effective_datetime']))
+            'effectiveDateTime' => date('c', strtotime((string)$pref['effective_datetime']))
         ];
 
         // Add value based on type

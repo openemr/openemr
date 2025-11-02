@@ -15,7 +15,6 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Services\CareExperiencePreferenceService;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 
@@ -25,22 +24,22 @@ class CareExperiencePreferenceViewCard extends CardModel
     private const CARD_ID_EXPAND = 'carepref_ps_expand';
     private const CARD_ID = 'card_care_experience';
 
-    /** @var int */
-    private $pid;
-
     /** @var CareExperiencePreferenceService */
     private $service;
 
     /** @var string|null */
     private $flashMessage = null;
 
-    public function __construct($pid, array $opts = [])
+    /**
+     * @param int $pid
+     */
+    public function __construct(private $pid, array $opts = [])
     {
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
-        $this->pid = $pid;
         $this->service = new CareExperiencePreferenceService();
     }
+
     private function setupOpts(array $opts): array
     {
         $initiallyCollapsed = $this->getUserCardSetting(self::CARD_ID_EXPAND) == 0;
@@ -50,7 +49,7 @@ class CareExperiencePreferenceViewCard extends CardModel
             'auth' => ['patients', 'demo'],
             'initiallyCollapsed' => $initiallyCollapsed,
             'add' => true,
-            'edit' => true,
+            'edit' => false,
             'collapse' => true,
             'templateFile' => self::TEMPLATE_FILE,
             'identifier' => self::CARD_ID,
@@ -87,9 +86,45 @@ class CareExperiencePreferenceViewCard extends CardModel
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $this->handlePost();
 
-        $preferences = $this->service->getPreferencesByPatient($this->pid) ?? [];
+        //$preferences = $this->service->getPreferencesByPatient($this->pid) ?? [];
         $loincCodes  = $this->service->getAvailableLoincCodes();
+        $result = $this->service->getPreferencesByPatient($this->pid);
 
+        $preferences = [];
+        if (!empty($result)) {
+            foreach ($result as $row) {
+                $preferences[] = [
+                    // IDs
+                    'id' => $row['id'],
+                    'patient_id' => $row['patient_id'],
+
+                    'effective_datetime' => $row['effective_datetime'] ?? $row['created_at'],
+                    'recorded_date' => $row['effective_datetime'] ?? $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+
+                    'observation_code' => $row['observation_code'],
+                    'observation_code_text' => $row['observation_code_text'],
+                    'observation_code_system' => $row['observation_code_system'] ?? 'http://loinc.org',
+
+                    'code_display' => $row['observation_code_text'],
+
+                    'value_type' => $row['value_type'] ?? 'coded',
+                    'value_code' => $row['value_code'] ?? null,
+                    'value_display' => $row['value_display'] ?? null,
+                    'value_code_system' => $row['value_code_system'] ?? null,
+                    'value_boolean' => $row['value_boolean'] ?? null,
+                    'value_text' => $row['value_text'] ?? null,
+
+                    // Metadata
+                    'status' => $row['status'] ?? 'final',
+                    'note' => $row['note'] ?? '',
+
+                    // User info
+                    'user_id' => $row['created_by'] ?? $row['user_id'] ?? null,
+                    'user_display' => $this->getUserDisplay($row['created_by'] ?? $row['user_id'] ?? null),
+                ];
+            }
+        }
         $pref = [
             'title'            => xl('Care Experience Preferences'),
             'type'             => 'care_experience',
@@ -104,7 +139,25 @@ class CareExperiencePreferenceViewCard extends CardModel
             'message'          => $this->flashMessage,
         ];
         $templateVars = array_merge($templateVars, $pref);
+
         return $templateVars;
+    }
+
+    /**
+     * Get display name for user
+     *
+     * @param int|null $userId
+     * @return string
+     */
+    private function getUserDisplay($userId)
+    {
+        if (empty($userId)) {
+            return '';
+        }
+
+        $sql = "SELECT CONCAT(fname, ' ', lname) as name FROM users WHERE id = ?";
+        $result = sqlQuery($sql, [$userId]);
+        return $result['name'] ?? '';
     }
 
     public function canAdd(): bool

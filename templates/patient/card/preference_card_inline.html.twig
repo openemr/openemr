@@ -113,7 +113,7 @@
                                 <td class="float-right">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <button type="button"
-                                                class="btn btn-outline-primary btn-smt js-edit-row"
+                                                class="btn btn-outline-primary btn-sm js-edit-row"
                                                 data-pref='{{ pref|json_encode }}'
                                                 title="{{ 'Edit'|xla }}">
                                             <i class="fa fa-pencil"></i>
@@ -306,7 +306,7 @@
                     if (!Array.isArray(list) || list.length === 0) {
                         // No coded answers found: show a hint and optionally switch to free text
                         $sel.html('<option value="">{{ "No codified answers available"|xlt }}</option>');
-                        // OPTIONAL: auto-switch to text entry if you prefer
+                        // OPTIONAL: auto-switch to text entry if no answers
                         $scope.find("input[name='value_type'][value='text']").prop('checked', true);
                         toggleValueFields($scope);
                         if (afterPopulate) {
@@ -324,7 +324,9 @@
                             + (a.answer_display || a.answer_code || '') + '</option>';
                     });
                     $sel.html(html);
-                    if (afterPopulate) afterPopulate();
+                    if (afterPopulate) {
+                        afterPopulate();
+                    }
                 }).fail(function (xhr) {
                     console.error("Preference answers XHR failed", xhr && xhr.status, xhr && xhr.responseText);
                     $sel.html('<option value="">{{ "Failed to load answers"|xlt }}</option>');
