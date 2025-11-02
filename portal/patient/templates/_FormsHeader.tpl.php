@@ -11,7 +11,9 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionUtil;
 
+$session = SessionUtil::portalSessionStart();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +28,7 @@ use OpenEMR\Core\Header;
 <!-- Styles -->
 
 <?php
-if ($_SESSION['patient_portal_onsite_two'] ?? 0) {
+if ($session->get('patient_portal_onsite_two', 0)) {
     Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'moment']);
 } else {
     Header::setupHeader(['datetime-picker', 'moment']);
