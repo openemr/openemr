@@ -1326,7 +1326,10 @@ class Claim
         return str_replace('-', '', substr($this->encounter['date'], 0, 10));
     }
 
-    public function priorAuth() // AI generated code. Unknow which was used because the IDE auto selects
+    /*
+     * AI generated code. Unknown which AI was used because the IDE auto-selects
+     */
+    public function priorAuth()
     {
         // Prefer explicitly entered prior auth from misc billing options
         $explicit = $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
@@ -1370,18 +1373,45 @@ class Claim
         return $this->x12Clean($this->priorAuthFromModuleForCpt($this->pid, $svcDate, $code));
     }
 
-    // Check existence of custom prior authorization table.
+    /**
+     * Checks whether the module_prior_authorizations table exists and has the required schema.
+     * Validates that all required columns are present: pid, auth_num, start_date, end_date, cpt.
+     * Caches the result for the duration of the request using a static variable.
+     *
+     * @return bool True if table exists with valid schema, false otherwise.
+     */
     private function priorAuthTableExists(): bool
     {
         static $exists = null;
         if ($exists !== null) {
             return $exists;
         }
-        $row = sqlQuery(
-            "SELECT 1 AS present FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ? LIMIT 1",
-            array('module_prior_authorizations')
-        );
-        $exists = !empty($row['present']);
+
+        // Verify table exists without causing SQL errors if not present
+        $res = sqlStatement('SHOW TABLES LIKE ?', array('module_prior_authorizations'));
+        if (sqlNumRows($res) === 0) {
+            $exists = false;
+            return $exists;
+        }
+
+        // Validate required columns
+        $stmt = sqlStatement('SHOW COLUMNS FROM `module_prior_authorizations`');
+        $columns = array();
+        while ($row = sqlFetchArray($stmt)) {
+            if (isset($row['Field'])) {
+                $columns[strtolower($row['Field'])] = true;
+            }
+        }
+
+        $required = array('pid', 'auth_num', 'start_date', 'end_date', 'cpt');
+        foreach ($required as $col) {
+            if (!isset($columns[$col])) {
+                $exists = false;
+                return $exists;
+            }
+        }
+
+        $exists = true;
         return $exists;
     }
 
@@ -1408,6 +1438,7 @@ class Claim
 
         return $row['auth_num'] ?? '';
     }
+
     //end of AI generated code
     public function isRelatedEmployment()
     {
