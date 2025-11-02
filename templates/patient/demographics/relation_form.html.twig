@@ -185,7 +185,6 @@
                     </div>
                 </div>
             </div>
-
             <div class='form_relations relation-card-body'>
                 {% include 'patient/demographics/relation_form_fields.html.twig' with {
                     'relatedPerson': {
@@ -196,7 +195,8 @@
                         'is_emergency_contact': false,
                         'can_make_medical_decisions': false,
                         'can_receive_medical_info': false,
-                        'start_date': 'now'|date('Y-m-d')
+                        'start_date': 'now'|date('Y-m-d'),
+                        'widget_constants': widget_constants
                     },
                     'is_new': true
                 } %}

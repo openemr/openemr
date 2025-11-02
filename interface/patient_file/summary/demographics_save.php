@@ -166,6 +166,8 @@ while ($frow = sqlFetchArray($fres)) {
 
             $post_field_name = "form_" . $field_id;
             if (isset($_POST[$post_field_name])) {
+
+                // grab address and telecom data
                 if (empty($relationFieldsToSave[$field_id]) || !is_array($relationFieldsToSave[$field_id]) || !isset($relationFieldsToSave[$field_id]['data_action'])) {
                     $logger->warning("get_layout_form_value returned invalid data for relation, using POST directly");
                     $relationFieldsToSave[$field_id] = $_POST[$post_field_name];

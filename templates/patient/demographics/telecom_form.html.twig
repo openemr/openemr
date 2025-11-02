@@ -24,10 +24,10 @@
                         {{ 'Telecom Contacts'|xlt }}
                     {% endif %}
                 </div>
-                <div class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;" onclick="addTelecom(event);return false"></div>
+                <div id="btn_add_telecom_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"x></div>
             </div>
             <div class="form-check mr-3" style="margin-bottom: 0;">
-                <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_{{ table_id|attr }}" onchange="toggleInactiveTelecoms('{{ table_id|attr }}')">
+                <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_{{ table_id|attr }}">
                 <label class="form-check-label" for="show_inactive_telecoms_{{ table_id|attr }}" style="font-size: 0.9em;">
                     {{ 'Show Inactive'|xlt }}
                 </label>
@@ -135,7 +135,8 @@
                 },
                 'field_id_esc': field_id_esc ~ '[telecoms]',
                 'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
-                'is_new': true
+                'is_new': true,
+                'widget_constants': widget_constants
             } %}
         </div>
         <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
@@ -143,340 +144,350 @@
 </template>
 
 <script type="text/javascript">
-    let TELECOM_ACTION_VALUES = {
-        'INACTIVATE': 'INACTIVATE',
-        'ADD': 'ADD',
-        'UPDATE': 'UPDATE'
-    };
-
-    let telecomDatePickerSettings = {};
-
-    {{ DateToYYYYMMDD_js()|raw }}
-
-    let telecomTableConfig = {
-        tableId: {{ table_id|js_escape|raw }},
-        listTelecomSystems: {{ list_telecom_systems|json_encode|raw }},
-        listTelecomUses: {{ list_telecom_uses|js_escape|raw }}
-    };
-
     (function() {
-        initTelecoms(telecomTableConfig.tableId);
-    })();
+        let TELECOM_ACTION_VALUES = {
+            'INACTIVATE': 'INACTIVATE',
+            'ADD': 'ADD',
+            'UPDATE': 'UPDATE'
+        };
 
-    function initTelecoms(tableId) {
-        // IE Compatibility
-        if (!Element.prototype.matches) {
-            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-        }
+        let telecomDatePickerSettings = {};
 
-        if (!Element.prototype.closest) {
-            Element.prototype.closest = function(s) {
-                var el = this;
-                do {
-                    if (Element.prototype.matches.call(el, s)) return el;
-                    el = el.parentElement || el.parentNode;
-                } while (el !== null && el.nodeType === 1);
-                return null;
-            };
-        }
+        {{ DateToYYYYMMDD_js()|raw }}
 
-        // Event listeners for form changes
-        document.getElementById(tableId).addEventListener('keyup', changeTelecomEdit);
-        document.getElementById(tableId).addEventListener('mouseup', changeTelecomEdit);
-        document.getElementById(tableId).addEventListener('touchend', changeTelecomEdit);
+        let telecomTableConfig = {
+            tableId: {{ table_id|js_escape|raw }},
+            listTelecomSystems: {{ list_telecom_systems|json_encode|raw }},
+            listTelecomUses: {{ list_telecom_uses|js_escape|raw }}
+        };
 
-        document.getElementById(tableId).addEventListener('input', telecomUpdated);
-        document.getElementById(tableId).addEventListener('change', telecomUpdated);
+        (function () {
+            initTelecoms(telecomTableConfig.tableId);
+        })();
 
-        // Setup existing telecom buttons
-        document.querySelectorAll('#' + tableId + ' .telecoms_group .display_telecoms').forEach(function(row) {
-            setupTelecomsRowButtonEventListeners(row);
-        });
-
-        document.querySelectorAll('.form_telecoms').forEach(function(row) {
-            setupContainerDatePickers(row);
-            setupContainerListAddButtons(row);
-        });
-    }
-
-    function toggleInactiveTelecoms(tableId) {
-        const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
-        const inactiveTelecoms = document.querySelectorAll('#' + tableId + ' .telecom-inactive');
-
-        inactiveTelecoms.forEach(function(telecom) {
-            if (checkbox.checked) {
-                telecom.classList.remove('d-none');
-            } else {
-                telecom.classList.add('d-none');
+        function initTelecoms(tableId) {
+            // IE Compatibility
+            if (!Element.prototype.matches) {
+                Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
             }
-        });
-    }
 
-    function addTelecom(event) {
-        let noTelecomsElement = document.querySelector(".no_telecoms");
-
-        if (noTelecomsElement && !noTelecomsElement.classList.contains('d-none')) {
-            hideElement(noTelecomsElement);
-        }
-
-        let target = event.currentTarget;
-        let container = target.closest(".table_edit_telecoms");
-
-        const row_telecom_template = document.querySelector(".template_add_telecom");
-        var row_telecom_clone = row_telecom_template.content.cloneNode(true);
-        let row_form_telecoms = row_telecom_clone.querySelector(".form_telecoms");
-        let row_display_telecoms = row_telecom_clone.querySelector(".display_telecoms");
-        container.appendChild(row_telecom_clone);
-
-        setupTelecomsRowButtonEventListeners(row_display_telecoms);
-        setupContainerDatePickers(row_form_telecoms);
-        setupContainerListAddButtons(row_form_telecoms);
-
-        showElement(row_form_telecoms);
-        let firstInput = row_form_telecoms.querySelector('input.form_telecoms_value');
-        if (firstInput) {
-            firstInput.focus();
-        }
-    }
-
-    function changeTelecomEdit(event) {
-        var row_form_telecoms = event.target.closest('.form_telecoms');
-        if (!row_form_telecoms) {
-            return;
-        }
-
-        var telecoms_group = row_form_telecoms.closest('.telecoms_group');
-        if (!telecoms_group) {
-            return;
-        }
-        var row_display_telecoms = telecoms_group.querySelector('.display_telecoms');
-        if (!row_display_telecoms) {
-            return;
-        }
-
-        let record = createTelecomRecordFromInput(row_form_telecoms);
-        let systemDisplay = getSelectDisplay(row_form_telecoms, "select.form_telecoms_system");
-        let useDisplay = getSelectDisplay(row_form_telecoms, "select.form_telecoms_use");
-
-        row_display_telecoms.querySelector(".display_telecoms_system").innerText = systemDisplay;
-        row_display_telecoms.querySelector(".display_telecoms_value").innerText = record.value;
-        row_display_telecoms.querySelector(".display_telecoms_use").innerText = useDisplay;
-
-        // Update icon based on system
-        let iconContainer = row_display_telecoms.querySelector(".display_telecoms_system_column");
-        let icon = iconContainer.querySelector("i.fa-phone, i.fa-envelope, i.fa-fax, i.fa-link");
-        if (icon) {
-            let newIconClass = 'fas mr-1 fa-' + getTelecomIcon(record.system);
-            icon.className = newIconClass;
-        }
-    }
-
-    function getTelecomIcon(system) {
-        switch(system) {
-            case 'phone':
-            case 'mobile':
-                return 'phone';
-            case 'email':
-                return 'envelope';
-            case 'fax':
-                return 'fax';
-            case 'url':
-                return 'link';
-            default:
-                return 'phone';
-        }
-    }
-
-    function editTelecom(event) {
-        event.preventDefault();
-        let element = event.currentTarget;
-        let toggleElement = element.closest('.telecoms_group').querySelector('.form_telecoms');
-
-        if (element.className.includes("fa-caret-right")) {
-            toggleElement.classList.remove('d-none');
-            element.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-telecom";
-        } else {
-            toggleElement.classList.add('d-none');
-            element.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-telecom";
-        }
-    }
-
-    function changeTelecomStatus(event) {
-        event.preventDefault();
-        var row_display_telecoms = event.currentTarget.closest('.display_telecoms');
-        if (!row_display_telecoms) {
-            return;
-        }
-
-        var telecoms_group = row_display_telecoms.closest('.telecoms_group');
-        var currentStatus = telecoms_group.getAttribute('data-status');
-        var inactivateIcon = event.currentTarget;
-
-        var statusInput = telecoms_group.querySelector('input.form_telecoms_status');
-        var actionInput = telecoms_group.querySelector('input.form_telecoms_data_action');
-
-        if (currentStatus === 'I') {
-            // REACTIVATE
-            let prompt = window.xl("Reactivate this contact information?");
-            if (confirm(prompt)) {
-                telecoms_group.classList.remove('telecom-inactive');
-                telecoms_group.setAttribute('data-status', 'A');
-
-                var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
-                var badge = systemSpan.querySelector('.badge');
-                if (badge) {
-                    badge.remove();
-                }
-
-                inactivateIcon.classList.remove('fa-phone-circle-check', 'text-success');
-                inactivateIcon.classList.add('fa-phone-slash', 'text-danger');
-                inactivateIcon.setAttribute('title', window.xl('Inactivate Contact'));
-
-                if (actionInput) {
-                    actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
-                }
-                if (statusInput) {
-                    statusInput.value = 'A';
-                }
-
-                console.log('Reactivated telecom:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+            if (!Element.prototype.closest) {
+                Element.prototype.closest = function (s) {
+                    var el = this;
+                    do {
+                        if (Element.prototype.matches.call(el, s)) return el;
+                        el = el.parentElement || el.parentNode;
+                    } while (el !== null && el.nodeType === 1);
+                    return null;
+                };
             }
-        } else {
-            // INACTIVATE
-            let prompt = window.xl("Are you sure you wish to inactivate this contact information?");
-            if (confirm(prompt)) {
-                telecoms_group.classList.add('telecom-inactive');
-                telecoms_group.setAttribute('data-status', 'I');
 
-                var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
-                if (!systemSpan.querySelector('.badge')) {
-                    var badge = document.createElement('span');
-                    badge.className = 'badge badge-secondary ml-1';
-                    badge.style.fontSize = '0.7em';
-                    badge.textContent = window.xl('Inactive');
-                    systemSpan.appendChild(badge);
-                }
+            // Event listeners for form changes
+            document.getElementById(tableId).addEventListener('keyup', changeTelecomEdit);
+            document.getElementById(tableId).addEventListener('mouseup', changeTelecomEdit);
+            document.getElementById(tableId).addEventListener('touchend', changeTelecomEdit);
 
-                inactivateIcon.classList.remove('fa-phone-slash', 'text-danger');
-                inactivateIcon.classList.add('fa-phone-circle-check', 'text-success');
-                inactivateIcon.setAttribute('title', window.xl('Reactivate Contact'));
+            document.getElementById(tableId).addEventListener('input', telecomUpdated);
+            document.getElementById(tableId).addEventListener('change', telecomUpdated);
 
-                if (actionInput) {
-                    actionInput.value = TELECOM_ACTION_VALUES.INACTIVATE;
-                }
-                if (statusInput) {
-                    statusInput.value = 'I';
-                }
+            // Setup existing telecom buttons
+            document.querySelectorAll('#' + tableId + ' .telecoms_group .display_telecoms').forEach(function (row) {
+                setupTelecomsRowButtonEventListeners(row);
+            });
 
-                // Hide if "Show Inactive" is not checked
-                const tableId = telecoms_group.closest('[id^="table_edit_telecoms_"]').id;
-                const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
-                if (!checkbox || !checkbox.checked) {
-                    telecoms_group.classList.add('d-none');
-                }
+            document.querySelectorAll('.form_telecoms').forEach(function (row) {
+                setupContainerDatePickers(row);
+                setupContainerListAddButtons(row);
+            });
 
-                console.log('Marked telecom as inactive:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
-            }
-        }
-    }
-
-    function setupTelecomsRowButtonEventListeners(row) {
-        let buttonEdit = row.querySelector(".btn-edit-telecom");
-        if (buttonEdit) {
-            buttonEdit.addEventListener('click', editTelecom);
-        }
-
-        let buttonInactivate = row.querySelector(".btn-inactivate-telecom");
-        if (buttonInactivate) {
-            buttonInactivate.addEventListener('click', changeTelecomStatus);
-        }
-
-        let buttonActivate = row.querySelector(".btn-activate-telecom");
-        if (buttonActivate) {
-            buttonActivate.addEventListener('click', changeTelecomStatus);
-        }
-    }
-
-    function setupContainerDatePickers(container) {
-        let datepickers = container.querySelectorAll(".datepicker");
-        $(datepickers).datetimepicker(telecomDatePickerSettings);
-    }
-
-    function setupContainerListAddButtons(container) {
-        if (window.oeUI && window.oeUI.optionWidgets) {
-            $(container).find(".addtolist").on("click", function (event) {
-                window.oeUI.optionWidgets.AddToList(this, event);
+            document.querySelector("#show_inactive_telecoms_" + tableId)?.addEventListener('onchange', function() {
+                toggleInactiveTelecoms(tableId);
+            });
+            document.querySelector("#btn_add_telecom_" + tableId).addEventListener('click', function(event) {
+                addTelecom(event);
+                return false;
             });
         }
-    }
 
-    function createTelecomRecordFromInput(row_form_telecoms) {
-        var record = {};
-        record.system = getSelectValue(row_form_telecoms, "select.form_telecoms_system");
-        record.use = getSelectValue(row_form_telecoms, "select.form_telecoms_use");
-        record.value = getInputValue(row_form_telecoms, "input.form_telecoms_value");
-        record.rank = getInputValue(row_form_telecoms, "input.form_telecoms_rank");
-        record.notes = getInputValue(row_form_telecoms, "textarea.form_telecoms_notes");
-        return record;
-    }
+        function toggleInactiveTelecoms(tableId) {
+            const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
+            const inactiveTelecoms = document.querySelectorAll('#' + tableId + ' .telecom-inactive');
 
-    function telecomUpdated(event) {
-        const formTelecoms = event.target.closest('.form_telecoms');
-        if (!formTelecoms) {
-            return;
+            inactiveTelecoms.forEach(function (telecom) {
+                if (checkbox.checked) {
+                    telecom.classList.remove('d-none');
+                } else {
+                    telecom.classList.add('d-none');
+                }
+            });
         }
 
-        const telecomsGroup = formTelecoms.closest('.telecoms_group');
-        if (!telecomsGroup) {
-            return;
+        function addTelecom(event) {
+            let noTelecomsElement = document.querySelector(".no_telecoms");
+
+            if (noTelecomsElement && !noTelecomsElement.classList.contains('d-none')) {
+                hideElement(noTelecomsElement);
+            }
+
+            let target = event.currentTarget;
+            let container = target.closest(".table_edit_telecoms");
+
+            const row_telecom_template = document.querySelector(".template_add_telecom");
+            var row_telecom_clone = row_telecom_template.content.cloneNode(true);
+            let row_form_telecoms = row_telecom_clone.querySelector(".form_telecoms");
+            let row_display_telecoms = row_telecom_clone.querySelector(".display_telecoms");
+            container.appendChild(row_telecom_clone);
+
+            setupTelecomsRowButtonEventListeners(row_display_telecoms);
+            setupContainerDatePickers(row_form_telecoms);
+            setupContainerListAddButtons(row_form_telecoms);
+
+            showElement(row_form_telecoms);
+            let firstInput = row_form_telecoms.querySelector('input.form_telecoms_value');
+            if (firstInput) {
+                firstInput.focus();
+            }
         }
 
-        const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
-        if (!actionInput) {
-            return;
+        function changeTelecomEdit(event) {
+            var row_form_telecoms = event.target.closest('.form_telecoms');
+            if (!row_form_telecoms) {
+                return;
+            }
+
+            var telecoms_group = row_form_telecoms.closest('.telecoms_group');
+            if (!telecoms_group) {
+                return;
+            }
+            var row_display_telecoms = telecoms_group.querySelector('.display_telecoms');
+            if (!row_display_telecoms) {
+                return;
+            }
+
+            let record = createTelecomRecordFromInput(row_form_telecoms);
+            let systemDisplay = getSelectDisplay(row_form_telecoms, "select.form_telecoms_system");
+            let useDisplay = getSelectDisplay(row_form_telecoms, "select.form_telecoms_use");
+
+            row_display_telecoms.querySelector(".display_telecoms_system").innerText = systemDisplay;
+            row_display_telecoms.querySelector(".display_telecoms_value").innerText = record.value;
+            row_display_telecoms.querySelector(".display_telecoms_use").innerText = useDisplay;
+
+            // Update icon based on system
+            let iconContainer = row_display_telecoms.querySelector(".display_telecoms_system_column");
+            let icon = iconContainer.querySelector("i.fa-phone, i.fa-envelope, i.fa-fax, i.fa-link");
+            if (icon) {
+                let newIconClass = 'fas mr-1 fa-' + getTelecomIcon(record.system);
+                icon.className = newIconClass;
+            }
         }
 
-        const currentAction = actionInput.value;
-        if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
-            return;
+        function getTelecomIcon(system) {
+            switch (system) {
+                case 'phone':
+                case 'mobile':
+                    return 'phone';
+                case 'email':
+                    return 'envelope';
+                case 'fax':
+                    return 'fax';
+                case 'url':
+                    return 'link';
+                default:
+                    return 'phone';
+            }
         }
 
-        if (currentAction === 'NO CHANGE') {
-            actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
-            console.log('Changed action to UPDATE for telecom:', telecomsGroup.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+        function editTelecom(event) {
+            event.preventDefault();
+            let element = event.currentTarget;
+            let toggleElement = element.closest('.telecoms_group').querySelector('.form_telecoms');
+
+            if (element.className.includes("fa-caret-right")) {
+                toggleElement.classList.remove('d-none');
+                element.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-telecom";
+            } else {
+                toggleElement.classList.add('d-none');
+                element.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-telecom";
+            }
         }
-    }
 
-    // Utility functions
-    function setInputValue(root, selector, value) {
-        let node = root.querySelector(selector);
-        if (node) node.value = value;
-    }
+        function changeTelecomStatus(event) {
+            event.preventDefault();
+            var row_display_telecoms = event.currentTarget.closest('.display_telecoms');
+            if (!row_display_telecoms) {
+                return;
+            }
 
-    function getInputValue(root, selector) {
-        let node = root.querySelector(selector);
-        return node ? node.value : "";
-    }
+            var telecoms_group = row_display_telecoms.closest('.telecoms_group');
+            var currentStatus = telecoms_group.getAttribute('data-status');
+            var inactivateIcon = event.currentTarget;
 
-    function getSelectDisplay(root, selector) {
-        let node = root.querySelector(selector);
-        if (!node) return "";
-        let options = node.selectedOptions;
-        return options && options.length ? options[0].textContent : "";
-    }
+            var statusInput = telecoms_group.querySelector('input.form_telecoms_status');
+            var actionInput = telecoms_group.querySelector('input.form_telecoms_data_action');
 
-    function getSelectValue(root, selector) {
-        let node = root.querySelector(selector);
-        if (!node) return "";
-        let options = node.selectedOptions;
-        return options && options.length ? options[0].value : "";
-    }
+            if (currentStatus === 'I') {
+                // REACTIVATE
+                let prompt = window.xl("Reactivate this contact information?");
+                if (confirm(prompt)) {
+                    telecoms_group.classList.remove('telecom-inactive');
+                    telecoms_group.setAttribute('data-status', 'A');
 
-    function hideElement(element) {
-        element.classList.add('d-none');
-    }
+                    var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    var badge = systemSpan.querySelector('.badge');
+                    if (badge) {
+                        badge.remove();
+                    }
 
-    function showElement(element) {
-        element.classList.remove('d-none');
-    }
+                    inactivateIcon.classList.remove('fa-phone-circle-check', 'text-success');
+                    inactivateIcon.classList.add('fa-phone-slash', 'text-danger');
+                    inactivateIcon.setAttribute('title', window.xl('Inactivate Contact'));
+
+                    if (actionInput) {
+                        actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'A';
+                    }
+
+                    console.log('Reactivated telecom:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                }
+            } else {
+                // INACTIVATE
+                let prompt = window.xl("Are you sure you wish to inactivate this contact information?");
+                if (confirm(prompt)) {
+                    telecoms_group.classList.add('telecom-inactive');
+                    telecoms_group.setAttribute('data-status', 'I');
+
+                    var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    if (!systemSpan.querySelector('.badge')) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        systemSpan.appendChild(badge);
+                    }
+
+                    inactivateIcon.classList.remove('fa-phone-slash', 'text-danger');
+                    inactivateIcon.classList.add('fa-phone-circle-check', 'text-success');
+                    inactivateIcon.setAttribute('title', window.xl('Reactivate Contact'));
+
+                    if (actionInput) {
+                        actionInput.value = TELECOM_ACTION_VALUES.INACTIVATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'I';
+                    }
+
+                    // Hide if "Show Inactive" is not checked
+                    const tableId = telecoms_group.closest('[id^="table_edit_telecoms_"]').id;
+                    const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
+                    if (!checkbox || !checkbox.checked) {
+                        telecoms_group.classList.add('d-none');
+                    }
+
+                    console.log('Marked telecom as inactive:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                }
+            }
+        }
+
+        function setupTelecomsRowButtonEventListeners(row) {
+            let buttonEdit = row.querySelector(".btn-edit-telecom");
+            if (buttonEdit) {
+                buttonEdit.addEventListener('click', editTelecom);
+            }
+
+            let buttonInactivate = row.querySelector(".btn-inactivate-telecom");
+            if (buttonInactivate) {
+                buttonInactivate.addEventListener('click', changeTelecomStatus);
+            }
+
+            let buttonActivate = row.querySelector(".btn-activate-telecom");
+            if (buttonActivate) {
+                buttonActivate.addEventListener('click', changeTelecomStatus);
+            }
+        }
+
+        function setupContainerDatePickers(container) {
+            let datepickers = container.querySelectorAll(".datepicker");
+            $(datepickers).datetimepicker(telecomDatePickerSettings);
+        }
+
+        function setupContainerListAddButtons(container) {
+            if (window.oeUI && window.oeUI.optionWidgets) {
+                $(container).find(".addtolist").on("click", function (event) {
+                    window.oeUI.optionWidgets.AddToList(this, event);
+                });
+            }
+        }
+
+        function createTelecomRecordFromInput(row_form_telecoms) {
+            var record = {};
+            record.system = getSelectValue(row_form_telecoms, "select.form_telecoms_system");
+            record.use = getSelectValue(row_form_telecoms, "select.form_telecoms_use");
+            record.value = getInputValue(row_form_telecoms, "input.form_telecoms_value");
+            record.rank = getInputValue(row_form_telecoms, "input.form_telecoms_rank");
+            record.notes = getInputValue(row_form_telecoms, "textarea.form_telecoms_notes");
+            return record;
+        }
+
+        function telecomUpdated(event) {
+            const formTelecoms = event.target.closest('.form_telecoms');
+            if (!formTelecoms) {
+                return;
+            }
+
+            const telecomsGroup = formTelecoms.closest('.telecoms_group');
+            if (!telecomsGroup) {
+                return;
+            }
+
+            const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
+            if (!actionInput) {
+                return;
+            }
+
+            const currentAction = actionInput.value;
+            if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+                return;
+            }
+
+            if (currentAction === 'NO CHANGE') {
+                actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
+                console.log('Changed action to UPDATE for telecom:', telecomsGroup.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+            }
+        }
+
+        // Utility functions
+        function setInputValue(root, selector, value) {
+            let node = root.querySelector(selector);
+            if (node) node.value = value;
+        }
+
+        function getInputValue(root, selector) {
+            let node = root.querySelector(selector);
+            return node ? node.value : "";
+        }
+
+        function getSelectDisplay(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].textContent : "";
+        }
+
+        function getSelectValue(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].value : "";
+        }
+
+        function hideElement(element) {
+            element.classList.add('d-none');
+        }
+
+        function showElement(element) {
+            element.classList.remove('d-none');
+        }
+    })();
 </script>

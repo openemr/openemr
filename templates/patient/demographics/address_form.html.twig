@@ -28,10 +28,10 @@
                         {{ 'Addresses'|xlt }}
                     {% endif %}
                 </div>
-                <div class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;" onclick="addAddress(event);return false"></div>
+                <div id="btn_add_addresses_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
             <div class="form-check mr-3" style="margin-bottom: 0;">
-                <input type="checkbox" class="form-check-input" id="show_inactive_addresses_{{ table_id|attr }}" onchange="toggleInactiveAddresses('{{ table_id|attr }}')">
+                <input type="checkbox" class="form-check-input" id="show_inactive_addresses_{{ table_id|attr }}">
                 <label class="form-check-label" for="show_inactive_addresses_{{ table_id|attr }}" style="font-size: 0.9em;">
                     {{ 'Show Inactive'|xlt }}
                 </label>
@@ -167,373 +167,380 @@
 </template>
 
 <script type="text/javascript">
-    let addressWidgets = [];
-    let ADDRESS_ACTION_VALUES = {
-        'INACTIVATE': 'INACTIVATE',
-        'ADD': 'ADD',
-        'UPDATE': 'UPDATE'
-    };
-
-    let datePickerSettings = {};
-
-    {{ DateToYYYYMMDD_js()|raw }}
-
-    let tableConfig = {
-        tableId: {{ table_id|js_escape|raw }},
-        listAddressTypes: {{ list_address_types|json_encode|raw }},
-        listAddressUses: {{ list_address_uses|js_escape|raw }}
-    };
-
     (function() {
-        init(tableConfig.tableId);
-    })();
+        let ADDRESS_ACTION_VALUES = {
+            'INACTIVATE': 'INACTIVATE',
+            'ADD': 'ADD',
+            'UPDATE': 'UPDATE'
+        };
 
-    function init(tableId) {
-        // IE Compatibility
-        if (!Element.prototype.matches) {
-            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-        }
+        let datePickerSettings = {};
 
-        if (!Element.prototype.closest) {
-            Element.prototype.closest = function(s) {
-                var el = this;
-                do {
-                    if (Element.prototype.matches.call(el, s)) return el;
-                    el = el.parentElement || el.parentNode;
-                } while (el !== null && el.nodeType === 1);
-                return null;
-            };
-        }
+        {{ DateToYYYYMMDD_js()|raw }}
 
-        // Event listeners for form changes
-        document.getElementById(tableId).addEventListener('keyup', changeEdit);
-        document.getElementById(tableId).addEventListener('mouseup', changeEdit);
-        document.getElementById(tableId).addEventListener('touchend', changeEdit);
+        let tableConfig = {
+            tableId: {{ table_id|js_escape|raw }},
+            listAddressTypes: {{ list_address_types|json_encode|raw }},
+            listAddressUses: {{ list_address_uses|js_escape|raw }}
+        };
 
-        document.getElementById(tableId).addEventListener('input', addressUpdated);
-        document.getElementById(tableId).addEventListener('change', addressUpdated);
+        (function() {
+            init(tableConfig.tableId);
+        })();
 
-        // Setup existing address buttons and datepickers
-        document.querySelectorAll('#' + tableId + ' .addresses_group .display_addresses').forEach(function(row) {
-            setupAddressesRowButtonEventListeners(row);
-        });
-
-        document.querySelectorAll('.form_addresses').forEach(function(row) {
-            setupContainerDatePickers(row);
-            setupContainerListAddButtons(row);
-        });
-    }
-
-    function toggleInactiveAddresses(tableId) {
-        const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
-        const inactiveAddresses = document.querySelectorAll('#' + tableId + ' .address-inactive');
-
-        inactiveAddresses.forEach(function(address) {
-            if (checkbox.checked) {
-                address.classList.remove('d-none');
-            } else {
-                address.classList.add('d-none');
+        function init(tableId) {
+            // IE Compatibility
+            if (!Element.prototype.matches) {
+                Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
             }
-        });
-    }
 
-    function addAddress(event) {
-        let noAddressesElement = document.querySelector(".no_addresses");
-
-        // Only hide if the element exists
-        if (noAddressesElement && !noAddressesElement.classList.contains('d-none')) {
-            hideElement(noAddressesElement);
-        }
-
-        let target = event.currentTarget;
-        let container = target.closest(".table_edit_addresses");
-
-        const row_address_template = document.querySelector(".template_add_address");
-        var row_address_clone = row_address_template.content.cloneNode(true);
-        let row_form_addresses = row_address_clone.querySelector(".form_addresses");
-        let row_display_addresses = row_address_clone.querySelector(".display_addresses");
-        container.appendChild(row_address_clone);
-
-        setupAddressesRowButtonEventListeners(row_display_addresses);
-        setupContainerDatePickers(row_form_addresses);
-        setupContainerListAddButtons(row_form_addresses);
-
-        // Expand the element and focus first input
-        showElement(row_form_addresses);
-        let firstInput = row_form_addresses.querySelector('input.form_addresses_line1');
-        if (firstInput) {
-            firstInput.focus();
-        }
-    }
-
-    function changeEdit(event) {
-        var row_form_addresses = event.target.closest('.form_addresses');
-        if (!row_form_addresses) {
-            return;
-        }
-
-        // Find the parent addresses_group, then find display_addresses within it
-        var addresses_group = row_form_addresses.closest('.addresses_group');
-        if (!addresses_group) {
-            return;
-        }
-        var row_display_addresses = addresses_group.querySelector('.display_addresses');
-        if (!row_display_addresses) {
-            return;
-        }
-
-        let record = createRecordFromInput(row_form_addresses);
-        let useDisplay = getSelectDisplay(row_form_addresses, "select.form_addresses_uses");
-        let fullAddress = fullAddressFromRecord(record, 1);
-        let period = PeriodFromRecord(record);
-
-        row_display_addresses.querySelector(".display_addresses_full_address").innerText = fullAddress[0];
-        row_display_addresses.querySelector(".display_addresses_use").innerText = useDisplay;
-        row_display_addresses.querySelector(".display_addresses_period").innerText = period;
-    }
-
-    function editAddress(event) {
-        event.preventDefault();
-        let element = event.currentTarget;
-        let toggleElement = element.closest('.addresses_group').querySelector('.form_addresses');
-
-        if (element.className.includes("fa-caret-right")) {
-            toggleElement.classList.remove('d-none');
-            element.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
-        } else {
-            toggleElement.classList.add('d-none');
-            element.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
-        }
-    }
-
-    function changeAddressStatus(event) {
-        event.preventDefault();
-        var row_display_addresses = event.currentTarget.closest('.display_addresses');
-        if (!row_display_addresses) {
-            return;
-        }
-
-        var addresses_group = row_display_addresses.closest('.addresses_group');
-        var currentStatus = addresses_group.getAttribute('data-status');
-        var inactivateIcon = event.currentTarget;
-
-        // Get the hidden status input from addresses_group
-        var statusInput = addresses_group.querySelector('input.form_addresses_status');
-        var actionInput = addresses_group.querySelector('input.form_addresses_data_action');
-
-        // Check if this is currently inactive (reactivate) or active (inactivate)
-        if (currentStatus === 'I') {
-            // REACTIVATE
-            let prompt = window.xl("Reactivate this address?");
-            if (confirm(prompt)) {
-                // Remove inactive styling
-                addresses_group.classList.remove('address-inactive');
-                addresses_group.setAttribute('data-status', 'A');
-
-                // Remove inactive badge from display
-                var useSpan = row_display_addresses.querySelector('.display_addresses_use');
-                var badge = useSpan.querySelector('.badge');
-                if (badge) {
-                    badge.remove();
-                }
-
-                // Change icon back to trash
-                inactivateIcon.classList.remove('fa-house-circle-check', 'text-success');
-                inactivateIcon.classList.add('fa-house-circle-xmark', 'text-danger');
-                inactivateIcon.setAttribute('title', window.xl('Inactivate Address'));
-
-                // Set action to UPDATE and status to A
-                if (actionInput) {
-                    actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
-                }
-                if (statusInput) {
-                    statusInput.value = 'A';
-                }
-
-                console.log('Reactivated address:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+            if (!Element.prototype.closest) {
+                Element.prototype.closest = function(s) {
+                    var el = this;
+                    do {
+                        if (Element.prototype.matches.call(el, s)) return el;
+                        el = el.parentElement || el.parentNode;
+                    } while (el !== null && el.nodeType === 1);
+                    return null;
+                };
             }
-        } else {
-            // INACTIVATE
-            let prompt = window.xl("Are you sure you wish to inactivate this address?");
-            if (confirm(prompt)) {
-                // Mark as inactive
-                addresses_group.classList.add('address-inactive');
-                addresses_group.setAttribute('data-status', 'I');
 
-                // Add inactive badge to display
-                var useSpan = row_display_addresses.querySelector('.display_addresses_use');
-                if (!useSpan.querySelector('.badge')) {
-                    var badge = document.createElement('span');
-                    badge.className = 'badge badge-secondary ml-1';
-                    badge.style.fontSize = '0.7em';
-                    badge.textContent = window.xl('Inactive');
-                    useSpan.appendChild(badge);
-                }
+            // Event listeners for form changes
+            document.getElementById(tableId).addEventListener('keyup', changeEdit);
+            document.getElementById(tableId).addEventListener('mouseup', changeEdit);
+            document.getElementById(tableId).addEventListener('touchend', changeEdit);
 
-                // Change icon to restore icon
-                inactivateIcon.classList.remove('fa-house-circle-xmark', 'text-danger');
-                inactivateIcon.classList.add('fa-house-circle-check', 'text-success');
-                inactivateIcon.setAttribute('title', window.xl('Reactivate Address'));
+            document.getElementById(tableId).addEventListener('input', addressUpdated);
+            document.getElementById(tableId).addEventListener('change', addressUpdated);
 
-                // Set action to INACTIVATE
-                if (actionInput) {
-                    actionInput.value = ADDRESS_ACTION_VALUES.INACTIVATE;
-                }
-                if (statusInput) {
-                    statusInput.value = 'I';
-                }
+            // Setup existing address buttons and datepickers
+            document.querySelectorAll('#' + tableId + ' .addresses_group .display_addresses').forEach(function(row) {
+                setupAddressesRowButtonEventListeners(row);
+            });
 
-                // Hide if "Show Inactive" is not checked
-                const tableId = addresses_group.closest('[id^="table_edit_addresses_"]').id;
-                const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
-                if (!checkbox || !checkbox.checked) {
-                    addresses_group.classList.add('d-none');
-                }
+            document.querySelectorAll('.form_addresses').forEach(function(row) {
+                setupContainerDatePickers(row);
+                setupContainerListAddButtons(row);
+            });
 
-                console.log('Marked address as inactive:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
-            }
-        }
-    }
-
-    function setupAddressesRowButtonEventListeners(row) {
-        let buttonEdit = row.querySelector(".btn-edit-address");
-        if (buttonEdit) {
-            buttonEdit.addEventListener('click', editAddress);
-        }
-
-        let buttonInactivate = row.querySelector(".btn-inactivate-address");
-        if (buttonInactivate) {
-            buttonInactivate.addEventListener('click', changeAddressStatus);
-        }
-
-        let buttonActivate = row.querySelector(".btn-activate-address");
-        if (buttonActivate) {
-            buttonActivate.addEventListener('click', changeAddressStatus);
-        }
-    }
-
-    function setupContainerDatePickers(container) {
-        let datepickers = container.querySelectorAll(".datepicker");
-        $(datepickers).datetimepicker(datePickerSettings);
-    }
-
-    function setupContainerListAddButtons(container) {
-        if (window.oeUI && window.oeUI.optionWidgets) {
-            $(container).find(".addtolist").on("click", function (event) {
-                window.oeUI.optionWidgets.AddToList(this, event);
+            document.querySelector('#show_inactive_addresses_' + tableId)?.addEventListener('change', function() {
+                toggleInactiveAddresses(tableId);
+            });
+            document.querySelector('#btn_add_addresses_' + tableId)?.addEventListener('click', function(event) {
+                addAddress(event);return false
             });
         }
-    }
 
-    function createRecordFromInput(row_form_addresses) {
-        var record = {};
-        record.line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
-        record.line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");
-        record.city = getInputValue(row_form_addresses, "input.form_addresses_city");
-        record.postalcode = getInputValue(row_form_addresses, "input.form_addresses_postalcode");
-        record.zip = record.postalcode;
-        record.state = getSelectValue(row_form_addresses, "select.form_addresses_state");
-        record.country = getSelectValue(row_form_addresses, "select.form_addresses_country");
-        record.district = getInputValue(row_form_addresses, "input.form_addresses_district");
-        record.use = getSelectValue(row_form_addresses, "select.form_addresses_uses");
-        record.type = getSelectValue(row_form_addresses, "select.form_addresses_types");
-        record.period_start = getInputValue(row_form_addresses, "input.form_addresses_period_start");
-        record.period_end = getInputValue(row_form_addresses, "input.form_addresses_period_end");
-        return record;
-    }
+        function toggleInactiveAddresses(tableId) {
+            const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
+            const inactiveAddresses = document.querySelectorAll('#' + tableId + ' .address-inactive');
 
-    function fullAddressFromRecord(record, lines) {
-        var fullAddress = ["", ""];
-
-        fullAddress[0] = [record.line1, record.line2].filter(x => x).join(", ");
-
-        if (lines > 1) {
-            fullAddress[1] = [record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
-        } else {
-            fullAddress[0] = [fullAddress[0], record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+            inactiveAddresses.forEach(function(address) {
+                if (checkbox.checked) {
+                    address.classList.remove('d-none');
+                } else {
+                    address.classList.add('d-none');
+                }
+            });
         }
 
-        return fullAddress[0] || fullAddress[1] ? fullAddress : ["None"];
-    }
+        function addAddress(event) {
+            let noAddressesElement = document.querySelector(".no_addresses");
 
-    function PeriodFromRecord(record) {
-        let periodStart = record.period_start;
-        let periodEnd = record.period_end;
+            // Only hide if the element exists
+            if (noAddressesElement && !noAddressesElement.classList.contains('d-none')) {
+                hideElement(noAddressesElement);
+            }
 
-        if (!periodStart && !periodEnd) return "";
+            let target = event.currentTarget;
+            let container = target.closest(".table_edit_addresses");
 
-        if (periodStart && !periodEnd) {
-            return periodStart + " " + window.xl('to') + " " + window.xl('Current');
-        } else if (!periodStart && periodEnd) {
-            return window.xl('Expired') + ": " + periodEnd;
-        } else {
-            return periodStart + " " + window.xl('to') + " " + periodEnd;
-        }
-    }
+            const row_address_template = document.querySelector(".template_add_address");
+            var row_address_clone = row_address_template.content.cloneNode(true);
+            let row_form_addresses = row_address_clone.querySelector(".form_addresses");
+            let row_display_addresses = row_address_clone.querySelector(".display_addresses");
+            container.appendChild(row_address_clone);
 
-    function setInputValue(root, selector, value) {
-        let node = root.querySelector(selector);
-        if (node) node.value = value;
-    }
+            setupAddressesRowButtonEventListeners(row_display_addresses);
+            setupContainerDatePickers(row_form_addresses);
+            setupContainerListAddButtons(row_form_addresses);
 
-    function getInputValue(root, selector) {
-        let node = root.querySelector(selector);
-        return node ? node.value : "";
-    }
-
-    function getSelectDisplay(root, selector) {
-        let node = root.querySelector(selector);
-        if (!node) return "";
-        let options = node.selectedOptions;
-        return options && options.length ? options[0].textContent : "";
-    }
-
-    function getSelectValue(root, selector) {
-        let node = root.querySelector(selector);
-        if (!node) return "";
-        let options = node.selectedOptions;
-        return options && options.length ? options[0].value : "";
-    }
-
-    function hideElement(element) {
-        element.classList.add('d-none');
-    }
-
-    function showElement(element) {
-        element.classList.remove('d-none');
-    }
-
-    function addressUpdated(event) {
-        // Check if the changed element is within a form_addresses div
-        const formAddresses = event.target.closest('.form_addresses');
-        if (!formAddresses) {
-            return;
+            // Expand the element and focus first input
+            showElement(row_form_addresses);
+            let firstInput = row_form_addresses.querySelector('input.form_addresses_line1');
+            if (firstInput) {
+                firstInput.focus();
+            }
         }
 
-        // Get the parent addresses_group
-        const addressesGroup = formAddresses.closest('.addresses_group');
-        if (!addressesGroup) {
-            return;
+        function changeEdit(event) {
+            var row_form_addresses = event.target.closest('.form_addresses');
+            if (!row_form_addresses) {
+                return;
+            }
+
+            // Find the parent addresses_group, then find display_addresses within it
+            var addresses_group = row_form_addresses.closest('.addresses_group');
+            if (!addresses_group) {
+                return;
+            }
+            var row_display_addresses = addresses_group.querySelector('.display_addresses');
+            if (!row_display_addresses) {
+                return;
+            }
+
+            let record = createRecordFromInput(row_form_addresses);
+            let useDisplay = getSelectDisplay(row_form_addresses, "select.form_addresses_uses");
+            let fullAddress = fullAddressFromRecord(record, 1);
+            let period = PeriodFromRecord(record);
+
+            row_display_addresses.querySelector(".display_addresses_full_address").innerText = fullAddress[0];
+            row_display_addresses.querySelector(".display_addresses_use").innerText = useDisplay;
+            row_display_addresses.querySelector(".display_addresses_period").innerText = period;
         }
 
-        // Get the data_action input
-        const actionInput = addressesGroup.querySelector('input.form_addresses_data_action');
-        if (!actionInput) {
-            return;
+        function editAddress(event) {
+            event.preventDefault();
+            let element = event.currentTarget;
+            let toggleElement = element.closest('.addresses_group').querySelector('.form_addresses');
+
+            if (element.className.includes("fa-caret-right")) {
+                toggleElement.classList.remove('d-none');
+                element.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
+            } else {
+                toggleElement.classList.add('d-none');
+                element.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
+            }
         }
 
-        // Only change to UPDATE if it's not already ADD or INACTIVATE
-        const currentAction = actionInput.value;
-        if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
-            // Don't change these states
-            return;
+        function changeAddressStatus(event) {
+            event.preventDefault();
+            var row_display_addresses = event.currentTarget.closest('.display_addresses');
+            if (!row_display_addresses) {
+                return;
+            }
+
+            var addresses_group = row_display_addresses.closest('.addresses_group');
+            var currentStatus = addresses_group.getAttribute('data-status');
+            var inactivateIcon = event.currentTarget;
+
+            // Get the hidden status input from addresses_group
+            var statusInput = addresses_group.querySelector('input.form_addresses_status');
+            var actionInput = addresses_group.querySelector('input.form_addresses_data_action');
+
+            // Check if this is currently inactive (reactivate) or active (inactivate)
+            if (currentStatus === 'I') {
+                // REACTIVATE
+                let prompt = window.xl("Reactivate this address?");
+                if (confirm(prompt)) {
+                    // Remove inactive styling
+                    addresses_group.classList.remove('address-inactive');
+                    addresses_group.setAttribute('data-status', 'A');
+
+                    // Remove inactive badge from display
+                    var useSpan = row_display_addresses.querySelector('.display_addresses_use');
+                    var badge = useSpan.querySelector('.badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+
+                    // Change icon back to trash
+                    inactivateIcon.classList.remove('fa-house-circle-check', 'text-success');
+                    inactivateIcon.classList.add('fa-house-circle-xmark', 'text-danger');
+                    inactivateIcon.setAttribute('title', window.xl('Inactivate Address'));
+
+                    // Set action to UPDATE and status to A
+                    if (actionInput) {
+                        actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'A';
+                    }
+
+                    console.log('Reactivated address:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+                }
+            } else {
+                // INACTIVATE
+                let prompt = window.xl("Are you sure you wish to inactivate this address?");
+                if (confirm(prompt)) {
+                    // Mark as inactive
+                    addresses_group.classList.add('address-inactive');
+                    addresses_group.setAttribute('data-status', 'I');
+
+                    // Add inactive badge to display
+                    var useSpan = row_display_addresses.querySelector('.display_addresses_use');
+                    if (!useSpan.querySelector('.badge')) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        useSpan.appendChild(badge);
+                    }
+
+                    // Change icon to restore icon
+                    inactivateIcon.classList.remove('fa-house-circle-xmark', 'text-danger');
+                    inactivateIcon.classList.add('fa-house-circle-check', 'text-success');
+                    inactivateIcon.setAttribute('title', window.xl('Reactivate Address'));
+
+                    // Set action to INACTIVATE
+                    if (actionInput) {
+                        actionInput.value = ADDRESS_ACTION_VALUES.INACTIVATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'I';
+                    }
+
+                    // Hide if "Show Inactive" is not checked
+                    const tableId = addresses_group.closest('[id^="table_edit_addresses_"]').id;
+                    const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
+                    if (!checkbox || !checkbox.checked) {
+                        addresses_group.classList.add('d-none');
+                    }
+
+                    console.log('Marked address as inactive:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+                }
+            }
         }
 
-        // Change NO CHANGE to UPDATE
-        if (currentAction === 'NO CHANGE') {
-            actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
-            console.log('Changed action to UPDATE for address:', addressesGroup.querySelector('input.form_addresses_contact_address_id')?.value);
-        }
-    }
+        function setupAddressesRowButtonEventListeners(row) {
+            let buttonEdit = row.querySelector(".btn-edit-address");
+            if (buttonEdit) {
+                buttonEdit.addEventListener('click', editAddress);
+            }
 
+            let buttonInactivate = row.querySelector(".btn-inactivate-address");
+            if (buttonInactivate) {
+                buttonInactivate.addEventListener('click', changeAddressStatus);
+            }
+
+            let buttonActivate = row.querySelector(".btn-activate-address");
+            if (buttonActivate) {
+                buttonActivate.addEventListener('click', changeAddressStatus);
+            }
+        }
+
+        function setupContainerDatePickers(container) {
+            let datepickers = container.querySelectorAll(".datepicker");
+            $(datepickers).datetimepicker(datePickerSettings);
+        }
+
+        function setupContainerListAddButtons(container) {
+            if (window.oeUI && window.oeUI.optionWidgets) {
+                $(container).find(".addtolist").on("click", function (event) {
+                    window.oeUI.optionWidgets.AddToList(this, event);
+                });
+            }
+        }
+
+        function createRecordFromInput(row_form_addresses) {
+            var record = {};
+            record.line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
+            record.line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");
+            record.city = getInputValue(row_form_addresses, "input.form_addresses_city");
+            record.postalcode = getInputValue(row_form_addresses, "input.form_addresses_postalcode");
+            record.zip = record.postalcode;
+            record.state = getSelectValue(row_form_addresses, "select.form_addresses_state");
+            record.country = getSelectValue(row_form_addresses, "select.form_addresses_country");
+            record.district = getInputValue(row_form_addresses, "input.form_addresses_district");
+            record.use = getSelectValue(row_form_addresses, "select.form_addresses_uses");
+            record.type = getSelectValue(row_form_addresses, "select.form_addresses_types");
+            record.period_start = getInputValue(row_form_addresses, "input.form_addresses_period_start");
+            record.period_end = getInputValue(row_form_addresses, "input.form_addresses_period_end");
+            return record;
+        }
+
+        function fullAddressFromRecord(record, lines) {
+            var fullAddress = ["", ""];
+
+            fullAddress[0] = [record.line1, record.line2].filter(x => x).join(", ");
+
+            if (lines > 1) {
+                fullAddress[1] = [record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+            } else {
+                fullAddress[0] = [fullAddress[0], record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+            }
+
+            return fullAddress[0] || fullAddress[1] ? fullAddress : ["None"];
+        }
+
+        function PeriodFromRecord(record) {
+            let periodStart = record.period_start;
+            let periodEnd = record.period_end;
+
+            if (!periodStart && !periodEnd) return "";
+
+            if (periodStart && !periodEnd) {
+                return periodStart + " " + window.xl('to') + " " + window.xl('Current');
+            } else if (!periodStart && periodEnd) {
+                return window.xl('Expired') + ": " + periodEnd;
+            } else {
+                return periodStart + " " + window.xl('to') + " " + periodEnd;
+            }
+        }
+
+        function setInputValue(root, selector, value) {
+            let node = root.querySelector(selector);
+            if (node) node.value = value;
+        }
+
+        function getInputValue(root, selector) {
+            let node = root.querySelector(selector);
+            return node ? node.value : "";
+        }
+
+        function getSelectDisplay(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].textContent : "";
+        }
+
+        function getSelectValue(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].value : "";
+        }
+
+        function hideElement(element) {
+            element.classList.add('d-none');
+        }
+
+        function showElement(element) {
+            element.classList.remove('d-none');
+        }
+
+        function addressUpdated(event) {
+            // Check if the changed element is within a form_addresses div
+            const formAddresses = event.target.closest('.form_addresses');
+            if (!formAddresses) {
+                return;
+            }
+
+            // Get the parent addresses_group
+            const addressesGroup = formAddresses.closest('.addresses_group');
+            if (!addressesGroup) {
+                return;
+            }
+
+            // Get the data_action input
+            const actionInput = addressesGroup.querySelector('input.form_addresses_data_action');
+            if (!actionInput) {
+                return;
+            }
+
+            // Only change to UPDATE if it's not already ADD or INACTIVATE
+            const currentAction = actionInput.value;
+            if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+                // Don't change these states
+                return;
+            }
+
+            // Change NO CHANGE to UPDATE
+            if (currentAction === 'NO CHANGE') {
+                actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+                console.log('Changed action to UPDATE for address:', addressesGroup.querySelector('input.form_addresses_contact_address_id')?.value);
+            }
+        }
+    })();
 </script>
