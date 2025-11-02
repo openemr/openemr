@@ -19,12 +19,12 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionUtil::portalSessionStart();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['pid'])) {
-        if ($_POST['pid'] != $_SESSION['pid']) {
+        if ($_POST['pid'] != $session->get('pid')) {
             echo "illegal Action";
             SessionUtil::portalSessionCookieDestroy();
             exit;
@@ -32,13 +32,13 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     }
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (empty($_SESSION['portal_username'])) {
+    if (empty($session->get('portal_username'))) {
         echo xlt("illegal Action");
         SessionUtil::portalSessionCookieDestroy();
         exit;
     }
     // owner is the patient portal_username
-    $owner = $_SESSION['portal_username'];
+    $owner = $session->get('portal_username');
 
     // ensure the owner is bootstrapped to the $_POST['sender_id'] and
     //   $_POST['sender_name'], if applicable
@@ -55,7 +55,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         }
     }
     if (!empty($_POST['sender_name'])) {
-        $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$_SESSION['pid']]);
+        $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$session->get('pid')]);
         if (empty($nameCheck) || ($_POST['sender_name'] != ($nameCheck['fname'] . " " . $nameCheck['lname']))) {
             echo xlt("illegal Action");
             SessionUtil::portalSessionCookieDestroy();
@@ -66,13 +66,13 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID']) || empty($_SESSION['authUser'])) {
+    if (!$session->has('authUserID') || empty($session->get('authUser'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
     }
     //owner is the user authUser
-    $owner = $_SESSION['authUser'];
+    $owner = $session->get('authUser');
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");

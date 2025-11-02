@@ -21,14 +21,14 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
-session_regenerate_id(true);
+// session_regenerate_id(true); TODO Rethink how to achieve this and do we need it !!!
 //
 
 // landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? $_GET['site'] ?? 'default'));
+$landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', false) ?? $_GET['site'] ?? 'default'));
 //
 
 if (!empty($_REQUEST['redirect'])) {
@@ -37,7 +37,7 @@ if (!empty($_REQUEST['redirect'])) {
 }
 
 // checking whether the request comes from index.php
-if (!isset($_SESSION['itsme'])) {
+if (!$session->get('itsme', false)) {
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
@@ -58,10 +58,10 @@ if (!isset($_POST['pass']) || empty($_POST['pass'])) {
 
 // set the language
 if (!empty($_POST['languageChoice'])) {
-    $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
-} elseif (empty($_SESSION['language_choice'])) {
+    $session->set('language_choice', (int)$_POST['languageChoice']);
+} elseif (empty($session->get('language_choice', null))) {
     // just in case both are empty, then use english
-    $_SESSION['language_choice'] = 1;
+    $session->set('language_choice', 1);
 } else {
     // keep the current session language token
 }
@@ -89,8 +89,9 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
-$password_update = $_SESSION['password_update'] ?? 0;
-unset($_SESSION['password_update']);
+$password_update = $session->get('password_update', 0);
+//unset($_SESSION['password_update']);
+$session->remove('password_update');
 
 $authorizedPortal = false; // flag
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
@@ -104,18 +105,18 @@ DEFINE("COL_POR_ONETIME", "portal_onetime");
 
 // 2 is flag for one time credential reset else 1 = normal reset.
 // one time reset requires a PIN where normal uses a new temp pass sent to user.
-if ($password_update === 2 && !empty($_SESSION['pin'])) {
+if ($password_update === 2 && !empty($session->get('pin', null))) {
     $sql = "SELECT " . implode(",", [
             COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT, COL_POR_ONETIME]) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE BINARY " . COL_POR_ONETIME . "= ?";
-    $auth = privQuery($sql, [$_SESSION['forward']]);
+    $auth = privQuery($sql, [$session->get('forward')]);
     if ($auth !== false) {
         // remove the token from database
         privStatement("UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_ONETIME . "=NULL WHERE BINARY " . COL_POR_ONETIME . " = ?", [$auth['portal_onetime']]);
         // validation
         $validate = substr((string) $auth[COL_POR_ONETIME], 32, 6);
         if (!empty($validate) && !empty($_POST['token_pin'])) {
-            if ($_SESSION['pin'] !== $_POST['token_pin']) {
+            if ($session->get('pin') !== $_POST['token_pin']) {
                 $auth = false;
             } elseif ($validate !== $_POST['token_pin']) {
                 $auth = false;
@@ -123,8 +124,8 @@ if ($password_update === 2 && !empty($_SESSION['pin'])) {
         } else {
             $auth = false;
         }
-        unset($_SESSION['forward']);
-        unset($_SESSION['pin']);
+        $session->remove('forward');
+        $session->remove('pin');
         unset($_POST['token_pin']);
     }
 } else {
@@ -183,8 +184,8 @@ if ($password_update === 2) {
 
 
 
-$_SESSION['portal_username'] = $auth[COL_POR_USER];
-$_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
+$session->set('portal_username', $auth[COL_POR_USER]);
+$session->set('portal_login_username', $auth[COL_POR_LOGINUSER]);
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
@@ -238,14 +239,14 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
                 ]
             );
             $authorizedPortal = true;
-            $logit->portalLog('password update', $auth['pid'], ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success'));
+            $logit->portalLog('password update', $auth['pid'], ($_POST['login_uname'] . ': ' . $session->get('ptName') . ':success'));
         }
     }
 
     if ($auth['portal_pwd_status'] == 0) {
         if (!$authorizedPortal) {
             // Need to enter a new password in the index.php script
-            $_SESSION['password_update'] = 1;
+            $session->set('password_update', 1);
             header('Location: ' . $landingpage);
             exit();
         }
@@ -258,25 +259,25 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
 
     if ($authorizedPortal) {
         // patient is authorized (prepare the session variables)
-        unset($_SESSION['password_update']); // just being safe
-        unset($_SESSION['itsme']); // just being safe
-        $_SESSION['pid'] = $auth['pid'];
-        $_SESSION['patient_portal_onsite_two'] = 1;
+        $session->remove('password_update'); // just being safe
+        $session->remove('itsme'); // just being safe
+        $session->set('pid', $auth['pid']);
+        $session->set('patient_portal_onsite_two', 1);
 
         $tmp = getUserIDInfo($userData['providerID']);
-        $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
-        $_SESSION['providerUName'] = $tmp['username'] ?? null;
-        $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
-        $_SESSION['providerId'] = $userData['providerID'] ?: 'undefined';
-        $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
+        $session->set('providerName', ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''));
+        $session->set('providerUName', $tmp['username'] ?? null);
+        $session->set('sessionUser', '-patient-'); // $_POST['uname'];
+        $session->set('providerId', $userData['providerID'] ?: 'undefined');
+        $session->set('ptName', $userData['fname'] . ' ' . $userData['lname']);
         // never set authUserID though authUser is used for ACL!
-        $_SESSION['authUser'] = 'portal-user';
+        $session->set('authUser', 'portal-user');
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($session);
 
-        $logit->portalLog('login', $_SESSION['pid'], ($_SESSION['portal_username'] . ': ' . $_SESSION['ptName'] . ':success'));
+        $logit->portalLog('login', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
     } else {
         $logit->portalLog('login', '', ($_POST['uname'] . ':not authorized'), '', '0');
         SessionUtil::portalSessionCookieDestroy();

@@ -21,25 +21,25 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionUtil::portalSessionStart();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
-    define('IS_PORTAL', $_SESSION['portal_username']);
+    define('IS_PORTAL', $session->get('portal_username'));
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
     }
 
-    define('IS_DASHBOARD', $_SESSION['authUser']);
+    define('IS_DASHBOARD', $session->get('authUser'));
     define('IS_PORTAL', false);
 }
 $srcdir = $globalsBag->getString('srcdir');
@@ -71,7 +71,7 @@ $isEmail = !empty($globalsBag->get('oe_enable_email') ?? 0);
 $showSMS = $isSMS && IS_DASHBOARD;
 $dashuser = [];
 if (IS_DASHBOARD) {
-    $dashuser = getUserIDInfo($_SESSION['authUserID']);
+    $dashuser = getUserIDInfo($session->get('authUserID'));
 }
 
 function getAuthPortalUsers()
@@ -146,7 +146,7 @@ function getAuthPortalUsers()
                 $scope.deletedItems = [];
                 $scope.inboxItems = [];
                 $scope.inboxItems = <?php echo json_encode($theresult);?>;
-                $scope.userproper = <?php echo !empty($_SESSION['ptName']) ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
+                $scope.userproper = <?php echo !empty($session->get('ptName', null)) ? js_escape($session->get('ptName')) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
                 $scope.isPortal = "<?php echo IS_PORTAL;?>";
                 $scope.isDashboard = "<?php echo IS_DASHBOARD ?: 0;?>";
                 $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
@@ -593,7 +593,7 @@ function getAuthPortalUsers()
                             </button>
                             <?php
                             if ($showSMS) {
-                                $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                                $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                             }
                             ?>
                             <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>

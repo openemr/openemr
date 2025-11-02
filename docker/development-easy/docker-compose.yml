@@ -20,7 +20,7 @@ services:
       - --connect
       - --innodb_initialized
       start_period: 1m
-      start_interval: 10s
+#      start_interval: 10s
       interval: 1m
       timeout: 5s
       retries: 3
@@ -105,7 +105,7 @@ services:
       - --silent
       - https://localhost/meta/health/readyz
       start_period: 3m
-      start_interval: 10s
+#      start_interval: 10s
       interval: 1m
       timeout: 5s
       retries: 3
@@ -120,7 +120,7 @@ services:
       SE_SCREEN_WIDTH: 1920
       SE_SCREEN_HEIGHT: 1080
       SE_SCREEN_DEPTH: 24
-      SE_START_XVFB: true
+      SE_START_XVFB: "true"
     volumes:
     - /dev/shm:/dev/shm
     healthcheck:

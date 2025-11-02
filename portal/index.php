@@ -50,7 +50,7 @@ require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
 //For redirect if the site on session does not match
-$landingpage = $globalsBag->getString('web_root') . "/portal/index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = $globalsBag->getString('web_root') . "/portal/index.php?site=" . urlencode((string) $session->get('site_id', ''));
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
@@ -72,9 +72,9 @@ if (isset($_GET['woops'])) {
 unset($_REQUEST['whereto']);
 unset($_GET['whereto']);
 // set the where to session variable to the page from previous session.
-$whereto = $_SESSION['whereto'] ?? null;
+$whereto = $session->get('whereto', null);
 // set the landOn session variable to the redirect page after successfully login.
-$_SESSION['landOn'] = $_GET['landOn'] ?? null;
+$session->set('landOn', $_GET['landOn'] ?? null);
 // unset the landOn super.
 unset($_REQUEST['landOn']);
 unset($_GET['landOn']);
@@ -101,13 +101,13 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $token = $_GET['service_auth'];
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($session);
         $twig = new TwigContainer(null, $globalsBag->get('kernel'));
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],
             'target' => $_GET['target'] ?? null,
-            'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
             'pin_required' => $pin_required,
@@ -118,7 +118,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
-            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session)) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
             $auth = $oneTime->processOnetime($token, $redirect_token);
@@ -215,19 +215,19 @@ if (!empty($_GET['forward_email_verify'])) {
     if (!empty($sqlVerify['fname']) && !empty($sqlVerify['lname']) && !empty($sqlVerify['dob']) && !empty($sqlVerify['email']) && !empty($sqlVerify['language'])) {
         // token has passed and have all needed data
         $fnameRegistration = $sqlVerify['fname'];
-        $_SESSION['fnameRegistration'] = $fnameRegistration;
+        $session->set('fnameRegistration', $fnameRegistration);
         $mnameRegistration = $sqlVerify['mname'] ?? '';
-        $_SESSION['mnameRegistration'] = $mnameRegistration;
+        $session->set('mnameRegistration', $mnameRegistration);
         $lnameRegistration = $sqlVerify['lname'];
-        $_SESSION['lnameRegistration'] = $lnameRegistration;
+        $session->set('lnameRegistration', $lnameRegistration);
         $dobRegistration = $sqlVerify['dob'];
-        $_SESSION['dobRegistration'] = $dobRegistration;
+        $session->set('dobRegistration', $dobRegistration);
         $emailRegistration = $sqlVerify['email'];
-        $_SESSION['emailRegistration'] = $emailRegistration;
+        $session->set('emailRegistration', $emailRegistration);
         $languageRegistration = $sqlVerify['language'];
-        $_SESSION['language_choice'] = (int)($languageRegistration ?? 1);
+        $session->set('language_choice', (int)($languageRegistration ?? 1));
         $portalRegistrationAuthorization = true;
-        $_SESSION['token_id_holder'] = $sqlVerify['id'];
+        $session->set('token_id_holder', $sqlVerify['id']);
         (new SystemLogger())->debug("token worked for forward_email_verify token, now on to registration");
         EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
         require_once(__DIR__ . "/account/register.php");
@@ -271,16 +271,16 @@ if (!empty($_GET['forward_email_verify'])) {
         SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time());
     }
-    $_SESSION['pin'] = substr($parse, 0, 6);
-    $_SESSION['forward'] = $auth['portal_onetime'];
-    $_SESSION['portal_username'] = $auth['portal_username'];
-    $_SESSION['portal_login_username'] = $auth['portal_login_username'];
-    $_SESSION['password_update'] = 2;
-    $_SESSION['onetime'] = $auth['portal_pwd'];
+    $session->set('pin', substr($parse, 0, 6));
+    $session->set('forward', $auth['portal_onetime']);
+    $session->set('portal_username', $auth['portal_username']);
+    $session->set('portal_login_username', $auth['portal_login_username']);
+    $session->set('password_update', 2);
+    $session->set('onetime', $auth['portal_pwd']);
     unset($auth);
 }
 // security measure -- will check on next page.
-$_SESSION['itsme'] = 1;
+$session->set('itsme', 1);
 //
 
 //
