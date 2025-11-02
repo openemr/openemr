@@ -252,7 +252,7 @@ if (isset($_POST['new_login_session_management'])) {
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
                         [$_SESSION['authUserID']]
                     );
-                } catch (u2flib_server\Error $e) {
+                } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
