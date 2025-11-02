@@ -649,17 +649,14 @@ function checkBackgroundServices(): void
                                                         ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
                                                         ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
                                                         ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')],
-                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences'), 'default' => true],
-                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences'), 'default' => true],
+                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences')],
+                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences')],
                                                     ];
                                                     echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {
                                                             if ($glrow['gl_value'] == $row['card_abrev']) {
-                                                                echo " selected";
-                                                                break;
-                                                            } elseif ($row['default'] ?? false) {
                                                                 echo " selected";
                                                                 break;
                                                             }
