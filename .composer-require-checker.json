@@ -10,7 +10,6 @@
     "IS_WINDOWS",
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
-    "Laminas\\Config\\Reader\\Exception\\RuntimeException",
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
     "OpenEMR\\Common\\Auth\\u2flib_server\\Error",

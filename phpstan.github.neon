@@ -17448,10 +17448,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 4
     path: src/Services/Cda/CdaTemplateParse.php
-  - message: '#^Instantiated class Laminas\\Config\\Reader\\Exception\\RuntimeException not found\.$#'
-    identifier: class.notFound
-    count: 3
-    path: src/Services/Cda/XmlExtended.php
   - message: '#^Variable \$form_id in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 1
