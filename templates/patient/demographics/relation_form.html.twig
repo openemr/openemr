@@ -135,6 +135,17 @@
                 <div class='d-none form_relations relation-card-body'>
                     {% include 'patient/demographics/relation_form_fields.html.twig' with {
                         'relatedPerson': relatedPerson,
+                        'field_id_esc': field_id_esc ~ '[' ~ loop.index0 ~ ']',
+                        'name_field_id': name_field_id ~ '[' ~ loop.index0 ~ ']',
+                        'smallform': smallform,
+                        'widget_constants': widget_constants,
+                        'edit_options': edit_options,
+                        'list_telecom_systems': list_telecom_systems,
+                        'list_telecom_uses': list_telecom_uses,
+                        'list_address_types': list_address_types,
+                        'list_address_uses': list_address_uses,
+                        'list_states': list_states,
+                        'list_countries': list_countries,
                         'is_new': false
                     } %}
                 </div>
@@ -198,6 +209,17 @@
                         'can_receive_medical_info': false,
                         'start_date': 'now'|date('Y-m-d')
                     },
+                    'field_id_esc': field_id_esc ~ '[new]',
+                    'name_field_id': name_field_id ~ '[new]',
+                    'smallform': smallform,
+                    'widget_constants': widget_constants,
+                    'edit_options': edit_options,
+                    'list_telecom_systems': list_telecom_systems,
+                    'list_telecom_uses': list_telecom_uses,
+                    'list_address_types': list_address_types,
+                    'list_address_uses': list_address_uses,
+                    'list_states': list_states,
+                    'list_countries': list_countries,
                     'is_new': true
                 } %}
             </div>

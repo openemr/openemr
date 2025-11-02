@@ -187,8 +187,7 @@
             </div>
         </div>
     </div>
-    {{field_id_esc}}
-    {{name_field_id}}
+
     {# Telecoms Section #}
     <div class="form-row">
         <div class="col-12">
@@ -197,10 +196,10 @@
                 'table_id': telecom_table_id,
                 'telecoms': relatedPerson.telecoms,
                 'field_id_esc': field_id_esc ~ '[telecoms]',
-                'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
+                'name_field_id': name_field_id ~ '[telecoms]',
                 'list_telecom_systems': list_telecom_systems,
                 'list_telecom_uses': list_telecom_uses
-            } only %}
+            } %}
         </div>
     </div>
 
@@ -211,12 +210,12 @@
             {% include 'patient/demographics/address_form.html.twig' with {
                 'table_id': address_table_id,
                 'addresses': relatedPerson.addresses,
-                'field_id_esc': addresses_field_id_esc,
-                'name_field_id': 'form_' ~ addresses_field_id_esc,
+                'field_id_esc': field_id_esc ~ '[addresses]',
+                'name_field_id': name_field_id ~ '[addresses]',
                 'list_address_types': list_address_types,
                 'list_address_uses': list_address_uses,
                 'foreign_table': 'person'
-            } only %}
+            }  %}
         </div>
     </div>
 
