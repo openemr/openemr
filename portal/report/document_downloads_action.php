@@ -15,8 +15,11 @@ require_once("$srcdir/documents.php");
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '')) {
+$session = SessionUtil::portalSessionStart();
+
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -28,13 +31,13 @@ if (empty($_POST['documents'])) {
 // Get the temporary folder
 $tmp = $GLOBALS['temporary_files_dir'];
 $documentIds = $_POST['documents'];
-$pid = $_SESSION['pid'];
+$pid = $session->get('pid');
 
 // Process each selected document
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
     $file = sqlQuery($sql, [$documentId]);
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $_SESSION['pid']) {
+    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $session->get('pid')) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category

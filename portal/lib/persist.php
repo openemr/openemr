@@ -16,18 +16,18 @@ use OpenEMR\Common\Session\SessionUtil;
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionUtil::portalSessionStart();
 
 $sessionAllowWrite = true;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . '/../../interface/globals.php');
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . '/../../interface/globals.php');
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = 'index.php';
         header('Location: ' . $landingpage);
         exit;
@@ -44,7 +44,7 @@ if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
 }
 
 if (!empty($data['where'] ?? null)) {
-    $_SESSION['whereto'] = $data['where'];
+    $session->set('whereto', $data['where']);
 }
 
 // Set a patient setting to persist

@@ -18,18 +18,18 @@ use OpenEMR\Common\Session\SessionUtil;
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionUtil::portalSessionStart();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['cpid'])) {
-        if ($_POST['cpid'] != $_SESSION['pid']) {
+        if ($_POST['cpid'] != $session->get('pid')) {
             echo "illegal Action";
             SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
-    $pid = $_SESSION['pid'];
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     // only support download handler from patient portal
@@ -42,7 +42,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit;

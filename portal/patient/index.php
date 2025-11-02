@@ -7,6 +7,11 @@
  *
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+$session = SessionUtil::portalSessionStart();
+
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */
 require_once("_global_config.php");
@@ -24,18 +29,18 @@ require_once("verysimple/Phreeze/Dispatcher.php");
 $gc = GlobalConfig::GetInstance();
 
 try {
-    if (!empty($_SESSION['register'])) {
+    if (!empty($session->get('register', null))) {
         // Need to bootstrap for registration
         $GLOBALS['bootstrap_register'] = true;
     } else {
         $GLOBALS['bootstrap_register'] = false;
     }
-    if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']))) {
+    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
         //  and to only allow access to api calls applicable to that pid (or patientId).
         // Also need to collect the id of the patient to verify the correct id is used
         //  in the uri check in GenericRouter.php .
-        $GLOBALS['bootstrap_pid'] = $_SESSION['pid'];
+        $GLOBALS['bootstrap_pid'] = $session->get('pid');
         $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$GLOBALS['bootstrap_pid']]);
         $GLOBALS['bootstrap_uri_id'] = $sqlCollectPatientId['id'];
         if (
