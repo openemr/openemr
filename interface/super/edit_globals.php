@@ -169,9 +169,9 @@ function checkBackgroundServices(): void
                         [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            $fldvalue = empty(trim((string) $_POST["form_$i"])) ? '' : $cryptoGen->encryptStandard(trim((string) $_POST["form_$i"]));
+                            $fldvalue = empty(trim((string)$_POST["form_$i"])) ? '' : $cryptoGen->encryptStandard(trim((string)$_POST["form_$i"]));
                         } elseif ($fldtype == "encrypted_hash") {
-                            $tmpValue = trim((string) $_POST["form_$i"]);
+                            $tmpValue = trim((string)$_POST["form_$i"]);
                             if (empty($tmpValue)) {
                                 $fldvalue = '';
                             } else {
@@ -239,14 +239,14 @@ function checkBackgroundServices(): void
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && str_starts_with((string) $fldtype, 'm_')) {
+                if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
                     if (isset($_POST["form_$i"])) {
                         $fldindex = 0;
 
                         sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
 
                         foreach ($_POST["form_$i"] as $fldvalue) {
-                            $fldvalue = trim((string) $fldvalue);
+                            $fldvalue = trim((string)$fldvalue);
                             sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
                             ++$fldindex;
                         }
@@ -455,7 +455,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string) $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string)$_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;
@@ -649,14 +649,17 @@ function checkBackgroundServices(): void
                                                         ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
                                                         ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
                                                         ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')],
-                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences')],
-                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences')]
+                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences'), 'default' => true],
+                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences'), 'default' => true],
                                                     ];
                                                     echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {
                                                             if ($glrow['gl_value'] == $row['card_abrev']) {
+                                                                echo " selected";
+                                                                break;
+                                                            } elseif ($row['default'] ?? false) {
                                                                 echo " selected";
                                                                 break;
                                                             }
