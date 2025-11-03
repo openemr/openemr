@@ -2088,7 +2088,7 @@ INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_prima
 UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
 DROP TEMPORARY TABLE `person_temp`;
 
--- DROP TABLE IF EXISTS patient_related_persons;
+DROP TABLE IF EXISTS patient_related_persons;
 ALTER TABLE `person` DROP COLUMN `pid`, DROP COLUMN `is_new`;
 #EndIf
 
