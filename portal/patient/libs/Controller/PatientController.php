@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Session\SessionUtil;
+
 /**
  * PatientController.php
  *
@@ -192,7 +194,7 @@ class PatientController extends AppBasePortalController
     public function Create()
     {
         try {
-            $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+            $session = SessionUtil::portalSessionStart();
             $json = json_decode(RequestUtil::GetBody());
             if (empty($json)) {
                 throw new Exception('The request body does not contain valid JSON');
@@ -402,7 +404,7 @@ class PatientController extends AppBasePortalController
     }
     public function CloseAudit($p)
     {
-        $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+        $session = SessionUtil::portalSessionStart();
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {
