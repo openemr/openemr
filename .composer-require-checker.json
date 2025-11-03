@@ -12,6 +12,8 @@
     "Installer\\Model\\InstModuleTable",
     "Omnipay\\Common\\CreditCard",
     "Omnipay\\Omnipay",
+    "OpenEMR\\Common\\Utils\\Error",
+    "OpenEMR\\Common\\Utils\\Exception",
     "OpenEMR\\Common\\Http\\UploadedFile",
     "OpenEMR\\Gacl\\Hashed_Cache_Lite",
     "OpenEMR\\Pdf\\MpdfGenericPdfCreator",
