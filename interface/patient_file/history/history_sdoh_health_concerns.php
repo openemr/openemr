@@ -286,7 +286,7 @@ $csrf = CsrfUtils::collectCsrfToken();
         $('form').submit(function() {
             var checkedCount = $('input[name="health_concerns[]"]:checked').length;
             if (checkedCount === 0) {
-                return confirm('<?php echo xlt("No health concerns selected. Continue without adding any?"); ?>');
+                return confirm(<?php echo xlj("No health concerns selected. Continue without adding any?"); ?>);
             }
             return true;
         });

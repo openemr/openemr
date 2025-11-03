@@ -165,8 +165,8 @@ try {
     // Return to demographics (or wherever you prefer)
     // Redirect to health concerns selection page
     $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_health_concerns.php"
-        . "?pid=" . urlencode($pid)
-        . "&sdoh_id=" . urlencode($id);
+        . "?pid=" . urlencode((string) $pid)
+        . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
 } catch (Exception $e) {
     $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
