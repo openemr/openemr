@@ -222,7 +222,7 @@ if ($globalsBag->get('language_menu_login')) {
         </div>
         <!-- // Start Forms // -->
         <form id="startForm" role="form" action="account.php?action=verify_email" method="post">
-            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf')); ?>' />
+            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf', $session)); ?>' />
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="jumbotron">

@@ -38,7 +38,7 @@ use OpenEMR\Services\PatientPortalService;
 
 $data = (array)(json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR));
 
-if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
+if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'], 'default', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
