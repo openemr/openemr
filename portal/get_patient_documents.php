@@ -29,6 +29,9 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionUtil;
+
+$session = SessionUtil::portalSessionStart();
 
 // Get all the documents of the patient
 $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ? AND `deleted` = 0";
@@ -112,7 +115,7 @@ while ($file = sqlFetchArray($fres)) {
     <div class="container-fluid">
         <h4><?php echo xlt("Select Documents to Download"); ?></h4>
         <form id="download-form" action="report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">
                 <label class="form-check-label" for="selectAll"><?php echo xlt("Select All Documents"); ?></label>

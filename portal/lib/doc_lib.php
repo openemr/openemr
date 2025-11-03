@@ -65,7 +65,7 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
     echo $msg;
 }
 // confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib')) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
