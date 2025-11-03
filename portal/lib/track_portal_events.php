@@ -48,12 +48,13 @@ header("Content-Type: application/json");
  */
 function handleRequest(): void
 {
+    $session = SessionUtil::portalSessionStart();
     // Read JSON payload.
     $input_json = file_get_contents('php://input');
     $data = json_decode($input_json, true);
 
     // Verify CSRF token.
-    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
+    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"], 'default', $session)) {
         CsrfUtils::csrfNotVerified();
     }
 

@@ -48,7 +48,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset")) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
