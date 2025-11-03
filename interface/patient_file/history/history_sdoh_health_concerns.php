@@ -125,12 +125,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             QueryUtils::commitTransaction();
             $committed = true;
-
-            // Redirect to SDOH summary
-            $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
-            header("Location: " . $redirectUrl);
-            exit();
         }
+        // Redirect to SDOH summary
+        $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
+        header("Location: " . $redirectUrl);
+        exit();
     } catch (SqlQueryException $exception) {
         (new SystemLogger())->errorLogCaller("Failed to save health concerns: " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         die(xlt("An error occurred while saving health concerns."));
