@@ -176,20 +176,18 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
 
-#IfNotTable care_teams
-CREATE TABLE `care_teams` (
+#IfNotTable care_team
+CREATE TABLE `care_team` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) DEFAULT NULL,
-  `pid` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `role` varchar(50) NOT NULL,
-  `facility_id` int(11) NOT NULL,
-  `provider_since` date NULL,
-  `status` varchar(20) DEFAULT 'active',
+  `pid` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
+  `status` varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
   `team_name` varchar(255) DEFAULT NULL,
   `note` text,
   `date_created` datetime DEFAULT current_timestamp(),
   `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` BIGINT(20) COMMENT 'fk to users.id for user who created this record',
+  `updated_by` BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
@@ -2135,4 +2133,24 @@ CREATE INDEX idx_patient_name ON patient_data(lname, fname);
 
 #IfNotIndex patient_data idx_patient_dob
 CREATE INDEX idx_patient_dob ON patient_data(DOB);
+#EndIf
+
+#IfNotTable care_team_member
+CREATE TABLE `care_team_member` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `care_team_id` int(11) NOT NULL,
+    `user_id` BIGINT(20) COMMENT 'fk to users.id represents a provider or staff member',
+    `contact_id` BIGINT(20) COMMENT 'fk to contact.id which represents a contact person not in users or facility table',
+    `role` varchar(50) NOT NULL COMMENT 'fk to list_options.option_id WHERE list_id=care_team_roles',
+    `facility_id` BIGINT(20) COMMENT 'fk to facility.id represents an organization or location',
+    `provider_since` date NULL,
+    `status` varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `date_created` datetime DEFAULT current_timestamp(),
+    `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by` BIGINT(20) COMMENT 'fk to users.id and is the user that added this team member',
+    `updated_by` BIGINT(20) COMMENT 'fk to users.id and is the user that last updated this team member',
+    `note` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
+) ENGINE=InnoDB COMMENT='Stores members of a care team for a patient';
 #EndIf
