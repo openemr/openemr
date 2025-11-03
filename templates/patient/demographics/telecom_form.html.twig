@@ -24,7 +24,7 @@
                         {{ 'Telecom Contacts'|xlt }}
                     {% endif %}
                 </div>
-                <div id="btn_add_telecom_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"x></div>
+                <div id="btn_add_telecom_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
             <div class="form-check mr-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_{{ table_id|attr }}">
@@ -44,13 +44,18 @@
         {# Render existing telecoms #}
         {% for telecom in telecoms %}
         {% set is_inactive = telecom.status != 'A' %}
-        <div class="telecoms_group col-12 pl-0 {{ is_inactive ? 'telecom-inactive d-none' : '' }}" data-status="{{ telecom.status|attr }}">
+        {% set telecom_index = loop.index0 %}
+        <div class="telecoms_group col-12 pl-0 {{ is_inactive ? 'telecom-inactive d-none' : '' }}" data-status="{{ telecom.status|attr }}" data-index="{{ telecom_index }}">
 
             {# Hidden fields - always submitted #}
-            <input type="hidden" class="form_telecoms_data_action" name="{{ name_field_id|attr }}[data_action][]" value="NO CHANGE" />
-            <input type="hidden" class="form_telecoms_contact_telecom_id" name="{{ name_field_id|attr }}[contact_telecom_id][]" value="{{ telecom.id|attr }}" />
-            <input type="hidden" class="form_telecoms_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ telecom.contact_id|attr }}" />
-            <input type="hidden" class="form_telecoms_status" name="{{ name_field_id|attr }}[status][]" value="{{ telecom.status|attr }}" />
+            <input type="hidden" class="form_telecoms_data_action"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][data_action]" value="NO CHANGE" />
+            <input type="hidden" class="form_telecoms_contact_telecom_id"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][contact_telecom_id]" value="{{ telecom.id|attr }}" />
+            <input type="hidden" class="form_telecoms_contact_id"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][contact_id]" value="{{ telecom.contact_id|attr }}" />
+            <input type="hidden" class="form_telecoms_status"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][status]" value="{{ telecom.status|attr }}" />
 
             <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
                 <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
@@ -86,8 +91,9 @@
             <div class='d-none form_telecoms form-row mx-3 my-2'>
                 {% include 'patient/demographics/telecom_form_fields.html.twig' with {
                     'telecom': telecom,
-                    'field_id_esc': field_id_esc ~ '[telecoms]',
-                    'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'telecom_index': telecom_index,
                     'is_new': false
                 } %}
             </div>
@@ -99,13 +105,17 @@
 
 {# Template for adding new telecoms #}
 <template class="template_add_telecom">
-    <div class="telecoms_group col-12 pl-0" data-status="A">
+    <div class="telecoms_group col-12 pl-0" data-status="A" data-index="__INDEX__">
 
         {# Hidden fields #}
-        <input type="hidden" class="form_telecoms_data_action" name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
-        <input type="hidden" class="form_telecoms_id" name="{{ name_field_id|attr }}[id][]" value="" />
-        <input type="hidden" class="form_telecoms_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ contact_id|attr }}" />
-        <input type="hidden" class="form_telecoms_status" name="{{ name_field_id|attr }}[status][]" value="A" />
+        <input type="hidden" class="form_telecoms_data_action"
+            name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+        <input type="hidden" class="form_telecoms_id"
+            name="{{ name_field_id|attr }}[__INDEX__][id]" value="" />
+        <input type="hidden" class="form_telecoms_contact_id"
+            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|attr }}" />
+        <input type="hidden" class="form_telecoms_status"
+            name="{{ name_field_id|attr }}[__INDEX__][status]" value="A" />
 
         <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
             <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
@@ -133,8 +143,9 @@
                     'rank': 1,
                     'period_start': 'now'|date('Y-m-d'),
                 },
-                'field_id_esc': field_id_esc ~ '[telecoms]',
-                'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
+                'field_id_esc': field_id_esc,
+                'name_field_id': 'form_' ~ field_id_esc,
+                'telecom_index': '__INDEX__',
                 'is_new': true,
                 'widget_constants': widget_constants
             } %}
@@ -232,10 +243,30 @@
             let target = event.currentTarget;
             let container = target.closest(".table_edit_telecoms");
 
+            // Find the highest existing index
+            var allGroups = document.querySelectorAll('.telecoms_group[data-index]');
+            var maxIndex = -1;
+            allGroups.forEach(function(group) {
+                var idx = parseInt(group.getAttribute('data-index'));
+                if (!isNaN(idx) && idx > maxIndex) {
+                    maxIndex = idx;
+                }
+            });
+            var newIndex = maxIndex + 1;
+
             const row_telecom_template = document.querySelector(".template_add_telecom");
-            var row_telecom_clone = row_telecom_template.content.cloneNode(true);
+
+            // Clone and replace __INDEX__ with actual index
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = row_telecom_template.innerHTML;
+            var html = tempDiv.innerHTML;
+            html = html.replace(/__INDEX__/g, newIndex);
+            tempDiv.innerHTML = html;
+            var row_telecom_clone = tempDiv.firstElementChild;
+            
             let row_form_telecoms = row_telecom_clone.querySelector(".form_telecoms");
             let row_display_telecoms = row_telecom_clone.querySelector(".display_telecoms");
+
             container.appendChild(row_telecom_clone);
 
             setupTelecomsRowButtonEventListeners(row_display_telecoms);
@@ -247,6 +278,8 @@
             if (firstInput) {
                 firstInput.focus();
             }
+
+            console.log('Added new telecom with index:', newIndex);
         }
 
         function changeTelecomEdit(event) {

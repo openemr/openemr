@@ -31,7 +31,10 @@ use OpenEMR\Common\ORDataObject\Address;
 function saveAddressesForPatient($pid, $addressData)
 {
     $logger = new SystemLogger();
-    $logger->debug("Saving addresses for patient", ['pid' => $pid, 'addressData' => $addressData]);
+    $logger->debug("Saving addresses for patient", [
+        'pid' => $pid, 
+        'addressData' => $addressData
+    ]);
 
     $contactService = new ContactService();
     $addressService = new ContactAddressService();

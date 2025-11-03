@@ -1751,6 +1751,18 @@ CREATE TABLE `person_patient_link` (
 ) ENGINE=InnoDB COMMENT='Links person records to patient_data records when person becomes patient';
 #EndIf
 
+#IfNotRow2D layout_options form_id DEM field_id additional_telecoms
+    #IfRow2D layout_options form_id DEM field_id additional_addresses
+    SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='additional_addresses' AND form_id='DEM');
+    SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');    
+    UPDATE layout_options SET seq = @max_seq+19 WHERE form_id = 'DEM' AND field_id = 'additional_addresses';
+    INSERT INTO `layout_options`
+        (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
+    VALUES
+        ('DEM','additional_telecoms',@group_id,'',@max_seq+9,55,0,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Telecoms',0);
+    #Endif
+#Endif
+
 #IfNotRow2D list_options list_id lists option_id telecom_systems
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
 VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
