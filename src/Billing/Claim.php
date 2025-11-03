@@ -1388,7 +1388,7 @@ class Claim
         }
 
         // Verify table exists without causing SQL errors if not present
-        $res = sqlStatement('SHOW TABLES LIKE ?', array('module_prior_authorizations'));
+        $res = sqlStatement('SHOW TABLES LIKE ?', ['module_prior_authorizations']);
         if (sqlNumRows($res) === 0) {
             $exists = false;
             return $exists;
@@ -1396,14 +1396,14 @@ class Claim
 
         // Validate required columns
         $stmt = sqlStatement('SHOW COLUMNS FROM `module_prior_authorizations`');
-        $columns = array();
+        $columns = [];
         while ($row = sqlFetchArray($stmt)) {
             if (isset($row['Field'])) {
                 $columns[strtolower($row['Field'])] = true;
             }
         }
 
-        $required = array('pid', 'auth_num', 'start_date', 'end_date', 'cpt');
+        $required = ['pid', 'auth_num', 'start_date', 'end_date', 'cpt'];
         foreach ($required as $col) {
             if (!isset($columns[$col])) {
                 $exists = false;
@@ -1425,7 +1425,7 @@ class Claim
                 WHERE pid = ? AND (start_date IS NULL OR start_date <= ?) AND
                       (end_date IS NULL OR end_date >= ?) AND
                       (cpt = ? OR cpt LIKE ? OR cpt LIKE ? OR cpt LIKE ?) ORDER BY id DESC LIMIT 1";
-        $params = array(
+        $params = [
             $pid,
             $serviceDateYmd,
             $serviceDateYmd,
@@ -1433,7 +1433,7 @@ class Claim
             $cpt . ',%',     // at start
             '%,' . $cpt,     // at end
             '%,' . $cpt . ',%' // middle
-        );
+        ];
         $row = sqlQuery($sql, $params);
 
         return $row['auth_num'] ?? '';
