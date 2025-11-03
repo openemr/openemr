@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Session\SessionUtil;
+
 /**
  * OnsiteActivityViewController.php
  *
@@ -45,7 +47,7 @@ class OnsiteActivityViewController extends AppBasePortalController
      */
     public function ListView()
     {
-        $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+        $session = SessionUtil::portalSessionStart();
         $user = 0;
         if ($session->has('authUser')) {
             $user = $session->get('authUser');

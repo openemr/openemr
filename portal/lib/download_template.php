@@ -1,5 +1,8 @@
 <?php
 
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
+
 /**
  * Document Template Rendering front end.
  *
@@ -9,7 +12,7 @@
  * @link    http://www.open-emr.org
  */
 
-$session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+$session = SessionUtil::portalSessionStart();
 
 $is_module = $_POST['isModule'] ?? 0;
 if ($is_module) {
@@ -20,13 +23,11 @@ if ($is_module) {
     if (!empty($session->get('pid'))) {
         if ($_POST['pid'] != $session->get('pid')) {
             echo xlt("illegal Action");
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
 }
-
-use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 
 $form_id = $_POST['template_id'] ?? null;
 $pid = $_POST['pid'] ?? 0;

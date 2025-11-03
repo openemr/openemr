@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionUtil;
 
 /**
  * @param $owner
@@ -45,7 +46,7 @@ function addPortalMailboxMail(
     $rn = '',
     $replyid = 0
 ): int {
-    $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+    $session = SessionUtil::portalSessionStart();
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
     }
@@ -286,7 +287,7 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
  */
 function updatePortalMailMessageStatus($id, $message_status, $owner): void
 {
-    $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+    $session = SessionUtil::portalSessionStart();
     if ($message_status == "Done") {
         sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ? and `owner` = ?", [$message_status, $id, $owner]);
     } elseif ($message_status == "Delete") {

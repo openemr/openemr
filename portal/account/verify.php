@@ -23,15 +23,15 @@ use OpenEMR\Core\OEGlobalsBag;
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $session = SessionUtil::portalSessionStart();
-session_regenerate_id(true); // TODO check how to handle this part
+$session->migrate(true);
 
-unset($_SESSION['itsme']);
-$_SESSION['verifyPortalEmail'] = true;
+$session->remove('itsme');
+$session->set('verifyPortalEmail', true);
 
 $ignoreAuth_onsite_portal = true;
 require_once("../../interface/globals.php");
 
-$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
 if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
     SessionUtil::portalSessionCookieDestroy();
@@ -41,7 +41,7 @@ if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->
 }
 
 // set up csrf
-CsrfUtils::setupCsrfKey();
+CsrfUtils::setupCsrfKey($session);
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [
     $globalsBag->get('language_default')
@@ -58,13 +58,13 @@ if (count($result2) == 1) {
     $defaultLangName = "English";
 }
 
-if (!isset($_SESSION['language_choice'])) {
-    $_SESSION['language_choice'] = $defaultLangID;
+if (!$session->has('language_choice')) {
+    $session->set('language_choice', $defaultLangID);
 }
 // collect languages if showing language menu
 if ($globalsBag->get('language_menu_login')) {
     // sorting order of language titles depends on language translation options.
-    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+    $mainLangID = empty($session->get('language_choice')) ? '1' : $session->get('language_choice');
     // Use and sort by the translated language name.
     $sql = "SELECT ll.lang_id, " . "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " . "ll.lang_description " .
         "FROM lang_languages AS ll " . "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .

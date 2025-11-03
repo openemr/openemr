@@ -41,13 +41,13 @@ class ProviderController extends AppBasePortalController
     public function Home()
     {
         $cpid = $cuser = 0;
-        $session = OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+        $session = SessionUtil::portalSessionStart();
         if ($session->has('authUserID')) {
             $cuser = $session->get('authUserID');
         } else {
             header("refresh:4;url= ./provider");
             echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Destroying Onsite Portal session and logging it out........';
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             exit;
         }
 
