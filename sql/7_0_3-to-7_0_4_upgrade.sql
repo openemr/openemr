@@ -1740,6 +1740,43 @@ ALTER TABLE prescriptions ADD COLUMN diagnosis TEXT COMMENT 'Diagnosis or reason
 ALTER TABLE lists_medication ADD COLUMN `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record';
 #EndIf
 
+
+--
+-- Table structure for linking clinical notes to documents
+--
+#IfNotTable clinical_notes_documents
+CREATE TABLE IF NOT EXISTS `clinical_notes_documents` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
+  `document_id` bigint(20) NOT NULL COMMENT 'Foreign key to documents.id',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_note_document` (`clinical_note_id`, `document_id`),
+  KEY `idx_clinical_note_id` (`clinical_note_id`),
+  KEY `idx_document_id` (`document_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links clinical notes to patient documents';
+#EndIf
+
+--
+-- Table structure for linking clinical notes to procedure results
+--
+#IfNotTable clinical_notes_procedure_results
+CREATE TABLE IF NOT EXISTS `clinical_notes_procedure_results` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
+  `procedure_result_id` bigint(20) NOT NULL COMMENT 'Foreign key to procedure_result.procedure_result_id',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_note_result` (`clinical_note_id`, `procedure_result_id`),
+  KEY `idx_clinical_note_id` (`clinical_note_id`),
+  KEY `idx_procedure_result_id` (`procedure_result_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links clinical notes to procedure results/lab values';
+#EndIf
+
 #IfNotRow issue_types type health_concern
 INSERT INTO issue_types(active, category, type, plural, singular, abbreviation,style, force_show, ordering, aco_spec) VALUES (1, 'default', 'health_concern', 'Health Concerns', 'Health Concern', 'HC', 0, 1, 15, 'patients|med');
 #EndIf
