@@ -21,7 +21,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $session = SessionUtil::portalSessionStart();
 
 if (
-    (!empty($session->get('verifyPortalEmail')) && ($session->get('verifyPortalEmail') === true)) ||
+    ($session->get('verifyPortalEmail') === true) ||
     (($session->get('register', null)) === true && $session->has('pid')) ||
     (($session->get('credentials_update', null)) === 1 && $session->has('pid')) ||
     (($session->get('itsme', null)) === 1 && $session->has('password_update'))
