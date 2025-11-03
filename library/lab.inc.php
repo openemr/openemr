@@ -41,7 +41,8 @@ function getProceduresInfo($oid, $encounter): array
 	 AND po.procedure_order_id
      WHERE pc.procedure_order_id = ?
 	 AND po.encounter_id = ?
-	 AND po.procedure_order_id = ?";
+	 AND po.procedure_order_id = ?
+	 AND po.activity = 1 ORDER BY pc.procedure_order_id DESC LIMIT 1";
 
     $listOrders = sqlStatement($sql, array($oid,$encounter,$oid));
     $orders = array();
@@ -72,10 +73,8 @@ function getProceduresInfo($oid, $encounter): array
 
 function getSelfPay($pid)
 {
-    $sql = "SELECT `subscriber_relationship` FROM `insurance_data` WHERE pid = ?";
-    $res = sqlQuery($sql, array($pid));
-
-    return $res['subscriber_relationship'];
+    $sql = "SELECT * FROM `insurance_data` WHERE pid = ? AND `type` = 'primary'";
+    return sqlQuery($sql, array($pid));
 }
 
 /**

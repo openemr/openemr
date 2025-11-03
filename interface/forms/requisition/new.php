@@ -57,7 +57,7 @@ if (!$getOids) {
 }
 
 if (count($oids) <= 1) {
-    $oid = $getOids; //fetchProcedureId($pid, $encounter);
+    $oid = fetchProcedureId($pid, $encounter);
 }
 
 $patient_id = $pid;
@@ -65,15 +65,15 @@ $pdata = getPatientData($pid);
 $facility = getFacility();
 $ins = getAllinsurances($pid);
 
-if (empty($ins)) {
+if (!empty($ins)) {
     $responsibleParty = getSelfPay($pid);
 }
-
+//print $oid . " what is this?<br />";
 if ($oid) {
     $order = getProceduresInfo($oid, $encounter);
     $prov_id   = $order[5] ?? '';
     if (empty($prov_id)) {
-	die('No provider found, is there a order in the patient chart?');
+        die('No provider found, is there a order in the patient chart?');
     }
     $lab       = $order[7] ?? '';
     $provider  = getLabProviders($prov_id);
@@ -178,9 +178,10 @@ if ($oid) {
 	exit;
     }
     if (empty($order)) {
-	echo "<div class='text-center mt-5'><span>" .
-	    xlt('procedure order not found in database contact tech support') . "</span></div></div></body></html>";
-	exit;
+        echo "<div class='text-center mt-5'><span>" .
+            xlt('Procedure order not found. Close form and open chart again') .
+            "</span></div></div></body></html>";
+        exit;
     }
     if (empty($oid)) {
 	    print "<div class='text-center mt-5'><span>" .
@@ -189,220 +190,227 @@ if ($oid) {
     }
     ?>
     <div class="text-center mt-3">
-	<?php
-	/**
-	 *  This is to store the requisition bar code number to use again if the form needs to be printed or viewed again
-	 *  But save it the first time through.
-	 */
-	$lab_id = $order[0];
-	$storeBar = getBarId($lab_id, $pid);
+        <?php
+        /**
+         *  This is to store the requisition bar code number to use again if the form needs to be printed or viewed again
+         *  But save it the first time through.
+         */
+        $lab_id = $order[0];
+        $storeBar = getBarId($lab_id, $pid);
 
-	if (!empty($storeBar)) {
-	    $bar = $storeBar['req_id'];
-	} else {
-	    $bar = rand(1000, 999999);
-	    saveBarCode($bar, $pid, $order[0]);
-	}
+        if (!empty($storeBar)) {
+            $bar = $storeBar['req_id'];
+        } else {
+            $bar = rand(1000, 999999);
+            saveBarCode($bar, $pid, $order[0]);
+        }
 
-	?>
-	<img  src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="barcode" /><br />
-	<h3><?php echo text($bar); ?></h3>
+        ?>
+        <img  src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="barcode" /><br />
+        <h3><?php echo text($bar); ?></h3>
     </div>
     <div class="reqHeader" id="printableArea">
-	<p><span class="fs-4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></span></p>
-	<div class="cinfo">
-	   <span class="fs-3">
-		<?php echo text($facility['name']) . "<br />" . text($facility['street']) . "<br />" .
-		    text($facility['city']) . "," . text($facility['state']) . "," . text($facility['postal_code']) . "<br />" .
-		    text($facility['phone']); ?>
-			  </span>
-	</div>
-	<div class="pdata">
-	    <p><span class="fs-3">
-	    <?php echo text($pp['organization']) . "<br />" .
-		text($pp['street']) . " | " . text($pp['city']) . ", " . text($pp['state']) . " " . text($pp['zip']) . "<br />" .
-		"O:" . text($pp['phone']) . " | F:" . text($pp['fax']) . "<br />";
-	    ?></span></p>
+        <p><span class="fs-4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></span></p>
+        <div class="cinfo">
+           <span class="fs-3">
+                <?php echo text($facility['name']) . "<br />" . text($facility['street']) . "<br />" .
+                    text($facility['city']) . "," . text($facility['state']) . "," . text($facility['postal_code']) . "<br />" .
+                    text($facility['phone']); ?>
+                          </span>
+        </div>
+        <div class="pdata">
+            <p><span class="fs-3">
+            <?php echo text($pp['organization']) . "<br />" .
+                text($pp['street']) . " | " . text($pp['city']) . ", " . text($pp['state']) . " " . text($pp['zip']) . "<br />" .
+                "O:" . text($pp['phone']) . " | F:" . text($pp['fax']) . "<br />";
+            ?></span></p>
 
-	</div>
+        </div>
     </div>
     <div class="req" id="printableArea">
-	<table class="table" style="width:800px border=1">
-	    <tr style="height:125px;">
-		<td style="vertical-align:top; width:400px;" >
-		    <div class="plist">
-			<b><?php echo xlt('Collection Date/Time')?>:</b><br />
-			<b><?php echo xlt('Lab Reference ID') ?>:</b><br />
-			<b><?php echo xlt('Fasting')?>:</b><br />
-			<b><?php echo xlt('Hours')?>:</b><br />
-		    </div>
-		    <div class="pFill">
-			<?php echo text($order[6]);?> <br />
-			<?php echo text($order[0]);?>
-		    </div>
-		</td>
-		<td style="vertical-align:top width: 800px">
-		    <div class="plist">
-			<b><?php echo xlt('Patient ID') ?>: </b>  <br />
-			<b><?php echo xlt('DOB') ?>: </b> <br />
-			<b><?php echo xlt('Sex') ?>: </b>    <br />
-			<b><?php echo xlt('Patient Name') ?>: </b>  <br />
-		    </div>
-		    <div class="pFill">
-			<?php echo text($pid); ?><br />
-			<?php echo text($pdata['DOB']); ?><br />
-			<?php echo text(getListItemTitle('sex', $pdata['sex'])); ?><br />
-			<?php echo text($pdata['fname']) . " " . text($pdata['lname']); ?><br />
-		    </div>
-		</td>
-	    </tr>
+        <table class="table" style="width:800px border=1">
+            <tr style="height:125px;">
+                <td style="vertical-align:top; width:400px;" >
+                    <div class="plist">
+                        <b><?php echo xlt('Collection Date/Time')?>:</b><br />
+                        <b><?php echo xlt('Lab Reference ID') ?>:</b><br />
+                        <b><?php echo xlt('Fasting')?>:</b><br />
+                        <b><?php echo xlt('Hours')?>:</b><br />
+                    </div>
+                    <div class="pFill">
+                        <?php echo text($order[6]);?> <br />
+                        <?php echo text($order[0]);?>
+                    </div>
+                </td>
+                <td style="vertical-align:top width: 800px">
+                    <div class="plist">
+                        <b><?php echo xlt('Patient ID') ?>: </b>  <?php echo text($pid); ?><br />
+                        <b><?php echo xlt('DOB') ?>: </b> <?php echo text($pdata['DOB']); ?><br />
+                        <b><?php echo xlt('Sex') ?>: </b>   <?php echo text(getListItemTitle('sex', $pdata['sex'])); ?> <br />
+                        <b><?php echo xlt('Patient Name') ?>: </b>  <br />
+                    </div>
+                    <div class="pFill">
+                        <?php echo text($pid); ?><br />
+                        <?php echo text($pdata['DOB']); ?><br />
+                        <?php echo text(getListItemTitle('sex', $pdata['sex'])); ?><br />
+                        <?php echo text($pdata['fname']) . " " . text($pdata['lname']); ?><br />
+                    </div>
+                </td>
+            </tr>
 
-	    <tr style="height:125px">
-		<td style="vertical-align:top; width:400px;">
-		    <span class="fs-4"><strong><?php print xlt("Ordering Physician") ?>:</strong></span><br />
-		    <div class="plist">
-			<?php echo xlt('Name') ?>:        <br />
-			<?php echo xlt('NPI') ?>:         <br />
-			<?php echo xlt('UPIN') ?>:        <br />
-		    </div>
-		    <div class="pFill"><?php echo text($provider['fname']) . " " . text($provider['lname']); ?><br />
-			<?php echo text($npi[0]); ?><br />
-			<?php echo text($npi[1]); ?><br />
+            <tr style="height:125px">
+                <td style="vertical-align:top; width:400px;">
+                    <span class="fs-4"><strong><?php print xlt("Ordering Physician") ?>:</strong></span><br />
+                    <div class="plist">
+                        <?php echo xlt('Name') ?>:        <br />
+                        <?php echo xlt('NPI') ?>:         <br />
+                        <?php echo xlt('UPIN') ?>:        <br />
+                    </div>
+                    <div class="pFill"><?php echo text($provider['fname']) . " " . text($provider['lname']); ?><br />
+                        <?php echo text($npi[0]); ?><br />
+                        <?php echo text($npi[1]); ?><br />
 
-		    </div>
-		</td>
-		<td style="vertical-align:top">
-		    <span class="fs-4"><strong><?php print xlt("Responsible Party") ?>:</strong></span><br />
-		    <div class="plist">
-			<?php echo xlt('Name') ?>:             <br />
-			<?php echo xlt('Address') ?>:          <br />
-			<?php echo xlt('City,St,Zip') ?>:      <br />
-			<?php echo xlt('Relationship') ?>:     <br />
-		    </div>
-		    <div class="pFill"><?php echo "/"; ?><br />
-			<?php echo "/"; ?><br />
-			<?php echo "/"; ?><br />
-			<?php if (!empty($responsibleParty)) {
-			    echo 'self';}
-			if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationship'] == 'child') {
-			    echo xlt("Parent");}
-
-			?><br />
-
-		    </div>
-		</td>
-
-
-	    </tr>
-	    <tr style="height:125px">
-		<td style="vertical-align:top; width:400px;">
-		    <span class="fs-4"><strong><?php print xlt("Primary Insurance") ?>:</strong></span><br />
-		    <div class="plist">
-			<?php echo xlt('Bill Type') ?>:<br />
-			<?php echo xlt('Payor/Carrier Code') ?>:<br />
-			<?php echo xlt('Insurance Name') ?>:<br />
-			<?php echo xlt('Insurance Address') ?>:<br />
-			<?php echo xlt('City,St,Zip') ?>:<br />
-			<?php echo xlt('Subscriber/Policy') ?>#:<br />
-			<?php echo xlt('Group') ?> #:<br />
-			<?php echo xlt('Physician\'s UPIN') ?>:<br />
-			<?php echo xlt('Employer') ?>:<br />
-			<?php echo xlt('Relationship') ?>:<br />
-		    </div>
-		    <div class="pFill">
-			<?php if (empty($ins[0]['name'])) {
-			    echo "Patient Bill";
-			} else {
-			    echo xlt("Insurance");} ?><br />
-			<?php echo "/"; ?><br />
-			<?php echo text($ins[0]['name']); ?><br />
-			<?php echo text($ins[0]['line1']); ?><br />
-			<?php echo text($ins[0]['city']) . ", " . text($ins[0]['state']) . " " . text($ins[0]['zip']); ?><br />
-			<?php echo text($ins[0]['policy_number']); ?><br />
-			<?php echo text($ins[0]['group_number']); ?><br />
-			<?php echo "/"; ?><br />
-			<?php echo text($ins[0]['subscriber_employer']); ?><br />
-			<?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'])); ?><br />
+                    </div>
+                </td>
+                <td style="vertical-align:top">
+                    <span class="fs-4"><strong><?php print xlt("Responsible Party") ?>:</strong></span><br />
+                    <div class="plist">
+                        <?php echo xlt('Name') ?>:             <br />
+                        <?php echo xlt('Address') ?>:          <br />
+                        <?php echo xlt('City,St,Zip') ?>:      <br />
+                        <?php echo xlt('Relationship') ?>:     <br />
+                    </div>
+                    <div class="pFill">
+                        <?php
+                        if ($responsibleParty['subscriber_relationship'] === 'self') {
+                            echo $pdata['fname'] . " " . $pdata['lname'] . "<br>";
+                            echo $pdata['street'] . "<br>";
+                            echo $pdata['city'] . ", " . $pdata['state'] . " " . $pdata['postal_code'] . "<br>";
+                        } else {
+                            echo $responsibleParty['subscriber_fname'] . " " . $responsibleParty['subscriber_lname'] . "<br>";
+                            echo $responsibleParty['subscriber_street'] . "<br>";
+                            echo $responsibleParty['subscriber_city'] . ", " . $responsibleParty['subscriber_state'] . " " . $responsibleParty['subscriber_postal_code'] . "<br>";
+                        }
+                        ?>
+                        <?php
+                        if (!empty($responsibleParty)) {
+                            echo $responsibleParty;
+                        }
+                        ?><br />
+                    </div>
+                </td>
 
 
-		    </div>
-		</td>
-		<td style="vertical-align:top">
-		    <span class="fs-4"><strong><?php print xlt("Secondary Insurance") ?>:</strong></span><br />
-		    <div class="plist">
-			<?php echo xlt('Bill Type') ?>:<br />
-			<?php echo xlt('Payor/Carrier Code') ?>:<br />
-			<?php echo xlt('Insurance Name') ?>:<br />
-			<?php echo xlt('Insurance Address') ?>:<br />
-			<?php echo xlt('City,St,Zip') ?>:<br />
-			<?php echo xlt('Subscriber/Policy') ?>#:<br />
-			<?php echo xlt('Group') ?> #:<br />
-			<?php echo xlt('Physician\'s UPIN') ?>:<br />
-			<?php echo xlt('Employer') ?>:<br />
-			<?php echo xlt('Relationship') ?>:<br />
-		    </div>
-		    <div class="pFill">
-			<?php if (empty($ins[1]['name'])) {
-			    echo " ";
-			} else {
-			    echo xlt("Insurance");
-			}; ?><br />
-			<?php echo "/"; ?><br />
-			<?php echo text($ins[1]['name'] ?? ""); ?><br />
-			<?php echo text($ins[1]['line1'] ?? ""); ?><br />
-			<?php echo text($ins[1]['city'] ?? null) . ", " . text($ins[1]['state'] ?? null) . " " . $ins[1]['zip'] ?? null; ?><br />
-			<?php echo text($ins[1]['policy_number'] ?? ""); ?><br />
-			<?php echo text($ins[1]['group_number'] ?? ""); ?><br />
-			<?php echo "/"; ?><br />
-			<?php echo text($ins[1]['subscriber_employer'] ?? ""); ?><br />
-			<?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'] ?? "")); ?><br />
+            </tr>
+            <tr style="height:125px">
+                <td style="vertical-align:top; width:400px;">
+                    <span class="fs-4"><strong><?php print xlt("Primary Insurance") ?>:</strong></span><br />
+                    <div class="plist">
+                        <?php echo xlt('Bill Type') ?>:<br />
+                        <?php echo xlt('Payor/Carrier Code') ?>:<br />
+                        <?php echo xlt('Insurance Name') ?>:<br />
+                        <?php echo xlt('Insurance Address') ?>:<br />
+                        <?php echo xlt('City,St,Zip') ?>:<br />
+                        <?php echo xlt('Subscriber/Policy') ?>#:<br />
+                        <?php echo xlt('Group') ?> #:<br />
+                        <?php echo xlt('Physician\'s UPIN') ?>:<br />
+                        <?php echo xlt('Employer') ?>:<br />
+                        <?php echo xlt('Relationship') ?>:<br />
+                    </div>
+                    <div class="pFill">
+                        <?php if (empty($ins[0]['name'])) {
+                            echo "Patient Bill";
+                        } else {
+                            echo xlt("Insurance");} ?><br />
+                        <?php echo "/"; ?><br />
+                        <?php echo text($ins[0]['name']); ?><br />
+                        <?php echo text($ins[0]['line1']); ?><br />
+                        <?php echo text($ins[0]['city']) . ", " . text($ins[0]['state']) . " " . text($ins[0]['zip']); ?><br />
+                        <?php echo text($ins[0]['policy_number']); ?><br />
+                        <?php echo text($ins[0]['group_number']); ?><br />
+                        <?php echo "/"; ?><br />
+                        <?php echo text($ins[0]['subscriber_employer']); ?><br />
+                        <?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'])); ?><br />
 
-		    </div>
-		</td>
-	    </tr>
 
-	    <tr style="height:125px">
-		<td style="vertical-align:top; width:400px;">
-		    <div class="notes">
-			<span clas="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span>
-			<span class="small">(<?php echo xlt('Max 3 orders'); ?>)</span><br /><br />
-			<?php echo text($order[2] ?? "") . " " . text($order[3] ?? ""); ?><br /><br />
-			<?php echo text($order[17] ?? "") . " " . text($order[16] ?? ""); ?><br /><br />
-			<?php echo text($order[28] ?? "") . " " . text($order[29] ?? ""); ?><br /><br />
-		    </div>
-		</td>
-		<td style="vertical-align:top">
-		    <div class="notes">
-			<span class="fs-4"><strong><?php echo xlt('Order Notes') ?>:</strong></span><br />
-			<?php echo nl2br($order[8] ?? ""); ?>
-		    </div>
-		    <div class="dx">
-			<span class="fs-4"><strong><?php echo xlt('Dx Codes') ?>:</strong></span><br />
-			<?php echo text($order[4] ?? ""); ?><br />
-			<?php echo text($order[18] ?? ""); ?><br />
-			<?php echo text($order[30] ?? ""); ?><br />
-		    </div>
-		</td>
-	    </tr>
+                    </div>
+                </td>
+                <td style="vertical-align:top">
+                    <span class="fs-4"><strong><?php print xlt("Secondary Insurance") ?>:</strong></span><br />
+                    <div class="plist">
+                        <?php echo xlt('Bill Type') ?>:<br />
+                        <?php echo xlt('Payor/Carrier Code') ?>:<br />
+                        <?php echo xlt('Insurance Name') ?>:<br />
+                        <?php echo xlt('Insurance Address') ?>:<br />
+                        <?php echo xlt('City,St,Zip') ?>:<br />
+                        <?php echo xlt('Subscriber/Policy') ?>#:<br />
+                        <?php echo xlt('Group') ?> #:<br />
+                        <?php echo xlt('Physician\'s UPIN') ?>:<br />
+                        <?php echo xlt('Employer') ?>:<br />
+                        <?php echo xlt('Relationship') ?>:<br />
+                    </div>
+                    <div class="pFill">
+                        <?php if (empty($ins[1]['name'])) {
+                            echo " ";
+                        } else {
+                            echo xlt("Insurance");
+                        }; ?><br />
+                        <?php echo "/"; ?><br />
+                        <?php echo text($ins[1]['name'] ?? ""); ?><br />
+                        <?php echo text($ins[1]['line1'] ?? ""); ?><br />
+                        <?php echo text($ins[1]['city'] ?? null) . ", " . text($ins[1]['state'] ?? null) . " " . $ins[1]['zip'] ?? null; ?><br />
+                        <?php echo text($ins[1]['policy_number'] ?? ""); ?><br />
+                        <?php echo text($ins[1]['group_number'] ?? ""); ?><br />
+                        <?php echo "/"; ?><br />
+                        <?php echo text($ins[1]['subscriber_employer'] ?? ""); ?><br />
+                        <?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'] ?? "")); ?><br />
 
-	</table>
-	<?php if (!empty($order['question_text'])) { // display this table only if there are questions ?>
-	    <table style="width:800px; border=1">
-		<tr style="height:125px">
-		    <td style="vertical-align:top">
-			<span class="fs-4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></span><br />
-			<b>Question:</b> <?php print text($order['question_text'] ?? ""); ?><br />
-			<b>Answer:</b> <?php print text($order['answer'] ?? ""); ?>
-		    </td>
-		</tr>
-	    </table>
-	<?php } ?>
-	<br />
-	<br />
-	<span class="text-center"><?php echo xlt('End of Requisition') ?> #:  <?php echo text($bar); ?></span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr style="height:125px">
+                <td style="vertical-align:top; width:400px;">
+                    <div class="notes">
+                        <span clas="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span>
+                        <span class="small">(<?php echo xlt('Max 3 orders'); ?>)</span><br /><br />
+                        <?php echo text($order[2] ?? "") . " " . text($order[3] ?? ""); ?><br /><br />
+                        <?php echo text($order[17] ?? "") . " " . text($order[16] ?? ""); ?><br /><br />
+                        <?php echo text($order[28] ?? "") . " " . text($order[29] ?? ""); ?><br /><br />
+                    </div>
+                </td>
+                <td style="vertical-align:top">
+                    <div class="notes">
+                        <span class="fs-4"><strong><?php echo xlt('Order Notes') ?>:</strong></span><br />
+                        <?php echo nl2br($order[8] ?? ""); ?>
+                    </div>
+                    <div class="dx">
+                        <span class="fs-4"><strong><?php echo xlt('Dx Codes') ?>:</strong></span><br />
+                        <?php echo text($order[4] ?? ""); ?><br />
+                        <?php echo text($order[18] ?? ""); ?><br />
+                        <?php echo text($order[30] ?? ""); ?><br />
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+        <?php if (!empty($order['question_text'])) { // display this table only if there are questions ?>
+            <table style="width:800px; border=1">
+                <tr style="height:125px">
+                    <td style="vertical-align:top">
+                        <span class="fs-4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></span><br />
+                        <b>Question:</b> <?php print text($order['question_text'] ?? ""); ?><br />
+                        <b>Answer:</b> <?php print text($order['answer'] ?? ""); ?>
+                    </td>
+                </tr>
+            </table>
+        <?php } ?>
+        <br />
+        <br />
+        <span class="text-center"><?php echo xlt('End of Requisition') ?> #:  <?php echo text($bar); ?></span>
     </div>
     <div class="text-center d-grid gap-2 col-6 mx-auto" id="non-printable">
-	<input class="btn btn-primary" type="button" onclick="printDiv('printableArea')" value="Print">
+        <input class="btn btn-primary" type="button" onclick="printDiv('printableArea')" value="Print">
     </div>
 
 </div>
@@ -410,10 +418,10 @@ if ($oid) {
 <script>
     function printDiv(divname)
     {
-	var printContents = document.getElementById(divname).innerHTML;
-	var originalContents = document.body.innerHTML;
-	window.print();
-	document.body.innerHTML = originalContents;
+        var printContents = document.getElementById(divname).innerHTML;
+        var originalContents = document.body.innerHTML;
+        window.print();
+        document.body.innerHTML = originalContents;
     }
 </script>
 </body>
