@@ -18,63 +18,63 @@ require_once('gacl_admin.inc.php');
 $group_type = $_GET['group_type'] != '' ? $_GET['group_type'] : $_POST['group_type'];
 
 switch(strtolower(trim((string) $group_type))) {
-	case 'axo':
-		$group_type = 'axo';
-		$group_table = $gacl_api->_db_table_prefix . 'axo_groups';
-		$group_map_table = $gacl_api->_db_table_prefix . 'groups_axo_map';
-		$smarty->assign('current','axo_group');
-		break;
-	default:
-		$group_type = 'aro';
-		$group_table = $gacl_api->_db_table_prefix . 'aro_groups';
-		$group_map_table = $gacl_api->_db_table_prefix . 'groups_aro_map';
-		$smarty->assign('current','aro_group');
-		break;
+    case 'axo':
+        $group_type = 'axo';
+        $group_table = $gacl_api->_db_table_prefix . 'axo_groups';
+        $group_map_table = $gacl_api->_db_table_prefix . 'groups_axo_map';
+        $smarty->assign('current','axo_group');
+        break;
+    default:
+        $group_type = 'aro';
+        $group_table = $gacl_api->_db_table_prefix . 'aro_groups';
+        $group_map_table = $gacl_api->_db_table_prefix . 'groups_aro_map';
+        $smarty->assign('current','aro_group');
+        break;
 }
 
 $postAction = $_POST['action'] ?? null;
 switch ($postAction) {
-	case 'Delete':
-		//See edit_group.php
-		break;
-	default:
-		$formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), 'HTML');
+    case 'Delete':
+        //See edit_group.php
+        break;
+    default:
+        $formatted_groups = $gacl_api->format_groups($gacl_api->sort_groups($group_type), 'HTML');
 
-		$query = '
+        $query = '
 			SELECT		a.id, a.name, a.value, count(b.'. $group_type .'_id)
 			FROM		'. $group_table .' a
 			LEFT JOIN	'. $group_map_table .' b ON b.group_id=a.id
 			GROUP BY	a.id,a.name,a.value';
-		$rs = $db->Execute($query);
+        $rs = $db->Execute($query);
 
-		$group_data = [];
+        $group_data = [];
 
-		if(is_object($rs)) {
-			while($row = $rs->FetchRow()) {
-				$group_data[$row[0]] = [
-					'name' => $row[1],
-					'value' => $row[2],
-					'count' => $row[3]
-				];
-			}
-		}
+        if(is_object($rs)) {
+            while($row = $rs->FetchRow()) {
+                $group_data[$row[0]] = [
+                    'name' => $row[1],
+                    'value' => $row[2],
+                    'count' => $row[3]
+                ];
+            }
+        }
 
-		$groups = [];
+        $groups = [];
 
-		foreach($formatted_groups as $id => $name) {
-			$groups[] = [
-				'id' => $id,
-				// 'parent_id' => $parent_id,
-				// 'family_id' => $family_id,
-				'name' => $name,
-				'raw_name' => $group_data[$id]['name'],
-				'value' => $group_data[$id]['value'],
-				'object_count' => $group_data[$id]['count']
-			];
-		}
+        foreach($formatted_groups as $id => $name) {
+            $groups[] = [
+                'id' => $id,
+                // 'parent_id' => $parent_id,
+                // 'family_id' => $family_id,
+                'name' => $name,
+                'raw_name' => $group_data[$id]['name'],
+                'value' => $group_data[$id]['value'],
+                'object_count' => $group_data[$id]['count']
+            ];
+        }
 
-		$smarty->assign('groups', $groups);
-		break;
+        $smarty->assign('groups', $groups);
+        break;
 }
 
 $smarty->assign('group_type', $group_type);
