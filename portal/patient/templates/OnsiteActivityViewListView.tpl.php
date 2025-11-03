@@ -15,6 +15,9 @@ $this->assign('nav', 'onsiteactivityviews');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+
+$session = SessionUtil::portalSessionStart();
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     die(xlt("Unauthorized"));
@@ -24,7 +27,7 @@ $this->display('_FormsHeader.tpl.php');
 echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script>
-    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>;
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
         $(function () {
             actpage.init();
