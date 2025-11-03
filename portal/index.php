@@ -442,7 +442,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             }
         </script>
         <?php // add csrf mechanism for the password reset ui
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($session);
         ?>
     <?php } ?>
     <style>
@@ -539,7 +539,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session)); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>

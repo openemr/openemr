@@ -47,7 +47,7 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
     exit;
 }
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset")) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
