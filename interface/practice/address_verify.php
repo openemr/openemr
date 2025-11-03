@@ -44,23 +44,18 @@ $address->setZip4($_GET['zip4']);
 // Add the address object to the address verify class
 $verify->addAddress($address);
 
-// Perform the request and return resultFset
-//print_r($verify->verify());
-$verify->verify();
-
-$response_array = $verify->getArrayResponse();
-
-//var_dump($verify->isError());
-
-// See if it was successful
-
 $output = '<!DOCTYPE html><html>';
 $output .= Header::setupHeader([], false);
 $output .= "<body class='text-left'>
    <div class='container'>
        <p>";
 
-if ($verify->isSuccess()) {
+try {
+    // Perform the request
+    $verify->verify();
+    $response_array = $verify->getArrayResponse();
+
+    if ($verify->isSuccess()) {
     // check response format (v3 JSON vs legacy XML)
     if (isset($response_array['address'])) {
         // v3 format
@@ -91,7 +86,7 @@ if ($verify->isSuccess()) {
     ksort($address_array);
 
     foreach ($address_array as $key => $value) {
-        if (($_GET[strtolower((string) $key)] ?? null) != $value) {
+        if (($_GET[strtolower($key)] ?? null) != $value) {
             $output .= "<div class='text-danger'>";
         } else {
             $output .= "<div class='text-success'>";
@@ -99,9 +94,13 @@ if ($verify->isSuccess()) {
         $output .= text($key) . ": " . text($value) . "</div>";
     }
     //$output = var_dump($response_array);
-} else {
+    } else {
+        $output .= "<div class='text-danger'>";
+        $output .= 'Error: ' . text($verify->getErrorMessage())  . "</div>";
+    }
+} catch (\Exception $e) {
     $output .= "<div class='text-danger'>";
-    $output .= 'Error: ' . text($verify->getErrorMessage())  . "</div>";
+    $output .= 'Error: ' . text($e->getMessage()) . "</div>";
 }
 
 $output .= "</div></body></html>";

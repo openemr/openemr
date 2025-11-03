@@ -152,10 +152,13 @@ class USPSAPIV3Test extends TestCase
         $reflection = new \ReflectionClass($verify);
         $method = $reflection->getMethod('fetchAccessToken');
 
-        $result = $method->invoke($verify);
+        // $result = $method->invoke($verify);
 
-        $this->assertFalse($result);
-        $this->assertNotEmpty($verify->getErrorMessage());
+        // $this->assertFalse($result);
+        // $this->assertNotEmpty($verify->getErrorMessage());
+
+        $this->expectException(\GuzzleHttp\Exception\GuzzleException::class);
+        $method->invoke($verify);
     }
 
     public function testResponseFormatDetection(): void

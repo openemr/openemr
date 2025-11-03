@@ -38,6 +38,8 @@ class USPSAddressVerify extends USPSBase
   /**
    * Perform the API call to verify the address
    * @return string
+   * @throws \InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
     public function verify()
     {
@@ -50,39 +52,33 @@ class USPSAddressVerify extends USPSBase
   /**
    * Verify address using v3 API
    * @return string
+   * @throws \InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
     protected function verifyV3()
     {
         // v3 only does one address at a time
         if (empty($this->addresses['Address'])) {
-            $this->setErrorMessage('No address to verify');
-            return '';
+            throw new \InvalidArgumentException('No address to verify');
         }
+
+        $addressToParamsMapping = [
+            'FirmName' => 'firm',
+            'Address1' => 'secondaryAddress',
+            'Address2' => 'streetAddress',
+            'City' => 'city',
+            'State' => 'state',
+            'Zip5' => 'ZIPCode',
+            'Zip4' => 'ZIPPlus4',
+        ];
 
         $address = $this->addresses['Address'][0];
-
         $params = [];
 
-        if (isset($address['FirmName'])) {
-            $params['firm'] = $address['FirmName'];
-        }
-        if (isset($address['Address1'])) {
-            $params['secondaryAddress'] = $address['Address1'];
-        }
-        if (isset($address['Address2'])) {
-            $params['streetAddress'] = $address['Address2'];
-        }
-        if (isset($address['City'])) {
-            $params['city'] = $address['City'];
-        }
-        if (isset($address['State'])) {
-            $params['state'] = $address['State'];
-        }
-        if (isset($address['Zip5'])) {
-            $params['ZIPCode'] = $address['Zip5'];
-        }
-        if (isset($address['Zip4'])) {
-            $params['ZIPPlus4'] = $address['Zip4'];
+        foreach ($addressToParamsMapping as $addressKey => $paramsKey) {
+            if (isset($address[$addressKey])) {
+                $params[$paramsKey] = $address[$addressKey];
+            }
         }
 
         return $this->doRequestV3('/address', $params);

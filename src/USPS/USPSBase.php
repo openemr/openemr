@@ -236,7 +236,8 @@ class USPSBase
 
   /**
    * Get access token (fetches new one if expired)
-   * @return string|false
+   * @return string
+   * @throws GuzzleException
    */
     protected function getAccessToken()
     {
@@ -249,39 +250,33 @@ class USPSBase
 
   /**
    * Fetch new access token
-   * @return string|false
+   * @return string
+   * @throws GuzzleException
    */
     protected function fetchAccessToken()
     {
-        try {
-            $client = new Client(['timeout' => 30]);
-            $response = $client->post(self::OAUTH_TOKEN_URL, [
-                'form_params' => [
-                    'grant_type' => 'client_credentials',
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'scope' => 'addresses'
-                ]
-            ]);
+        $client = new Client(['timeout' => 30]);
+        $response = $client->post(self::OAUTH_TOKEN_URL, [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'scope' => 'addresses'
+            ]
+        ]);
 
-            $body = $response->getBody()->getContents();
-            $tokenData = json_decode($body, true);
+        $body = $response->getBody()->getContents();
+        $tokenData = json_decode($body, true);
 
-            if (isset($tokenData['access_token'])) {
-                $this->accessToken = $tokenData['access_token'];
-                // cache with 60sec buffer
-                $expiresIn = $tokenData['expires_in'] ?? 3600;
-                $this->tokenExpiry = time() + $expiresIn - 60;
-                return $this->accessToken;
-            }
-
-            $this->setErrorMessage('Invalid token response');
-            return false;
-        } catch (GuzzleException $e) {
-            $this->setErrorCode($e->getCode());
-            $this->setErrorMessage('Failed to get access token: ' . $e->getMessage());
-            return false;
+        if (isset($tokenData['access_token'])) {
+            $this->accessToken = $tokenData['access_token'];
+            // cache with 60sec buffer
+            $expiresIn = $tokenData['expires_in'] ?? 3600;
+            $this->tokenExpiry = time() + $expiresIn - 60;
+            return $this->accessToken;
         }
+
+        throw new \RuntimeException('Invalid token response');
     }
 
   /**
@@ -289,54 +284,45 @@ class USPSBase
    * @param string $endpoint
    * @param array $params
    * @return string
+   * @throws GuzzleException
    */
     protected function doRequestV3($endpoint, $params = [])
     {
         $accessToken = $this->getAccessToken();
-        if (!$accessToken) {
-            return '';
+        $client = new Client(['timeout' => 60]);
+        $url = $this->getEndpoint() . $endpoint;
+
+        $response = $client->get($url, [
+            'query' => $params,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Accept' => 'application/json',
+            ]
+        ]);
+
+        $body = $response->getBody()->getContents();
+        $this->setResponse($body);
+        $this->setHeaders([
+            'http_code' => $response->getStatusCode(),
+            'content_type' => $response->getHeaderLine('Content-Type')
+        ]);
+
+        $jsonData = json_decode($body, true);
+        if ($jsonData !== null) {
+            $this->setArrayResponse($jsonData);
+        } else {
+            $this->setErrorMessage('Failed to parse JSON: ' . json_last_error_msg());
         }
 
-        try {
-            $client = new Client(['timeout' => 60]);
-            $url = $this->getEndpoint() . $endpoint;
-
-            $response = $client->get($url, [
-                'query' => $params,
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $accessToken,
-                    'Accept' => 'application/json',
-                ]
-            ]);
-
-            $body = $response->getBody()->getContents();
-            $this->setResponse($body);
-            $this->setHeaders([
-                'http_code' => $response->getStatusCode(),
-                'content_type' => $response->getHeaderLine('Content-Type')
-            ]);
-
-            $jsonData = json_decode($body, true);
-            if ($jsonData !== null) {
-                $this->setArrayResponse($jsonData);
-            } else {
-                $this->setErrorMessage('Failed to parse JSON: ' . json_last_error_msg());
+        if ($this->isError()) {
+            $arrayResponse = $this->getArrayResponse();
+            if (isset($arrayResponse['error'])) {
+                $this->setErrorCode($arrayResponse['error']['code'] ?? 0);
+                $this->setErrorMessage($arrayResponse['error']['message'] ?? 'Unknown error');
             }
-
-            if ($this->isError()) {
-                $arrayResponse = $this->getArrayResponse();
-                if (isset($arrayResponse['error'])) {
-                    $this->setErrorCode($arrayResponse['error']['code'] ?? 0);
-                    $this->setErrorMessage($arrayResponse['error']['message'] ?? 'Unknown error');
-                }
-            }
-
-            return $this->getResponse();
-        } catch (GuzzleException $e) {
-            $this->setErrorCode($e->getCode());
-            $this->setErrorMessage('API request failed: ' . $e->getMessage());
-            return '';
         }
+
+        return $this->getResponse();
     }
 
   /**
