@@ -21,11 +21,14 @@ use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Common\Session\SessionUtil;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
+
+$session = SessionUtil::portalSessionStart();
 
 // Service
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
@@ -347,7 +350,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> +
                 ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
             if (delok === true) {
-                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete')); ?>)
+                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete', $session)); ?>)
             }
             return false;
         };
@@ -671,7 +674,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload')); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session)); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>

@@ -45,7 +45,7 @@ if ($action == 'verify_email') {
     if (!empty($session->get('verifyPortalEmail')) && ($session->get('verifyPortalEmail') === true)) {
         if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf')) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session)) {
                 CsrfUtils::csrfNotVerified(true, true, false);
                 cleanupRegistrationSession();
                 exit;
@@ -106,7 +106,7 @@ if ($action == 'reset_password') {
         $rtn = 0;
         if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf')) {
+            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session)) {
                 CsrfUtils::csrfNotVerified(true, true, false);
                 cleanupRegistrationSession();
                 exit;
