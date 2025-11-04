@@ -1,8 +1,5 @@
 <?php
 
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
-
 /**
  * Document Template Rendering front end.
  *
@@ -11,6 +8,9 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
  * Copyright (C) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
+
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 
 $session = SessionUtil::portalSessionStart();
 
