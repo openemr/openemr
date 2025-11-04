@@ -66,6 +66,7 @@
     "listingCDRReminderLog",
     "lookup_code_descriptions",
     "note",
+    "opcache_invalidate",
     "privQuery",
     "privStatement",
     "resolve_rules_sql",
