@@ -8,6 +8,7 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $session = SessionUtil::portalSessionStart();
