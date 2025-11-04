@@ -814,14 +814,12 @@ class ContactRelationService extends BaseService
 
             QueryUtils::commitTransaction();
             $committed = true;
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             $this->getLogger()->error("Error batch saving relationships", [
                 'error' => $exception->getMessage()
             ]);
             throw $exception;
-        }
-        finally {
+        } finally {
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }

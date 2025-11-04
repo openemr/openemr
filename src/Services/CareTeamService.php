@@ -77,7 +77,8 @@ class CareTeamService extends BaseService
         return $processingResult;
     }
 
-    protected function getCareTeamRecordsForSearch(array $search, bool $isAndCondition): array {
+    protected function getCareTeamRecordsForSearch(array $search, bool $isAndCondition): array
+    {
 
         // now we are going to grab our related
         $sql = "SELECT
@@ -248,7 +249,8 @@ class CareTeamService extends BaseService
         return $facilities;
     }
 
-    protected function getCareTeamContacts(array $careTeamIds): array {
+    protected function getCareTeamContacts(array $careTeamIds): array
+    {
         // AI-generated method implementation - Start
         if (empty($careTeamIds)) {
             return [];
@@ -367,13 +369,13 @@ class CareTeamService extends BaseService
         return ($result['count'] ?? 0) > 0;
     }
 
-    public function saveCareTeam($pid, $teamName, $team)
+    public function saveCareTeam($pid, ?int $teamId, string $teamName, array $team, string $status = 'active')
     {
         // Create UUIDs for the table if not already present
         UuidRegistry::createMissingUuidsForTables([self::CARE_TEAM_TABLE]);
 
         // Create or update main care team record
-        $careTeamId = $this->createOrUpdateCareTeam($pid, $teamName);
+        $careTeamId = $this->createOrUpdateCareTeam($pid, $teamId, $teamName, $status);
 
         // Get existing members keyed by user_id for comparison
         $existingMembers = $this->getExistingCareTeamMembers($careTeamId);
@@ -442,33 +444,34 @@ class CareTeamService extends BaseService
     /**
      * Create or update main care team record
      */
-    private function createOrUpdateCareTeam($pid, $teamName)
+    private function createOrUpdateCareTeam($pid, ?int $teamId, $teamName, string $status = 'active')
     {
         $createdBy = $_SESSION['authUserID'] ?? null;
 
         // Check if care team already exists for this patient
-        $existingTeam = sqlQuery(
-            "SELECT id FROM " . self::CARE_TEAM_TABLE . " WHERE pid = ?",
-            [$pid]
-        );
+        $existingTeamId = null;
+        if ($teamId) {
+            $sql = "SELECT id FROM " . self::CARE_TEAM_TABLE . " WHERE pid = ? AND id = ?";
+            $existingTeamId = intval(QueryUtils::fetchSingleValue($sql, 'id', [$pid, $teamId]) ?? 0);
+        }
 
-        if ($existingTeam) {
+        if ($existingTeamId > 0) {
             // Update existing team
             QueryUtils::sqlStatementThrowException(
                 "UPDATE " . self::CARE_TEAM_TABLE . "
-                 SET team_name = ?, date_updated = NOW(), updated_by = ?
+                 SET team_name = ?, status = ?, date_updated = NOW(), updated_by = ?
                  WHERE id = ?",
-                [$teamName, $createdBy, $existingTeam['id']]
+                [$teamName, $status, $createdBy, $existingTeamId]
             );
-            return $existingTeam['id'];
+            return $existingTeamId;
         } else {
             // Create new team
             $uuid = UuidRegistry::getRegistryForTable(self::CARE_TEAM_TABLE)->createUuid();
-            $careTeamId = sqlInsert(
+            $careTeamId = QueryUtils::sqlInsert(
                 "INSERT INTO " . self::CARE_TEAM_TABLE . "
                  (uuid, pid, team_name, status, created_by, date_created)
-                 VALUES (?, ?, ?, 'active', ?, NOW())",
-                [$uuid, $pid, $teamName, $createdBy]
+                 VALUES (?, ?, ?, ?, ?, NOW())",
+                [$uuid, $pid, $teamName, $status, $createdBy]
             );
             return $careTeamId;
         }
@@ -542,7 +545,7 @@ class CareTeamService extends BaseService
     {
         // AI-generated method modification - Start
         // Enhanced query to include both user and contact members
-        $sql = "SELECT ctm.*, ct.team_name, ct.status as team_status,
+        $sql = "SELECT ctm.*, ct.id AS team_id, ct.team_name, ct.status as team_status,
                      u.fname, u.lname, u.username, u.physician_type,
                      person_contact.contact_record_id,
                      p.first_name as contact_first_name, p.last_name as contact_last_name,
@@ -569,7 +572,7 @@ class CareTeamService extends BaseService
          LEFT JOIN list_options lo1 ON lo1.option_id = ctm.role AND lo1.list_id = 'care_team_roles'
          LEFT JOIN list_options lo2 ON lo2.option_id = ctm.status AND lo2.list_id = 'Care_Team_Status'
          LEFT JOIN list_options lo3 ON lo3.option_id = u.physician_type AND lo3.list_id = 'physician_type'
-         WHERE ct.pid = ?
+         WHERE ct.pid = ? AND (ct.status IS NULL OR ct.status != 'entered-in-error')
          ORDER BY ct.team_name, ctm.date_created ASC";
 
         $careTeamResult = QueryUtils::sqlStatementThrowException($sql, [$pid]);
@@ -581,6 +584,7 @@ class CareTeamService extends BaseService
 
             if (!isset($careTeams[$teamName])) {
                 $careTeams[$teamName] = [
+                    'team_id' => $member['team_id'],
                     'team_name' => $teamName,
                     'team_status' => $member['team_status'],
                     'members' => [],
@@ -603,6 +607,8 @@ class CareTeamService extends BaseService
                 $memberName = trim(($member['fname'] ?? '') . ' ' . ($member['lname'] ?? ''));
                 $memberDisplayInfo = $member['physician_type_title'] ?? '';
                 $memberName .= !empty($memberDisplayInfo) ? " ({$memberDisplayInfo})" : '';
+            } else {
+                continue; // Skip if neither user nor contact
             }
 
             $careTeams[$teamName]['members'][] = [
@@ -675,51 +681,6 @@ class CareTeamService extends BaseService
         //     new CareTeamUpdateEvent($pid, $teamName, $members),
         //     CareTeamUpdateEvent::EVENT_HANDLE
         // );
-    }
-
-    /**
-     * Create care team members
-     */
-    public function createCareTeamMembers($pid, $teamName, $members)
-    {
-        $createdBy = $_SESSION['authUserID'] ?? null;
-
-        // First, create or get the care team
-        $careTeamId = $this->createOrUpdateCareTeam($pid, $teamName);
-
-        foreach ($members as $member) {
-            $insertData = [
-                'care_team_id' => $careTeamId,
-                'user_id' => $member['user_id'],
-                'contact_id' => null, // Skip contact support for now
-                'role' => $member['role'] ?? null,
-                'facility_id' => $member['facility_id'] ?? null,
-                'provider_since' => $member['provider_since'] ?? null,
-                'status' => $member['status'] ?? 'active',
-                'note' => $member['note'] ?? null,
-                'created_by' => $createdBy
-            ];
-
-            $insert = $this->buildInsertColumns($insertData);
-            $sql = "INSERT INTO " . self::CARE_TEAM_MEMBER_TABLE . " SET " . $insert['set'];
-            QueryUtils::sqlInsert($sql, $insert['bind']);
-        }
-
-        return true;
-    }
-
-    /**
-     * Update care team status (for deactivation/reactivation)
-     */
-    public function updateCareTeamStatus($pid, $teamName, $status)
-    {
-        $updatedBy = $_SESSION['authUserID'] ?? null;
-
-        $sql = "UPDATE " . self::CARE_TEAM_TABLE . "
-                SET status = ?, date_updated = NOW(), updated_by = ?
-                WHERE pid = ? AND team_name = ?";
-
-        return QueryUtils::sqlStatementThrowException($sql, [$status, $updatedBy, $pid, $teamName]);
     }
 
     /**

@@ -115,7 +115,7 @@ class CareTeamViewCard extends CardModel
         $templateVars['prependedInjection'] = $dispatchResult->getPrependedInjection();
         $templateVars['appendedInjection'] = $dispatchResult->getAppendedInjection();
         $templateVars['hasActiveTeam'] = $this->getCareTeamService()->hasActiveCareTeam($this->pid);
-        $templateVars = array_merge($templateVars,  $this->getFormManagementData($this->pid));
+        $templateVars = array_merge($templateVars, $this->getFormManagementData($this->pid));
         return $templateVars;
     }
 
@@ -126,14 +126,17 @@ class CareTeamViewCard extends CardModel
                 CsrfUtils::csrfNotVerified();
             }
 
+            $teamId = filter_var($_POST['team_id'], FILTER_VALIDATE_INT);
+            $teamId = $teamId === false ? null : $teamId;
             $teamName = trim($_POST['team_name'] ?? '');
             $team = $_POST['team'] ?? [];
+            $teamStatus = trim($_POST['team_status'] ?? 'active'); // AI-generated addition
 
             if (!$this->pid) {
                 die(xlt("Invalid request."));
             }
 
-            $this->getCareTeamService()->saveCareTeam($this->pid, $teamName, $team);
+            $this->getCareTeamService()->saveCareTeam($this->pid, $teamId, $teamName, $team, $teamStatus);
         }
     }
 
@@ -148,6 +151,31 @@ class CareTeamViewCard extends CardModel
      */
     public function getFormManagementData($pid)
     {
+
+        // Get existing care teams (support multiple teams)
+        $careTeamResult = $this->getCareTeamService()->getCareTeamData($pid);
+        $teamName = $careTeamResult['team_name'] ?? 'default';
+        $existingCareTeam = [];
+
+        foreach ($careTeamResult['members'] as $member) {
+            $existingCareTeam[] = [
+                'team_name' => $teamName,
+                'member_type' => $member['member_type'] ?? 'user',
+                'user_id' => $member['user_id'],
+                'contact_id' => $member['contact_id'],
+                'role' => $member['role'],
+                'facility_id' => $member['facility_id'],
+                'provider_since' => $member['provider_since'],
+                'status' => $member['status'],
+                'note' => $member['note'],
+                'user_name' => $member['user_name'],
+                'contact_name' => $member['contact_name'],
+                'contact_relationship' => $member['contact_relationship'],
+                'physician_type' => $member['physician_type'],
+                'physician_type_code' => $member['physician_type_code']
+            ];
+        }
+
         // AI-generated related person integration - Start
         // Get related persons for this patient
         $contactService = new ContactService();
@@ -166,8 +194,9 @@ class CareTeamViewCard extends CardModel
         // Get users with physician type information for role mapping
         $usersResult = QueryUtils::sqlStatementThrowException(
             "SELECT u.id, u.username, u.fname, u.lname, u.physician_type, lo.codes AS physician_type_code FROM users u LEFT JOIN list_options lo ON lo.list_id='physician_type' AND lo.option_id=u.physician_type WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL
-             ORDER BY lname, fname"
-            , []);
+             ORDER BY lname, fname",
+            []
+        );
 
         $templateData['users'] = [];
         while ($user = QueryUtils::fetchArrayFromResultSet($usersResult)) {
@@ -185,8 +214,9 @@ class CareTeamViewCard extends CardModel
             "SELECT id, name, facility_npi, facility_taxonomy
              FROM facility
              WHERE service_location = 1 OR billing_location = 1
-             ORDER BY name"
-            , []);
+             ORDER BY name",
+            []
+        );
 
         $templateData['facilities'] = [];
         while ($facility = QueryUtils::fetchArrayFromResultSet($facilitiesResult)) {
@@ -217,30 +247,6 @@ class CareTeamViewCard extends CardModel
             $templateData['statuses'][] = [
                 'id' => $status['option_id'],
                 'title' => $status['title']
-            ];
-        }
-
-        // Get existing care teams (support multiple teams)
-        $careTeamResult = $this->getCareTeamService()->getCareTeamData($pid);
-        $teamName = $careTeamResult['team_name'] ?? 'default';
-        $existingCareTeam = [];
-
-        foreach ($careTeamResult['members'] as $member) {
-            $existingCareTeam[] = [
-                'team_name' => $teamName,
-                'member_type' => $member['member_type'] ?? 'user',
-                'user_id' => $member['user_id'],
-                'contact_id' => $member['contact_id'],
-                'role' => $member['role'],
-                'facility_id' => $member['facility_id'],
-                'provider_since' => $member['provider_since'],
-                'status' => $member['status'],
-                'note' => $member['note'],
-                'user_name' => $member['user_name'],
-                'contact_name' => $member['contact_name'],
-                'contact_relationship' => $member['contact_relationship'],
-                'physician_type' => $member['physician_type'],
-                'physician_type_code' => $member['physician_type_code']
             ];
         }
 
@@ -294,9 +300,45 @@ class CareTeamViewCard extends CardModel
                 . text($status['title']) . "</option>";
         }
 
+        // AI-generated addition - Start
+        // Get team status information
+        $teamStatus = $careTeamResult['team_status'] ?? 'active';
+        $teamStatusDisplay = '';
+        $teamStatusBadgeClass = 'badge-secondary';
+
+        // Get status display information
+        foreach ($templateData['statuses'] as $status) {
+            if ($status['id'] === $teamStatus) {
+                $teamStatusDisplay = $status['title'];
+                // Set badge class based on status
+                $teamStatusBadgeClass = match ($teamStatus) {
+                    'active' => 'badge-success',
+                    'inactive' => 'badge-warning',
+                    'proposed' => 'badge-info',
+                    'entered-in-error' => 'badge-danger',
+                    default => 'badge-secondary',
+                };
+                break;
+            }
+        }
+
+        // Build team status options
+        $templateData['team_status_options'] = '';
+        foreach ($templateData['statuses'] as $status) {
+            $selected = ($status['id'] === $teamStatus) ? 'selected' : '';
+            $templateData['team_status_options'] .= "<option value='" . attr($status['id']) . "' $selected>"
+                . text($status['title']) . "</option>";
+        }
+        // AI-generated addition - End
+
         return [
+            'team_id' => $careTeamResult['team_id'] ?? null,
             'pid' => $pid,
             'team_name' => $teamName,
+            'team_status' => $teamStatus, // AI-generated addition
+            'team_status_display' => $teamStatusDisplay, // AI-generated addition
+            'team_status_badge_class' => $teamStatusBadgeClass, // AI-generated addition
+            'team_status_options' => $templateData['team_status_options'], // AI-generated addition
             'user_options' => $templateData['user_options'],
             'related_person_options' => $templateData['related_person_options'], // AI-generated addition
             'has_related_persons' => $hasRelatedPersons, // AI-generated addition
@@ -313,6 +355,7 @@ class CareTeamViewCard extends CardModel
     {
         return [
             'manage_care_team' => xl("Manage Care Team"),
+            'care_team_status' => xl('Care Team Status'), // AI-generated translation
             'care_team_name' => xl("Care Team Name"),
             'member_type' => xl("Type"), // AI-generated translation
             'member' => xl("Member"),

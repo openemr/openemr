@@ -122,7 +122,7 @@
 
                     // AI-generated row creation by member type - Start
                     const badgeClass = memberType === 'user' ? 'bg-primary' : 'bg-info';
-                    const badgeText = memberType === 'user' ? '{{ translations.provider_member|js_escape }}' : '{{ translations.related_person_member|js_escape }}';
+                    const badgeText = memberType === 'user' ? {{ translations.provider_member|js_escape }} : {{ translations.related_person_member|js_escape }};
                     const memberSelectName = memberType === 'user' ? 'user_id' : 'contact_id';
                     const memberOptions = memberType === 'user' ? userOptions : relatedPersonOptions;
                     const facilityDisabled = memberType === 'contact' ? 'disabled' : '';
@@ -167,12 +167,25 @@
             <div class="col-12">
                 <form method="POST" action="" onsubmit="return confirm({{ translations.save_care_team_confirm|attr_js }});" class="mt-3">
                     <input type="hidden" name="pid" value="{{ pid|attr }}">
+                    <input type="hidden" name="team_id" value="{{ team_id|default("")|attr }}">
                     <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}">
                     <div class="form-group p-0 col-md-3">
-                        <label for="team_name">{{ translations.care_team_name|text }}</label>
+                        <label for="team_name" class="editShow">{{ translations.care_team_name|text }}</label>
                         <input type="text" name="team_name" id="team_name" value="{{ team_name|attr }}" class="form-control form-control-sm editShow" required>
-                        <h5 class="viewOnly">{{ team_name|text }}</h5>
+                        <h5 class="viewOnly">{{ team_name|text }}
+                            {% if team_name is not empty %}
+                                <span class="viewOnly badge {{ team_status_badge_class }}">{{ team_status_display|text }}</span>
+                            {% endif %}
+                        </h5>
                     </div>
+                    <!-- AI-generated addition - Start -->
+                    <div class="form-group p-0 col-md-3 editShow">
+                        <label for="team_status">{{ translations.care_team_status|text }}</label>
+                        <select name="team_status" id="team_status" class="form-control form-control-sm">
+                            {{ team_status_options|raw }}
+                        </select>
+                    </div>
+                    <!-- AI-generated addition - End -->
                     <div class="table-responsive">
                         <table class="table table-sm table-striped" id="care_team_table">
                             <thead class="thead-light bg-light text-dark">
