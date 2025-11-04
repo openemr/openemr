@@ -46,7 +46,8 @@ class ContactTelecomService extends BaseService
     {
         $this->getLogger()->debug("Saving telecoms for contact", [
             'contact_id' => $contactId,
-            'telecom_count' => count($telecomData['data_action'] ?? [])
+            'telecom_count' => count($telecomData['data_action'] ?? []),
+            'telecomData' => $telecomData
         ]);
 
         try {
@@ -57,37 +58,46 @@ class ContactTelecomService extends BaseService
             }
 
             $savedRecords = [];
-            $count = count($telecomData['data_action'] ?? []);
 
-            if ($count <= 0) {
+            if (empty($telecomData)) {
                 return $savedRecords;
             }
 
             $systems = $this->getValidTelecomSystems();
             $uses = $this->getValidTelecomUses();
 
-            for ($i = 0; $i < $count; $i++) {
-                $action = $telecomData['data_action'][$i] ?? '';
+            // Iterate through array of telecom objects
+            foreach ($telecomData as $index => $telecom) {
 
+                $this->getLogger()->debug("Output Telecom: ", [
+                        'keys' => array_keys($telecom),
+                        'telecom' => $telecom
+                    ]);
+
+                $action = $telecom['data_action'] ?? '';
                 if (empty($action)) {
+                    $this->getLogger()->warning("No data_action found in telecom", [
+                        'index' => $index,
+                        'keys' => array_keys($telecom)
+                    ]);
                     continue;
                 }
 
-                $contactTelecomId = $telecomData['contact_telecom_id'][$i] ?? null;
+                $contactTelecomId = $telecom['contact_telecom_id'] ?? null;
 
                 if ($action != 'ADD' && empty($contactTelecomId)) {
                     $this->getLogger()->warning("Skipping non-ADD action without ID", [
                         'action' => $action,
-                        'index' => $i
+                        'index' => $index
                     ]);
                     continue;
                 }
 
                 $this->getLogger()->debug("Processing telecom", [
-                    'index' => $i,
+                    'index' => $index,
                     'action' => $action,
                     'id' => $contactTelecomId,
-                    'value' => $telecomData['value'][$i] ?? 'N/A'
+                    'value' => $telecom['value'] ?? 'N/A'
                 ]);
 
                 // Handle INACTIVATE/DELETE
@@ -114,13 +124,13 @@ class ContactTelecomService extends BaseService
                 if ($action == 'UPDATE' && empty($contactTelecom->get_id())) {
                     $this->getLogger()->error("UPDATE action but telecom not found, treating as ADD", [
                         'contact_telecom_id' => $contactTelecomId,
-                        'index' => $i
+                        'index' => $index
                     ]);
                     $contactTelecom = new ContactTelecom();
                 }
 
                 // Set system
-                $system = $telecomData['system'][$i] ?? 'phone';
+                $system = $telecom['system'] ?? 'phone';
                 if (isset($systems[$system])) {
                     $contactTelecom->set_system($system);
                 } else {
@@ -128,7 +138,7 @@ class ContactTelecomService extends BaseService
                 }
 
                 // Set use
-                $use = $telecomData['use'][$i] ?? 'home';
+                $use = $telecom['use'] ?? 'home';
                 if (isset($uses[$use])) {
                     $contactTelecom->set_use($use);
                 } else {
@@ -136,24 +146,24 @@ class ContactTelecomService extends BaseService
                 }
 
                 // Set dates
-                $periodStart = DateFormatterUtils::dateStringToDateTime($telecomData['period_start'][$i] ?? '');
+                $periodStart = DateFormatterUtils::dateStringToDateTime($telecom['period_start'] ?? '');
                 if ($periodStart !== false) {
                     $contactTelecom->set_period_start($periodStart);
                 }
 
                 $contactTelecom->set_period_end(null);
-                if (!empty($telecomData['period_end'][$i])) {
-                    $date = DateFormatterUtils::dateStringToDateTime($telecomData['period_end'][$i]);
+                if (!empty($telecom['period_end'])) {
+                    $date = DateFormatterUtils::dateStringToDateTime($telecom['period_end']);
                     if ($date !== false) {
                         $contactTelecom->set_period_end($date);
                     }
                 }
 
                 // Set value and metadata
-                $contactTelecom->set_value($telecomData['value'][$i] ?? '');
-                $contactTelecom->set_notes($telecomData['notes'][$i] ?? '');
-                $contactTelecom->set_rank($telecomData['rank'][$i] ?? 1);
-                $contactTelecom->set_inactivated_reason($telecomData['inactivated_reason'][$i] ?? '');
+                $contactTelecom->set_value($telecom['value'] ?? '');
+                $contactTelecom->set_notes($telecom['notes'] ?? '');
+                $contactTelecom->set_rank($telecom['rank'] ?? 1);
+                $contactTelecom->set_inactivated_reason($telecom['inactivated_reason'] ?? '');
                 $contactTelecom->set_contact_id($contactId);
 
                 // Save the record

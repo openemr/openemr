@@ -48,14 +48,20 @@
         {# Render existing addresses #}
         {% for address in addresses %}
         {% set is_inactive = address.status != 'A' %}
-        <div class="addresses_group col-12 pl-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}">
+        {% set address_index = loop.index0 %}
+        <div class="addresses_group col-12 pl-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}" data-index="{{ address_index }}">
 
             {# CRITICAL: Hidden fields OUTSIDE hideable sections - always submitted #}
-            <input type="hidden" class="form_addresses_data_action" name="{{ name_field_id|attr }}[data_action][]" value="NO CHANGE" />
-            <input type="hidden" class="form_addresses_contact_address_id" name="{{ name_field_id|attr }}[contact_address_id][]" value="{{ address.contact_address_id|attr }}" />
-            <input type="hidden" class="form_addresses_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ address.contact_id|attr }}" />
-            <input type="hidden" class="form_addresses_addresses_id" name="{{ name_field_id|attr }}[addresses_id][]" value="{{ address.addresses_id|attr }}" />
-            <input type="hidden" class="form_addresses_status" name="{{ name_field_id|attr }}[status][]" value="{{ address.status|attr }}" />
+            <input type="hidden" class="form_addresses_data_action" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][data_action]" value="NO CHANGE" />
+            <input type="hidden" class="form_addresses_contact_address_id" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][contact_address_id]" value="{{ address.contact_address_id|attr }}" />
+            <input type="hidden" class="form_addresses_contact_id" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][contact_id]" value="{{ address.contact_id|attr }}" />
+            <input type="hidden" class="form_addresses_addresses_id" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][addresses_id]" value="{{ address.addresses_id|attr }}" />
+            <input type="hidden" class="form_addresses_status" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][status]" value="{{ address.status|attr }}" />
 
             <div class="display_addresses form-row no-gutters justify-content-between pl-1">
                 <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
@@ -112,6 +118,9 @@
                 {# Only editable fields here - hidden fields are above #}
                 {% include 'patient/demographics/address_form_fields.html.twig' with {
                     'address': address,
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'address_index': address_index,
                     'is_new': false
                 } %}
             </div>
@@ -123,14 +132,19 @@
 
 {# Template for adding new addresses #}
 <template class="template_add_address">
-    <div class="addresses_group col-12 pl-0" data-status="A">
+    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__INDEX__">
 
         {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
-        <input type="hidden" class="form_addresses_data_action" name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
-        <input type="hidden" class="form_addresses_id" name="{{ name_field_id|attr }}[id][]" value="" />
-        <input type="hidden" class="form_addresses_contact_id" name="{{ name_field_id|attr }}[contact_id][]" value="{{ contact_id|attr }}" />
-        <input type="hidden" class="form_addresses_address_id" name="{{ name_field_id|attr }}[address_id][]" value="" />
-        <input type="hidden" class="form_addresses_status" name="{{ name_field_id|attr }}[status][]" value="A" />
+        <input type="hidden" class="form_addresses_data_action" 
+            name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+        <input type="hidden" class="form_addresses_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][id]" value="" />
+        <input type="hidden" class="form_addresses_contact_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|attr }}" />
+        <input type="hidden" class="form_addresses_address_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][address_id]" value="" />
+        <input type="hidden" class="form_addresses_status" 
+            name="{{ name_field_id|attr }}[__INDEX__][status]" value="A" />
 
         <div class="display_addresses form-row no-gutters justify-content-between pl-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
@@ -159,7 +173,11 @@
                     'country': 'USA',
                     'period_start': 'now'|date('Y-m-d')
                 },
-                'is_new': true
+                'field_id_esc': field_id_esc,
+                'name_field_id': 'form_' ~ field_id_esc,
+                'address_index': '__INDEX__',
+                'is_new': true,
+                'widget_constants': widget_constants
             } %}
         </div>
         <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
@@ -255,8 +273,27 @@
             let target = event.currentTarget;
             let container = target.closest(".table_edit_addresses");
 
+            // Find the highest existing index
+            var allGroups = document.querySelectorAll('.addresses_group[data-index]');
+            var maxIndex = -1;
+            allGroups.forEach(function(group) {
+                var idx = parseInt(group.getAttribute('data-index'));
+                if (!isNaN(idx) && idx > maxIndex) {
+                    maxIndex = idx;
+                }
+            });
+            var newIndex = maxIndex + 1;
+
             const row_address_template = document.querySelector(".template_add_address");
-            var row_address_clone = row_address_template.content.cloneNode(true);
+
+            // Clone and replace __INDEX__ with actual index
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = row_address_template.innerHTML;
+            var html = tempDiv.innerHTML;
+            html = html.replace(/__INDEX__/g, newIndex);
+            tempDiv.innerHTML = html;
+            var row_address_clone = tempDiv.firstElementChild;
+            
             let row_form_addresses = row_address_clone.querySelector(".form_addresses");
             let row_display_addresses = row_address_clone.querySelector(".display_addresses");
             container.appendChild(row_address_clone);
@@ -271,6 +308,7 @@
             if (firstInput) {
                 firstInput.focus();
             }
+            console.log('Added new address with index:', newIndex);
         }
 
         function changeEdit(event) {

@@ -35,7 +35,8 @@ class ContactAddressService extends BaseService
     {
         $this->getLogger()->debug("Saving addresses for contact", [
             'contact_id' => $contactId,
-            'address_count' => count($addressData['data_action'] ?? [])
+            'address_count' => count($addressData['data_action'] ?? []),
+            'address_data' => $addressData
         ]);
 
         try {
@@ -46,24 +47,27 @@ class ContactAddressService extends BaseService
             }
 
             $savedRecords = [];
-            $count = count($addressData['data_action'] ?? []);
-
-            if ($count <= 0) {
+            
+            if (empty($addressData)) {
                 return $savedRecords;
             }
 
             $types = $this->getValidAddressTypes();
             $uses = $this->getValidAddressUses();
 
-            for ($i = 0; $i < $count; $i++) {
-                $action = $addressData['data_action'][$i] ?? '';
+
+
+
+            foreach ($addressData as $index => $address) {
+
+                $action = $address['data_action'] ?? '';
 
                 // Skip empty actions
                 if (empty($action)) {
                     continue;
                 }
 
-                $contactAddressId = $addressData['contact_address_id'][$i] ?? null;
+                $contactAddressId = $address['contact_address_id'] ?? null;
 
                 // Skip if no ID and not ADD
                 if ($action != 'ADD' && empty($contactAddressId)) {
@@ -79,7 +83,7 @@ class ContactAddressService extends BaseService
                     'index' => $i,
                     'action' => $action,
                     'id' => $contactAddressId,
-                    'line1' => $addressData['line_1'][$i] ?? 'N/A'
+                    'line1' => $address['line_1'][$i] ?? 'N/A'
                 ]);
 
                 // Handle INACTIVATE/DELETE
@@ -123,7 +127,7 @@ class ContactAddressService extends BaseService
                 }
 
                 // Set type
-                $type = $addressData['type'][$i] ?? 'both';
+                $type = $address['type'] ?? 'both';
                 if (isset($types[$type])) {
                     $contactAddress->set_type($type);
                 } else {
@@ -131,7 +135,7 @@ class ContactAddressService extends BaseService
                 }
 
                 // Set use
-                $use = $addressData['use'][$i] ?? 'home';
+                $use = $address['use'] ?? 'home';
                 if (isset($uses[$use])) {
                     $contactAddress->set_use($use);
                 } else {
@@ -139,48 +143,48 @@ class ContactAddressService extends BaseService
                 }
 
                 // Set dates
-                $periodStart = DateFormatterUtils::dateStringToDateTime($addressData['period_start'][$i] ?? '');
+                $periodStart = DateFormatterUtils::dateStringToDateTime($address['period_start'] ?? '');
                 if ($periodStart !== false) {
                     $contactAddress->set_period_start($periodStart);
                 } else {
                     $this->getLogger()->warning("Invalid period_start date format", [
-                        'period_start' => $addressData['period_start'][$i] ?? ''
+                        'period_start' => $address['period_start'] ?? ''
                     ]);
                 }
 
                 $contactAddress->set_period_end(null);
-                if (!empty($addressData['period_end'][$i])) {
-                    $date = DateFormatterUtils::dateStringToDateTime($addressData['period_end'][$i]);
+                if (!empty($address['period_end'])) {
+                    $date = DateFormatterUtils::dateStringToDateTime($address['period_end']);
                     if ($date !== false) {
                         $contactAddress->set_period_end($date);
                     } else {
                         $this->getLogger()->warning("Invalid period_end date format", [
-                            'period_end' => $addressData['period_end'][$i]
+                            'period_end' => $address['period_end']
                         ]);
                     }
                 }
 
                 // Set additional fields
-                $contactAddress->set_notes($addressData['notes'][$i] ?? '');
-                $contactAddress->set_priority($addressData['priority'][$i] ?? 0);
-                $contactAddress->set_inactivated_reason($addressData['inactivated_reason'][$i] ?? '');
+                $contactAddress->set_notes($address['notes'] ?? '');
+                $contactAddress->set_priority($address['priority'] ?? 0);
+                $contactAddress->set_inactivated_reason($address['inactivated_reason'] ?? '');
 
                 // Set address fields - FIXED: Handle both postalcode and zip
-                $address = $contactAddress->getAddress();
-                $address->set_line1($addressData['line_1'][$i] ?? '');
-                $address->set_line2($addressData['line_2'][$i] ?? '');
-                $address->set_city($addressData['city'][$i] ?? '');
-                $address->set_district($addressData['district'][$i] ?? '');
-                $address->set_state($addressData['state'][$i] ?? '');
-                $address->set_country($addressData['country'][$i] ?? '');
+                $addr = $contactAddress->getAddress();
+                $addr->set_line1($address['line_1'] ?? '');
+                $addr->set_line2($address['line_2'] ?? '');
+                $addr->set_city($address['city'] ?? '');
+                $addr->set_district($address['district'] ?? '');
+                $addr->set_state($address['state'] ?? '');
+                $addr->set_country($address['country'] ?? '');
 
                 // Handle postal code - check both field names
-                $postalcode = $addressData['postalcode'][$i] ?? $addressData['postal_code'][$i] ?? $addressData['zip'][$i] ?? '';
+                $postalcode = $address['postalcode'] ?? $address['postal_code'] ?? $address['zip'] ?? '';
                 if (!empty($postalcode)) {
-                    $address->set_postalcode($postalcode);
+                    $addr->set_postalcode($postalcode);
                 }
 
-                $address->set_foreign_id(null);
+                $addr->set_foreign_id(null);
 
                 // Set the contact (use existing contact)
                 $contactAddress->set_contact_id($contactId);

@@ -228,7 +228,7 @@ if (!empty($addressFieldsToSave)) {
                             'sample_keys' => array_keys($addressFieldData)
                         ]);
                     } else {
-                        $logger->warning("No data_action found in address data", [
+                        $logger->warning("No data action found in address data", [
                             'field_id' => $fieldId,
                             'keys_found' => array_keys($addressFieldData)
                         ]);
@@ -303,16 +303,16 @@ if (!empty($telecomFieldsToSave)) {
 
                 if (is_array($telecomFieldData) && !empty($telecomFieldData)) {
                     // Log the structure
-                    if (isset($telecomFieldData['data_action'])) {
-                        $logger->info("Telecom data structure detected", [
+                    $firstKey = array_key_first($telecomFieldData);
+                    if (is_numeric($firstKey)) {
+                        $logger->info("Telecom data structure detected (array format)", [
                             'field_id' => $fieldId,
-                            'action_count' => count($telecomFieldData['data_action']),
-                            'actions' => $telecomFieldData['data_action'],
-                            'has_value' => isset($telecomFieldData['value']),
-                            'sample_keys' => array_keys($telecomFieldData)
+                            'record_count' => count($telecomFieldData),
+                            'sample_keys' => array_keys($telecomFieldData),
+                            'first_record_keys' => isset($telecomFieldData[$firstKey]) ? array_keys($telecomFieldData[$firstKey]) : []
                         ]);
                     } else {
-                        $logger->warning("No data_action found in telecom data", [
+                        $logger->warning("Unexpected telecom data structure", [
                             'field_id' => $fieldId,
                             'keys_found' => array_keys($telecomFieldData)
                         ]);
