@@ -1,0 +1,21 @@
+# PHPStan Extension for OpenEMR Database Migration Rules
+#
+# This extension registers custom rules to enforce modern database patterns:
+# 1. Forbid laminas-db usage outside zend_modules
+# 2. Forbid legacy sql.inc.php functions in src/ directory
+#
+# Include this in phpstan.github.neon with:
+#   includes:
+#     - .phpstan/extension.neon
+#
+# author    Michael A. Smith <michael@opencoreemr.com>
+# copyright Copyright (c) 2025 OpenCoreEMR Inc
+# license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+
+services:
+- class: OpenEMR\PHPStan\Rules\ForbiddenClassesRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenFunctionsRule
+  tags:
+  - phpstan.rules.rule

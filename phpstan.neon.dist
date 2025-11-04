@@ -1,9 +1,9 @@
 includes:
-  - phpstan.github.neon
+  - .phpstan/phpstan.github.neon
 
 parameters:
   bootstrapFiles:
-  - phpstan_panther_alias.php
+  - .phpstan/phpstan_panther_alias.php
   level: 1
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
