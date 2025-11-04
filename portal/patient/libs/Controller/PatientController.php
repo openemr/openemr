@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\Common\Session\SessionUtil;
-
 /**
  * PatientController.php
  *
@@ -11,6 +9,8 @@ use OpenEMR\Common\Session\SessionUtil;
  * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Session\SessionUtil;
 
 /**
  * import supporting libraries
