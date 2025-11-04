@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f235daaafafebb2adfddf5e38464ce4",
+    "content-hash": "4f30571eb78084157d9278984aa2ec22",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -14766,7 +14766,6 @@
         "ext-xmlreader": "*",
         "ext-xmlwriter": "*",
         "ext-xsl": "*",
-        "ext-zend-opcache": "*",
         "ext-zip": "*",
         "ext-zlib": "*"
     },
@@ -14801,7 +14800,6 @@
         "ext-xmlreader": "8.2",
         "ext-xmlwriter": "8.2",
         "ext-xsl": "8.2",
-        "ext-zend-opcache": "8.2",
         "ext-zip": "8.2",
         "ext-zlib": "8.2",
         "php": "8.2"
