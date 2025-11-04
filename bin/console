@@ -16,19 +16,35 @@ if (php_sapi_name() !== 'cli') {
     die();
 }
 
-$siteDefault = 'default';
-foreach ($argv as $arg) {
-    if (str_contains($arg, "--site=")) {
-        $siteDefault = explode("=", $arg)[1];
-    }
-}
-$_GET['site'] = $siteDefault;
+$fileRoot = dirname(__DIR__);
+require_once "{$fileRoot}/vendor/autoload.php";
 
-$ignoreAuth = true;
-// Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
-$sessionAllowWrite = true;
-$oeGlobals = require_once __DIR__ . '/../interface/globals.php';
+$skipGlobals = in_array('--skip-globals', $argv, true);
+// Don't pass --skip-globals to Symfony, and reindex array
+$argv = array_values(array_diff($argv, ['--skip-globals']));
+
+// Extract site if provided
+$siteArgs = preg_grep('/^--site=(.*)$/', $argv);
+$siteDefault = $siteArgs ? end(explode('=', reset($siteArgs))) : 'default';
+$_SERVER['argv'] = $argv;
 
 $commandRunner = new \OpenEMR\Common\Command\SymfonyCommandRunner();
+if ($skipGlobals) {
+    // Minimal bootstrap without database
+    $GLOBALS['fileroot'] = $fileRoot;
+
+    // Set up a minimal event dispatcher for commands that don't need database
+    $oeGlobals = new \OpenEMR\Core\OEGlobalsBag();
+
+    $eventDispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+    $commandRunner->setEventDispatcher($eventDispatcher);
+} else {
+    $_GET['site'] = $siteDefault;
+
+    $ignoreAuth = true;
+    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+    $sessionAllowWrite = true;
+    $oeGlobals = require_once "{$fileRoot}/interface/globals.php";
+}
 $commandRunner->setGlobalsBag($oeGlobals);
 $commandRunner->run();
