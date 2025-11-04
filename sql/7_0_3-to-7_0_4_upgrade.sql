@@ -1776,3 +1776,22 @@ CREATE TABLE IF NOT EXISTS `clinical_notes_procedure_results` (
   KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB COMMENT='Links clinical notes to procedure results/lab values';
 #EndIf
+
+#IfNotRow issue_types type health_concern
+INSERT INTO issue_types(active, category, type, plural, singular, abbreviation,style, force_show, ordering, aco_spec) VALUES (1, 'default', 'health_concern', 'Health Concerns', 'Health Concern', 'HC', 0, 1, 15, 'patients|med');
+#EndIf
+
+
+#IfNotTable form_history_sdoh_health_concerns
+CREATE TABLE IF NOT EXISTS `form_history_sdoh_health_concerns` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `sdoh_history_id` bigint(20) UNSIGNED NOT NULL COMMENT 'FK to form_history_sdoh.id',
+    `health_concern_id` bigint(20) NOT NULL COMMENT 'FK to lists.id where type=health_concern or medical_problem',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` bigint(20) DEFAULT NULL COMMENT 'FK to users.id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_sdoh_concern` (`sdoh_history_id`, `health_concern_id`),
+    KEY `idx_sdoh_history` (`sdoh_history_id`),
+    KEY `idx_health_concern` (`health_concern_id`)
+) ENGINE=InnoDB COMMENT='Links SDOH assessments to health concern conditions';
+#EndIf

@@ -14,7 +14,7 @@ namespace OpenEMR\Tests\Services\FHIR\Condition;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
-use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\UtilsService;
 use PHPUnit\Framework\TestCase;
@@ -54,7 +54,7 @@ class FhirConditionProblemsHealthConcernServiceTest extends TestCase
     public function testParseOpenEMRRecord(): void
     {
         $record = $this->getDefaultOpenEMRRecord();
-        $conditionService = new FhirConditionProblemsHealthConcernService();
+        $conditionService = new FhirConditionProblemListItemService();
         $fhirResource = $conditionService->parseOpenEMRRecord($record);
         $this->assertInstanceOf(FHIRCondition::class, $fhirResource, "Expected FHIRCondition instance from parseOpenEMRRecord.");
 
@@ -62,7 +62,7 @@ class FhirConditionProblemsHealthConcernServiceTest extends TestCase
         $profileValues = $fhirResource->getMeta()->getProfile();
 
         // US Core 6.1 Profile required items
-        $this->assertContains(FhirConditionProblemsHealthConcernService::USCDI_PROFILE . "|6.1.0", $profileValues, "Expected FHIRCondition to have US Core 6.1 profile.");
+        $this->assertContains(FhirConditionProblemListItemService::USCDI_PROFILE . "|6.1.0", $profileValues, "Expected FHIRCondition to have US Core 6.1 profile.");
 
         // clinicalStatus
         $this->assertEquals('active', $fhirResource->getClinicalStatus()->getCoding()[0]->getCode(), "Expected clinicalStatus to be 'active'.");
@@ -106,7 +106,7 @@ class FhirConditionProblemsHealthConcernServiceTest extends TestCase
         $this->assertEquals(UtilsService::getLocalDateAsUTC($record['date']), $fhirResource->getRecordedDate(), "Expected recordedDate to match OpenEMR date.");
 
         // US Core 7.0 Profile required items
-        $this->assertContains(FhirConditionProblemsHealthConcernService::USCDI_PROFILE . "|7.0.0", $profileValues, "Expected FHIRCondition to have US Core 7.0.0 profile.");
+        $this->assertContains(FhirConditionProblemListItemService::USCDI_PROFILE . "|7.0.0", $profileValues, "Expected FHIRCondition to have US Core 7.0.0 profile.");
         $this->assertEquals(UtilsService::getLocalDateAsUTC($record['last_updated_time']), $fhirResource->getMeta()->getLastUpdated(), "Expected lastUpdated to match OpenEMR last updated time.");
 
         // Note US Core 7.0 profile added in assertedDate as an extension
@@ -116,6 +116,6 @@ class FhirConditionProblemsHealthConcernServiceTest extends TestCase
         $this->assertEquals(UtilsService::getLocalDateAsUTC($record['date']), $assertedDateExtension->getValueDateTime(), "Expected assertedDate to match OpenEMR date.");
 
         // US Core 8.0 Profile required items (none specific to this condition, but profile should be present)
-        $this->assertContains(FhirConditionProblemsHealthConcernService::USCDI_PROFILE . "|8.0.0", $profileValues, "Expected FHIRCondition to have US Core 8.0.0 profile.");
+        $this->assertContains(FhirConditionProblemListItemService::USCDI_PROFILE . "|8.0.0", $profileValues, "Expected FHIRCondition to have US Core 8.0.0 profile.");
     }
 }
