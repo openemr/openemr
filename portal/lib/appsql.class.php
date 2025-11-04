@@ -211,7 +211,7 @@ class ApplicationTable
             $log_from = 'portal-login';
         }
 
-        $user_notes .= $session->has('whereto') ? (' Module:' . $session->get('whereto')) : "";
+        $user_notes .= !empty($session->get('whereto')) ? (' Module:' . $session->get('whereto')) : "";
 
         $processed_binds = "";
         if (is_array($binds)) {
