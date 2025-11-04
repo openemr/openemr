@@ -716,9 +716,9 @@ function getCodeText($code)
     function validate() {
         var f = document.forms[0];
         var begin_date_val = f.form_begin.value;
-        begin_date_val = begin_date_val ? DateToYYYYMMDD_js(begin_date_val) : begin_date_val;
+        begin_date_val = begin_date_val ? DateToYYYYMMDDHHMMSS_js(begin_date_val) : begin_date_val;
         var end_date_val = f.form_end.value;
-        end_date_val = end_date_val ? DateToYYYYMMDD_js(end_date_val) : end_date_val;
+        end_date_val = end_date_val ? DateToYYYYMMDDHHMMSS_js(end_date_val) : end_date_val;
         var begin_date = new Date(begin_date_val);
         var end_date = new Date(end_date_val);
 
