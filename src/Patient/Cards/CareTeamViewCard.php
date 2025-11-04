@@ -19,6 +19,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\CareTeamService;
+use OpenEMR\Services\ContactService; // AI-generated import
+use OpenEMR\Services\ContactRelationService; // AI-generated import
 use OpenEMR\Services\ListService;
 
 class CareTeamViewCard extends CardModel
@@ -94,7 +96,8 @@ class CareTeamViewCard extends CardModel
                 'title' => xl("Care Team"),
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
-                'btnLink' => "javascript:toggleEditMode(true);",
+                'btnClass' => 'btn-edit-care-team',
+                'btnLink' => "javascript:void(0);",
                 'linkMethod' => 'html',
                 'initiallyCollapsed' => $initiallyCollapsed ? true : false,
                 'auth' => $authCheck
@@ -145,11 +148,26 @@ class CareTeamViewCard extends CardModel
      */
     public function getFormManagementData($pid)
     {
+        // AI-generated related person integration - Start
+        // Get related persons for this patient
+        $contactService = new ContactService();
+        $relationService = new ContactRelationService();
+
+        $patientContact = $contactService->getOrCreateForEntity('patient_data', $pid);
+        $relatedPersons = [];
+        $hasRelatedPersons = false;
+
+        if ($patientContact && $patientContact->get_id()) {
+            $relatedPersons = $relationService->getRelationshipsWithDetails($patientContact->get_id());
+            $hasRelatedPersons = !empty($relatedPersons);
+        }
+        // AI-generated related person integration - End
+
         // Get users with physician type information for role mapping
         $usersResult = QueryUtils::sqlStatementThrowException(
             "SELECT u.id, u.username, u.fname, u.lname, u.physician_type, lo.codes AS physician_type_code FROM users u LEFT JOIN list_options lo ON lo.list_id='physician_type' AND lo.option_id=u.physician_type WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL
              ORDER BY lname, fname"
-        , []);
+            , []);
 
         $templateData['users'] = [];
         while ($user = QueryUtils::fetchArrayFromResultSet($usersResult)) {
@@ -168,7 +186,7 @@ class CareTeamViewCard extends CardModel
              FROM facility
              WHERE service_location = 1 OR billing_location = 1
              ORDER BY name"
-        , []);
+            , []);
 
         $templateData['facilities'] = [];
         while ($facility = QueryUtils::fetchArrayFromResultSet($facilitiesResult)) {
@@ -210,13 +228,17 @@ class CareTeamViewCard extends CardModel
         foreach ($careTeamResult['members'] as $member) {
             $existingCareTeam[] = [
                 'team_name' => $teamName,
+                'member_type' => $member['member_type'] ?? 'user',
                 'user_id' => $member['user_id'],
+                'contact_id' => $member['contact_id'],
                 'role' => $member['role'],
                 'facility_id' => $member['facility_id'],
                 'provider_since' => $member['provider_since'],
                 'status' => $member['status'],
                 'note' => $member['note'],
                 'user_name' => $member['user_name'],
+                'contact_name' => $member['contact_name'],
+                'contact_relationship' => $member['contact_relationship'],
                 'physician_type' => $member['physician_type'],
                 'physician_type_code' => $member['physician_type_code']
             ];
@@ -231,6 +253,23 @@ class CareTeamViewCard extends CardModel
                 . "data-physician-code='" . attr($user['physician_type_code']) . "'>"
                 . text($user['name'] . $extra) . "</option>";
         }
+
+        // AI-generated related person options - Start
+        $templateData['related_person_options'] = "<option value=''></option>";
+        foreach ($relatedPersons as $person) {
+            $personName = trim(($person['first_name'] ?? '') . ' ' . ($person['last_name'] ?? ''));
+            $relationship = $person['relationship'] ?? '';
+            $displayName = $personName . ($relationship ? " ({$relationship})" : "");
+            $contactId = $person['target_contact_id'] ?? '';
+
+            if ($contactId) {
+                $templateData['related_person_options'] .= "<option value='" . attr($contactId) . "' "
+                    . "data-person-name='" . attr($personName) . "' "
+                    . "data-relationship='" . attr($relationship) . "'>"
+                    . text($displayName) . "</option>";
+            }
+        }
+        // AI-generated related person options - End
 
         $templateData['facility_options'] = "<option value=''></option>";
         foreach ($templateData['facilities'] as $facility) {
@@ -257,8 +296,10 @@ class CareTeamViewCard extends CardModel
 
         return [
             'pid' => $pid,
-            'team_name' => !empty($teamNames) ? $teamNames[0] : '',
+            'team_name' => $teamName,
             'user_options' => $templateData['user_options'],
+            'related_person_options' => $templateData['related_person_options'], // AI-generated addition
+            'has_related_persons' => $hasRelatedPersons, // AI-generated addition
             'facility_options' => $templateData['facility_options'],
             'role_options' => $templateData['role_options'],
             'status_options' => $templateData['status_options'],
@@ -273,6 +314,7 @@ class CareTeamViewCard extends CardModel
         return [
             'manage_care_team' => xl("Manage Care Team"),
             'care_team_name' => xl("Care Team Name"),
+            'member_type' => xl("Type"), // AI-generated translation
             'member' => xl("Member"),
             'role' => xl("Role"),
             'facility' => xl("Facility"),
@@ -281,13 +323,17 @@ class CareTeamViewCard extends CardModel
             'note' => xl("Note"),
             'remove' => xl("Remove"),
             'add_team_member' => xl("Add Team Member"),
+            'add_related_person' => xl("Add Related Person"), // AI-generated translation
             'save_care_team' => xl("Save Care Team"),
             'save_care_team_confirm' => xl('Save care team?'),
             'cancel' => xl('Cancel'),
             'physician_type' => xl('Provider Type'),
             'npi' => xl('NPI'),
             'active_members' => xl('Active Members'),
-            'inactive_members' => xl('Inactive Members')
+            'inactive_members' => xl('Inactive Members'),
+            'no_related_persons_alert' => xl('No related persons found for this patient. Please add related persons in the Demographics Relations screen first.'), // AI-generated translation
+            'provider_member' => xl('Provider'), // AI-generated translation
+            'related_person_member' => xl('Related Person') // AI-generated translation
         ];
     }
 }
