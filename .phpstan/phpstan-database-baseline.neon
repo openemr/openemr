@@ -6291,6 +6291,14 @@ parameters:
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
+      path: ../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php
+    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php
+    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
       path: ../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) instead of sqlQueryNoLog\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
