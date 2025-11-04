@@ -41,7 +41,6 @@
         "ext-xmlreader": "*",
         "ext-xmlwriter": "*",
         "ext-xsl": "*",
-        "ext-zend-opcache": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
         "academe/omnipay-authorizenetapi": "3.1.2",
@@ -211,7 +210,6 @@
             "ext-xmlreader": "8.2",
             "ext-xmlwriter": "8.2",
             "ext-xsl": "8.2",
-            "ext-zend-opcache": "8.2",
             "ext-zip": "8.2",
             "ext-zlib": "8.2",
             "php": "8.2"
