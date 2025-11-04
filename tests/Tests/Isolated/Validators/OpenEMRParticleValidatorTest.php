@@ -93,7 +93,7 @@ class OpenEMRParticleValidatorTest extends TestCase
     public function testValidatorCanDefineRules(): void
     {
         // Test that we can define validation rules using the validator
-        $this->validator->required('test_field')->length(1, 50);
+        $this->validator->required('test_field')->length(1);
         $this->validator->optional('optional_field')->numeric();
 
         // If we get here without exceptions, rule definition works

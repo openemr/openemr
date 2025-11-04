@@ -246,7 +246,7 @@ function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
 
 function genHeadCell($data, $right = false, $colspan = 1): void
 {
-    genAnyCell($data, $right, 'dehead', $colspan);
+    genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
@@ -1551,13 +1551,13 @@ if ($_POST['form_submit']) {
         if ($value == '.total') { // Total Services
             genHeadCell('');
         } elseif ($value == '.age2') { // Age
-            genHeadCell($arr_show[$value]['title'], false, 2);
+            genHeadCell($arr_show[$value]['title'], false);
         } elseif ($value == '.age9') { // Age
-            genHeadCell($arr_show[$value]['title'], false, 9);
+            genHeadCell($arr_show[$value]['title'], false);
         } elseif ($arr_show[$value]['list_id']) {
-            genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+            genHeadCell($arr_show[$value]['title'], false);
         } elseif (!empty($arr_titles[$value])) {
-            genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+            genHeadCell($arr_show[$value]['title'], false);
         }
     }
 
