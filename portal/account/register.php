@@ -45,7 +45,7 @@ $session->remove('itsme');
 $session->set('authUser', 'portal-user');
 $session->set('pid', true);
 $session->set('register', true);
-$session->set('register_silo_ajax',true);
+$session->set('register_silo_ajax', true);
 
 $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 
