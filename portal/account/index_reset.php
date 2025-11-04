@@ -22,7 +22,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $session = SessionUtil::portalSessionStart();
 
-$landingpage = "./../index.php?site=" . urlencode($session->get('site_id', ''));
+$landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
 // kick out if patient not authenticated
 if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     $ignoreAuth_onsite_portal = true;
