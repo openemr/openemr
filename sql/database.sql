@@ -14918,3 +14918,123 @@ CREATE TABLE `clinical_notes_procedure_results` (
   KEY `idx_procedure_result_id` (`procedure_result_id`),
   KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB COMMENT='Links clinical notes to procedure results/lab values';
+
+-- Patient Preferences Database Schema
+-- Uses OpenEMR's list_options table for LOINC codes
+-- Table for storing patient treatment intervention preferences
+DROP TABLE IF EXISTS `patient_treatment_intervention_preferences`;
+CREATE TABLE `patient_treatment_intervention_preferences` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `uuid` binary(16) DEFAULT NULL,
+    `patient_id` int(11) NOT NULL,
+    `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
+    `observation_code_text` varchar(255) DEFAULT NULL,
+    `value_type` enum('coded','text','boolean') DEFAULT 'coded',
+    `value_code` varchar(50) DEFAULT NULL,
+    `value_code_system` varchar(255) DEFAULT NULL,
+    `value_display` varchar(255) DEFAULT NULL,
+    `value_text` text,
+    `value_boolean` tinyint(1) DEFAULT NULL,
+    `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` varchar(20) DEFAULT 'final',
+    `note` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unq_uuid` (`uuid`),
+    KEY `patient_id` (`patient_id`),
+    KEY `observation_code` (`observation_code`),
+    KEY `status` (`status`)
+    ) ENGINE=InnoDB;
+
+    -- Table for storing patient care experience preferences
+DROP TABLE IF EXISTS `patient_care_experience_preferences`;
+CREATE TABLE `patient_care_experience_preferences` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `uuid` binary(16) DEFAULT NULL,
+    `patient_id` int(11) NOT NULL,
+    `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
+    `observation_code_text` varchar(255) DEFAULT NULL,
+    `value_type` enum('coded','text','boolean') DEFAULT 'coded',
+    `value_code` varchar(50) DEFAULT NULL,
+    `value_code_system` varchar(255) DEFAULT NULL,
+    `value_display` varchar(255) DEFAULT NULL,
+    `value_text` text,
+    `value_boolean` tinyint(1) DEFAULT NULL,
+    `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` varchar(20) DEFAULT 'final',
+    `note` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unq_uuid` (`uuid`),
+    KEY `patient_id` (`patient_id`),
+    KEY `observation_code` (`observation_code`),
+    KEY `status` (`status`)
+    ) ENGINE=InnoDB;
+
+    -- ------------------------------------- Parent lists under `lists`--------------------------------------------------------------------
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
+    VALUES  ('lists','treatment_intervention_preferences','Treatment Intervention Preferences',1);
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('treatment_intervention_preferences','81329-5','Thoughts on resuscitation (CPR)',10,'tip_resuscitation_answers','LOINC:81329-5',1),
+    ('treatment_intervention_preferences','81330-3','Thoughts on intubation',20,'tip_intubation_answers','LOINC:81330-3',1),
+    ('treatment_intervention_preferences','81331-1','Thoughts on tube feeding',30,'tip_tubefeeding_answers','LOINC:81331-1',1),
+    ('treatment_intervention_preferences','81332-9','Thoughts on IV fluid and support',40,'tip_ivfluids_answers','LOINC:81332-9',1),
+    ('treatment_intervention_preferences','81333-7','Thoughts on antibiotics',50,'tip_antibiotics_answers','LOINC:81333-7',1);
+
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
+    VALUES ('lists','care_experience_preferences','Care Experience Preferences',1);
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('care_experience_preferences','95541-9','Care experience preference',10,'cep_general_answers','LOINC:95541-9',1),
+    ('care_experience_preferences','81364-2','Religious or cultural beliefs (reported)',20,'cep_religious_answers','LOINC:81364-2',1),
+    ('care_experience_preferences','81365-9','Religious/cultural affiliation contact to notify (reported)',30,'cep_religious_contact_answers','LOINC:81365-9',1),
+    ('care_experience_preferences','103980-9','Preferred pharmacy',40,'cep_pharmacy_answers','LOINC:103980-9',1),
+    ('care_experience_preferences','81338-6','Patient goals, preferences & priorities for care experience',90,'cep_overall_narrative','LOINC:81338-6',1);
+    -- Value sets table for coded answers
+DROP TABLE IF EXISTS ``;
+CREATE TABLE `preference_value_sets` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `loinc_code` varchar(50) NOT NULL,
+    `answer_code` varchar(100) NOT NULL,
+    `answer_system` varchar(255) NOT NULL,
+    `answer_display` varchar(255) NOT NULL,
+    `answer_definition` text,
+    `sort_order` int(11) DEFAULT 0,
+    `active` tinyint(1) DEFAULT 1,
+    PRIMARY KEY (`id`),
+    KEY `loinc_code` (`loinc_code`)
+    ) ENGINE=InnoDB COMMENT='Answer lists for preference codes';
+
+    INSERT INTO `preference_value_sets`
+    (`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+    ('81329-5','LA33470-8','http://loinc.org','Yes CPR',1,1),
+    ('81329-5','LA33471-6','http://loinc.org','No CPR (Do Not Attempt Resuscitation)',2,1),
+    ('81329-5','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81329-5','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81330-3','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81330-3','373067005','http://snomed.info/sct','No',2,1),
+    ('81330-3','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81330-3','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81331-1','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81331-1','373067005','http://snomed.info/sct','No',2,1),
+    ('81331-1','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81331-1','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81332-9','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81332-9','373067005','http://snomed.info/sct','No',2,1),
+    ('81332-9','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81332-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81333-7','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81333-7','373067005','http://snomed.info/sct','No',2,1),
+    ('81333-7','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81333-7','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81364-2','160542002','http://snomed.info/sct','Muslim',1,1),
+    ('81364-2','160540005','http://snomed.info/sct','Jewish',2,1),
+    ('81364-2','160539006','http://snomed.info/sct','Christian',3,1),
+    ('81364-2','160538003','http://snomed.info/sct','Hindu',4,1),
+    ('81364-2','160543007','http://snomed.info/sct','Buddhist',5,1),
+    ('81364-2','276119007','http://snomed.info/sct','No religion',6,1),
+    ('81364-2','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other',99,1),
+    ('81365-9','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81365-9','373067005','http://snomed.info/sct','No',2,1),
+    ('81365-9','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81365-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('103980-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('95541-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
