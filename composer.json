@@ -41,7 +41,6 @@
         "ext-xmlreader": "*",
         "ext-xmlwriter": "*",
         "ext-xsl": "*",
-        "ext-zend-opcache": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
         "academe/omnipay-authorizenetapi": "3.1.2",
@@ -61,7 +60,7 @@
         "laminas/laminas-config": "3.10.1",
         "laminas/laminas-db": "2.20.0",
         "laminas/laminas-escaper": "2.18.0",
-        "laminas/laminas-eventmanager": "3.14.0",
+        "laminas/laminas-eventmanager": "3.15.0",
         "laminas/laminas-filter": "2.42.0",
         "laminas/laminas-form": "3.22.0",
         "laminas/laminas-inputfilter": "2.34.0",
@@ -119,7 +118,7 @@
         "symfony/psr-http-message-bridge": "~6.4.24",
         "symfony/yaml": "~6.4.26",
         "twig/twig": "3.21.1",
-        "twilio/sdk": "8.8.4",
+        "twilio/sdk": "8.8.5",
         "vlucas/phpdotenv": "5.6.2",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
@@ -171,6 +170,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "OpenEMR\\PHPStan\\Rules\\": ".phpstan",
             "OpenEMR\\Tests\\": "tests\\Tests"
         }
     },
@@ -211,7 +211,6 @@
             "ext-xmlreader": "8.2",
             "ext-xmlwriter": "8.2",
             "ext-xsl": "8.2",
-            "ext-zend-opcache": "8.2",
             "ext-zip": "8.2",
             "ext-zlib": "8.2",
             "php": "8.2"

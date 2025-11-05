@@ -653,7 +653,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             if ($have_function) {
                 $output = call_user_func_array($plugin_func, [$tag_args, &$this]);
                 if($output != '') {
-                $output = '<?php ' . $this->_push_cacheable_state('compiler', $tag_command)
+                    $output = '<?php ' . $this->_push_cacheable_state('compiler', $tag_command)
                                    . $output
                                    . $this->_pop_cacheable_state('compiler', $tag_command) . ' ?>';
                 }
@@ -760,7 +760,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
     }
 
     function _preg_callback ($matches) {
-    return $this->_quote_replace($this->left_delimiter)
+        return $this->_quote_replace($this->left_delimiter)
            . 'php'
            . str_repeat("\n", substr_count((string) $matches[1], "\n"))
            . $this->_quote_replace($this->right_delimiter);
@@ -1396,10 +1396,10 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 default:
                     if(preg_match('~^' . $this->_func_regexp . '$~', (string) $token) ) {
                             // function call
-                            if($this->security &&
+                        if($this->security &&
                                !in_array($token, $this->security_settings['IF_FUNCS'])) {
-                                $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
-                            }
+                            $this->_syntax_error("(secure mode) '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
+                        }
                     } elseif(preg_match('~^' . $this->_var_regexp . '$~', (string) $token) && (!str_contains('+-*/^%&|', substr((string) $token, -1))) && isset($tokens[$i+1]) && $tokens[$i+1] == '(') {
                         // variable function call
                         $this->_syntax_error("variable function call '$token' not allowed in if statement", E_USER_ERROR, __FILE__, __LINE__);
@@ -1642,35 +1642,35 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
                 // double quoted text
                 preg_match('~^(' . $this->_db_qstr_regexp . ')('. $this->_mod_regexp . '*)$~', $val, $match);
                 $return = $this->_expand_quoted_text($match[1]);
-                if($match[2] != '') {
-                    $this->_parse_modifiers($return, $match[2]);
-                }
-                return $return;
+            if($match[2] != '') {
+                $this->_parse_modifiers($return, $match[2]);
             }
+                return $return;
+        }
         elseif(preg_match('~^' . $this->_num_const_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // numerical constant
                 preg_match('~^(' . $this->_num_const_regexp . ')('. $this->_mod_regexp . '*)$~', $val, $match);
-                if($match[2] != '') {
-                    $this->_parse_modifiers($match[1], $match[2]);
-                    return $match[1];
-                }
+            if($match[2] != '') {
+                $this->_parse_modifiers($match[1], $match[2]);
+                return $match[1];
             }
+        }
         elseif(preg_match('~^' . $this->_si_qstr_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // single quoted text
                 preg_match('~^(' . $this->_si_qstr_regexp . ')('. $this->_mod_regexp . '*)$~', $val, $match);
-                if($match[2] != '') {
-                    $this->_parse_modifiers($match[1], $match[2]);
-                    return $match[1];
-                }
+            if($match[2] != '') {
+                $this->_parse_modifiers($match[1], $match[2]);
+                return $match[1];
             }
+        }
         elseif(preg_match('~^' . $this->_cvar_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // config var
                 return $this->_parse_conf_var($val);
-            }
+        }
         elseif(preg_match('~^' . $this->_svar_regexp . '(?:' . $this->_mod_regexp . '*)$~', $val)) {
                 // section var
                 return $this->_parse_section_prop($val);
-            }
+        }
         elseif(!in_array($val, $this->_permitted_tokens) && !is_numeric($val)) {
             // literal string
             return $this->_expand_quoted_text('"' . strtr($val, ['\\' => '\\\\', '"' => '\\"']) .'"');
