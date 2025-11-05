@@ -1,0 +1,315 @@
+{# Built with Warp-Terminal #}
+{% extends "reports/email/base.html.twig" %}
+
+{% block title %}{{ "Email Queue Report"|xlt }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="fas fa-envelope"></i> {{ "Email Queue Report"|xlt }}
+            </h2>
+        </div>
+    </div>
+
+    {# Statistics Cards #}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-inbox fa-2x text-primary mb-2"></i>
+                    <h3 class="mb-0">{{ statistics.total }}</h3>
+                    <p class="text-muted mb-0">{{ "Total Emails"|xlt }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h3 class="mb-0">{{ statistics.sent }}</h3>
+                    <p class="text-muted mb-0">{{ "Sent"|xlt }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h3 class="mb-0">{{ statistics.pending }}</h3>
+                    <p class="text-muted mb-0">{{ "Pending"|xlt }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                    <h3 class="mb-0">{{ statistics.failed }}</h3>
+                    <p class="text-muted mb-0">{{ "Failed"|xlt }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Filters #}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> {{ "Filters"|xlt }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="" id="filter-form">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <label for="search">{{ "Search"|xlt }}</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ filters.search|default('') }}"
+                               placeholder="{{ 'Email, Subject, or Sender'|xlt }}">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="status">{{ "Status"|xlt }}</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">{{ "All"|xlt }}</option>
+                            <option value="sent" {{ filters.status == 'sent' ? 'selected' : '' }}>{{ "Sent"|xlt }}</option>
+                            <option value="pending" {{ filters.status == 'pending' ? 'selected' : '' }}>{{ "Pending"|xlt }}</option>
+                            <option value="failed" {{ filters.status == 'failed' ? 'selected' : '' }}>{{ "Failed"|xlt }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label for="template_name">{{ "Template"|xlt }}</label>
+                        <select class="form-control" id="template_name" name="template_name">
+                            <option value="">{{ "All Templates"|xlt }}</option>
+                            {% for template in templateNames %}
+                                <option value="{{ template|attr }}" {{ filters.template_name == template ? 'selected' : '' }}>
+                                    {{ template|text }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="date_from">{{ "From Date"|xlt }}</label>
+                        <input type="date" class="form-control" id="date_from" name="date_from"
+                               value="{{ filters.date_from|default('') }}">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label for="date_to">{{ "To Date"|xlt }}</label>
+                        <input type="date" class="form-control" id="date_to" name="date_to"
+                               value="{{ filters.date_to|default('') }}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> {{ "Apply Filters"|xlt }}
+                        </button>
+                        <a href="{{ webroot }}/interface/reports/email_queue_report.php" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> {{ "Reset"|xlt }}
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Email Queue Table #}
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> {{ "Email Queue"|xlt }} ({{ totalCount }} {{ "records"|xlt }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0" id="email-queue-table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>{{ "ID"|xlt }}</th>
+                            <th>{{ "Status"|xlt }}</th>
+                            <th>{{ "Recipient"|xlt }}</th>
+                            <th>{{ "Subject"|xlt }}</th>
+                            <th>{{ "Template"|xlt }}</th>
+                            <th>{{ "Queued Date"|xlt }}</th>
+                            <th>{{ "Sent Date"|xlt }}</th>
+                            <th>{{ "Actions"|xlt }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if emails is empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">{{ "No emails found"|xlt }}</p>
+                            </td>
+                        </tr>
+                        {% else %}
+                        {% for email in emails %}
+                        <tr>
+                            <td><strong>#{{ email.id }}</strong></td>
+                            <td>
+                                {% if email.error == '1' %}
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-times-circle"></i> {{ "Failed"|xlt }}
+                                    </span>
+                                {% elseif email.sent == '1' %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i> {{ "Sent"|xlt }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-clock"></i> {{ "Pending"|xlt }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <i class="fas fa-user"></i> {{ email.recipient|text }}
+                            </td>
+                            <td>{{ email.subject|text }}</td>
+                            <td>
+                                {% if email.template_name %}
+                                    <span class="badge badge-info">{{ email.template_name|text }}</span>
+                                {% else %}
+                                    <span class="text-muted">{{ "None"|xlt }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ email.datetime_queued|date('m/d/Y h:i A') }}</small>
+                            </td>
+                            <td>
+                                {% if email.datetime_sent %}
+                                    <small class="text-success">{{ email.datetime_sent|date('m/d/Y h:i A') }}</small>
+                                {% elseif email.datetime_error %}
+                                    <small class="text-danger">{{ email.datetime_error|date('m/d/Y h:i A') }}</small>
+                                {% else %}
+                                    <small class="text-muted">—</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="viewEmailDetails({{ email.id }})">
+                                    <i class="fas fa-eye"></i> {{ "View"|xlt }}
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Pagination #}
+    {% if totalPages > 1 %}
+    <div class="row mt-3">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if currentPage > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ queryString }}&page={{ currentPage - 1 }}">
+                            <i class="fas fa-chevron-left"></i> {{ "Previous"|xlt }}
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in 1..totalPages %}
+                        {% if i == currentPage %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{{ queryString }}&page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if currentPage < totalPages %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ queryString }}&page={{ currentPage + 1 }}">
+                            {{ "Next"|xlt }} <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{# Modal for Email Details #}
+<div class="modal fade" id="emailDetailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">{{ "Email Details"|xlt }}</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="emailDetailContent">
+                <div class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ "Close"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewEmailDetails(emailId) {
+    const modal = $('#emailDetailModal');
+    const content = $('#emailDetailContent');
+
+    modal.modal('show');
+    content.html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x text-primary"></i></div>');
+
+    const webroot = '{{ webroot|raw }}';
+    fetch(webroot + '/interface/reports/email_queue_detail.php?id=' + emailId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const email = data.email;
+                let statusBadge = '';
+                if (email.error == '1') {
+                    statusBadge = '<span class="badge badge-danger"><i class="fas fa-times-circle"></i> {{ "Failed"|xlt }}</span>';
+                } else if (email.sent == '1') {
+                    statusBadge = '<span class="badge badge-success"><i class="fas fa-check-circle"></i> {{ "Sent"|xlt }}</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-warning"><i class="fas fa-clock"></i> {{ "Pending"|xlt }}</span>';
+                }
+
+                let html = '<table class="table table-bordered">';
+                html += '<tr><th width="30%">{{ "ID"|xlt }}</th><td>#' + email.id + '</td></tr>';
+                html += '<tr><th>{{ "Status"|xlt }}</th><td>' + statusBadge + '</td></tr>';
+                html += '<tr><th>{{ "Sender"|xlt }}</th><td>' + email.sender + '</td></tr>';
+                html += '<tr><th>{{ "Recipient"|xlt }}</th><td>' + email.recipient + '</td></tr>';
+                html += '<tr><th>{{ "Subject"|xlt }}</th><td>' + email.subject + '</td></tr>';
+                html += '<tr><th>{{ "Template"|xlt }}</th><td>' + (email.template_name || '{{ "None"|xlt }}') + '</td></tr>';
+                html += '<tr><th>{{ "Queued Date"|xlt }}</th><td>' + email.datetime_queued + '</td></tr>';
+
+                if (email.datetime_sent) {
+                    html += '<tr><th>{{ "Sent Date"|xlt }}</th><td class="text-success">' + email.datetime_sent + '</td></tr>';
+                }
+
+                if (email.error == '1' && email.error_message) {
+                    html += '<tr><th>{{ "Error Message"|xlt }}</th><td class="text-danger">' + email.error_message + '</td></tr>';
+                    html += '<tr><th>{{ "Error Date"|xlt }}</th><td>' + email.datetime_error + '</td></tr>';
+                }
+
+                html += '</table>';
+                content.html(html);
+            } else {
+                content.html('<div class="alert alert-danger">{{ "Failed to load email details"|xlt }}</div>');
+            }
+        })
+        .catch(error => {
+            content.html('<div class="alert alert-danger">{{ "An error occurred"|xlt }}</div>');
+            console.error('Error:', error);
+        });
+}
+</script>
+{% endblock %}
