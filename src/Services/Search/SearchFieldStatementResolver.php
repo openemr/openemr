@@ -270,23 +270,18 @@ class SearchFieldStatementResolver
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
         foreach ($values as $value) {
-            if ($modifier === 'prefix') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue($value . "%");
-            } else if ($modifier === 'suffix') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue("%" . $value);
-            } else if ($modifier === 'contains') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue('%' . $value . '%');
-            } else if ($modifier === 'exact') {
-                // not we may want to grab the specific table collation here in order to improve performance
-                // and avoid db casting...
-                array_push($clauses, "BINARY " . $searchField->getField() . ' = ?');
-                $searchFragment->addBoundValue($value);
-            } else if ($modifier == SearchModifier::NOT_EQUALS_EXACT) {
-                array_push($clauses, "BINARY " . $searchField->getField() . ' != ?');
-                $searchFragment->addBoundValue($value);
+            $result = match ($modifier) {
+                SearchModifier::PREFIX => [$searchField->getField() . ' LIKE ?', $value . '%'],
+                SearchModifier::SUFFIX => [$searchField->getField() . ' LIKE ?', '%' . $value],
+                SearchModifier::CONTAINS => [$searchField->getField() . ' LIKE ?', '%' . $value . '%'],
+                SearchModifier::EXACT => ["BINARY " . $searchField->getField() . ' = ?', $value],
+                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $searchField->getField() . ' != ?', $value],
+                default => null,
+            };
+            if ($result !== null) {
+                [$clause, $bound] = $result;
+                $clauses[] = $clause;
+                $searchFragment->addBoundValue($bound);
             }
         }
         if (count($clauses) > 1) {
