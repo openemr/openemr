@@ -123,7 +123,7 @@ class TreatmentInterventionPreferenceService extends BaseService
             $data['note'] ?? null
         ];
 
-        return sqlInsert($sql, $params);
+        return QueryUtils::sqlInsert($sql, $params);
     }
 
     /**
@@ -160,7 +160,7 @@ class TreatmentInterventionPreferenceService extends BaseService
             $id
         ];
 
-        return sqlStatement($sql, $params);
+        return QueryUtils::sqlStatementThrowException($sql, $params);
     }
 
     /**
@@ -172,7 +172,7 @@ class TreatmentInterventionPreferenceService extends BaseService
                 SET status = ?
                 WHERE id = ?";
 
-        return sqlStatement($sql, ['entered-in-error', $id]);
+        return QueryUtils::sqlStatementThrowException($sql, ['entered-in-error', $id]);
     }
 
     /**
@@ -187,51 +187,71 @@ class TreatmentInterventionPreferenceService extends BaseService
 
         $pref = $pref[0];
 
-        // Get patient UUID
-        $patientUuid = sqlQuery("SELECT uuid FROM patient_data WHERE pid = ?", [$pref['patient_id']]);
+        // Get patient UUID (required for subject reference)
+        $patientUuid = QueryUtils::querySingleRow("SELECT uuid FROM patient_data WHERE pid = ?", [$pref['patient_id']]);
+        if (empty($patientUuid['uuid'])) {
+            error_log("Cannot create FHIR Observation: Patient UUID not found for pid=" . $pref['patient_id']);
+            return null;
+        }
 
+        // Get performer (user who recorded the preference)
+        $performerUuid = null;
+        $performerDisplay = null;
+        if (!empty($pref['created_by'])) {
+            $user = QueryUtils::querySingleRow("SELECT uuid, CONCAT(fname, ' ', lname) as name FROM users WHERE id = ?", [$pref['created_by']]);
+            if (!empty($user)) {
+                $performerUuid = $user['uuid'] ?? null;
+                $performerDisplay = $user['name'] ?? null;
+            }
+        }
+
+        // Build the observation resource
         $observation = [
             'resourceType' => 'Observation',
-            'id' => $id,
+            'id' => $pref['uuid'], // Use database UUID, not integer ID
             'meta' => [
+                'versionId' => '1',
+                'lastUpdated' => date('c', strtotime($pref['updated_at'] ?? $pref['created_at'] ?? 'now')),
                 'profile' => [
                     'http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference'
                 ]
             ],
-            'status' => $pref['status'],
+            'status' => $this->mapStatusToFHIR($pref['status']),
             'category' => [[
                 'coding' => [[
                     'system' => 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category',
-                    'code' => 'treatment-intervention-preference'
-                ]]
+                    'code' => 'treatment-intervention-preference',
+                    'display' => 'Treatment Intervention Preference'
+                ]],
+                'text' => 'Treatment Intervention Preference'
             ]],
             'code' => [
                 'coding' => [[
                     'system' => 'http://loinc.org',
                     'code' => $pref['observation_code'],
                     'display' => $pref['observation_code_text']
-                ]]
+                ]],
+                'text' => $pref['observation_code_text']
             ],
             'subject' => [
-                'reference' => 'Patient/' . $patientUuid['uuid']
+                'reference' => 'Patient/' . $patientUuid['uuid'],
+                'type' => 'Patient'
             ],
-            'effectiveDateTime' => date('c', strtotime((string)$pref['effective_datetime']))
+            'effectiveDateTime' => date('c', strtotime($pref['effective_datetime'])),
+            'issued' => date('c', strtotime($pref['created_at'] ?? $pref['effective_datetime']))
         ];
 
-        // Add value based on type
-        if ($pref['value_type'] == 'coded' && !empty($pref['value_code'])) {
-            $observation['valueCodeableConcept'] = [
-                'coding' => [[
-                    'system' => $pref['value_code_system'] ?? 'http://loinc.org',
-                    'code' => $pref['value_code'],
-                    'display' => $pref['value_display']
-                ]]
-            ];
-        } elseif ($pref['value_type'] == 'text' && !empty($pref['value_text'])) {
-            $observation['valueString'] = $pref['value_text'];
-        } elseif ($pref['value_type'] == 'boolean' && isset($pref['value_boolean'])) {
-            $observation['valueBoolean'] = (bool)$pref['value_boolean'];
+        // Add performer if available
+        if ($performerUuid && $performerDisplay) {
+            $observation['performer'] = [[
+                'reference' => 'Practitioner/' . $performerUuid,
+                'type' => 'Practitioner',
+                'display' => $performerDisplay
+            ]];
         }
+
+        // Add value based on type (one of these is required)
+        $valueText = $this->addValueToObservation($observation, $pref);
 
         // Add note if present
         if (!empty($pref['note'])) {
@@ -240,6 +260,88 @@ class TreatmentInterventionPreferenceService extends BaseService
             ]];
         }
 
+        // Add text narrative (required by FHIR spec, validated by Inferno)
+        $observation['text'] = $this->generateNarrative($pref, $valueText);
+
         return $observation;
+    }
+
+    /**
+     * Map internal status codes to FHIR observation status codes
+     * FHIR allows: registered | preliminary | final | amended | corrected | cancelled | entered-in-error | unknown
+     */
+    private function mapStatusToFHIR($status)
+    {
+        $statusMap = [
+            'final' => 'final',
+            'preliminary' => 'preliminary',
+            'amended' => 'amended',
+            'corrected' => 'corrected',
+            'entered-in-error' => 'entered-in-error',
+            'cancelled' => 'cancelled',
+            'unknown' => 'unknown'
+        ];
+
+        return $statusMap[$status] ?? 'final';
+    }
+
+    /**
+     * Add value[x] to observation and return text representation
+     */
+    private function addValueToObservation(&$observation, $pref)
+    {
+        $valueText = '';
+
+        if ($pref['value_type'] == 'coded' && !empty($pref['value_code'])) {
+            $observation['valueCodeableConcept'] = [
+                'coding' => [[
+                    'system' => $pref['value_code_system'] ?? 'http://loinc.org',
+                    'code' => $pref['value_code'],
+                    'display' => $pref['value_display']
+                ]],
+                'text' => $pref['value_display']
+            ];
+            $valueText = $pref['value_display'];
+        } elseif ($pref['value_type'] == 'text' && !empty($pref['value_text'])) {
+            $observation['valueString'] = $pref['value_text'];
+            $valueText = $pref['value_text'];
+        } elseif ($pref['value_type'] == 'boolean' && isset($pref['value_boolean'])) {
+            $boolVal = (bool)$pref['value_boolean'];
+            $observation['valueBoolean'] = $boolVal;
+            $valueText = $boolVal ? 'Yes' : 'No';
+        }
+
+        return $valueText;
+    }
+
+    /**
+     * Generate XHTML narrative for the observation
+     * Required by FHIR spec and validated by Inferno
+     */
+    private function generateNarrative($pref, $valueText)
+    {
+        $status = ucfirst($pref['status'] ?? 'final');
+        $code = htmlspecialchars($pref['observation_code_text'] ?? $pref['observation_code'], ENT_XML1, 'UTF-8');
+        $value = htmlspecialchars($valueText, ENT_XML1, 'UTF-8');
+        $date = date('F j, Y', strtotime($pref['effective_datetime']));
+
+        $div = '<div xmlns="http://www.w3.org/1999/xhtml">';
+        $div .= '<p><b>Treatment Intervention Preference</b></p>';
+        $div .= '<p><b>Status:</b> ' . $status . '</p>';
+        $div .= '<p><b>Preference:</b> ' . $code . '</p>';
+        $div .= '<p><b>Patient\'s Choice:</b> ' . $value . '</p>';
+        $div .= '<p><b>Date:</b> ' . $date . '</p>';
+
+        if (!empty($pref['note'])) {
+            $note = htmlspecialchars($pref['note'], ENT_XML1, 'UTF-8');
+            $div .= '<p><b>Note:</b> ' . $note . '</p>';
+        }
+
+        $div .= '</div>';
+
+        return [
+            'status' => 'generated',
+            'div' => $div
+        ];
     }
 }

@@ -14,6 +14,7 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '')) {
     CsrfUtils::csrfNotVerified();
@@ -30,10 +31,10 @@ $sql = "SELECT * FROM preference_value_sets
         WHERE loinc_code = ? AND active = 1 
         ORDER BY sort_order";
 
-$result = sqlStatement($sql, [$loincCode]);
+$result = QueryUtils::fetchRecords($sql, [$loincCode]);
 
 $answers = [];
-while ($row = sqlFetchArray($result)) {
+foreach ($result as $row) {
     $answers[] = [
         'answer_code' => $row['answer_code'],
         'answer_system' => $row['answer_system'],

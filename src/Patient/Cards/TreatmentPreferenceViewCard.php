@@ -157,7 +157,7 @@ class TreatmentPreferenceViewCard extends CardModel
         }
 
         $sql = "SELECT CONCAT(fname, ' ', lname) as name FROM users WHERE id = ?";
-        $result = sqlQuery($sql, [$userId]);
+        $result = QueryUtils::querySingleRow($sql, [$userId]);
         return $result['name'] ?? '';
     }
 
