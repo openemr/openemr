@@ -474,10 +474,6 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
-        }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
     }
 }
