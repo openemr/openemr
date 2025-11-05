@@ -622,17 +622,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
-                                $signed = false;
                                 $isLocked = false;
                                 if ($appt_enc != 0) {
-                                    $signable = new ESign\Encounter_Signable($appt_enc);
-                                    // Check lock status - returns boolean
-                                    $isLocked = $signable->isLocked();
                                     echo text($appt_enc);
-                                }
-                                if ($isLocked) {
-                                    echo "<span class='text-success' title='" . xlt('Signed')
-                                    . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
+                                    $signable = new ESign\Encounter_Signable($appt_enc);
+                                    if ($signable->isLocked()) {
+                                        echo "<span class='text-success' title='" . xlt('Signed')
+                                        . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
+                                    }
                                 }
                                 ?>
                             </td>
