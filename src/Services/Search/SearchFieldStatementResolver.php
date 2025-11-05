@@ -16,6 +16,8 @@
 
 namespace OpenEMR\Services\Search;
 
+use OpenEMR\Services\CodeTypesService;
+
 class SearchFieldStatementResolver
 {
     const MAX_NESTED_LEVEL = 10;
@@ -234,7 +236,12 @@ class SearchFieldStatementResolver
                 $clauses[] = $searchField->getField() . ' = ?';
                 // TODO: adunsulag when we better understand Token's we will improve this process of how we resolve the token
                 // field to its representative bound value
-                $searchFragment->addBoundValue($value->getCode());
+                $codeTypesService = new CodeTypesService();
+                $code = $codeTypesService->getOpenEMRCodeForSystemAndCode(
+                    $value->getSystem(),
+                    $value->getCode()
+                );
+                $searchFragment->addBoundValue($code);
             }
         }
 
@@ -266,6 +273,9 @@ class SearchFieldStatementResolver
             if ($modifier === 'prefix') {
                 array_push($clauses, $searchField->getField() . ' LIKE ?');
                 $searchFragment->addBoundValue($value . "%");
+            } else if ($modifier === 'suffix') {
+                array_push($clauses, $searchField->getField() . ' LIKE ?');
+                $searchFragment->addBoundValue("%" . $value);
             } else if ($modifier === 'contains') {
                 array_push($clauses, $searchField->getField() . ' LIKE ?');
                 $searchFragment->addBoundValue('%' . $value . '%');
