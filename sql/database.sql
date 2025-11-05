@@ -3363,6 +3363,7 @@ CREATE TABLE `issue_types` (
 --
 
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','default','medical_problem','Medical Problems','Problem','P','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('15', 'default', 'health_concern', 'Health Concerns', 'Health Concern', 'HC', '0', '1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','default','medication','Medications','Medication','M','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','default','allergy','Allergies','Allergy','A','0','1');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('35','default','medical_device','Medical Devices','Device','I','0','0');
@@ -3376,6 +3377,18 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('60','ippf_specific','contraceptive','Contraception','Contraception','C','4','0');
 
 -- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `form_history_sdoh_health_concerns` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `sdoh_history_id` bigint(20) UNSIGNED NOT NULL COMMENT 'FK to form_history_sdoh.id',
+    `health_concern_id` bigint(20) NOT NULL COMMENT 'FK to lists.id where type=health_concern or medical_problem',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` bigint(20) DEFAULT NULL COMMENT 'FK to users.id',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_sdoh_concern` (`sdoh_history_id`, `health_concern_id`),
+    KEY `idx_sdoh_history` (`sdoh_history_id`),
+    KEY `idx_health_concern` (`health_concern_id`)
+) ENGINE=InnoDB COMMENT='Links SDOH assessments to health concern conditions';
 
 --
 -- Table structure for table `keys`
@@ -14872,6 +14885,43 @@ CREATE TABLE `form_history_sdoh`
     KEY `encounter_idx` (`encounter`)
 ) ENGINE = InnoDB;
 
+--
+-- Table structure for linking clinical notes to documents
+--
+DROP TABLE IF EXISTS `clinical_notes_documents`;
+CREATE TABLE  `clinical_notes_documents` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
+  `document_id` bigint(20) NOT NULL COMMENT 'Foreign key to documents.id',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_note_document` (`clinical_note_id`, `document_id`),
+  KEY `idx_clinical_note_id` (`clinical_note_id`),
+  KEY `idx_document_id` (`document_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links clinical notes to patient documents';
+
+--
+-- Table structure for linking clinical notes to procedure results
+--
+DROP TABLE IF EXISTS `clinical_notes_procedure_results`;
+CREATE TABLE `clinical_notes_procedure_results` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
+  `procedure_result_id` bigint(20) NOT NULL COMMENT 'Foreign key to procedure_result.procedure_result_id',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_note_result` (`clinical_note_id`, `procedure_result_id`),
+  KEY `idx_clinical_note_id` (`clinical_note_id`),
+  KEY `idx_procedure_result_id` (`procedure_result_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links clinical notes to procedure results/lab values';
+
+-- Patient Preferences Database Schema
+-- Uses OpenEMR's list_options table for LOINC codes
+-- Table for storing patient treatment intervention preferences
 DROP TABLE IF EXISTS `patient_treatment_intervention_preferences`;
 CREATE TABLE `patient_treatment_intervention_preferences` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -14893,7 +14943,7 @@ CREATE TABLE `patient_treatment_intervention_preferences` (
     KEY `patient_id` (`patient_id`),
     KEY `observation_code` (`observation_code`),
     KEY `status` (`status`)
-) ENGINE=InnoDB;
+    ) ENGINE=InnoDB;
 
     -- Table for storing patient care experience preferences
 DROP TABLE IF EXISTS `patient_care_experience_preferences`;
@@ -14917,43 +14967,43 @@ CREATE TABLE `patient_care_experience_preferences` (
     KEY `patient_id` (`patient_id`),
     KEY `observation_code` (`observation_code`),
     KEY `status` (`status`)
-) ENGINE=InnoDB;
+    ) ENGINE=InnoDB;
 
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
-VALUES  ('lists','treatment_intervention_preferences','Treatment Intervention Preferences',1);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    -- ------------------------------------- Parent lists under `lists`--------------------------------------------------------------------
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
+    VALUES  ('lists','treatment_intervention_preferences','Treatment Intervention Preferences',1);
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
     ('treatment_intervention_preferences','81329-5','Thoughts on resuscitation (CPR)',10,'tip_resuscitation_answers','LOINC:81329-5',1),
     ('treatment_intervention_preferences','81330-3','Thoughts on intubation',20,'tip_intubation_answers','LOINC:81330-3',1),
     ('treatment_intervention_preferences','81331-1','Thoughts on tube feeding',30,'tip_tubefeeding_answers','LOINC:81331-1',1),
     ('treatment_intervention_preferences','81332-9','Thoughts on IV fluid and support',40,'tip_ivfluids_answers','LOINC:81332-9',1),
     ('treatment_intervention_preferences','81333-7','Thoughts on antibiotics',50,'tip_antibiotics_answers','LOINC:81333-7',1);
 
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
-VALUES ('lists','care_experience_preferences','Care Experience Preferences',1);
-INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
+    VALUES ('lists','care_experience_preferences','Care Experience Preferences',1);
+    INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
     ('care_experience_preferences','95541-9','Care experience preference',10,'cep_general_answers','LOINC:95541-9',1),
     ('care_experience_preferences','81364-2','Religious or cultural beliefs (reported)',20,'cep_religious_answers','LOINC:81364-2',1),
     ('care_experience_preferences','81365-9','Religious/cultural affiliation contact to notify (reported)',30,'cep_religious_contact_answers','LOINC:81365-9',1),
     ('care_experience_preferences','103980-9','Preferred pharmacy',40,'cep_pharmacy_answers','LOINC:103980-9',1),
     ('care_experience_preferences','81338-6','Patient goals, preferences & priorities for care experience',90,'cep_overall_narrative','LOINC:81338-6',1);
-
--- Value sets table for coded answers
-DROP TABLE IF EXISTS `preference_value_sets`;
+    -- Value sets table for coded answers
+DROP TABLE IF EXISTS ``;
 CREATE TABLE `preference_value_sets` (
-     `id` int(11) NOT NULL AUTO_INCREMENT,
-     `loinc_code` varchar(50) NOT NULL,
-     `answer_code` varchar(100) NOT NULL,
-     `answer_system` varchar(255) NOT NULL,
-     `answer_display` varchar(255) NOT NULL,
-     `answer_definition` text,
-     `sort_order` int(11) DEFAULT 0,
-     `active` tinyint(1) DEFAULT 1,
-     PRIMARY KEY (`id`),
-     KEY `loinc_code` (`loinc_code`)
-) ENGINE=InnoDB COMMENT='Answer lists for preference codes';
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `loinc_code` varchar(50) NOT NULL,
+    `answer_code` varchar(100) NOT NULL,
+    `answer_system` varchar(255) NOT NULL,
+    `answer_display` varchar(255) NOT NULL,
+    `answer_definition` text,
+    `sort_order` int(11) DEFAULT 0,
+    `active` tinyint(1) DEFAULT 1,
+    PRIMARY KEY (`id`),
+    KEY `loinc_code` (`loinc_code`)
+    ) ENGINE=InnoDB COMMENT='Answer lists for preference codes';
 
-INSERT INTO `preference_value_sets`
-(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+    INSERT INTO `preference_value_sets`
+    (`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('81329-5','LA33470-8','http://loinc.org','Yes CPR',1,1),
     ('81329-5','LA33471-6','http://loinc.org','No CPR (Do Not Attempt Resuscitation)',2,1),
     ('81329-5','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
