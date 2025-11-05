@@ -166,18 +166,8 @@
 
         {{ DateToYYYYMMDD_js()|raw }}
 
-        let telecomTableConfig = {
-            tableId: {{ table_id|js_escape|raw }},
-            listTelecomSystems: {{ list_telecom_systems|json_encode|raw }},
-            listTelecomUses: {{ list_telecom_uses|js_escape|raw }}
-        };
-
-        (function () {
-            initTelecoms(telecomTableConfig.tableId);
-        })();
-
-        function initTelecoms(tableId) {
-            // IE Compatibility
+        // IE Compatibility Polyfills - Run immediately
+        (function() {
             if (!Element.prototype.matches) {
                 Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
             }
@@ -192,32 +182,139 @@
                     return null;
                 };
             }
+        })();
+
+        let telecomTableConfig = {
+            tableId: {{ table_id|js_escape|raw }},
+            listTelecomSystems: {{ list_telecom_systems|json_encode|raw }},
+            listTelecomUses: {{ list_telecom_uses|js_escape|raw }}
+        };
+
+        (function () {
+            initTelecoms(telecomTableConfig.tableId);
+            
+            // Also set up a global event listener for dynamically added telecom forms
+            // This handles cases where telecom forms are nested in collapsed/hidden sections
+            if (!window.telecomGlobalListenerSet) {
+                window.telecomGlobalListenerSet = true;
+                
+                // Use event delegation on document for add telecom buttons
+                document.addEventListener('click', function(event) {
+                    // Check if the clicked element or any of its parents is an add telecom button
+                    let addBtn = null;
+                    let element = event.target;
+                    
+                    // Safety check - make sure element exists and is a DOM element
+                    if (!element || !element.nodeType) {
+                        console.error('Invalid event.target:', element);
+                        return;
+                    }
+                    
+                    // Walk up the DOM tree to find the button (max 5 levels)
+                    let maxLevels = 5;
+                    let currentLevel = 0;
+                    
+                    while (element && element !== document && currentLevel < maxLevels) {
+                        if (element.id && typeof element.id === 'string' && element.id.indexOf('btn_add_telecom_') === 0) {
+                            addBtn = element;
+                            break;
+                        }
+                        element = element.parentElement || element.parentNode;
+                        currentLevel++;
+                    }
+                    
+                    if (addBtn) {
+                        console.log('Global click handler triggered for:', addBtn.id);
+                        
+                        // Check if this specific table has been initialized
+                        let tableId = addBtn.id.replace('btn_add_telecom_', '');
+                        let tableElement = document.getElementById(tableId);
+                        
+                        if (tableElement && !tableElement.dataset.telecomInitialized) {
+                            console.log('Initializing telecom table on-demand:', tableId);
+                            initTelecoms(tableId);
+                        }
+                        
+                        // Create a new event object with currentTarget set to the button
+                        let buttonEvent = {
+                            currentTarget: addBtn,
+                            target: addBtn,
+                            preventDefault: function() {
+                                if (event.preventDefault) event.preventDefault();
+                            },
+                            stopPropagation: function() {
+                                if (event.stopPropagation) event.stopPropagation();
+                            }
+                        };
+                        
+                        addTelecom(buttonEvent);
+                        
+                        if (event.preventDefault) event.preventDefault();
+                        if (event.stopPropagation) event.stopPropagation();
+                        return false;
+                    }
+                });
+            }
+        })();
+
+        function initTelecoms(tableId) {
+            var tableElement = document.getElementById(tableId);
+            if (!tableElement) {
+                console.error('Telecom table element not found:', tableId);
+                return;
+            }
+            
+            // Mark as initialized
+            tableElement.dataset.telecomInitialized = 'true';
+            console.log('Initializing telecom table:', tableId);
 
             // Event listeners for form changes
-            document.getElementById(tableId).addEventListener('keyup', changeTelecomEdit);
-            document.getElementById(tableId).addEventListener('mouseup', changeTelecomEdit);
-            document.getElementById(tableId).addEventListener('touchend', changeTelecomEdit);
+            tableElement.addEventListener('keyup', changeTelecomEdit);
+            tableElement.addEventListener('mouseup', changeTelecomEdit);
+            tableElement.addEventListener('touchend', changeTelecomEdit);
 
-            document.getElementById(tableId).addEventListener('input', telecomUpdated);
-            document.getElementById(tableId).addEventListener('change', telecomUpdated);
+            tableElement.addEventListener('input', telecomUpdated);
+            tableElement.addEventListener('change', telecomUpdated);
 
             // Setup existing telecom buttons
-            document.querySelectorAll('#' + tableId + ' .telecoms_group .display_telecoms').forEach(function (row) {
+            tableElement.querySelectorAll('.telecoms_group .display_telecoms').forEach(function (row) {
                 setupTelecomsRowButtonEventListeners(row);
             });
 
-            document.querySelectorAll('.form_telecoms').forEach(function (row) {
+            tableElement.querySelectorAll('.form_telecoms').forEach(function (row) {
                 setupContainerDatePickers(row);
                 setupContainerListAddButtons(row);
             });
 
-            document.querySelector("#show_inactive_telecoms_" + tableId)?.addEventListener('onchange', function() {
-                toggleInactiveTelecoms(tableId);
-            });
-            document.querySelector("#btn_add_telecom_" + tableId).addEventListener('click', function(event) {
-                addTelecom(event);
-                return false;
-            });
+            // Setup show inactive checkbox
+            var showInactiveCheckbox = document.getElementById("show_inactive_telecoms_" + tableId);
+            if (showInactiveCheckbox) {
+                // Remove any existing listeners
+                var newCheckbox = showInactiveCheckbox.cloneNode(true);
+                showInactiveCheckbox.parentNode.replaceChild(newCheckbox, showInactiveCheckbox);
+                
+                newCheckbox.addEventListener('change', function() {
+                    toggleInactiveTelecoms(tableId);
+                });
+            }
+
+            // Setup add button - use event delegation instead of direct attachment
+            var addButton = document.getElementById("btn_add_telecom_" + tableId);
+            if (addButton) {
+                console.log('Found add button:', addButton.id);
+                // Remove any existing listeners
+                var newButton = addButton.cloneNode(true);
+                addButton.parentNode.replaceChild(newButton, addButton);
+                
+                newButton.addEventListener('click', function(event) {
+                    console.log('Add telecom button clicked:', tableId);
+                    addTelecom(event);
+                    event.preventDefault();
+                    return false;
+                });
+            } else {
+                console.warn('Add telecom button not found for table:', tableId);
+            }
         }
 
         function toggleInactiveTelecoms(tableId) {
@@ -234,17 +331,214 @@
         }
 
         function addTelecom(event) {
-            let noTelecomsElement = document.querySelector(".no_telecoms");
+            console.log('addTelecom called', event);
+            
+            // Get the button element - should be provided by global handler or direct listener
+            let target = event.currentTarget || event.target;
+            
+            if (!target) {
+                console.error('No target element in event:', event);
+                alert('Error: Could not determine which button was clicked.');
+                return;
+            }
+            
+            console.log('Event target:', target, 'ID:', target.id);
+            
+            // Find the table container - button is INSIDE .table_edit_telecoms
+            // So we need to check if target itself or any PARENT has this class
+            let container = null;
+            let element = target;
+            let maxLevels = 15; // Increased for deeply nested structures
+            let currentLevel = 0;
+            
+            console.log('Walking up DOM to find .table_edit_telecoms...');
+            
+            // Walk up to find .table_edit_telecoms
+            while (element && element !== document && currentLevel < maxLevels) {
+                console.log('  Level', currentLevel, ':', 
+                           element.tagName, 
+                           'class:', element.className,
+                           'id:', element.id || '(none)');
+                
+                if (element.classList && element.classList.contains('table_edit_telecoms')) {
+                    container = element;
+                    console.log('  âœ“ Found container at level', currentLevel);
+                    break;
+                }
+                element = element.parentElement || element.parentNode;
+                currentLevel++;
+            }
+            
+            if (!container) {
+                console.error('âŒ Could not find .table_edit_telecoms container from target:', target);
+                console.error('Walked up', currentLevel, 'levels');
+                console.error('Last element checked:', element);
+                
+                // Try alternative: find by table ID pattern
+                // The button ID is btn_add_telecom_TABLEID, so extract TABLEID
+                console.log('Trying fallback: lookup by table ID...');
+                if (target.id && target.id.indexOf('btn_add_telecom_') === 0) {
+                    let tableId = target.id.replace('btn_add_telecom_', '');
+                    console.log('  Extracted table ID:', tableId);
+                    
+                    let tableElement = document.getElementById(tableId);
+                    console.log('  Table element:', tableElement);
+                    
+                    if (tableElement) {
+                        container = tableElement.querySelector('.table_edit_telecoms');
+                        if (container) {
+                            console.log('  âœ“ Found container via table ID lookup (fallback)');
+                        } else {
+                            console.error('  âŒ Table element found but no .table_edit_telecoms inside it');
+                        }
+                    } else {
+                        console.error('  âŒ Could not find table element with ID:', tableId);
+                    }
+                }
+                
+                if (!container) {
+                    alert('Error: Could not find telecom container. Check console for details.');
+                    return;
+                }
+            }
+            
+            console.log('âœ“ Container found:', container);
+
+            // Find the table root (element with an ID) - walk up from container
+            let tableRoot = null;
+            element = container;
+            currentLevel = 0;
+            maxLevels = 10;
+            
+            while (element && element !== document && currentLevel < maxLevels) {
+                if (element.id) {
+                    tableRoot = element;
+                    break;
+                }
+                element = element.parentElement || element.parentNode;
+                currentLevel++;
+            }
+            
+            console.log('Table root:', tableRoot, 'ID:', tableRoot ? tableRoot.id : 'none');
+            
+            let row_telecom_template = null;
+            
+            if (tableRoot) {
+                console.log('Strategy 1: Looking for immediate next sibling...');
+                // Strategy 1: Look for template as immediate next sibling
+                let nextSibling = tableRoot.nextElementSibling;
+                while (nextSibling) {
+                    console.log('  Checking sibling:', nextSibling.tagName, nextSibling.className);
+                    if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_telecom')) {
+                        row_telecom_template = nextSibling;
+                        console.log('  âœ“ Found template as immediate sibling');
+                        break;
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+                
+                // Strategy 2: Look within the same parent container (for nested cases)
+                if (!row_telecom_template && tableRoot.parentElement) {
+                    console.log('Strategy 2: Looking within parent container...');
+                    let templatesInParent = tableRoot.parentElement.querySelectorAll('template.template_add_telecom');
+                    console.log('  Found', templatesInParent.length, 'templates in parent');
+                    
+                    // Find the closest template after our table
+                    templatesInParent.forEach(function(template) {
+                        if (!row_telecom_template) {
+                            // Check if this template comes after our tableRoot
+                            let current = tableRoot;
+                            while (current) {
+                                if (current === template) {
+                                    row_telecom_template = template;
+                                    console.log('  âœ“ Found template in parent');
+                                    break;
+                                }
+                                current = current.nextElementSibling;
+                            }
+                        }
+                    });
+                }
+                
+                // Strategy 3: Search within broader context (for deeply nested cases like relation forms)
+                if (!row_telecom_template) {
+                    console.log('Strategy 3: Looking in broader context...');
+                    // Look for any template_add_telecom in the broader container that contains our table
+                    let broadContainer = tableRoot.closest('.form_relations, .relations_group, body');
+                    console.log('  Broad container:', broadContainer ? broadContainer.className : 'none');
+                    
+                    if (broadContainer) {
+                        let allTemplates = broadContainer.querySelectorAll('template.template_add_telecom');
+                        console.log('  Found', allTemplates.length, 'templates in broad container');
+                        
+                        // Try a simpler approach: find the closest template that's within our relation
+                        allTemplates.forEach(function(template, idx) {
+                            console.log('    Template', idx, ':', template);
+                            if (!row_telecom_template) {
+                                // Check if tableRoot and template share a common ancestor within reasonable distance
+                                let tableParent = tableRoot.parentElement;
+                                let templateParent = template.parentElement;
+                                
+                                // Walk up from template to see if we find tableRoot or its parent
+                                let current = template;
+                                let depth = 0;
+                                while (current && depth < 10) {
+                                    if (current.contains(tableRoot)) {
+                                        row_telecom_template = template;
+                                        console.log('    âœ“ Found template containing our table at depth', depth);
+                                        break;
+                                    }
+                                    current = current.parentElement;
+                                    depth++;
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                // Strategy 4: Just use ANY template in the relation if we're in one
+                if (!row_telecom_template) {
+                    console.log('Strategy 4: Fallback - looking for any nearby template...');
+                    let relationGroup = tableRoot.closest('.relations_group');
+                    if (relationGroup) {
+                        let templateInRelation = relationGroup.querySelector('template.template_add_telecom');
+                        if (templateInRelation) {
+                            row_telecom_template = templateInRelation;
+                            console.log('  âœ“ Found template in relation group (fallback)');
+                        }
+                    }
+                }
+            }
+            
+            if (!row_telecom_template) {
+                console.error('âŒ Could not find template for this telecom table');
+                console.error('  TableRoot:', tableRoot);
+                console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
+                console.error('  Container:', container);
+                console.error('  Parent:', tableRoot ? tableRoot.parentElement : 'no parent');
+                
+                // List all templates on the page for debugging
+                let allTemplates = document.querySelectorAll('template.template_add_telecom');
+                console.error('  All templates on page:', allTemplates.length);
+                allTemplates.forEach((t, i) => {
+                    console.error('    Template', i, ':', t, 'Parent:', t.parentElement);
+                });
+                
+                alert('Error: Could not find telecom template. Check console for details.');
+                return;
+            }
+            
+            console.log('âœ“ Using template:', row_telecom_template);
+
+            // Find no_telecoms element within this specific container
+            let noTelecomsElement = container.querySelector(".no_telecoms");  // ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Scoped to container
 
             if (noTelecomsElement && !noTelecomsElement.classList.contains('d-none')) {
                 hideElement(noTelecomsElement);
             }
 
-            let target = event.currentTarget;
-            let container = target.closest(".table_edit_telecoms");
-
             // Find the highest existing index
-            var allGroups = document.querySelectorAll('.telecoms_group[data-index]');
+            var allGroups = container.querySelectorAll('.telecoms_group[data-index]');
             var maxIndex = -1;
             allGroups.forEach(function(group) {
                 var idx = parseInt(group.getAttribute('data-index'));
@@ -254,16 +548,47 @@
             });
             var newIndex = maxIndex + 1;
 
-            const row_telecom_template = document.querySelector(".template_add_telecom");
-
             // Clone and replace __INDEX__ with actual index
             var tempDiv = document.createElement('div');
             tempDiv.innerHTML = row_telecom_template.innerHTML;
             var html = tempDiv.innerHTML;
+            
+            // First, check if we're inside a relation form (nested scenario)
+            // In this case, we need to find the relation's index and use it for the field names
+            var relationGroup = container.closest('.relations_group');
+            var relationIndex = null;
+            
+            if (relationGroup) {
+                relationIndex = relationGroup.getAttribute('data-index');
+                console.log('Found parent relation with index:', relationIndex);
+            }
+            
+            // Replace __INDEX__ with actual index
             html = html.replace(/__INDEX__/g, newIndex);
+            
+            // If we're in a nested relation form, we need to fix the field naming
+            // The template might have form_related_persons[telecoms][__INDEX__] 
+            // but it should be form_related_persons[RELATION_INDEX][telecoms][TELECOM_INDEX]
+            if (relationIndex !== null) {
+                console.log('Fixing nested field names for relation index:', relationIndex);
+                
+                // Fix the pattern: [telecoms][NUMBER] should become [RELATION_INDEX][telecoms][NUMBER]
+                // This handles cases where the relation template was already processed
+                var namePattern = /name="([^"]*)\[telecoms\]\[(\d+)\]/g;
+                html = html.replace(namePattern, function(match, prefix, telecomIdx) {
+                    // Check if it already has the relation index
+                    if (prefix.match(/\[\d+\]$/)) {
+                        // Already has index, just return as-is
+                        return match;
+                    }
+                    // Add the relation index
+                    return 'name="' + prefix + '[' + relationIndex + '][telecoms][' + telecomIdx + ']';
+                });
+            }
+            
             tempDiv.innerHTML = html;
             var row_telecom_clone = tempDiv.firstElementChild;
-            
+
             let row_form_telecoms = row_telecom_clone.querySelector(".form_telecoms");
             let row_display_telecoms = row_telecom_clone.querySelector(".display_telecoms");
 

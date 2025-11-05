@@ -798,16 +798,16 @@ class ContactRelationService extends BaseService
                 if (!empty($relationData[$i]['telecoms'])) {
                     $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
                     $telecomService = new ContactTelecomService();
-                    $telecoms = $relationData['telecoms'] ?? [];
+                    $telecoms = $relationData[$i]['telecoms'] ?? [];
                     $telecomService->saveTelecomsForContact($contact->get_id(), $telecoms);
                 }
-//
-//                if (!empty($relationData['addresses'])) {
-//                    $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
-//                    $addressService = new ContactAddressService();
-//                    $addresses = $relationData['addresses'] ?? [];
-//                    $addressService->saveAddressesForContact($contact->get_id(), $addresses);
-//                }
+
+                if (!empty($relationData[$i]['addresses'])) {
+                    $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
+                    $addressService = new ContactAddressService();
+                    $addresses = $relationData[$i]['addresses'] ?? [];
+                    $addressService->saveAddressesForContact($contact->get_id(), $addresses);
+                }
             }
 
             QueryUtils::commitTransaction();

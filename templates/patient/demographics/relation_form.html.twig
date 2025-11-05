@@ -61,26 +61,27 @@
         {# Render existing relations #}
         {% for relatedPerson in relatedPersons %}
         {% set is_inactive = not relatedPerson.active %}
-        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}">
+        {% set relatedPerson_index = loop.index0 %}
+        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}" data-index="{{ relatedPerson_index }}">
 
             {# Hidden fields - always submitted #}
             <input type="hidden" class="form_relations_data_action"
-                    name="{{ name_field_id|attr }}[data_action][]" value="NO CHANGE" />
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][data_action]" value="NO CHANGE" />
 
             <input type="hidden" class="form_relations_owner_contact_relation_id"
-                    name="{{ name_field_id|attr }}[owner_contact_relation_id][]" value="{{ relatedPerson.owner_contact_relation_id|attr }}" />
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][owner_contact_relation_id]" value="{{ relatedPerson.owner_contact_relation_id|attr }}" />
 
             <input type="hidden" class="form_relations_owner_contact_id"
-                    name="{{ name_field_id|attr }}[owner_contact_id][]" value="{{ relatedPerson.owner_contact_id|attr }}" />
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][owner_contact_id]" value="{{ relatedPerson.owner_contact_id|attr }}" />
 
             <input type="hidden" class="form_relations_target_table"
-                    name="{{ name_field_id|attr }}[target_table][]" value="{{ relatedPerson.target_table|attr }}" />
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][target_table]" value="{{ relatedPerson.target_table|attr }}" />
 
             <input type="hidden" class="form_relations_target_id"
-                    name="{{ name_field_id|attr }}[target_id][]" value="{{ relatedPerson.target_id|attr }}" />
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][target_id]" value="{{ relatedPerson.target_id|attr }}" />
 
             <input type="hidden" class="form_relations_active"
-                    name="{{ name_field_id|attr }}[active][]" value="{{ relatedPerson.active ? '1' : '0' }}" />
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][active]" value="{{ relatedPerson.active ? '1' : '0' }}" />
 
             <div class="relation-card">
                 <div class="relation-card-header" onclick="toggleRelationEdit(this)">
@@ -135,6 +136,9 @@
                 <div class='d-none form_relations relation-card-body'>
                     {% include 'patient/demographics/relation_form_fields.html.twig' with {
                         'relatedPerson': relatedPerson,
+                        'field_id_esc': field_id_esc,
+                        'name_field_id': 'form_' ~ field_id_esc,
+                        'relatedPerson_index': relatedPerson_index,
                         'is_new': false
                     } %}
                 </div>
@@ -146,27 +150,27 @@
 
 {# Template for adding new relations #}
 <template class="template_add_relation">
-    <div class="relations_group col-12 pl-0" data-active="1">
+    <div class="relations_group col-12 pl-0" data-active="1" data-index="__INDEX__">
 
         {# Hidden fields #}
 
         <input type="hidden" class="form_relations_data_action"
-                name="{{ name_field_id|attr }}[data_action][]" value="ADD" />
+                name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
 
         <input type="hidden" class="form_relations_owner_contact_relation_id"
-                name="{{ name_field_id|attr }}[owner_contact_relation_id][]" value="" />
+                name="{{ name_field_id|attr }}[__INDEX__][owner_contact_relation_id]" value="" />
 
         <input type="hidden" class="form_relations_owner_contact_id"
-                name="{{ name_field_id|attr }}[owner_contact_id][]" value="" />
+                name="{{ name_field_id|attr }}[__INDEX__][owner_contact_id]" value="" />
 
         <input type="hidden" class="form_relations_target_table"
-                name="{{ name_field_id|attr }}[target_table][]" value="" />
+                name="{{ name_field_id|attr }}[__INDEX__][target_table]" value="" />
 
         <input type="hidden" class="form_relations_target_id"
-                name="{{ name_field_id|attr }}[target_id][]" value="" />
+                name="{{ name_field_id|attr }}[__INDEX__][target_id]" value="" />
 
         <input type="hidden" class="form_relations_active"
-                name="{{ name_field_id|attr }}[active][]" value="1" />
+                name="{{ name_field_id|attr }}[__INDEX__][active]" value="1" />
 
         <div class="relation-card">
             <div class="relation-card-header" onclick="toggleRelationEdit(this)">
@@ -188,6 +192,7 @@
             <div class='form_relations relation-card-body'>
                 {% include 'patient/demographics/relation_form_fields.html.twig' with {
                     'relatedPerson': {
+                        'target_contact_id': '',
                         'relationship': '',
                         'role': '',
                         'contact_priority': 1,
@@ -196,8 +201,13 @@
                         'can_make_medical_decisions': false,
                         'can_receive_medical_info': false,
                         'start_date': 'now'|date('Y-m-d'),
-                        'widget_constants': widget_constants
+                        'telecoms': [],
+                        'addresses': []
                     },
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'relatedPerson_index': '__INDEX__',
+                    'widget_constants': widget_constants,
                     'is_new': true
                 } %}
             </div>

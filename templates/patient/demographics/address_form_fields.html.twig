@@ -3,6 +3,9 @@
   Reusable form fields for address editing
 #}
 
+{% set edit_options = edit_options|default('edit') %}
+{% set smallform = smallform|default('form-control form-control-sm') %}
+
 <div class="col-12">
     {# Header Row 1 #}
     <div class="form-row">
@@ -81,14 +84,14 @@
                 'data_type': widget_constants.textbox,
                 'field_id': field_id_esc ~ '[' ~ address_index ~ '][line_1]',
                 'smallform': smallform ~ ' form_addresses_line1'
-            }, address.line1|default('')) }}
+            }, address.line1|default(address.line_1)|default('')) }}
         </div>
         <div class="col-3">
             {{ generateFormField({
                 'data_type': widget_constants.textbox,
                 'field_id': field_id_esc ~ '[' ~ address_index ~ '][line_2]',
                 'smallform': smallform ~ ' form_addresses_line2'
-            }, address.line2|default('')) }}
+            }, address.line2|default(address.line_2)|default('')) }}
         </div>
         <div class="col-3">
             {{ generateFormField({
@@ -139,7 +142,7 @@
                 'data_type': widget_constants.textbox,
                 'field_id': field_id_esc ~ '[' ~ address_index ~ '][zip]',
                 'smallform': smallform ~ ' form_addresses_postalcode'
-            }, address.zip|default('')) }}
+            }, address.zip|default(address.postalcode)|default(address.postal_code)|default('')) }}
         </div>
         <div class="col-3">
             {{ generateFormField({

@@ -227,7 +227,7 @@ class PersonPatientLinkService extends BaseService
         $sql = "SELECT p.*, c.id as contact_id, ppl.linked_date, ppl.link_method
                 FROM person p
                 JOIN person_patient_link ppl ON ppl.person_id = p.id
-                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 WHERE ppl.patient_id = ? AND ppl.active = 1
                 LIMIT 1";
 
@@ -261,7 +261,7 @@ class PersonPatientLinkService extends BaseService
                            SEPARATOR '; '
                        ) as relationships_summary
                 FROM person p
-                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 LEFT JOIN patient_data pd_related ON 
                     cr.target_table = 'patient_data' AND 
@@ -305,7 +305,7 @@ class PersonPatientLinkService extends BaseService
                     pd_related.pid as related_patient_pid
                 FROM person_patient_link ppl
                 JOIN person p ON p.id = ppl.person_id
-                JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 LEFT JOIN contact c_related ON c_related.id = (
                     SELECT c2.id FROM contact c2 
@@ -356,7 +356,7 @@ class PersonPatientLinkService extends BaseService
                     pd.fname = p.first_name AND 
                     pd.lname = p.last_name AND 
                     pd.DOB = p.birth_date
-                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 WHERE NOT EXISTS (
                     SELECT 1 FROM person_patient_link ppl 
@@ -451,7 +451,7 @@ class PersonPatientLinkService extends BaseService
                 JOIN person p ON p.id = ppl.person_id
                 JOIN patient_data pd ON pd.id = ppl.patient_id
                 LEFT JOIN users u ON u.id = ppl.linked_by
-                LEFT JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 WHERE ppl.active = 1
                 GROUP BY ppl.id

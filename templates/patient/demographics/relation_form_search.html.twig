@@ -551,15 +551,34 @@
             noRelationsElement.classList.add('d-none');
         }
 
-        const container = document.querySelector(".table_edit_relations");
-        const template = document.querySelector(".template_add_relation");
-        const clone = template.content.cloneNode(true);
+        const relation_container = document.querySelector(".table_edit_relations");
+        const relation_template = document.querySelector(".template_add_relation");
+        //const relation_clone = template.content.cloneNode(true);
+
+        // Find the highest existing index
+        var allGroups = document.querySelectorAll('.relations_group[data-index]');
+        var maxIndex = -1;
+        allGroups.forEach(function(group) {
+            var idx = parseInt(group.getAttribute('data-index'));
+            if (!isNaN(idx) && idx > maxIndex) {
+                maxIndex = idx;
+            }
+        });
+        var newIndex = maxIndex + 1;
+
+        // Clone and replace __INDEX__ with actual index
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = relation_template.innerHTML;
+        var html = tempDiv.innerHTML;
+        html = html.replace(/__INDEX__/g, newIndex);
+        tempDiv.innerHTML = html;
+        var relation_clone = tempDiv.firstElementChild;
 
         // Set person data in hidden fields
-        const ownerContactIdInput = clone.querySelector('.form_relations_owner_contact_id');
-        const targetTableInput = clone.querySelector('.form_relations_target_table');
-        const targetIdInput = clone.querySelector('.form_relations_target_id');
-        const nameDisplay = clone.querySelector('.display_relations_name');
+        const ownerContactIdInput = relation_clone.querySelector('.form_relations_owner_contact_id');
+        const targetTableInput = relation_clone.querySelector('.form_relations_target_table');
+        const targetIdInput = relation_clone.querySelector('.form_relations_target_id');
+        const nameDisplay = relation_clone.querySelector('.display_relations_name');
 
         if (ownerContactIdInput) ownerContactIdInput.value = {{ owner_contact_id }} || '';
         if (targetIdInput) targetIdInput.value = person.id;
@@ -579,10 +598,10 @@
             }
         }
 
-        container.appendChild(clone);
+        relation_container.appendChild(relation_clone);
 
         // Expand the new relation for editing
-        const newRelation = container.querySelector('.relations_group:last-child');
+        const newRelation = relation_container.querySelector('.relations_group:last-child');
         if (newRelation) {
             const formDiv = newRelation.querySelector('.form_relations');
             if (formDiv) {

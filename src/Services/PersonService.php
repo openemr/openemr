@@ -331,7 +331,7 @@ class PersonService extends BaseService
                     cr.id as contact_relation_id,
                     c.id as contact_id
                     FROM person p
-                    JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                    JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                     JOIN contact_relation cr ON cr.contact_id = c.id
                     WHERE cr.target_table = 'patient_data'
                     AND cr.target_id = ?
@@ -396,7 +396,7 @@ class PersonService extends BaseService
                     cr.id as contact_relation_id,
                     c.id as contact_id
                     FROM person p
-                    JOIN contact c ON c.foreign_table = 'person' AND c.foreign_id = p.id
+                    JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                     JOIN contact_relation cr ON cr.contact_id = c.id
                     WHERE cr.target_table = ?
                     AND cr.target_id = ?
@@ -443,11 +443,11 @@ class PersonService extends BaseService
             $sql = "SELECT cr.*,
                     cr.id as contact_relation_id,
                     c.id as contact_id,
-                    c.foreign_table as owner_table,
+                    c.foreign_table_name as owner_table,
                     c.foreign_id as owner_id
                     FROM contact c
                     JOIN contact_relation cr ON cr.contact_id = c.id
-                    WHERE c.foreign_table = 'person'
+                    WHERE c.foreign_table_name = 'person'
                     AND c.foreign_id = ?
                     AND cr.active = 1
                     ORDER BY cr.contact_priority ASC";

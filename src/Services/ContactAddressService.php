@@ -73,17 +73,17 @@ class ContactAddressService extends BaseService
                 if ($action != 'ADD' && empty($contactAddressId)) {
                     $this->getLogger()->warning("Skipping non-ADD action without ID", [
                         'action' => $action,
-                        'index' => $i
+                        'index' => $index
                     ]);
                     continue;
                 }
 
                 // Log what we're processing
                 $this->getLogger()->debug("Processing address", [
-                    'index' => $i,
+                    'index' => $index,
                     'action' => $action,
                     'id' => $contactAddressId,
-                    'line1' => $address['line_1'][$i] ?? 'N/A'
+                    'line1' => $address['line_1'] ?? 'N/A'
                 ]);
 
                 // Handle INACTIVATE/DELETE
@@ -120,7 +120,7 @@ class ContactAddressService extends BaseService
                 if ($action == 'UPDATE' && empty($contactAddress->get_id())) {
                     $this->getLogger()->error("UPDATE action but address not found, treating as ADD", [
                         'contac_address_id' => $contactAddressId,
-                        'index' => $i
+                        'index' => $index
                     ]);
                     // Create a new one instead
                     $contactAddress = new ContactAddress();
@@ -201,7 +201,7 @@ class ContactAddressService extends BaseService
                 } else {
                     $this->getLogger()->error("Failed to persist address", [
                         'contact_id' => $contactId,
-                        'index' => $i,
+                        'index' => $index,
                         'action' => $action
                     ]);
                 }

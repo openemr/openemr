@@ -61,7 +61,7 @@
                 <label class="label_custom">{{ 'Relationship: '|xlt }} <span class="text-danger">*</span></label>
                 {{ generateFormField({
                     'data_type': widget_constants.listWithAddButton,
-                    'field_id': field_id_esc ~ '[relationship][]',
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][relationship]',
                     'smallform': smallform ~ ' form_relations_relationship',
                     'list_id': 'related_person_relationship',
                     'description': 'Select Relationship',
@@ -75,7 +75,7 @@
                 <label class="label_custom">{{ 'Role: '|xlt }}</label>
                 {{ generateFormField({
                     'data_type': widget_constants.listWithAddButton,
-                    'field_id': field_id_esc ~ '[role][]',
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][role]',
                     'smallform': smallform ~ ' form_relations_role',
                     'list_id': 'related_person_role',
                     'description': 'Select Role',
@@ -95,7 +95,7 @@
                 </label>
                 {{ generateFormField({
                     'data_type': widget_constants.textbox,
-                    'field_id': field_id_esc ~ '[contact_priority][]',
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][contact_priority]',
                     'smallform': smallform ~ ' form_relations_priority',
                     'fld_length': 2,
                     'max_length': 2,
@@ -108,7 +108,7 @@
                 <label class="label_custom mr-1">{{ 'Relationship Start Date:'|xlt }}</label>
                 {{ generateFormField({
                     'data_type': widget_constants.textDate,
-                    'field_id': field_id_esc ~ '[start_date][]',
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][start_date]',
                     'smallform': smallform ~ ' form_relations_start_date datepicker',
                     'description': 'When this relationship began'
                 }, relatedPerson.start_date|default('now'|date('Y-m-d'))) }}
@@ -119,7 +119,7 @@
                 <label class="label_custom mr-1">{{ 'Relationship End Date:'|xlt }}</label>
                 {{ generateFormField({
                     'data_type': widget_constants.textDate,
-                    'field_id': field_id_esc ~ '[end_date][]',
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][end_date]',
                     'smallform': smallform ~ ' form_relations_end_date datepicker',
                     'description': 'Leave blank if relationship is ongoing'
                 }, relatedPerson.end_date|default('')) }}
@@ -137,7 +137,7 @@
         <div class="col-md-2">
             <div class="form-check mb-1">
                 <input type="checkbox" class="form-check-input form_relations_is_primary_contact"
-                       name="{{ name_field_id|attr }}[is_primary_contact][]"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][is_primary_contact]"
                        value="1"
                        {{ relatedPerson.is_primary_contact ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_primary_{{ loop.index0|default('new') }}"
@@ -150,7 +150,7 @@
         <div class="col-md-2">
             <div class="form-check mb-2">
                 <input type="checkbox" class="form-check-input form_relations_is_emergency_contact"
-                       name="{{ name_field_id|attr }}[is_emergency_contact][]"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][is_emergency_contact]"
                        value="1"
                        {{ relatedPerson.is_emergency_contact ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_emergency_{{ loop.index0|default('new') }}"
@@ -163,7 +163,7 @@
         <div class="col-md-2">
             <div class="form-check mb-2">
                 <input type="checkbox" class="form-check-input form_relations_can_make_medical_decisions"
-                       name="{{ name_field_id|attr }}[can_make_medical_decisions][]"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][can_make_medical_decisions]"
                        value="1"
                        {{ relatedPerson.can_make_medical_decisions ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_medical_{{ loop.index0|default('new') }}"
@@ -176,7 +176,7 @@
         <div class="col-md-2">
             <div class="form-check mb-2">
                 <input type="checkbox" class="form-check-input form_relations_can_receive_medical_info"
-                       name="{{ name_field_id|attr }}[can_receive_medical_info][]"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][can_receive_medical_info]"
                        value="1"
                        {{ relatedPerson.can_receive_medical_info ? 'checked' : '' }}
                        id="{{ field_id_esc|attr }}_info_{{ loop.index0|default('new') }}"
@@ -190,15 +190,19 @@
     {# Telecoms Section #}
     <div class="form-row">
         <div class="col-12">
-            {% set telecom_table_id = 'telecoms_' ~ relatedPerson.target_contact_id %}
+            {% set telecom_table_id = 'telecoms_' ~ (relatedPerson.target_contact_id ? relatedPerson.target_contact_id : 'new_' ~ relatedPerson_index) %}
+            {% set telecoms_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][telecoms]' %}
             {% include 'patient/demographics/telecom_form.html.twig' with {
                 'table_id': telecom_table_id,
-                'telecoms': relatedPerson.telecoms,
-                'field_id_esc': field_id_esc ~ '[telecoms]',
-                'name_field_id': 'form_' ~ field_id_esc ~ '[telecoms]',
+                'telecoms': relatedPerson.telecoms|default([]),
+                'field_id_esc': telecoms_field_id_esc,
+                'name_field_id': 'form_' ~ telecoms_field_id_esc,
+                'contact_id': relatedPerson.target_contact_id|default(''),
                 'list_telecom_systems': list_telecom_systems,
                 'list_telecom_uses': list_telecom_uses,
                 'widget_constants': widget_constants,
+                'edit_options': edit_options,
+                'smallform': smallform|default('form-control form-control-sm')
             } only %}
         </div>
     </div>
@@ -206,16 +210,20 @@
     {# Addresses Section #}
     <div class="form-row">
         <div class="col-12">
-            {% set address_table_id = 'addresses_' ~ relatedPerson.target_contact_id %}
+            {% set address_table_id = 'addresses_' ~ (relatedPerson.target_contact_id ? relatedPerson.target_contact_id : 'new_' ~ relatedPerson_index) %}
+            {% set addresses_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][addresses]' %}
             {% include 'patient/demographics/address_form.html.twig' with {
                 'table_id': address_table_id,
-                'addresses': relatedPerson.addresses,
+                'addresses': relatedPerson.addresses|default([]),
                 'field_id_esc': addresses_field_id_esc,
                 'name_field_id': 'form_' ~ addresses_field_id_esc,
+                'contact_id': relatedPerson.target_contact_id|default(''),
                 'list_address_types': list_address_types,
                 'list_address_uses': list_address_uses,
                 'foreign_table': 'person',
                 'widget_constants': widget_constants,
+                'edit_options': edit_options,
+                'smallform': smallform|default('form-control form-control-sm')
             } only %}
         </div>
     </div>
@@ -227,7 +235,7 @@
             <div class="form-group mb-2 mt-3">
                 <label class="label_custom">{{ 'Notes: '|xlt }}</label>
                 <textarea class="form-control form_relations_notes"
-                          name="{{ name_field_id|attr }}[notes][]"
+                          name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][notes]"
                           rows="1"
                           cols="50"
                           placeholder=""
@@ -240,23 +248,6 @@
         </div>
     </div>
 
-    {# Information Section for New Relations #}
-    {% if is_new %}
-    <div class="alert alert-info mb-2" role="alert">
-        <div class="d-flex align-items-start">
-            <i class="fas fa-info-circle mt-1 mr-2"></i>
-            <div>
-                <strong>{{ 'Getting Started'|xlt }}</strong>
-                <ul class="mb-0 mt-1 pl-3">
-                    <li>{{ 'Select the relationship type (required)'|xlt }}</li>
-                    <li>{{ 'Choose any applicable permissions using the checkboxes'|xlt }}</li>
-                    <li>{{ 'Set contact priority if multiple relations exist (1 = highest)'|xlt }}</li>
-                    <li>{{ 'Add notes for any special instructions or details'|xlt }}</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 
     {# Warning for HIPAA-sensitive permissions #}
     {% if relatedPerson.can_receive_medical_info or relatedPerson.can_make_medical_decisions %}
@@ -275,8 +266,8 @@
 
     {# Hidden fields for maintaining state #}
     {% if not is_new %}
-    <input type="hidden" name="{{ name_field_id|attr }}[original_relationship][]" value="{{ relatedPerson.relationship|attr }}" />
-    <input type="hidden" name="{{ name_field_id|attr }}[original_role][]" value="{{ relatedPerson.role|attr }}" />
+    <input type="hidden" name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][original_relationship]" value="{{ relatedPerson.relationship|attr }}" />
+    <input type="hidden" name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][original_role]" value="{{ relatedPerson.role|attr }}" />
     {% endif %}
 </div>
 

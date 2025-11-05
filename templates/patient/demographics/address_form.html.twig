@@ -55,11 +55,11 @@
             <input type="hidden" class="form_addresses_data_action" 
                 name="{{ name_field_id|attr }}[{{ address_index }}][data_action]" value="NO CHANGE" />
             <input type="hidden" class="form_addresses_contact_address_id" 
-                name="{{ name_field_id|attr }}[{{ address_index }}][contact_address_id]" value="{{ address.contact_address_id|attr }}" />
+                name="{{ name_field_id|attr }}[{{ address_index }}][contact_address_id]" value="{{ address.contact_address_id|default(address.id)|attr }}" />
             <input type="hidden" class="form_addresses_contact_id" 
                 name="{{ name_field_id|attr }}[{{ address_index }}][contact_id]" value="{{ address.contact_id|attr }}" />
             <input type="hidden" class="form_addresses_addresses_id" 
-                name="{{ name_field_id|attr }}[{{ address_index }}][addresses_id]" value="{{ address.addresses_id|attr }}" />
+                name="{{ name_field_id|attr }}[{{ address_index }}][addresses_id]" value="{{ address.addresses_id|default(address.address_id)|attr }}" />
             <input type="hidden" class="form_addresses_status" 
                 name="{{ name_field_id|attr }}[{{ address_index }}][status]" value="{{ address.status|attr }}" />
 
@@ -137,12 +137,12 @@
         {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
         <input type="hidden" class="form_addresses_data_action" 
             name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
-        <input type="hidden" class="form_addresses_id" 
-            name="{{ name_field_id|attr }}[__INDEX__][id]" value="" />
+        <input type="hidden" class="form_addresses_contact_address_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][contact_address_id]" value="" />
         <input type="hidden" class="form_addresses_contact_id" 
-            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|attr }}" />
-        <input type="hidden" class="form_addresses_address_id" 
-            name="{{ name_field_id|attr }}[__INDEX__][address_id]" value="" />
+            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|default('')|attr }}" />
+        <input type="hidden" class="form_addresses_addresses_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][addresses_id]" value="" />
         <input type="hidden" class="form_addresses_status" 
             name="{{ name_field_id|attr }}[__INDEX__][status]" value="A" />
 
@@ -204,9 +204,75 @@
 
         (function() {
             init(tableConfig.tableId);
+            
+            // Set up global event listener for dynamically added address forms
+            if (!window.addressGlobalListenerSet) {
+                window.addressGlobalListenerSet = true;
+                
+                document.addEventListener('click', function(event) {
+                    let addBtn = null;
+                    let element = event.target;
+                    
+                    if (!element || !element.nodeType) {
+                        console.error('Invalid event.target:', element);
+                        return;
+                    }
+                    
+                    let maxLevels = 5;
+                    let currentLevel = 0;
+                    
+                    while (element && element !== document && currentLevel < maxLevels) {
+                        if (element.id && typeof element.id === 'string' && element.id.indexOf('btn_add_addresses_') === 0) {
+                            addBtn = element;
+                            break;
+                        }
+                        element = element.parentElement || element.parentNode;
+                        currentLevel++;
+                    }
+                    
+                    if (addBtn) {
+                        console.log('Global click handler triggered for:', addBtn.id);
+                        
+                        let tableId = addBtn.id.replace('btn_add_addresses_', '');
+                        let tableElement = document.getElementById(tableId);
+                        
+                        if (tableElement && !tableElement.dataset.addressInitialized) {
+                            console.log('Initializing address table on-demand:', tableId);
+                            init(tableId);
+                        }
+                        
+                        let buttonEvent = {
+                            currentTarget: addBtn,
+                            target: addBtn,
+                            preventDefault: function() {
+                                if (event.preventDefault) event.preventDefault();
+                            },
+                            stopPropagation: function() {
+                                if (event.stopPropagation) event.stopPropagation();
+                            }
+                        };
+                        
+                        addAddress(buttonEvent);
+                        
+                        if (event.preventDefault) event.preventDefault();
+                        if (event.stopPropagation) event.stopPropagation();
+                        return false;
+                    }
+                });
+            }
         })();
 
         function init(tableId) {
+            var tableElement = document.getElementById(tableId);
+            if (!tableElement) {
+                console.error('Address table element not found:', tableId);
+                return;
+            }
+            
+            // Mark as initialized
+            tableElement.dataset.addressInitialized = 'true';
+            console.log('Initializing address table:', tableId);
+
             // IE Compatibility
             if (!Element.prototype.matches) {
                 Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
@@ -224,29 +290,50 @@
             }
 
             // Event listeners for form changes
-            document.getElementById(tableId).addEventListener('keyup', changeEdit);
-            document.getElementById(tableId).addEventListener('mouseup', changeEdit);
-            document.getElementById(tableId).addEventListener('touchend', changeEdit);
+            tableElement.addEventListener('keyup', changeEdit);
+            tableElement.addEventListener('mouseup', changeEdit);
+            tableElement.addEventListener('touchend', changeEdit);
 
-            document.getElementById(tableId).addEventListener('input', addressUpdated);
-            document.getElementById(tableId).addEventListener('change', addressUpdated);
+            tableElement.addEventListener('input', addressUpdated);
+            tableElement.addEventListener('change', addressUpdated);
 
             // Setup existing address buttons and datepickers
-            document.querySelectorAll('#' + tableId + ' .addresses_group .display_addresses').forEach(function(row) {
+            tableElement.querySelectorAll('.addresses_group .display_addresses').forEach(function(row) {
                 setupAddressesRowButtonEventListeners(row);
             });
 
-            document.querySelectorAll('.form_addresses').forEach(function(row) {
+            tableElement.querySelectorAll('.form_addresses').forEach(function(row) {
                 setupContainerDatePickers(row);
                 setupContainerListAddButtons(row);
             });
 
-            document.querySelector('#show_inactive_addresses_' + tableId)?.addEventListener('change', function() {
-                toggleInactiveAddresses(tableId);
-            });
-            document.querySelector('#btn_add_addresses_' + tableId)?.addEventListener('click', function(event) {
-                addAddress(event);return false
-            });
+            // Setup show inactive checkbox
+            var showInactiveCheckbox = document.getElementById('show_inactive_addresses_' + tableId);
+            if (showInactiveCheckbox) {
+                var newCheckbox = showInactiveCheckbox.cloneNode(true);
+                showInactiveCheckbox.parentNode.replaceChild(newCheckbox, showInactiveCheckbox);
+                
+                newCheckbox.addEventListener('change', function() {
+                    toggleInactiveAddresses(tableId);
+                });
+            }
+
+            // Setup add button with event delegation
+            var addButton = document.getElementById('btn_add_addresses_' + tableId);
+            if (addButton) {
+                console.log('Found add button:', addButton.id);
+                var newButton = addButton.cloneNode(true);
+                addButton.parentNode.replaceChild(newButton, addButton);
+                
+                newButton.addEventListener('click', function(event) {
+                    console.log('Add address button clicked:', tableId);
+                    addAddress(event);
+                    event.preventDefault();
+                    return false;
+                });
+            } else {
+                console.warn('Add address button not found for table:', tableId);
+            }
         }
 
         function toggleInactiveAddresses(tableId) {
@@ -263,18 +350,195 @@
         }
 
         function addAddress(event) {
-            let noAddressesElement = document.querySelector(".no_addresses");
+            console.log('addAddress called', event);
+            
+            // Get the button element
+            let target = event.currentTarget || event.target;
+            
+            if (!target) {
+                console.error('No target element in event:', event);
+                alert('Error: Could not determine which button was clicked.');
+                return;
+            }
+            
+            console.log('Event target:', target, 'ID:', target.id);
+            
+            // Find the table container - button is INSIDE .table_edit_addresses
+            let container = null;
+            let element = target;
+            let maxLevels = 15;
+            let currentLevel = 0;
+            
+            console.log('Walking up DOM to find .table_edit_addresses...');
+            
+            while (element && element !== document && currentLevel < maxLevels) {
+                console.log('  Level', currentLevel, ':', 
+                           element.tagName, 
+                           'class:', element.className,
+                           'id:', element.id || '(none)');
+                
+                if (element.classList && element.classList.contains('table_edit_addresses')) {
+                    container = element;
+                    console.log('  ✓ Found container at level', currentLevel);
+                    break;
+                }
+                element = element.parentElement || element.parentNode;
+                currentLevel++;
+            }
+            
+            if (!container) {
+                console.error('✗ Could not find .table_edit_addresses container from target:', target);
+                console.error('Walked up', currentLevel, 'levels');
+                
+                // Try fallback: lookup by table ID
+                console.log('Trying fallback: lookup by table ID...');
+                if (target.id && target.id.indexOf('btn_add_addresses_') === 0) {
+                    let tableId = target.id.replace('btn_add_addresses_', '');
+                    console.log('  Extracted table ID:', tableId);
+                    
+                    let tableElement = document.getElementById(tableId);
+                    console.log('  Table element:', tableElement);
+                    
+                    if (tableElement) {
+                        container = tableElement.querySelector('.table_edit_addresses');
+                        if (container) {
+                            console.log('  ✓ Found container via table ID lookup (fallback)');
+                        } else {
+                            console.error('  ✗ Table element found but no .table_edit_addresses inside it');
+                        }
+                    } else {
+                        console.error('  ✗ Could not find table element with ID:', tableId);
+                    }
+                }
+                
+                if (!container) {
+                    alert('Error: Could not find address container. Check console for details.');
+                    return;
+                }
+            }
+            
+            console.log('✓ Container found:', container);
 
-            // Only hide if the element exists
+            // Find the table root
+            let tableRoot = null;
+            element = container;
+            currentLevel = 0;
+            maxLevels = 10;
+            
+            while (element && element !== document && currentLevel < maxLevels) {
+                if (element.id) {
+                    tableRoot = element;
+                    break;
+                }
+                element = element.parentElement || element.parentNode;
+                currentLevel++;
+            }
+            
+            console.log('Table root:', tableRoot, 'ID:', tableRoot ? tableRoot.id : 'none');
+            
+            let row_address_template = null;
+            
+            if (tableRoot) {
+                console.log('Strategy 1: Looking for immediate next sibling...');
+                let nextSibling = tableRoot.nextElementSibling;
+                while (nextSibling) {
+                    console.log('  Checking sibling:', nextSibling.tagName, nextSibling.className);
+                    if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_address')) {
+                        row_address_template = nextSibling;
+                        console.log('  ✓ Found template as immediate sibling');
+                        break;
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+                
+                if (!row_address_template && tableRoot.parentElement) {
+                    console.log('Strategy 2: Looking within parent container...');
+                    let templatesInParent = tableRoot.parentElement.querySelectorAll('template.template_add_address');
+                    console.log('  Found', templatesInParent.length, 'templates in parent');
+                    
+                    templatesInParent.forEach(function(template) {
+                        if (!row_address_template) {
+                            let current = tableRoot;
+                            while (current) {
+                                if (current === template) {
+                                    row_address_template = template;
+                                    console.log('  ✓ Found template in parent');
+                                    break;
+                                }
+                                current = current.nextElementSibling;
+                            }
+                        }
+                    });
+                }
+                
+                if (!row_address_template) {
+                    console.log('Strategy 3: Looking in broader context...');
+                    let broadContainer = tableRoot.closest('.form_relations, .relations_group, body');
+                    console.log('  Broad container:', broadContainer ? broadContainer.className : 'none');
+                    
+                    if (broadContainer) {
+                        let allTemplates = broadContainer.querySelectorAll('template.template_add_address');
+                        console.log('  Found', allTemplates.length, 'templates in broad container');
+                        
+                        allTemplates.forEach(function(template, idx) {
+                            console.log('    Template', idx, ':', template);
+                            if (!row_address_template) {
+                                let current = template;
+                                let depth = 0;
+                                while (current && depth < 10) {
+                                    if (current.contains(tableRoot)) {
+                                        row_address_template = template;
+                                        console.log('    ✓ Found template containing our table at depth', depth);
+                                        break;
+                                    }
+                                    current = current.parentElement;
+                                    depth++;
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                if (!row_address_template) {
+                    console.log('Strategy 4: Fallback - looking for any nearby template...');
+                    let relationGroup = tableRoot.closest('.relations_group');
+                    if (relationGroup) {
+                        let templateInRelation = relationGroup.querySelector('template.template_add_address');
+                        if (templateInRelation) {
+                            row_address_template = templateInRelation;
+                            console.log('  ✓ Found template in relation group (fallback)');
+                        }
+                    }
+                }
+            }
+            
+            if (!row_address_template) {
+                console.error('✗ Could not find template for this address table');
+                console.error('  TableRoot:', tableRoot);
+                console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
+                console.error('  Container:', container);
+                
+                let allTemplates = document.querySelectorAll('template.template_add_address');
+                console.error('  All templates on page:', allTemplates.length);
+                allTemplates.forEach((t, i) => {
+                    console.error('    Template', i, ':', t, 'Parent:', t.parentElement);
+                });
+                
+                alert('Error: Could not find address template. Check console for details.');
+                return;
+            }
+            
+            console.log('✓ Using template:', row_address_template);
+
+            // Find no_addresses element within this specific container
+            let noAddressesElement = container.querySelector(".no_addresses");
+
             if (noAddressesElement && !noAddressesElement.classList.contains('d-none')) {
                 hideElement(noAddressesElement);
             }
 
-            let target = event.currentTarget;
-            let container = target.closest(".table_edit_addresses");
-
             // Find the highest existing index
-            var allGroups = document.querySelectorAll('.addresses_group[data-index]');
+            var allGroups = container.querySelectorAll('.addresses_group[data-index]');
             var maxIndex = -1;
             allGroups.forEach(function(group) {
                 var idx = parseInt(group.getAttribute('data-index'));
@@ -284,30 +548,57 @@
             });
             var newIndex = maxIndex + 1;
 
-            const row_address_template = document.querySelector(".template_add_address");
-
             // Clone and replace __INDEX__ with actual index
             var tempDiv = document.createElement('div');
             tempDiv.innerHTML = row_address_template.innerHTML;
             var html = tempDiv.innerHTML;
+            
+            // Check if we're inside a relation form (nested scenario)
+            var relationGroup = container.closest('.relations_group');
+            var relationIndex = null;
+            
+            if (relationGroup) {
+                relationIndex = relationGroup.getAttribute('data-index');
+                console.log('Found parent relation with index:', relationIndex);
+            }
+            
+            // Replace __INDEX__ with actual index
             html = html.replace(/__INDEX__/g, newIndex);
+            
+            // If we're in a nested relation form, fix the field naming
+            if (relationIndex !== null) {
+                console.log('Fixing nested field names for relation index:', relationIndex);
+                
+                // Fix the pattern: [addresses][NUMBER] should become [RELATION_INDEX][addresses][NUMBER]
+                var namePattern = /name="([^"]*)\[addresses\]\[(\d+)\]/g;
+                html = html.replace(namePattern, function(match, prefix, addressIdx) {
+                    // Check if it already has the relation index
+                    if (prefix.match(/\[\d+\]$/)) {
+                        return match;
+                    }
+                    // Add the relation index
+                    return 'name="' + prefix + '[' + relationIndex + '][addresses][' + addressIdx + ']';
+                });
+            }
+            
             tempDiv.innerHTML = html;
             var row_address_clone = tempDiv.firstElementChild;
-            
+
             let row_form_addresses = row_address_clone.querySelector(".form_addresses");
             let row_display_addresses = row_address_clone.querySelector(".display_addresses");
+
             container.appendChild(row_address_clone);
 
             setupAddressesRowButtonEventListeners(row_display_addresses);
             setupContainerDatePickers(row_form_addresses);
             setupContainerListAddButtons(row_form_addresses);
 
-            // Expand the element and focus first input
             showElement(row_form_addresses);
             let firstInput = row_form_addresses.querySelector('input.form_addresses_line1');
             if (firstInput) {
                 firstInput.focus();
             }
+
             console.log('Added new address with index:', newIndex);
         }
 
