@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block card_header_actions %}
-    <button type="button" class="btn btn-primary btn-sm js-toggle-edit" data-target="#{{ type }}-edit">
+    <button type="button" class="btn btn-primary btn-sm js-toggle-edit" data-target="#{{ type|attr }}-edit">
         <i class="fa fa-plus"></i> {{ "Add / Edit"|xlt }}
     </button>
 {% endblock %}
@@ -44,7 +44,7 @@
     {% endif %}
 
     {# VIEW SECTION #}
-    <div class="js-view" id="{{ type }}-view">
+    <div class="js-view" id="{{ type|attr }}-view">
         {% if preferences is empty %}
             <div class="alert alert-info mb-0">
                 <i class="fa fa-info-circle"></i>
@@ -114,7 +114,7 @@
                                     <div class="btn-group btn-group-sm" role="group">
                                         <button type="button"
                                                 class="btn btn-outline-primary btn-sm js-edit-row"
-                                                data-pref='{{ pref|json_encode }}'
+                                                data-pref='{{ pref|json_encode }}' {# json_encode needs quotes #}
                                                 title="{{ 'Edit'|xla }}">
                                             <i class="fa fa-pencil"></i>
                                         </button>
@@ -140,20 +140,20 @@
 
     {# EDIT SECTION (hidden by default) #}
     {% if auth and can_write %}
-        <div class="js-edit" id="{{ type }}-edit" style="display:none;">
-            <form method="post" id="{{ type }}-form">
+        <div class="js-edit" id="{{ type|attr }}-edit" style="display:none;">
+            <form method="post" id="{{ type|attr }}-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}">
                 <input type="hidden" name="pref_type" value="{{ type|attr }}">
                 <input type="hidden" name="action" value="save">
-                <input type="hidden" name="id" id="{{ type }}-id">
+                <input type="hidden" name="id" id="{{ type|attr }}-id">
 
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="{{ type }}-observation_code">
+                        <label for="{{ type|attr }}-observation_code">
                             {{ type == 'care_experience' ? "Preference Category"|xlt : "Preference Type"|xlt }}
                             <span class="text-danger">*</span>
                         </label>
-                        <select class="form-control" name="observation_code" id="{{ type }}-observation_code" required>
+                        <select class="form-control" name="observation_code" id="{{ type|attr }}-observation_code" required>
                             <option value="">{{ "Select..."|xlt }}</option>
                             {% for code in loinc_codes %}
                                 <option value="{{ code.loinc_code|attr }}" data-text="{{ code.display_name|attr }}">
@@ -161,18 +161,18 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <input type="hidden" name="observation_code_text" id="{{ type }}-observation_code_text">
+                        <input type="hidden" name="observation_code_text" id="{{ type|attr }}-observation_code_text">
                         <small class="form-text text-muted">{{ "LOINC-coded list for FHIR compliance"|xlt }}</small>
                     </div>
 
                     <div class="form-group col-md-3">
-                        <label for="{{ type }}-effective_datetime">{{ "Date Recorded"|xlt }} <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control datepicker" name="effective_datetime" id="{{ type }}-effective_datetime" value="{{ current_datetime }}" required>
+                        <label for="{{ type|attr }}-effective_datetime">{{ "Date Recorded"|xlt }} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control datepicker" name="effective_datetime" id="{{ type|attr }}-effective_datetime" value="{{ current_datetime|attr }}" required>
                     </div>
 
                     <div class="form-group col-md-3">
-                        <label for="{{ type }}-status">{{ "Status"|xlt }}</label>
-                        <select class="form-control" name="status" id="{{ type }}-status">
+                        <label for="{{ type|attr }}-status">{{ "Status"|xlt }}</label>
+                        <select class="form-control" name="status" id="{{ type|attr }}-status">
                             <option value="final">{{ "Final"|xlt }}</option>
                             <option value="preliminary">{{ "Preliminary"|xlt }}</option>
                             <option value="amended">{{ "Amended"|xlt }}</option>
@@ -183,41 +183,41 @@
                 <div class="form-group">
                     <label>{{ "Response Type"|xlt }} <span class="text-danger">*</span></label>
                     <div class="form-check">
-                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type }}-vt-coded" value="coded" checked>
-                        <label class="form-check-label" for="{{ type }}-vt-coded">{{ "Coded Value (from answer list)"|xlt }}</label>
+                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-coded" value="coded" checked>
+                        <label class="form-check-label" for="{{ type|attr }}-vt-coded">{{ "Coded Value (from answer list)"|xlt }}</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type }}-vt-text" value="text">
-                        <label class="form-check-label" for="{{ type }}-vt-text">{{ "Free Text"|xlt }}</label>
+                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-text" value="text">
+                        <label class="form-check-label" for="{{ type|attr }}-vt-text">{{ "Free Text"|xlt }}</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type }}-vt-boolean" value="boolean">
-                        <label class="form-check-label" for="{{ type }}-vt-boolean">{{ "Yes/No"|xlt }}</label>
+                        <input class="form-check-input js-value-type-radio" type="radio" name="value_type" id="{{ type|attr }}-vt-boolean" value="boolean">
+                        <label class="form-check-label" for="{{ type|attr }}-vt-boolean">{{ "Yes/No"|xlt }}</label>
                     </div>
                 </div>
 
-                <div id="{{ type }}-codedValueSection">
+                <div id="{{ type|attr }}-codedValueSection">
                     <div class="form-group">
-                        <label for="{{ type }}-value_code">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
-                        <select class="form-control" name="value_code" id="{{ type }}-value_code">
+                        <label for="{{ type|attr }}-value_code">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
+                        <select class="form-control" name="value_code" id="{{ type|attr }}-value_code">
                             <option value="">{{ "Select preference first..."|xlt }}</option>
                         </select>
-                        <input type="hidden" name="value_code_system" id="{{ type }}-value_code_system">
-                        <input type="hidden" name="value_display" id="{{ type }}-value_display">
+                        <input type="hidden" name="value_code_system" id="{{ type|attr }}-value_code_system">
+                        <input type="hidden" name="value_display" id="{{ type|attr }}-value_display">
                     </div>
                 </div>
 
-                <div id="{{ type }}-textValueSection" style="display:none;">
+                <div id="{{ type|attr }}-textValueSection" style="display:none;">
                     <div class="form-group">
-                        <label for="{{ type }}-value_text">{{ "Patient's Preference (Free Text)"|xlt }} <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="value_text" id="{{ type }}-value_text" rows="3"></textarea>
+                        <label for="{{ type|attr }}-value_text">{{ "Patient's Preference (Free Text)"|xlt }} <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="value_text" id="{{ type|attr }}-value_text" rows="3"></textarea>
                     </div>
                 </div>
 
-                <div id="{{ type }}-booleanValueSection" style="display:none;">
+                <div id="{{ type|attr }}-booleanValueSection" style="display:none;">
                     <div class="form-group">
-                        <label for="{{ type }}-value_boolean">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
-                        <select class="form-control" name="value_boolean" id="{{ type }}-value_boolean">
+                        <label for="{{ type|attr }}-value_boolean">{{ "Patient's Preference"|xlt }} <span class="text-danger">*</span></label>
+                        <select class="form-control" name="value_boolean" id="{{ type|attr }}-value_boolean">
                             <option value="1">{{ "Yes"|xlt }}</option>
                             <option value="0">{{ "No"|xlt }}</option>
                         </select>
@@ -225,13 +225,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ type }}-note">{{ "Additional Notes"|xlt }}</label>
-                    <textarea class="form-control" name="note" id="{{ type }}-note" rows="3"></textarea>
+                    <label for="{{ type|attr }}-note">{{ "Additional Notes"|xlt }}</label>
+                    <textarea class="form-control" name="note" id="{{ type|attr }}-note" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ "Save Preference"|xlt }}</button>
-                    <button type="button" class="btn btn-secondary js-cancel-edit"><i class="fa fa-undo"></i> {{ "Cancel"|xlt }}</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> {{ "Save Preference"|xlt }}</button>
+                    <button type="button" class="btn btn-secondary btn-sm js-cancel-edit"><i class="fa fa-undo"></i> {{ "Cancel"|xlt }}</button>
                 </div>
             </form>
         </div>
@@ -239,7 +239,7 @@
 
     <script>
         (function ($) {
-            const type = "{{ type }}";
+            const type = "{{ type|attr }}";
 
             function setObsText($scope) {
                 const $sel = $scope.find("#" + type + "-observation_code option:selected");
@@ -318,10 +318,10 @@
                     let html = '<option value="">{{ "Select response…"|xlt }}</option>';
                     list.forEach(function (a) {
                         // a = { answer_code, answer_display, answer_system }
-                        html += '<option value="' + (a.answer_code || '') + '"'
-                            + ' data-system="' + (a.answer_system || '') + '"'
-                            + ' data-display="' + (a.answer_display || '') + '">'
-                            + (a.answer_display || a.answer_code || '') + '</option>';
+                        html += '<option value="' + jsAttr(a.answer_code || '') + '"'
+                            + ' data-system="' + jsAttr(a.answer_system || '') + '"'
+                            + ' data-display="' + jsAttr(a.answer_display || '') + '">'
+                            + (jsAttr(a.answer_display) || jsAttr(a.answer_code) || '') + '</option>';
                     });
                     $sel.html(html);
                     if (afterPopulate) {
@@ -412,7 +412,7 @@
 
             // Initialize state for this card instance
             (function init() {
-                const $section = $(document).find("#{{ type }}-form").closest("section");
+                const $section = $(document).find("#{{ type|attr }}-form").closest("section");
                 toggleValueFields($section);
             })();
 
