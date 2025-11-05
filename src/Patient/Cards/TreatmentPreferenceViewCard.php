@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\TreatmentInterventionPreferenceService;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
