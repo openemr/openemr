@@ -33,9 +33,9 @@ class DocumentRestController
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
-    public function postWithPath($pid, $path, $fileData)
+    public function postWithPath($pid, $path, $fileData, $eid)
     {
-        $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData);
+        $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData, $eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 

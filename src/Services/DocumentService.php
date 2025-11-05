@@ -121,7 +121,7 @@ class DocumentService extends BaseService
         return $fileResults;
     }
 
-    public function insertAtPath($pid, $path, $fileData)
+    public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed
         if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
@@ -147,7 +147,7 @@ class DocumentService extends BaseService
 
         // Store the document in OpenEMR
         $doc = new \Document();
-        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file);
+        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file, "", 1, 0, null, null, null, $eid);
         if (!empty($ret)) {
             error_log("OpenEMR API Error: There was an error in attempt to upload a patient document");
             return false;

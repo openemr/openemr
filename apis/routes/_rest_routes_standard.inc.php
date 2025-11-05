@@ -5807,7 +5807,7 @@ return array(
      *  )
      */
     "POST /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
-        $return = (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
+        $return = (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document'], $_GET['eid']);
 
         return $return;
     },
