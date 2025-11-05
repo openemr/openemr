@@ -23,9 +23,9 @@ class ContactRelationService extends BaseService
 {
     public const TABLE_NAME = 'contact_relation';
 
-    private ListService $listService;
+    private readonly ListService $listService;
 
-    private ContactService $contactService;
+    private readonly ContactService $contactService;
 
     /**
      * Default constructor.
@@ -258,7 +258,7 @@ class ContactRelationService extends BaseService
                 cr.id as contact_relation_id,
                 c.id as contact_id,
                 c.foreign_table_name as owner_table,
-                c.foreign_id as owner_id
+                c.foreign_id as owner_id,
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
                 WHERE cr.target_table = ? AND cr.target_id = ?";
@@ -290,9 +290,12 @@ class ContactRelationService extends BaseService
                 cr.id as owner_contact_relation_id,
                 c.id as owner_contact_id,
                 c.foreign_table_name as owner_table,
-                c.foreign_id as owner_id
+                c.foreign_id as owner_id,
+                target_contact.id AS target_contact_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
+                LEFT JOIN contact target_contact ON cr.target_id = target_contact.foreign_id
+                                               AND cr.target_table = target_contact.foreign_table_name
                 WHERE cr.contact_id = ?";
 
         $params = [$ownerContactId];
@@ -758,7 +761,6 @@ class ContactRelationService extends BaseService
                 } else {
                     // Target is already a person
                     $targetTable = 'person';
-                    $targetId = $targetId;
                 }
 
                 $metadata = [
@@ -812,14 +814,12 @@ class ContactRelationService extends BaseService
 
             QueryUtils::commitTransaction();
             $committed = true;
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             $this->getLogger()->error("Error batch saving relationships", [
                 'error' => $exception->getMessage()
             ]);
             throw $exception;
-        }
-        finally {
+        } finally {
             if (!$committed) {
                 QueryUtils::rollbackTransaction();
             }
