@@ -246,6 +246,26 @@ class CodeTypesService
         return $parsedCode['code_type'];
     }
 
+    public function getCodeTypeForSystemUrl(string $system): ?string
+    {
+        $codeType = match ($system) {
+            FhirCodeSystemConstants::SNOMED_CT => self::CODE_TYPE_SNOMED_CT,
+            FhirCodeSystemConstants::NUCC_PROVIDER => self::CODE_TYPE_NUCC,
+            FhirCodeSystemConstants::LOINC => self::CODE_TYPE_LOINC,
+            FhirCodeSystemConstants::RXNORM => self::CODE_TYPE_RXCUI,
+            FhirCodeSystemConstants::NDC => self::CODE_TYPE_NDC,
+            FhirCodeSystemConstants::NCI_THESAURUS => self::CODE_TYPE_NCI,
+            FhirCodeSystemConstants::AMA_CPT => self::CODE_TYPE_CPT4,
+            FhirCodeSystemConstants::HL7_ICD10 => self::CODE_TYPE_ICD10,
+            FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM => self::CODE_TYPE_DATE_ABSENT_REASON,
+            FHIRCodeSystemConstants::HL7_ROLE_CODE => self::CODE_TYPE_HL7_ROLE_CODE,
+            FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE => self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION,
+            FHIRCodeSystemConstants::HSOC => self::CODE_TYPE_HSOC,
+            default => null,
+        };
+        return $codeType;
+    }
+
     /**
      * @param string $codeType
      * @param false  $useOid
@@ -508,5 +528,22 @@ class CodeTypesService
         $return = array_keys(array_filter($code_types, fn($ct_arr): bool => ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false)));
 
         return $return_format === 'csv' ? csv_like_join($return) : $return;
+    }
+
+    /**
+     * Given a system URL and code, return the OpenEMR formatted code with type prefix if applicable.
+     * @param string|null $system
+     * @param float|bool|int|string $code
+     * @return string
+     */
+    public function getOpenEMRCodeForSystemAndCode(?string $system, float|bool|int|string $code): string
+    {
+        if (!empty($system)) {
+            $codeType = $this->getCodeTypeForSystemUrl($system);
+            if (!empty($codeType)) {
+                return $this->getCodeWithType($code, $codeType);
+            }
+        }
+        return $code;
     }
 }
