@@ -156,7 +156,7 @@ function invalue($name)
     const organization = $('#form_organization').val().trim();
 
     if (!npi && !lastName && !organization) {
-        alert(xlj('Please enter search criteria'));
+        alert(<?php echo xlj('Please enter search criteria'); ?>);
         return;
     }
 
@@ -192,9 +192,9 @@ function invalue($name)
     const resultsDiv = $('#npi-lookup-results');
 
     if (loadMore) {
-        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + <?php echo xlj("Loading more ..."); ?> + '</div>');
+        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + jsText(xl("Loading more ...")) + '</div>');
     } else {
-        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + <?php echo xlj("Searching..."); ?> + '</div>');
+        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + jsText(xl("Searching...")) + '</div>');
 
     }
 
@@ -232,7 +232,7 @@ function invalue($name)
         if (displayOffset === 0) {
             // First display - show header
             html += `<div style="padding: 10px;">
-                <h6>` + jsText(xl("Select a Provider ")) + `(${jsText(totalResultCount)}` + jsText(xl(" total results")) + `)</h6>
+                <h6>${jsText(xl("Select a Provider"))} (${jsText(totalResultCount)} ${jsText(xl("total results"))})</h6>
             </div>`;
         }
 
@@ -248,9 +248,9 @@ function invalue($name)
             html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
-                    <strong>` + jsText(xl('NPI')) + ':' + `</strong> ${jsText(result.number)}<br>
-                    ${taxonomy ? '<strong>' + jsText(xl('Specialty')) + ':</strong> ' + jsText(xl(taxonomy.desc)) + '<br>' : ''}
-                    ${addr ? '<strong>' + jsText(xl('Address')) + ':</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
+                    <strong>${jsText(xl('NPI'))}: </strong>${jsText(result.number)}<br>
+                    ${jsText(taxonomy)} ? <strong>${jsText(xl('Specialty'))}: </strong>${jsText(xl(taxonomy.desc))}<br> : ''
+                    ${jsText(addr)} ? <strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)} , ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''
                 </div>
             </div>`;
         });
@@ -260,8 +260,8 @@ function invalue($name)
         // Show Load More button if there are more results (either cached or on server)
         if (displayOffset < allResults.length || displayOffset < totalResultCount) {
             html += `<div style="padding: 10px; text-align: center;">
-                <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">`
-                    + jsText(xl('Load More Results')) + ' (' + jsText(xl('showing ')) + `${jsText(displayOffset)}` + jsText(xl(' of ')) +  `${jsText(totalResultCount)})
+                <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
+                    ${jsText(xl('Load More Results'))} ( ${jsText(xl('showing'))} ${jsText(displayOffset)} ${jsText(xl('of'))} ${jsText(totalResultCount)})
                 </button>
             </div>`;
         }
@@ -291,7 +291,7 @@ function invalue($name)
 
         if (!append) {
             html += `<div style="padding: 10px;">
-            <h6>` + jsText(xl('Select a Provider ')) + `(${jsText(data.result_count)}` + jsText(xl(' total results ')) + ', ' + jsText(xl('showing ')) + `${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
+            <h6>${jsText(xl('Select a Provider'))} (${jsText(data.result_count)} ${jsText(xl('total results'))} , ${jsText(xl('showing'))} ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
             </div>`;
         }
 
@@ -308,9 +308,9 @@ function invalue($name)
             html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
-                    <strong>NPI:</strong> ${jsText(result.number)}<br>
-                    ${taxonomy ? '<strong>Specialty:</strong> ' + jsText(taxonomy.desc) + '<br>' : ''}
-                    ${addr ? '<strong>Address:</strong> ' + jsText(addr.address_1) + ', ' + jsText(addr.city) + ', ' + jsText(addr.state) + ' ' + jsText(addr.postal_code) : ''}
+                    <strong>${jsText(xl('NPI'))}: </strong>${jsText(result.number)}<br>
+                    ${jsText(xl(taxonomy))} ? <strong>${jsText(xl(Specialty))}: </strong>${jsText(xl(taxonomy.desc))}<br> : ''
+                    ${jsText(xl(addr))} ? <strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''
                 </div>
             </div>`;
         });
@@ -318,9 +318,9 @@ function invalue($name)
         // Load More button
         if (data.result_count > currentSkip + data.results.length) {
             html += `<div style="padding: 10px; text-align: center;">
-                <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">`
-                    + jsText(xl('Load More Results')) +
-                `</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
+                    ${jsText(xl('Load More Results'))}
+                </button>
             </div>`;
         }
 
