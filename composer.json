@@ -12,6 +12,7 @@
     },
     "require": {
         "php": ">=8.2.0",
+        "ext-bcmath": "*",
         "ext-calendar": "*",
         "ext-ctype": "*",
         "ext-curl": "*",
@@ -182,6 +183,7 @@
             "phpstan/extension-installer": true
         },
         "platform": {
+            "ext-bcmath": "8.2",
             "ext-calendar": "8.2",
             "ext-ctype": "8.2",
             "ext-curl": "8.2",
