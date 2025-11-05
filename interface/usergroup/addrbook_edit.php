@@ -261,7 +261,7 @@ function invalue($name)
         if (displayOffset < allResults.length || displayOffset < totalResultCount) {
             html += `<div style="padding: 10px; text-align: center;">
                 <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
-                    ${jsText(xl('Load More Results'))} ( ${jsText(xl('showing'))} ${jsText(displayOffset)} ${jsText(xl('of'))} ${jsText(totalResultCount)})
+                    ${jsText(xl('Load More Results'))} (${jsText(xl('showing'))} ${jsText(displayOffset)} ${jsText(xl('of'))} ${jsText(totalResultCount)})
                 </button>
             </div>`;
         }
