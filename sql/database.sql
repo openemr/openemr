@@ -14988,7 +14988,7 @@ CREATE TABLE `patient_care_experience_preferences` (
     ('care_experience_preferences','103980-9','Preferred pharmacy',40,'cep_pharmacy_answers','LOINC:103980-9',1),
     ('care_experience_preferences','81338-6','Patient goals, preferences & priorities for care experience',90,'cep_overall_narrative','LOINC:81338-6',1);
     -- Value sets table for coded answers
-DROP TABLE IF EXISTS ``;
+DROP TABLE IF EXISTS `preference_value_sets`;
 CREATE TABLE `preference_value_sets` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `loinc_code` varchar(50) NOT NULL,

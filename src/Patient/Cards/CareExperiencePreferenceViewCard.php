@@ -228,7 +228,7 @@ class CareExperiencePreferenceViewCard extends CardModel
             'value_code_system'     => trim($post['value_code_system'] ?? ''),
             'value_display'         => trim($post['value_display'] ?? ''),
             'value_text'            => trim($post['value_text'] ?? ''),
-            'value_boolean'         => isset($post['value_boolean']) ? (string)$post['value_boolean'] : null,
+            'value_boolean'         => $post['value_boolean'] ?? null,
             'status'                => trim($post['status'] ?? 'final'),
             'effective_datetime'    => trim($post['effective_datetime'] ?? date('Y-m-d H:i:s')),
             'note'                  => trim($post['note'] ?? ''),

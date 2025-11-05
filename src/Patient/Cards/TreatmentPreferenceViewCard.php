@@ -157,7 +157,7 @@ class TreatmentPreferenceViewCard extends CardModel
         }
 
         $sql = "SELECT CONCAT(fname, ' ', lname) as name FROM users WHERE id = ?";
-        $result = QueryUtils::querySingleRow($sql, [$userId]);
+        $result = QueryUtils::querySingleRow($sql, [(int)$userId]);
         return $result['name'] ?? '';
     }
 
@@ -229,7 +229,7 @@ class TreatmentPreferenceViewCard extends CardModel
             'value_code_system'     => trim($post['value_code_system'] ?? ''),
             'value_display'         => trim($post['value_display'] ?? ''),
             'value_text'            => trim($post['value_text'] ?? ''),
-            'value_boolean'         => isset($post['value_boolean']) ? (string)$post['value_boolean'] : null,
+            'value_boolean'         => $post['value_boolean'] ?? null,
             'status'                => trim($post['status'] ?? 'final'),
             'effective_datetime'    => trim($post['effective_datetime'] ?? date('Y-m-d H:i:s')),
             'note'                  => trim($post['note'] ?? ''),
