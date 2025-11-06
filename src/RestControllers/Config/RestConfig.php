@@ -6,8 +6,8 @@ use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
 use LogicException;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -20,6 +20,7 @@ use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // also a handy place to add utility methods
@@ -196,11 +197,10 @@ class RestConfig
     {
         $result = AclMain::aclCheckCore($section, $value, $user, $aclPermission);
         if (!$result) {
-            if (!self::$notRestCall) {
-                throw HttpException::fromStatusCode(403, "Organization policy does not have permit access resource");
-            } else {
+            if (self::$notRestCall) {
                 exit(); // not sure why we exit here, but this is how it was before
             }
+            throw new AccessDeniedHttpException("Organization policy does not have permit access resource");
         }
     }
 

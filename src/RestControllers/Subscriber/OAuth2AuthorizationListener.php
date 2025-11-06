@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class OAuth2AuthorizationListener implements EventSubscriberInterface
@@ -103,7 +104,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         ) {
             $logger->debug("api disabled exiting call");
             $session->invalidate();
-            throw HttpException::fromStatusCode(404, "OpenEMR Error: API is disabled");
+            throw new NotFoundHttpException("OpenEMR Error: API is disabled");
         }
         // site is already valid from previous listener
 

@@ -36,18 +36,18 @@ use OpenEMR\Gacl\GaclAdminApi;
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
-#	$config_file = '../gacl.ini.php';
-	$config_file = __DIR__.'/../gacl.ini.php';
+#   $config_file = '../gacl.ini.php';
+    $config_file = __DIR__.'/../gacl.ini.php';
 }
 
 //Values supplied in $gacl_options array overwrite those in the config file.
 if ( file_exists($config_file) ) {
-	$config = parse_ini_file($config_file);
+    $config = parse_ini_file($config_file);
 
-	if ( is_array($config) ) {
-		$gacl_options = isset($gacl_options) ? array_merge($config, $gacl_options) : $config;
-	}
-	unset($config);
+    if ( is_array($config) ) {
+        $gacl_options = isset($gacl_options) ? array_merge($config, $gacl_options) : $config;
+    }
+    unset($config);
 }
 
 $gacl_api = new GaclAdminApi($gacl_options);

@@ -27,6 +27,6 @@ class ClientEntityTest extends TestCase
 
         $this->assertFalse($client->hasScope("bacon"), "invalid scope should not return true");
         $this->assertTrue($client->hasScope("launch"), "launch scope should have been found");
-        $this->assertFalse($client->hasScope("launch/patient", "scope should not match against a prefix"));
+        $this->assertFalse($client->hasScope("launch/patient"), "scope should not match against a prefix");
     }
 }

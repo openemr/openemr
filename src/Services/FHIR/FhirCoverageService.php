@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -19,6 +20,8 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageClass;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageCostToBeneficiary;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
+use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\InsuranceService;
@@ -43,9 +46,11 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * Claude.AI: Reviewed and made changes for accuracy against FHIR R4 and US Core 8.0 standards.
  */
-class FhirCoverageService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+class FhirCoverageService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService, IFhirExportableResourceService
 {
     use FhirServiceBaseEmptyTrait;
+    use BulkExportSupportAllOperationsTrait;
+    use FhirBulkExportDomainResourceTrait;
     use VersionedProfileTrait;
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-coverage';
@@ -455,5 +460,20 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     public function getProfileURIs(): array
     {
         return $this->getProfileForVersions(self::USCGI_PROFILE_URI, ['', '7.0.0', '8.0.0']);
+    }
+
+    /**
+     * @param array $dataRecord
+     * @param bool $encode
+     * @return FHIRProvenance|string|false The FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
+    {
+        if (!($dataRecord instanceof FHIRCoverage)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
     }
 }

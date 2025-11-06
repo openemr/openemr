@@ -644,6 +644,7 @@ class ProcedureService extends BaseService
                 ON practitioner.id = porder.provider_id
             LEFT JOIN procedure_providers AS lab
                 ON lab.ppid = porder.lab_id
+            LEFT JOIN
             WHERE porder.activity = 1";
 
         if (!empty($search)) {
@@ -697,7 +698,7 @@ class ProcedureService extends BaseService
             }
 
             // Get all order codes for this order
-            $codesSql = "SELECT 
+            $codesSql = "SELECT
                         procedure_order_seq,
                         procedure_code,
                         procedure_name,
@@ -714,7 +715,7 @@ class ProcedureService extends BaseService
             $row['order_codes'] = $orderCodes;
 
             // Get all reports for this order
-            $reportsSql = "SELECT 
+            $reportsSql = "SELECT
                           procedure_report_id,
                           procedure_order_seq,
                           uuid AS report_uuid,
@@ -729,7 +730,7 @@ class ProcedureService extends BaseService
                 $reportRow['report_uuid'] = UuidRegistry::uuidToString($reportRow['report_uuid']);
 
                 // Get results for this report
-                $resultsSql = "SELECT 
+                $resultsSql = "SELECT
                               uuid AS result_uuid,
                               result_status,
                               result_code,
@@ -824,7 +825,7 @@ class ProcedureService extends BaseService
         }
 
         // Get the main order record
-        $sql = "SELECT 
+        $sql = "SELECT
                 porder.uuid,
                 porder.procedure_order_id,
                 porder.provider_id,
@@ -969,7 +970,7 @@ class ProcedureService extends BaseService
      */
     public function getOrderCodes($orderId): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                 procedure_order_id,
                 procedure_order_id,
                 procedure_order_seq,
@@ -1007,7 +1008,7 @@ class ProcedureService extends BaseService
      */
     public function getSpecimens($orderId, $orderSeq = null): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                 procedure_specimen_id,
                 uuid,
                 procedure_order_id,
@@ -1090,7 +1091,7 @@ class ProcedureService extends BaseService
     public function getCompleteOrder($orderId): ?array
     {
         // Get main order
-        $orderSql = "SELECT 
+        $orderSql = "SELECT
                     po.*,
                     p.uuid AS puuid,
                     e.uuid AS euuid,
@@ -1230,21 +1231,21 @@ class ProcedureService extends BaseService
 
         // Delete answers first
         sqlStatement(
-            "DELETE FROM procedure_answers 
+            "DELETE FROM procedure_answers
          WHERE procedure_order_id = ? AND procedure_order_seq = ?",
             [$orderId, $seq]
         );
 
         // Delete specimens
         sqlStatement(
-            "DELETE FROM procedure_specimen 
+            "DELETE FROM procedure_specimen
          WHERE procedure_order_id = ? AND procedure_order_seq = ?",
             [$orderId, $seq]
         );
 
         // Delete the order code
         sqlStatement(
-            "DELETE FROM procedure_order_code 
+            "DELETE FROM procedure_order_code
          WHERE procedure_order_id = ? AND procedure_order_seq = ?",
             [$orderId, $seq]
         );
@@ -1422,7 +1423,7 @@ class ProcedureService extends BaseService
     {
         $uuidBinary = UuidRegistry::uuidToBytes($orderUuid);
 
-        $sql = "SELECT poc.* 
+        $sql = "SELECT poc.*
             FROM procedure_order_code poc
             INNER JOIN procedure_order po ON po.procedure_order_id = poc.procedure_order_id
             WHERE po.uuid = ?
@@ -1449,7 +1450,7 @@ class ProcedureService extends BaseService
     {
         $uuidBinary = UuidRegistry::uuidToBytes($orderUuid);
 
-        $sql = "SELECT ps.* 
+        $sql = "SELECT ps.*
             FROM procedure_specimen ps
             INNER JOIN procedure_order po ON po.procedure_order_id = ps.procedure_order_id
             WHERE po.uuid = ?";

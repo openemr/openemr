@@ -70,7 +70,9 @@ class UuidRegistry
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
         'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
         'users' => ['table_name' => 'users'],
-        'care_team' => ['table_name' => 'care_team']
+        'care_teams' => ['table_name' => 'care_teams'],
+        'patient_care_experience_preferences' => ['table_name' => 'patient_care_experience_preferences'],
+        'patient_treatment_intervention_preferences' => ['table_name' => 'patient_treatment_intervention_preferences']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
