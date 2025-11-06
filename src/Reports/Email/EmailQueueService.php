@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Reports\Email;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class EmailQueueService
 {
     /**
@@ -89,12 +91,7 @@ class EmailQueueService
         $params[] = $limit;
         $params[] = $offset;
 
-        $result = sqlStatement($sql, $params);
-        $records = [];
-
-        while ($row = sqlFetchArray($result)) {
-            $records[] = $row;
-        }
+        $records = QueryUtils::fetchRecords($sql, $params);
 
         return $records;
     }
@@ -155,7 +152,7 @@ class EmailQueueService
 
         $sql = "SELECT COUNT(*) as total FROM email_queue {$whereClause}";
 
-        $result = sqlQuery($sql, $params);
+        $result = QueryUtils::querySingleRow($sql, $params);
         return (int)($result['total'] ?? 0);
     }
 
@@ -173,7 +170,7 @@ class EmailQueueService
             'failed' => 0,
         ];
 
-        $result = sqlQuery("SELECT
+        $result = QueryUtils::querySingleRow("SELECT
             COUNT(*) as total,
             SUM(CASE WHEN sent = 1 AND error = 0 THEN 1 ELSE 0 END) as sent,
             SUM(CASE WHEN sent = 0 AND error = 0 THEN 1 ELSE 0 END) as pending,
@@ -204,10 +201,10 @@ class EmailQueueService
                 WHERE template_name IS NOT NULL
                 ORDER BY template_name";
 
-        $result = sqlStatement($sql);
+        $result = QueryUtils::fetchRecords($sql);
         $templates = [];
 
-        while ($row = sqlFetchArray($result)) {
+        foreach ($result as $row) {
             if (!empty($row['template_name'])) {
                 $templates[] = $row['template_name'];
             }
@@ -225,7 +222,7 @@ class EmailQueueService
     public function getEmailById(int $id): ?array
     {
         $sql = "SELECT * FROM email_queue WHERE id = ?";
-        $result = sqlQuery($sql, [$id]);
+        $result = QueryUtils::querySingleRow($sql, [$id]);
 
         return $result ?: null;
     }
