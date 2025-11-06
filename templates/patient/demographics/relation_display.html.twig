@@ -149,11 +149,17 @@
 
         const inactiveRelations = table.querySelectorAll('.relation-inactive-display');
 
+        console.log('Toggle inactive relations:', {
+            tableId: tableId,
+            checked: checkbox.checked,
+            foundRelations: inactiveRelations.length
+        });
+
         inactiveRelations.forEach(function(relation) {
             if (checkbox.checked) {
-                relatedPerson.classList.remove('d-none');
+                relation.classList.remove('d-none');
             } else {
-                relatedPerson.classList.add('d-none');
+                relation.classList.add('d-none');
             }
         });
     }

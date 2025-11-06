@@ -204,62 +204,6 @@
 
         (function() {
             init(tableConfig.tableId);
-            
-            // Set up global event listener for dynamically added address forms
-            if (!window.addressGlobalListenerSet) {
-                window.addressGlobalListenerSet = true;
-                
-                document.addEventListener('click', function(event) {
-                    let addBtn = null;
-                    let element = event.target;
-                    
-                    if (!element || !element.nodeType) {
-                        console.error('Invalid event.target:', element);
-                        return;
-                    }
-                    
-                    let maxLevels = 5;
-                    let currentLevel = 0;
-                    
-                    while (element && element !== document && currentLevel < maxLevels) {
-                        if (element.id && typeof element.id === 'string' && element.id.indexOf('btn_add_addresses_') === 0) {
-                            addBtn = element;
-                            break;
-                        }
-                        element = element.parentElement || element.parentNode;
-                        currentLevel++;
-                    }
-                    
-                    if (addBtn) {
-                        console.log('Global click handler triggered for:', addBtn.id);
-                        
-                        let tableId = addBtn.id.replace('btn_add_addresses_', '');
-                        let tableElement = document.getElementById(tableId);
-                        
-                        if (tableElement && !tableElement.dataset.addressInitialized) {
-                            console.log('Initializing address table on-demand:', tableId);
-                            init(tableId);
-                        }
-                        
-                        let buttonEvent = {
-                            currentTarget: addBtn,
-                            target: addBtn,
-                            preventDefault: function() {
-                                if (event.preventDefault) event.preventDefault();
-                            },
-                            stopPropagation: function() {
-                                if (event.stopPropagation) event.stopPropagation();
-                            }
-                        };
-                        
-                        addAddress(buttonEvent);
-                        
-                        if (event.preventDefault) event.preventDefault();
-                        if (event.stopPropagation) event.stopPropagation();
-                        return false;
-                    }
-                });
-            }
         })();
 
         function init(tableId) {
@@ -379,7 +323,7 @@
                 
                 if (element.classList && element.classList.contains('table_edit_addresses')) {
                     container = element;
-                    console.log('  ✓ Found container at level', currentLevel);
+                    console.log('  âœ“ Found container at level', currentLevel);
                     break;
                 }
                 element = element.parentElement || element.parentNode;
@@ -387,7 +331,7 @@
             }
             
             if (!container) {
-                console.error('✗ Could not find .table_edit_addresses container from target:', target);
+                console.error('âœ— Could not find .table_edit_addresses container from target:', target);
                 console.error('Walked up', currentLevel, 'levels');
                 
                 // Try fallback: lookup by table ID
@@ -402,12 +346,12 @@
                     if (tableElement) {
                         container = tableElement.querySelector('.table_edit_addresses');
                         if (container) {
-                            console.log('  ✓ Found container via table ID lookup (fallback)');
+                            console.log('  âœ“ Found container via table ID lookup (fallback)');
                         } else {
-                            console.error('  ✗ Table element found but no .table_edit_addresses inside it');
+                            console.error('  âœ— Table element found but no .table_edit_addresses inside it');
                         }
                     } else {
-                        console.error('  ✗ Could not find table element with ID:', tableId);
+                        console.error('  âœ— Could not find table element with ID:', tableId);
                     }
                 }
                 
@@ -417,7 +361,7 @@
                 }
             }
             
-            console.log('✓ Container found:', container);
+            console.log('âœ“ Container found:', container);
 
             // Find the table root
             let tableRoot = null;
@@ -445,7 +389,7 @@
                     console.log('  Checking sibling:', nextSibling.tagName, nextSibling.className);
                     if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_address')) {
                         row_address_template = nextSibling;
-                        console.log('  ✓ Found template as immediate sibling');
+                        console.log('  âœ“ Found template as immediate sibling');
                         break;
                     }
                     nextSibling = nextSibling.nextElementSibling;
@@ -462,7 +406,7 @@
                             while (current) {
                                 if (current === template) {
                                     row_address_template = template;
-                                    console.log('  ✓ Found template in parent');
+                                    console.log('  âœ“ Found template in parent');
                                     break;
                                 }
                                 current = current.nextElementSibling;
@@ -488,7 +432,7 @@
                                 while (current && depth < 10) {
                                     if (current.contains(tableRoot)) {
                                         row_address_template = template;
-                                        console.log('    ✓ Found template containing our table at depth', depth);
+                                        console.log('    âœ“ Found template containing our table at depth', depth);
                                         break;
                                     }
                                     current = current.parentElement;
@@ -506,14 +450,14 @@
                         let templateInRelation = relationGroup.querySelector('template.template_add_address');
                         if (templateInRelation) {
                             row_address_template = templateInRelation;
-                            console.log('  ✓ Found template in relation group (fallback)');
+                            console.log('  âœ“ Found template in relation group (fallback)');
                         }
                     }
                 }
             }
             
             if (!row_address_template) {
-                console.error('✗ Could not find template for this address table');
+                console.error('âœ— Could not find template for this address table');
                 console.error('  TableRoot:', tableRoot);
                 console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
                 console.error('  Container:', container);
@@ -528,7 +472,7 @@
                 return;
             }
             
-            console.log('✓ Using template:', row_address_template);
+            console.log('âœ“ Using template:', row_address_template);
 
             // Find no_addresses element within this specific container
             let noAddressesElement = container.querySelector(".no_addresses");

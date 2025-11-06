@@ -99,9 +99,18 @@
         const checkbox = document.getElementById('show_inactive_telecoms_display_' + tableId);
         const table = document.getElementById(tableId);
 
-        if (!table) return;
+        if (!table) {
+            console.error('Telecom table not found:', tableId);
+            return;
+        }
 
         const inactiveTelecoms = table.querySelectorAll('.telecom-inactive-display');
+
+        console.log('Toggle inactive telecoms:', {
+            tableId: tableId,
+            checked: checkbox.checked,
+            foundTelecoms: inactiveTelecoms.length
+        });
 
         inactiveTelecoms.forEach(function(telecom) {
             if (checkbox.checked) {

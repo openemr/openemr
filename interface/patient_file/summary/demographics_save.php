@@ -400,7 +400,7 @@ if (!empty($relationFieldsToSave)) {
                         ]);
                     }
 
-                    $savedRecords = $relationService->batchSaveRelationships(
+                    $savedRecords = $relationService->saveRelatedPersons(
                         'patient_data',
                         $pid,
                         $relationFieldData

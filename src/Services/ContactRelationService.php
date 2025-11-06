@@ -673,13 +673,13 @@ class ContactRelationService extends BaseService
      *
      * @param string $ownerTable The table that owns these relationships
      * @param int $ownerId The ID in that table
-     * @param array $relationData Array of relationship data from form
+     * @param array $relatedPersonData Array of relationship data from form
      * @return array Array of saved relationship records
      */
-    public function batchSaveRelationships(
+    public function saveRelatedPersons(
         string $ownerTable,
         int $ownerId,
-        array $relationData
+        array $relatedPersonData
     ): array {
         $committed = false;
         try {
@@ -687,24 +687,25 @@ class ContactRelationService extends BaseService
             $this->getLogger()->debug("Batch saving relationships", [
                 'owner_table' => $ownerTable,
                 'owner_id' => $ownerId,
-                'relation_data' => $relationData
+                'related_person_data' => $relatedPersonData
             ]);
 
             $savedRecords = [];
-            $count = count($relationData['data_action'] ?? []);
 
-            if ($count <= 0) {
+            if (empty($relatedPersonData)) {
                 return $savedRecords;
             }
 
-            for ($i = 0; $i < $count; $i++) {
-                $action = $relationData['data_action'][$i] ?? '';
+            // Iterate through array of RelatedPerson objects
+            foreach ($relatedPersonData as $index => $relatedPerson) {
+
+                $action = $relatedPerson['data_action'] ?? '';
 
                 if (empty($action)) {
                     continue;
                 }
 
-                $owner_contact_relation_id = $relationData['owner_contact_relation_id'][$i] ?? null;
+                $owner_contact_relation_id = $relatedPerson['owner_contact_relation_id'] ?? null;
 
                 // Handle INACTIVATE/DELETE
                 if ($action == 'INACTIVATE' || $action == 'DELETE') {
@@ -718,22 +719,22 @@ class ContactRelationService extends BaseService
                 }
 
                 // Handle ADD and UPDATE
-                $ownerContactId = $relationData['owner_contact_id'][$i] ?? null;
+                $ownerContactId = $relatedPerson['owner_contact_id'] ?? null;
 
                 if (empty($ownerContactId)) {
                     $this->getLogger()->warning("Missing contact_id for relation", [
-                        'index' => $i
+                        'index' => $index
                     ]);
                     continue;
                 }
 
                 // Get target table and ID
-                $targetTable = $relationData['target_table'][$i] ?? 'person';
-                $targetId = $relationData['target_id'][$i] ?? null;
+                $targetTable = $relatedPerson['target_table'] ?? 'person';
+                $targetId = $relatedPerson['target_id'] ?? null;
 
                 if (empty($targetId)) {
                     $this->getLogger()->warning("Missing target ID for relation", [
-                        'index' => $i,
+                        'index' => $index,
                         'target_table' => $targetTable
                     ]);
                     continue;
@@ -764,17 +765,17 @@ class ContactRelationService extends BaseService
                 }
 
                 $metadata = [
-                    'relationship' => $relationData['relationship'][$i] ?? '',
-                    'role' => $relationData['role'][$i] ?? '',
-                    'contact_priority' => $relationData['contact_priority'][$i] ?? 1,
-                    'is_primary_contact' => $relationData['is_primary_contact'][$i] ?? false,
-                    'is_emergency_contact' => $relationData['is_emergency_contact'][$i] ?? false,
-                    'can_make_medical_decisions' => $relationData['can_make_medical_decisions'][$i] ?? false,
-                    'can_receive_medical_info' => $relationData['can_receive_medical_info'][$i] ?? false,
-                    'start_date' => $relationData['start_date'][$i] ?? '',
-                    'end_date' => $relationData['end_date'][$i] ?? '',
-                    'notes' => $relationData['notes'][$i] ?? '',
-                    'active' => $relationData['active'][$i] ?? true
+                    'relationship' => $relatedPerson['relationship'] ?? '',
+                    'role' => $relatedPerson['role'] ?? '',
+                    'contact_priority' => $relatedPerson['contact_priority'] ?? 1,
+                    'is_primary_contact' => $relatedPerson['is_primary_contact'] ?? false,
+                    'is_emergency_contact' => $relatedPerson['is_emergency_contact'] ?? false,
+                    'can_make_medical_decisions' => $relatedPerson['can_make_medical_decisions'] ?? false,
+                    'can_receive_medical_info' => $relatedPerson['can_receive_medical_info'] ?? false,
+                    'start_date' => $relatedPerson['start_date'] ?? '',
+                    'end_date' => $relatedPerson['end_date'] ?? '',
+                    'notes' => $relatedPerson['notes'] ?? '',
+                    'active' => $relatedPerson['active'] ?? true
                 ];
 
                 if ($action == 'ADD') {
@@ -784,7 +785,7 @@ class ContactRelationService extends BaseService
                 } else { // UPDATE
                     if (empty($owner_contact_relation_id)) {
                         $this->getLogger()->warning("Missing relation_id for UPDATE", [
-                            'index' => $i
+                            'index' => $index
                         ]);
                         continue;
                     }
@@ -797,17 +798,17 @@ class ContactRelationService extends BaseService
 
                 // now we need to go through and save the phone number and address information for the connected
                 // relationship
-                if (!empty($relationData[$i]['telecoms'])) {
+                if (!empty($relatedPerson['telecoms'])) {
                     $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
                     $telecomService = new ContactTelecomService();
-                    $telecoms = $relationData[$i]['telecoms'] ?? [];
+                    $telecoms = $relatedPerson['telecoms'] ?? [];
                     $telecomService->saveTelecomsForContact($contact->get_id(), $telecoms);
                 }
 
-                if (!empty($relationData[$i]['addresses'])) {
+                if (!empty($relatedPerson['addresses'])) {
                     $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
                     $addressService = new ContactAddressService();
-                    $addresses = $relationData[$i]['addresses'] ?? [];
+                    $addresses = $relatedPerson['addresses'] ?? [];
                     $addressService->saveAddressesForContact($contact->get_id(), $addresses);
                 }
             }
