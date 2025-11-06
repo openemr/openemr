@@ -29,7 +29,7 @@ $telecoms = [];
 
 if ($contact) {
 	// Get all telecoms for this contact
-    $telecomRecords = $telecomService->getTelecomsForContact($contact->get_id(), false);
+    $telecomRecords = $telecomService->getTelecomsForContact($contact->get_id(), true);
 
     foreach ($telecomRecords as $record) {
         $telecoms[] = [
