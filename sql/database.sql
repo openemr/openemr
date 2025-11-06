@@ -14767,11 +14767,11 @@ CREATE TABLE `track_events` (
 
 -- -----------------------------------------------------
 --
--- Table structure for table `care_team`
+-- Table structure for table `care_teams`
 --
 
-DROP TABLE IF EXISTS `care_team`;
-CREATE TABLE `care_team` (
+DROP TABLE IF EXISTS `care_teams`;
+CREATE TABLE `care_teams` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) DEFAULT NULL,
   `pid` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
