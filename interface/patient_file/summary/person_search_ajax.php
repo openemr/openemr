@@ -9,11 +9,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// CRITICAL: Set error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', '0');
-ini_set('log_errors', '1');
-
 require_once("../../globals.php");
 /**
  * @global string $srcdir defined in globals
@@ -282,7 +277,7 @@ function handleSearchPersons($input, $contactService, $linkService, $logger): vo
     $results = deduplicateResults($results);
 
     // Sort by last_name, first_name
-    usort($results, function($a, $b) {
+    usort($results, function ($a, $b) {
         $lastCompare = strcasecmp($a['last_name'], $b['last_name']);
         if ($lastCompare !== 0) {
             return $lastCompare;
@@ -691,6 +686,12 @@ function handleCreatePerson($input, PersonService $personService, $contactServic
     echo json_encode($response);
 }
 
-function handleCheckPersonMatch($input, $linkService, $logger): void { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
-function handleLinkPersonToPatient($input, $linkService, $logger): void { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
-function handleUnlinkPersonFromPatient($input, $linkService, $logger): void { echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+function handleCheckPersonMatch($input, $linkService, $logger): void
+{
+    echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+function handleLinkPersonToPatient($input, $linkService, $logger): void
+{
+    echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+function handleUnlinkPersonFromPatient($input, $linkService, $logger): void
+{
+    echo json_encode(['success' => false, 'message' => 'Not implemented']); }

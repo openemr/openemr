@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles the display of the telecom list datatype in LBF
  * Updated to use ContactService and ContactTelecomService
@@ -18,19 +19,15 @@ use OpenEMR\Common\Twig\TwigContainer;
 // Initialize services
 $contactService = new ContactService();
 $telecomService = new ContactTelecomService();
-
 // Get contact for entity
 $foreign_table ??= '';
 $foreign_id ??= 0;
 $contact = $contactService->getOrCreateForEntity($foreign_table, $foreign_id);
-
 // Transfer records to array
 $telecoms = [];
-
 if ($contact) {
-	// Get all telecoms for this contact
+// Get all telecoms for this contact
     $telecomRecords = $telecomService->getTelecomsForContact($contact->get_id(), true);
-
     foreach ($telecomRecords as $record) {
         $telecoms[] = [
             'id' => $record['id'],
@@ -51,10 +48,8 @@ if ($contact) {
 // Get list options for dropdowns
 $list_telecom_systems = generate_list_map("telecom_systems");
 $list_telecom_uses = generate_list_map("telecom_uses");
-
 // Generate unique table ID
 $table_id = uniqid("table_text_telecoms_");
-
 // Prepare template variables
 $templateVars = [
     'foreign_table' => $foreign_table,
@@ -64,7 +59,6 @@ $templateVars = [
     'list_telecom_uses' => $list_telecom_uses,
     'has_telecoms' => !empty($telecoms)
 ];
-
 // Render Twig template
 $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
 $twig = $twigContainer->getTwig();

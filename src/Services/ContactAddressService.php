@@ -47,7 +47,7 @@ class ContactAddressService extends BaseService
             }
 
             $savedRecords = [];
-            
+
             if (empty($addressData)) {
                 return $savedRecords;
             }
@@ -59,7 +59,6 @@ class ContactAddressService extends BaseService
 
 
             foreach ($addressData as $index => $address) {
-
                 $action = $address['data_action'] ?? '';
 
                 // Skip empty actions
@@ -430,7 +429,7 @@ class ContactAddressService extends BaseService
                 AND ca.status = 'A'
                 LIMIT 1";
 
-        $result = sqlQuery($sql, [$contactId]);
+        $result = QueryUtils::querySingleRow($sql, [$contactId]);
 
         return $result ?: null;
     }
@@ -447,11 +446,11 @@ class ContactAddressService extends BaseService
         try {
             // Unset all other primary addresses for this contact
             $sql = "UPDATE contact_address SET is_primary = 'N' WHERE contact_id = ?";
-            sqlStatement($sql, [$contactId]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactId]);
 
             // Set the specified address as primary
             $sql = "UPDATE contact_address SET is_primary = 'Y' WHERE id = ? AND contact_id = ?";
-            sqlStatement($sql, [$contactAddressId, $contactId]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactAddressId, $contactId]);
 
             return true;
         } catch (\Exception $e) {
@@ -506,7 +505,7 @@ class ContactAddressService extends BaseService
 
             // Delete the contact_address record
             $sql = "DELETE FROM contact_address WHERE id = ?";
-            sqlStatement($sql, [$contactAddressId]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactAddressId]);
 
             // Clean up orphaned address
             $this->cleanupOrphanedAddress($addressId);
@@ -529,11 +528,11 @@ class ContactAddressService extends BaseService
     private function cleanupOrphanedAddress(int $addressId): void
     {
         $sql = "SELECT COUNT(*) as count FROM contact_address WHERE address_id = ?";
-        $result = sqlQuery($sql, [$addressId]);
+        $result = QueryUtils::querySingleRow($sql, [$addressId]);
 
         if ($result['count'] == 0) {
             $sql = "DELETE FROM addresses WHERE id = ?";
-            sqlStatement($sql, [$addressId]);
+            QueryUtils::sqlStatementThrowException($sql, [$addressId]);
         }
     }
 
@@ -546,17 +545,17 @@ class ContactAddressService extends BaseService
     {
         // Check if contact has any other addresses
         $sql = "SELECT COUNT(*) as count FROM contact_address WHERE contact_id = ?";
-        $result = sqlQuery($sql, [$contactId]);
+        $result = QueryUtils::querySingleRow($sql, [$contactId]);
 
         if ($result['count'] == 0) {
             // Check if contact is used in relationships
             $sql = "SELECT COUNT(*) as count FROM relationship WHERE contact_id = ?";
-            $result = sqlQuery($sql, [$contactId]);
+            $result = QueryUtils::querySingleRow($sql, [$contactId]);
 
             if ($result['count'] == 0) {
                 // Delete the orphaned contact
                 $sql = "DELETE FROM contact WHERE id = ?";
-                sqlStatement($sql, [$contactId]);
+                QueryUtils::sqlStatementThrowException($sql, [$contactId]);
             }
         }
     }

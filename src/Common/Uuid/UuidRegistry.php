@@ -39,10 +39,12 @@ class UuidRegistry
     const UUID_MAX_BATCH_COUNT = 1000;
     const UUID_TABLE_DEFINITIONS = [
 
+        'care_teams' => ['table_name' => 'care_teams'],
         'ccda' => ['table_name' => 'ccda'],
         'documents' => ['table_name' => 'documents'],
         'drugs' => ['table_name' => 'drugs', 'table_id' => 'drug_id'],
         'drug_sales' => ['table_name' => 'drug_sales', 'table_id' => 'sale_id'],
+        'employer_data' => ['table_name' => 'employer_data'],
         'facility' => ['table_name' => 'facility'],
         'facility_user_ids' => ['table_name' => 'facility_user_ids', 'table_vertical' => ['uid', 'facility_id']],
         'form_clinical_notes' => ['table_name' => 'form_clinical_notes'],
@@ -57,8 +59,10 @@ class UuidRegistry
         'insurance_data' => ['table_name' => 'insurance_data'],
         'lists' => ['table_name' => 'lists'],
         'openemr_postcalendar_events' => ['table_name' => 'openemr_postcalendar_events', 'table_id' => 'pc_eid'],
+        'patient_care_experience_preferences' => ['table_name' => 'patient_care_experience_preferences'],
         'patient_data' => ['table_name' => 'patient_data'],
         'patient_history' => ['table_name' => 'patient_history'],
+        'patient_treatment_intervention_preferences' => ['table_name' => 'patient_treatment_intervention_preferences'],
         'person' => ['table_name' => 'person'],
         'prescriptions' => ['table_name' => 'prescriptions'],
         'procedure_order' => ['table_name' => 'procedure_order', 'table_id' => 'procedure_order_id'],
@@ -69,10 +73,7 @@ class UuidRegistry
         'questionnaire_repository' => ['table_name' => 'questionnaire_repository'],
         'questionnaire_response' => ['table_name' => 'questionnaire_response'],
         'form_history_sdoh' => ['table_name' => 'form_history_sdoh'],
-        'users' => ['table_name' => 'users'],
-        'care_teams' => ['table_name' => 'care_teams'],
-        'patient_care_experience_preferences' => ['table_name' => 'patient_care_experience_preferences'],
-        'patient_treatment_intervention_preferences' => ['table_name' => 'patient_treatment_intervention_preferences']
+        'users' => ['table_name' => 'users']
     ];
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;

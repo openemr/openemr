@@ -31,7 +31,7 @@ class CareTeamService extends BaseService
     private const PRACTITIONER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
     private const PATIENT_HISTORY_TABLE = "patient_history"; //Legacy
-    private const CARE_TEAM_TABLE = "care_team";
+    private const CARE_TEAM_TABLE = "care_teams";
     private const CARE_TEAM_MEMBER_TABLE = "care_team_member";
     public const MAPPING_RESOURCE_NAME = "CareTeam";
 
@@ -48,6 +48,7 @@ class CareTeamService extends BaseService
         ]);
         parent::__construct(self::CARE_TEAM_TABLE);
     }
+
     public function getUuidFields(): array
     {
         return ['uuid', 'puuid'];
@@ -190,7 +191,7 @@ class CareTeamService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, $careTeamIds);
         while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             if (!empty($row['physician_type_codes'])) {
-                $row['physician_type_codes'] = preg_replace('/^SNOMED-CT:/', '', (string) $row['physician_type_codes']);
+                $row['physician_type_codes'] = preg_replace('/^SNOMED-CT:/', '', (string)$row['physician_type_codes']);
             }
             // Group by care team id
             $careTeamId = $row['care_team_id'] ?? null;
@@ -361,7 +362,7 @@ class CareTeamService extends BaseService
 
     public function hasActiveCareTeam($pid)
     {
-        $result = sqlQuery(
+        $result = QueryUtils::sqlStatementThrowException(
             "SELECT COUNT(*) as count FROM " . self::CARE_TEAM_TABLE . " WHERE pid = ? AND (status = 'active' OR status IS NULL)",
             [$pid]
         );
@@ -385,7 +386,7 @@ class CareTeamService extends BaseService
         foreach ($existingMembers as $index => $member) {
             if (!empty($member['user_id'])) {
                 $existingMembersByUserId[intval($member['user_id'])] = $index;
-            } else if (!empty($member['contact_id'])) {
+            } elseif (!empty($member['contact_id'])) {
                 $existingMembersByContactId[intval($member['contact_id'])] = $index;
             }
         }
@@ -416,7 +417,7 @@ class CareTeamService extends BaseService
                     // Insert new member
                     $this->insertCareTeamMember($careTeamId, $entry);
                 }
-            } else if ($contactId) {
+            } elseif ($contactId) {
                 // Handle contact member
                 // Find existing member by contact_id
                 $index = $existingMembersByContactId[$contactId] ?? -1;
@@ -492,7 +493,7 @@ class CareTeamService extends BaseService
         $status = trim($memberData['status'] ?? 'active');
         $note = trim($memberData['note'] ?? '');
 
-        sqlInsert(
+        QueryUtils::sqlInsert(
             "INSERT INTO " . self::CARE_TEAM_MEMBER_TABLE . "
              (care_team_id, user_id, contact_id, role, facility_id, provider_since, status, note, created_by, date_created)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
@@ -553,7 +554,7 @@ class CareTeamService extends BaseService
                      f.name as facility_name, f.facility_npi,
                      lo1.title as role_title, lo2.title as status_title,
                      lo3.title as physician_type_title, lo3.codes as physician_type_code
-         FROM care_team ct
+         FROM care_teams ct
          LEFT JOIN (
             select * FROM care_team_member
             WHERE status != 'inactive' AND status !='entered-in-error'
@@ -602,7 +603,7 @@ class CareTeamService extends BaseService
                 $memberName = trim(($member['contact_first_name'] ?? '') . ' ' . ($member['contact_last_name'] ?? ''));
                 $memberDisplayInfo = $member['contact_relationship'] ?? '';
                 $memberName .= !empty($memberDisplayInfo) ? " ({$memberDisplayInfo})" : '';
-            } else if (!empty($member['user_id'])) {
+            } elseif (!empty($member['user_id'])) {
                 $memberType = 'user';
                 $memberName = trim(($member['fname'] ?? '') . ' ' . ($member['lname'] ?? ''));
                 $memberDisplayInfo = $member['physician_type_title'] ?? '';
