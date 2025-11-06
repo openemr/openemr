@@ -27,30 +27,29 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x \
  && apt-get update \
  && apt-get install -y nodejs
 
-# Temporary fix to get intl install working by bypassing below install-php-extensions run (these issues are usually temporary
+# Temporary fix to get magick install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
-# TODO: intermittently try to remove this block of code and uncomment intl in below ../install-php-extensions run
+# TODO: intermittently try to remove this block of code and add back imagick in below ../install-php-extensions run
 # TODO:
-# Build and install ICU 74 from source (supports unumberrangeformatter.h)
-RUN cd /tmp \
- && curl -LO https://github.com/unicode-org/icu/releases/download/release-74-2/icu4c-74_2-src.tgz \
- && tar -xzf icu4c-74_2-src.tgz \
- && cd icu/source \
- && ./configure --prefix=/usr/local \
+RUN apt-get update && apt-get install -y \
+    libmagickwand-dev \
+    libmagickcore-dev \
+    git \
+ && cd /tmp \
+ && git clone https://github.com/Imagick/imagick.git \
+ && cd imagick \
+ && phpize \
+ && ./configure \
  && make -j$(nproc) \
  && make install \
- && ldconfig \
- && rm -rf /tmp/icu*
-# Now install intl with the newer ICU
-RUN PKG_CONFIG_PATH=/usr/local/lib/pkgconfig \
-    docker-php-ext-configure intl --with-icu-dir=/usr/local \
- && docker-php-ext-install intl
+ && docker-php-ext-enable imagick \
+ && rm -rf /tmp/imagick
 
 # Temporary fix to get redis install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
-# TODO: intermittently try to remove this block of code and uncomment redis in below ../install-php-extensions run
+# TODO: intermittently try to remove this block of code and add back redis in below ../install-php-extensions run
 # TODO:
 # Install Redis from GitHub develop branch
 RUN apt-get update && apt-get install -y git \
@@ -68,9 +67,12 @@ RUN apt-get update && apt-get install -y git \
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions \
  && sync \
- && install-php-extensions calendar \
+ && install-php-extensions bcmath \
+                           calendar \
+                           dom \
                            gd \
                            gettext \
+                           intl \
                            ldap \
                            mysqli \
                            pdo_mysql \

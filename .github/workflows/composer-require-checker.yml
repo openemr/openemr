@@ -6,21 +6,23 @@ on:
     - master
     - rel-*
     paths:
+    - '**.inc'
+    - '**.php'
+    - '.composer-require-checker.json'
+    - '.github/workflows/composer-require-checker.yml'
     - 'composer.json'
     - 'composer.lock'
-    - '**.php'
-    - '**.inc'
-    - '.github/workflows/composer-require-checker.yml'
   pull_request:
     branches:
     - master
     - rel-*
     paths:
+    - '**.inc'
+    - '**.php'
+    - '.composer-require-checker.json'
+    - '.github/workflows/composer-require-checker.yml'
     - 'composer.json'
     - 'composer.lock'
-    - '**.php'
-    - '**.inc'
-    - '.github/workflows/composer-require-checker.yml'
   workflow_dispatch:
 
 permissions:
@@ -43,7 +45,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
-        extensions: calendar, ctype, curl, dom, fileinfo, filter, gd, iconv, imagick, intl, json, ldap, libxml, mbstring, mysqli, opcache, openssl, pdo, pdo_mysql, phar, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
+        extensions: bcmath, calendar, ctype, curl, dom, fileinfo, filter, gd, iconv, imagick, intl, json, ldap, libxml, mbstring, mysqli, openssl, pdo, pdo_mysql, phar, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
         coverage: none
 
     - name: "Get composer cache directory"

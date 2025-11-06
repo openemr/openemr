@@ -953,7 +953,7 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('person
 
 UPDATE `layout_options` SET `list_id` = 'OccupationODH', `list_backup_id` = 'Occupation' WHERE `form_id` = 'DEM' AND `field_id` = 'occupation' AND `group_id` = '4';
 UPDATE `layout_options` SET `list_id` = 'IndustryODH', `list_backup_id` = 'Industry' WHERE `form_id` = 'DEM' AND `field_id` = 'industry' AND `group_id` = '4';
--- ------------------------------------------- 8-1-25 ------------ Have a pleasant snooze ------------------------------------------------------------------
+-- ------------------------------------------- 8-1-25 ------------ sjp ------------------------------------------------------------------
 
 #IfNotRow2D list_options list_id lists option_id specimen_type
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
@@ -1629,540 +1629,185 @@ ALTER TABLE prescriptions ADD COLUMN diagnosis TEXT COMMENT 'Diagnosis or reason
 ALTER TABLE lists_medication ADD COLUMN `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record';
 #EndIf
 
--- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- relatedperson
--- https://build.fhir.org/relatedperson.html
+
+--
+-- Table structure for linking clinical notes to documents
+--
+#IfNotTable clinical_notes_documents
+CREATE TABLE IF NOT EXISTS `clinical_notes_documents` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
+  `document_id` bigint(20) NOT NULL COMMENT 'Foreign key to documents.id',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_note_document` (`clinical_note_id`, `document_id`),
+  KEY `idx_clinical_note_id` (`clinical_note_id`),
+  KEY `idx_document_id` (`document_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links clinical notes to patient documents';
+#EndIf
+
+--
+-- Table structure for linking clinical notes to procedure results
+--
+#IfNotTable clinical_notes_procedure_results
+CREATE TABLE IF NOT EXISTS `clinical_notes_procedure_results` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `clinical_note_id` bigint(20) NOT NULL COMMENT 'Foreign key to form_clinical_notes.id',
+  `procedure_result_id` bigint(20) NOT NULL COMMENT 'Foreign key to procedure_result.procedure_result_id',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
+  `created_by` varchar(255) DEFAULT NULL COMMENT 'Username who created the link',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_note_result` (`clinical_note_id`, `procedure_result_id`),
+  KEY `idx_clinical_note_id` (`clinical_note_id`),
+  KEY `idx_procedure_result_id` (`procedure_result_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB COMMENT='Links clinical notes to procedure results/lab values';
+#EndIf
+
+#IfNotRow issue_types type health_concern
+INSERT INTO issue_types(active, category, type, plural, singular, abbreviation,style, force_show, ordering, aco_spec) VALUES (1, 'default', 'health_concern', 'Health Concerns', 'Health Concern', 'HC', 0, 1, 15, 'patients|med');
+#EndIf
 
 
-#IfNotTable person
-CREATE TABLE `person` (
-    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `uuid` BINARY(16) DEFAULT NULL,
-    `title` VARCHAR(31) DEFAULT NULL COMMENT 'Mr., Mrs., Dr., etc.',
-    `first_name` VARCHAR(63) DEFAULT NULL,
-    `middle_name` VARCHAR(63) DEFAULT NULL,
-    `last_name` VARCHAR(63) DEFAULT NULL,
-    `preferred_name` VARCHAR(63) DEFAULT NULL COMMENT 'Name person prefers to be called',
-    `gender` VARCHAR(31) DEFAULT NULL,
-    `birth_date` DATE DEFAULT NULL,
-    `death_date` DATE DEFAULT NULL,
-    `marital_status` VARCHAR(31) DEFAULT NULL,
-    `race` VARCHAR(63) DEFAULT NULL,
-    `ethnicity` VARCHAR(63) DEFAULT NULL,
-    `preferred_language` VARCHAR(63) DEFAULT NULL COMMENT 'ISO 639-1 code',
-    `communication` VARCHAR(254) DEFAULT NULL COMMENT 'Communication preferences/needs',
-    `ssn` VARCHAR(31) DEFAULT NULL COMMENT 'Should be encrypted in application',
-    `active` TINYINT(1) DEFAULT 1 COMMENT '1=active, 0=inactive',
-    `inactive_reason` VARCHAR(255) DEFAULT NULL,
-    `inactive_date` DATETIME DEFAULT NULL,
-    `notes` TEXT DEFAULT NULL,
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
+#IfNotTable form_history_sdoh_health_concerns
+CREATE TABLE IF NOT EXISTS `form_history_sdoh_health_concerns` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `sdoh_history_id` bigint(20) UNSIGNED NOT NULL COMMENT 'FK to form_history_sdoh.id',
+    `health_concern_id` bigint(20) NOT NULL COMMENT 'FK to lists.id where type=health_concern or medical_problem',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` bigint(20) DEFAULT NULL COMMENT 'FK to users.id',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uuid` (`uuid`),
-    KEY `idx_person_name` (`last_name`, `first_name`),
-    KEY `idx_person_dob` (`birth_date`),
-    KEY `idx_person_search` (`last_name`, `first_name`, `birth_date`),
-    KEY `idx_person_active` (`active`)
-) ENGINE=InnoDB COMMENT='Core person demographics - contact info in contact_telecom';
+    UNIQUE KEY `unique_sdoh_concern` (`sdoh_history_id`, `health_concern_id`),
+    KEY `idx_sdoh_history` (`sdoh_history_id`),
+    KEY `idx_health_concern` (`health_concern_id`)
+) ENGINE=InnoDB COMMENT='Links SDOH assessments to health concern conditions';
 #EndIf
-
-
-#IfNotTable contact_relation
-CREATE TABLE `contact_relation` (
-    `id`  BIGINT(20) NOT NULL auto_increment,
-    `contact_id`  BIGINT(20) NOT NULL,
-    `target_table`  VARCHAR(255) NOT NULL DEFAULT '',
-    `target_id`  BIGINT(20) NOT NULL,
-    `active` BOOLEAN DEFAULT TRUE,
-    `role` VARCHAR(63)  DEFAULT NULL,
-    `relationship` VARCHAR(63)  DEFAULT NULL,
-    `contact_priority` INT DEFAULT 1 COMMENT '1=highest priority',
-    `is_primary_contact` BOOLEAN DEFAULT FALSE,
-    `is_emergency_contact` BOOLEAN DEFAULT FALSE,
-    `can_make_medical_decisions` BOOLEAN DEFAULT FALSE,
-    `can_receive_medical_info` BOOLEAN DEFAULT FALSE,
-    `start_date` DATE,
-    `end_date` DATE,
-    `notes` TEXT,
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-   PRIMARY KEY (`id`),
-   KEY (`contact_id`),
-   INDEX idx_contact_target_table (target_table, target_id)
-) ENGINE = InnoDB;
-#EndIf
-
-
-#IfMissingColumn contact_address created_date
-ALTER TABLE `contact_address` ADD COLUMN `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
-ALTER TABLE `contact_address` ADD COLUMN `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-ALTER TABLE `contact_address` ADD COLUMN `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id';
-#EndIf
-
-#IfNotTable contact_telecom
-CREATE TABLE `contact_telecom` (
-    `id` BIGINT(20) NOT NULL auto_increment,
-    `contact_id` BIGINT(20) NOT NULL,
-    `rank` INT(11) NULL COMMENT 'Specify preferred order of use (1 = highest)',
-    `system` VARCHAR(255) NULL
-    	COMMENT 'FK to list_options.option_id for list_id telecom_systems [phone, fax, email, pager, url, sms, other]',
-    `use` VARCHAR(255) NULL
-    	COMMENT 'FK to list_options.option_id for list_id telecom_uses [home, work, temp, old, mobile]',
-    `value` varchar(255) default NULL,
-    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
-    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
-    `notes` TINYTEXT,
-    `period_start` DATETIME NULL COMMENT 'Date the telecom became active',
-    `period_end` DATETIME NULL COMMENT 'Date the telecom became deactivated',
-    `inactivated_reason` VARCHAR(45) DEFAULT NULL COMMENT '[Values: ???, etc]',
-    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-    `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id',
-   PRIMARY KEY (`id`),
-    KEY (`contact_id`)
-) ENGINE = InnoDB ;
-#EndIf
-
-#IfNotTable person_patient_link
-CREATE TABLE `person_patient_link` (
-    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `person_id` BIGINT(20) NOT NULL COMMENT 'FK to person.id',
-    `patient_id` BIGINT(20) NOT NULL COMMENT 'FK to patient_data.id',
-    `linked_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When the link was created',
-    `linked_by` BIGINT(20) DEFAULT NULL COMMENT 'FK to users.id - who created the link',
-    `link_method` VARCHAR(50) DEFAULT 'manual' COMMENT 'How link was created: manual, auto_detected, migrated, import',
-    `notes` TEXT COMMENT 'Optional notes about why/how they were linked',
-    `active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Whether link is active (allows soft delete)',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_active_link` (`person_id`, `patient_id`, `active`),
-    KEY `idx_ppl_person` (`person_id`),
-    KEY `idx_ppl_patient` (`patient_id`),
-    KEY `idx_ppl_active` (`active`),
-    KEY `idx_ppl_linked_date` (`linked_date`),
-    KEY `idx_ppl_method` (`link_method`)
-) ENGINE=InnoDB COMMENT='Links person records to patient_data records when person becomes patient';
-#EndIf
-
-#IfNotRow2D layout_options form_id DEM field_id additional_telecoms
-    #IfRow2D layout_options form_id DEM field_id additional_addresses
-    SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='additional_addresses' AND form_id='DEM');
-    SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');    
-    UPDATE layout_options SET seq = @max_seq+19 WHERE form_id = 'DEM' AND field_id = 'additional_addresses';
-    INSERT INTO `layout_options`
-        (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
-    VALUES
-        ('DEM','additional_telecoms',@group_id,'',@max_seq+9,55,0,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Telecoms',0);
-    #Endif
-#Endif
-
-#IfNotRow2D list_options list_id lists option_id telecom_systems
-INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
-VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
-
-INSERT INTO list_options
-(list_id,option_id,title,seq,is_default,activity)
-VALUES
-    ('telecom_systems','PHONE','phone',10,0,1),
-    ('telecom_systems','FAX','fax',20,0,1),
-    ('telecom_systems','EMAIL','email',30,0,1),
-    ('telecom_systems','PAGER','pager',40,0,1),
-    ('telecom_systems','URL','url',50,0,1),
-    ('telecom_systems','SMS','sms',60,0,1),
-    ('telecom_systems','OTHER','other',70,0,1);
-#EndIf
-
-#IfNotRow2D list_options list_id lists option_id telecom_uses
-INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
-VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
-
-INSERT INTO list_options
-(list_id,option_id,title,seq,is_default,activity)
-VALUES
-    ('telecom_uses','HOME','home',10,0,1),
-    ('telecom_uses','WORK','work',20,0,1),
-    ('telecom_uses','TEMP','temp',30,0,1),
-    ('telecom_uses','OLD','old',40,0,1),
-    ('telecom_uses','MOBILE','mobile',50,0,1);
-#EndIf
-
-#IfNotRow2D list_options list_id lists option_id person_patient_link_method
-INSERT IGNORE INTO list_options
-(list_id, option_id, title, seq, is_default)
-VALUES
-    ('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);
-
-INSERT INTO list_options
-(list_id, option_id, title, seq, is_default, option_value, notes)
-VALUES
-    ('person_patient_link_method', 'manual', 'Manually Linked by User', 10, 1, 0, 'User explicitly linked person to patient'),
-    ('person_patient_link_method', 'auto_detected', 'Auto-Detected at Registration', 20, 0, 0, 'System detected match during patient registration'),
-    ('person_patient_link_method', 'migrated', 'Migrated from Legacy System', 30, 0, 0, 'Link created during data migration'),
-    ('person_patient_link_method', 'import', 'Imported from External System', 40, 0, 0, 'Link created during data import'),
-    ('person_patient_link_method', 'merge', 'Merged Duplicate Records', 50, 0, 0, 'Link created when merging duplicate records');
-#EndIf
-
--- -------------------------------------------------------------------------------------------------------------------------------------------------------
--- relatedperson-relationshiptype Valuesets
--- https://terminology.hl7.org/6.5.0/ValueSet-v3-PersonalRelationshipRoleType.html
-
-#IfNotRow2D list_options list_id lists option_id related_person_relationship
-INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
-    VALUES ('lists','related_person_relationship','Related Person Relationships',0, 1, 0);
-
--- Spouse/Partner
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','SPS','spouse',10,0,1),
-    ('related_person_relationship','HUSB','husband',20,0,1),
-    ('related_person_relationship','WIFE','wife',30,0,1),
-    ('related_person_relationship','DOMPART','domestic partner',40,0,1),
-    ('related_person_relationship','SIGOTHR','significant other',50,0,1),
-    ('related_person_relationship','FMRSPS','former spouse',60,0,1);
-
-    -- Parents
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','PRN','parent',70,0,1),
-    ('related_person_relationship','NPRN','natural parent',80,0,1),
-    ('related_person_relationship','FTH','father',90,0,1),
-    ('related_person_relationship','NFTH','natural father',100,0,1),
-    ('related_person_relationship','MTH','mother',110,0,1),
-    ('related_person_relationship','NMTH','natural mother',120,0,1),
-    ('related_person_relationship','ADOPTF','adoptive father',130,0,1),
-    ('related_person_relationship','ADOPTM','adoptive mother',140,0,1),
-    ('related_person_relationship','ADOPTP','adoptive parent',150,0,1),
-    ('related_person_relationship','FTHFOST','foster father',160,0,1),
-    ('related_person_relationship','MTHFOST','foster mother',170,0,1),
-    ('related_person_relationship','PRNFOST','foster parent',180,0,1),
-    ('related_person_relationship','STPFTH','stepfather',190,0,1),
-    ('related_person_relationship','STPMTH','stepmother',200,0,1),
-    ('related_person_relationship','STPPRN','step parent',210,0,1),
-    ('related_person_relationship','GESTM','gestational mother',220,0,1);
-
-    -- Children
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','CHILD','Child',230,0,1),
-    ('related_person_relationship','NCHILD','natural child',240,0,1),
-    ('related_person_relationship','DAUC','daughter',250,0,1),
-    ('related_person_relationship','DAU','natural daughter',260,0,1),
-    ('related_person_relationship','SONC','son',270,0,1),
-    ('related_person_relationship','SON','natural son',280,0,1),
-    ('related_person_relationship','CHLDADOPT','Adopted Child',290,0,1),
-    ('related_person_relationship','DAUADOPT','Adopted Daughter',300,0,1),
-    ('related_person_relationship','SONADOPT','Adopted Son',310,0,1),
-    ('related_person_relationship','CHLDFOST','Foster Child',320,0,1),
-    ('related_person_relationship','DAUFOST','foster daughter',330,0,1),
-    ('related_person_relationship','SONFOST','foster son',340,0,1),
-    ('related_person_relationship','STPCHLD','step child',350,0,1),
-    ('related_person_relationship','STPDAU','stepdaughter',360,0,1),
-    ('related_person_relationship','STPSON','stepson',370,0,1);
-
-    -- Siblings
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','SIB','sibling',380,0,1),
-    ('related_person_relationship','NSIB','natural sibling',390,0,1),
-    ('related_person_relationship','BRO','brother',400,0,1),
-    ('related_person_relationship','NBRO','natural brother',410,0,1),
-    ('related_person_relationship','SIS','sister',420,0,1),
-    ('related_person_relationship','NSIS','natural sister',430,0,1),
-    ('related_person_relationship','HBRO','half-brother',440,0,1),
-    ('related_person_relationship','HSIS','half-sister',450,0,1),
-    ('related_person_relationship','HSIB','half-sibling',460,0,1),
-    ('related_person_relationship','STPBRO','stepbrother',470,0,1),
-    ('related_person_relationship','STPSIS','stepsister',480,0,1),
-    ('related_person_relationship','STPSIB','step sibling',490,0,1),
-    ('related_person_relationship','TWIN','twin',500,0,1),
-    ('related_person_relationship','TWINBRO','twin brother',510,0,1),
-    ('related_person_relationship','TWINSIS','twin sister',520,0,1),
-    ('related_person_relationship','FTWIN','fraternal twin',530,0,1),
-    ('related_person_relationship','FTWINBRO','fraternal twin brother',540,0,1),
-    ('related_person_relationship','FTWINSIS','fraternal twin sister',550,0,1),
-    ('related_person_relationship','ITWIN','identical twin',560,0,1),
-    ('related_person_relationship','ITWINBRO','identical twin brother',570,0,1),
-    ('related_person_relationship','ITWINSIS','identical twin sister',580,0,1);
-
-    -- Grandparents
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GRPRN','grandparent',590,0,1),
-    ('related_person_relationship','GRFTH','grandfather',600,0,1),
-    ('related_person_relationship','GRMTH','grandmother',610,0,1),
-    ('related_person_relationship','MGRPRN','maternal grandparent',620,0,1),
-    ('related_person_relationship','MGRFTH','maternal grandfather',630,0,1),
-    ('related_person_relationship','MGRMTH','maternal grandmother',640,0,1),
-    ('related_person_relationship','PGRPRN','paternal grandparent',650,0,1),
-    ('related_person_relationship','PGRFTH','paternal grandfather',660,0,1),
-    ('related_person_relationship','PGRMTH','paternal grandmother',670,0,1);
-
-    -- Great Grandparents
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GGRPRN','great grandparent',680,0,1),
-    ('related_person_relationship','GGRFTH','great grandfather',690,0,1),
-    ('related_person_relationship','GGRMTH','great grandmother',700,0,1),
-    ('related_person_relationship','MGGRPRN','maternal great-grandparent',710,0,1),
-    ('related_person_relationship','MGGRFTH','maternal great-grandfather',720,0,1),
-    ('related_person_relationship','MGGRMTH','maternal great-grandmother',730,0,1),
-    ('related_person_relationship','PGGRPRN','paternal great-grandparent',740,0,1),
-    ('related_person_relationship','PGGRFTH','paternal great-grandfather',750,0,1),
-    ('related_person_relationship','PGGRMTH','paternal great-grandmother',760,0,1);
-
-    -- Grandchildren
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GRNDCHILD','grandchild',770,0,1),
-    ('related_person_relationship','GRNDDAU','granddaughter',780,0,1),
-    ('related_person_relationship','GRNDSON','grandson',790,0,1);
-
-    -- Extended Family
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','FAMMEMB','Family Member',800,0,1),
-    ('related_person_relationship','EXT','extended family member',810,0,1),
-    ('related_person_relationship','AUNT','aunt',820,0,1),
-    ('related_person_relationship','MAUNT','maternal aunt',830,0,1),
-    ('related_person_relationship','PAUNT','paternal aunt',840,0,1),
-    ('related_person_relationship','UNCLE','uncle',850,0,1),
-    ('related_person_relationship','MUNCLE','maternal uncle',860,0,1),
-    ('related_person_relationship','PUNCLE','paternal uncle',870,0,1),
-    ('related_person_relationship','COUSN','maternal cousin',880,0,1),
-    ('related_person_relationship','MCOUSN','maternal cousin',890,0,1),
-    ('related_person_relationship','PCOUSN','paternal cousin',900,0,1),
-    ('related_person_relationship','NEPHEW','nephew',910,0,1),
-    ('related_person_relationship','NIECE','niece',920,0,1);
-
-    -- In-Laws
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','INLAW','inlaw',930,0,1),
-    ('related_person_relationship','PRNINLAW','parent in-law',940,0,1),
-    ('related_person_relationship','FTHINLAW','father-in-law',950,0,1),
-    ('related_person_relationship','MTHINLAW','mother-in-law',960,0,1),
-    ('related_person_relationship','SIBINLAW','sibling in-law',970,0,1),
-    ('related_person_relationship','BROINLAW','brother-in-law',980,0,1),
-    ('related_person_relationship','SISINLAW','sister-in-law',990,0,1),
-    ('related_person_relationship','DAUINLAW','daughter in-law',1000,0,1),
-    ('related_person_relationship','SONINLAW','son in-law',1010,0,1);
-
-    -- Legal/Guardian Relationships
-    -- INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    -- ('related_person_relationship','GUADLTM','guardian ad lidem',1030,0,1),
-    -- ('related_person_relationship','SPOWATT','special power of attorney',1050,0,1);
-
-    -- Other Relationships
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','FRND','unrelated friend',1070,0,1),
-    ('related_person_relationship','NBOR','neighbor',1080,0,1),
-    ('related_person_relationship','ROOM','Roommate',1090,0,1);
-
-    -- Self
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','ONESELF','self',1100,0,1);
-#Endif
-
-
--- -------------------------------------------------------------------------------------------------------------------------------------------------------
--- relatedperson-relationshiptype Valuesets
--- https://build.fhir.org/valueset-relatedperson-relationshiptype.html
-
-#IfNotRow2D list_options list_id lists option_id related_person_role
-INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
-    VALUES ('lists','related_person_role','Related Person Role',0, 1, 0);
-
-INSERT INTO list_options
-    (list_id,option_id,title,seq,is_default,activity)
-VALUES
-    ('related_person_role','ECON','Emergency Contact',10,0,1),
-    ('related_person_role','NOK','Next of Kin',20,0,1),
-    ('related_person_role','GUARD','Guardian',30,0,1),
-    ('related_person_role','DEPEN','Dependent',40,0,1),
-    ('related_person_role','CON','contact',50,0,1),
-    ('related_person_role','EMP','Employee',60,0,1),
-    ('related_person_role','GUAR','Guarantor',70,0,1),
-    ('related_person_role','CAREGIVER','Caregiver',80,0,1),
-    ('related_person_role','POWATT','Power of Attorney',90,0,1),
-    ('related_person_role','DPOWATT','Durable Power of Attorney',100,0,1),
-    ('related_person_role','HPOWATT','Healthcare Power of Attorney',110,0,1),
-    ('related_person_role','BILL','Billing Contact',120,0,1),
-    ('related_person_role','E','Employer',130,0,1),
-    ('related_person_role','POLHOLD','Policy Holder',140,0,1),
-    ('related_person_role','PAYEE','Payee',150,0,1),
-    ('related_person_role','NOT','Notary Public',160,0,1),
-    ('related_person_role','PROV','Healthcare Provider',170,0,1),
-    ('related_person_role','WIT','Witness',180,0,1),
-    ('related_person_role','O','Other',190,0,1),
-    ('related_person_role','U','Unknown',200,0,1);
-#EndIf
-
-#IfTable patient_related_persons
-ALTER TABLE `person` ADD COLUMN `pid` BIGINT(20) DEFAULT NULL COMMENT 'Temporary column to hold patient_data.pid during migration';
-ALTER TABLE `person` ADD COLUMN `is_new` TINYINT(1) DEFAULT 1 COMMENT 'Flag to indicate if record is newly created during migration';
--- we need to migrate the data over for the patient_related_persons table
-CREATE TEMPORARY TABLE `person_temp` AS SELECT * FROM patient_related_persons WHERE related_firstname_1 IS NOT NULL AND related_firstname_1 != '';
-
-CREATE TEMPORARY TABLE `person_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `person_seq` (`pid`) SELECT pe.pid FROM person_temp pe;
-INSERT INTO `person` (`first_name`, `last_name`, `gender`,`pid`) SELECT related_firstname_1, related_lastname_1, `related_sex_1`,`pid` FROM person_temp;
-UPDATE `person` JOIN person_seq ON person.pid = person_seq.pid CROSS JOIN sequences ids SET person.id = person_seq.id+ids.id WHERE person.is_new = 1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM person);
-DROP TEMPORARY TABLE `person_seq`;
-
--- add patient_data contacts if needed
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'patient_data', new_pids.pid FROM (SELECT p.pid FROM person p LEFT JOIN contact c ON p.pid = c.foreign_id AND c.foreign_table_name='patient_data' WHERE c.id IS NULL AND p.is_new=1) new_pids;
-INSERT INTO `contact_relation` (`contact_id`, `target_table`, `target_id`, `relationship`) SELECT c.id, 'person', pe.id, p.related_relationship_1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pe.pid  AND pe.is_new=1;
-
--- add person contacts
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'person', pe.id FROM person pe WHERE pe.is_new=1;
-
--- we can only do this because persons are a brand new table
-CREATE TEMPORARY TABLE `addresses_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `addresses_seq` (`pid`) SELECT pe.pid FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND p.pid = pe.pid WHERE pe.is_new=1;
-UPDATE addresses_seq CROSS JOIN sequences s SET addresses_seq.id = addresses_seq.id + s.id;
-INSERT INTO addresses (`id`, `line1`, `city`, `state`, `zip`, `country`, `foreign_id`) SELECT addr.id, p.related_address_1, p.related_city_1, p.related_state_1, p.related_postalcode_1,p.related_country_1, c.id FROM person_temp p JOIN addresses_seq addr ON p.pid=addr.pid JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name='person' AND c.foreign_id=pe.id CROSS JOIN sequences s WHERE p.related_city_1 IS NOT NULL AND p.related_city_1 != '' AND pe.is_new=1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM addresses_seq);
-DROP TEMPORARY TABLE `addresses_seq`;
-
--- address_id = contact -> person
-INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_1, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_1 IS NOT NULL AND p.related_phone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_1 IS NOT NULL AND p.related_workphone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_1 IS NOT NULL AND p.related_email_1 != ''  AND pe.is_new=1;
-
-UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
-DROP TEMPORARY TABLE `person_temp`;
-
--- now handle related person 2
-CREATE TEMPORARY TABLE `person_temp` AS SELECT * FROM patient_related_persons WHERE related_firstname_2 IS NOT NULL AND related_firstname_2 != '';
-
-CREATE TEMPORARY TABLE `person_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `person_seq` (`pid`) SELECT pe.pid FROM person_temp pe;
-INSERT INTO `person` (`first_name`, `last_name`, `gender`,`pid`) SELECT related_firstname_2, related_lastname_2, `related_sex_2`,`pid` FROM person_temp;
-UPDATE `person` JOIN person_seq ON person.pid = person_seq.pid CROSS JOIN sequences ids SET person.id = person_seq.id+ids.id WHERE person.is_new = 1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM person);
-DROP TEMPORARY TABLE `person_seq`;
-
--- add patient_data contacts if needed
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'patient_data', new_pids.pid FROM (SELECT p.pid FROM person p LEFT JOIN contact c ON p.pid = c.foreign_id AND c.foreign_table_name='patient_data' WHERE c.id IS NULL AND p.is_new=1) new_pids;
-INSERT INTO `contact_relation` (`contact_id`, `target_table`, `target_id`, `relationship`) SELECT c.id, 'person', pe.id, p.related_relationship_2 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pe.pid  AND pe.is_new=1;
-
--- add person contacts
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'person', pe.id FROM person pe WHERE pe.is_new=1;
-
--- we can only do this because persons are a brand new table
-CREATE TEMPORARY TABLE `addresses_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `addresses_seq` (`pid`) SELECT pe.pid FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND p.pid = pe.pid WHERE pe.is_new=1;
-UPDATE addresses_seq CROSS JOIN sequences s SET addresses_seq.id = addresses_seq.id + s.id;
-INSERT INTO addresses (`id`, `line1`, `city`, `state`, `zip`, `country`, `foreign_id`) SELECT addr.id, p.related_address_2, p.related_city_2, p.related_state_2, p.related_postalcode_2,p.related_country_2, c.id FROM person_temp p JOIN addresses_seq addr ON p.pid=addr.pid JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name='person' AND c.foreign_id=pe.id CROSS JOIN sequences s WHERE p.related_city_2 IS NOT NULL AND p.related_city_2 != '' AND pe.is_new=1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM addresses_seq);
-DROP TEMPORARY TABLE `addresses_seq`;
-
--- address_id = contact -> person
-INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_2, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_2 IS NOT NULL AND p.related_phone_2 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_2, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_2 IS NOT NULL AND p.related_workphone_2 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_2, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_2 IS NOT NULL AND p.related_email_2 != ''  AND pe.is_new=1;
-
-UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
-DROP TEMPORARY TABLE `person_temp`;
-
--- now handle related person 3
-CREATE TEMPORARY TABLE `person_temp` AS SELECT * FROM patient_related_persons WHERE related_firstname_3 IS NOT NULL AND related_firstname_3 != '';
-
-CREATE TEMPORARY TABLE `person_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `person_seq` (`pid`) SELECT pe.pid FROM person_temp pe;
-INSERT INTO `person` (`first_name`, `last_name`, `gender`,`pid`) SELECT related_firstname_3, related_lastname_3, `related_sex_3`,`pid` FROM person_temp;
-UPDATE `person` JOIN person_seq ON person.pid = person_seq.pid CROSS JOIN sequences ids SET person.id = person_seq.id+ids.id WHERE person.is_new = 1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM person);
-DROP TEMPORARY TABLE `person_seq`;
-
--- add patient_data contacts if needed
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'patient_data', new_pids.pid FROM (SELECT p.pid FROM person p LEFT JOIN contact c ON p.pid = c.foreign_id AND c.foreign_table_name='patient_data' WHERE c.id IS NULL AND p.is_new=1) new_pids;
-INSERT INTO `contact_relation` (`contact_id`, `target_table`, `target_id`, `relationship`) SELECT c.id, 'person', pe.id, p.related_relationship_3 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pe.pid  AND pe.is_new=1;
-
--- add person contacts
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'person', pe.id FROM person pe WHERE pe.is_new=1;
-
--- we can only do this because persons are a brand new table
-CREATE TEMPORARY TABLE `addresses_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `addresses_seq` (`pid`) SELECT pe.pid FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND p.pid = pe.pid WHERE pe.is_new=1;
-UPDATE addresses_seq CROSS JOIN sequences s SET addresses_seq.id = addresses_seq.id + s.id;
-INSERT INTO addresses (`id`, `line1`, `city`, `state`, `zip`, `country`, `foreign_id`) SELECT addr.id, p.related_address_3, p.related_city_3, p.related_state_3, p.related_postalcode_3,p.related_country_3, c.id FROM person_temp p JOIN addresses_seq addr ON p.pid=addr.pid JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name='person' AND c.foreign_id=pe.id CROSS JOIN sequences s WHERE p.related_city_3 IS NOT NULL AND p.related_city_3 != '' AND pe.is_new=1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM addresses_seq);
-DROP TEMPORARY TABLE `addresses_seq`;
-
--- address_id = contact -> person
-INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_3, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_3 IS NOT NULL AND p.related_phone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_3 IS NOT NULL AND p.related_workphone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_3 IS NOT NULL AND p.related_email_3 != ''  AND pe.is_new=1;
-
-UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
-DROP TEMPORARY TABLE `person_temp`;
-
-DROP TABLE IF EXISTS patient_related_persons;
-ALTER TABLE `person` DROP COLUMN `pid`, DROP COLUMN `is_new`;
-#EndIf
-
-#IfRow2D layout_options form_id DEM field_id related_firstname_1
-DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_1','related_lastname_1','related_relationship_1','related_sex_1','related_address_1','related_city_1','related_state_1','related_postalcode_1','related_country_1','related_phone_1','related_workphone_1','related_email_1','related_static_1');
-DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_2','related_lastname_2','related_relationship_2','related_sex_2','related_address_2','related_city_2','related_state_2','related_postalcode_2','related_country_2','related_phone_2','related_workphone_2','related_email_2','related_static_2');
-DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_3','related_lastname_3','related_relationship_3','related_sex_3','related_address_3','related_city_3','related_state_3','related_postalcode_3','related_country_3','related_phone_3','related_workphone_3','related_email_3','related_static_3');
--- clear out the Related group if it exists so we can re-add it
-DELETE FROM layout_group_properties WHERE  grp_form_id = 'DEM' AND grp_title = 'Related';
-#EndIf
-
-
-#IfRow3D layout_options form_id DEM field_id guardiansname title Name
-UPDATE layout_options SET title = 'Guardian Name' WHERE form_id = 'DEM' AND field_id = 'guardiansname';
-#Endif
-
-#IfRow2D layout_group_properties grp_form_id DEM grp_title Guardian
-SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='guardianemail' AND form_id='DEM');
-UPDATE layout_group_properties SET grp_title = 'Related' WHERE grp_title = 'Guardian' AND grp_form_id = 'DEM' AND grp_group_id = @group_id;
-#Endif
-
-#IfNotRow2D layout_group_properties grp_form_id DEM grp_title Related
-SET @group_id = (SELECT max(`grp_group_id`)+1 FROM layout_group_properties WHERE grp_form_id='DEM');
-INSERT INTO layout_group_properties
-(grp_form_id, grp_group_id, grp_title, grp_mapping)
-VALUES
-    ('DEM', @group_id, 'Related','');
-#Endif
-
-
-#IfNotRow2D layout_options form_id DEM field_id related_persons
--- Add Related Persons field to DEM form under Related group, if there are duplicates we add to the end
-SET @group_id = (SELECT max(`grp_group_id`) FROM layout_group_properties WHERE grp_form_id='DEM' AND grp_title='Related');
-SET @seq_add_to = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
-INSERT INTO `layout_options`
-(`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
-VALUES
-    ('DEM','related_persons',@group_id,'',@seq_add_to+1,56,1,0,0,'',4,4,'','["J","SP"]','Related Persons',0);
-#Endif
-
-#IfNotIndex patient_data idx_patient_name
-CREATE INDEX idx_patient_name ON patient_data(lname, fname);
-#EndIf
-
-#IfNotIndex patient_data idx_patient_dob
-CREATE INDEX idx_patient_dob ON patient_data(DOB);
-#EndIf
-
-#IfNotTable care_team_member
-CREATE TABLE `care_team_member` (
+-- ------------------------------------------------------------------- 11-01-2025 sjp -----------------------------------------------------------------------------
+-- Patient Preferences Database Schema
+-- Uses OpenEMR's list_options table for LOINC codes
+-- Table for storing patient treatment intervention preferences
+#IfNotTable patient_treatment_intervention_preferences
+CREATE TABLE `patient_treatment_intervention_preferences` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
-    `care_team_id` int(11) NOT NULL,
-    `user_id` BIGINT(20) COMMENT 'fk to users.id represents a provider or staff member',
-    `contact_id` BIGINT(20) COMMENT 'fk to contact.id which represents a contact person not in users or facility table',
-    `role` varchar(50) NOT NULL COMMENT 'fk to list_options.option_id WHERE list_id=care_team_roles',
-    `facility_id` BIGINT(20) COMMENT 'fk to facility.id represents an organization or location',
-    `provider_since` date NULL,
-    `status` varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
-    `date_created` datetime DEFAULT current_timestamp(),
-    `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `created_by` BIGINT(20) COMMENT 'fk to users.id and is the user that added this team member',
-    `updated_by` BIGINT(20) COMMENT 'fk to users.id and is the user that last updated this team member',
+    `uuid` binary(16) DEFAULT NULL,
+    `patient_id` int(11) NOT NULL,
+    `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
+    `observation_code_text` varchar(255) DEFAULT NULL,
+    `value_type` enum('coded','text','boolean') DEFAULT 'coded',
+    `value_code` varchar(50) DEFAULT NULL,
+    `value_code_system` varchar(255) DEFAULT NULL,
+    `value_display` varchar(255) DEFAULT NULL,
+    `value_text` text,
+    `value_boolean` tinyint(1) DEFAULT NULL,
+    `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` varchar(20) DEFAULT 'final',
     `note` text,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
-) ENGINE=InnoDB COMMENT='Stores members of a care team for a patient';
+    UNIQUE KEY `unq_uuid` (`uuid`),
+    KEY `patient_id` (`patient_id`),
+    KEY `observation_code` (`observation_code`),
+    KEY `status` (`status`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Table for storing patient care experience preferences
+#IfNotTable patient_care_experience_preferences
+CREATE TABLE `patient_care_experience_preferences` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `uuid` binary(16) DEFAULT NULL,
+    `patient_id` int(11) NOT NULL,
+    `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
+    `observation_code_text` varchar(255) DEFAULT NULL,
+    `value_type` enum('coded','text','boolean') DEFAULT 'coded',
+    `value_code` varchar(50) DEFAULT NULL,
+    `value_code_system` varchar(255) DEFAULT NULL,
+    `value_display` varchar(255) DEFAULT NULL,
+    `value_text` text,
+    `value_boolean` tinyint(1) DEFAULT NULL,
+    `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` varchar(20) DEFAULT 'final',
+    `note` text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unq_uuid` (`uuid`),
+    KEY `patient_id` (`patient_id`),
+    KEY `observation_code` (`observation_code`),
+    KEY `status` (`status`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- ------------------------------------- Parent lists under `lists`--------------------------------------------------------------------
+#IfNotRow2D list_options list_id lists option_id treatment_intervention_preferences
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
+VALUES  ('lists','treatment_intervention_preferences','Treatment Intervention Preferences',1);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('treatment_intervention_preferences','81329-5','Thoughts on resuscitation (CPR)',10,'tip_resuscitation_answers','LOINC:81329-5',1),
+    ('treatment_intervention_preferences','81330-3','Thoughts on intubation',20,'tip_intubation_answers','LOINC:81330-3',1),
+    ('treatment_intervention_preferences','81331-1','Thoughts on tube feeding',30,'tip_tubefeeding_answers','LOINC:81331-1',1),
+    ('treatment_intervention_preferences','81332-9','Thoughts on IV fluid and support',40,'tip_ivfluids_answers','LOINC:81332-9',1),
+    ('treatment_intervention_preferences','81333-7','Thoughts on antibiotics',50,'tip_antibiotics_answers','LOINC:81333-7',1);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id care_experience_preferences
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)
+VALUES ('lists','care_experience_preferences','Care Experience Preferences',1);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('care_experience_preferences','95541-9','Care experience preference',10,'cep_general_answers','LOINC:95541-9',1),
+    ('care_experience_preferences','81364-2','Religious or cultural beliefs (reported)',20,'cep_religious_answers','LOINC:81364-2',1),
+    ('care_experience_preferences','81365-9','Religious/cultural affiliation contact to notify (reported)',30,'cep_religious_contact_answers','LOINC:81365-9',1),
+    ('care_experience_preferences','103980-9','Preferred pharmacy',40,'cep_pharmacy_answers','LOINC:103980-9',1),
+    ('care_experience_preferences','81338-6','Patient goals, preferences & priorities for care experience',90,'cep_overall_narrative','LOINC:81338-6',1);
+#EndIf
+-- Value sets table for coded answers
+#IfNotTable preference_value_sets
+CREATE TABLE `preference_value_sets` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `loinc_code` varchar(50) NOT NULL,
+     `answer_code` varchar(100) NOT NULL,
+     `answer_system` varchar(255) NOT NULL,
+     `answer_display` varchar(255) NOT NULL,
+     `answer_definition` text,
+     `sort_order` int(11) DEFAULT 0,
+     `active` tinyint(1) DEFAULT 1,
+     PRIMARY KEY (`id`),
+     KEY `loinc_code` (`loinc_code`)
+) ENGINE=InnoDB COMMENT='Answer lists for preference codes';
+
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+    ('81329-5','LA33470-8','http://loinc.org','Yes CPR',1,1),
+    ('81329-5','LA33471-6','http://loinc.org','No CPR (Do Not Attempt Resuscitation)',2,1),
+    ('81329-5','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81329-5','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81330-3','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81330-3','373067005','http://snomed.info/sct','No',2,1),
+    ('81330-3','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81330-3','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81331-1','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81331-1','373067005','http://snomed.info/sct','No',2,1),
+    ('81331-1','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81331-1','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81332-9','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81332-9','373067005','http://snomed.info/sct','No',2,1),
+    ('81332-9','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81332-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81333-7','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81333-7','373067005','http://snomed.info/sct','No',2,1),
+    ('81333-7','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81333-7','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81364-2','160542002','http://snomed.info/sct','Muslim',1,1),
+    ('81364-2','160540005','http://snomed.info/sct','Jewish',2,1),
+    ('81364-2','160539006','http://snomed.info/sct','Christian',3,1),
+    ('81364-2','160538003','http://snomed.info/sct','Hindu',4,1),
+    ('81364-2','160543007','http://snomed.info/sct','Buddhist',5,1),
+    ('81364-2','276119007','http://snomed.info/sct','No religion',6,1),
+    ('81364-2','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other',99,1),
+    ('81365-9','373066001','http://snomed.info/sct','Yes',1,1),
+    ('81365-9','373067005','http://snomed.info/sct','No',2,1),
+    ('81365-9','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1),
+    ('81365-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('103980-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('95541-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
+    ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
 #EndIf

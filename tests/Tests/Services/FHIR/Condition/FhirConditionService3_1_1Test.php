@@ -17,7 +17,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
@@ -46,7 +46,7 @@ class FhirConditionService3_1_1Test extends TestCase
     {
         parent::setUp();
         // the 3_1_1 profile was based on problem-list-item, so we use that service
-        $this->fhirConditionService = new FhirConditionProblemsHealthConcernService();
+        $this->fhirConditionService = new FhirConditionProblemListItemService();
         $this->fixtureManager = new ConditionFixtureManager();
     }
 

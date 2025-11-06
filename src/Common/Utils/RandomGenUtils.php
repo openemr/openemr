@@ -24,11 +24,11 @@ class RandomGenUtils
     {
         try {
             return random_bytes($length);
-        } catch (Error $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . errorLogEscape($e->getMessage()));
+        } catch (\Error $e) {
+            error_log('OpenEMR Error: Encryption is not working because of random_bytes() Error: ' . errorLogEscape($e->getMessage()));
             return '';
-        } catch (Exception $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage()));
+        } catch (\Exception $e) {
+            error_log('OpenEMR Error: Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage()));
             return '';
         }
     }
@@ -49,11 +49,11 @@ class RandomGenUtils
                 $str .= $alphabet[random_int(0, $alphamax)];
             }
             return $str;
-        } catch (Error $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage()));
+        } catch (\Error $e) {
+            error_log('OpenEMR Error: Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage()));
             return '';
-        } catch (Exception $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage()));
+        } catch (\Exception $e) {
+            error_log('OpenEMR Error: Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage()));
             return '';
         }
     }
@@ -69,8 +69,8 @@ class RandomGenUtils
         $new_token = self::produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
         if (empty($new_token)) {
-            error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique token.');
-            die("OpenEMR Error : OpenEMR is not working because unable to create a random unique token.");
+            error_log('OpenEMR Error: OpenEMR is not working because unable to create a random unique token.');
+            die("OpenEMR Error: OpenEMR is not working because unable to create a random unique token.");
         }
 
         return $new_token;
@@ -93,7 +93,7 @@ class RandomGenUtils
             $the_password = self::produceRandomString(12, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%");
             if (empty($the_password)) {
                 // Something is seriously wrong with the random generator
-                $error_message = "OpenEMR Error : OpenEMR is not working because unable to create a random unique token.";
+                $error_message = "OpenEMR Error: OpenEMR is not working because unable to create a random unique token.";
                 error_log($error_message);
                 die($error_message);
             }
@@ -107,7 +107,7 @@ class RandomGenUtils
             }
         }
         // Something is seriously wrong since 1000 tries have not created a valid password
-        $error_message = "OpenEMR Error : OpenEMR is not working because unable to create a valid password in $max_tries attempts.";
+        $error_message = "OpenEMR Error: OpenEMR is not working because unable to create a valid password in $max_tries attempts.";
         error_log($error_message);
         die($error_message);
     }

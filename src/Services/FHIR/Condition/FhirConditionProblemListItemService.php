@@ -19,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
 use OpenEMR\Services\FHIR\Condition\Trait\FhirConditionTrait;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -30,10 +31,14 @@ use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
-class FhirConditionProblemsHealthConcernService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
+class FhirConditionProblemListItemService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
     use MappedServiceTrait;
@@ -46,14 +51,6 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
 
     const USCGI_PROFILE_URI_3_1_1 = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition';
     const USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns';
-
-    // Assessment condition categories for USCDI v4+
-    const CATEGORY_ASSESSMENT_CONDITION_SDOH = 'sdoh';
-    const CATEGORY_ASSESSMENT_CONDITION_FUNCTIONAL_STATUS = 'functional-status';
-    const CATEGORY_ASSESSMENT_CONDITION_DISABILITY_STATUS = 'disability-status';
-    const CATEGORY_ASSESSMENT_CONDITION_COGNITIVE_STATUS = 'cognitive-status';
-    const CATEGORY_ASSESSMENT_CONDITION_TREATMENT_INTERVENTION_STATUS = 'treatment-intervention-status';
-    const CATEGORY_ASSESSMENT_CONDITION_CARE_EXPERIENCE_PREFERENCE = 'care-experience-preference';
 
     const USCDI_PROFILE = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns";
 
@@ -81,14 +78,7 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
     public function supportsCategory(string $category): bool
     {
         return in_array($category, [
-            self::CATEGORY_PROBLEM_LIST,
-            self::CATEGORY_HEALTH_CONCERN,
-            self::CATEGORY_ASSESSMENT_CONDITION_SDOH,
-            self::CATEGORY_ASSESSMENT_CONDITION_FUNCTIONAL_STATUS,
-            self::CATEGORY_ASSESSMENT_CONDITION_DISABILITY_STATUS,
-            self::CATEGORY_ASSESSMENT_CONDITION_COGNITIVE_STATUS,
-            self::CATEGORY_ASSESSMENT_CONDITION_TREATMENT_INTERVENTION_STATUS,
-            self::CATEGORY_ASSESSMENT_CONDITION_CARE_EXPERIENCE_PREFERENCE
+            self::CATEGORY_PROBLEM_LIST
         ]);
     }
 
@@ -108,7 +98,7 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['diagnosis']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('condition_uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
             'clinical-status' => new FhirSearchParameterDefinition('clinical-status', SearchFieldType::TOKEN, ['clinical_status']),
             'verification-status' => new FhirSearchParameterDefinition('verification-status', SearchFieldType::TOKEN, ['verification_status']),
@@ -125,12 +115,22 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        if (isset($openEMRSearchParameters['category'])) {
+            // there is no category field in the OpenEMR problem list items, so we'll remove the field to avoid confusion
+            // we should never get other categories here because the service is only mapped to the problem list category
+            unset($openEMRSearchParameters['category']);
+        }
+        $openEMRSearchParameters['type'] = new StringSearchField('type', ['medical_problem'], SearchModifier::EXACT);
+        $openEMRSearchParameters['activity'] = new StringSearchField('activity', ['1'], SearchModifier::EXACT);
+        // we don't want conditions linked to encounters for problem list items
+        $openEMRSearchParameters['list_id'] = new TokenSearchField('list_id', [new TokenSearchValue(true)]);
+        $openEMRSearchParameters['list_id']->setModifier(SearchModifier::MISSING);
         // This query finds conditions that are NOT linked to specific encounters via issue_encounter
         // These represent ongoing problems/health concerns rather than encounter-specific diagnoses
         $sql = "
         SELECT
             l.id,
-            l.uuid AS condition_uuid,
+            l.uuid,
             l.pid,
             l.date AS condition_date,
             l.modifydate,
@@ -144,17 +144,24 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
             l.occurrence,
             l.outcome,
             l.verification,
-            pd.uuid AS puuid,
+            pd.puuid,
             COALESCE(l.modifydate, l.date) as last_updated_time
         FROM lists l
-        INNER JOIN patient_data pd ON l.pid = pd.pid
-        LEFT JOIN issue_encounter ie ON l.id = ie.list_id AND l.pid = ie.pid
-        WHERE l.type = 'medical_problem'
-        AND l.activity = 1
-        AND ie.list_id IS NULL  -- Only conditions NOT linked to specific encounters
+        INNER JOIN (
+            SELECT
+                uuid AS puuid
+                ,pid AS patient_id
+            FROM patient_data
+        ) pd ON l.pid = pd.patient_id
+        LEFT JOIN (
+            SELECT
+                list_id
+                ,pid AS issue_encounter_pid
+            FROM issue_encounter
+        ) ie ON l.id = ie.list_id AND l.pid = ie.issue_encounter_pid
         ";
 
-        $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters, true);
+        $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters);
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
 
@@ -163,7 +170,7 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
 
         while ($row = sqlFetchArray($statementResults)) {
             // Convert UUIDs to string format
-            $row['condition_uuid'] = UuidRegistry::uuidToString($row['condition_uuid']);
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
 
             // Add computed fields for search filtering
@@ -204,9 +211,6 @@ class FhirConditionProblemsHealthConcernService extends FhirServiceBase implemen
         $this->populateId($dataRecord, $conditionResource);
         $this->populateMeta($dataRecord, $conditionResource);
 
-        // Required elements for US Core Problems and Health Concerns
-        // TODO: @adunsulag will need to differentiate between problem list items and health concerns
-        $this->populateCategory($dataRecord, $conditionResource, FhirConditionCategory::PROBLEM_LIST_ITEM);
         $this->populateCategory($dataRecord, $conditionResource, FhirConditionCategory::PROBLEM_LIST_ITEM);
         $this->populateCode($dataRecord, $conditionResource, 'Problem');
         $this->populateSubject($dataRecord, $conditionResource);
