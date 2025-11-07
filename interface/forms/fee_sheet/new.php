@@ -549,6 +549,10 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
 
     if (!empty($_POST['bn_save_stay'])) {
         $current_checksum = $fs->visitChecksum();
+        // Clear POST data so items are freshly loaded from database
+        // This prevents stale delete flags from being applied to wrong line items
+        unset($_POST['bill']);
+        unset($_POST['prod']);
     }
 
     // Note: Taxes are computed at checkout time (in pos_checkout.php which
