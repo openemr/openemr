@@ -37,6 +37,8 @@ class RegisterApiTestClientCommand extends Command
                 new InputDefinition([
                     new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                     new InputOption('redirect-uri', 'u', InputOption::VALUE_REQUIRED, 'The redirect uri to use for the test client', 'https://example.com/callback'),
+                    new InputOption('launch-uri', 'l', InputOption::VALUE_REQUIRED, 'The launch uri to use for the test client', 'https://example.com/launch'),
+                    new InputOption('jwks-uri', 'j', InputOption::VALUE_REQUIRED, 'The JWK Set uri to use for the test client', ''),
                 ])
             );
     }
@@ -51,6 +53,8 @@ class RegisterApiTestClientCommand extends Command
         // going to hit the github api endpoint for the milestone given in the api
         $site = $input->getOption('site');
         $redirectUri = $input->getOption('redirect-uri');
+        $jwksUri = $input->getOption('jwks-uri') ?? '';
+        $launchUri = $input->getOption('launch-uri') ?? '';
         $symfonyStyler = new SymfonyStyle($input, $output);
 
         try {
@@ -58,6 +62,7 @@ class RegisterApiTestClientCommand extends Command
             $clientId = $clientRepository->generateClientId();
             $scopeRepository = new ScopeRepository();
             $scopeList = new ServerScopeListEntity();
+            $scopeList->setSystemScopesEnabled(true);
             $scopes = array_unique(array_merge($scopeList->getAllSupportedScopesList()));
             $info = [
                 'client_role' => 'user',
@@ -69,7 +74,9 @@ class RegisterApiTestClientCommand extends Command
                 'redirect_uris' => [$redirectUri],
                 'grant_types' => 'authorization_code|password|client_credentials',
                 'scope' => implode(" ", $scopes),
-                'dsi_type' => ClientEntity::DSI_TYPE_NONE
+                'dsi_type' => ClientEntity::DSI_TYPE_NONE,
+                'jwks_uri' => $jwksUri != '' ? $jwksUri : null,
+                'launch_uri' => $launchUri != '' ? $launchUri : null,
             ];
 
             $saved = $clientRepository->insertNewClient($clientId, $info, $site);
