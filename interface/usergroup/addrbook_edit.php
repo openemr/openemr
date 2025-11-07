@@ -248,9 +248,9 @@ function invalue($name)
             html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
-                    <strong>${jsText(xl('NPI'))}: </strong>${jsText(result.number)}<br>
-                    ${jsText(xl(taxonomy)) ? `<strong>${jsText(xl('Specialty'))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
-                    ${addr ? `<strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)} , ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
+                    <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
+                    ${jsText(taxonomy) ? `<strong>${jsText(xl('Specialty'))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
+                    ${jsText(addr) ? `<strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)} , ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
                 </div>
             </div>`;
         });
@@ -308,9 +308,9 @@ function invalue($name)
             html += `<div class="npi-result-item" onclick='fillNPIData(${JSON.stringify(result)})'>
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
-                    <strong>${jsText(xl('NPI'))}: </strong>${jsText(result.number)}<br>
-                    ${jsText(xl(taxonomy)) ? `<strong>${jsText(xl(Specialty))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
-                    ${jsText(xl(addr))} ? <strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''
+                    <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
+                    ${jsText(taxonomy) ? `<strong>${jsText(xl(Specialty))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
+                    ${jsText(addr)} ? <strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''
                 </div>
             </div>`;
         });
