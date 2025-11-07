@@ -300,7 +300,7 @@ function echoServiceLines(): void
             }
 
             echo "  <td class='billcell text-center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
-            "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
+            "value='1'" . (text($li['del']) ? " checked" : "") . " onchange='toggleDeleteStrike(this)' /></td>\n";
         }
 
         echo " </tr>\n";
@@ -934,6 +934,16 @@ function checkLastChar(s) {
         return checkLastChar(s);
     } else {
         return s;
+    }
+}
+
+// Toggle strikethrough when delete checkbox is clicked
+function toggleDeleteStrike(checkbox) {
+    var row = $(checkbox).closest('tr');
+    if (checkbox.checked) {
+        row.find('td').wrapInner('<del></del>');
+    } else {
+        row.find('del').contents().unwrap();
     }
 }
 
