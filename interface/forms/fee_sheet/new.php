@@ -942,6 +942,7 @@ function checkLastChar(s) {
 }
 
 // Toggle strikethrough when delete checkbox is clicked
+// thank you claude.ai
 function toggleDeleteStrike(checkbox) {
     var row = $(checkbox).closest('tr');
     if (checkbox.checked) {
