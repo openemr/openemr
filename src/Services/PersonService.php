@@ -196,7 +196,7 @@ class PersonService extends BaseService
             }
 
             $sql = "DELETE FROM person WHERE id = ?";
-            sqlStatement($sql, [$personId]);
+            QueryUtils::sqlStatementThrowException($sql, [$personId]);
 
             $this->getLogger()->info("Person deleted", ['id' => $personId]);
             $processingResult->addData(['deleted' => true, 'id' => $personId]);
@@ -547,7 +547,7 @@ class PersonService extends BaseService
                 AND birth_date = ?
                 LIMIT 1";
 
-        return sqlQuery($sql, [
+        return QueryUtils::querySingleRow($sql, [
             $data['first_name'],
             $data['last_name'],
             $data['birth_date']
@@ -567,27 +567,27 @@ class PersonService extends BaseService
 
         // Check for contact
         $sql = "SELECT id FROM contact WHERE foreign_table = 'person' AND foreign_id = ?";
-        $result = sqlQuery($sql, [$personId]);
+        $result = QueryUtils::querySingleRow($sql, [$personId]);
         if ($result) {
             $contactId = $result['id'];
 
             // Check for relationships
             $sql = "SELECT COUNT(*) as count FROM contact_relation WHERE contact_id = ?";
-            $result = sqlQuery($sql, [$contactId]);
+            $result = QueryUtils::querySingleRow($sql, [$contactId]);
             if ($result['count'] > 0) {
                 $dependencies['relationships'] = $result['count'];
             }
 
             // Check for addresses
             $sql = "SELECT COUNT(*) as count FROM contact_address WHERE contact_id = ?";
-            $result = sqlQuery($sql, [$contactId]);
+            $result = QueryUtils::querySingleRow($sql, [$contactId]);
             if ($result['count'] > 0) {
                 $dependencies['addresses'] = $result['count'];
             }
 
             // Check for telecoms
             $sql = "SELECT COUNT(*) as count FROM contact_telecom WHERE contact_id = ?";
-            $result = sqlQuery($sql, [$contactId]);
+            $result = QueryUtils::querySingleRow($sql, [$contactId]);
             if ($result['count'] > 0) {
                 $dependencies['telecoms'] = $result['count'];
             }

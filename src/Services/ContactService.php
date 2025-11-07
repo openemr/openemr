@@ -364,14 +364,14 @@ class ContactService extends BaseService
 
         // Total contacts
         $sql = "SELECT COUNT(*) as total FROM contact";
-        $result = QueryUtils::querySingleRow($sql);
+        $result = QueryUtils::querySingleRow($sql, []);
         $stats['total_contacts'] = (int)$result['total'];
 
         // Contacts by foreign table
         $sql = "SELECT foreign_table_name, COUNT(*) as count
                 FROM contact
                 GROUP BY foreign_table_name";
-        $results = QueryUtils::fetchRecords($sql) ?? [];
+        $results = QueryUtils::fetchRecords($sql, []) ?? [];
 
         $stats['by_table'] = [];
         foreach ($results as $row) {
@@ -383,21 +383,21 @@ class ContactService extends BaseService
                 FROM contact c
                 JOIN contact_address ca ON ca.contact_id = c.id
                 WHERE ca.status = 'A'";
-        $result = QueryUtils::querySingleRow($sql);
+        $result = QueryUtils::querySingleRow($sql, []);
         $stats['with_active_addresses'] = (int)$result['count'];
 
         // Contacts in relationships
         $sql = "SELECT COUNT(DISTINCT contact_id) as count
                 FROM relationship
                 WHERE active = 1";
-        $result = QueryUtils::querySingleRow($sql);
+        $result = QueryUtils::querySingleRow($sql, []);
         $stats['in_active_relationships'] = (int)$result['count'];
 
         // Orphaned contacts (no addresses, no relationships)
         $sql = "SELECT COUNT(*) as count FROM contact c
                 WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
                 AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
-        $result = QueryUtils::querySingleRow($sql);
+        $result = QueryUtils::querySingleRow($sql, []);
         $stats['orphaned_contacts'] = (int)$result['count'];
 
         return $stats;
@@ -418,7 +418,7 @@ class ContactService extends BaseService
                     WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
                     AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
 
-            $orphaned = QueryUtils::fetchRecords($sql) ?? [];
+            $orphaned = QueryUtils::fetchRecords($sql, []) ?? [];
 
             if ($dryRun) {
                 $processingResult->addData([

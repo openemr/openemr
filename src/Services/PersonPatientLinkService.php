@@ -49,14 +49,14 @@ class PersonPatientLinkService extends BaseService
 
         try {
             // Check if person exists
-            $person = sqlQuery("SELECT * FROM person WHERE id = ?", [$personId]);
+            $person = QueryUtils::querySingleRow("SELECT * FROM person WHERE id = ?", [$personId]);
             if (!$person) {
                 $processingResult->addInternalError("Person not found: $personId");
                 return $processingResult;
             }
 
             // Check if patient exists
-            $patient = sqlQuery("SELECT * FROM patient_data WHERE id = ?", [$patientId]);
+            $patient = QueryUtils::querySingleRow("SELECT * FROM patient_data WHERE id = ?", [$patientId]);
             if (!$patient) {
                 $processingResult->addInternalError("Patient not found: $patientId");
                 return $processingResult;
@@ -79,7 +79,7 @@ class PersonPatientLinkService extends BaseService
                     (person_id, patient_id, linked_by, link_method, notes, active) 
                     VALUES (?, ?, ?, ?, ?, 1)";
 
-            $result = sqlInsert($sql, [
+            $result = QueryUtils::sqlInsert($sql, [
                 $personId,
                 $patientId,
                 $userId,
@@ -130,7 +130,7 @@ class PersonPatientLinkService extends BaseService
                     SET active = 0 
                     WHERE person_id = ? AND patient_id = ? AND active = 1";
 
-            $result = sqlStatement($sql, [$personId, $patientId]);
+            $result = QueryUtils::sqlStatementThrowException($sql, [$personId, $patientId]);
 
             if ($result) {
                 $this->logger->info("Person unlinked from patient", [
@@ -171,7 +171,7 @@ class PersonPatientLinkService extends BaseService
                   AND ppl.patient_id = ? 
                   AND ppl.active = 1";
 
-        return sqlQuery($sql, [$personId, $patientId]) ?: null;
+        return QueryUtils::querySingleRow($sql, [$personId, $patientId]) ?: null;
     }
 
     /**
@@ -196,7 +196,7 @@ class PersonPatientLinkService extends BaseService
                 LEFT JOIN patient_data pd ON pd.id = ppl.patient_id
                 WHERE ppl.id = ?";
 
-        return sqlQuery($sql, [$linkId]) ?: null;
+        return QueryUtils::querySingleRow($sql, [$linkId]) ?: null;
     }
 
     /**
@@ -213,7 +213,7 @@ class PersonPatientLinkService extends BaseService
                 WHERE ppl.person_id = ? AND ppl.active = 1
                 LIMIT 1";
 
-        return sqlQuery($sql, [$personId]) ?: null;
+        return QueryUtils::querySingleRow($sql, [$personId]) ?: null;
     }
 
     /**
@@ -231,7 +231,7 @@ class PersonPatientLinkService extends BaseService
                 WHERE ppl.patient_id = ? AND ppl.active = 1
                 LIMIT 1";
 
-        return sqlQuery($sql, [$patientId]) ?: null;
+        return QueryUtils::querySingleRow($sql, [$patientId]) ?: null;
     }
 
     /**
@@ -276,10 +276,10 @@ class PersonPatientLinkService extends BaseService
                 GROUP BY p.id
                 ORDER BY relationship_count DESC";
 
-        $result = sqlStatement($sql, [$first_name, $last_name, $birthDate]);
+        $result = QueryUtils::sqlStatementThrowException($sql, [$first_name, $last_name, $birthDate]);
 
         $matches = [];
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArray($result)) {
             $matches[] = $row;
         }
 
@@ -323,10 +323,10 @@ class PersonPatientLinkService extends BaseService
                   AND ppl.active = 1
                 ORDER BY cr.contact_priority, cr.relationship";
 
-        $result = sqlStatement($sql, [$patientId]);
+        $result = QueryUtils::sqlStatementThrowException($sql, [$patientId]);
 
         $relationships = [];
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArray($result)) {
             $relationships[] = $row;
         }
 
@@ -367,10 +367,10 @@ class PersonPatientLinkService extends BaseService
                 ORDER BY relationship_count DESC, pd.regdate DESC
                 LIMIT ?";
 
-        $result = sqlStatement($sql, [$limit]);
+        $result = QueryUtils::sqlStatementThrowException($sql, [$limit]);
 
         $matches = [];
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArray($result)) {
             $matches[] = $row;
         }
 
@@ -458,10 +458,10 @@ class PersonPatientLinkService extends BaseService
                 ORDER BY ppl.linked_date DESC
                 LIMIT ? OFFSET ?";
 
-        $result = sqlStatement($sql, [$limit, $offset]);
+        $result = QueryUtils::sqlStatementThrowException($sql, [$limit, $offset]);
 
         $links = [];
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArray($result)) {
             $links[] = $row;
         }
 
@@ -478,17 +478,17 @@ class PersonPatientLinkService extends BaseService
         $stats = [];
 
         // Total active links
-        $stats['total_active_links'] = sqlQuery(
+        $stats['total_active_links'] = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM person_patient_link WHERE active = 1"
         )['cnt'] ?? 0;
 
         // Total inactive links
-        $stats['total_inactive_links'] = sqlQuery(
+        $stats['total_inactive_links'] = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM person_patient_link WHERE active = 0"
         )['cnt'] ?? 0;
 
         // Links by method
-        $methodCounts = sqlStatement(
+        $methodCounts = QueryUtils::sqlStatementThrowException(
             "SELECT link_method, COUNT(*) as cnt 
              FROM person_patient_link 
              WHERE active = 1 
@@ -496,19 +496,19 @@ class PersonPatientLinkService extends BaseService
         );
 
         $stats['by_method'] = [];
-        while ($row = sqlFetchArray($methodCounts)) {
+        while ($row = QueryUtils::fetchArray($methodCounts)) {
             $stats['by_method'][$row['link_method']] = $row['cnt'];
         }
 
         // Persons linked to patients
-        $stats['persons_linked'] = sqlQuery(
+        $stats['persons_linked'] = QueryUtils::querySingleRow(
             "SELECT COUNT(DISTINCT person_id) as cnt 
              FROM person_patient_link 
              WHERE active = 1"
         )['cnt'] ?? 0;
 
         // Patients with linked person records
-        $stats['patients_linked'] = sqlQuery(
+        $stats['patients_linked'] = QueryUtils::querySingleRow(
             "SELECT COUNT(DISTINCT patient_id) as cnt 
              FROM person_patient_link 
              WHERE active = 1"
