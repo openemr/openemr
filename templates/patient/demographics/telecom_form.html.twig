@@ -538,12 +538,19 @@
                 if (formTelecoms) {
                     setupContainerDatePickers(formTelecoms);
                     setupContainerListAddButtons(formTelecoms);
-                }
-
-                // Automatically open the edit form
-                var editButton = actualNewRow.querySelector('.btn-edit-telecom');
-                if (editButton) {
-                    editButton.click();
+                    
+                    // Automatically open the edit form
+                    showElement(formTelecoms);
+                    var firstInput = formTelecoms.querySelector('input.form_telecoms_value, select.form_telecoms_system');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                    // Update the caret icon
+                    var editButton = actualNewRow.querySelector('.btn-edit-telecom');
+                    if (editButton) {
+                        editButton.classList.remove('fa-caret-right');
+                        editButton.classList.add('fa-caret-down');
+                    }
                 }
             }
 
@@ -556,12 +563,15 @@
             }
 
             var target = event.target;
-            if (!target.classList || !target.classList.contains('form_telecoms_value')) {
+           
+            var formTelecoms = target.closest('.form_telecoms');
+            if (!formTelecoms) {
                 return;
             }
 
-            var formTelecoms = target.closest('.form_telecoms');
-            if (!formTelecoms) {
+            // Find the parent telecoms_group, then find display_telecoms within it
+            var telecoms_group = formTelecoms.closest('.telecoms_group');
+            if (!telecoms_group) {
                 return;
             }
 
@@ -576,6 +586,18 @@
             if (displayValue) {
                 displayValue.textContent = record.value;
             }
+
+            var displaySystem = displayTelecoms.querySelector('.display_telecoms_system');
+            if (displaySystem) {
+                displaySystem.textContent = record.system;
+            }
+
+            var displayUse = displayTelecoms.querySelector('.display_telecoms_use');
+            if (displayUse) {
+                displayUse.textContent = record.use;
+            }
+
+
         }
 
         function editTelecom(event) {
