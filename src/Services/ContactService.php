@@ -44,7 +44,7 @@ class ContactService extends BaseService
                 AND foreign_id = ?
                 LIMIT 1";
 
-        $result = sqlQuery($sql, [$foreignTable, $foreignId]);
+        $result = QueryUtils::querySingleRow($sql, [$foreignTable, $foreignId]);
 
         if ($result) {
             $contact = new Contact();
@@ -97,7 +97,7 @@ class ContactService extends BaseService
                 AND foreign_id = ?
                 LIMIT 1";
 
-        $result = sqlQuery($sql, [$foreignTable, $foreignId]);
+        $result = QueryUtils::querySingleRow($sql, [$foreignTable, $foreignId]);
 
         if (!$result) {
             return null;
@@ -122,7 +122,7 @@ class ContactService extends BaseService
                 AND foreign_id = ?
                 LIMIT 1";
 
-        $result = sqlQuery($sql, [$foreignTable, $foreignId]);
+        $result = QueryUtils::querySingleRow($sql, [$foreignTable, $foreignId]);
 
         return !empty($result);
     }
@@ -150,7 +150,7 @@ class ContactService extends BaseService
             }
 
             $sql = "DELETE FROM contact WHERE id = ?";
-            sqlStatement($sql, [$contactId]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactId]);
 
             $this->getLogger()->info("Contact deleted", ['id' => $contactId]);
             $processingResult->addData(['deleted' => true, 'id' => $contactId]);
@@ -197,14 +197,14 @@ class ContactService extends BaseService
 
         // Check contact_address table
         $sql = "SELECT COUNT(*) as count FROM contact_address WHERE contact_id = ?";
-        $result = sqlQuery($sql, [$contactId]);
+        $result = QueryUtils::querySingleRow($sql, [$contactId]);
         if ($result['count'] > 0) {
             $dependents['contact_address'] = $result['count'];
         }
 
         // Check relationship table
         $sql = "SELECT COUNT(*) as count FROM relationship WHERE contact_id = ?";
-        $result = sqlQuery($sql, [$contactId]);
+        $result = QueryUtils::querySingleRow($sql, [$contactId]);
         if ($result['count'] > 0) {
             $dependents['relationship'] = $result['count'];
         }
@@ -229,7 +229,7 @@ class ContactService extends BaseService
                 AND foreign_table_name = ?
                 AND foreign_id = ?";
 
-        $result = sqlQuery($sql, [$contactId, $foreignTable, $foreignId]);
+        $result = QueryUtils::querySingleRow($sql, [$contactId, $foreignTable, $foreignId]);
 
         return !empty($result);
     }
@@ -307,12 +307,12 @@ class ContactService extends BaseService
 
             foreach ($tables as $table) {
                 $sql = "UPDATE $table SET contact_id = ? WHERE contact_id = ?";
-                sqlStatement($sql, [$targetContactId, $sourceContactId]);
+                QueryUtils::sqlStatementThrowException($sql, [$targetContactId, $sourceContactId]);
             }
 
             // Delete the source contact
             $sql = "DELETE FROM contact WHERE id = ?";
-            sqlStatement($sql, [$sourceContactId]);
+            QueryUtils::sqlStatementThrowException($sql, [$sourceContactId]);
 
             $this->getLogger()->info("Contacts merged", [
                 'source_id' => $sourceContactId,
@@ -364,7 +364,7 @@ class ContactService extends BaseService
 
         // Total contacts
         $sql = "SELECT COUNT(*) as total FROM contact";
-        $result = sqlQuery($sql);
+        $result = QueryUtils::querySingleRow($sql);
         $stats['total_contacts'] = (int)$result['total'];
 
         // Contacts by foreign table
@@ -383,21 +383,21 @@ class ContactService extends BaseService
                 FROM contact c
                 JOIN contact_address ca ON ca.contact_id = c.id
                 WHERE ca.status = 'A'";
-        $result = sqlQuery($sql);
+        $result = QueryUtils::querySingleRow($sql);
         $stats['with_active_addresses'] = (int)$result['count'];
 
         // Contacts in relationships
         $sql = "SELECT COUNT(DISTINCT contact_id) as count
                 FROM relationship
                 WHERE active = 1";
-        $result = sqlQuery($sql);
+        $result = QueryUtils::querySingleRow($sql);
         $stats['in_active_relationships'] = (int)$result['count'];
 
         // Orphaned contacts (no addresses, no relationships)
         $sql = "SELECT COUNT(*) as count FROM contact c
                 WHERE NOT EXISTS (SELECT 1 FROM contact_address WHERE contact_id = c.id)
                 AND NOT EXISTS (SELECT 1 FROM relationship WHERE contact_id = c.id)";
-        $result = sqlQuery($sql);
+        $result = QueryUtils::querySingleRow($sql);
         $stats['orphaned_contacts'] = (int)$result['count'];
 
         return $stats;
@@ -430,7 +430,7 @@ class ContactService extends BaseService
                 $deletedCount = 0;
                 foreach ($orphaned as $contact) {
                     $sql = "DELETE FROM contact WHERE id = ?";
-                    sqlStatement($sql, [$contact['id']]);
+                    QueryUtils::sqlStatementThrowException($sql, [$contact['id']]);
                     $deletedCount++;
                 }
 

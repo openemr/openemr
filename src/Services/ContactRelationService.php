@@ -195,7 +195,7 @@ class ContactRelationService extends BaseService
 
         try {
             $sql = "DELETE FROM contact_relation WHERE id = ?";
-            sqlStatement($sql, [$relationId]);
+            QueryUtils::sqlStatementThrowException($sql, [$relationId]);
 
             $this->getLogger()->info("Relationship deleted", [
                 'contact_relation_id' => $relationId
@@ -327,7 +327,7 @@ class ContactRelationService extends BaseService
 
             // Fetch entity details with aliased ID column
             $entitySql = "SELECT *, id as {$targetTable}_id FROM {$targetTable} WHERE id = ?";
-            $entityDetails = sqlQuery($entitySql, [$targetId]);
+            $entityDetails = QueryUtils::querySingleRow($entitySql, [$targetId]);
 
             // Merge relationship data with entity details
             if ($entityDetails) {
@@ -473,7 +473,7 @@ class ContactRelationService extends BaseService
                 AND active = 1
                 LIMIT 1";
 
-        $result = sqlQuery($sql, [$ownerContactId, $targetTable, $targetId]);
+        $result = QueryUtils::querySingleRow($sql, [$ownerContactId, $targetTable, $targetId]);
         return !empty($result);
     }
 
@@ -535,7 +535,7 @@ class ContactRelationService extends BaseService
 
         try {
             $sql = "UPDATE contact_relation SET contact_id = ? WHERE contact_id = ?";
-            sqlStatement($sql, [$destinationContactId, $sourceContactId]);
+            QueryUtils::sqlStatementThrowException($sql, [$destinationContactId, $sourceContactId]);
 
             $this->getLogger()->info("Relationships transferred", [
                 'source_contact_id' => $sourceContactId,
@@ -610,7 +610,7 @@ class ContactRelationService extends BaseService
         }
 
         // Get patient demographics
-        $patient = sqlQuery("SELECT * FROM patient_data WHERE id = ?", [$patientId]);
+        $patient = QueryUtils::querySingleRow("SELECT * FROM patient_data WHERE id = ?", [$patientId]);
 
         if (!$patient) {
             throw new \Exception("Patient not found: $patientId");
@@ -698,7 +698,6 @@ class ContactRelationService extends BaseService
 
             // Iterate through array of RelatedPerson objects
             foreach ($relatedPersonData as $index => $relatedPerson) {
-
                 $action = $relatedPerson['data_action'] ?? '';
 
                 if (empty($action)) {
@@ -885,7 +884,7 @@ class ContactRelationService extends BaseService
 
         // Total relationships
         $sql = "SELECT COUNT(*) as total FROM contact_relation WHERE active = 1";
-        $result = sqlQuery($sql);
+        $result = QueryUtils::querySingleRow($sql);
         $stats['total_active'] = (int)$result['total'];
 
         // By entity type
@@ -904,7 +903,7 @@ class ContactRelationService extends BaseService
         // Emergency contacts
         $sql = "SELECT COUNT(*) as count FROM contact_relation
                 WHERE is_emergency_contact = 1 AND active = 1";
-        $result = sqlQuery($sql);
+        $result = QueryUtils::querySingleRow($sql);
         $stats['emergency_contacts'] = (int)$result['count'];
 
         return $stats;

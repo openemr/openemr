@@ -68,7 +68,6 @@ class ContactTelecomService extends BaseService
 
             // Iterate through array of telecom objects
             foreach ($telecomData as $index => $telecom) {
-
                 $this->getLogger()->debug("Output Telecom: ", [
                         'keys' => array_keys($telecom),
                         'telecom' => $telecom
@@ -233,7 +232,7 @@ class ContactTelecomService extends BaseService
                 AND status = 'A'
                 LIMIT 1";
 
-        $result = sqlQuery($sql, [$contactId, $system]);
+        $result = QueryUtils::querySingleRow($sql, [$contactId, $system]);
         return $result ?: null;
     }
 
@@ -253,13 +252,13 @@ class ContactTelecomService extends BaseService
             $sql = "UPDATE contact_telecom SET is_primary = 'N'
                     WHERE contact_id = ?
                     AND system = ?";
-            sqlStatement($sql, [$contactId, $system]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactId, $system]);
 
             // Set the specified telecom as primary
             $sql = "UPDATE contact_telecom SET is_primary = 'Y'
                     WHERE id = ?
                     AND contact_id = ?";
-            sqlStatement($sql, [$contactTelecomId, $contactId]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId, $contactId]);
 
             return true;
         } catch (\Exception $e) {
@@ -307,7 +306,7 @@ class ContactTelecomService extends BaseService
     {
         try {
             $sql = "DELETE FROM contact_telecom WHERE id = ?";
-            sqlStatement($sql, [$contactTelecomId]);
+            QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId]);
             return true;
         } catch (\Exception $e) {
             $this->getLogger()->error("Error deleting telecom", ['error' => $e->getMessage()]);
