@@ -114,7 +114,7 @@ class AuthorizationController
     private string $grantType;
     private string $authRequestSerial;
     private CryptoGen $cryptoGen;
-    private int|string $userId;
+    private int|string|null $userId = null;
 
     /**
      * @var SMARTAuthorizationController
@@ -558,6 +558,9 @@ class AuthorizationController
      */
     public function oauthAuthorizationFlow(HttpRestRequest $httpRequest): ResponseInterface
     {
+        // in order to support our POST based auth requests we need to convert any POST params to GET so the rest of the code
+        // flow will work properly
+        $httpRequest = $this->convertPostParamsToGet($httpRequest);
         $logger = $this->getSystemLogger();
         $logger->debug("AuthorizationController->oauthAuthorizationFlow() starting authorization flow");
         $response = $this->createServerResponse();
@@ -1914,5 +1917,16 @@ class AuthorizationController
         $repo = new RefreshTokenRepository($includeAuthGrantRefreshToken);
         $repo->setSystemLogger($this->getSystemLogger());
         return $repo;
+    }
+
+    protected function convertPostParamsToGet(HttpRestRequest $request): HttpRestRequest
+    {
+        $parsedBody = $request->getParsedBody();
+        if (!empty($parsedBody)) {
+            foreach ($parsedBody as $key => $value) {
+                $request->query->set($key, $value);
+            }
+        }
+        return $request;
     }
 }
