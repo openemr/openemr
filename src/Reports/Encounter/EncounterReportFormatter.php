@@ -35,8 +35,8 @@ class EncounterReportFormatter
             'encounter' => $encounter['encounter'],
             'category' => $encounter['category'],
             'forms' => $encounter['forms'],
-            'encounter_number' => $encounter['encounter_nr'],
-            'form' => $encounter['form_id'], // Assuming form_id represents the form
+            'encounter_number' => $encounter['encounter_number'] ?? '',
+            'form' => $encounter['form'] ?? '', // Assuming form_id represents the form
             'coding' => $encounter['coding'], // Assuming pc_cid represents coding
             'encounter_signer' => $encounter['encounter_signer'] ?? null,
             'form_signer' => $encounter['form_signer'] ?? null,

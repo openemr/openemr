@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Reports\Encounter;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 
 class EncounterReportData
 {
@@ -101,10 +103,10 @@ class EncounterReportData
         $sql .= " AND f.formdir != 'newpatient'";
         $sql .= " GROUP BY e.id ORDER BY e.date DESC";
 
-        $results = sqlStatement($sql, $params);
+        $results = QueryUtils::fetchRecords($sql, $params);
         $encounters = [];
 
-        while ($row = sqlFetchArray($results)) {
+        foreach ($results as $row) {
             $encounters[] = [
                 'id' => $row['id'] ?? '',
                 'date' => $row['date'] ?? '',
@@ -125,7 +127,7 @@ class EncounterReportData
         return $encounters;
     }
 
-    public function getEncounterCount(array $filters = [])
+    public function getEncounterCount(array $filters = []): array
     {
         $sql = "SELECT count(*) AS encounter_count FROM form_encounter WHERE 1";
         $params = [];
@@ -150,18 +152,9 @@ class EncounterReportData
         }
         // ... Add other filters ...
 
-        if (!empty($params)) {
-            $result = sqlStatement($sql, $params);
-        } else {
-            $result = sqlStatement($sql);
-        }
-
-        if ($result) {
-            $row = sqlFetchArray($result);
-            return $row; // Corrected: Return the first element of the row
-        } else {
-            return 0;
-        }
+        $result = QueryUtils::querySingleRow($sql, $params);
+        
+        return $result ?: ['encounter_count' => 0];
     }
 
     public function getEncounterSummary(array $filters): array
@@ -193,10 +186,10 @@ class EncounterReportData
 
         $query .= "GROUP BY provider ORDER BY fe.date";
 
-        $result = sqlStatement($query, $sqlBindArray);
+        $results = QueryUtils::fetchRecords($query, $sqlBindArray);
         $summary = [];
 
-        while ($row = sqlFetchArray($result)) {
+        foreach ($results as $row) {
             $summary[] = [
                 'provider_id' => $row['provider_id'],
                 'provider_name' => trim($row['provider']),
