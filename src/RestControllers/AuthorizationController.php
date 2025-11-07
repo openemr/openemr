@@ -45,9 +45,11 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -103,6 +105,8 @@ class AuthorizationController
      * The endpoint for device code authorization (authorization_grant final step)
      */
     const DEVICE_CODE_ENDPOINT = "/device/code";
+    const GRANT_TYPE_ACCESS_TOKEN_TTL = 'PT1H';
+    const GRANT_TYPE_REFRESH_TOKEN_TTL = 'P3M';
 
     public string $authBaseUrl;
     public string $authBaseFullUrl;
@@ -688,6 +692,15 @@ class AuthorizationController
             $responseType
         );
 
+        // Create JWT authentication service for use by grants
+        $jwtAuthService = new JWTClientAuthenticationService(
+            $this->getServerConfig()->getTokenUrl(), // Use token URL as audience
+            $this->getClientRepository(),
+            new JWTRepository(),
+            null // HTTP client will be created as needed
+        );
+        $jwtAuthService->setLogger($this->getSystemLogger());
+
         $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
             $this->getSystemLogger()->debug(
@@ -706,20 +719,24 @@ class AuthorizationController
                 new DateInterval('PT1M'), // auth code. should be short turn around.
                 $expectedAudience
             );
+            // Set the JWT authentication service on the grant
+            $grant->setJWTAuthenticationService($jwtAuthService);
             $grant->setSystemLogger($this->getSystemLogger());
 
-            $grant->setRefreshTokenTTL(new DateInterval('P3M')); // minimum per ONC
+            $grant->setRefreshTokenTTL(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL)); // minimum per ONC
             $authServer->enableGrantType(
                 $grant,
-                new DateInterval('PT1H') // access token
+                new DateInterval(self::GRANT_TYPE_ACCESS_TOKEN_TTL) // access token
             );
         }
         if ($this->grantType === 'refresh_token') {
             $grant = new CustomRefreshTokenGrant($this->session, $this->getRefreshTokenRepository());
-            $grant->setRefreshTokenTTL(new DateInterval('P3M'));
+            $grant->setRefreshTokenTTL(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL));
+            // Set the JWT authentication service on the grant
+            $grant->setJWTAuthenticationService($jwtAuthService);
             $authServer->enableGrantType(
                 $grant,
-                new DateInterval('PT1H') // The new access token will expire after 1 hour
+                new DateInterval(self::GRANT_TYPE_ACCESS_TOKEN_TTL) // The new access token will expire after 1 hour
             );
         }
         // TODO: break this up - throw exception for not turned on.
@@ -729,10 +746,10 @@ class AuthorizationController
                 $this->getUserRepository(),
                 $this->getRefreshTokenRepository($includeAuthGrantRefreshToken)
             );
-            $grant->setRefreshTokenTTL(new DateInterval('P3M'));
+            $grant->setRefreshTokenTTL(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL));
             $authServer->enableGrantType(
                 $grant,
-                new DateInterval('PT1H') // access token
+                new DateInterval(self::GRANT_TYPE_ACCESS_TOKEN_TTL) // access token
             );
         }
         if ($this->grantType === self::GRANT_TYPE_CLIENT_CREDENTIALS) {
@@ -742,7 +759,8 @@ class AuthorizationController
                 $this->authBaseFullUrl . AuthorizationController::getTokenPath()
             );
             $client_credentials->setLogger($this->getSystemLogger());
-            $client_credentials->setHttpClient(new Client()); // set our guzzle client here
+            // Set the JWT authentication service on the grant
+            $client_credentials->setJWTAuthenticationService($jwtAuthService);
             $authServer->enableGrantType(
                 $client_credentials,
                 new DateInterval(self::GRANT_TYPE_ACCESS_CODE_TTL)
@@ -1018,7 +1036,7 @@ class AuthorizationController
                 $offline_requested = true;
             }
         }
-        $offline_access_date = (new DateTimeImmutable())->add(new DateInterval("P3M"))->format("Y-m-d");
+        $offline_access_date = (new DateTimeImmutable())->add(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL))->format("Y-m-d");
         $claims = $session->get('claims', []);
 
         $clientRepository = $this->getClientRepository();
@@ -1464,33 +1482,81 @@ class AuthorizationController
         // not required for public apps but mandatory for confidential
         $clientSecret = $request->request->get('client_secret');
 
+        // Check for JWT client assertion
+        $clientAssertion = $request->request->get('client_assertion');
+        $clientAssertionType = $request->request->get('client_assertion_type');
+
         $this->getSystemLogger()->debug(
             self::class . "->tokenIntrospection() start",
-            ['token_type_hint' => $token_hint, 'client_id' => $clientId]
+            ['token_type_hint' => $token_hint, 'client_id' => $clientId, 'has_assertion' => !empty($clientAssertion)]
         );
 
         $result = ['active' => false];
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
-            // so regardless of client type(private/public) we need client for client app type and secret.
-            $client = sqlQueryNoLog("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
-            if (empty($client)) {
-                throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-            }
-            // a no no. if private we need a secret.
-            if (empty($clientSecret) && !empty($client['is_confidential'])) {
-                throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
-            }
-            // lets verify secret to prevent bad guys.
-            if (intval($client['is_enabled'] !== 1)) {
-                // client is disabled and we don't allow introspection of tokens for disabled clients.
-                throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-            }
-            // lets verify secret to prevent bad guys.
-            if (!empty($client['client_secret'])) {
-                $decryptedSecret = $this->cryptoGen->decryptStandard($client['client_secret']);
-                if ($decryptedSecret !== $clientSecret) {
+            // Handle JWT client authentication if present
+            if (!empty($clientAssertion) && !empty($clientAssertionType)) {
+                // Create JWT authentication service
+                $jwtAuthService = new JWTClientAuthenticationService(
+                    $this->getServerConfig()->getTokenUrl(),
+                    $this->getClientRepository(),
+                    new JWTRepository(),
+                    null
+                );
+                $jwtAuthService->setLogger($this->getSystemLogger());
+
+                // Convert the request to PSR-7 format for JWT validation
+                $psrRequest = $this->convertHttpRestRequestToServerRequest($request);
+
+                // Extract client ID from JWT and validate
+                if ($jwtAuthService->hasJWTClientAssertion($psrRequest)) {
+                    $extractedClientId = $jwtAuthService->extractClientIdFromJWT($psrRequest);
+
+                    // Verify extracted client ID matches provided client_id if both present
+                    if (!empty($clientId) && $clientId !== $extractedClientId) {
+                        throw new OAuthServerException('Client ID mismatch', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
+                    }
+
+                    $clientId = $extractedClientId;
+                    $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
+
+                    if (empty($client)) {
+                        throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                    }
+
+                    if (intval($client['is_enabled']) !== 1) {
+                        throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                    }
+
+                    // Create client entity for JWT validation
+                    $clientEntity = $this->getClientRepository()->getClientEntity($clientId);
+
+                    // Validate JWT assertion
+                    $jwtAuthService->validateJWTClientAssertion($psrRequest, $clientEntity);
+
+                    $this->getSystemLogger()->debug("tokenIntrospection() JWT client authentication successful");
+                }
+            } else {
+                // so regardless of client type(private/public) we need client for client app type and secret.
+                $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
+                if (empty($client)) {
+                    throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                }
+                // a no no. if private we need a secret.
+                if (empty($clientSecret) && !empty($client['is_confidential'])) {
+                    throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
+                }
+                // lets verify secret to prevent bad guys.
+                if (intval($client['is_enabled'] !== 1)) {
+                    // client is disabled and we don't allow introspection of tokens for disabled clients.
                     throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                }
+                // lets verify secret to prevent bad guys.
+                if (!empty($client['client_secret'])) {
+                    $decryptedSecret = $this->cryptoGen->decryptStandard($client['client_secret']);
+                    if ($decryptedSecret !== $clientSecret) {
+                        throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                    }
                 }
             }
             $jsonWebKeyParser = new JsonWebKeyParser($this->oaEncryptionKey, $this->publicKey);

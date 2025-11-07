@@ -12,31 +12,20 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
-use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha384;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
 use Lcobucci\JWT\Token\Plain;
-use Lcobucci\JWT\Validation\Constraint\IssuedBy;
-use Lcobucci\JWT\Validation\Constraint\PermittedFor;
-use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\ValidAt;
-use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\RequestEvent;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\RsaSha384Signer;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\TrustedUserService;
@@ -51,28 +40,28 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * The http client that retrieves JWK URIs
      * @var ClientInterface
      */
-    private $httpClient;
+    private ClientInterface $httpClient;
 
     /**
      * @var TrustedUserService
      */
-    private $trustedUserService;
+    private readonly TrustedUserService $trustedUserService;
 
     /**
      * @var UserService
      */
-    private $userService;
+    private UserService $userService;
 
     /**
-     * @var JWTRepository
+     * @var JWTClientAuthenticationService
      */
-    private $jwtRepository;
+    private JWTClientAuthenticationService $jwtAuthService;
 
     /**
      * The required value for the jwt assertion type
@@ -90,7 +79,16 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         $this->logger = new SystemLogger();
         $this->trustedUserService = new TrustedUserService();
         $this->userService = new UserService();
-        $this->jwtRepository = new JWTRepository();
+    }
+
+    /**
+     * Set the JWT authentication service
+     *
+     * @param JWTClientAuthenticationService $jwtAuthService
+     */
+    public function setJWTAuthenticationService(JWTClientAuthenticationService $jwtAuthService): void
+    {
+        $this->jwtAuthService = $jwtAuthService;
     }
 
     /**
@@ -144,19 +142,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
     }
 
     /**
-     * @return JWTRepository
-     */
-    public function getJwtRepository(): JWTRepository
-    {
-        return $this->jwtRepository;
-    }
-
-    /**
      * @param JWTRepository $jwtRepository
      */
     public function setJwtRepository(JWTRepository $jwtRepository): void
     {
-        $this->jwtRepository = $jwtRepository;
+//        $this->jwtRepository = $jwtRepository;
     }
 
     /**
@@ -284,99 +274,90 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             $this->logger->error("CustomClientCredentialsGrant->validateClient() client returned was not a valid ClientEntity ", ['client' => $clientId]);
             throw OAuthServerException::invalidClient($request);
         }
-
-        if (!$client->isEnabled()) {
-            $this->logger->error("CustomClientCredentialsGrant->validateClient() client returned was not enabled", ['client' => $clientId]);
-            throw OAuthServerException::invalidClient($request);
-        }
-
         // validate everything to do with the JWT...
-
-        // @see https://tools.ietf.org/html/rfc7523#section-3
-
-        // 1. iss claim required && must match iss URI of sender application
-        // 2.B sub claim required && must match client id
-        // 3. aud claim required && must match this oauth2 server.  Token endpoint may be used.  This value needs to
-        // be communicated out of band to registering applications (put in SMART App registration page
-        // 4. exp claim required && must be > (current time - skew time[60seconds]).
-        //      OPTIONAL choice reject extended period exp claim.  OpenEMR choice set to 24 hours
-        // 5. nbf claim if sent must be < (current time) or REJECT
-        // 6. iat claim if sent may be rejected.  OpenEMR choice set to 5 minutes
-        // 7. jti claim represents id of the web token, may be stored and checked against to prevent replay attacks
-        // 8. has other claims
-        // 9. MAC signature verification or REJECT
-        // MAC signature needs to use ES384 or RS384 signature verification @see https://tools.ietf.org/html/rfc7518
-        //
-        // 10. Reject any other invalid JWT per RFC 7519
-
-        // @see https://tools.ietf.org/html/rfc7523#section-3.2
-        // IF ERROR set "error" parameter to "invalid_client" use "error_description" or "error_uri" to provide error
-        // information
-        $jwtRepository = $this->getJwtRepository();
-        $token = null;
-        try {
-            // http client required for fetching jwks from the jwks uri and makes unit testing easier
-            $jsonWebKeySet = new JsonWebKeySet($this->getHttpClient(), $client->getJwksUri(), $client->getJwks());
-
-
-            $configuration = Configuration::forUnsecuredSigner();
-            $configuration->setValidationConstraints(
-                // we only allow 1 minute drift (note the 'T' specifier here, super important as we want to do time
-                // we had a bug here where P1M was a 1 month drift which is BAD.
-                new ValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('PT1M')),
-                new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
-                new IssuedBy($client->getIdentifier()),
-                new PermittedFor($this->authTokenUrl), // allowed audience
-                new UniqueID($jwtRepository)
-            );
-
-            // Attempt to parse and validate the JWT
-            $jwt = $this->getJWTFromRequest($request);
-            // issuer = issue URI of sender application so redirectUri
-            // subject claim
-            $token = $configuration->parser()->parse($jwt);
-            $this->logger->debug(
-                "Token parsed",
-                ['claims' => $token->claims()->all(), 'headers' => $token->headers()->all(), 'signature' => $token->signature()->toString()]
-            );
-
-            $constraints = $configuration->validationConstraints();
-
+        // Check if JWT authentication service is available and request has JWT assertion
+        if (isset($this->jwtAuthService) && $this->jwtAuthService->hasJWTClientAssertion($request)) {
+            // Validate JWT assertion
             try {
-                // phpseclib's RSA validation triggers a NOTICE that gets printed to the screen which messes up the JSON result returned
-                // TODO: if phpseclib fixes this error remove the @ ignore sign, note this does not disable the exceptions.
-                @$configuration->validator()->assert($token, ...$constraints);
-            } catch (RequiredConstraintsViolated $exception) {
+                $this->jwtAuthService->validateJWTClientAssertion($request, $client);
+                $this->logger->debug("CustomClientCredentialsGrant->validateClient() JWT assertion validated successfully");
+            } catch (OAuthServerException $e) {
                 $this->logger->error(
-                    "CustomClientCredentialsGrant->validateClient() jwt failed required constraints",
-                    [
-                        'client' => $clientId, 'exceptionMessage' => $exception->getMessage()
-                        , 'claims' => $token->claims()->all()
-                        ,'expectedAudience' => $this->authTokenUrl
-                    ]
+                    "CustomClientCredentialsGrant->validateClient() JWT validation failed",
+                    ['error' => $e->getMessage(), 'hint' => $e->getHint()]
                 );
-                // ONC Inferno server refuses to allow a 401 HTTP status code to pass their test suite and requires
-                // a 400 HTTP status code, despite the SMART spec specifically stating that invalid_client w/ 401 is
-                // the response https://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification
-                // so we force this to be a 400 exception
-                // TODO: @adunsulag is there an update to inferno that fixes this issue? (as of inferno 1.9.0 there is no update).
-                $exception = new OAuthServerException('Client authentication failed', 4, 'invalid_client', 400);
-                $exception->setServerRequest($request);
-                throw $exception;
+                throw $e;
             }
-        } catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $exception) {
-            $this->logger->error(
-                "CustomClientCredentialsGrant->validateClient() failed to parse token",
-                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
-            );
-            throw OAuthServerException::invalidClient($request);
-        } catch (JWKValidatorException | \InvalidArgumentException $exception) {
-            $this->logger->error(
-                "CustomClientCredentialsGrant->validateClient() failed to retrieve jwk for client",
-                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
-            );
+        } else {
+            // we only support JWT client assertions for this grant type
             throw OAuthServerException::invalidClient($request);
         }
+//
+//        $jwtRepository = $this->getJwtRepository();
+//        $token = null;
+//        try {
+//            // http client required for fetching jwks from the jwks uri and makes unit testing easier
+//            $jsonWebKeySet = new JsonWebKeySet($this->getHttpClient(), $client->getJwksUri(), $client->getJwks());
+//
+//
+//            $configuration = Configuration::forUnsecuredSigner();
+//            $configuration->setValidationConstraints(
+//                // we only allow 1 minute drift (note the 'T' specifier here, super important as we want to do time
+//                // we had a bug here where P1M was a 1 month drift which is BAD.
+//                new ValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('PT1M')),
+//                new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
+//                new IssuedBy($client->getIdentifier()),
+//                new PermittedFor($this->authTokenUrl), // allowed audience
+//                new UniqueID($jwtRepository)
+//            );
+//
+//            // Attempt to parse and validate the JWT
+//            $jwt = $this->getJWTFromRequest($request);
+//            // issuer = issue URI of sender application so redirectUri
+//            // subject claim
+//            $token = $configuration->parser()->parse($jwt);
+//            $this->logger->debug(
+//                "Token parsed",
+//                ['claims' => $token->claims()->all(), 'headers' => $token->headers()->all(), 'signature' => $token->signature()->toString()]
+//            );
+//
+//            $constraints = $configuration->validationConstraints();
+//
+//            try {
+//                // phpseclib's RSA validation triggers a NOTICE that gets printed to the screen which messes up the JSON result returned
+//                // TODO: if phpseclib fixes this error remove the @ ignore sign, note this does not disable the exceptions.
+//                @$configuration->validator()->assert($token, ...$constraints);
+//            } catch (RequiredConstraintsViolated $exception) {
+//                $this->logger->error(
+//                    "CustomClientCredentialsGrant->validateClient() jwt failed required constraints",
+//                    [
+//                        'client' => $clientId, 'exceptionMessage' => $exception->getMessage()
+//                        , 'claims' => $token->claims()->all()
+//                        ,'expectedAudience' => $this->authTokenUrl
+//                    ]
+//                );
+//                // ONC Inferno server refuses to allow a 401 HTTP status code to pass their test suite and requires
+//                // a 400 HTTP status code, despite the SMART spec specifically stating that invalid_client w/ 401 is
+//                // the response https://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification
+//                // so we force this to be a 400 exception
+//                // TODO: @adunsulag is there an update to inferno that fixes this issue? (as of inferno 1.9.0 there is no update).
+//                $exception = new OAuthServerException('Client authentication failed', 4, 'invalid_client', 400);
+//                $exception->setServerRequest($request);
+//                throw $exception;
+//            }
+//        } catch (CannotDecodeContent | InvalidTokenStructure | UnsupportedHeaderFound $exception) {
+//            $this->logger->error(
+//                "CustomClientCredentialsGrant->validateClient() failed to parse token",
+//                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
+//            );
+//            throw OAuthServerException::invalidClient($request);
+//        } catch (JWKValidatorException | \InvalidArgumentException $exception) {
+//            $this->logger->error(
+//                "CustomClientCredentialsGrant->validateClient() failed to retrieve jwk for client",
+//                ['client' => $clientId, 'exceptionMessage' => $exception->getMessage()]
+//            );
+//            throw OAuthServerException::invalidClient($request);
+//        }
 
         if ($this->clientRepository->validateClient($clientId, null, $this->getIdentifier()) === false) {
             $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
@@ -392,7 +373,7 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
         }
 
         // if everything is valid we are going to save off the jti so we can prevent replay attacks
-        $this->saveJwtHistory($jwtRepository, $clientId, $token);
+//        $this->saveJwtHistory($jwtRepository, $clientId, $token);
 
         return $client;
     }

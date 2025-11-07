@@ -14,7 +14,6 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
-use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
@@ -23,22 +22,35 @@ use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\JWTClientAuthenticationService;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class CustomRefreshTokenGrant extends RefreshTokenGrant
 {
+    use SystemLoggerAwareTrait;
+
+
     /**
-     * @var SystemLogger
+     * @var JWTClientAuthenticationService
      */
-    private $logger;
+    private JWTClientAuthenticationService $jwtAuthService;
 
     public function __construct(private readonly SessionInterface $session, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
-        $this->logger = new SystemLogger();
         parent::__construct($refreshTokenRepository);
+    }
+
+
+    /**
+     * Set the JWT authentication service
+     *
+     * @param JWTClientAuthenticationService $jwtAuthService
+     */
+    public function setJWTAuthenticationService(JWTClientAuthenticationService $jwtAuthService): void
+    {
+        $this->jwtAuthService = $jwtAuthService;
     }
 
     public function respondToAccessTokenRequest(
@@ -48,11 +60,27 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     ) {
         $client = $this->validateClient($request);
         $oldRefreshToken = $this->validateOldRefreshToken($request, $client->getIdentifier());
-        $this->logger->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
+        $this->getSystemLogger()->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
             "oldRefreshToken['scopes']" => $oldRefreshToken['scopes'],
             "requestParameter['scopes']" => $this->getRequestParameter('scope', $request, null),
             "_REQUEST['scope']" => $_REQUEST['scope'] ?? ""
             ]);
+
+        // validate everything to do with the JWT...
+        // Check if JWT authentication service is available and request has JWT assertion
+        if (isset($this->jwtAuthService) && $this->jwtAuthService->hasJWTClientAssertion($request)) {
+            // Validate JWT assertion
+            try {
+                $this->jwtAuthService->validateJWTClientAssertion($request, $client);
+                $this->getSystemLogger()->debug("CustomRefreshTokenGrant->validateClient() JWT assertion validated successfully");
+            } catch (OAuthServerException $e) {
+                $this->getSystemLogger()->error(
+                    "CustomRefreshTokenGrant->validateClient() JWT validation failed",
+                    ['error' => $e->getMessage(), 'hint' => $e->getHint()]
+                );
+                throw $e;
+            }
+        }
 
         // we are going to grab our old access token and grab any context information that we may have
         if ($this->accessTokenRepository instanceof AccessTokenRepository) {
@@ -66,7 +94,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
                         $responseType->setContextForNewTokens($decodedContext);
                     }
                 } catch (\Exception $exception) {
-                    $this->logger->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+                    $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                         , 'tokenId' => $oldRefreshToken['access_token_id']]);
                 }
             }
@@ -117,7 +145,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     {
         // TODO: @adunsulag I'm not sure this funciton is needed anymore since we now validate against the
         // entire server supported scopes.
-        $this->logger->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
+        $this->getSystemLogger()->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
         $scopeRepo = $this->scopeRepository;
         if (\is_array($scopes)) {
             $scopes = $this->convertScopesArrayToQueryString($scopes);
@@ -132,7 +160,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         // has patient/Patient.rs will fail.  This is because the scopes are validated against the old refresh token scopes.
         // if people want this behavior we need to rewrite this method or they can grab a new refresh token with the correct scopes.
         $validScopes = parent::validateScopes($scopes, $redirectUri);
-        $this->logger->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
+        $this->getSystemLogger()->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
         return $validScopes;
     }
 
@@ -148,16 +176,48 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         return implode(' ', $scopes);
     }
 
+    /**
+     * Override to support JWT client assertions, otherwise fall back to traditional client secret authentication.
+     * @param ServerRequestInterface $request
+     * @return array
+     * @throws OAuthServerException
+     */
+    protected function getClientCredentials(ServerRequestInterface $request)
+    {
+        $logger = $this->getSystemLogger();
+        // Check if JWT authentication service is available and request has JWT assertion
+        if (isset($this->jwtAuthService) && $this->jwtAuthService->hasJWTClientAssertion($request)) {
+            $logger->debug('CustomRefreshTokenGrant::getClientCredentials: Detected JWT client assertion, using asymmetric authentication');
+
+            try {
+                // Extract client ID from JWT
+                $clientId = $this->jwtAuthService->extractClientIdFromJWT($request);
+                $logger->debug("CustomRefreshTokenGrant::getClientCredentials: Extracted client ID from JWT", ['client_id' => $clientId]);
+            } catch (OAuthServerException $e) {
+                $logger->error(
+                    'CustomRefreshTokenGrant::getClientCredentials: Failed to extract client ID from JWT',
+                    ['error' => $e->getMessage(), 'hint' => $e->getHint()]
+                );
+                throw $e;
+            }
+            return [$clientId, null]; // No client secret for JWT authentication
+        } else {
+            // Fall back to traditional client secret authentication
+            $logger->debug('CustomRefreshTokenGrant::getClientCredentials: Using traditional client secret authentication');
+            return parent::getClientCredentials($request);
+        }
+    }
+
     protected function validateClient(ServerRequestInterface $request)
     {
         $client = parent::validateClient($request);
         if (!($client instanceof ClientEntity)) {
-            $this->logger->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+            $this->getSystemLogger()->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
 
         if (!$client->isEnabled()) {
-            $this->logger->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            $this->getSystemLogger()->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
         return $client;
