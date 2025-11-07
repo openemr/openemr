@@ -81,7 +81,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     private function createProfile(string $profileUri): FHIRCanonical

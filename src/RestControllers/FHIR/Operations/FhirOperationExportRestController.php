@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\SessionAwareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -343,6 +344,10 @@ class FhirOperationExportRestController
             $lastResourceIdExported = null;
             try {
                 $service = $this->getExportServiceForResource($resource);
+                // make sure our service is session aware so it can get user context if needed
+                if ($service instanceof SessionAwareInterface) {
+                    $service->setSession($this->request->getSession());
+                }
                 // this could be a file pointer, or whatever else we wanted to be able to handle this
                 // for now we assume that OpenEMR data can all fit inside memory per resource.... if that changes
                 // we should be able to rewrite just a little bit of this to be more efficient.
