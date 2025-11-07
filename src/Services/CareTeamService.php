@@ -362,10 +362,8 @@ class CareTeamService extends BaseService
 
     public function hasActiveCareTeam($pid)
     {
-        $result = QueryUtils::sqlStatementThrowException(
-            "SELECT COUNT(*) as count FROM " . self::CARE_TEAM_TABLE . " WHERE pid = ? AND (status = 'active' OR status IS NULL)",
-            [$pid]
-        );
+        $sql = "SELECT COUNT(*) as count FROM " . self::CARE_TEAM_TABLE . " WHERE pid = ? AND (status = 'active' OR status IS NULL)";
+        $result = QueryUtils::querySingleRow($sql, [$pid]);
 
         return ($result['count'] ?? 0) > 0;
     }
