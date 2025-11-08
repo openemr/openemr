@@ -118,7 +118,7 @@ class AuthorizationControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
     }
 
-    public function testOauthAuthorizationFlowWithPostData() {
+    public function testOauthAuthorizationFlowWithPostData(): void {
         $clientId = 'test_client_id';
         $redirect_uri = 'https://example.com/fhir';
         $request = $this->getMockRequest();
