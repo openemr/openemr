@@ -13,9 +13,16 @@ namespace OpenEMR\Common\Command;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-interface IGlobalsAwareCommand
+interface IGlobalsAware
 {
+    /**
+     * @param OEGlobalsBag $globalsBag The globals bag that will be used in the object.
+     * @return void
+     */
     function setGlobalsBag(OEGlobalsBag $globalsBag): void;
 
-    function getGlobalsBag(): OEGlobalsBag;
+    /**
+     * @return OEGlobalsBag|null Returns the globals bag if it has been set, null otherwise
+     */
+    function getGlobalsBag(): ?OEGlobalsBag;
 }

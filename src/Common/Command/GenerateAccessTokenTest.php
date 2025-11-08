@@ -16,6 +16,7 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
@@ -30,6 +31,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Command\Trait\GlobalInterfaceCommandTrait;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Random\RandomException;
@@ -47,7 +49,7 @@ use DateTimeImmutable;
 use DateInterval;
 use RuntimeException;
 
-class GenerateAccessTokenTestCommand extends Command implements IGlobalsAwareCommand
+class GenerateAccessTokenTest extends Command implements IGlobalsAware
 {
     use GlobalInterfaceCommandTrait;
 
@@ -66,6 +68,8 @@ class GenerateAccessTokenTestCommand extends Command implements IGlobalsAwareCom
                     new InputOption('site', 's', InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                     new InputOption('client-id', 'c', InputOption::VALUE_REQUIRED, 'The client identifier to generate an access token using the password grant'),
                     new InputOption('resources', 'r', InputOption::VALUE_REQUIRED, 'Fhir resources to allow access to (comma separated list)', ''),
+                    new InputOption('contexts', 'x', InputOption::VALUE_REQUIRED, 'Fhir contexts to use (comma separated list)', 'user'),
+                    new InputOption('force-system-user', 'su', InputOption::VALUE_NONE, 'Force the system user to be used for system scopes'),
                 ])
             );
     }
@@ -104,6 +108,15 @@ class GenerateAccessTokenTestCommand extends Command implements IGlobalsAwareCom
             } else {
                 unset($password);
             }
+
+            if ($input->hasOption('force-system-user')) {
+                $username = UserService::SYSTEM_USER_USERNAME;
+                if (AclMain::aclCheckCore("super", "admin", $username) === false) {
+                    $symfonyStyler->error("User $username does not have admin/super privileges required to generate access token.");
+                    return Command::FAILURE;
+                }
+            }
+
             $userService = new UserService();
             $user = $userService->getUserByUsername($username);
 
@@ -119,10 +132,18 @@ class GenerateAccessTokenTestCommand extends Command implements IGlobalsAwareCom
             }
 
             $scopeIdentifiers = $client->getScopes();
+            if (!empty($input->getOption('contexts'))) {
+                $requestedContexts = array_map('trim', explode(',', (string) $input->getOption('contexts')));
+            }
+            if (empty($requestedContexts)) {
+                $requestedContexts = ['user'];
+            }
             // if we have been given specific resources then we will limit the scopes to those resources
             if (!empty($input->getOption('resources'))) {
                 $requestedResources = array_map('trim', explode(',', (string) $input->getOption('resources')));
-                $fhirScopes = array_map(fn($resource): string => "user/{$resource}.rs", $requestedResources);
+                foreach ($requestedContexts as $context) {
+                    $fhirScopes = array_map(fn($resource): string => "{$context}/{$resource}.rs", $requestedResources);
+                }
                 $scopeList = new ServerScopeListEntity();
 
                 $scopeIdentifiers = array_unique(array_merge($fhirScopes, $scopeList->requiredSmartOnFhirScopes()));

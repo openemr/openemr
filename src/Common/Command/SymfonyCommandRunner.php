@@ -90,7 +90,7 @@ class SymfonyCommandRunner
                 }
                 if (class_exists($fqn)) {
                     $command = new $fqn();
-                    if ($command instanceof IGlobalsAwareCommand) {
+                    if ($command instanceof IGlobalsAware) {
                         $command->setGlobalsBag($this->getGlobalsBag());
                     }
                     if ($command instanceof Command) {
