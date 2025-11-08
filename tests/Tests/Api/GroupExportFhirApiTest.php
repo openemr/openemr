@@ -55,7 +55,7 @@ class GroupExportFhirApiTest extends TestCase
         $job = $request->query->get('job');
         $bulkStatusResponse = $this->testClient->get($request->getPathInfo(), ['job' => $job]);
         $this->assertEquals(Response::HTTP_OK, $bulkStatusResponse->getStatusCode(), "Bulk status should be OK");
-        $bulkStatusData = json_decode($bulkStatusResponse->getBody()->getContents(), true);
+        $bulkStatusData = json_decode((string) $bulkStatusResponse->getBody()->getContents(), true);
         $this->assertNotEmpty($bulkStatusData, "Bulk status data should not be empty");
     }
     // TODO: @adunsulag need to fix a bulkdata-status test where there is no job id.  Should not throw a 500 error.
