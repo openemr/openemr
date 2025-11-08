@@ -90,8 +90,8 @@ class SessionConfigurationBuilder
         return (new self())
             ->setName(SessionUtil::OAUTH_SESSION_ID)
             ->setCookiePath((!empty($webRoot)) ? $webRoot . SessionUtil::OAUTH_WEBROOT : SessionUtil::OAUTH_WEBROOT)
-            ->setCookieSameSite('None')
-            ->setCookieSecure(true)
+            ->setCookieSameSite('Lax')
+            ->setCookieSecure(false)
             ->build();
     }
 

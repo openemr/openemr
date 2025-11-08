@@ -32,6 +32,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Command\Trait\GlobalInterfaceCommandTrait;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Random\RandomException;

@@ -4589,10 +4589,12 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "POST /fhir/Patient" => function (HttpRestRequest $request) {
+    "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->post($data);
+        $restController = new FhirPatientRestController();
+        $restController->setOEGlobals($globalsBag);
+        $return = $restController->post($data);
 
         return $return;
     },
@@ -4720,10 +4722,12 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->put($uuid, $data);
+        $restController = new FhirPatientRestController();
+        $restController->setOEGlobals($globalsBag);
+        $return = $restController->put($uuid, $data);
 
         return $return;
     },
@@ -5103,7 +5107,7 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
@@ -5113,7 +5117,9 @@ return [
         } else {
             RestConfig::request_authorization_check($request, "patients", "demo");
         }
-        $return = (new FhirPatientRestController())->getOne($uuid);
+        $controller = new FhirPatientRestController();
+        $controller->setOEGlobals($globalsBag);
+        $return = $controller->getOne($uuid);
 
         return $return;
     },

@@ -3,6 +3,7 @@
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
@@ -18,9 +19,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\RestControllers\FHIR\Operations\InvalidExportHeaderException;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\FhirGroupService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -63,9 +66,9 @@ class FhirOperationExportRestController
     const FHIR_DOCUMENT_CATEGORY = 'FHIR Export Document';
 
     /**
-     * @var LoggerInterface
+     * @var SystemLogger
      */
-    private $logger;
+    private SystemLogger $logger;
 
     /**
      * @var IFhirExportableResourceService[] hashmap of resources to service classes that can be exported
@@ -80,6 +83,11 @@ class FhirOperationExportRestController
     private readonly FhirExportJobService $fhirExportJobService;
 
     private readonly FhirServiceLocator $fhirServiceLocator;
+
+    /**
+     * @var OEGlobalsBag The OEGlobalsBag instance that holds global configuration values.
+     */
+    private OEGlobalsBag $globalsBag;
 
 
     /**
@@ -98,6 +106,7 @@ class FhirOperationExportRestController
             throw new \InvalidArgumentException('FhirServiceLocator must be set in the request attributes');
         }
         $this->fhirServiceLocator = $serviceLocator;
+        $this->globalsBag = $globalsBag;
     }
 
     /**
@@ -344,6 +353,7 @@ class FhirOperationExportRestController
             $lastResourceIdExported = null;
             try {
                 $service = $this->getExportServiceForResource($resource);
+                $this->populateServiceWithDependencies($service, $this->request, $this->globalsBag);
                 // make sure our service is session aware so it can get user context if needed
                 if ($service instanceof SessionAwareInterface) {
                     $service->setSession($this->request->getSession());
@@ -663,6 +673,20 @@ class FhirOperationExportRestController
             return $value->getStartDate();
         } else {
             throw new \InvalidArgumentException("Invalid date format for _since parameter");
+        }
+    }
+
+    protected function populateServiceWithDependencies(IFhirExportableResourceService $service, HttpRestRequest $request, OEGlobalsBag $globalsBag)
+    {
+        if ($service instanceof SessionAwareInterface) {
+            $service->setSession($request->getSession());
+        }
+        if ($service instanceof IGlobalsAware) {
+            $service->setGlobalsBag($globalsBag);
+        }
+        // would be better if this was an interface... but we'll run with it for now
+        if ($service instanceof FhirServiceBase) {
+            $service->setSystemLogger($this->logger);
         }
     }
 }
