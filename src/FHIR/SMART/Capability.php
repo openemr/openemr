@@ -40,8 +40,8 @@ class Capability
         , self::PERMISSION_OFFLINE
         , self::PERMISSION_V1
         , self::PERMISSION_V2
+        , self::PERMISSION_AUTHORIZE_POST
         // additional capabilities for SMART v2
-        // authorize-post
         // context-ehr-encounter
         // client-confidential-asymmetric - JWT authentication
         // context-standalone-encounter
@@ -52,7 +52,7 @@ class Capability
         self::LAUNCH_EHR, self::CONTEXT_BANNER_PASSTHROUGH, self::CONTEXT_EHR_PATIENT
         , self::CONTEXT_STYLE_PASSTHROUGH, self::SSO_OPENID_CONNECTION, self::CLIENT_CONFIDENTIAL_SYMMETRIC, self::PERMISSION_USER
         , self::CONTEXT_STANDALONE_PATIENT, self::LAUNCH_STANDALONE, self::PERMISSION_PATIENT
-        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC
+        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC, self::PERMISSION_AUTHORIZE_POST
     ];
 
     // support for SMART’s EHR Launch mode
@@ -119,4 +119,9 @@ class Capability
      * Support for SMART v2 scopes with more granular controls (e.g. patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs)
      */
     const PERMISSION_V2 = "permission-v2";
+
+    /**
+     * Support for SMART's authorize-post capability to allow apps to post authorization requests directly to the authorization endpoint instead of using a GET request
+     */
+    const PERMISSION_AUTHORIZE_POST = "authorize-post";
 }
