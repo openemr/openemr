@@ -836,7 +836,7 @@ class ContactRelationService extends BaseService
 
         // Total relationships
         $sql = "SELECT COUNT(*) as total FROM contact_relation WHERE active = 1";
-        $result = QueryUtils::querySingleRow($sql);
+        $result = QueryUtils::querySingleRow($sql, []);
         $stats['total_active'] = (int)$result['total'];
 
         // By entity type
@@ -845,7 +845,7 @@ class ContactRelationService extends BaseService
                 JOIN contact c ON c.id = cr.contact_id
                 WHERE cr.active = 1
                 GROUP BY c.foreign_table_name";
-        $results = QueryUtils::fetchRecords($sql) ?? [];
+        $results = QueryUtils::fetchRecords($sql, []) ?? [];
 
         $stats['by_contact_type'] = [];
         foreach ($results as $row) {
@@ -855,7 +855,7 @@ class ContactRelationService extends BaseService
         // Emergency contacts
         $sql = "SELECT COUNT(*) as count FROM contact_relation
                 WHERE is_emergency_contact = 1 AND active = 1";
-        $result = QueryUtils::querySingleRow($sql);
+        $result = QueryUtils::querySingleRow($sql, []);
         $stats['emergency_contacts'] = (int)$result['count'];
 
         return $stats;

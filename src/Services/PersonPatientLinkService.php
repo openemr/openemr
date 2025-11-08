@@ -256,7 +256,7 @@ class PersonPatientLinkService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, [$first_name, $last_name, $birthDate]);
 
         $matches = [];
-        while ($row = QueryUtils::fetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $matches[] = $row;
         }
 
@@ -300,7 +300,7 @@ class PersonPatientLinkService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, [$patientId]);
 
         $relationships = [];
-        while ($row = QueryUtils::fetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $relationships[] = $row;
         }
 
@@ -341,7 +341,7 @@ class PersonPatientLinkService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, [$limit]);
 
         $matches = [];
-        while ($row = QueryUtils::fetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $matches[] = $row;
         }
 
@@ -426,7 +426,7 @@ class PersonPatientLinkService extends BaseService
         $result = QueryUtils::sqlStatementThrowException($sql, [$limit, $offset]);
 
         $links = [];
-        while ($row = QueryUtils::fetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $links[] = $row;
         }
 
@@ -459,7 +459,7 @@ class PersonPatientLinkService extends BaseService
         );
 
         $stats['by_method'] = [];
-        while ($row = QueryUtils::fetchArray($methodCounts)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($methodCounts)) {
             $stats['by_method'][$row['link_method']] = $row['cnt'];
         }
 
