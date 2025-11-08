@@ -20,7 +20,7 @@ class GroupExportFhirApiTest extends TestCase
     private FhirPatientRestController $fhirPatientController;
     protected function setUp(): void
     {
-        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost:9300";
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new BulkAPITestClient($baseUrl, false);
     }
 
