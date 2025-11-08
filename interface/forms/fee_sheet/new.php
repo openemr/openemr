@@ -300,7 +300,7 @@ function echoServiceLines(): void
             }
 
             echo "  <td class='billcell text-center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
-            "value='1'" . ($li['del'] ? " checked" : "") . " /></td>\n";
+            "value='1'" . ($li['del'] ? " checked" : "") . " onchange='toggleDeleteStrike(this)' /></td>\n";
         }
 
         echo " </tr>\n";
@@ -549,6 +549,10 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
 
     if (!empty($_POST['bn_save_stay'])) {
         $current_checksum = $fs->visitChecksum();
+        // Clear POST data so items are freshly loaded from database
+        // This prevents stale delete flags from being applied to wrong line items
+        unset($_POST['bill']);
+        unset($_POST['prod']);
     }
 
     // Note: Taxes are computed at checkout time (in pos_checkout.php which
@@ -934,6 +938,17 @@ function checkLastChar(s) {
         return checkLastChar(s);
     } else {
         return s;
+    }
+}
+
+// Toggle strikethrough when delete checkbox is clicked
+// thank you claude.ai
+function toggleDeleteStrike(checkbox) {
+    var row = $(checkbox).closest('tr');
+    if (checkbox.checked) {
+        row.find('td').wrapInner('<del></del>');
+    } else {
+        row.find('del').contents().unwrap();
     }
 }
 
