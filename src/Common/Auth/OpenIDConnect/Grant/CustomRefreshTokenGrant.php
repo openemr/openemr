@@ -102,35 +102,6 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
     }
 
-//    /**
-//     * Retrieve request parameter and populate the site value if the requester hasn't passed it in.  This way
-//     * we can handle multi-site.
-//     *
-//     * @param string                 $parameter
-//     * @param ServerRequestInterface $request
-//     * @param mixed                  $default
-//     *
-//     * @return null|string
-//     */
-//    protected function getRequestParameter($parameter, ServerRequestInterface $request, $default = null)
-//    {
-//        if ($parameter !== 'scope') {
-//            return parent::getRequestParameter($parameter, $request, $default);
-//        }
-//
-//        $requestParameters = (array) $request->getParsedBody();
-//        if (isset($requestParameters[$parameter])) {
-//            // make sure we are getting the site here
-//            if (!preg_match('(site:)', $requestParameters[$parameter])) {
-//                return $requestParameters[$parameter] . " site:" . $this->session->get('site_id', 'default');
-//            }
-//            return $requestParameters[$parameter];
-//        } else {
-//            return $default;
-//        }
-//    }
-
-
     /**
      * Validate scopes in the request and initialize our scope repository with the scopes from the request.
      *

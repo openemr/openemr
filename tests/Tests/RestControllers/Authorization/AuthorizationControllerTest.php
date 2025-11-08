@@ -36,11 +36,12 @@ class AuthorizationControllerTest extends TestCase
 
     /**
      * @param HttpRestRequest $request
+     * @param array $globalValues
      * @return AuthorizationController
      * @throws \League\OAuth2\Server\Exception\OAuthServerException
      * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    public function getDefaultAuthorizationControllerForRequest(HttpRestRequest $request): AuthorizationController
+    public function getDefaultAuthorizationControllerForRequest(HttpRestRequest $request, array $globalValues = []): AuthorizationController
     {
         $request = $this->getMockRequest();
         $session = $this->getMockSessionForRequest($request);
@@ -48,9 +49,10 @@ class AuthorizationControllerTest extends TestCase
         $coreKernel = $this->createMock(Kernel::class);
         $coreKernel->method('getEventDispatcher')
             ->willReturn(new EventDispatcher());
-        $globalsBag = new OEGlobalsBag([
+        $globalsBag = new OEGlobalsBag(
+            array_merge([
             'kernel' => $coreKernel,
-        ]);
+            ], $globalValues));
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method("getEventDispatcher")
             ->willReturn(new EventDispatcher());
@@ -102,6 +104,30 @@ class AuthorizationControllerTest extends TestCase
         $request->query->set('client_id', $clientId);
         $request->query->set('redirect_uri', $redirect_uri);
         $request->query->set('scope', 'openid api:fhir user/Patient.rs');
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientEntity = new ClientEntity();
+        $clientEntity->setIdentifier($clientId);
+        $clientEntity->setRedirectUri($redirect_uri);
+        $clientEntity->setIsEnabled(true);
+        $clientEntity->setIsConfidential(true);
+        $clientRepository->method('getClientEntity')->willReturn($clientEntity);
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        $authorizationController->setClientRepository($clientRepository);
+        $authorizationController->setSystemLogger(new SystemLogger(Level::Debug));
+        $response = $authorizationController->oauthAuthorizationFlow($request);
+        $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
+    }
+
+    public function testOauthAuthorizationFlowWithPostData() {
+        $clientId = 'test_client_id';
+        $redirect_uri = 'https://example.com/fhir';
+        $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+        $request->request->set('response_type', 'code');
+        $request->request->set('client_id', $clientId);
+        $request->request->set('redirect_uri', $redirect_uri);
+        $request->request->set('scope', 'openid api:fhir user/Patient.rs');
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientEntity = new ClientEntity();
         $clientEntity->setIdentifier($clientId);

@@ -29,6 +29,7 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
@@ -74,7 +75,7 @@ class JWTClientAuthenticationService
      */
     public function __construct(
         private readonly string $authTokenUrl,
-        private readonly ClientRepository $clientRepository,
+        private readonly ClientRepositoryInterface $clientRepository,
         private readonly JWTRepository $jwtRepository,
         /**
          * The http client that retrieves JWK URIs
@@ -294,6 +295,7 @@ class JWTClientAuthenticationService
                     [
                         'client_id' => $clientId,
                         'exception' => $exception->getMessage(),
+                        'expected_audience' => $this->authTokenUrl,
                         'claims' => $token->claims()->all()
                     ]
                 );

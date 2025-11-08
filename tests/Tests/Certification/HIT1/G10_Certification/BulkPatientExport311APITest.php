@@ -43,7 +43,9 @@ class BulkPatientExport311APITest extends TestCase
      */
     private function getInfernoJWKS(): \stdClass
     {
+        if (!isset(self::$testClient)) {
             self::$testClient = new BulkAPITestClient(self::$baseUrl);
+        }
             self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
             $jwksResponse = self::$infernoClient->get('/custom/g10_certification/.well-known/jwks.json');
         if ($jwksResponse->getStatusCode() !== 200) {

@@ -555,10 +555,10 @@ class HttpRestRequest extends Request implements Stringable
 
     /**
      * Returns the scope context (patient,user,system) that is used for the given resource as parsed from the request scopes
-     * @param $resource string The resource to check (IE Patient, AllergyIntolerance, etc).
+     * @param $resource string|null The resource to check (IE Patient, AllergyIntolerance, etc).
      * @return string|null The context or null if the resource does not exist in the scopes.
      */
-    public function getScopeContextForResource(string $resource): ?string
+    public function getScopeContextForResource(?string $resource): ?string
     {
         return $this->resourceScopeContexts[$resource] ?? null;
     }

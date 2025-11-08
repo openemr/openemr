@@ -58,7 +58,7 @@ This file configures the kind that requires initialization.
       <directory>tests/Tests/Common</directory>
     </testsuite>
     <testsuite name="certification">
-      <directory>tests/Tests/Certification/HIT1/G10_Certification</directory>
+      <directory>tests/Tests/Certification/HIT1</directory>
     </testsuite>
     <testsuite name="email">
       <file>tests/Tests/E2e/EmailSendTest.php</file>

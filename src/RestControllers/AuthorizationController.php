@@ -758,7 +758,7 @@ class AuthorizationController
                 $this->session,
                 $this->authBaseFullUrl . AuthorizationController::getTokenPath()
             );
-            $client_credentials->setLogger($this->getSystemLogger());
+            $client_credentials->setSystemLogger($this->getSystemLogger());
             // Set the JWT authentication service on the grant
             $client_credentials->setJWTAuthenticationService($jwtAuthService);
             $authServer->enableGrantType(
