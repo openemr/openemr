@@ -82,7 +82,7 @@ class FhirDocumentRestController
             }
         }
 
-        if (!$document->can_access()) {
+        if (!$document->can_access($this->session->get('authUser'))) {
             return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
         }
 
