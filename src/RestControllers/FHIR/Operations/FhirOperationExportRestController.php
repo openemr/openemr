@@ -363,9 +363,9 @@ class FhirOperationExportRestController
                 // we should be able to rewrite just a little bit of this to be more efficient.
                 $exportWriter = new ExportMemoryStreamWriter($shutdownTime);
                 $service->export($exportWriter, $jobForResource, $lastResourceIdExported);
-
+                $contents = $exportWriter->getContents();
                 // we are grabbing the contents to write out to our document
-                $output = $this->createOutputResultForData($jobForResource, $resource, $exportWriter->getContents());
+                $output = $this->createOutputResultForData($jobForResource, $resource, $contents);
                 $this->logger->debug("FhirExportRestController->processResourceExportForJob() resource outputted", [
                     'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
                 ]);
