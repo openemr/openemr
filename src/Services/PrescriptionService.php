@@ -160,9 +160,9 @@ class PrescriptionService extends BaseService
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
                             ,prescriptions.quantity
-                            ,NULL AS medication_adherence_date_asserted
-                            ,NULL AS medication_adherence
-                            ,NULL AS medication_adherence_information_source
+                            ,meds.medication_adherence_date_asserted
+                            ,meds.medication_adherence
+                            ,meds.medication_adherence_information_source
                             ,CASE
                                 WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
                                 WHEN prescriptions.active = '1' THEN 'active'
