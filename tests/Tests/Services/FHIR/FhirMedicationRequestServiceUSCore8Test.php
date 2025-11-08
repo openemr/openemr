@@ -200,10 +200,10 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $reportedBoolean = $medicationRequest->getReportedBoolean();
         $reportedReference = $medicationRequest->getReportedReference();
 
-        $this->assertTrue(
-            $reportedBoolean !== null || $reportedReference !== null,
-            'MedicationRequest should have reported[x] (must support)'
-        );
+        $this->assertNotNull($reportedReference, 'MedicationRequest should have reported[x] (must support)');
+
+        // since we support reportedReference, verify that reportedBoolean is null as we can't report both
+        $this->assertNull($reportedBoolean, 'MedicationRequest should not have reportedBoolean when reportedReference is used');
 
         // If reportedReference is used, test structure
         if ($reportedReference !== null) {
@@ -219,7 +219,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             }
         }
     }
-
+    // TODO: @adunsulag need tests on reported for primary organization fall back and for reportedBoolean
     #[Test]
     public function testRequiredMedication(): void
     {

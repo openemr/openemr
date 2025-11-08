@@ -392,12 +392,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateReported(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        $medRequestResource->setReportedBoolean(self::MEDICATION_REQUEST_REPORTED_PRIMARY_SOURCE);
-        if ('1' === ($dataRecord['isReportedRecord'] ?? 0)) {
-            // non-primary source
-            $medRequestResource->setReportedBoolean(true);
-        }
-        // TODO: @adunsulag we fall back to the organization if no reporter is set, but we may want to revisit this logic later
+        // reported 0..1  should ONLY have a valueBoolean or valueReference NOT both
         if (!empty($dataRecord['reporter_type'])) {
             $resourceType = match ($dataRecord['reporter_type_table_name']) {
                 'user' => 'Practitioner',
@@ -411,7 +406,18 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         } else {
             // reporter needs to be the primary organization
             $orgService = $this->getFhirOrganizationService();
-            $medRequestResource->setReportedReference($orgService->getPrimaryBusinessEntityReference());
+            $primaryBusinessEntity = $orgService->getPrimaryBusinessEntityReference();
+            if (empty($primaryBusinessEntity)) {
+                $this->getSystemLogger()->errorLogCaller("No primary organization found for reported field population in MedicationRequest FHIR resource.");
+                // as a fallback we will set reported to true
+                if ('1' === ($dataRecord['isReportedRecord'] ?? 0)) {
+                    // non-primary source
+                    $medRequestResource->setReportedBoolean(true);
+                }
+            }
+            else {
+                $medRequestResource->setReportedReference($primaryBusinessEntity);
+            }
         }
     }
 

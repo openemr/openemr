@@ -115,10 +115,17 @@ class UtilsService
     public static function createQuantity($value, $unit, $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
-        $quantity->setCode($code);
+        // if there is no code provided we should not populate it nor the unit value
+        // that way it becomes a SimpleQuantity variant of Quantity
+        if (!empty($unit)) {
+            $quantity->setUnit($unit);
+            // only set the code if we have a unit as the unit is the textual display of the coded unit
+            if (!empty($code)) {
+                $quantity->setCode($code);
+            }
+            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+        }
         $quantity->setValue($value);
-        $quantity->setUnit($unit);
-        $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
         return $quantity;
     }
 
