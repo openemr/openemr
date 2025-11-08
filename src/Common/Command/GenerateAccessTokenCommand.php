@@ -50,7 +50,7 @@ use DateTimeImmutable;
 use DateInterval;
 use RuntimeException;
 
-class GenerateAccessTokenTest extends Command implements IGlobalsAware
+class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 {
     use GlobalInterfaceCommandTrait;
 
@@ -70,6 +70,7 @@ class GenerateAccessTokenTest extends Command implements IGlobalsAware
                     new InputOption('client-id', 'c', InputOption::VALUE_REQUIRED, 'The client identifier to generate an access token using the password grant'),
                     new InputOption('resources', 'r', InputOption::VALUE_REQUIRED, 'Fhir resources to allow access to (comma separated list)', ''),
                     new InputOption('contexts', 'x', InputOption::VALUE_REQUIRED, 'Fhir contexts to use (comma separated list)', 'user'),
+                    new InputOption('operations', 'o', InputOption::VALUE_REQUIRED, 'Fhir operations to grant', ''),
                     new InputOption('force-system-user', 'su', InputOption::VALUE_NONE, 'Force the system user to be used for system scopes'),
                 ])
             );
@@ -148,6 +149,12 @@ class GenerateAccessTokenTest extends Command implements IGlobalsAware
                 $scopeList = new ServerScopeListEntity();
 
                 $scopeIdentifiers = array_unique(array_merge($fhirScopes, $scopeList->requiredSmartOnFhirScopes()));
+            }
+
+            // add any operations requested
+            if (!empty($input->getOption('operations'))) {
+                $requestedOperations = array_map('trim', explode(',', (string) $input->getOption('operations')));
+                $scopeIdentifiers = array_unique(array_merge($scopeIdentifiers, $requestedOperations));
             }
 
             $hasOfflineScope = in_array('offline_access', $scopeIdentifiers, true);
