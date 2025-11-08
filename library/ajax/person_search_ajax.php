@@ -23,162 +23,24 @@ use OpenEMR\Services\PersonPatientLinkService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\ContactTelecomService;
+
 // Initialize logger early
 $logger = new SystemLogger();
 
 // Set JSON header
 header('Content-Type: application/json');
 
-// ===== STEP 1: CAPTURE ALL POSSIBLE TOKEN SOURCES =====
-$debugInfo = [
-    'step' => 'token_capture',
-    'timestamp' => date('Y-m-d H:i:s'),
-    'request_method' => $_SERVER['REQUEST_METHOD'],
-    'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'not set',
-];
 
 // Get raw input
 $rawInput = file_get_contents('php://input');
-$debugInfo['raw_input_length'] = strlen($rawInput);
-$debugInfo['raw_input_sample'] = substr($rawInput, 0, 200);
-
 // Parse JSON
 $jsonInput = json_decode($rawInput, true);
-$debugInfo['json_parse_success'] = (json_last_error() === JSON_ERROR_NONE);
-$debugInfo['json_error'] = json_last_error_msg();
 
-// Check all possible token locations
-$tokenSources = [
-    'http_header' => $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null,
-    'http_header_alt' => $_SERVER['HTTP_X_XSRF_TOKEN'] ?? null,
-    'post_csrf_token' => $_POST['csrf_token'] ?? null,
-    'post_csrf_token_form' => $_POST['csrf_token_form'] ?? null,
-    'get_csrf_token' => $_GET['csrf_token'] ?? null,
-    'json_csrf_token' => $jsonInput['csrf_token'] ?? null,
-    'json_csrf_token_form' => $jsonInput['csrf_token_form'] ?? null,
-];
-
-$debugInfo['token_sources'] = [];
-foreach ($tokenSources as $source => $value) {
-    $debugInfo['token_sources'][$source] = [
-        'found' => !empty($value),
-        'length' => $value ? strlen((string) $value) : 0,
-        'first_10' => $value ? substr((string) $value, 0, 10) : 'null',
-        'last_10' => $value ? substr((string) $value, -10) : 'null',
-    ];
+// normal token validation
+$csrfToken = $jsonInput['csrf_token'] ?? $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? null;
+if (!CsrfUtils::verifyCsrfToken($csrfToken)) {
+    CsrfUtils::csrfNotVerified(); // die
 }
-
-// ===== STEP 2: SESSION CHECK =====
-$debugInfo['session'] = [
-    'session_id' => session_id(),
-    'session_status' => session_status(),
-    'has_auth_user' => isset($_SESSION['authUser']),
-    'auth_user' => $_SESSION['authUser'] ?? 'not set',
-    'has_csrf_private_key' => isset($_SESSION['csrf_private_key']),
-    'csrf_private_key_length' => isset($_SESSION['csrf_private_key']) ? strlen((string) $_SESSION['csrf_private_key']) : 0,
-];
-
-// ===== STEP 3: SELECT BEST TOKEN =====
-$csrfToken = null;
-$tokenSourceUsed = 'none';
-
-// Priority order for token selection
-$tokenPriority = [
-    'http_header' => $tokenSources['http_header'],
-    'json_csrf_token' => $tokenSources['json_csrf_token'],
-    'post_csrf_token' => $tokenSources['post_csrf_token'],
-    'json_csrf_token_form' => $tokenSources['json_csrf_token_form'],
-    'post_csrf_token_form' => $tokenSources['post_csrf_token_form'],
-    'http_header_alt' => $tokenSources['http_header_alt'],
-];
-
-foreach ($tokenPriority as $source => $token) {
-    if (!empty($token)) {
-        $csrfToken = $token;
-        $tokenSourceUsed = $source;
-        break;
-    }
-}
-
-$debugInfo['token_selection'] = [
-    'token_found' => !empty($csrfToken),
-    'source_used' => $tokenSourceUsed,
-    'token_length' => $csrfToken ? strlen((string) $csrfToken) : 0,
-];
-
-// ===== STEP 4: VERIFY TOKEN =====
-$verificationResult = false;
-$verificationError = null;
-
-try {
-    if (empty($csrfToken)) {
-        $verificationError = 'No CSRF token found in any source';
-    } else {
-        $verificationResult = CsrfUtils::verifyCsrfToken($csrfToken);
-        if (!$verificationResult) {
-            $verificationError = 'Token verification returned false';
-        }
-    }
-} catch (Exception $e) {
-    $verificationError = 'Exception during verification: ' . $e->getMessage();
-}
-
-$debugInfo['verification'] = [
-    'result' => $verificationResult,
-    'error' => $verificationError,
-];
-
-// Log everything
-$logger->debug("CSRF Debug Information", $debugInfo);
-
-// ===== STEP 5: DECIDE WHETHER TO CONTINUE =====
-
-// TEMPORARY: For debugging, you can uncomment this to bypass CSRF check
-// WARNING: ONLY USE FOR TESTING, NEVER IN PRODUCTION
-// $verificationResult = true;
-// $debugInfo['bypass_enabled'] = true;
-
-if (!$verificationResult) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Invalid CSRF token',
-        'debug' => $debugInfo,
-        'help' => [
-            'issue' => $verificationError,
-            'suggestions' => [
-                '1. Check that your JavaScript is sending the token in the X-CSRF-TOKEN header or in the JSON body as csrf_token',
-                '2. Verify the token is valid by checking the page source or using browser dev tools',
-                '3. Make sure the session is active and not expired',
-                '4. Check that globals.php is properly initializing the session',
-                '5. Look for the token in page HTML - usually in a meta tag like: <meta name="csrf-token" content="...">',
-            ],
-            'how_to_get_token' => [
-                'From meta tag' => 'document.querySelector(\'meta[name="csrf-token"]\')?.content',
-                'From OpenEMR global' => 'csrf_token_js (if available)',
-                'From data attribute' => 'document.body.dataset.csrfToken',
-            ]
-        ]
-    ], JSON_PRETTY_PRINT);
-    exit;
-}
-
-// Session check
-if (!isset($_SESSION['authUser'])) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Unauthorized - No session',
-        'debug' => [
-            'session_id' => session_id(),
-            'session_data' => array_keys($_SESSION ?? [])
-        ]
-    ], JSON_PRETTY_PRINT);
-    exit;
-}
-
-// ===== STEP 6: PROCEED WITH NORMAL OPERATION =====
-
 // Initialize services
 $personService = new PersonService();
 $contactService = new ContactService();
@@ -278,11 +140,11 @@ function handleSearchPersons(array $input, $contactService, $linkService, $logge
 
     // Sort by last_name, first_name
     usort($results, function (array $a, array $b): int {
-        $lastCompare = strcasecmp((string) $a['last_name'], (string) $b['last_name']);
+        $lastCompare = strcasecmp((string)$a['last_name'], (string)$b['last_name']);
         if ($lastCompare !== 0) {
             return $lastCompare;
         }
-        return strcasecmp((string) $a['first_name'], (string) $b['first_name']);
+        return strcasecmp((string)$a['first_name'], (string)$b['first_name']);
     });
 
     $logger->debug("Person search completed", [
@@ -503,8 +365,8 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
 
     // Build person data array - NO EMAIL OR PHONE (those go in contact_telecom)
     $personData = [
-        'first_name' => trim((string) $input['first_name']),
-        'last_name' => trim((string) $input['last_name']),
+        'first_name' => trim((string)$input['first_name']),
+        'last_name' => trim((string)$input['last_name']),
         'middle_name' => trim($input['middle_name'] ?? ''),
         'birth_date' => $input['birth_date'] ?? null,
         'gender' => $input['gender'] ?? '',
@@ -556,12 +418,10 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
     // Approach 1: Data at index 0 (most common)
     if (isset($allData[0]) && is_array($allData[0]) && !empty($allData[0]['id'])) {
         $personArray = $allData[0];
-    }
-    // Approach 2: Data is directly the array
+    } // Approach 2: Data is directly the array
     elseif (is_array($allData) && !empty($allData['id'])) {
         $personArray = $allData;
-    }
-    // Approach 3: Check if it's a nested structure
+    } // Approach 3: Check if it's a nested structure
     elseif (isset($allData['data']) && is_array($allData['data']) && !empty($allData['data']['id'])) {
         $personArray = $allData['data'];
     }
@@ -686,10 +546,15 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
 
 function handleCheckPersonMatch($input, $linkService, $logger): void
 {
-    echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+    echo json_encode(['success' => false, 'message' => 'Not implemented']);
+}
+
 function handleLinkPersonToPatient($input, $linkService, $logger): void
 {
-    echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+    echo json_encode(['success' => false, 'message' => 'Not implemented']);
+}
+
 function handleUnlinkPersonFromPatient($input, $linkService, $logger): void
 {
-    echo json_encode(['success' => false, 'message' => 'Not implemented']); }
+    echo json_encode(['success' => false, 'message' => 'Not implemented']);
+}
