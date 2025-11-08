@@ -401,7 +401,7 @@
 
         const resultsContainer = document.getElementById('personSearchResults');
 
-        fetch(relationTableConfig.webroot + '/interface/patient_file/summary/person_search_ajax.php', {
+        fetch(relationTableConfig.webroot + '/library/ajax/person_search_ajax.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -659,7 +659,7 @@
         createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
 
         // Create person via AJAX
-        fetch(relationTableConfig.webroot + '/interface/patient_file/summary/person_search_ajax.php', {
+        fetch(relationTableConfig.webroot + '/library/ajax/person_search_ajax.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
