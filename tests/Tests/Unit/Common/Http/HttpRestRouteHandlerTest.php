@@ -63,4 +63,31 @@ class HttpRestRouteHandlerTest extends TestCase
         ], $request);
         $this->assertEquals($controller, $request->attributes->get("_controller"), "Controller should be set correctly for the route");
     }
+
+    public function testDispatchWithOperation(): void {
+        $resource = '';
+        $path = '$bulkdata-status';
+        $request = HttpRestRequest::create('/' . $path, 'GET');
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher->method('dispatch')
+            ->willReturn(new RestApiSecurityCheckEvent($request));
+        // make sure controller is being called correctly
+        $kernel = $this->createMock(OEHttpKernel::class);
+        $kernel->method('getSystemLogger')
+            ->willReturn(new SystemLogger());
+        $kernel->expects($this->once())
+            ->method('getEventDispatcher')
+            ->willReturn($eventDispatcher);
+
+        $request->setRequestUserRole('system');
+        $request->setResource($resource);
+        $request->setOperation('$bulkdata-status');
+        $restRouteHandler = new HttpRestRouteHandler($kernel);
+        $controller =  function (HttpRestRequest $request): void {};
+        $restRouteHandler->dispatch([
+            'GET /' . $path => $controller
+        ], $request);
+        $this->assertEquals($controller, $request->attributes->get("_controller"), "Controller should be set correctly for the route");
+    }
 }
