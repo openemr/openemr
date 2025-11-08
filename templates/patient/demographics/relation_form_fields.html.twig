@@ -190,7 +190,7 @@
     {# Telecoms Section #}
     <div class="form-row">
         <div class="col-12">
-            {% set telecom_table_id = 'telecoms_' ~ (relatedPerson.target_contact_id ? relatedPerson.target_contact_id : 'new_' ~ relatedPerson_index) %}
+            {% set telecom_table_id = uniqid("table_edit_telecoms_") %}
             {% set telecoms_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][telecoms]' %}
             {% include 'patient/demographics/telecom_form.html.twig' with {
                 'table_id': telecom_table_id,
@@ -210,7 +210,7 @@
     {# Addresses Section #}
     <div class="form-row">
         <div class="col-12">
-            {% set address_table_id = 'addresses_' ~ (relatedPerson.target_contact_id ? relatedPerson.target_contact_id : 'new_' ~ relatedPerson_index) %}
+            {% set address_table_id = uniqid("table_edit_addresses_") %}
             {% set addresses_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][addresses]' %}
             {% include 'patient/demographics/address_form.html.twig' with {
                 'table_id': address_table_id,

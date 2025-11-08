@@ -110,8 +110,9 @@
 
                 {# Telecoms Section #}
                 <div class="relation-section1">
-                    {% set telecom_table_id = 'telecoms_' ~ relatedPerson.target_contact_id %}
+                    {% set telecom_table_id = uniqid("table_text_telecoms_") %}
                     {% include 'patient/demographics/telecom_display.html.twig' with {
+                        'foreign_table': 'person',
                         'table_id': telecom_table_id,
                         'telecoms': relatedPerson.telecoms,
                         'list_telecom_systems': list_telecom_systems,
@@ -121,13 +122,13 @@
 
                 {# Addresses Section #}
                 <div class="relation-section2">
-                    {% set address_table_id = 'addresses_' ~ relatedPerson.target_contact_id %}
+                    {% set address_table_id = uniqid("table_text_addresses_") %}
                     {% include 'patient/demographics/address_display.html.twig' with {
+                        'foreign_table': 'person',
                         'table_id': address_table_id,
                         'addresses': relatedPerson.addresses,
                         'list_address_types': list_address_types,
-                        'list_address_uses': list_address_uses,
-                        'foreign_table': 'person'
+                        'list_address_uses': list_address_uses
                     } only %}
                 </div>
 

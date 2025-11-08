@@ -283,10 +283,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction(
                 'getListItemTitle',
                 LayoutsUtils::getListItemTitle(...)
-            )
-            ,new TwigFunction(
+            ),
+            new TwigFunction(
                 'getAssetCacheParamRaw',
                 CacheUtils::getAssetCacheParamRaw(...)
+            ),
+            new TwigFunction(
+                'uniqid', 
+                function(string $prefix = "", bool $more_entropy = false): string {
+                    return uniqid( $prefix, $more_entropy);
+                }
             )
         ];
     }
