@@ -300,7 +300,7 @@ function echoServiceLines(): void
             }
 
             echo "  <td class='billcell text-center'><input type='checkbox' name='bill[" . attr($lino) . "][del]' " .
-            "value='1'" . (text($li['del']) ? " checked" : "") . " onchange='toggleDeleteStrike(this)' /></td>\n";
+            "value='1'" . ($li['del'] ? " checked" : "") . " onchange='toggleDeleteStrike(this)' /></td>\n";
         }
 
         echo " </tr>\n";
