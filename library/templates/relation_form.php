@@ -53,9 +53,7 @@ try {
         $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContactId, true);
 
         // Filter to only person targets
-        $relatedPersonRecords = array_filter($relatedEntityRecords, function($rel) {
-            return isset($rel['target_table']) && $rel['target_table'] === 'person';
-        });
+        $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
 
         // Transfer records to an array
         foreach ($relatedPersonRecords as $record) {
@@ -159,9 +157,9 @@ $list_countries = generate_list_map("country");
 
 // Generate unique table ID
 $table_id = uniqid("table_edit_relations_");
-$field_id_esc = $field_id_esc ?? '0';
+$field_id_esc ??= '0';
 $name_field_id = "form_" . $field_id_esc;
-$smallform = $smallform ?? false;
+$smallform ??= false;
 
 // Prepare template variables
 $widgetConstants = [

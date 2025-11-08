@@ -20,7 +20,7 @@ use OpenEMR\Common\ORDataObject\Contact;
 use DateTime;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-class ContactRelation extends ORDataObject implements \JsonSerializable
+class ContactRelation extends ORDataObject implements \JsonSerializable, \Stringable
 {
     // Status constants
     private const ACTIVE_YES = 1;
@@ -41,9 +41,6 @@ class ContactRelation extends ORDataObject implements \JsonSerializable
 
     // Default values
     public const DEFAULT_PRIORITY = 1;
-
-    // Properties - MATCHING DATABASE SCHEMA
-    private $id;
     private $contact_id;
     private $target_table;
     private $target_id;
@@ -72,13 +69,10 @@ class ContactRelation extends ORDataObject implements \JsonSerializable
      *
      * @param string|int $id Optional relation ID to load
      */
-    public function __construct($id = "")
+    public function __construct(private $id = "")
     {
         parent::__construct("contact_relation");
         $this->setThrowExceptionOnError(true);
-
-        // Set defaults
-        $this->id = $id;
         $this->is_emergency_contact = self::IS_EMERGENCY_NO;
         $this->is_primary_contact = self::IS_PRIMARY_NO;
         $this->contact_priority = self::DEFAULT_PRIORITY;
@@ -96,7 +90,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable
         //$this->updated_at = new DateTime();
         //$this->updated_by = $_SESSION['authUser'] ?? null;
 
-        if (!empty($id)) {
+        if (!empty($this->id)) {
             $this->populate();
         }
     }

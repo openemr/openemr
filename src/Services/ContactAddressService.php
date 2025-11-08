@@ -42,13 +42,13 @@ class ContactAddressService extends BaseService
         try {
             // Verify contact exists
             $contact = new Contact($contactId);
-            if (empty($contact->get_id())) {
+            if (in_array($contact->get_id(), [null, 0], true)) {
                 throw new \Exception("Contact ID {$contactId} not found");
             }
 
             $savedRecords = [];
 
-            if (empty($addressData)) {
+            if ($addressData === []) {
                 return $savedRecords;
             }
 
@@ -231,27 +231,16 @@ class ContactAddressService extends BaseService
      */
     public function getAddressesForContactAsMergedArray(int $contactId, bool $includeInactive = false): array
     {
-        if (empty($contactId)) {
+        if ($contactId === 0) {
             return [];
         }
 
         $addresses = $this->getAddressesForContact($contactId, $includeInactive);
 
-        $resultSet = [];
-        foreach ($addresses as $record) {
-            // The query already joins and returns merged data, so just return it
-            $resultSet[] = $record;
-        }
-
-        return $resultSet;
+        return $addresses;
     }
 
-    /**
-     * @var ListService
-     */
-    private $listService;
-
-    private const ADDRESSES_TABLE = 'addresses';
+    private readonly \OpenEMR\Services\ListService $listService;
 
     /**
      * Default constructor.
@@ -264,9 +253,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Save a single contact address
-     *
-     * @param ContactAddress $contactAddress
-     * @return bool
      */
     public function saveContactAddress(ContactAddress $contactAddress): bool
     {
@@ -280,10 +266,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Create or update contact address from array data
-     *
-     * @param array $data
-     * @param Contact $contact
-     * @return ContactAddress
      */
     public function createContactAddressFromArray(array $data, Contact $contact): ContactAddress
     {
@@ -292,10 +274,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Build a contact address from array data
-     *
-     * @param array $data
-     * @param Contact $contact
-     * @return ContactAddress
      */
     private function buildContactAddress(array $data, Contact $contact): ContactAddress
     {
@@ -342,9 +320,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Set address data on Address object
-     *
-     * @param Address $address
-     * @param array $data
      */
     private function setAddressData(Address $address, array $data): void
     {
@@ -360,9 +335,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Set dates on ContactAddress
-     *
-     * @param ContactAddress $contactAddress
-     * @param array $data
      */
     private function setDatesOnContactAddress(ContactAddress $contactAddress, array $data): void
     {
@@ -389,10 +361,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get all addresses for a contact
-     *
-     * @param int $contactId
-     * @param bool $includeInactive
-     * @return array
      */
     public function getAddressesForContact(int $contactId, bool $includeInactive = false): array
     {
@@ -416,9 +384,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get primary address for a contact
-     *
-     * @param int $contactId
-     * @return array|null
      */
     public function getPrimaryAddressForContact(int $contactId): ?array
     {
@@ -436,10 +401,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Set primary address for a contact
-     *
-     * @param int $contactAddressId
-     * @param int $contactId
-     * @return bool
      */
     public function setPrimaryAddressForContact(int $contactAddressId, int $contactId): bool
     {
@@ -462,9 +423,7 @@ class ContactAddressService extends BaseService
     /**
      * Deactivate a contact address
      *
-     * @param int $contactAddressId
      * @param string $reason Optional reason for deactivation
-     * @return bool
      */
     public function deactivateAddress(int $contactAddressId, string $reason = ''): bool
     {
@@ -475,7 +434,7 @@ class ContactAddressService extends BaseService
             }
 
             $contactAddress->deactivate();
-            if (!empty($reason)) {
+            if ($reason !== '' && $reason !== '0') {
                 $contactAddress->set_inactivated_reason($reason);
             }
 
@@ -488,9 +447,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Delete a contact address with orphan cleanup
-     *
-     * @param int $contactAddressId
-     * @return bool
      */
     public function deleteContactAddress(int $contactAddressId): bool
     {
@@ -522,8 +478,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Clean up orphaned address record
-     *
-     * @param int $addressId
      */
     private function cleanupOrphanedAddress(int $addressId): void
     {
@@ -538,8 +492,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Clean up orphaned contact record
-     *
-     * @param int $contactId
      */
     private function cleanupOrphanedContact(int $contactId): void
     {
@@ -562,11 +514,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get addresses by type
-     *
-     * @param int $contactId
-     * @param string $type
-     * @param bool $includeInactive
-     * @return array
      */
     public function getAddressesByType(int $contactId, string $type, bool $includeInactive = false): array
     {
@@ -585,11 +532,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get addresses by use
-     *
-     * @param int $contactId
-     * @param string $use
-     * @param bool $includeInactive
-     * @return array
      */
     public function getAddressesByUse(int $contactId, string $use, bool $includeInactive = false): array
     {
@@ -608,9 +550,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Validate address data
-     *
-     * @param array $addressData
-     * @return ProcessingResult
      */
     public function validateAddress(array $addressData): ProcessingResult
     {
@@ -639,17 +578,13 @@ class ContactAddressService extends BaseService
         $country = $addressData['country'] ?? 'US';
 
         // US ZIP code validation
-        if ($country == 'US' && !empty($postalCode)) {
-            if (!preg_match('/^\d{5}(-\d{4})?$/', $postalCode)) {
-                $errors['postalcode'] = "Invalid US postal code format (must be XXXXX or XXXXX-XXXX)";
-            }
+        if ($country == 'US' && !empty($postalCode) && !preg_match('/^\d{5}(-\d{4})?$/', (string) $postalCode)) {
+            $errors['postalcode'] = "Invalid US postal code format (must be XXXXX or XXXXX-XXXX)";
         }
 
         // Canadian postal code validation
-        if ($country == 'CA' && !empty($postalCode)) {
-            if (!preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', $postalCode)) {
-                $errors['postalcode'] = "Invalid Canadian postal code format";
-            }
+        if ($country == 'CA' && !empty($postalCode) && !preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', (string) $postalCode)) {
+            $errors['postalcode'] = "Invalid Canadian postal code format";
         }
 
         // Type validation
@@ -668,7 +603,7 @@ class ContactAddressService extends BaseService
             }
         }
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $processingResult->setValidationMessages($errors);
         } else {
             $processingResult->addData($addressData);
@@ -679,8 +614,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get valid address types
-     *
-     * @return array
      */
     public function getValidAddressTypes(): array
     {
@@ -688,7 +621,7 @@ class ContactAddressService extends BaseService
 
         if ($types === null) {
             $typesList = $this->listService->getOptionsByListName('address-types');
-            $types = array_reduce($typesList, function ($map, $item) {
+            $types = array_reduce($typesList, function (array $map, array $item): array {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
             }, []);
@@ -699,8 +632,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get valid address uses
-     *
-     * @return array
      */
     public function getValidAddressUses(): array
     {
@@ -708,7 +639,7 @@ class ContactAddressService extends BaseService
 
         if ($uses === null) {
             $usesList = $this->listService->getOptionsByListName('address-uses');
-            $uses = array_reduce($usesList, function ($map, $item) {
+            $uses = array_reduce($usesList, function (array $map, array $item): array {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
             }, []);
@@ -719,10 +650,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Copy address to another contact
-     *
-     * @param int $sourceContactAddressId
-     * @param int $destinationContactId
-     * @return ContactAddress|null
      */
     public function copyAddress(int $sourceContactAddressId, int $destinationContactId): ?ContactAddress
     {
@@ -733,7 +660,7 @@ class ContactAddressService extends BaseService
             }
 
             $destContact = new Contact($destinationContactId);
-            if (empty($destContact->get_id())) {
+            if (in_array($destContact->get_id(), [null, 0], true)) {
                 return null;
             }
 
@@ -761,9 +688,6 @@ class ContactAddressService extends BaseService
 
     /**
      * Get address history for a contact
-     *
-     * @param int $contactId
-     * @return array
      */
     public function getAddressHistory(int $contactId): array
     {

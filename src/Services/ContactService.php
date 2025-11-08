@@ -34,7 +34,6 @@ class ContactService extends BaseService
      *
      * @param string $foreignTable The table this contact relates to
      * @param int $foreignId The ID in the foreign table
-     * @return Contact
      */
     public function getOrCreateForEntity(string $foreignTable, int $foreignId): Contact
     {
@@ -68,15 +67,12 @@ class ContactService extends BaseService
 
     /**
      * Get a contact by ID
-     *
-     * @param int $contactId
-     * @return Contact|null
      */
     public function get(int $contactId): ?Contact
     {
         $contact = new Contact($contactId);
 
-        if (empty($contact->get_id())) {
+        if (in_array($contact->get_id(), [null, 0], true)) {
             return null;
         }
 
@@ -85,10 +81,6 @@ class ContactService extends BaseService
 
     /**
      * Get contact for a specific entity
-     *
-     * @param string $foreignTable
-     * @param int $foreignId
-     * @return Contact|null
      */
     public function getForEntity(string $foreignTable, int $foreignId): ?Contact
     {
@@ -110,10 +102,6 @@ class ContactService extends BaseService
 
     /**
      * Check if an entity has a contact
-     *
-     * @param string $foreignTable
-     * @param int $foreignId
-     * @return bool
      */
     public function entityHasContact(string $foreignTable, int $foreignId): bool
     {
@@ -129,9 +117,6 @@ class ContactService extends BaseService
 
     /**
      * Delete a contact (checks for dependent records first)
-     *
-     * @param int $contactId
-     * @return ProcessingResult
      */
     public function delete(int $contactId): ProcessingResult
     {
@@ -141,7 +126,7 @@ class ContactService extends BaseService
             // Check for dependent records
             $dependents = $this->getDependentRecords($contactId);
 
-            if (!empty($dependents)) {
+            if ($dependents !== []) {
                 $processingResult->addProcessingError(
                     "Cannot delete contact with dependent records: " .
                     implode(", ", array_keys($dependents))
@@ -167,16 +152,12 @@ class ContactService extends BaseService
 
     /**
      * Delete contact for a specific entity
-     *
-     * @param string $foreignTable
-     * @param int $foreignId
-     * @return ProcessingResult
      */
     public function deleteForEntity(string $foreignTable, int $foreignId): ProcessingResult
     {
         $contact = $this->getForEntity($foreignTable, $foreignId);
 
-        if (!$contact) {
+        if (!$contact instanceof \OpenEMR\Common\ORDataObject\Contact) {
             $processingResult = new ProcessingResult();
             $processingResult->addProcessingError("No contact found for entity");
             return $processingResult;
@@ -188,7 +169,6 @@ class ContactService extends BaseService
     /**
      * Get dependent records for a contact
      *
-     * @param int $contactId
      * @return array Array of table names with counts
      */
     public function getDependentRecords(int $contactId): array
@@ -216,11 +196,6 @@ class ContactService extends BaseService
 
     /**
      * Validate that a contact exists and belongs to a specific entity
-     *
-     * @param int $contactId
-     * @param string $foreignTable
-     * @param int $foreignId
-     * @return bool
      */
     public function validateOwnership(int $contactId, string $foreignTable, int $foreignId): bool
     {
@@ -236,11 +211,6 @@ class ContactService extends BaseService
 
     /**
      * Transfer a contact from one entity to another
-     *
-     * @param int $contactId
-     * @param string $newForeignTable
-     * @param int $newForeignId
-     * @return ProcessingResult
      */
     public function transferContact(int $contactId, string $newForeignTable, int $newForeignId): ProcessingResult
     {
@@ -257,7 +227,7 @@ class ContactService extends BaseService
 
             // Get the contact
             $contact = $this->get($contactId);
-            if (!$contact) {
+            if (!$contact instanceof \OpenEMR\Common\ORDataObject\Contact) {
                 $processingResult->addProcessingError("Contact not found");
                 return $processingResult;
             }
@@ -286,7 +256,6 @@ class ContactService extends BaseService
      *
      * @param int $sourceContactId Contact to merge from
      * @param int $targetContactId Contact to merge into
-     * @return ProcessingResult
      */
     public function mergeContacts(int $sourceContactId, int $targetContactId): ProcessingResult
     {
@@ -334,11 +303,6 @@ class ContactService extends BaseService
 
     /**
      * Find contacts by foreign table type
-     *
-     * @param string $foreignTable
-     * @param int $limit
-     * @param int $offset
-     * @return array
      */
     public function findByForeignTable(string $foreignTable, int $limit = 100, int $offset = 0): array
     {
@@ -355,8 +319,6 @@ class ContactService extends BaseService
 
     /**
      * Get statistics about contacts
-     *
-     * @return array
      */
     public function getStatistics(): array
     {
@@ -407,7 +369,6 @@ class ContactService extends BaseService
      * Clean up orphaned contacts (contacts with no dependent records)
      *
      * @param bool $dryRun If true, only returns what would be deleted
-     * @return ProcessingResult
      */
     public function cleanupOrphaned(bool $dryRun = true): ProcessingResult
     {

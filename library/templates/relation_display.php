@@ -46,9 +46,7 @@ try {
         $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
 
         // Filter to only person targets
-        $relatedPersonRecords = array_filter($relatedEntityRecords, function($rel) {
-            return isset($rel['target_table']) && $rel['target_table'] === 'person';
-        });
+        $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
 
         // For each relationship, get addresses and telecoms
         foreach ($relatedPersonRecords as $record) {

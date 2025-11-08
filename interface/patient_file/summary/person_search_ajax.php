@@ -9,7 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 /**
  * @global string $srcdir defined in globals
  */
@@ -62,9 +62,9 @@ $debugInfo['token_sources'] = [];
 foreach ($tokenSources as $source => $value) {
     $debugInfo['token_sources'][$source] = [
         'found' => !empty($value),
-        'length' => $value ? strlen($value) : 0,
-        'first_10' => $value ? substr($value, 0, 10) : 'null',
-        'last_10' => $value ? substr($value, -10) : 'null',
+        'length' => $value ? strlen((string) $value) : 0,
+        'first_10' => $value ? substr((string) $value, 0, 10) : 'null',
+        'last_10' => $value ? substr((string) $value, -10) : 'null',
     ];
 }
 
@@ -75,7 +75,7 @@ $debugInfo['session'] = [
     'has_auth_user' => isset($_SESSION['authUser']),
     'auth_user' => $_SESSION['authUser'] ?? 'not set',
     'has_csrf_private_key' => isset($_SESSION['csrf_private_key']),
-    'csrf_private_key_length' => isset($_SESSION['csrf_private_key']) ? strlen($_SESSION['csrf_private_key']) : 0,
+    'csrf_private_key_length' => isset($_SESSION['csrf_private_key']) ? strlen((string) $_SESSION['csrf_private_key']) : 0,
 ];
 
 // ===== STEP 3: SELECT BEST TOKEN =====
@@ -103,7 +103,7 @@ foreach ($tokenPriority as $source => $token) {
 $debugInfo['token_selection'] = [
     'token_found' => !empty($csrfToken),
     'source_used' => $tokenSourceUsed,
-    'token_length' => $csrfToken ? strlen($csrfToken) : 0,
+    'token_length' => $csrfToken ? strlen((string) $csrfToken) : 0,
 ];
 
 // ===== STEP 4: VERIFY TOKEN =====
@@ -248,14 +248,14 @@ try {
 /**
  * Search for persons in both person and patient_data tables
  */
-function handleSearchPersons($input, $contactService, $linkService, $logger): void
+function handleSearchPersons(array $input, $contactService, $linkService, $logger): void
 {
     $first_name = trim($input['first_name'] ?? '');
     $last_name = trim($input['last_name'] ?? '');
     $birthDate = trim($input['birth_date'] ?? '');
     $phone = trim($input['phone'] ?? '');
 
-    if (empty($first_name) && empty($last_name) && empty($birthDate) && empty($phone)) {
+    if (($first_name === '' || $first_name === '0') && ($last_name === '' || $last_name === '0') && ($birthDate === '' || $birthDate === '0') && ($phone === '' || $phone === '0')) {
         echo json_encode([
             'success' => false,
             'message' => xl('Please provide at least one search criterion')
@@ -277,16 +277,16 @@ function handleSearchPersons($input, $contactService, $linkService, $logger): vo
     $results = deduplicateResults($results);
 
     // Sort by last_name, first_name
-    usort($results, function ($a, $b) {
-        $lastCompare = strcasecmp($a['last_name'], $b['last_name']);
+    usort($results, function (array $a, array $b): int {
+        $lastCompare = strcasecmp((string) $a['last_name'], (string) $b['last_name']);
         if ($lastCompare !== 0) {
             return $lastCompare;
         }
-        return strcasecmp($a['first_name'], $b['first_name']);
+        return strcasecmp((string) $a['first_name'], (string) $b['first_name']);
     });
 
     $logger->debug("Person search completed", [
-        'criteria' => compact('first_name', 'last_name', 'birthDate', 'phone'),
+        'criteria' => ['first_name' => $first_name, 'last_name' => $last_name, 'birthDate' => $birthDate, 'phone' => $phone],
         'result_count' => count($results)
     ]);
 
@@ -465,14 +465,12 @@ function deduplicateResults($results): array
         if (!isset($seen[$key])) {
             $seen[$key] = true;
             $unique[] = $result;
-        } else {
-            if ($result['source'] === 'person') {
-                foreach ($unique as $i => $existing) {
-                    $existingKey = strtolower($existing['first_name'] . '|' . $existing['last_name'] . '|' . $existing['birth_date']);
-                    if ($existingKey === $key && $existing['source'] === 'patient_data') {
-                        $unique[$i] = $result;
-                        break;
-                    }
+        } elseif ($result['source'] === 'person') {
+            foreach ($unique as $i => $existing) {
+                $existingKey = strtolower($existing['first_name'] . '|' . $existing['last_name'] . '|' . $existing['birth_date']);
+                if ($existingKey === $key && $existing['source'] === 'patient_data') {
+                    $unique[$i] = $result;
+                    break;
                 }
             }
         }
@@ -488,7 +486,7 @@ function deduplicateResults($results): array
  * Handle create person request - COMPLETE FIXED VERSION
  * Properly handles email/phone in contact_telecom instead of person table
  */
-function handleCreatePerson($input, PersonService $personService, $contactService, $logger): void
+function handleCreatePerson(array $input, PersonService $personService, $contactService, $logger): void
 {
     // Validate required fields
     if (empty($input['first_name']) || empty($input['last_name'])) {
@@ -505,8 +503,8 @@ function handleCreatePerson($input, PersonService $personService, $contactServic
 
     // Build person data array - NO EMAIL OR PHONE (those go in contact_telecom)
     $personData = [
-        'first_name' => trim($input['first_name']),
-        'last_name' => trim($input['last_name']),
+        'first_name' => trim((string) $input['first_name']),
+        'last_name' => trim((string) $input['last_name']),
         'middle_name' => trim($input['middle_name'] ?? ''),
         'birth_date' => $input['birth_date'] ?? null,
         'gender' => $input['gender'] ?? '',
@@ -519,7 +517,7 @@ function handleCreatePerson($input, PersonService $personService, $contactServic
 
     $logger->debug("Attempting to create person", [
         'personData' => $personData,
-        'has_phone' => !empty($phone)
+        'has_phone' => $phone !== '' && $phone !== '0'
     ]);
 
     // Create person via service
@@ -569,7 +567,7 @@ function handleCreatePerson($input, PersonService $personService, $contactServic
     }
 
     // Validate we got valid person data
-    if (empty($personArray) || empty($personArray['id'])) {
+    if ($personArray === null || $personArray === [] || empty($personArray['id'])) {
         $logger->error("Person creation succeeded but data extraction failed", [
             'hasData' => $result->hasData(),
             'dataStructure' => $allData,
@@ -620,7 +618,7 @@ function handleCreatePerson($input, PersonService $personService, $contactServic
     $addedTelecoms = [];
 
     try {
-        if (!empty($phone)) {
+        if ($phone !== '' && $phone !== '0') {
             // if the save fails an exception will be thrown
             $telecomService->saveTelecomsForContact($contactId, [
                 'contact_id' => [$contactId],

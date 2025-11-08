@@ -34,7 +34,6 @@ class PersonService extends BaseService
      * Create a new person
      *
      * @param array $data Person data
-     * @return ProcessingResult
      */
     public function create(array $data): ProcessingResult
     {
@@ -63,7 +62,7 @@ class PersonService extends BaseService
 
             // CRITICAL FIX: Verify the person actually has an ID after persist
             $personId = $person->get_id();
-            if (empty($personId)) {
+            if ($personId === 0) {
                 $this->getLogger()->error("Person persist() succeeded but ID is empty", [
                     'data' => $data
                 ]);
@@ -103,10 +102,6 @@ class PersonService extends BaseService
 
     /**
      * Update an existing person
-     *
-     * @param int $personId
-     * @param array $data
-     * @return ProcessingResult
      */
     public function update(int $personId, array $data): ProcessingResult
     {
@@ -114,7 +109,7 @@ class PersonService extends BaseService
 
         try {
             $person = new Person($personId);
-            if (empty($person->get_id())) {
+            if ($person->get_id() === 0) {
                 $processingResult->addInternalError("Person not found");
                 return $processingResult;
             }
@@ -148,9 +143,6 @@ class PersonService extends BaseService
 
         /**
      * Get a person by ID
-     *
-     * @param int $personId
-     * @return ProcessingResult
      */
     public function get(int $personId): ProcessingResult
     {
@@ -158,7 +150,7 @@ class PersonService extends BaseService
 
         try {
             $person = new Person($personId);
-            if (!empty($person->get_id())) {
+            if ($person->get_id() !== 0) {
                 $processingResult->addData($person->toArray());
             } else {
                 $processingResult->addInternalError("Person not found");
@@ -177,9 +169,6 @@ class PersonService extends BaseService
 
     /**
      * Delete a person
-     *
-     * @param int $personId
-     * @return ProcessingResult
      */
     public function delete(int $personId): ProcessingResult
     {
@@ -188,7 +177,7 @@ class PersonService extends BaseService
         try {
             // Check for dependencies
             $dependencies = $this->checkDependencies($personId);
-            if (!empty($dependencies)) {
+            if ($dependencies !== []) {
                 $processingResult->addInternalError(
                     "Cannot delete person with dependencies: " . implode(", ", array_keys($dependencies))
                 );
@@ -217,9 +206,7 @@ class PersonService extends BaseService
      *
      * @param array $searchCriteria Criteria to search for existing person
      * @param array $createData Data to create person if not found
-     * @return ProcessingResult
      */
-
     public function findOrCreate(array $searchCriteria, array $createData = []): ProcessingResult
     {
         $processingResult = new ProcessingResult();
@@ -257,7 +244,6 @@ class PersonService extends BaseService
      * @param bool $isAndCondition Whether to AND or OR conditions (for compatibility)
      * @param int $limit Maximum results to return
      * @param int $offset Offset for pagination
-     * @return ProcessingResult
      */
     public function search($search, $isAndCondition = true, $limit = 100, $offset = 0): ProcessingResult
     {
@@ -317,9 +303,7 @@ class PersonService extends BaseService
     /**
      * Find persons related to a specific patient
      *
-     * @param int $patientId
      * @param array $filters Optional filters (relationship type, role, etc.)
-     * @return ProcessingResult
      */
     public function findPersonsRelatedToPatient(int $patientId, array $filters = []): ProcessingResult
     {
@@ -379,8 +363,6 @@ class PersonService extends BaseService
      *
      * @param string $foreignTable
      * @param int $foreignId
-     * @param array $filters
-     * @return ProcessingResult
      */
     public function findPersonsRelatedToEntity(
         string $targetTable,
@@ -431,9 +413,6 @@ class PersonService extends BaseService
 
     /**
      * Get all relationships for a person
-     *
-     * @param int $personId
-     * @return ProcessingResult
      */
     public function getPersonRelationships(int $personId): ProcessingResult
     {
@@ -473,9 +452,7 @@ class PersonService extends BaseService
     /**
      * Validate person data
      *
-     * @param array $data
      * @param int|null $personId For updates
-     * @return ProcessingResult
      */
     private function validatePerson(array $data, ?int $personId = null): ProcessingResult
     {
@@ -504,22 +481,20 @@ class PersonService extends BaseService
             }
 
             // Check if death date is after birth date
-            if (!empty($data['birth_date']) && isset($birthDate) && $deathDate !== false) {
-                if ($deathDate < $birthDate) {
-                    $errors['death_date'] = "Death date cannot be before birth date";
-                }
+            if (!empty($data['birth_date']) && isset($birthDate) && $deathDate !== false && $deathDate < $birthDate) {
+                $errors['death_date'] = "Death date cannot be before birth date";
             }
         }
 
         // Check for duplicates (unless updating)
-        if (empty($personId)) {
+        if ($personId === null || $personId === 0) {
             $duplicateCheck = $this->checkForDuplicates($data);
-            if (!empty($duplicateCheck)) {
+            if ($duplicateCheck !== null && $duplicateCheck !== []) {
                 $errors['duplicate'] = "Possible duplicate person found: ID " . $duplicateCheck['id'];
             }
         }
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $processingResult->setValidationMessages($errors);
         } else {
             $processingResult->addData($data);
@@ -531,9 +506,6 @@ class PersonService extends BaseService
 
      /**
      * Check for duplicate persons
-     *
-     * @param array $data
-     * @return array|null
      */
     private function checkForDuplicates(array $data): ?array
     {
@@ -557,9 +529,6 @@ class PersonService extends BaseService
 
     /**
      * Check dependencies before deletion
-     *
-     * @param int $personId
-     * @return array
      */
     private function checkDependencies(int $personId): array
     {
@@ -599,11 +568,7 @@ class PersonService extends BaseService
 
     /**
      * Populate Person object from array data
-     *
-     * @param Person $person
-     * @param array $data
      */
-
     private function populatePersonFromArray(Person $person, array $data): void
     {
         if (isset($data['first_name'])) {

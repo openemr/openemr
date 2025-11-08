@@ -54,12 +54,12 @@ class CareTeamService extends BaseService
         return ['uuid', 'puuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): \OpenEMR\Validators\ProcessingResult
     {
         $processingResult = new ProcessingResult();
         // Build the base query for care teams
         $records = $this->getCareTeamRecordsForSearch($search, $isAndCondition);
-        if (empty($records)) {
+        if ($records === []) {
             return $processingResult;
         }
         $ctTeamIds = array_column($records, 'id');
@@ -156,7 +156,7 @@ class CareTeamService extends BaseService
         return $this->search($newSearch, $isAndCondition);
     }
 
-    public function createResultRecordFromDatabaseResult($row)
+    public function createResultRecordFromDatabaseResult($row): array
     {
         $row = parent::createResultRecordFromDatabaseResult($row);
         $row['team_name'] ??= '';
@@ -253,7 +253,7 @@ class CareTeamService extends BaseService
     protected function getCareTeamContacts(array $careTeamIds): array
     {
         // AI-generated method implementation - Start
-        if (empty($careTeamIds)) {
+        if ($careTeamIds === []) {
             return [];
         }
 
@@ -316,7 +316,7 @@ class CareTeamService extends BaseService
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
-    public function getOne($uuid, $puuidBind = null)
+    public function getOne(string $uuid, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
 
@@ -360,7 +360,7 @@ class CareTeamService extends BaseService
     }
 
 
-    public function hasActiveCareTeam($pid)
+    public function hasActiveCareTeam($pid): bool
     {
         $sql = "SELECT COUNT(*) as count FROM " . self::CARE_TEAM_TABLE . " WHERE pid = ? AND (status = 'active' OR status IS NULL)";
         $result = QueryUtils::querySingleRow($sql, [$pid]);
@@ -368,7 +368,7 @@ class CareTeamService extends BaseService
         return ($result['count'] ?? 0) > 0;
     }
 
-    public function saveCareTeam($pid, ?int $teamId, string $teamName, array $team, string $status = 'active')
+    public function saveCareTeam($pid, ?int $teamId, string $teamName, array $team, string $status = 'active'): void
     {
         // Create UUIDs for the table if not already present
         UuidRegistry::createMissingUuidsForTables([self::CARE_TEAM_TABLE]);
@@ -404,7 +404,7 @@ class CareTeamService extends BaseService
                 continue; // Skip if neither is set
             }
 
-            if ($userId) {
+            if ($userId !== 0) {
                 // Handle user member
                 $index = $existingMembersByUserId[$userId] ?? -1;
                 if (isset($existingMembers[$index])) {
@@ -415,7 +415,7 @@ class CareTeamService extends BaseService
                     // Insert new member
                     $this->insertCareTeamMember($careTeamId, $entry);
                 }
-            } elseif ($contactId) {
+            } elseif ($contactId !== 0) {
                 // Handle contact member
                 // Find existing member by contact_id
                 $index = $existingMembersByContactId[$contactId] ?? -1;
@@ -437,13 +437,13 @@ class CareTeamService extends BaseService
         }
 
         // Trigger care team update event for FHIR sync if needed
-        $this->triggerCareTeamUpdateEvent($pid, $teamName, $team);
+        $this->triggerCareTeamUpdateEvent();
     }
 
     /**
      * Create or update main care team record
      */
-    private function createOrUpdateCareTeam($pid, ?int $teamId, $teamName, string $status = 'active')
+    private function createOrUpdateCareTeam($pid, ?int $teamId, string $teamName, string $status = 'active')
     {
         $createdBy = $_SESSION['authUserID'] ?? null;
 
@@ -466,20 +466,19 @@ class CareTeamService extends BaseService
         } else {
             // Create new team
             $uuid = UuidRegistry::getRegistryForTable(self::CARE_TEAM_TABLE)->createUuid();
-            $careTeamId = QueryUtils::sqlInsert(
+            return QueryUtils::sqlInsert(
                 "INSERT INTO " . self::CARE_TEAM_TABLE . "
                  (uuid, pid, team_name, status, created_by, date_created)
                  VALUES (?, ?, ?, ?, ?, NOW())",
                 [$uuid, $pid, $teamName, $status, $createdBy]
             );
-            return $careTeamId;
         }
     }
 
     /**
      * Insert new care team member
      */
-    private function insertCareTeamMember($careTeamId, $memberData)
+    private function insertCareTeamMember($careTeamId, array $memberData): void
     {
         // AI-generated method modification - Start
         $createdBy = $_SESSION['authUserID'] ?? null;
@@ -503,7 +502,7 @@ class CareTeamService extends BaseService
     /**
      * Update existing care team member
      */
-    private function updateCareTeamMember($memberId, $memberData)
+    private function updateCareTeamMember($memberId, array $memberData): void
     {
         // AI-generated method modification - Start
         $updatedBy = $_SESSION['authUserID'] ?? null;
@@ -528,7 +527,7 @@ class CareTeamService extends BaseService
     /**
      * Mark care team member as inactive
      */
-    private function markMemberAsInactive($memberId)
+    private function markMemberAsInactive($memberId): void
     {
         $updatedBy = $_SESSION['authUserID'] ?? null;
 
@@ -540,7 +539,10 @@ class CareTeamService extends BaseService
         );
     }
 
-    public function getCareTeamData($pid)
+    /**
+     * @return mixed[]
+     */
+    public function getCareTeamData($pid): array
     {
         // AI-generated method modification - Start
         // Enhanced query to include both user and contact members
@@ -600,12 +602,12 @@ class CareTeamService extends BaseService
                 $memberType = 'contact';
                 $memberName = trim(($member['contact_first_name'] ?? '') . ' ' . ($member['contact_last_name'] ?? ''));
                 $memberDisplayInfo = $member['contact_relationship'] ?? '';
-                $memberName .= !empty($memberDisplayInfo) ? " ({$memberDisplayInfo})" : '';
+                $memberName .= empty($memberDisplayInfo) ? '' : " ({$memberDisplayInfo})";
             } elseif (!empty($member['user_id'])) {
                 $memberType = 'user';
                 $memberName = trim(($member['fname'] ?? '') . ' ' . ($member['lname'] ?? ''));
                 $memberDisplayInfo = $member['physician_type_title'] ?? '';
-                $memberName .= !empty($memberDisplayInfo) ? " ({$memberDisplayInfo})" : '';
+                $memberName .= empty($memberDisplayInfo) ? '' : " ({$memberDisplayInfo})";
             } else {
                 continue; // Skip if neither user nor contact
             }
@@ -629,7 +631,7 @@ class CareTeamService extends BaseService
                 'facility_name' => $member['facility_name'] ?? '',
                 'facility_npi' => $member['facility_npi'] ?? '',
                 'provider_since' => $member['provider_since'],
-                'provider_since_formatted' => !empty($member['provider_since']) ? oeFormatShortDate($member['provider_since']) : '',
+                'provider_since_formatted' => empty($member['provider_since']) ? '' : oeFormatShortDate($member['provider_since']),
                 'status' => $member['status'],
                 'status_title' => $member['status_title'] ?? $member['status'],
                 'note' => $member['note'] ?? '',
@@ -641,7 +643,7 @@ class CareTeamService extends BaseService
         }
 
         // Return the primary team or create empty structure
-        if (!empty($careTeams)) {
+        if ($careTeams !== []) {
             return reset($careTeams); // Get first team
         }
 
@@ -656,8 +658,9 @@ class CareTeamService extends BaseService
 
     /**
      * Get existing care team members keyed by user_id
+     * @return mixed[]
      */
-    private function getExistingCareTeamMembers($careTeamId)
+    private function getExistingCareTeamMembers($careTeamId): array
     {
         $result = QueryUtils::sqlStatementThrowException(
             "SELECT ctm.* FROM " . self::CARE_TEAM_MEMBER_TABLE . " ctm WHERE ctm.care_team_id = ?",
@@ -671,7 +674,7 @@ class CareTeamService extends BaseService
         return $members;
     }
 
-    private function triggerCareTeamUpdateEvent($pid, $teamName, $members)
+    private function triggerCareTeamUpdateEvent(): void
     {
         // This would trigger an event for FHIR resource update
         // You can implement event dispatching here if needed

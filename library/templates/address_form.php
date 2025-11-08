@@ -70,9 +70,9 @@ $list_countries = generate_list_map("country");
 
 // Generate unique table ID
 $table_id = uniqid("table_edit_addresses_");
-$field_id_esc = $field_id_esc ?? '0';
+$field_id_esc ??= '0';
 $name_field_id = "form_" . $field_id_esc;
-$smallform = $smallform ?? '';
+$smallform ??= '';
 
 // Widget constants
 $widgetConstants = [

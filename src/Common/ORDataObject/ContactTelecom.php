@@ -28,8 +28,6 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
     public const DEFAULT_SYSTEM = "phone";
     public const DEFAULT_USE = "home";
     public const USE_OLD = "old";
-
-    private $id;
     private $contact_id;
     private $rank;
     private $system;
@@ -46,13 +44,10 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
     private $_contact;
 
     // Constructor sets all ContactTelecom attributes to their default value
-    public function __construct($id = "")
+    public function __construct(private $id = "")
     {
         parent::__construct("contact_telecom");
         $this->setThrowExceptionOnError(true);
-
-        // Set defaults
-        $this->id = $id;
         $this->rank = 1;
         $this->author = $_SESSION['authUser'];
         $this->status = self::STATUS_ACTIVE;
@@ -64,7 +59,7 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
         $this->createdDate = new DateTime();
         $this->periodStart = $this->createdDate;
 
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
             $this->setIsObjectModified(false);
         }

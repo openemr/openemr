@@ -20,7 +20,7 @@ class PersonPatientLinkService extends BaseService
 {
     public const TABLE_NAME = 'person_patient_link';
 
-    private $logger;
+    private readonly \OpenEMR\Common\Logging\SystemLogger $logger;
 
     public function __construct()
     {
@@ -31,12 +31,9 @@ class PersonPatientLinkService extends BaseService
     /**
      * Link a person to a patient
      *
-     * @param int $personId
-     * @param int $patientId
      * @param int|null $userId User creating the link
      * @param string $linkMethod How the link was created
      * @param string|null $notes Optional notes
-     * @return ProcessingResult
      */
     public function linkPersonToPatient(
         int $personId,
@@ -116,10 +113,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Unlink a person from a patient (soft delete)
-     *
-     * @param int $personId
-     * @param int $patientId
-     * @return ProcessingResult
      */
     public function unlinkPersonFromPatient(int $personId, int $patientId): ProcessingResult
     {
@@ -155,10 +148,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get active link between person and patient
-     *
-     * @param int $personId
-     * @param int $patientId
-     * @return array|null
      */
     public function getActiveLink(int $personId, int $patientId): ?array
     {
@@ -176,9 +165,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get link by ID
-     *
-     * @param int $linkId
-     * @return array|null
      */
     public function getLink(int $linkId): ?array
     {
@@ -201,9 +187,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get patient for a person (if linked)
-     *
-     * @param int $personId
-     * @return array|null
      */
     public function getPatientForPerson(int $personId): ?array
     {
@@ -218,9 +201,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get person for a patient (if linked)
-     *
-     * @param int $patientId
-     * @return array|null
      */
     public function getPersonForPatient(int $patientId): ?array
     {
@@ -238,9 +218,6 @@ class PersonPatientLinkService extends BaseService
      * Check if person exists for patient by matching demographics
      * Used during patient registration to detect potential matches
      *
-     * @param string $first_name
-     * @param string $last_name
-     * @param string $birthDate
      * @return array Array of potential person matches
      */
     public function findPotentialPersonMatches(
@@ -288,9 +265,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get all relationships for a patient through their linked person record
-     *
-     * @param int $patientId
-     * @return array
      */
     public function getRelationshipsForPatient(int $patientId): array
     {
@@ -336,9 +310,6 @@ class PersonPatientLinkService extends BaseService
     /**
      * Find all unlinked persons who might be patients
      * Useful for migration and cleanup
-     *
-     * @param int $limit
-     * @return array
      */
     public function findUnlinkedPersonsWhoArePatients(int $limit = 100): array
     {
@@ -381,8 +352,6 @@ class PersonPatientLinkService extends BaseService
      * Migrate/link existing persons to patients in bulk
      * Returns count of successful links
      *
-     * @param int $limit
-     * @param int|null $userId
      * @return array ['linked' => int, 'failed' => int, 'errors' => array]
      */
     public function migrateUnlinkedPersons(int $limit = 100, ?int $userId = null): array
@@ -430,10 +399,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get all active links (for admin/reporting)
-     *
-     * @param int $limit
-     * @param int $offset
-     * @return array
      */
     public function getAllActiveLinks(int $limit = 50, int $offset = 0): array
     {
@@ -470,8 +435,6 @@ class PersonPatientLinkService extends BaseService
 
     /**
      * Get statistics about links
-     *
-     * @return array
      */
     public function getStatistics(): array
     {

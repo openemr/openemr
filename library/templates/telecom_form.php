@@ -57,9 +57,9 @@ $list_telecom_uses = generate_list_map("telecom_uses");
 
 // Generate unique table ID
 $table_id = uniqid("table_edit_telecoms_");
-$field_id_esc = $field_id_esc ?? '0';
+$field_id_esc ??= '0';
 $name_field_id = "form_" . $field_id_esc;
-$smallform = $smallform ?? '';
+$smallform ??= '';
 
 // Widget constants
 $widgetConstants = [

@@ -17,10 +17,8 @@ namespace OpenEMR\Common\ORDataObject;
 use DateTime;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
-class Person extends ORDataObject implements \JsonSerializable
+class Person extends ORDataObject implements \JsonSerializable, \Stringable
 {
-    // Database fields matching person table schema
-    private $id;
     private $uuid;
     private $title;
     private $first_name;
@@ -50,13 +48,10 @@ class Person extends ORDataObject implements \JsonSerializable
      *
      * @param string|int $id Optional person ID to load
      */
-    public function __construct($id = "")
+    public function __construct(private $id = "")
     {
         parent::__construct("person");
         $this->setThrowExceptionOnError(true);
-
-        // Set defaults
-        $this->id = $id;
         $this->uuid = null;
         $this->title = "";
         $this->first_name = "";
@@ -82,7 +77,7 @@ class Person extends ORDataObject implements \JsonSerializable
         $this->updated_by = null;
 
         // Load from database if ID provided
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
             $this->setIsObjectModified(false);
         }

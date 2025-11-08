@@ -45,7 +45,6 @@ class ContactRelationService extends BaseService
      * @param string $targetTable The table of the entity being related to
      * @param int $targetId The ID of the entity being related to
      * @param array $metadata Additional relationship data (relationship, role, etc.)
-     * @return ProcessingResult
      */
     public function createRelationship(
         int $contactId,
@@ -100,10 +99,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Update an existing relationship
-     *
-     * @param int $relationId
-     * @param array $data
-     * @return ProcessingResult
      */
     public function updateRelationship(int $relationId, array $data): ProcessingResult
     {
@@ -144,9 +139,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Deactivate a relationship (soft delete)
-     *
-     * @param int $relationId
-     * @return ProcessingResult
      */
     public function deactivateRelationship(int $relationId): ProcessingResult
     {
@@ -185,9 +177,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Delete a relationship (hard delete)
-     *
-     * @param int $relationId
-     * @return ProcessingResult
      */
     public function deleteRelationship(int $relationId): ProcessingResult
     {
@@ -218,10 +207,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Get all relationships for a contact (FROM the owner's perspective)
-     *
-     * @param int $contactId
-     * @param bool $includeInactive
-     * @return array
      */
     public function getRelationshipsForContact(int $contactId, bool $includeInactive = false): array
     {
@@ -243,11 +228,6 @@ class ContactRelationService extends BaseService
     /**
      * Get all relationships TO a specific entity (TO the target's perspective)
      * Returns contacts who have relationships pointing TO this entity
-     *
-     * @param string $targetTable
-     * @param int $targetId
-     * @param bool $includeInactive
-     * @return array
      */
     public function getRelationshipsToEntity(
         string $targetTable,
@@ -344,11 +324,8 @@ class ContactRelationService extends BaseService
     /**
      * Get bidirectional relationships between two entities
      *
-     * @param int $contactId1
      * @param string $targetTable2
      * @param int $targetId2
-     * @param bool $includeInactive
-     * @return array
      */
     public function getBidirectionalRelationships(
         int $contactId1,
@@ -371,11 +348,7 @@ class ContactRelationService extends BaseService
     /**
      * Get specific relationship between two entities
      *
-     * @param int $contactId
      * @param string $targetTable
-     * @param int $targetId
-     * @param bool $includeInactive
-     * @return array
      */
     public function getRelationshipBetween(
         int $contactId,
@@ -402,9 +375,6 @@ class ContactRelationService extends BaseService
      * Get relationships by type (person-to-patient, person-to-person, etc.)
      *
      * @param string $ownerTable (e.g., 'person', 'patient_data')
-     * @param string $targetTable
-     * @param array $filters
-     * @return array
      */
     public function getRelationshipsByEntityTypes(
         string $ownerTable,
@@ -461,7 +431,6 @@ class ContactRelationService extends BaseService
      * @param int $contactId - Owner contact ID
      * @param string $targetTable - Target entity table
      * @param int $targetId - Target entity ID
-     * @return bool
      */
     public function relationshipExists(int $ownerContactId, string $targetTable, int $targetId): bool
     {
@@ -480,8 +449,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Get valid relationship types from list options
-     *
-     * @return array
      */
     public function getValidRelationshipTypes(): array
     {
@@ -489,7 +456,7 @@ class ContactRelationService extends BaseService
 
         if ($relationships === null) {
             $list = $this->listService->getOptionsByListName('related_person_relationship');
-            $relationships = array_reduce($list, function ($map, $item) {
+            $relationships = array_reduce($list, function (array $map, array $item): array {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
             }, []);
@@ -501,8 +468,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Get valid role types from list options
-     *
-     * @return array
      */
     public function getValidRoleTypes(): array
     {
@@ -510,7 +475,7 @@ class ContactRelationService extends BaseService
 
         if ($roles === null) {
             $list = $this->listService->getOptionsByListName('related_person_role');
-            $roles = array_reduce($list, function ($map, $item) {
+            $roles = array_reduce($list, function (array $map, array $item): array {
                 $map[$item['option_id']] = $item['title'];
                 return $map;
             }, []);
@@ -522,10 +487,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Transfer all relationships from one contact to another
-     *
-     * @param int $sourceContactId
-     * @param int $destinationContactId
-     * @return ProcessingResult
      */
     public function transferRelationships(
         int $sourceContactId,
@@ -560,10 +521,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Get emergency contacts for an entity
-     *
-     * @param string $foreignTable
-     * @param int $foreignId
-     * @return array
      */
     public function getEmergencyContacts(string $foreignTable, int $foreignId): array
     {
@@ -692,7 +649,7 @@ class ContactRelationService extends BaseService
 
             $savedRecords = [];
 
-            if (empty($relatedPersonData)) {
+            if ($relatedPersonData === []) {
                 return $savedRecords;
             }
 
@@ -831,9 +788,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Populate ContactRelation object from array data
-     *
-     * @param ContactRelation $relation
-     * @param array $data
      */
     private function populateRelationFromArray(ContactRelation $relation, array $data): void
     {
@@ -875,8 +829,6 @@ class ContactRelationService extends BaseService
 
     /**
      * Get statistics about relationships
-     *
-     * @return array
      */
     public function getStatistics(): array
     {
