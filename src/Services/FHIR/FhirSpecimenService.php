@@ -382,11 +382,12 @@ class FhirSpecimenService extends FhirServiceBase implements IPatientCompartment
         }
 
         // Set container/volume if available
-        if (!empty($dataRecord['volume'])) {
+        if (!empty($dataRecord['volume']) && is_numeric($dataRecord['volume'])) {
             $container = new FHIRSpecimenContainer();
-
+            // FHIR requires an actual numeric value
+            $value = floatval($dataRecord['volume']);
             $capacity = UtilsService::createQuantity(
-                $dataRecord['volume'],
+                $value,
                 $dataRecord['volume_unit'] ?? 'mL',
                 $dataRecord['volume_unit'] ?? 'mL'
             );

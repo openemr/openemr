@@ -144,7 +144,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
-            foreach ($result->getData() as $record) {
+            foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseDataRecordsIntoObservationRecords($processingResult, $record);
             }
