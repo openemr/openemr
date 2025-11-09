@@ -68,6 +68,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class SessionUtil
 {
@@ -183,13 +184,12 @@ class SessionUtil
 
     public static function portalSessionStart(): Session
     {
-        if (self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]) {
+        if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
             (new SystemLogger())->debug("SessionUtil: started portal session");
             return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
         }
 
         $settings = SessionConfigurationBuilder::forPortal();
-//        self::sessionStartWrapper($settings);
 
         $storage = new NativeSessionStorage($settings);
         $session = new Session($storage);
@@ -204,10 +204,18 @@ class SessionUtil
         return $session;
     }
 
-    public static function getPortalSession(): ?Session
+    public static function portalPredisSessionStart(): void
     {
-        return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
+        $settings = SessionConfigurationBuilder::forPortal();
+        self::sessionStartWrapper($settings);
+
+        (new SystemLogger())->debug("SessionUtil: started portal predis session");
     }
+
+//    public static function getPortalSession(): ?Session
+//    {
+//        return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID] ?? null;
+//    }
 
     public static function portalSessionCookieDestroy(): void
     {
@@ -293,5 +301,31 @@ class SessionUtil
         (new SystemLogger())->debug("SessionUtil: destroyed session and cookie", [
             'session_name' => $sessionName,
         ]);
+    }
+
+    public static function setAppCookie(string $appType): void
+    {
+        setcookie(
+            'App',
+            $appType,
+            [
+                'expires' => time() + 3600,
+//                'path' => '/portal',
+        //        'domain' => $cookie->getDomain(),
+        //        'secure' => $cookie->isSecure(),
+                'httponly' => true,
+                'samesite' => Cookie::SAMESITE_STRICT
+            ]
+        );
+    }
+
+    public static function getAppCookie(): string
+    {
+        return $_COOKIE['App'] ??= '';
+    }
+
+    public static function isPredisSession(): bool
+    {
+        return !empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel";
     }
 }
