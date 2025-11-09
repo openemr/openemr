@@ -83,7 +83,7 @@ try {
 
             if ($record['person_id']) {
                 // Get addresses for this person's contact
-                $addressRecords = $addressService->getAddressesForContact($targetContactId, false);
+                $addressRecords = $addressService->getAddressesForContact($targetContactId, true);
                 foreach ($addressRecords as $addr) {
                     $relatedPerson['addresses'][] = [
                         'contact_address_id' => $addr['contact_address_id'] ?? $addr['id'],
@@ -102,7 +102,7 @@ try {
                 }
 
                 // Get telecoms for this person's contact
-                $telecomRecords = $telecomService->getTelecomsForContact($targetContactId, false);
+                $telecomRecords = $telecomService->getTelecomsForContact($targetContactId, true);
                 foreach ($telecomRecords as $telecom) {
                     $relatedPerson['telecoms'][] = [
                         'contact_id' => $targetContactId,
@@ -111,7 +111,7 @@ try {
                         'use' => $telecom['use'] ?? 'home',
                         'value' => $telecom['value'] ?? '',
                         'rank' => $telecom['rank'] ?? 1,
-                        'status' => $tel['status'] ?? 'A',
+                        'status' => $telecom['status'] ?? 'A',
                         'is_primary' => $tel['is_primary'] ?? 'N',
                         'notes' => $tel['notes'] ?? ''
                     ];

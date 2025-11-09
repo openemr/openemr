@@ -96,14 +96,14 @@
 
 <script type="text/javascript">
     function toggleInactiveTelecomsDisplay(tableId) {
-        const checkbox = document.getElementById('show_inactive_telecoms_display_' + tableId);
-        const table = document.getElementById(tableId);
+        const table = document.getElementById(tableId);        
 
         if (!table) {
             console.error('Telecom table not found:', tableId);
             return;
         }
 
+        const checkbox = document.getElementById('show_inactive_telecoms_display_' + tableId);
         const inactiveTelecoms = table.querySelectorAll('.telecom-inactive-display');
 
         console.log('Toggle inactive telecoms:', {

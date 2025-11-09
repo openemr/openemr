@@ -185,7 +185,33 @@
 </template>
 
 <script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
     (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableId = {{ table_id|js_escape|raw }}
+        const table = document.getElementById(tableId);
+        if (!table) {
+            console.error('Table not found:', tableId);
+            return;
+        }
+        const container = table.querySelector('.table_edit_addresses')
+
         let ADDRESS_ACTION_VALUES = {
             'INACTIVATE': 'INACTIVATE',
             'ADD': 'ADD',
@@ -196,57 +222,26 @@
 
         {{ DateToYYYYMMDD_js()|raw }}
 
-        let tableConfig = {
-            tableId: {{ table_id|js_escape|raw }},
-            listAddressTypes: {{ list_address_types|json_encode|raw }},
-            listAddressUses: {{ list_address_uses|js_escape|raw }}
-        };
+        init(tableId);
 
-        (function() {
-            init(tableConfig.tableId);
-        })();
 
         function init(tableId) {
-            var tableElement = document.getElementById(tableId);
-            if (!tableElement) {
-                console.error('Address table element not found:', tableId);
-                return;
-            }
-            
-            // Mark as initialized
-            tableElement.dataset.addressInitialized = 'true';
             console.log('Initializing address table:', tableId);
 
-            // IE Compatibility
-            if (!Element.prototype.matches) {
-                Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-            }
-
-            if (!Element.prototype.closest) {
-                Element.prototype.closest = function(s) {
-                    var el = this;
-                    do {
-                        if (Element.prototype.matches.call(el, s)) return el;
-                        el = el.parentElement || el.parentNode;
-                    } while (el !== null && el.nodeType === 1);
-                    return null;
-                };
-            }
-
             // Event listeners for form changes
-            tableElement.addEventListener('keyup', changeEdit);
-            tableElement.addEventListener('mouseup', changeEdit);
-            tableElement.addEventListener('touchend', changeEdit);
+            table.addEventListener('keyup', changeEdit);
+            table.addEventListener('mouseup', changeEdit);
+            table.addEventListener('touchend', changeEdit);
 
-            tableElement.addEventListener('input', addressUpdated);
-            tableElement.addEventListener('change', addressUpdated);
+            table.addEventListener('input', addressUpdated);
+            table.addEventListener('change', addressUpdated);
 
             // Setup existing address buttons and datepickers
-            tableElement.querySelectorAll('.addresses_group .display_addresses').forEach(function(row) {
+            table.querySelectorAll('.addresses_group .display_addresses').forEach(function(row) {
                 setupAddressesRowButtonEventListeners(row);
             });
 
-            tableElement.querySelectorAll('.form_addresses').forEach(function(row) {
+            table.querySelectorAll('.form_addresses').forEach(function(row) {
                 setupContainerDatePickers(row);
                 setupContainerListAddButtons(row);
             });
@@ -254,10 +249,7 @@
             // Setup show inactive checkbox
             var showInactiveCheckbox = document.getElementById('show_inactive_addresses_' + tableId);
             if (showInactiveCheckbox) {
-                var newCheckbox = showInactiveCheckbox.cloneNode(true);
-                showInactiveCheckbox.parentNode.replaceChild(newCheckbox, showInactiveCheckbox);
-                
-                newCheckbox.addEventListener('change', function() {
+                showInactiveCheckbox.addEventListener('change', function() {
                     toggleInactiveAddresses(tableId);
                 });
             }
@@ -265,15 +257,12 @@
             // Setup add button with event delegation
             var addButton = document.getElementById('btn_add_addresses_' + tableId);
             if (addButton) {
-                console.log('Found add button:', addButton.id);
-                var newButton = addButton.cloneNode(true);
-                addButton.parentNode.replaceChild(newButton, addButton);
-                
-                newButton.addEventListener('click', function(event) {
+                console.log('Setting up add button:', addButton.id);
+                addButton.addEventListener('click', function(event) {
                     console.log('Add address button clicked:', tableId);
-                    addAddress(event);
                     event.preventDefault();
-                    return false;
+                    event.stopPropagation();
+                    addAddress(event);
                 });
             } else {
                 console.warn('Add address button not found for table:', tableId);
@@ -282,7 +271,7 @@
 
         function toggleInactiveAddresses(tableId) {
             const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
-            const inactiveAddresses = document.querySelectorAll('#' + tableId + ' .address-inactive');
+            const inactiveAddresses = table.querySelectorAll('.address-inactive');
 
             inactiveAddresses.forEach(function(address) {
                 if (checkbox.checked) {
@@ -297,96 +286,20 @@
             console.log('addAddress called', event);
             
             // Get the button element
-            let target = event.currentTarget || event.target;
-            
+            const target = event.currentTarget || event.target;   
             if (!target) {
                 console.error('No target element in event:', event);
                 alert('Error: Could not determine which button was clicked.');
                 return;
             }
             
-            console.log('Event target:', target, 'ID:', target.id);
-            
-            // Find the table container - button is INSIDE .table_edit_addresses
-            let container = null;
-            let element = target;
-            let maxLevels = 15;
-            let currentLevel = 0;
-            
-            console.log('Walking up DOM to find .table_edit_addresses...');
-            
-            while (element && element !== document && currentLevel < maxLevels) {
-                console.log('  Level', currentLevel, ':', 
-                           element.tagName, 
-                           'class:', element.className,
-                           'id:', element.id || '(none)');
-                
-                if (element.classList && element.classList.contains('table_edit_addresses')) {
-                    container = element;
-                    console.log('  âœ“ Found container at level', currentLevel);
-                    break;
-                }
-                element = element.parentElement || element.parentNode;
-                currentLevel++;
-            }
-            
-            if (!container) {
-                console.error('âœ— Could not find .table_edit_addresses container from target:', target);
-                console.error('Walked up', currentLevel, 'levels');
-                
-                // Try fallback: lookup by table ID
-                console.log('Trying fallback: lookup by table ID...');
-                if (target.id && target.id.indexOf('btn_add_addresses_') === 0) {
-                    let tableId = target.id.replace('btn_add_addresses_', '');
-                    console.log('  Extracted table ID:', tableId);
-                    
-                    let tableElement = document.getElementById(tableId);
-                    console.log('  Table element:', tableElement);
-                    
-                    if (tableElement) {
-                        container = tableElement.querySelector('.table_edit_addresses');
-                        if (container) {
-                            console.log('  âœ“ Found container via table ID lookup (fallback)');
-                        } else {
-                            console.error('  âœ— Table element found but no .table_edit_addresses inside it');
-                        }
-                    } else {
-                        console.error('  âœ— Could not find table element with ID:', tableId);
-                    }
-                }
-                
-                if (!container) {
-                    alert('Error: Could not find address container. Check console for details.');
-                    return;
-                }
-            }
-            
-            console.log('âœ“ Container found:', container);
+            const addAddressButton = document.getElementById(target.id);
 
-            // Find the table root
-            let tableRoot = null;
-            element = container;
-            currentLevel = 0;
-            maxLevels = 10;
-            
-            while (element && element !== document && currentLevel < maxLevels) {
-                if (element.id) {
-                    tableRoot = element;
-                    break;
-                }
-                element = element.parentElement || element.parentNode;
-                currentLevel++;
-            }
-            
-            console.log('Table root:', tableRoot, 'ID:', tableRoot ? tableRoot.id : 'none');
-            
             let row_address_template = null;
             
-            if (tableRoot) {
-                console.log('Strategy 1: Looking for immediate next sibling...');
-                let nextSibling = tableRoot.nextElementSibling;
+            if (table) {
+                let nextSibling = table.nextElementSibling;
                 while (nextSibling) {
-                    console.log('  Checking sibling:', nextSibling.tagName, nextSibling.className);
                     if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_address')) {
                         row_address_template = nextSibling;
                         console.log('  âœ“ Found template as immediate sibling');
@@ -394,88 +307,21 @@
                     }
                     nextSibling = nextSibling.nextElementSibling;
                 }
-                
-                if (!row_address_template && tableRoot.parentElement) {
-                    console.log('Strategy 2: Looking within parent container...');
-                    let templatesInParent = tableRoot.parentElement.querySelectorAll('template.template_add_address');
-                    console.log('  Found', templatesInParent.length, 'templates in parent');
-                    
-                    templatesInParent.forEach(function(template) {
-                        if (!row_address_template) {
-                            let current = tableRoot;
-                            while (current) {
-                                if (current === template) {
-                                    row_address_template = template;
-                                    console.log('  âœ“ Found template in parent');
-                                    break;
-                                }
-                                current = current.nextElementSibling;
-                            }
-                        }
-                    });
-                }
-                
-                if (!row_address_template) {
-                    console.log('Strategy 3: Looking in broader context...');
-                    let broadContainer = tableRoot.closest('.form_relations, .relations_group, body');
-                    console.log('  Broad container:', broadContainer ? broadContainer.className : 'none');
-                    
-                    if (broadContainer) {
-                        let allTemplates = broadContainer.querySelectorAll('template.template_add_address');
-                        console.log('  Found', allTemplates.length, 'templates in broad container');
-                        
-                        allTemplates.forEach(function(template, idx) {
-                            console.log('    Template', idx, ':', template);
-                            if (!row_address_template) {
-                                let current = template;
-                                let depth = 0;
-                                while (current && depth < 10) {
-                                    if (current.contains(tableRoot)) {
-                                        row_address_template = template;
-                                        console.log('    âœ“ Found template containing our table at depth', depth);
-                                        break;
-                                    }
-                                    current = current.parentElement;
-                                    depth++;
-                                }
-                            }
-                        });
-                    }
-                }
-                
-                if (!row_address_template) {
-                    console.log('Strategy 4: Fallback - looking for any nearby template...');
-                    let relationGroup = tableRoot.closest('.relations_group');
-                    if (relationGroup) {
-                        let templateInRelation = relationGroup.querySelector('template.template_add_address');
-                        if (templateInRelation) {
-                            row_address_template = templateInRelation;
-                            console.log('  âœ“ Found template in relation group (fallback)');
-                        }
-                    }
-                }
             }
-            
+
             if (!row_address_template) {
                 console.error('âœ— Could not find template for this address table');
                 console.error('  TableRoot:', tableRoot);
                 console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
                 console.error('  Container:', container);
-                
-                let allTemplates = document.querySelectorAll('template.template_add_address');
-                console.error('  All templates on page:', allTemplates.length);
-                allTemplates.forEach((t, i) => {
-                    console.error('    Template', i, ':', t, 'Parent:', t.parentElement);
-                });
-                
                 alert('Error: Could not find address template. Check console for details.');
                 return;
             }
             
-            console.log('âœ“ Using template:', row_address_template);
+
 
             // Find no_addresses element within this specific container
-            let noAddressesElement = container.querySelector(".no_addresses");
+            let noAddressesElement = table.querySelector(".no_addresses");
 
             if (noAddressesElement && !noAddressesElement.classList.contains('d-none')) {
                 hideElement(noAddressesElement);
@@ -531,8 +377,10 @@
             let row_form_addresses = row_address_clone.querySelector(".form_addresses");
             let row_display_addresses = row_address_clone.querySelector(".display_addresses");
 
+            // Append to container
             container.appendChild(row_address_clone);
 
+            // Setup event listeners for the new row
             setupAddressesRowButtonEventListeners(row_display_addresses);
             setupContainerDatePickers(row_form_addresses);
             setupContainerListAddButtons(row_form_addresses);
@@ -574,32 +422,38 @@
 
         function editAddress(event) {
             event.preventDefault();
-            let element = event.currentTarget;
-            let toggleElement = element.closest('.addresses_group').querySelector('.form_addresses');
+            event.stopPropagation();
 
-            if (element.className.includes("fa-caret-right")) {
-                toggleElement.classList.remove('d-none');
-                element.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
+            const editButton = event.currentTarget;
+            const row_display_addresses = editButton.closest('.display_addresses');
+            const row_form_addresses = row_display_addresses.nextElementSibling;
+
+            if (editButton.className.includes("fa-caret-right")) {
+                row_form_addresses.classList.remove('d-none');
+                editButton.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
             } else {
-                toggleElement.classList.add('d-none');
-                element.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
+                row_form_addresses.classList.add('d-none');
+                editButton.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
             }
         }
 
         function changeAddressStatus(event) {
             event.preventDefault();
-            var row_display_addresses = event.currentTarget.closest('.display_addresses');
+            event.stopPropagation();
+
+            const inactivateButton = event.currentTarget || event.target;            
+            
+            const row_display_addresses = inactivateButton.closest('.display_addresses');
             if (!row_display_addresses) {
                 return;
             }
 
-            var addresses_group = row_display_addresses.closest('.addresses_group');
-            var currentStatus = addresses_group.getAttribute('data-status');
-            var inactivateIcon = event.currentTarget;
+            const addresses_group = row_display_addresses.closest('.addresses_group');
+            const currentStatus = addresses_group.getAttribute('data-status');
 
             // Get the hidden status input from addresses_group
-            var statusInput = addresses_group.querySelector('input.form_addresses_status');
-            var actionInput = addresses_group.querySelector('input.form_addresses_data_action');
+            const statusInput = addresses_group.querySelector('input.form_addresses_status');
+            const actionInput = addresses_group.querySelector('input.form_addresses_data_action');
 
             // Check if this is currently inactive (reactivate) or active (inactivate)
             if (currentStatus === 'I') {
@@ -618,9 +472,9 @@
                     }
 
                     // Change icon back to trash
-                    inactivateIcon.classList.remove('fa-house-circle-check', 'text-success');
-                    inactivateIcon.classList.add('fa-house-circle-xmark', 'text-danger');
-                    inactivateIcon.setAttribute('title', window.xl('Inactivate Address'));
+                    inactivateButton.classList.remove('fa-house-circle-check', 'text-success');
+                    inactivateButton.classList.add('fa-house-circle-xmark', 'text-danger');
+                    inactivateButton.setAttribute('title', window.xl('Inactivate Address'));
 
                     // Set action to UPDATE and status to A
                     if (actionInput) {
@@ -651,9 +505,9 @@
                     }
 
                     // Change icon to restore icon
-                    inactivateIcon.classList.remove('fa-house-circle-xmark', 'text-danger');
-                    inactivateIcon.classList.add('fa-house-circle-check', 'text-success');
-                    inactivateIcon.setAttribute('title', window.xl('Reactivate Address'));
+                    inactivateButton.classList.remove('fa-house-circle-xmark', 'text-danger');
+                    inactivateButton.classList.add('fa-house-circle-check', 'text-success');
+                    inactivateButton.setAttribute('title', window.xl('Reactivate Address'));
 
                     // Set action to INACTIVATE
                     if (actionInput) {
@@ -676,17 +530,17 @@
         }
 
         function setupAddressesRowButtonEventListeners(row) {
-            let buttonEdit = row.querySelector(".btn-edit-address");
+            const buttonEdit = row.querySelector(".btn-edit-address");
             if (buttonEdit) {
                 buttonEdit.addEventListener('click', editAddress);
             }
 
-            let buttonInactivate = row.querySelector(".btn-inactivate-address");
+            const buttonInactivate = row.querySelector(".btn-inactivate-address");
             if (buttonInactivate) {
                 buttonInactivate.addEventListener('click', changeAddressStatus);
             }
 
-            let buttonActivate = row.querySelector(".btn-activate-address");
+            const buttonActivate = row.querySelector(".btn-activate-address");
             if (buttonActivate) {
                 buttonActivate.addEventListener('click', changeAddressStatus);
             }
@@ -815,5 +669,5 @@
                 console.log('Changed action to UPDATE for address:', addressesGroup.querySelector('input.form_addresses_contact_address_id')?.value);
             }
         }
-    })();
+    });
 </script>

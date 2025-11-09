@@ -155,7 +155,33 @@
 </template>
 
 <script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
     (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableId = {{ table_id|js_escape|raw }}
+        const table = document.getElementById(tableId);
+        if (!table) {
+            console.error('Table not found:', tableId);
+            return;
+        }
+        const container = table.querySelector('.table_edit_telecoms')
+        
         let TELECOM_ACTION_VALUES = {
             'INACTIVATE': 'INACTIVATE',
             'ADD': 'ADD',
@@ -166,89 +192,25 @@
 
         {{ DateToYYYYMMDD_js()|raw }}
 
-        // IE Compatibility Polyfills - Run immediately
-        (function() {
-            if (!Element.prototype.matches) {
-                Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-            }
-            if (!Element.prototype.closest) {
-                Element.prototype.closest = function(s) {
-                    var el = this;
-                    do {
-                        if (el.matches(s)) return el;
-                        el = el.parentElement || el.parentNode;
-                    } while (el !== null && el.nodeType === 1);
-                    return null;
-                };
-            }
-        })();
+        init(tableId);
 
-        // Initialization wrapper
-        (function() {
-            let alreadyInitialized = false;
-
-            if (typeof window.oeUI !== 'undefined') {
-                if (typeof window.oeUI.telecomFormInitialized === 'undefined') {
-                    window.oeUI.telecomFormInitialized = false;
-                }
-                alreadyInitialized = window.oeUI.telecomFormInitialized;
-            }
-
-            if (alreadyInitialized) {
-                console.log('Telecom form already initialized, skipping re-initialization');
-                return;
-            }
-
-            if (typeof window.oeUI !== 'undefined') {
-                window.oeUI.telecomFormInitialized = true;
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    let tables = document.querySelectorAll('[id^="table_edit_telecoms_"]');
-                    tables.forEach(function(table) {
-                        initTelecoms(table.id);
-                    });
-                });
-            } else {
-                let tables = document.querySelectorAll('[id^="table_edit_telecoms_"]');
-                tables.forEach(function(table) {
-                    initTelecoms(table.id);
-                });
-            }
-        })();
-
-        function initTelecoms(tableId) {
-            var tableElement = document.getElementById(tableId);
-            if (!tableElement) {
-                console.error('Telecom table element not found:', tableId);
-                return;
-            }
-            
-            // Check if already initialized
-            if (tableElement.dataset.telecomInitialized === 'true') {
-                console.log('Telecom table already initialized:', tableId);
-                return;
-            }
-            
-            // Mark as initialized
-            tableElement.dataset.telecomInitialized = 'true';
+        function init(tableId) {
             console.log('Initializing telecom table:', tableId);
 
             // Event listeners for form changes
-            tableElement.addEventListener('keyup', changeTelecomEdit);
-            tableElement.addEventListener('mouseup', changeTelecomEdit);
-            tableElement.addEventListener('touchend', changeTelecomEdit);
+            table.addEventListener('keyup', changeTelecomEdit);
+            table.addEventListener('mouseup', changeTelecomEdit);
+            table.addEventListener('touchend', changeTelecomEdit);
 
-            tableElement.addEventListener('input', telecomUpdated);
-            tableElement.addEventListener('change', telecomUpdated);
+            table.addEventListener('input', telecomUpdated);
+            table.addEventListener('change', telecomUpdated);
 
             // Setup existing telecom buttons
-            tableElement.querySelectorAll('.telecoms_group .display_telecoms').forEach(function (row) {
+            table.querySelectorAll('.telecoms_group .display_telecoms').forEach(function (row) {
                 setupTelecomsRowButtonEventListeners(row);
             });
 
-            tableElement.querySelectorAll('.form_telecoms').forEach(function (row) {
+            table.querySelectorAll('.form_telecoms').forEach(function (row) {
                 setupContainerDatePickers(row);
                 setupContainerListAddButtons(row);
             });
@@ -256,30 +218,20 @@
             // Setup show inactive checkbox
             var showInactiveCheckbox = document.getElementById("show_inactive_telecoms_" + tableId);
             if (showInactiveCheckbox) {
-                // Remove any existing listeners by cloning
-                var newCheckbox = showInactiveCheckbox.cloneNode(true);
-                showInactiveCheckbox.parentNode.replaceChild(newCheckbox, showInactiveCheckbox);
-                
-                newCheckbox.addEventListener('change', function() {
+                showInactiveCheckbox.addEventListener('change', function() {
                     toggleInactiveTelecoms(tableId);
                 });
             }
 
-            // Setup add button - SINGLE EVENT LISTENER ONLY
+            // Setup add button
             var addButton = document.getElementById("btn_add_telecom_" + tableId);
             if (addButton) {
                 console.log('Setting up add button:', addButton.id);
-                // Remove any existing listeners by cloning the node
-                var newButton = addButton.cloneNode(true);
-                addButton.parentNode.replaceChild(newButton, addButton);
-                
-                // Attach ONLY ONE click listener
-                newButton.addEventListener('click', function(event) {
+                addButton.addEventListener('click', function(event) {
                     console.log('Add telecom button clicked:', tableId);
                     event.preventDefault();
                     event.stopPropagation();
                     addTelecom(event);
-                    return false;
                 });
             } else {
                 console.warn('Add telecom button not found for table:', tableId);
@@ -288,7 +240,7 @@
 
         function toggleInactiveTelecoms(tableId) {
             const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
-            const inactiveTelecoms = document.querySelectorAll('#' + tableId + ' .telecom-inactive');
+            const inactiveTelecoms = table.querySelectorAll('.telecom-inactive');
 
             inactiveTelecoms.forEach(function (telecom) {
                 if (checkbox.checked) {
@@ -300,200 +252,49 @@
         }
 
         function addTelecom(event) {
-            console.log('addTelecom called', event);
+            console.log('addTelecom called', event, 'Table:', tableId);
             
             // Get the button element
-            let target = event.currentTarget || event.target;
-            
+            const target = event.currentTarget || event.target;         
             if (!target) {
                 console.error('No target element in event:', event);
                 alert('Error: Could not determine which button was clicked.');
                 return;
             }
-            
-            console.log('Event target:', target, 'ID:', target.id);
-            
-            // Find the table container
-            let container = null;
-            let element = target;
-            let maxLevels = 15;
-            let currentLevel = 0;
-            
-            console.log('Walking up DOM to find .table_edit_telecoms...');
-            
-            while (element && element !== document && currentLevel < maxLevels) {
-                console.log('  Level', currentLevel, ':', 
-                           element.tagName, 
-                           'class:', element.className,
-                           'id:', element.id || '(none)');
-                
-                if (element.classList && element.classList.contains('table_edit_telecoms')) {
-                    container = element;
-                    console.log('  ✓ Found container at level', currentLevel);
-                    break;
-                }
-                element = element.parentElement || element.parentNode;
-                currentLevel++;
-            }
-            
-            if (!container) {
-                console.error('✗ Could not find .table_edit_telecoms container from target:', target);
-                console.error('Walked up', currentLevel, 'levels');
-                console.error('Last element checked:', element);
-                
-                // Try alternative: find by table ID pattern
-                console.log('Trying fallback: lookup by table ID...');
-                if (target.id && target.id.indexOf('btn_add_telecom_') === 0) {
-                    let tableId = target.id.replace('btn_add_telecom_', '');
-                    console.log('  Extracted table ID:', tableId);
-                    
-                    let tableElement = document.getElementById(tableId);
-                    console.log('  Table element:', tableElement);
-                    
-                    if (tableElement) {
-                        container = tableElement.querySelector('.table_edit_telecoms');
-                        if (container) {
-                            console.log('  ✓ Found container via table ID lookup (fallback)');
-                        } else {
-                            console.error('  ✗ Table element found but no .table_edit_telecoms inside it');
-                        }
-                    } else {
-                        console.error('  ✗ Could not find table element with ID:', tableId);
-                    }
-                }
-                
-                if (!container) {
-                    alert('Error: Could not find telecom container. Check console for details.');
-                    return;
-                }
-            }
-            
-            console.log('✓ Container found:', container);
 
-            // Find the table root
-            let tableRoot = null;
-            element = container;
-            currentLevel = 0;
-            maxLevels = 10;
-            
-            while (element && element !== document && currentLevel < maxLevels) {
-                if (element.id) {
-                    tableRoot = element;
-                    break;
-                }
-                element = element.parentElement || element.parentNode;
-                currentLevel++;
-            }
-            
-            console.log('Table root:', tableRoot, 'ID:', tableRoot ? tableRoot.id : 'none');
-            
+            const addTelecomButton = document.getElementById(target.id);
+
             let row_telecom_template = null;
-            
-            if (tableRoot) {
-                console.log('Strategy 1: Looking for immediate next sibling...');
-                let nextSibling = tableRoot.nextElementSibling;
+
+            if (table) {
+                let nextSibling = table.nextElementSibling;
                 while (nextSibling) {
-                    console.log('  Checking sibling:', nextSibling.tagName, nextSibling.className);
                     if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_telecom')) {
                         row_telecom_template = nextSibling;
-                        console.log('  ✓ Found template as immediate sibling');
                         break;
                     }
                     nextSibling = nextSibling.nextElementSibling;
-                }
-                
-                // Strategy 2: Look within parent container
-                if (!row_telecom_template && tableRoot.parentElement) {
-                    console.log('Strategy 2: Looking within parent container...');
-                    let templatesInParent = tableRoot.parentElement.querySelectorAll('template.template_add_telecom');
-                    console.log('  Found', templatesInParent.length, 'templates in parent');
-                    
-                    templatesInParent.forEach(function(template) {
-                        if (!row_telecom_template) {
-                            let current = tableRoot;
-                            while (current) {
-                                if (current === template) {
-                                    row_telecom_template = template;
-                                    console.log('  ✓ Found template in parent');
-                                    break;
-                                }
-                                current = current.nextElementSibling;
-                            }
-                        }
-                    });
-                }
-                
-                // Strategy 3: Search within broader context
-                if (!row_telecom_template) {
-                    console.log('Strategy 3: Looking in broader context...');
-                    let broadContainer = tableRoot.closest('.form_relations, .relations_group, body');
-                    console.log('  Broad container:', broadContainer ? broadContainer.className : 'none');
-                    
-                    if (broadContainer) {
-                        let allTemplates = broadContainer.querySelectorAll('template.template_add_telecom');
-                        console.log('  Found', allTemplates.length, 'templates in broad container');
-                        
-                        allTemplates.forEach(function(template, idx) {
-                            console.log('    Template', idx, ':', template);
-                            if (!row_telecom_template) {
-                                let current = template;
-                                let depth = 0;
-                                while (current && depth < 10) {
-                                    if (current.contains(tableRoot)) {
-                                        row_telecom_template = template;
-                                        console.log('    ✓ Found template containing our table at depth', depth);
-                                        break;
-                                    }
-                                    current = current.parentElement;
-                                    depth++;
-                                }
-                            }
-                        });
-                    }
-                }
-                
-                // Strategy 4: Fallback
-                if (!row_telecom_template) {
-                    console.log('Strategy 4: Fallback - looking for any nearby template...');
-                    let relationGroup = tableRoot.closest('.relations_group');
-                    if (relationGroup) {
-                        let templateInRelation = relationGroup.querySelector('template.template_add_telecom');
-                        if (templateInRelation) {
-                            row_telecom_template = templateInRelation;
-                            console.log('  ✓ Found template in relation group (fallback)');
-                        }
-                    }
                 }
             }
             
             if (!row_telecom_template) {
                 console.error('✗ Could not find template for this telecom table');
-                console.error('  TableRoot:', tableRoot);
-                console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
+                console.error('  Table:', table);
+                console.error('  Table ID:', table ? table.id : 'no ID');
                 console.error('  Container:', container);
-                console.error('  Parent:', tableRoot ? tableRoot.parentElement : 'no parent');
-                
-                let allTemplates = document.querySelectorAll('template.template_add_telecom');
-                console.error('  All templates on page:', allTemplates.length);
-                allTemplates.forEach((t, i) => {
-                    console.error('    Template', i, ':', t, 'Parent:', t.parentElement);
-                });
-                
                 alert('Error: Could not find telecom template. Check console for details.');
                 return;
             }
-            
-            console.log('✓ Using template:', row_telecom_template);
 
             // Find no_telecoms element
-            let noTelecomsElement = container.querySelector(".no_telecoms");
+            let noTelecomsElement = table.querySelector(".no_telecoms");
 
             if (noTelecomsElement && !noTelecomsElement.classList.contains('d-none')) {
                 hideElement(noTelecomsElement);
             }
 
             // Find the highest existing index
-            var allGroups = container.querySelectorAll('.telecoms_group[data-index]');
+            var allGroups = table.querySelectorAll('.telecoms_group[data-index]');
             var maxIndex = -1;
             allGroups.forEach(function(group) {
                 var idx = parseInt(group.getAttribute('data-index'));
@@ -530,7 +331,7 @@
             container.appendChild(newRow);
 
             // Setup event listeners for the new row
-            var actualNewRow = container.querySelector('.telecoms_group[data-index="' + newIndex + '"]');
+            var actualNewRow = table.querySelector('.telecoms_group[data-index="' + newIndex + '"]');
             if (actualNewRow) {
                 setupTelecomsRowButtonEventListeners(actualNewRow.querySelector('.display_telecoms'));
                 
@@ -604,18 +405,18 @@
             event.preventDefault();
             event.stopPropagation();
 
-            var editButton = event.currentTarget;
-            var row_display_telecoms = editButton.closest('.display_telecoms');
+            const editButton = event.currentTarget;
+            const row_display_telecoms = editButton.closest('.display_telecoms');
             if (!row_display_telecoms) {
                 return;
             }
 
-            var telecoms_group = row_display_telecoms.closest('.telecoms_group');
+            const telecoms_group = row_display_telecoms.closest('.telecoms_group');
             if (!telecoms_group) {
                 return;
             }
 
-            var row_form_telecoms = row_display_telecoms.nextElementSibling;
+            const row_form_telecoms = row_display_telecoms.nextElementSibling;
             if (!row_form_telecoms || !row_form_telecoms.classList.contains('form_telecoms')) {
                 return;
             }
@@ -673,22 +474,22 @@
             event.preventDefault();
             event.stopPropagation();
 
-            var inactivateButton = event.currentTarget;
-            var row_display_telecoms = inactivateButton.closest('.display_telecoms');
+            const inactivateButton = event.currentTarget || event.target;
+
+            const row_display_telecoms = inactivateButton.closest('.display_telecoms');
             if (!row_display_telecoms) {
                 return;
             }
 
-            var telecoms_group = row_display_telecoms.closest('.telecoms_group');
+            const telecoms_group = row_display_telecoms.closest('.telecoms_group');
             if (!telecoms_group) {
                 return;
             }
 
-            var currentStatus = telecoms_group.getAttribute('data-status');
-            var inactivateIcon = event.currentTarget;
+            let currentStatus = telecoms_group.getAttribute('data-status');
 
-            var statusInput = telecoms_group.querySelector('input.form_telecoms_status');
-            var actionInput = telecoms_group.querySelector('input.form_telecoms_data_action');
+            const statusInput = telecoms_group.querySelector('input.form_telecoms_status');
+            const actionInput = telecoms_group.querySelector('input.form_telecoms_data_action');
 
             if (currentStatus === 'I') {
                 // REACTIVATE
@@ -772,14 +573,14 @@
             }
         }
 
-        function setupContainerDatePickers(container) {
-            let datepickers = container.querySelectorAll(".datepicker");
+        function setupContainerDatePickers(table) {
+            let datepickers = table.querySelectorAll(".datepicker");
             $(datepickers).datetimepicker(telecomDatePickerSettings);
         }
 
-        function setupContainerListAddButtons(container) {
+        function setupContainerListAddButtons(table) {
             if (window.oeUI && window.oeUI.optionWidgets) {
-                $(container).find(".addtolist").on("click", function (event) {
+                $(table).find(".addtolist").on("click", function (event) {
                     window.oeUI.optionWidgets.AddToList(this, event);
                 });
             }
@@ -854,5 +655,5 @@
         function showElement(element) {
             element.classList.remove('d-none');
         }
-    })();
+    });
 </script>
