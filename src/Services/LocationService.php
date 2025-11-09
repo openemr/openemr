@@ -64,6 +64,8 @@ class LocationService extends BaseService
                 (SELECT
                     uuid as table_uuid,
                     "Home Address" as name,
+                    \'\' AS identifier,
+                    \'none\' AS identifier_type,
                     street,
                     city,
                     postal_code,
@@ -74,12 +76,15 @@ class LocationService extends BaseService
                     null as website,
                     email,
                     `date` AS last_updated,
-                    "' . self::TYPE_PATIENT . '" AS `type`
+                    "' . self::TYPE_PATIENT . '" AS `type`,
+                    \'\' AS location_role_type
                 from
                     patient_data
                 UNION SELECT
                     uuid as table_uuid,
                     name,
+                    facility_npi AS identifier,
+                    \'npi\' AS identifier_type,
                     street,
                     city,
                     postal_code,
@@ -90,12 +95,15 @@ class LocationService extends BaseService
                     website,
                     email,
                     last_updated,
-                   "' . self::TYPE_FACILITY . '" AS `type`
+                   "' . self::TYPE_FACILITY . '" AS `type`,
+                    pos_code AS location_role_type
                 from
                      facility
                 UNION SELECT
                     uuid as table_uuid,
                     "Home Address" as name,
+                    \'\' AS identifier,
+                    \'none\' AS identifier_type,
                     street,
                     city,
                     zip as postal_code,
@@ -106,7 +114,8 @@ class LocationService extends BaseService
                     url as website,
                     email,
                     last_updated,
-                    "' . self::TYPE_USER . '" AS `type`
+                    "' . self::TYPE_USER . '" AS `type`,
+                    \'\' AS location_role_type
                 from
                      users
             ) as location

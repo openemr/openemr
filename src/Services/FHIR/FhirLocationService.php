@@ -13,9 +13,11 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Enum\PlaceOfServiceEnum;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -52,10 +54,27 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      */
     private $patientUuid;
 
+    private FhirOrganizationService $organizationService;
+
     public function __construct()
     {
         parent::__construct();
         $this->locationService = new LocationService();
+    }
+
+    public function getOrganizationService(): FhirOrganizationService {
+        if (!isset($this->fhirOrganizationService)) {
+            $this->fhirOrganizationService = new FhirOrganizationService();
+        }
+        return $this->fhirOrganizationService;
+    }
+
+    /**
+     * @param FhirOrganizationService $organizationService
+     */
+    public function setOrganizationService(FhirOrganizationService $organizationService): void
+    {
+        $this->organizationService = $organizationService;
     }
 
     /**
@@ -98,6 +117,9 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $locationResource->setId($id);
+
+        $this->populateIdentifier($locationResource, $dataRecord);
+        $this->populateServiceRoleType($locationResource, $dataRecord);
 
         $locationResource->setStatus("active");
 
@@ -146,6 +168,14 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
                 $locationResource->addTelecom($email);
             }
         }
+
+        // we set the managing organization to the primary business entity of the system
+        $businessEntity = $this->getOrganizationService()->getPrimaryBusinessEntityReference();
+        if (!empty($businessEntity)) {
+            $locationResource->setManagingOrganization($businessEntity);
+        }
+
+
 
         if ($encode) {
             return json_encode($locationResource);
@@ -247,5 +277,46 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     public function getProfileURIs(): array
     {
         return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
+    }
+
+    protected function populateIdentifier(FHIRLocation $locationResource, array $dataRecord)
+    {
+        $system = $this->getSystemForIdentifier($dataRecord['identifier_type'] ?? 'none');
+        if (!empty($dataRecord['identifier'])) {
+            $identifier = new FHIRIdentifier();
+            if (!empty($system)) {
+                $identifier->setSystem($system);
+            }
+            $identifier->setValue($dataRecord['identifier']);
+            $locationResource->addIdentifier($identifier);
+        }
+    }
+
+    protected function getSystemForIdentifier(string $identifierType): ?string
+    {
+        // allows for expansion of identifiers in the future
+        return match ($identifierType) {
+            'npi' => FhirCodeSystemConstants::PROVIDER_NPI
+            ,default => null
+        };
+    }
+
+    private function populateServiceRoleType(FHIRLocation $locationResource, array $dataRecord)
+    {
+        if (!empty($dataRecord['location_role_type'])) {
+            // ensure two digit format as the codeset has some leading zeros but in the database its stored as a tinyint
+            $type = str_pad($dataRecord['location_role_type'], 2, '0', STR_PAD_LEFT);
+            $posEnum = PlaceOfServiceEnum::tryFrom($type);
+            if ($posEnum !== null) {
+                $coding = UtilsService::createCodeableConcept([
+                    $posEnum->value => [
+                        'code' => $posEnum->value,
+                        'description' => $posEnum->getName(),
+                        'system' => FhirCodeSystemConstants::CMS_PLACE_OF_SERVICE
+                    ]
+                ]);
+                $locationResource->addType($coding);
+            }
+        }
     }
 }
