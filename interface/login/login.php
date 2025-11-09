@@ -31,12 +31,17 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::setAppCookie(SessionUtil::CORE_SESSION_ID);
 
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code

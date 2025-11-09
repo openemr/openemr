@@ -30,6 +30,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,7 +40,8 @@ use OpenEMR\Services\LogoService;
 //  Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+SessionUtil::setAppCookie(SessionUtil::PORTAL_SESSION_ID);
+$session = SessionWrapperFactory::createSessionWrapper();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;
@@ -101,13 +103,13 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $token = $_GET['service_auth'];
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
-        CsrfUtils::setupCsrfKey($session);
+        CsrfUtils::setupCsrfKey($session->getSymfonySession());
         $twig = new TwigContainer(null, $globalsBag->get('kernel'));
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],
             'target' => $_GET['target'] ?? null,
-            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session),
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session->getSymfonySession()),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
             'pin_required' => $pin_required,
@@ -118,7 +120,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
-            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session)) {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session->getSymfonySession())) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
             $auth = $oneTime->processOnetime($token, $redirect_token);
@@ -441,7 +443,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($globalsBag->get('portal_tw
             }
         </script>
         <?php // add csrf mechanism for the password reset ui
-        CsrfUtils::setupCsrfKey($session);
+        CsrfUtils::setupCsrfKey($session->getSymfonySession());
         ?>
     <?php } ?>
     <style>
@@ -538,7 +540,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($globalsBag->get('portal_tw
             </form>
         <?php } elseif (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session)); ?>' />
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session->getSymfonySession())); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
