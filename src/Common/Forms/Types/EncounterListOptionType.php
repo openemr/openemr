@@ -52,7 +52,7 @@ class EncounterListOptionType implements IOptionFormType
     }
     public function buildDisplayView($frow, $currvalue): string
     {
-       return $this->buildPlaintextView($frow, $currvalue);
+        return $this->buildPlaintextView($frow, $currvalue);
     }
 
     public function buildFormView($frow, $currvalue): string
