@@ -145,7 +145,7 @@ class PrescriptionService extends BaseService
                             ,COALESCE(prescriptions.usage_category_title, 'Home/Community') as category_title
                             ,IF(prescriptions.rxnorm_drugcode!=''
                                 ,prescriptions.rxnorm_drugcode
-                                ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
+                                ,IF(drugs.drug_code IS NULL, '', drugs.drug_code)
                             ) AS 'rxnorm_drugcode'
                             ,date_added
                             ,date_modified
