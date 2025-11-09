@@ -819,9 +819,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     private function populateVitalSignsPanelObservation(FHIRObservation $observation, $record): void
     {
-        if (!empty($record['members'])) {
-            foreach ($record['members'] as $code => $uuid) {
-                $reference = UtilsService::createRelativeReference("Observation", $uuid);
+        if (!empty($record['sub_observations'])) {
+            foreach ($record['sub_observations'] as $code => $member) {
+                $reference = UtilsService::createRelativeReference("Observation", $member['uuid']);
                 $reference->setDisplay($this->getDescriptionForCode($code));
                 $observation->addHasMember($reference);
             }
