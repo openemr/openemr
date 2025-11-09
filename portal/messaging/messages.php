@@ -15,24 +15,28 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Events\Messaging\SendSmsEvent;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::createSessionWrapper();
 
-if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $session->get('portal_username'));
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy(); // TODO check how to do this
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!$session->has('authUserID')) {
+    if (empty($session->get('authUserID'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
@@ -46,10 +50,6 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc.php");
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\Events\Messaging\SendSmsEvent;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -157,7 +157,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session)); ?>;
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', IS_PORTAL !== false ? $session->getSymfonySession() : null)); ?>;
                 $scope.isInit = false;
 
                 $scope.init = function () {
