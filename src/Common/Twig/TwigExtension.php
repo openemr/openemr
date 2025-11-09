@@ -290,9 +290,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'uniqid', 
-                function (string $prefix = "", bool $more_entropy = false): string {
-                    return uniqid($prefix, $more_entropy);
-                }
+                fn(string $prefix = "", bool $more_entropy = false): string => uniqid($prefix, $more_entropy)
             )
         ];
     }
