@@ -250,8 +250,8 @@ class FhirOperationExportRestController
                 "FhirExportRestController->processExport() invalid request",
                 ['jobUuid' => $jobUuidString, 'exception' => $exception->getMessage()]
             );
-            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
-            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was invalid"));
+            $response = $this->createResponseForCode(StatusCode::NOT_FOUND);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
             $response->getBody()->write(json_encode($operationOutcome));
             return $response;
         } catch (\Exception $exception) {
@@ -303,13 +303,19 @@ class FhirOperationExportRestController
                 "FhirExportRestController->processDeleteExportForJob failed to delete job for nonexistant job id",
                 ['job' => $jobUuidString]
             );
-            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+            $response = $this->createResponseForCode(StatusCode::NOT_FOUND);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
+            $response->getBody()->write(json_encode($operationOutcome));
+            return $response;
         } catch (\Exception $ex) {
             $this->logger->error(
                 "FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
                 ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
-            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+            $response = $this->createResponseForCode(StatusCode::INTERNAL_SERVER_ERROR);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted failed to delete"));
+            $response->getBody()->write(json_encode($operationOutcome));
+            return $response;
         }
 
         return $response;
