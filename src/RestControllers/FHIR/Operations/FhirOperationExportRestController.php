@@ -173,6 +173,14 @@ class FhirOperationExportRestController
 
             $completedJob = $this->processResourceExportForJob($job);
             $response = $response->withAddedHeader("Content-Location", $completedJob->getStatusReportURL());
+        } catch (\InvalidArgumentException $exception) {
+            $this->logger->error(
+                "FhirExportRestController->processExport() invalid request",
+                ['exception' => $exception->getMessage()]
+            );
+            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
+            $operationOutcome = $this->createOperationOutcomeError($exception->getMessage());
+            $response->getBody()->write(json_encode($operationOutcome) );
         } catch (AccessDeniedException $exception) {
             $response = $this->createResponseForCode(StatusCode::UNAUTHORIZED);
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage());
