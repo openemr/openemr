@@ -1922,3 +1922,8 @@ INSERT INTO `preference_value_sets`
     ('95541-9','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1),
     ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
 #EndIf
+
+
+#IfMissingColumn immunizations encounter_id
+ALTER TABLE `immunizations` ADD COLUMN `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record';
+#EndIf
