@@ -57,7 +57,7 @@ class ImmunizationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid', 'provider_uuid'];
+        return ['uuid', 'puuid', 'provider_uuid', 'euuid', 'facility_uuid', 'facility_location_uuid'];
     }
 
     public function search($search, $isAndCondition = true)
@@ -111,7 +111,10 @@ class ImmunizationService extends BaseService
                     ),
                     TRUE,
                     FALSE
-                ) as primarySource
+                ) as primarySource,
+                enc.euuid,
+                enc.facility_uuid,
+                enc.facility_location_uuid
                 FROM immunizations
                 LEFT JOIN (
                     SELECT uuid AS puuid
@@ -136,7 +139,23 @@ class ImmunizationService extends BaseService
                            title AS refusal_reason_description
                    FROM list_options
                    WHERE list_id = 'immunization_refusal_reason'
-               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id";
+               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id
+               LEFT JOIN (
+                   SELECT
+                       form_encounter.uuid AS euuid
+                        , form_encounter.encounter AS eid
+                        , facility.uuid AS facility_uuid
+                        , uuid_mapping.uuid AS facility_location_uuid
+                   FROM
+                       form_encounter
+                   LEFT JOIN
+                       facility ON form_encounter.facility_id = facility.id
+                   LEFT JOIN
+                       uuid_mapping ON facility.uuid = uuid_mapping.target_uuid
+                   WHERE
+                       uuid_mapping.resource = 'Location'
+               ) enc ON immunizations.encounter_id = enc.eid
+               ";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
