@@ -23,6 +23,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function notifyAdmin($pid, $provider): void
 {
@@ -92,7 +93,7 @@ function processRecaptcha($gRecaptchaResponse): bool
 //  (this is done so a bad actor can not see if certain patients exist in the instance)
 function verifyEmail(string $languageChoice, string $fname, string $mname, string $lname, string $dob, string $email): bool
 {
-    $session = SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::instance()->getWrapper();
     if (empty($languageChoice) || empty($fname) || empty($lname) || empty($dob) || empty($email)) {
         // only optional setting is the mname
         (new SystemLogger())->error("a required verifyEmail function parameter is empty");
@@ -345,7 +346,7 @@ function validEmail($email)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
-    $session = SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::instance()->getWrapper();
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
 
@@ -513,7 +514,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 //  just not store the insurance info in worst case scenario).
 function getPidHolder($preventRaceCondition = false): int
 {
-    $session = SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::instance()->getWrapper();
     $tokenIdHolder = $session->get('token_id_holder');
     if (empty($tokenIdHolder)) {
         (new SystemLogger())->debug("getPidHolder function failed because token_id_holder session variable was not set");
@@ -538,7 +539,7 @@ function getPidHolder($preventRaceCondition = false): int
 
 function cleanupRegistrationSession(): void
 {
-    $session = SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::instance()->getWrapper();
     $session->remove('patient_portal_onsite_two');
     $session->remove('authUser');
     $session->remove('pid');
