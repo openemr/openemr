@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
@@ -304,50 +305,30 @@ if ($popup) {
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'><?php
-/**
- * Pagination
- *
- * Show start and end row number, and number of rows, with paging links.
- */
-$count = $GLOBALS['PATIENT_INC_COUNT'];
-$fend = min($count, $fstart + $MAXSHOW);
-
-// Build pagination parameters preserving all search criteria
-$page_params = $_REQUEST;
-$page_params['csrf_token_form'] = CsrfUtils::collectCsrfToken();
-
-$prev_fstart = max(0, $fstart - $MAXSHOW);
-$prev_params = http_build_query(array_merge($page_params, ['fstart' => $prev_fstart]));
-$next_fstart = $fstart + $MAXSHOW;
-$next_params = http_build_query(array_merge($page_params, ['fstart' => $next_fstart]));
-$countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
-
-if ($fstart) {
-    echo "<a onclick='top.restoreSession()' href='patient_select.php?{$prev_params}'>&lt;&lt;</a>";
-    echo '&nbsp;&nbsp;';
-}
-echo ($fstart + 1) . text($countStatement);
-if ($count > $fend) {
-    echo '&nbsp;&nbsp;';
-    echo "<a onclick='top.restoreSession()' href='patient_select.php?{$next_params}'>&gt;&gt;</a>";
-}
-
-echo '</td></tr><tr>';
-if ($from_page === "cdr_report") {
-    echo "<td colspan='6' class='text'>";
-    echo "<strong>";
-    $passMap = [
-        "fail" => "Failed Patients",
-        "pass" => "Passed Patients",
-        "exclude" => "Excluded Patients",
-    ];
-    echo xlt($passMap[$pass_id] ?? "All Patients");
-    echo "</strong>";
-    echo " - ";
-    echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
-    echo "</td>";
-} ?>
-</tr>
+    $paginator = new PaginationUtils();
+    echo $paginator->render(
+        offset: $fstart,
+        pageSize: $MAXSHOW,
+        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+        filename: basename(__FILE__),
+        onclick: 'top.restoreSession()'
+    );
+    echo '</td></tr><tr>';
+    if ($from_page === "cdr_report") {
+        echo "<td colspan='6' class='text'>";
+        echo "<strong>";
+        $passMap = [
+            "fail" => "Failed Patients",
+            "pass" => "Passed Patients",
+            "exclude" => "Excluded Patients",
+        ];
+        echo xlt($passMap[$pass_id] ?? "All Patients");
+        echo "</strong>";
+        echo " - ";
+        echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
+        echo "</td>";
+    } ?>
+  </tr>
 </table>
 
 <div id="searchResultsHeader" class="head">

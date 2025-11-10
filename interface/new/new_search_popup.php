@@ -18,6 +18,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -157,34 +158,15 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                     } ?>
                 </td>
                 <td class='text text-right'><?php
-                    /**
-                     * Pagination
-                     *
-                     * Show start and end row number, and number of rows, with paging links.
-                     */
-                    $count = $GLOBALS['PATIENT_INC_COUNT'];
-                    $fend = min($count, $fstart + $MAXSHOW);
-
-                    // Build pagination parameters preserving all search criteria
-                    $page_params = $_REQUEST;
-                    $page_params['csrf_token_form'] = CsrfUtils::collectCsrfToken();
-
-                    $prev_fstart = max(0, $fstart - $MAXSHOW);
-                    $prev_params = http_build_query(array_merge($page_params, ['fstart' => $prev_fstart]));
-                    $next_fstart = $fstart + $MAXSHOW;
-                    $next_params = http_build_query(array_merge($page_params, ['fstart' => $next_fstart]));
-                    $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
-
-                    if ($fstart) {
-                        echo "<a href='new_search_popup.php?{$prev_params}'>&lt;&lt;</a>";
-                        echo '&nbsp;';
-                    }
-                    echo ($fstart + 1) . text($countStatement);
-                    if ($count > $fend) {
-                        echo '&nbsp;&nbsp;';
-                        echo "<a href='new_search_popup.php?{$next_params}'>&gt;&gt;</a>";
-                    }
-                ?></td>
+                    $paginator = new PaginationUtils();
+                    echo $paginator->render(
+                        offset: $fstart,
+                        pageSize: $MAXSHOW,
+                        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+                        filename: basename(__FILE__),
+                        separator: '&nbsp;'
+                    );
+                    ?></td>
             </tr>
         </table>
     </div>

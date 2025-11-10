@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -697,31 +698,15 @@ if ($fend > ($count ?? null)) {
                                 } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
             <div class="col-md text-right"><?php
-                /**
-                 * Pagination
-                 *
-                 * Show start and end row number, and number of rows, with paging links.
-                 */
-                $page_params = $_REQUEST;
-                $page_params['csrf_token_form'] = CsrfUtils::collectCsrfToken();
-                unset($page_params['mode']); // Don't carry over mode parameter
-
-                $prev_fstart = max(0, $fstart - $pagesize);
-                $prev_params = http_build_query(array_merge($page_params, ['fstart' => $prev_fstart]));
-                $next_fstart = $fstart + $pagesize;
-                $next_params = http_build_query(array_merge($page_params, ['fstart' => $next_fstart]));
-                $countStatement = " - " . $fend . " " . xl('of') . " " . ($count ?? '');
-
-                if ($fstart) {
-                    echo "<a href='superbill_custom_full.php?{$prev_params}'>&lt;&lt;</a>";
-                    echo '&nbsp;&nbsp;';
-                }
-                echo ($fstart + 1) . text($countStatement);
-                if ($count > $fend) {
-                    echo '&nbsp;&nbsp;';
-                    echo "<a href='superbill_custom_full.php?{$next_params}'>&gt;&gt;</a>";
-                }
-            ?></div>
+                $paginator = new PaginationUtils();
+                echo $paginator->render(
+                    offset: $fstart,
+                    pageSize: $pagesize,
+                    totalCount: $count ?? 0,
+                    filename: basename(__FILE__),
+                    excludeParams: ['mode']
+                );
+                ?></div>
         </div>
     </div>
 </form>
