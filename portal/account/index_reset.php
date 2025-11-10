@@ -13,19 +13,21 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
-$landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
+
 // kick out if patient not authenticated
-if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $ignoreAuth_onsite_portal = true;
 } else {
+    $landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
@@ -35,7 +37,6 @@ require_once(__DIR__ . "/../lib/appsql.class.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
@@ -47,7 +48,7 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
     exit;
 }
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }

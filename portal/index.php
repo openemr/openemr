@@ -40,7 +40,7 @@ use OpenEMR\Services\LogoService;
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
 SessionUtil::setAppCookie(SessionUtil::PORTAL_SESSION_ID);
-$session = SessionWrapperFactory::createSessionWrapper();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;

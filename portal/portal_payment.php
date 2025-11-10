@@ -16,15 +16,16 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $isPortal = false;
-if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
@@ -439,7 +440,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session)); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
