@@ -29,6 +29,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirObservationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -160,7 +161,10 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'column' => ['oxygen_flow_rate', 'oxygen_flow_rate_unit'],
             'in_vitals_panel' => true
             ,'profiles' => [
-                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
+                // we allowed in 3.1.1 to grab just the value for oxygen_flow_rate but that's not conformant to the full profile
+                // so we are only including it in 7.0.0+ as a valid profile for this observation as it won't pass validation
+                // on anything else.
+                FhirObservationObservationFormService::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_V2
             ]
         ]
         ,'8310-5' => [
@@ -180,11 +184,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Temperature Location',
             'column' => ['temp_method'],
             'in_vitals_panel' => true
-            // TODO: @adunsulag later versions of US Core allow this method to be bundled as a component in the Body Temperature observation
-            // which makes sense but then what do we do with prior versions that were treated as a separate observation?
             ,'profiles' => [
-                self::USCDI_PROFILE_BODY_TEMPERATURE_V3_1_1 => self::PROFILE_VERSIONS_V1
-                , self::USCDI_PROFILE_BODY_TEMPERATURE => self::PROFILE_VERSIONS_V2
+                // we supported in 3.1.1 this location, but it doesn't conform to the full body temperature profile
+                // so we are only including it in 7.0.0+ as a valid profile for this observation as it won't pass validation
+                // on anything else.
+                FhirObservationObservationFormService::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_V2
             ]
         ]
         ,'8302-2' => [
@@ -733,8 +737,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 '8462-4',
                 $this->getDescriptionForCode('8462-4')
             ),
-            '2708-6' => $this->populateCoding($observation, '59408-5'),
-            '59408-5' => $this->populatePulseOximetryObservation($observation, $dataRecord),
+            // PulseOx(59408-5) or Oxygen saturation (2708-6) are combined into one observation in 7.0.0+ which is backwards compatible for older versions
+            '59408-5','2708-6' => $this->populatePulseOximetryObservation($code, $observation, $dataRecord),
             self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE => $this->addAverageBPComponents($observation, $dataRecord['components'] ?? []),
             default => $observation,
         };
@@ -790,12 +794,24 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $observation->getCode()->addCoding($oxSaturation);
     }
 
-    private function populatePulseOximetryObservation(FHIRObservation $observation, $dataRecord): void
+    private function populatePulseOximetryObservation(string $code, FHIRObservation $observation, $dataRecord): void
     {
-        $this->populateCoding($observation, '2708-6');
-        if (
-            $this->columnHasPositiveFloatValue('oxygen_flow_rate', $dataRecord)
-            || $this->columnHasPositiveFloatValue('oxygen_saturation', $dataRecord)
+        if ($code == '59408-5') {
+            // Oxygen Saturation (2708-6) is always included
+            $this->populateCoding($observation, '2708-6');
+        } else if ($code == '2708-6') {
+            // Pulse Oximetry (59408-5) is also included
+            $this->populateCoding($observation, '59408-5');
+        } else {
+            throw new InvalidArgumentException("Invalid code for Pulse Oximetry observation: " . $code);
+        }
+        if (!($this->columnHasPositiveFloatValue('oxygen_saturation', $dataRecord))) {
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+        }
+        $addComponentsWithMissingData = $this->getHighestCompatibleUSCoreProfileVersion() != self::PROFILE_VERSION_3_1_1;
+
+        if ($this->columnHasPositiveFloatValue('oxygen_flow_rate', $dataRecord)
+            || $addComponentsWithMissingData
         ) {
             $this->populateComponentColumn(
                 $observation,
@@ -804,16 +820,17 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 '3151-8',
                 $this->getDescriptionForCode('3151-8')
             );
+        }
+        if ($this->columnHasPositiveFloatValue('inhaled_oxygen_concentration', $dataRecord)
+            || $addComponentsWithMissingData
+        ) {
             $this->populateComponentColumn(
                 $observation,
                 $dataRecord,
-                'oxygen_saturation',
+                'inhaled_oxygen_concentration',
                 '3150-0',
-                // only place this is used.
-                'Oxygen saturation in Arterial blood'
+                $this->getDescriptionForCode('3150-0')
             );
-        } else {
-            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
     }
 
