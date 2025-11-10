@@ -143,39 +143,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                         'empty_name' => $opts['empty_name'] ?? ''
                     ];
                     return $encounterOptionType->buildDisplayView($frow, $selectedValue);
-//                    // Return empty string if no patient ID provided
-//                    if (empty($pid)) {
-//                        return '';
-//                    }
-//
-//                    // Get encounters for the patient
-//                    $encounterService = new EncounterService();
-//                    $encounters = $encounterService->getPatientEncounterListWithCategories($pid);
-//                    $count = count($encounters);
-//
-//                    // Build the options list
-//                    $optionsList = [];
-//                    // go in reverse order so most recent encounter is first
-//                    for ($i = $count - 1; $i >= 0; $i--) {
-//                        // Create display text: "2024-01-15 14:30 - Office Visit"
-//                        $displayText = $encounters['dates'][$i] . ' - ' . $encounters['categories'][$i];
-//                        $optionValue = $encounters['ids'][$i];
-//                        // Only add if we have a valid option value
-//                        if (!empty($optionValue)) {
-//                            $optionsList[$optionValue] = $displayText;
-//                        }
-//                    }
-//                    $html = [];
-//                    $html[] = "<select class=\"form-control\" name=\"" . attr($name) . "\" id=\"" . attr($name) . "\" title=\"" . attr($title) . "\">";
-//                    if (!empty($opts['empty_name'])) {
-//                        $html[] = "<option value=\"\">" . text($opts['empty_name']) . "</option>";
-//                    }
-//                    foreach ($optionsList as $value => $text) {
-//                        $selected = ($value == $selectedValue) ? ' selected' : '';
-//                        $html[] = "<option value=\"" . attr($value) . "\"" . $selected . ">" . text($text) . "</option>";
-//                    }
-//                    $html[] = "</select>";
-//                    return implode("", $html);
                 }
             ),
 
