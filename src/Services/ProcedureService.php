@@ -67,7 +67,7 @@ class ProcedureService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search         search array parameters
+     * @param  array<string, ISearchField> $search         search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *                         payload.
@@ -303,12 +303,6 @@ class ProcedureService extends BaseService
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-
-        $r = sqlStatement("select uuid, pid as id from patient_data where pid > 0");
-        foreach ($r as $row) {
-            error_log($row['id'] . ' = ' . UuidRegistry::uuidToString($row['uuid']));
-        }
-
         $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
 
         return $processingResult;
