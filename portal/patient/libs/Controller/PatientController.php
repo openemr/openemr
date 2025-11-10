@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * import supporting libraries
@@ -194,7 +195,7 @@ class PatientController extends AppBasePortalController
     public function Create()
     {
         try {
-            $session = SessionUtil::portalSessionStart();
+            $session = SessionWrapperFactory::instance()->getWrapper();
             $json = json_decode(RequestUtil::GetBody());
             if (empty($json)) {
                 throw new Exception('The request body does not contain valid JSON');
@@ -404,7 +405,7 @@ class PatientController extends AppBasePortalController
     }
     public function CloseAudit($p)
     {
-        $session = SessionUtil::portalSessionStart();
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {
