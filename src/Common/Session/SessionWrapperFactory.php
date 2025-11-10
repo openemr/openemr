@@ -2,27 +2,15 @@
 
 namespace OpenEMR\Common\Session;
 
+use Waryway\PhpTraitsLibrary\Singleton;
 
 class SessionWrapperFactory
 {
-    private static ?SessionWrapperFactory $instance = null;
+    use Singleton;
 
     private ?SessionWrapperInterface $sessionWrapper = null;
 
-    private function __construct()
-    {
-
-    }
-    public static function createSessionWrapper(): SessionWrapperInterface
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-
-        return self::$instance->getSessionWrapper();
-    }
-
-    public function getSessionWrapper(): SessionWrapperInterface
+    public function getWrapper(): SessionWrapperInterface
     {
         if (!$this->sessionWrapper) {
             $this->sessionWrapper = $this->findSessionWrapper();

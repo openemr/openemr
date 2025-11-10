@@ -15,6 +15,7 @@ require_once(__DIR__ . '/../../interface/globals.php');
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ApplicationTable
 {
@@ -140,7 +141,7 @@ class ApplicationTable
      */
     public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
-        $session = SessionUtil::portalSessionStart();
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $return = false;
         $result = false;
         $audit =  [];
@@ -200,7 +201,7 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
-        $session = SessionUtil::portalSessionStart();
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $groupname = $GLOBALS['groupname'] ?? 'none';
         $user = $session->get('portal_username') ?? $session->get('authUser') ?? null;
         $log_from = $session->has('portal_username') ? 'onsite-portal' : 'portal-dashboard';
