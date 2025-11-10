@@ -15,16 +15,17 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 // regenerating the session id to avoid session fixation attacks
-// session_regenerate_id(true); TODO Rethink how to achieve this and do we need it !!!
+$session->migrate(true);
 //
 
 // landing page definition -- where to go if something goes wrong
@@ -275,7 +276,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
-        CsrfUtils::setupCsrfKey($session);
+        CsrfUtils::setupCsrfKey($session->getSymfonySession());
 
         $logit->portalLog('login', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
     } else {

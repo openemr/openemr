@@ -8,10 +8,11 @@
  */
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */

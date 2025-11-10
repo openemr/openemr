@@ -43,4 +43,14 @@ class PHPSessionWrapper implements SessionWrapperInterface
     {
         return null;
     }
+
+    public function isSymfonySession(): bool
+    {
+        return false;
+    }
+
+    public function save(): void
+    {
+        session_write_close();
+    }
 }

@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * import supporting libraries
@@ -47,7 +47,7 @@ class OnsiteActivityViewController extends AppBasePortalController
      */
     public function ListView()
     {
-        $session = SessionUtil::portalSessionStart();
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $user = 0;
         if ($session->has('authUser')) {
             $user = $session->get('authUser');

@@ -11,18 +11,17 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
-
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 $globalsBag = OEGlobalsBag::getInstance();
 require_once("../verify_session.php");
 require_once("{$globalsBag->getString('srcdir')}/documents.php");
 require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 

@@ -11,5 +11,7 @@ interface SessionWrapperInterface
     public function has(string $key);
     public function remove(string $key);
     public function migrate(bool $destroy = false): bool;
+    public function save(): void;
     public function getSymfonySession(): ?Session;
+    public function isSymfonySession(): bool;
 }
