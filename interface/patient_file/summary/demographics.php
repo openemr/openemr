@@ -344,9 +344,6 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
-// Add related persons to result array
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);
 
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData(

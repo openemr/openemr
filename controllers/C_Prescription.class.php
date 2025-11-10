@@ -117,7 +117,7 @@ class C_Prescription extends Controller
         }
     }
 
-    function default_action()
+    function default_action(): void
     {
         $prescription = $this->prescriptions[0];
         $this->assign("prescription", $prescription);

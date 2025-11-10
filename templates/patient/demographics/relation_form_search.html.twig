@@ -1,0 +1,751 @@
+{#
+  Person Search and Create Component - Unified
+  Single form that searches as you type and can create if no match found
+  Included by relation_form.html.twig
+#}
+
+<style>
+    /* Inline add person section styles */
+    #addPersonSection {
+        border: 2px solid #007bff;
+        border-radius: 0.5rem;
+        background-color: #f8f9fa;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
+        animation: slideDown 0.3s ease-out;
+        margin-top: 0.5rem !important;
+        padding: 0;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #addPersonSection .card {
+        padding: 0rem;
+        border: 0rem;
+    }
+
+    #addPersonSection .card-header {
+        background-color: #007bff;
+        border-bottom: 1px solid #0056b3;
+        padding: 0rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    #addPersonSection .card-header button {
+        padding: 0rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin: 0.2rem 0rem;
+    }
+
+    #addPersonSection .card-body {
+        padding: 1rem;
+    }
+
+    #addPersonSection .card-body .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    #addPersonSection .card-body .row > div[class*="col-"] {
+        /* Override Bootstrap's behavior - use flexible sizing instead of fixed percentages */
+        flex: 1 1 0%;
+
+        /* Set minimum width to accommodate label + input
+           Adjust this value (200-280px) based on your longest label and input field width */
+        min-width: 250px;
+
+        /* Maximum width ensures columns don't get too wide */
+        max-width: 100%;
+
+        /* Keep Bootstrap's padding */
+        padding-right: 7px;
+        padding-left: 7px;
+    }
+
+    /*
+     * Fine-tuning: Adjust min-width for different screen sizes
+     * This ensures better wrapping behavior across devices
+     */
+
+    /* Large screens: Keep 3 columns when there's plenty of space */
+    @media (min-width: 900px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 250px; /* Slightly larger minimum for comfort */
+        }
+    }
+
+    /* Medium screens: Allow tighter packing, will naturally wrap to 2 columns if needed */
+    @media (min-width: 600px) and (max-width: 899px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 220px; /* Comfortable minimum for 2 columns */
+        }
+    }
+
+    /* Small screens: Tighter minimum, will stack earlier if needed */
+    @media (max-width: 599px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 200px; /* Can still fit 2 columns on some devices */
+        }
+    }
+
+    /* Extra small screens: Force single column for very narrow screens */
+    @media (max-width: 480px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 100%;
+            flex-basis: 100%;
+        }
+    }
+
+
+    .person-form-section {
+        background-color: #fff;
+        padding: 0rem;
+        margin: 0rem;
+    }
+
+    .section-header {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #495057;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+    }
+
+    #personSearchResults {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    #personSearchResults:empty {
+        display: none;
+    }
+
+    .person-search-result {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        transition: all 0.2s;
+        background-color: #fff;
+    }
+
+    .person-search-result:hover {
+        background-color: #e9ecef;
+        border-color: #007bff;
+        transform: translateX(2px);
+    }
+
+    .live-search-indicator {
+        display: none;
+        color: #007bff;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background-color: #e7f3ff;
+        border-radius: 0.25rem;
+    }
+
+    .live-search-indicator.searching {
+        display: block;
+    }
+
+    .person-form-section .form-group {
+        margin-bottom: 0.1rem;
+    }
+
+    .person-form-section label {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .action-buttons {
+        border-top: 2px solid #e9ecef;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    .search-results-header {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+{# Inline Person Search and Create Section #}
+<div id="addPersonSection" class="d-none mt-3" data-csrf-token="{{ csrfToken }}">
+    <div class="card">
+        <div class="card-header text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-0">
+                    <i class="fas fa-user-plus mr-2"></i>{{ 'Add Related Person'|xlt }}
+                </div>
+                <button type="button" class="btn btn-sm btn-light" onclick="closeAddPersonSection()" aria-label="{{ 'Close'|xla }}">
+                    <i class="fas fa-times"></i> {{ 'Close'|xlt }}
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="person-form-section ">
+                <form id="personForm">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="required-field pr-1">{{ 'First Name:'|xlt }}</label>
+                                <input type="text" id="person_first_name" class="form-control form-control-sm mb-1" size=11 required autocomplete="given-name" placeholder="{{ 'Enter first name'|xla }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">{{ 'Middle Name:'|xlt }}</label>
+                                <input type="text" id="person_middle_name" class="form-control form-control-sm mb-1" size=11 autocomplete="additional-name">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="required-field pr-1">{{ 'Last Name:'|xlt }}</label>
+                                <input type="text" id="person_last_name" class="form-control form-control-sm mb-1" size=12 required autocomplete="family-name" placeholder="{{ 'Enter last name'|xla }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">{{ 'Phone:'|xlt }}</label>
+                                <input type="tel" id="person_phone" class="form-control form-control-sm mb-1" size=12 placeholder="(xxx) xxx-xxxx" autocomplete="tel">
+                        	</div>
+                        </div>
+                         <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">{{ 'Date of Birth:'|xlt }}</label>
+                                <input type="text" id="person_dob" class="form-control form-control-sm mb-1 datepicker" size=10 autocomplete="bday">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">{{ 'Gender:'|xlt }}</label>
+                                <select id="person_gender" class="form-control form-control-sm mb-1">
+                                    <option value="">{{ 'Select'|xlt }}</option>
+                                    <option value="Male">{{ 'Male'|xlt }}</option>
+                                    <option value="Female">{{ 'Female'|xlt }}</option>
+                                    <option value="Other">{{ 'Other'|xlt }}</option>
+                                    <option value="Unknown">{{ 'Unknown'|xlt }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>{{ 'Notes:'|xlt }}</label>
+                                <textarea id="person_notes" class="form-control form-control-sm mb-1 mw-100" rows="1" placeholder="{{ 'Optional notes about this person'|xla }}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="live-search-indicator" id="liveSearchIndicator">
+                        <i class="fas fa-spinner fa-spin mr-1"></i>{{ 'Searching...'|xlt }}
+                    </div>
+
+                    <div id="personSearchResults"></div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-success btn-sm" onclick="createNewPerson()">
+                            <i class="fas fa-plus-circle mr-2"></i>{{ 'Create New Person and Add Relationship'|xlt }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // ============= UNIFIED PERSON SEARCH AND CREATE =============
+
+    let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
+    let searchTimeout = null;
+    let lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
+
+    console.log('csrfToken '+csrfToken)
+
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+    }
+
+
+    function openPersonSearch() {
+        const section = document.getElementById('addPersonSection');
+        section.classList.remove('d-none');
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Focus on first input after animation
+        setTimeout(() => {
+            document.getElementById('person_first_name').focus();
+        }, 300);
+
+        // Setup live search listeners
+        setupLiveSearch();
+    }
+
+    function closeAddPersonSection() {
+        const section = document.getElementById('addPersonSection');
+        section.classList.add('d-none');
+        clearAllFields();
+        document.getElementById('personSearchResults').innerHTML = '';
+        lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
+    }
+
+    function clearAllFields() {
+        document.getElementById('person_first_name').value = '';
+        document.getElementById('person_last_name').value = '';
+        document.getElementById('person_middle_name').value = '';
+        document.getElementById('person_dob').value = '';
+        document.getElementById('person_gender').value = '';
+        document.getElementById('person_phone').value = '';
+         document.getElementById('person_notes').value = '';
+    }
+
+    function setupLiveSearch() {
+        const inputs = [
+            document.getElementById('person_first_name'),
+            document.getElementById('person_last_name'),
+            document.getElementById('person_dob'),
+            document.getElementById('person_phone'),
+        ];
+
+        // Remove existing listeners by cloning
+        inputs.forEach((input, index) => {
+            if (input) {
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                inputs[index] = newInput;
+
+                newInput.addEventListener('input', function() {
+                    triggerLiveSearch();
+                });
+            }
+        });
+
+        let datepicker = document.getElementById('person_dob');
+        datetimepickerTranslated(datepicker, {
+            timepicker: false
+            , showSeconds: false
+            , formatInput: true
+        });
+    }
+
+    function triggerLiveSearch() {
+        // Clear existing timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        // Get current values
+        const first_name = document.getElementById('person_first_name').value.trim();
+        const last_name = document.getElementById('person_last_name').value.trim();
+        const dob = document.getElementById('person_dob')?.value || '';
+        const phone = document.getElementById('person_phone').value.trim();
+
+        // Check if anything has changed
+        if (first_name === lastSearchParams.first_name &&
+            last_name === lastSearchParams.last_name &&
+            dob === lastSearchParams.dob &&
+            phone === lastSearchParams.phone) {
+            return;
+        }
+
+        // If all fields are empty, clear results
+        if (!first_name && !last_name && !dob && !phone ) {
+            document.getElementById('personSearchResults').innerHTML = '';
+            hideLiveSearchIndicator();
+            return;
+        }
+
+        // Show searching indicator
+        showLiveSearchIndicator();
+
+        // Debounce search - wait 500ms after user stops typing
+        searchTimeout = setTimeout(() => {
+            performSearch(first_name, last_name, dob, phone);
+        }, 500);
+    }
+
+    function performSearch(first_name, last_name, dob, phone) {
+        lastSearchParams = { first_name, last_name, dob, phone };
+
+        const resultsContainer = document.getElementById('personSearchResults');
+
+        fetch(relationTableConfig.webroot + '/library/ajax/person_search_ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                action: 'search_persons',
+                csrf_token: csrfToken,
+                first_name: first_name,
+                last_name: last_name,
+                birth_date: dob,
+                phone: phone,
+                foreign_table: relationTableConfig.foreignTable,
+                foreign_id: relationTableConfig.foreignId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(text => {
+            hideLiveSearchIndicator();
+
+            // Log the raw response for debugging
+            console.log('Raw response:', text);
+
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                console.error('Response text:', text);
+                resultsContainer.innerHTML = '<div class="alert alert-danger">' +
+                    '<i class="fas fa-times-circle mr-2"></i>' +
+                    '<strong>Server Error:</strong><br>' +
+                    '<pre style="max-height: 300px; overflow: auto; font-size: 11px;">' +
+                    escapeHtml(text) +
+                    '</pre>' +
+                    '</div>';
+                return;
+            }
+
+            if (data.success) {
+                displaySearchResults(data.persons);
+            } else {
+                resultsContainer.innerHTML = '<div class="alert alert-warning">' +
+                    '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                    escapeHtml(data.message || window.xl('Search failed')) +
+                    '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            hideLiveSearchIndicator();
+            resultsContainer.innerHTML = '<div class="alert alert-danger">' +
+                '<i class="fas fa-times-circle mr-2"></i>' +
+                window.xl('Error performing search. Please try again.') +
+                '<br><small>' + escapeHtml(error.message) + '</small>' +
+                '</div>';
+        });
+    }
+
+    function showLiveSearchIndicator() {
+        document.getElementById('liveSearchIndicator').classList.add('searching');
+    }
+
+    function hideLiveSearchIndicator() {
+        document.getElementById('liveSearchIndicator').classList.remove('searching');
+    }
+
+    function displaySearchResults(persons) {
+        const container = document.getElementById('personSearchResults');
+        container.innerHTML = '';
+
+        if (!persons || persons.length === 0) {
+            return; // Just hide results if nothing found
+        }
+
+        const header = document.createElement('div');
+        header.className = 'search-results-header';
+        header.innerHTML = '<i class="fas fa-users mr-2"></i>' +
+            window.xl('Found') + ' ' + persons.length + ' ' +
+            (persons.length === 1 ? window.xl('existing person') : window.xl('existing persons')) + ':';
+        container.appendChild(header);
+
+        persons.forEach(person => {
+            const div = document.createElement('div');
+            div.className = 'person-search-result';
+
+            // Determine badges to show
+            let badges = '';
+
+            if (person.is_patient && !person.is_linked) {
+                badges += '<span class="badge badge-info ml-2">' +
+                         (person.patient_label || window.xl('Patient')) + '</span>';
+            }
+
+            if (person.is_also_patient) {
+                badges += '<span class="badge badge-success ml-2">' +
+                         '<i class="fas fa-link"></i> ' + window.xl('Also Patient') +
+                         ' ' + escapeHtml(person.linked_patient_pid) + '</span>';
+            }
+
+            if (person.is_linked && person.target_table === 'patient_data') {
+                badges += '<span class="badge badge-secondary ml-2">' +
+                         '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
+            }
+
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <strong>${escapeHtml(person.first_name)} ${person.middle_name ? escapeHtml(person.middle_name) + ' ' : ''}${escapeHtml(person.last_name)}</strong>
+                        ${badges}
+                        <br>
+                        <small class="text-muted">
+                            ${person.birth_date ? window.xl('DOB') + ': ' + escapeHtml(person.birth_date) : ''}
+                            ${person.gender ? ' | ' + escapeHtml(person.gender) : ''}
+                            ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}
+                        </small>
+                    </div>
+                    <button class="btn btn-primary btn-sm ml-2">
+                        <i class="fas fa-check mr-1"></i>${window.xl('Select')}
+                    </button>
+                </div>
+            `;
+
+            div.onclick = function() {
+                selectPerson(person);
+            };
+
+            container.appendChild(div);
+        });
+    }
+
+    function selectPerson(person) {
+        closeAddPersonSection();
+        addRelationForPerson(person);
+    }
+
+    function addRelationForPerson(person) {
+        // Hide "no relations" message
+        let noRelationsElement = document.querySelector(".no_relations");
+        if (noRelationsElement && !noRelationsElement.classList.contains('d-none')) {
+            noRelationsElement.classList.add('d-none');
+        }
+
+        const relation_container = document.querySelector(".table_edit_relations");
+        const relation_template = document.querySelector(".template_add_relation");
+        //const relation_clone = template.content.cloneNode(true);
+
+        // Find the highest existing index
+        var allGroups = document.querySelectorAll('.relations_group[data-index]');
+        var maxIndex = -1;
+        allGroups.forEach(function(group) {
+            var idx = parseInt(group.getAttribute('data-index'));
+            if (!isNaN(idx) && idx > maxIndex) {
+                maxIndex = idx;
+            }
+        });
+        var newIndex = maxIndex + 1;
+
+        // Clone and replace __INDEX__ with actual index
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = relation_template.innerHTML;
+        var html = tempDiv.innerHTML;
+        html = html.replace(/__INDEX__/g, newIndex);
+        tempDiv.innerHTML = html;
+        var relation_clone = tempDiv.firstElementChild;
+
+        // Set person data in hidden fields
+        const ownerContactIdInput = relation_clone.querySelector('.form_relations_owner_contact_id');
+        const targetTableInput = relation_clone.querySelector('.form_relations_target_table');
+        const targetIdInput = relation_clone.querySelector('.form_relations_target_id');
+        const nameDisplay = relation_clone.querySelector('.display_relations_name');
+
+        if (ownerContactIdInput) ownerContactIdInput.value = {{ owner_contact_id }} || '';
+        if (targetIdInput) targetIdInput.value = person.id;
+        if (targetTableInput) targetTableInput.value = person.target_table || 'person';
+
+        if (nameDisplay) {
+            let displayName = person.first_name;
+            if (person.middlename) displayName += ' ' + person.middle_name;
+            displayName += ' ' + person.last_name;
+            nameDisplay.textContent = displayName;
+
+            if (person.birth_date) {
+                const dobSpan = document.createElement('small');
+                dobSpan.className = 'text-muted';
+                dobSpan.textContent = ' (' + window.xl('DOB') + ': ' + person.birth_date + ')';
+                nameDisplay.appendChild(dobSpan);
+            }
+        }
+
+        relation_container.appendChild(relation_clone);
+
+        // Expand the new relation for editing
+        const newRelation = relation_container.querySelector('.relations_group:last-child');
+        if (newRelation) {
+            const formDiv = newRelation.querySelector('.form_relations');
+            if (formDiv) {
+                formDiv.classList.remove('d-none');
+
+                const icon = newRelation.querySelector('.btn-edit-relation');
+                if (icon) {
+                    icon.classList.remove('fa-caret-right');
+                    icon.classList.add('fa-caret-down');
+                }
+
+                newRelation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                setTimeout(() => {
+                    const firstSelect = formDiv.querySelector('select');
+                    if (firstSelect) {
+                        firstSelect.focus();
+                    }
+                }, 300);
+            }
+        }
+
+        if (typeof relationUpdated === 'function') {
+            relationUpdated();
+        }
+    }
+
+    function createNewPerson() {
+        const first_name = document.getElementById('person_first_name').value.trim();
+        const last_name = document.getElementById('person_last_name').value.trim();
+        const middle_name = document.getElementById('person_middle_name').value.trim();
+        const dob = document.getElementById('person_dob').value;
+        const gender = document.getElementById('person_gender').value;
+        const phone = document.getElementById('person_phone').value.trim();
+        const notes = document.getElementById('person_notes').value.trim();
+
+        // Validation
+        if (!first_name || !last_name) {
+            alert(window.xl('First name and last name are required'));
+            document.getElementById('person_first_name').focus();
+            return;
+        }
+
+        // Email validation if provided
+        /*if (email && !isValidEmail(email)) {
+            alert(window.xl('Please enter a valid email address'));
+            document.getElementById('person_email').focus();
+            return;
+        }*/
+
+        // Show loading state
+        const createBtn = event.target;
+        const originalBtnText = createBtn.innerHTML;
+        createBtn.disabled = true;
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
+
+        // Create person via AJAX
+        fetch(relationTableConfig.webroot + '/library/ajax/person_search_ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                action: 'create_person',
+                csrf_token: csrfToken,
+                first_name: first_name,
+                last_name: last_name,
+                middle_name: middle_name,
+                birth_date: dob,
+                gender: gender,
+                phone: phone,
+                notes: notes
+            })
+        })
+        .then(response => {
+            // Get raw text first to handle errors better
+            return response.text().then(text => {
+                console.log('Create person raw response:', text);
+
+                // Try to parse as JSON
+                try {
+                    const data = JSON.parse(text);
+                    return { ok: response.ok, status: response.status, data: data };
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    console.error('Response text:', text);
+                    throw new Error('Server returned invalid JSON. Response: ' + text.substring(0, 200));
+                }
+            });
+        })
+        .then(result => {
+            createBtn.disabled = false;
+            createBtn.innerHTML = originalBtnText;
+
+            console.log('Create person result:', result);
+
+            if (result.data.success && result.data.person) {
+                showSuccessMessage(window.xl('Person created successfully'));
+                closeAddPersonSection();
+                addRelationForPerson(result.data.person);
+            } else {
+                alert(window.xl('Error creating person') + ': ' + (result.data.message || window.xl('Unknown error')));
+            }
+        })
+        .catch(error => {
+            console.error('Error creating person:', error);
+            createBtn.disabled = false;
+            createBtn.innerHTML = originalBtnText;
+            alert(window.xl('Error creating person') + ': ' + error.message);
+        });
+    }
+    // Utility Functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function showSuccessMessage(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.minWidth = '300px';
+        alertDiv.innerHTML = `
+            <i class="fas fa-check-circle mr-2"></i>${escapeHtml(message)}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }, 3000);
+    }
+</script>

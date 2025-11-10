@@ -1,0 +1,102 @@
+{#
+  Telecom Form Fields Template
+  Reusable form fields for telecom editing
+#}
+
+<div class="col-12">
+    {# Header Row 1 #}
+    <div class="form-row">
+        <div class="col-3 label_custom">
+            {{ 'Type'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Use'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Rank'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Primary'|xlt }}
+        </div>
+    </div>
+
+    {# Values Row 1 #}
+    <div class="form-row">
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.listWithAddButton,
+                'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][system]',
+                'smallform': smallform ~ ' form_telecoms_system',
+                'list_id': 'telecom_systems',
+                'edit_options': edit_options
+            }, telecom.system|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.listWithAddButton,
+                'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][use]',
+                'smallform': smallform ~ ' form_telecoms_use',
+                'list_id': 'telecom_uses',
+                'edit_options': edit_options
+            }, telecom.use|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][rank]',
+                'smallform': smallform ~ ' form_telecoms_rank'
+            }, telecom.rank|default('1')) }}
+        </div>
+        <div class="col-3">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input form_telecoms_is_primary"
+                       name="{{ name_field_id|attr }}[{{ telecom_index }}][is_primary]"
+                       value="Y"
+                       {{ telecom.is_primary == 'Y' ? 'checked' : '' }}>
+                <label class="form-check-label">{{ 'Primary'|xlt }}</label>
+            </div>
+        </div>
+    </div>
+
+    {# Header Row 2 #}
+    <div class="form-row">
+        <div class="col-9 label_custom">
+            {{ 'Value'|xlt }}
+        </div>
+        <div class="col-3 label_custom">
+            {{ 'Active From'|xlt }}
+        </div>
+    </div>
+
+    {# Values Row 2 #}
+    <div class="form-row">
+        <div class="col-9">
+            {{ generateFormField({
+                'data_type': widget_constants.textbox,
+                'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][value]',
+                'smallform': smallform ~ ' form_telecoms_value'
+            }, telecom.value|default('')) }}
+        </div>
+        <div class="col-3">
+            {{ generateFormField({
+                'data_type': widget_constants.textDate,
+                'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][period_start]',
+                'smallform': smallform ~ ' form_telecoms_period_start'
+            }, telecom.period_start|default('now'|date('Y-m-d'))) }}
+        </div>
+    </div>
+
+    {# Notes Row #}
+    <div class="form-row">
+        <div class="col-12 label_custom">
+            {{ 'Notes'|xlt }}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            <textarea class="form-control form_telecoms_notes"
+                      name="{{ name_field_id|attr }}[{{ telecom_index }}][notes]"
+                      rows="1">{{ telecom.notes|default('')|text }}</textarea>
+        </div>
+    </div>
+</div>
