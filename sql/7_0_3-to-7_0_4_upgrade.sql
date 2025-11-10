@@ -1927,3 +1927,29 @@ INSERT INTO `preference_value_sets`
 #IfMissingColumn immunizations encounter_id
 ALTER TABLE `immunizations` ADD COLUMN `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record';
 #EndIf
+
+-- We need to clean up any existing UUID mappings for the old vital signs Observation code for systolic BP (8480-6) as the observations are intended to be sub-component observations and not directly retrievable
+-- Users can retrieve systolic BP from the blood pressure observation which groups systolic and diastolic together
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=8480-6
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8480-6');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8480-6';
+#EndIf
+
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=8462-4
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8462-4');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8462-4';
+#EndIf
+
+-- Also clean up all of the Pulse Oximetry related Observation UUID mappings as these are now sub-component observations under the Oxygen Saturation observation (59408-5)
+-- Inferno won't validate with these resources as stand-alone
+-- Delete any existing mappings for Pulse Oximetry Oxygen Flow Rate (3150-8)
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=3151-8
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3151-8');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3151-8';
+#EndIf
+
+-- Delete any existing mappings for Pulse Oximetry Oxygen Concentration (3150-0)
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=3150-0
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0';
+#EndIf

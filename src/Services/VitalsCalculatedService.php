@@ -64,7 +64,7 @@ class VitalsCalculatedService extends BaseService
         $processingResult = new ProcessingResult();
         try {
             $sql = "SELECT fvc.uuid, fvc.date_start, fvc.date_end, fvc.created_at, fvc.last_updated,
-            fvc.created_by, cu.created_by_uuid,
+            fvc.created_by, cu.created_by_uuid, cu.created_by_npi,
             fvc.updated_by, uu.updated_by_uuid,
             fvc.calculation_id, fvc.encounter, e.euuid,
             fvc.pid, p.puuid,
@@ -95,7 +95,7 @@ class VitalsCalculatedService extends BaseService
                 FROM form_encounter
             ) e ON fvc.encounter = e.eid
             LEFT JOIN (
-                select id AS user_creator_id, uuid AS created_by_uuid
+                select id AS user_creator_id, uuid AS created_by_uuid, npi AS created_by_npi
                 FROM users
             ) cu ON fvc.created_by = cu.user_creator_id
             LEFT JOIN (
