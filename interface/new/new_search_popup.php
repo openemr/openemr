@@ -89,18 +89,6 @@ $simpleSearch = $_GET['simple_search'] ?? null;
     color: var(--white);
   }
 </style>
-<script>
-    // This is called when forward or backward paging is done.
-    function submitList(offset) {
-        var f = document.forms[0];
-        var i = parseInt(f.fstart.value) + offset;
-        if (i < 0) {
-            i = 0;
-        }
-        f.fstart.value = i;
-        f.submit();
-    }
-</script>
 </head>
 <body class="body_top">
     <form method='post' action='new_search_popup.php' name='theform'>
@@ -168,28 +156,35 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                         echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
                     } ?>
                 </td>
-                <td class='text text-right'>
-                    <?php
-                    // Show start and end row number, and number of rows, with paging links.
+                <td class='text text-right'><?php
+                    /**
+                     * Pagination
+                     *
+                     * Show start and end row number, and number of rows, with paging links.
+                     */
                     $count = $GLOBALS['PATIENT_INC_COUNT'];
-                    $fend = $fstart + $MAXSHOW;
-                    if ($fend > $count) {
-                        $fend = $count;
+                    $fend = min($count, $fstart + $MAXSHOW);
+
+                    // Build pagination parameters preserving all search criteria
+                    $page_params = $_REQUEST;
+                    $page_params['csrf_token_form'] = CsrfUtils::collectCsrfToken();
+
+                    $prev_fstart = max(0, $fstart - $MAXSHOW);
+                    $prev_params = http_build_query(array_merge($page_params, ['fstart' => $prev_fstart]));
+                    $next_fstart = $fstart + $MAXSHOW;
+                    $next_params = http_build_query(array_merge($page_params, ['fstart' => $next_fstart]));
+                    $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
+
+                    if ($fstart) {
+                        echo "<a href='new_search_popup.php?{$prev_params}'>&lt;&lt;</a>";
+                        echo '&nbsp;';
                     }
-                    ?>
-                    <?php if ($fstart) { ?>
-                        <a href="javascript:submitList(-<?php echo attr($MAXSHOW); ?>)">
-                            &lt;&lt;
-                        </a>&nbsp;
-                    <?php } ?>
-                    <?php echo ($fstart + 1) . text(" - $fend of $count") ?>
-                    <?php if ($count > $fend) { ?>
-                        &nbsp;&nbsp;
-                        <a href="javascript:submitList(<?php echo attr($MAXSHOW); ?>)">
-                            &gt;&gt;
-                        </a>
-                    <?php } ?>
-                </td>
+                    echo ($fstart + 1) . text($countStatement);
+                    if ($count > $fend) {
+                        echo '&nbsp;&nbsp;';
+                        echo "<a href='new_search_popup.php?{$next_params}'>&gt;&gt;</a>";
+                    }
+                ?></td>
             </tr>
         </table>
     </div>

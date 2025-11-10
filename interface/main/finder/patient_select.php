@@ -134,17 +134,6 @@ form {
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");
 } ?>
-// This is called when forward or backward paging is done.
-//
-function submitList(offset) {
- var f = document.forms[0];
- var i = parseInt(f.fstart.value) + offset;
- if (i < 0) i = 0;
- f.fstart.value = i;
- top.restoreSession();
- f.submit();
-}
-
 </script>
 
 </head>
@@ -314,51 +303,51 @@ if ($popup) {
         <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
-  <td class='text' align='right'>
-<?php
-// Show start and end row number, and number of rows, with paging links.
-//
-// $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
+  <td class='text' align='right'><?php
+/**
+ * Pagination
+ *
+ * Show start and end row number, and number of rows, with paging links.
+ */
 $count = $GLOBALS['PATIENT_INC_COUNT'];
-$fend = $fstart + $MAXSHOW;
-if ($fend > $count) {
-    $fend = $count;
+$fend = min($count, $fstart + $MAXSHOW);
+
+// Build pagination parameters preserving all search criteria
+$page_params = $_REQUEST;
+$page_params['csrf_token_form'] = CsrfUtils::collectCsrfToken();
+
+$prev_fstart = max(0, $fstart - $MAXSHOW);
+$prev_params = http_build_query(array_merge($page_params, ['fstart' => $prev_fstart]));
+$next_fstart = $fstart + $MAXSHOW;
+$next_params = http_build_query(array_merge($page_params, ['fstart' => $next_fstart]));
+$countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
+
+if ($fstart) {
+    echo "<a onclick='top.restoreSession()' href='patient_select.php?{$prev_params}'>&lt;&lt;</a>";
+    echo '&nbsp;&nbsp;';
 }
-?>
-<?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &lt;&lt;
-   </a>
-   &nbsp;&nbsp;
-<?php } ?>
-    <?php
-    $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
-    echo ($fstart + 1) . text($countStatement);
-    ?>
-<?php if ($count > $fend) { ?>
-   &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &gt;&gt;
-   </a>
-<?php } ?>
-  </td>
- </tr>
- <tr>
-    <?php if ($from_page == "cdr_report") {
-        echo "<td colspan='6' class='text'>";
-        echo "<strong>";
-        $passMap = [
-            "fail" => "Failed Patients",
-            "pass" => "Passed Patients",
-            "exclude" => "Excluded Patients",
-        ];
-        echo xlt($passMap[$pass_id] ?? "All Patients");
-        echo "</strong>";
-        echo " - ";
-        echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
-        echo "</td>";
-    } ?>
- </tr>
+echo ($fstart + 1) . text($countStatement);
+if ($count > $fend) {
+    echo '&nbsp;&nbsp;';
+    echo "<a onclick='top.restoreSession()' href='patient_select.php?{$next_params}'>&gt;&gt;</a>";
+}
+
+echo '</td></tr><tr>';
+if ($from_page === "cdr_report") {
+    echo "<td colspan='6' class='text'>";
+    echo "<strong>";
+    $passMap = [
+        "fail" => "Failed Patients",
+        "pass" => "Passed Patients",
+        "exclude" => "Excluded Patients",
+    ];
+    echo xlt($passMap[$pass_id] ?? "All Patients");
+    echo "</strong>";
+    echo " - ";
+    echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
+    echo "</td>";
+} ?>
+</tr>
 </table>
 
 <div id="searchResultsHeader" class="head">
