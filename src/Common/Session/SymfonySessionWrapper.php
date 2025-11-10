@@ -40,4 +40,14 @@ class SymfonySessionWrapper implements SessionWrapperInterface
     {
         return $this->session;
     }
+
+    public function isSymfonySession(): bool
+    {
+        return true;
+    }
+
+    public function save(): void
+    {
+        $this->session->save();
+    }
 }

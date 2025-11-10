@@ -13,9 +13,9 @@
  */
 
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 ?>
 <!DOCTYPE html>
 <html>
