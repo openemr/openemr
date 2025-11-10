@@ -13,16 +13,17 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie
 //  (in case the request is from the patient portal; note it will get destroyed if request is not from patient portal).
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     // request is from patient portal
-    $pid = $_SESSION['pid'];
+    $pid = $session->get('pid');
     $ignoreAuth = true;
 } else {
     // request is from openemr core
@@ -36,7 +37,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Easipro\Easipro;
 
 // verify csrf
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -44,7 +45,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 if ($_POST['function'] == 'request_assessment') {
     // Request assessment
     $expiration = date_format(date_create_from_format('n/j/Y g:i:s A', $_POST['expiration']), 'Y-m-d H:i:s');
-    Easipro::requestAssessment($pid, $_SESSION['authUserID'], $_POST['formOID'], $_POST['formName'], $expiration, $_POST['assessmentOID'], $_POST['status']);
+    Easipro::requestAssessment($pid, $session->get('authUserID'), $_POST['formOID'], $_POST['formName'], $expiration, $_POST['assessmentOID'], $_POST['status']);
 } elseif ($_POST['function'] == 'start_assessment') {
     // Start assessment
     header('Content-Type: application/json');

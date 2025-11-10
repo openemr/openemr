@@ -13,12 +13,13 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 $globalsBag = OEGlobalsBag::getInstance();
 
 if (
@@ -46,7 +47,7 @@ if ($action == 'verify_email') {
     if (!empty($session->get('verifyPortalEmail')) && ($session->get('verifyPortalEmail') === true)) {
         if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session)) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified(true, true, false);
                 cleanupRegistrationSession();
                 exit;
@@ -107,7 +108,7 @@ if ($action == 'reset_password') {
         $rtn = 0;
         if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session)) {
+            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified(true, true, false);
                 cleanupRegistrationSession();
                 exit;

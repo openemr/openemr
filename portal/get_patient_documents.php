@@ -23,12 +23,12 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 require_once("./verify_session.php");
 /**
@@ -121,7 +121,7 @@ while ($file = sqlFetchArray($fres)) {
     <div class="container-fluid">
         <h4><?php echo xlt("Select Documents to Download"); ?></h4>
         <form id="download-form" action="report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">
                 <label class="form-check-label" for="selectAll"><?php echo xlt("Select All Documents"); ?></label>

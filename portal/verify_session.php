@@ -27,19 +27,13 @@
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
-$session = SessionUtil::portalSessionStart();
-
-// Landing page definition -- where to go if something goes wrong
-// if this script is included somewhere else we want to support them changing up the landingpage url such as adding
-// parameters, or even setting what the landing page should be for the portal verify session.
-if (!isset($landingpage)) {
-    $landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
-}
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 if (!isset($skipLandingPageError)) {
     $skipLandingPageError = false;
@@ -47,9 +41,15 @@ if (!isset($skipLandingPageError)) {
 //
 
 // kick out if patient not authenticated
-if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
 } else {
+    // Landing page definition -- where to go if something goes wrong
+    // if this script is included somewhere else we want to support them changing up the landingpage url such as adding
+    // parameters, or even setting what the landing page should be for the portal verify session.
+    if (!isset($landingpage)) {
+        $landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
+    }
     SessionUtil::portalSessionCookieDestroy();
     if ($skipLandingPageError === true) {
         header('Location: ' . $landingpage);

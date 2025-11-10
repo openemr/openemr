@@ -12,33 +12,35 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+
+use OpenEMR\Core\Header;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
-$landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
+
 // kick out if patient not authenticated
-if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $ignoreAuth_onsite_portal = true;
 } else {
+    $landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
 }
 require_once(__DIR__ . '/../../interface/globals.php');
 require_once(__DIR__ . "/../lib/appsql.class.php");
-
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
 
 
 $logit = new ApplicationTable();
@@ -48,7 +50,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }

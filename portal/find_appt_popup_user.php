@@ -26,6 +26,7 @@
 // This issue no longer exists - epsdky 2019
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 //continue session
@@ -33,18 +34,15 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionUtil::portalSessionStart();
-//
-
-//landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
-//
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 // kick out if patient not authenticated
-if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
 } else {
     SessionUtil::portalSessionCookieDestroy();
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
     header('Location: ' . $landingpage . '&w');
     exit();
 }

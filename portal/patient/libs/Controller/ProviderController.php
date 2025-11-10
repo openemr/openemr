@@ -15,6 +15,7 @@ use OpenEMR\Core\OEGlobalsBag;
 /** import supporting libraries */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once("AppBasePortalController.php");
 
@@ -41,7 +42,7 @@ class ProviderController extends AppBasePortalController
     public function Home()
     {
         $cpid = $cuser = 0;
-        $session = SessionUtil::portalSessionStart();
+        $session = SessionWrapperFactory::instance()->getWrapper();
         if ($session->has('authUserID')) {
             $cuser = $session->get('authUserID');
         } else {
