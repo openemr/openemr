@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +16,8 @@ class SinglePatient700APITest extends TestCase
 
     const FHIR_SCOPES_V2 = "openid offline_access api:fhir user/AllergyIntolerance.rs user/CareTeam.rs user/Condition.rs user/Coverage.rs user/Encounter.rs user/Immunization.rs user/Location.rs user/Medication.rs user/MedicationRequest.rs user/Observation.rs user/Organization.rs user/Organization.rs user/Patient.rs user/Patient.rs user/Practitioner.rs user/Practitioner.rs user/PractitionerRole.rs user/Procedure.rs user/DocumentReference.rs user/Goal.rs patient/AllergyIntolerance.rs patient/CareTeam.rs patient/Condition.rs patient/Coverage.rs patient/Encounter.rs patient/Immunization.rs patient/MedicationRequest.rs patient/Observation.rs patient/Patient.rs patient/Procedure.rs patient/DocumentReference.rs patient/Goal.rs patient/DiagnosticReport.rs user/DiagnosticReport.rs user/CarePlan.rs patient/CarePlan.rs user/Device.rs patient/Device.rs patient/Provenance.rs user/Provenance.rs";
 
+    static protected string $previousProfileValue;
+
     /**
      * @return void
      * @throws Exception
@@ -25,6 +29,11 @@ class SinglePatient700APITest extends TestCase
         // for now this uses the admin user to authenticate
         // TODO: @adunsulag need to implement this using a test practitioner user so we can test the inferno single patient API from a regular provider
         self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::teardownG10Test();
     }
 
     public function testSingleApiRunWithV2Scopes(): void

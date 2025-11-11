@@ -37,6 +37,8 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationLaboratoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
@@ -139,6 +141,24 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             // if we have a category let's remove it as its being passed from our upper layer and we don't want to map
             // it to our procedure codes.
             unset($openEMRSearchParameters['category']);
+
+            if (!empty($openEMRSearchParameters['result_code'])) {
+                if ($openEMRSearchParameters['result_code'] instanceof TokenSearchField) {
+                    /**
+                     * @var TokenSearchField
+                     */
+                    $codeField = $openEMRSearchParameters['result_code'];
+                    // transform the code values into something our procedure service can understand
+                    $codeField->transformValues(function ($tokenValue) {
+                        // we only support LOINC codes here so if we have a system of LOINC we can strip it out
+                        // every other system will just not return a result
+                        if ($tokenValue instanceof TokenSearchValue && $tokenValue->getSystem() == FhirCodeSystemConstants::LOINC) {
+                            return new TokenSearchValue($tokenValue->getCode());
+                        }
+                        return $tokenValue;
+                    });
+                }
+            }
 //            $result = $this->service->search($newSearchParams, true);
             $result = $this->getProcedureService()->search($openEMRSearchParameters, true);
             $data = $result->getData() ?? [];
