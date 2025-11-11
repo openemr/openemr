@@ -4557,12 +4557,12 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','correct','Corrected'  ,60,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_abnormal','Procedure Result Abnormal', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','no'  ,'No'  ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','yes' ,'Yes' ,20,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','high','High',30,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','low' ,'Low' ,40,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal', 'vhigh', 'Above upper panic limits', 50,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal', 'vlow', 'Below lower panic limits', 60,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','no'  ,'No'  ,10,0, 'N');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','yes' ,'Yes' ,20,0, 'A');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','high','High',30,0, 'H');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','low' ,'Low' ,40,0, 'L');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal', 'vhigh', 'Above upper panic limits', 50,0, 'HH');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal', 'vlow', 'Below lower panic limits', 60,0, 'LL');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_status','Procedure Result Statuses', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_status','final'     ,'Final'      ,10,0);
@@ -7621,23 +7621,23 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
     VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('telecom_systems','PHONE','phone',10,0,1),
-    ('telecom_systems','FAX','fax',20,0,1),
-    ('telecom_systems','EMAIL','email',30,0,1),
-    ('telecom_systems','PAGER','pager',40,0,1),
-    ('telecom_systems','URL','url',50,0,1),
-    ('telecom_systems','SMS','sms',60,0,1),
-    ('telecom_systems','OTHER','other',70,0,1);
+    ('telecom_systems','phone','Phone',10,0,1),
+    ('telecom_systems','fax','Fax',20,0,1),
+    ('telecom_systems','email','Email',30,0,1),
+    ('telecom_systems','pager','Pager',40,0,1),
+    ('telecom_systems','url','URL',50,0,1),
+    ('telecom_systems','sms','SMS',60,0,1),
+    ('telecom_systems','other','Other',70,0,1);
 
 -- Telecome Uses
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','HOME','home',10,0,1),
-    ('telecom_uses','WORK','work',20,0,1),
-    ('telecom_uses','TEMP','temp',30,0,1),
-    ('telecom_uses','OLD','old',40,0,1),
-    ('telecom_uses','MOBILE','mobile',50,0,1);
+    ('telecom_uses','home','Home',10,0,1),
+    ('telecom_uses','work','Work',20,0,1),
+    ('telecom_uses','temp','Temp',30,0,1),
+    ('telecom_uses','old','Old',40,0,1),
+    ('telecom_uses','mobile','Mobile',50,0,1);
 
 -- Person Patient Link Method
 INSERT INTO list_options (list_id, option_id, title, seq, is_default) VALUES ('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);

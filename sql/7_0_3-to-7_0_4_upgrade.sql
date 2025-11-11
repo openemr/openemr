@@ -1950,13 +1950,13 @@ VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_systems','PHONE','phone',10,0,1),
-    ('telecom_systems','FAX','fax',20,0,1),
-    ('telecom_systems','EMAIL','email',30,0,1),
-    ('telecom_systems','PAGER','pager',40,0,1),
-    ('telecom_systems','URL','url',50,0,1),
-    ('telecom_systems','SMS','sms',60,0,1),
-    ('telecom_systems','OTHER','other',70,0,1);
+    ('telecom_systems','phone','Phone',10,0,1),
+    ('telecom_systems','fax','Fax',20,0,1),
+    ('telecom_systems','email','Email',30,0,1),
+    ('telecom_systems','pager','Pager',40,0,1),
+    ('telecom_systems','url','URL',50,0,1),
+    ('telecom_systems','sms','SMS',60,0,1),
+    ('telecom_systems','other','Other',70,0,1);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id telecom_uses
@@ -1966,11 +1966,11 @@ VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','HOME','home',10,0,1),
-    ('telecom_uses','WORK','work',20,0,1),
-    ('telecom_uses','TEMP','temp',30,0,1),
-    ('telecom_uses','OLD','old',40,0,1),
-    ('telecom_uses','MOBILE','mobile',50,0,1);
+    ('telecom_uses','home','Home',10,0,1),
+    ('telecom_uses','work','Work',20,0,1),
+    ('telecom_uses','temp','Temp',30,0,1),
+    ('telecom_uses','old','Old',40,0,1),
+    ('telecom_uses','mobile','Mobile',50,0,1);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id person_patient_link_method
@@ -2205,9 +2205,9 @@ DROP TEMPORARY TABLE `addresses_seq`;
 
 -- address_id = contact -> person
 INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_1, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_1 IS NOT NULL AND p.related_phone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_1 IS NOT NULL AND p.related_workphone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_1 IS NOT NULL AND p.related_email_1 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'home', p.related_phone_1, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_1 IS NOT NULL AND p.related_phone_1 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'work', p.related_workphone_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_1 IS NOT NULL AND p.related_workphone_1 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'email', 'home', p.related_email_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_1 IS NOT NULL AND p.related_email_1 != ''  AND pe.is_new=1;
 
 UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
 DROP TEMPORARY TABLE `person_temp`;
@@ -2273,9 +2273,9 @@ DROP TEMPORARY TABLE `addresses_seq`;
 
 -- address_id = contact -> person
 INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_3, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_3 IS NOT NULL AND p.related_phone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_3 IS NOT NULL AND p.related_workphone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_3 IS NOT NULL AND p.related_email_3 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'home', p.related_phone_3, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_3 IS NOT NULL AND p.related_phone_3 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'work', p.related_workphone_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_3 IS NOT NULL AND p.related_workphone_3 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'email', 'home', p.related_email_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_3 IS NOT NULL AND p.related_email_3 != ''  AND pe.is_new=1;
 
 UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
 DROP TEMPORARY TABLE `person_temp`;
