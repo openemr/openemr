@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirLocationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -22,17 +23,18 @@ class FhirLocationRestController
     /**
      * @var FhirLocationService
      */
-    private $fhirLocationService;
+    private FhirLocationService $fhirLocationService;
 
     /**
      * @var FhirResourcesService
      */
     private $fhirService;
 
-    public function __construct()
+    public function __construct(private HttpRestRequest $request)
     {
         $this->fhirLocationService = new FhirLocationService();
         $this->fhirService = new FhirResourcesService();
+        $this->fhirLocationService->setSession($this->request->getSession());
     }
 
     /**

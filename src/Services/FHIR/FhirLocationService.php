@@ -89,6 +89,31 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'address' => new FhirSearchParameterDefinition(
+                'address',
+                SearchFieldType::STRING,
+                ['street', 'city', 'postal_code', 'state']
+            ),
+            'name' => new FhirSearchParameterDefinition(
+                'name',
+                SearchFieldType::STRING,
+                ['name']
+            ),
+            'address-city' => new FhirSearchParameterDefinition(
+                'address-city',
+                SearchFieldType::STRING,
+                ['city']
+            ),
+            'address-state' => new FhirSearchParameterDefinition(
+                'address-state',
+                SearchFieldType::STRING,
+                ['state']
+            ),
+            'address-postalcode' => new FhirSearchParameterDefinition(
+                'address-postalcode',
+                SearchFieldType::STRING,
+                ['postal_code']
+            ),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
@@ -252,7 +277,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
 
     private function hasAccessToUserLocationData()
     {
-        return AclMain::aclCheckCore('admin', 'users') !== false;
+        return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }
 
     private function shouldIncludeContactInformationForLocationType($type, $recordUuid)
@@ -261,7 +286,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         // if its not a patient requesting their own record location information we need to check permissions on this.
         if ($type == 'patient' && !$isPatientBoundUuid) {
             // only those with access to a patient's demographic information can get their data
-            return AclMain::aclCheckCore("patients", "demo") !== false;
+            return AclMain::aclCheckCore("patients", "demo",$this->getSession()->get("authUser")) !== false;
         } else if ($type == 'user') {
             // only those with access to the user information can get address information about a user.
             return $this->hasAccessToUserLocationData();
