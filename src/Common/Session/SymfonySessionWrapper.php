@@ -50,4 +50,9 @@ class SymfonySessionWrapper implements SessionWrapperInterface
     {
         $this->session->save();
     }
+
+    public function clear(): void
+    {
+        $this->session->clear();
+    }
 }

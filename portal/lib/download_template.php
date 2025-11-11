@@ -13,6 +13,9 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
 $session = SessionWrapperFactory::instance()->getWrapper();
 
 $is_module = $_POST['isModule'] ?? 0;
