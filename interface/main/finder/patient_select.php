@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
@@ -134,17 +135,6 @@ form {
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");
 } ?>
-// This is called when forward or backward paging is done.
-//
-function submitList(offset) {
- var f = document.forms[0];
- var i = parseInt(f.fstart.value) + offset;
- if (i < 0) i = 0;
- f.fstart.value = i;
- top.restoreSession();
- f.submit();
-}
-
 </script>
 
 </head>
@@ -314,37 +304,17 @@ if ($popup) {
         <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
-  <td class='text' align='right'>
-<?php
-// Show start and end row number, and number of rows, with paging links.
-//
-// $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
-$count = $GLOBALS['PATIENT_INC_COUNT'];
-$fend = $fstart + $MAXSHOW;
-if ($fend > $count) {
-    $fend = $count;
-}
-?>
-<?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &lt;&lt;
-   </a>
-   &nbsp;&nbsp;
-<?php } ?>
-    <?php
-    $countStatement =  " - " . $fend . " " . xl('of') . " " . $count;
-    echo ($fstart + 1) . text($countStatement);
-    ?>
-<?php if ($count > $fend) { ?>
-   &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo attr(addslashes($MAXSHOW)); ?>)">
-    &gt;&gt;
-   </a>
-<?php } ?>
-  </td>
- </tr>
- <tr>
-    <?php if ($from_page == "cdr_report") {
+  <td class='text' align='right'><?php
+    $paginator = new PaginationUtils();
+    echo $paginator->render(
+        offset: $fstart,
+        pageSize: $MAXSHOW,
+        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+        filename: basename(__FILE__),
+        onclick: 'top.restoreSession()'
+    );
+    echo '</td></tr><tr>';
+    if ($from_page === "cdr_report") {
         echo "<td colspan='6' class='text'>";
         echo "<strong>";
         $passMap = [
@@ -358,7 +328,7 @@ if ($fend > $count) {
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
     } ?>
- </tr>
+  </tr>
 </table>
 
 <div id="searchResultsHeader" class="head">
