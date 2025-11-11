@@ -111,7 +111,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
                 unset($password);
             }
 
-            if ($input->hasOption('force-system-user')) {
+            if ($input->getOption('force-system-user')) {
                 $username = UserService::SYSTEM_USER_USERNAME;
                 if (AclMain::aclCheckCore("super", "admin", $username) === false) {
                     $symfonyStyler->error("User $username does not have admin/super privileges required to generate access token.");
