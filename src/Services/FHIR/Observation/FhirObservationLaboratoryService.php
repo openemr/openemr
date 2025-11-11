@@ -173,9 +173,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         if (!empty($report['specimens'])) {
                             $result['specimens'] = $report['specimens'];
                         }
-                        $ranges = array_filter(array_map(fn($item) => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $dataRecord['range'] ?? '')));
-                        $low = $ranges[0] ?? null;
-                        $high = $ranges[1] ?? null;
+                        $ranges = array_filter(array_map(fn($item) => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $record['range'] ?? '')));
                         $result['range_low'] = $ranges[0] ?? null;
                         $result['range_high'] = $ranges[0] ?? null;
                         $result['result_abnormal'] = $result['abnormal'] ?? null;

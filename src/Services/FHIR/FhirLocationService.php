@@ -46,8 +46,12 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     /**
      * @var LocationService
      */
-    private $locationService;
+    private LocationService $locationService;
 
+    /**
+     * @var FhirOrganizationService
+     */
+    private FhirOrganizationService $fhirOrganizationService;
     /**
      * The patient uuid bound in the current request
      * @var string
