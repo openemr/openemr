@@ -2,27 +2,19 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use Mi2\Framework\ListOptions;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
-use OpenEMR\Tests\Certification\HIT1\G10_Certification\SinglePatient700APITest;
-use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use OpenEMR\Validators\ProcessingResult;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIGProfileService, IPatientCompartmentResourceService, IFhirExportableResourceService
 {
@@ -154,32 +146,6 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     {
         $contactRelationService = new ContactRelationService();
         return $contactRelationService->searchPatientRelationships($openEMRSearchParameters);
-    }
-
-    public function getSampleRelatedPerson(?string $patientUuid, ?string $uuid)
-    {
-        $record = [
-            'puuid' => $patientUuid ?? SinglePatient700APITest::PATIENT_ID_PRIMARY,
-            'uuid' => $uuid ?? UuidV4::uuid4()->toString(),
-            'active' => '1',
-            'relationship_code' => 'FAMMEMB',
-            'fname' => 'John',
-            'lname' => 'Doe',
-            'email' => 'example@open-emr.org',
-            'phone_work' => '(555) 555-5555',
-            'phone' => '(333) 333-3333',
-            'last_updated' => date(DATE_ATOM),
-            'addresses' => [
-                [
-                    'street' => '123 example street',
-                    'city' => 'Somewhere',
-                    'state' => 'CA',
-                    'country' => 'US',
-                    'zipcode' => '12345'
-                ]
-            ]
-        ];
-        return $record;
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition
