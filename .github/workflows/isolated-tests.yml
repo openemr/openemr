@@ -17,6 +17,10 @@ on:
     - master
     - rel-*
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   isolated-tests:
     runs-on: ubuntu-24.04

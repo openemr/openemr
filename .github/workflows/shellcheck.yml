@@ -43,6 +43,11 @@ on:
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-enable
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-install
     - docker/library/dockers/dev-php-fpm/data/docker-php-source
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   shellcheck:
     name: ShellCheck
