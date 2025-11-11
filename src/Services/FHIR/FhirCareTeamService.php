@@ -302,6 +302,16 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         }
     }
 
+    public function getSupportedVersions(): array
+    {
+        // version 3.1.1 DOES NOT support RelatedPerson as care team members so we can't compatible across all versions
+        if ($this->getHighestCompatibleUSCoreProfileVersion() == self::PROFILE_VERSION_3_1_1) {
+            return self::PROFILE_VERSIONS_V1;
+        } else {
+            return self::PROFILE_VERSIONS_V2;
+        }
+    }
+
     /**
      * Get profile URIs for US Core 8.0
      */
@@ -384,6 +394,9 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     }
     public function populateRelatedPersonTeamMembers(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
     {
+        if ($this->getHighestCompatibleUSCoreProfileVersion() == self::PROFILE_VERSION_3_1_1) {
+            return;
+        }
         // Add RelatedPerson as participants (contacts)
         // for now we only support RelatedPerson type contacts but this could be expanded in future
         if (!empty($dataRecord['contacts'])) {

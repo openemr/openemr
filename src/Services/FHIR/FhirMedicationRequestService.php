@@ -397,22 +397,22 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             // non-primary source
             $medRequestResource->setReportedBoolean(true);
         }
-        // TODO: @adunsulag we fall back to the organization if no reporter is set, but we may want to revisit this logic later
-        if (!empty($dataRecord['reporter_type'])) {
-            $resourceType = match ($dataRecord['reporter_type_table_name']) {
-                'user' => 'Practitioner',
-                'patient_data' => 'Patient',
-                'facility' => 'Organization',
-                default => null,
-            };
-            if (!empty($resourceType) && !empty($dataRecord['reporter_uuid'])) {
-                $medRequestResource->setReportedReference(UtilsService::createRelativeReference($resourceType, $dataRecord['reporter_uuid']));
-            }
-        } else {
-            // reporter needs to be the primary organization
-            $orgService = $this->getFhirOrganizationService();
-            $medRequestResource->setReportedReference($orgService->getPrimaryBusinessEntityReference());
-        }
+//        // TODO: @adunsulag we fall back to the organization if no reporter is set, but we may want to revisit this logic later
+//        if (!empty($dataRecord['reporter_type'])) {
+//            $resourceType = match ($dataRecord['reporter_type_table_name']) {
+//                'user' => 'Practitioner',
+//                'patient_data' => 'Patient',
+//                'facility' => 'Organization',
+//                default => null,
+//            };
+//            if (!empty($resourceType) && !empty($dataRecord['reporter_uuid'])) {
+//                $medRequestResource->setReportedReference(UtilsService::createRelativeReference($resourceType, $dataRecord['reporter_uuid']));
+//            }
+//        } else {
+//            // reporter needs to be the primary organization
+//            $orgService = $this->getFhirOrganizationService();
+//            $medRequestResource->setReportedReference($orgService->getPrimaryBusinessEntityReference());
+//        }
     }
 
     public function populateSubject(FHIRMedicationRequest $medRequestResource, array $dataRecord)
