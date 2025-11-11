@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
@@ -306,7 +307,9 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
 
         // Note
         if (!empty($dataRecord['note'])) {
-            $obs->addNote(UtilsService::createAnnotation($dataRecord['note']));
+            $annotation = new FHIRAnnotation();
+            $annotation->setText($dataRecord['note']);
+            $obs->addNote($annotation);
         }
 
         return $encode ? $obs->jsonSerialize() : $obs;
