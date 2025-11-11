@@ -2364,3 +2364,120 @@ CREATE TABLE `care_team_member` (
     UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
 ) ENGINE=InnoDB COMMENT='Stores members of a care team for a patient';
 #EndIf
+
+-- ----------------------------------------------------------------------- sjp 11/10/2025 --------------------------------------------------------------
+-- Enhanced Patient Preferences Schema for USCDI v5 / US Core 8.0
+-- Additions to existing schema with more comprehensive value sets
+
+-- ========================================
+-- Additional Treatment Intervention Preferences
+-- ========================================
+#IfNotRow2D list_options list_id treatment_intervention_preferences option_id 75773-2
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('treatment_intervention_preferences','75773-2','Goals, preferences, and priorities for medical treatment [Reported]',5,'tip_general_answers','LOINC:75773-2',1),
+    ('treatment_intervention_preferences','81336-0','Patient''s thoughts on cardiopulmonary bypass',60,'tip_bypass_answers','LOINC:81336-0',1),
+    ('treatment_intervention_preferences','81337-8','Patient''s thoughts on mechanical ventilation',70,'tip_ventilation_answers','LOINC:81337-8',1),
+    ('treatment_intervention_preferences','81376-6','Upon death organ donation consent',80,'tip_organ_donation_answers','LOINC:81376-6',1),
+    ('treatment_intervention_preferences','81378-2','Patient Healthcare goals',90,'tip_healthcare_goals_text','LOINC:81378-2',1);
+#EndIf
+-- ========================================
+-- Additional Care Experience Preferences
+-- ========================================
+#IfNotRow2D list_options list_id care_experience_preferences option_id 81342-8
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`,`notes`,`codes`,`activity`) VALUES
+    ('care_experience_preferences','81342-8','Care experience preference under certain health conditions',50,'cep_conditional_answers','LOINC:81342-8',1),
+    ('care_experience_preferences','81343-6','Care experience preference at end of life',60,'cep_endoflife_answers','LOINC:81343-6',1),
+    ('care_experience_preferences','81362-6','Preferred location for healthcare',70,'cep_location_answers','LOINC:81362-6',1),
+    ('care_experience_preferences','81363-4','Preferred healthcare professional',80,'cep_professional_answers','LOINC:81363-4',1);
+#EndIf
+-- ========================================
+-- Enhanced Value Sets
+-- ========================================
+-- General Goals/Preferences (75773-2 and general use)
+#IfNotRow preference_value_sets answer_code 385643006
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('75773-2','385643006','http://snomed.info/sct','Prefers full resuscitation',1,1),
+('75773-2','385644000','http://snomed.info/sct','Prefers limited resuscitation',2,1),
+('75773-2','304253006','http://snomed.info/sct','Does not want resuscitation',3,1),
+('75773-2','395092004','http://snomed.info/sct','Prefers aggressive treatment',4,1),
+('75773-2','395093009','http://snomed.info/sct','Prefers comfort measures only',5,1),
+('75773-2','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other',99,1);
+
+-- Cardiopulmonary Bypass (81336-0)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81336-0','373066001','http://snomed.info/sct','Yes',1,1),
+('81336-0','373067005','http://snomed.info/sct','No',2,1),
+('81336-0','261665006','http://snomed.info/sct','Unknown',98,1),
+('81336-0','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1);
+
+-- Mechanical Ventilation (81337-8)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81337-8','LA33470-8','http://loinc.org','Yes ventilation',1,1),
+('81337-8','LA33471-6','http://loinc.org','No ventilation',2,1),
+('81337-8','LA32996-3','http://loinc.org','Trial period of ventilation',3,1),
+('81337-8','UNK','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Unknown',99,1);
+
+-- Organ Donation (81376-6)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81376-6','LA33-6','http://loinc.org','Yes',1,1),
+('81376-6','LA32-8','http://loinc.org','No',2,1),
+('81376-6','LA32948-4','http://loinc.org','Yes, but only certain organs/tissues',3,1),
+('81376-6','LA4489-6','http://loinc.org','Unknown',99,1);
+
+-- Care Under Certain Health Conditions (81342-8)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81342-8','LA33474-0','http://loinc.org','If mentally incapacitated',1,1),
+('81342-8','LA33475-7','http://loinc.org','If terminally ill',2,1),
+('81342-8','LA33476-5','http://loinc.org','If permanently unconscious',3,1),
+('81342-8','LA33477-3','http://loinc.org','If severe chronic illness',4,1),
+('81342-8','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other condition',99,1);
+
+-- Care at End of Life (81343-6)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81343-6','395092004','http://snomed.info/sct','Prefers aggressive treatment',1,1),
+('81343-6','395093009','http://snomed.info/sct','Prefers comfort measures only',2,1),
+('81343-6','385644000','http://snomed.info/sct','Limited intervention',3,1),
+('81343-6','225270000','http://snomed.info/sct','Hospice care',4,1),
+('81343-6','385656005','http://snomed.info/sct','Home death preferred',5,1),
+('81343-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other',99,1);
+
+-- Preferred Location (81362-6)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81362-6','264362003','http://snomed.info/sct','Home',1,1),
+('81362-6','22232009','http://snomed.info/sct','Hospital',2,1),
+('81362-6','284546000','http://snomed.info/sct','Hospice',3,1),
+('81362-6','42665001','http://snomed.info/sct','Nursing home',4,1),
+('81362-6','413456002','http://snomed.info/sct','Adult day care center',5,1),
+('81362-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other location',99,1);
+
+-- Preferred Healthcare Professional (81363-4)
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81363-4','309343006','http://snomed.info/sct','Physician',1,1),
+('81363-4','106292003','http://snomed.info/sct','Professional nurse',2,1),
+('81363-4','224571005','http://snomed.info/sct','Nurse practitioner',3,1),
+('81363-4','449161006','http://snomed.info/sct','Physician assistant',4,1),
+('81363-4','768730001','http://snomed.info/sct','Home health aide',5,1),
+('81363-4','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other provider',99,1);
+
+-- ========================================
+-- Additional Common Answer Values
+-- ========================================
+-- Add more religious/cultural options
+INSERT INTO `preference_value_sets`
+(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
+('81364-2','309884000','http://snomed.info/sct','Atheist',7,1),
+('81364-2','160234004','http://snomed.info/sct','Agnostic',8,1),
+('81364-2','428821008','http://snomed.info/sct','Latter Day Saints',9,1),
+('81364-2','80587008','http://snomed.info/sct','Jehovah''s Witness',10,1),
+('81364-2','309687009','http://snomed.info/sct','Baptist',11,1),
+('81364-2','160540005','http://snomed.info/sct','Sikh',12,1),
+('81364-2','LA14063-6','http://loinc.org','Prefer not to answer',98,1);
+#EndIf
