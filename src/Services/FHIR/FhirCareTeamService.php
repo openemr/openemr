@@ -15,8 +15,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -32,7 +30,6 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {
@@ -284,21 +281,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        $fhirRelatedPersonService = new FhirRelatedPersonService();
         $processingResult = $this->careTeamService->getAll($openEMRSearchParameters, true);
-        // TODO: @adunsulag add in RelatedPerson processing when we have that piece fleshed out.
-        if ($processingResult->hasData()) {
-            $updatedRecords = [];
-            foreach ($processingResult->getData() as $record) {
-                $relatedPersonUuid = UuidV4::uuid4()->toString();
-                $relatedPersonRecord = $fhirRelatedPersonService->getSampleRelatedPerson($record['puuid'], $relatedPersonUuid);
-                $relatedPersonRecord['role'] = 'caregiver';
-                $relatedPersonRecord['role_title'] = 'Caregiver (person)';
-                $record['relatedPersons'] =[$relatedPersonRecord];
-                $updatedRecords[] = $record;
-            }
-            $processingResult->setData($updatedRecords);
-        }
         return $processingResult;
     }
 
@@ -342,38 +325,36 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     public function populateProviderTeamMembers(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
     {
         if (!empty($dataRecord['providers'])) {
-            foreach ($dataRecord['providers'] as $dataRecordProviderList) {
-                foreach ($dataRecordProviderList as $dataRecordProvider) {
-                    $participant = new FHIRCareTeamParticipant();
+            foreach ($dataRecord['providers'] as $dataRecordProvider) {
+                $participant = new FHIRCareTeamParticipant();
 
-                    // Set period if provider_since is available
-                    if (!empty($dataRecordProvider['provider_since'])) {
-                        $period = new FHIRPeriod();
-                        $period->setStart($dataRecordProvider['provider_since']);
-                        $participant->setPeriod($period);
-                    }
-
-                    // Set role (required by US Core)
-                    $roleCodeableConcept = $this->createRoleCodeableConcept(
-                        $dataRecordProvider,
-                        $codeTypesService
-                    );
-                    $participant->addRole($roleCodeableConcept);
-
-                    // Set member reference (required by US Core)
-                    $participant->setMember(
-                        UtilsService::createRelativeReference("Practitioner", $dataRecordProvider['provider_uuid'])
-                    );
-
-                    // Set onBehalfOf if facility is present (US Core allows this for Practitioners)
-                    if (!empty($dataRecordProvider['facility_uuid'])) {
-                        $participant->setOnBehalfOf(
-                            UtilsService::createRelativeReference("Organization", $dataRecordProvider['facility_uuid'])
-                        );
-                    }
-
-                    $careTeamResource->addParticipant($participant);
+                // Set period if provider_since is available
+                if (!empty($dataRecordProvider['provider_since'])) {
+                    $period = new FHIRPeriod();
+                    $period->setStart($dataRecordProvider['provider_since']);
+                    $participant->setPeriod($period);
                 }
+
+                // Set role (required by US Core)
+                $roleCodeableConcept = $this->createRoleCodeableConcept(
+                    $dataRecordProvider,
+                    $codeTypesService
+                );
+                $participant->addRole($roleCodeableConcept);
+
+                // Set member reference (required by US Core)
+                $participant->setMember(
+                    UtilsService::createRelativeReference("Practitioner", $dataRecordProvider['provider_uuid'])
+                );
+
+                // Set onBehalfOf if facility is present (US Core allows this for Practitioners)
+                if (!empty($dataRecordProvider['facility_uuid'])) {
+                    $participant->setOnBehalfOf(
+                        UtilsService::createRelativeReference("Organization", $dataRecordProvider['facility_uuid'])
+                    );
+                }
+
+                $careTeamResource->addParticipant($participant);
             }
         }
     }
@@ -404,8 +385,9 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     public function populateRelatedPersonTeamMembers(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
     {
         // Add RelatedPerson as participants (contacts)
-        if (!empty($dataRecord['relatedPersons'])) {
-            foreach ($dataRecord['relatedPersons'] as $person) {
+        // for now we only support RelatedPerson type contacts but this could be expanded in future
+        if (!empty($dataRecord['contacts'])) {
+            foreach ($dataRecord['contacts'] as $person) {
                 $participant = new FHIRCareTeamParticipant();
 
                 // Set member reference for organization

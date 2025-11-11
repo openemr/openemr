@@ -7,6 +7,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -42,7 +43,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('person_uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
     }
@@ -77,7 +78,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
 
     public function populateActive(FHIRRelatedPerson $fhirRelatedPerson, $dataRecord): void
     {
-        if ('1' === $dataRecord['active']) {
+        if (1 === $dataRecord['active']) {
             $fhirRelatedPerson->setActive(true);
         } else {
             $fhirRelatedPerson->setActive(false);
@@ -108,24 +109,16 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
 
     public function populateRelationship(FHIRRelatedPerson $fhirRelatedPerson, $dataRecord): void
     {
-        $relationshipCode = 'U'; // unknown
-        $description = 'Unknown';
-
-
-        if (!empty($dataRecord['relationship_code'])) {
-            $relationshipCode = $dataRecord['relationship_code'];
-            $listOptionsService = new ListService();
-            $option = $listOptionsService->getListOption('personal_relationship', $relationshipCode);
-            $description = $option['title'] ?? $description;
-        }
+        $relationshipCode = $dataRecord['relationship_code'] ?? 'U'; // unknown
+        $description = $dataRecord['relationship_code_title'] ?? 'Unknown';
         $concept = UtilsService::createCodeableConcept(
-            [$relationshipCode => [
-            'code' => $relationshipCode,
-            'system' => FhirCodeSystemConstants::HL7_ROLE_CODE,
-            'description' => $description
-            ]
-            ]
-        );
+            [
+                $relationshipCode => [
+                    'code' => $relationshipCode,
+                    'system' => FhirCodeSystemConstants::HL7_ROLE_CODE,
+                    'description' => $description
+                ]
+            ]);
         $fhirRelatedPerson->addRelationship($concept);
     }
 
@@ -137,9 +130,13 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
 
     public function populateTelecom(FHIRRelatedPerson $fhirRelatedPerson, $dataRecord): void
     {
-        $fhirRelatedPerson->addTelecom(UtilsService::createContactPoint($dataRecord['phone_work'], 'phone', 'work'));
-        $fhirRelatedPerson->addTelecom(UtilsService::createContactPoint($dataRecord['phone'], 'phone', 'home'));
-        $fhirRelatedPerson->addTelecom(UtilsService::createContactPoint($dataRecord['email'], 'email', 'home'));
+        if (!empty($dataRecord['telecom'])) {
+            foreach ($dataRecord['telecom'] as $telecom) {
+                $contactPoint = UtilsService::createContactPoint($telecom['value']
+                    , $telecom['system'], $telecom['use']);
+                $fhirRelatedPerson->addTelecom($contactPoint);
+            }
+        }
     }
 
     public function populateAddress(FHIRRelatedPerson $fhirRelatedPerson, $dataRecord): void
@@ -155,37 +152,8 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        // TODO: @adunsulag we will populate these fields once we have the related service pieces working properly.
-        $uuid = null;
-        $patientUuid = null;
-        // going to fake it
-        if ($openEMRSearchParameters['uuid']) {
-            /**
-             * @var TokenSearchField $id
-             */
-            $id = $openEMRSearchParameters['uuid'];
-            /**
-             * @var TokenSearchValue[] $values
-             */
-            $values = $id->getValues();
-            $uuid = $values[0]->getHumanReadableCode();
-        }
-        if ($openEMRSearchParameters['puuid']) {
-            /**
-             * @var TokenSearchField $patient
-             */
-            $patient = $openEMRSearchParameters['puuid'];
-            /**
-             * @var TokenSearchValue[] $values
-             */
-            $values = $patient->getValues();
-            $patientUuid = $values[0]->getHumanReadableCode();
-        }
-        $record = $this->getSampleRelatedPerson($patientUuid, $uuid);
-
-        $processingResult = new ProcessingResult();
-        $processingResult->addData($record);
-        return $processingResult;
+        $contactRelationService = new ContactRelationService();
+        return $contactRelationService->searchPatientRelationships($openEMRSearchParameters);
     }
 
     public function getSampleRelatedPerson(?string $patientUuid, ?string $uuid)

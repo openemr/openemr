@@ -116,9 +116,9 @@ class FhirPatientServiceMappingTest extends TestCase
 
         foreach ($actualTelecoms as $actualTelecom) {
             if (
-                $expectedSystem == $actualTelecom->getSystem()->getValue() &&
-                $expectedUse == $actualTelecom->getUse()->getValue() &&
-                $expectedValue == $actualTelecom->getValue()->getValue()
+                $expectedSystem == $actualTelecom->getSystem() &&
+                $expectedUse == $actualTelecom->getUse() &&
+                $expectedValue == $actualTelecom->getValue()
             ) {
                 $matchFound = true;
                 break;
