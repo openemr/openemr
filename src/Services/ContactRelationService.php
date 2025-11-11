@@ -17,6 +17,9 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class ContactRelationService extends BaseService
@@ -37,6 +40,10 @@ class ContactRelationService extends BaseService
         $this->contactService = new ContactService();
     }
 
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'puuid'];
+    }
 
     /**
      * Create a new relationship between a contact and another entity
@@ -250,6 +257,142 @@ class ContactRelationService extends BaseService
         $sql .= " ORDER BY cr.contact_priority ASC";
 
         return QueryUtils::fetchRecords($sql, [$targetTable, $targetId]) ?? [];
+    }
+
+    /**
+     * TODO: @adunsulag should this be moved to its own class? Need to balance cohesion vs single responsibility principles
+     * @param array<string, ISearchField> $searchParameters
+     * @param bool $isAndCondition
+     * @return ProcessingResult
+     */
+    public function searchPatientRelationships(array $searchParameters, bool $isAndCondition = true): ProcessingResult {
+        $processingResult = new ProcessingResult();
+        $sql = "SELECT
+            puuid
+            ,pers.person_uuid
+            ,cr.active
+            ,lo_relationship.relationship_code
+            ,lo_relationship.relationship_code_title
+            ,pers.fname
+            ,pers.lname
+            ,cr.updated_date
+            ,ct.telecom_id
+            ,ct.telecom_status
+            ,ct.telecom_use
+            ,ct.telecom_value
+            ,ct.telecom_period_start
+            ,ct.telecom_period_end
+            ,ct.telecom_system
+            ,addr.address_line1
+            ,addr.address_line2
+            ,addr.address_city
+            ,addr.address_state
+            ,addr.address_country
+            ,addr.address_postal_code
+            ,addr.address_postal_code_plus_four
+            ,ca.address_period_start
+            ,ca.address_period_end
+            ,ca.address_type
+            ,ca.address_priority
+            ,ca.address_use
+            ,ca.address_status
+        FROM
+            contact_relation cr
+            JOIN contact owner_contact ON cr.contact_id = owner_contact.id
+            JOIN contact target_contact ON cr.target_id = target_contact.foreign_id
+                                                   AND cr.target_table = target_contact.foreign_table_name
+            JOIN (
+                SELECT
+                    uuid AS person_uuid
+                    ,id AS person_id
+                    ,first_name AS fname
+                    ,last_name AS lname
+                FROM person
+            ) pers ON target_contact.foreign_table_name='person' AND target_contact.foreign_id = pers.person_id
+            JOIN (SELECT
+                 uuid AS puuid,
+                 pid AS patient_id
+                 FROM patient_data
+             ) pd ON owner_contact.foreign_table_name='patient_data' AND owner_contact.foreign_id = pd.patient_id
+            JOIN (
+                SELECT
+                    option_id AS relationship_code
+                    , title AS relationship_code_title
+                FROM list_options WHERE list_id = 'related_person_relationship'
+            ) lo_relationship ON cr.relationship = lo_relationship.relationship_code
+            JOIN (
+                SELECT
+                    contact_id
+                    ,address_id
+                    ,priority AS address_priority
+                    ,type AS address_type
+                    ,`use` AS address_use
+                    ,`status` AS address_status
+                    ,period_start AS address_period_start
+                    ,period_end AS address_period_end
+                FROM contact_address
+            ) ca ON target_contact.id = ca.contact_id
+            JOIN (
+                SELECT
+                    id AS address_id
+                    ,line1 AS address_line1
+                    ,line2 AS address_line2
+                    ,city AS address_city
+                    ,state AS address_state
+                    ,zip AS address_postal_code
+                    ,plus_four AS address_postal_code_plus_four
+                     ,country AS address_country
+                 FROM
+                    addresses
+            ) addr ON addr.address_id = ca.address_id
+            JOIN (
+                SELECT
+                    id AS telecom_id,
+                    contact_id,
+                    `use` AS telecom_use,
+                    `system` AS telecom_system,
+                    `value` AS telecom_value,
+                    `status` AS telecom_status,
+                    period_start AS telecom_period_start,
+                    period_end AS telecom_period_end
+                FROM
+                    contact_telecom
+            ) ct ON target_contact.id = ct.contact_id
+        ";
+
+        $fhirWhereClause = FhirSearchWhereClauseBuilder::build($searchParameters, $isAndCondition);
+        $sql .= $fhirWhereClause->getFragment();
+        $params = $fhirWhereClause->getBoundValues();
+        try {
+            $records = QueryUtils::fetchRecords($sql, $params) ?? [];
+            $indexedResults = [];
+            $personByUuids = [];
+            foreach ($records as $record) {
+                $record = $this->createResultRecordFromDatabaseResult($record);
+                $uuid = $record['person_uuid'];
+                if (!isset($personByUuids[$uuid])) {
+                    $personByUuids[$record['person_uuid']] = $this->getPersonFromRecord($record);
+                    $indexedResults[] = $uuid;
+                }
+                $telecom_id = $record['telecom_id'];
+                if (!isset($personByUuids[$uuid]['telecom'][$telecom_id])) {
+                    $personByUuids[$uuid]['telecom'][$telecom_id] = $this->getTelecomFromRecord($record);
+                }
+                $address_id = $record['address_id'];
+                if (!isset($personByUuids[$uuid]['addresses'][$address_id])) {
+                    $personByUuids[$uuid]['addresses'][$address_id] = $this->getAddressFromRecord($record);
+                }
+            }
+            foreach ($indexedResults as $recordUuid) {
+                $processingResult->addData($personByUuids[$recordUuid]);
+            }
+        } catch (\Exception $e) {
+            $this->getLogger()->error("Error searching patient relationships", [
+                'error' => $e->getMessage()
+            ]);
+            $processingResult->addInternalError($e->getMessage());
+        }
+        return $processingResult;
     }
 
 
@@ -859,5 +1002,58 @@ class ContactRelationService extends BaseService
         $stats['emergency_contacts'] = (int)$result['count'];
 
         return $stats;
+    }
+
+    protected function getPersonFromRecord(array $record): array
+    {
+        /**
+         * puuid
+         * ,pers.person_uuid
+         * ,cr.active
+         * ,lo_relationship.relationship_code
+         * ,pers.fname
+         * ,pers.lname
+         * ,cr.updated_date
+         */
+        return [
+            'uuid' => $record['person_uuid'],
+            'puuid' => $record['puuid'],
+            'active' => $record['active'],
+            'relationship_code' => $record['relationship_code'],
+            'relationship_code_title' => $record['relationship_code_title'],
+            'fname' => $record['fname'],
+            'lname' => $record['lname']
+        ];
+    }
+
+    protected function getTelecomFromRecord(array $record): array
+    {
+        return [
+            'telecom_id' => $record['telecom_id'],
+            'use' => $record['telecom_use'],
+            'system' => $record['telecom_system'],
+            'value' => $record['telecom_value'],
+            'status' => $record['telecom_active']
+        ];
+    }
+
+    protected function getAddressFromRecord(array $record): array
+    {
+        return [
+            'address_id' => $record['address_id'],
+            'line1' => $record['address_line1'],
+            'line2' => $record['address_line2'],
+            'city' => $record['address_city'],
+            'state' => $record['address_state'],
+            'postal_code' => $record['address_postalcode'],
+            'postal_code_plus_four' => $record['address_postalcode_plus_four'],
+            'country' => $record['address_country'],
+            'priority' => $record['address_priority'],
+            'type' => $record['address_type'],
+            'period_start' => $record['address_period_start'],
+            'period_end' => $record['address_period_end'],
+            'use' => $record['address_use'],
+            'status' => $record['address_status']
+        ];
     }
 }

@@ -40,12 +40,13 @@ class CareTeamService extends BaseService
      */
     public function __construct()
     {
-        UuidRegistry::createMissingUuidsForTables([
+        UuidRegistry::createMissingUuidsForTables(
+            [
             self::PATIENT_TABLE,
             self::PRACTITIONER_TABLE,
             self::FACILITY_TABLE,
             self::CARE_TEAM_TABLE
-        ]);
+            ]);
         parent::__construct(self::CARE_TEAM_TABLE);
     }
 
@@ -265,6 +266,7 @@ class CareTeamService extends BaseService
                     ctm.provider_since,
                     ctm.status,
                     ctm.note,
+                    p.uuid,
                     c.id as contact_record_id,
                     c.foreign_table_name,
                     c.foreign_id,
@@ -276,8 +278,8 @@ class CareTeamService extends BaseService
                     f.name as facility_name
                 FROM " . self::CARE_TEAM_MEMBER_TABLE . " ctm
                 JOIN contact c ON ctm.contact_id = c.id
-                LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
-                LEFT JOIN person p ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                JOIN person p ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
+                JOIN contact_relation cr ON cr.target_id = p.id AND cr.target_table='person' AND cr.active = 1
                 LEFT JOIN facility f ON ctm.facility_id = f.id
                 LEFT JOIN list_options lo1 ON lo1.option_id = ctm.role AND lo1.list_id = 'care_team_roles'
                 WHERE ctm.care_team_id IN (" . implode(',', array_fill(0, count($careTeamIds), '?')) . ")
@@ -292,6 +294,7 @@ class CareTeamService extends BaseService
             }
 
             $contacts[$careTeamId][] = [
+                'uuid' => UuidRegistry::uuidToString($row['uuid']),
                 'contact_id' => $row['contact_id'],
                 'contact_name' => trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
                 'relationship' => $row['relationship'] ?? '',
@@ -312,8 +315,8 @@ class CareTeamService extends BaseService
     /**
      * Returns a single careTeam record by id.
      *
-     * @param $uuid      - The careTeam uuid identifier in string format.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param  $uuid      - The careTeam uuid identifier in string format.
+     * @param  $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
     public function getOne(string $uuid, $puuidBind = null)

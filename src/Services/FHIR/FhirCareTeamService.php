@@ -15,8 +15,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -65,7 +63,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * @var CareTeamService
      */
-    private $careTeamService;
+    private CareTeamService $careTeamService;
 
     public function __construct()
     {
@@ -82,7 +80,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['care_team_status']),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['status']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
@@ -97,9 +95,9 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * Parses an OpenEMR careTeam record, returning the equivalent FHIR CareTeam Resource
      * Compliant with US Core 8.0 and USCDI v5 requirements
      *
-     * @param array   $dataRecord The source OpenEMR data record
-     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRCareTeam
+     * @param  array   $dataRecord The source OpenEMR data record
+     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRCareTeam|string|false
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
@@ -142,68 +140,13 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         $codeTypesService = new CodeTypesService();
 
         // Add participants (practitioners with roles)
-        if (!empty($dataRecord['providers'])) {
-            foreach ($dataRecord['providers'] as $dataRecordProviderList) {
-                foreach ($dataRecordProviderList as $dataRecordProvider) {
-                    $participant = new FHIRCareTeamParticipant();
-
-                    // Set period if provider_since is available
-                    if (!empty($dataRecordProvider['provider_since'])) {
-                        $period = new FHIRPeriod();
-                        $period->setStart($dataRecordProvider['provider_since']);
-                        $participant->setPeriod($period);
-                    }
-
-                    // Set role (required by US Core)
-                    $roleCodeableConcept = $this->createRoleCodeableConcept(
-                        $dataRecordProvider,
-                        $codeTypesService
-                    );
-                    $participant->addRole($roleCodeableConcept);
-
-                    // Set member reference (required by US Core)
-                    $participant->setMember(
-                        UtilsService::createRelativeReference("Practitioner", $dataRecordProvider['provider_uuid'])
-                    );
-
-                    // Set onBehalfOf if facility is present (US Core allows this for Practitioners)
-                    if (!empty($dataRecordProvider['facility_uuid'])) {
-                        $participant->setOnBehalfOf(
-                            UtilsService::createRelativeReference("Organization", $dataRecordProvider['facility_uuid'])
-                        );
-                    }
-
-                    $careTeamResource->addParticipant($participant);
-                }
-            }
-        }
-
-        // Add organizations as participants (facilities)
-        if (!empty($dataRecord['facilities'])) {
-            foreach ($dataRecord['facilities'] as $dataRecordFacility) {
-                $organization = new FHIRCareTeamParticipant();
-
-                // Set member reference for organization
-                $organization->setMember(
-                    UtilsService::createRelativeReference("Organization", $dataRecordFacility['uuid'])
-                );
-
-                // Set role for organization
-                $roleCodeableConcept = $this->createOrganizationRoleCodeableConcept(
-                    $dataRecordFacility,
-                    $codeTypesService
-                );
-                $organization->addRole($roleCodeableConcept);
-
-                $careTeamResource->addParticipant($organization);
-            }
-        }
-        // Set managing organization if primary facility is set
-        if (!empty($dataRecord['primary_facility_uuid'])) {
-            $careTeamResource->addManagingOrganization([
-                UtilsService::createRelativeReference("Organization", $dataRecord['primary_facility_uuid'])
-            ]);
-        }
+        $this->populateProviderTeamMembers($careTeamResource, $dataRecord, $codeTypesService);
+        $this->populateFacilityTeamMembers($careTeamResource, $dataRecord, $codeTypesService);
+        $this->populateRelatedPersonTeamMembers($careTeamResource, $dataRecord, $codeTypesService);
+        $this->populateManagingOrganization($careTeamResource, $dataRecord);
+        // inferno is having issues with the subject not validating.  I'm wondering if it has a bug with
+        // the subject and a patient team member being the same reference.
+        //        $this->populatePatientMember($careTeamResource, $dataRecord, $codeTypesService);
 
         if ($encode) {
             return json_encode($careTeamResource);
@@ -212,13 +155,8 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         }
     }
 
-    /**
-     * Create role CodeableConcept for a provider participant
-     * Uses SNOMED CT codes per US Core 8.0 requirements
-     */
-    private function createRoleCodeableConcept($dataRecordProvider, $codeTypesService)
+    protected function getRoleMappings(): array
     {
-        // Map common roles to SNOMED CT codes for USCDI v5 compliance
         $roleMapping = [
             'physician' => '158965000', // Medical practitioner
             'attending' => '309343006', // Attending physician
@@ -236,7 +174,18 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
             'mental_health' => '224597008', // Mental health professional
             'care_coordinator' => '768820003', // Care coordinator
             'patient_navigator' => '768821004', // Patient navigator
+            'caregiver' => '133932002',
         ];
+        return $roleMapping;
+    }
+    /**
+     * Create role CodeableConcept for a provider participant
+     * Uses SNOMED CT codes per US Core 8.0 requirements
+     */
+    private function createRoleCodeableConcept($dataRecordProvider, $codeTypesService)
+    {
+        // Map common roles to SNOMED CT codes for USCDI v5 compliance
+        $roleMapping = $this->getRoleMappings();
 
         // Try to use physician_type_codes if available
         if (!empty($dataRecordProvider['physician_type_codes'])) {
@@ -327,12 +276,13 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @param  array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->careTeamService->getAll($openEMRSearchParameters, true);
+        $processingResult = $this->careTeamService->getAll($openEMRSearchParameters, true);
+        return $processingResult;
     }
 
     /**
@@ -368,7 +318,158 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         return new FhirSearchParameterDefinition(
             'patient',
             SearchFieldType::REFERENCE,
-            [new ServiceField('pd.uuid', ServiceField::TYPE_UUID)]
+            [new ServiceField('puuid', ServiceField::TYPE_UUID)]
         );
+    }
+
+    public function populateProviderTeamMembers(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
+    {
+        if (!empty($dataRecord['providers'])) {
+            foreach ($dataRecord['providers'] as $dataRecordProvider) {
+                $participant = new FHIRCareTeamParticipant();
+
+                // Set period if provider_since is available
+                if (!empty($dataRecordProvider['provider_since'])) {
+                    $period = new FHIRPeriod();
+                    $period->setStart($dataRecordProvider['provider_since']);
+                    $participant->setPeriod($period);
+                }
+
+                // Set role (required by US Core)
+                $roleCodeableConcept = $this->createRoleCodeableConcept(
+                    $dataRecordProvider,
+                    $codeTypesService
+                );
+                $participant->addRole($roleCodeableConcept);
+
+                // Set member reference (required by US Core)
+                $participant->setMember(
+                    UtilsService::createRelativeReference("Practitioner", $dataRecordProvider['provider_uuid'])
+                );
+
+                // Set onBehalfOf if facility is present (US Core allows this for Practitioners)
+                if (!empty($dataRecordProvider['facility_uuid'])) {
+                    $participant->setOnBehalfOf(
+                        UtilsService::createRelativeReference("Organization", $dataRecordProvider['facility_uuid'])
+                    );
+                }
+
+                $careTeamResource->addParticipant($participant);
+            }
+        }
+    }
+
+    public function populateFacilityTeamMembers(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
+    {
+        // Add organizations as participants (facilities)
+        if (!empty($dataRecord['facilities'])) {
+            foreach ($dataRecord['facilities'] as $dataRecordFacility) {
+                $organization = new FHIRCareTeamParticipant();
+
+                // Set member reference for organization
+                $organization->setMember(
+                    UtilsService::createRelativeReference("Organization", $dataRecordFacility['uuid'])
+                );
+
+                // Set role for organization
+                $roleCodeableConcept = $this->createOrganizationRoleCodeableConcept(
+                    $dataRecordFacility,
+                    $codeTypesService
+                );
+                $organization->addRole($roleCodeableConcept);
+
+                $careTeamResource->addParticipant($organization);
+            }
+        }
+    }
+    public function populateRelatedPersonTeamMembers(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
+    {
+        // Add RelatedPerson as participants (contacts)
+        // for now we only support RelatedPerson type contacts but this could be expanded in future
+        if (!empty($dataRecord['contacts'])) {
+            foreach ($dataRecord['contacts'] as $person) {
+                $participant = new FHIRCareTeamParticipant();
+
+                // Set member reference for organization
+                $participant->setMember(
+                    UtilsService::createRelativeReference("RelatedPerson", $person['uuid'])
+                );
+                $roleMapping = $this->getRoleMappings();
+
+                if (!empty($person['role'])) {
+                    $role = strtolower((string)$person['role']);
+                    if (isset($roleMapping[$role])) {
+                        $codes = [
+                            'code' => $roleMapping[$role],
+                            'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
+                            'description' => $person['role_title'] ?? xlt($person['role'])
+                        ];
+                        $participant->addRole(UtilsService::createCodeableConcept([$codes['code'] => $codes]));
+                    }
+                } else {
+                    $code = '407542009'; // if we don't have anything to match then we default to informal caregiver as the safest approach
+                    $fullCode = CodeTypesService::CODE_TYPE_SNOMED_CT . ':' . $code;
+                    $description = $codeTypesService->lookup_code_description($fullCode);
+                    $participant->addRole(
+                        UtilsService::createCodeableConcept(
+                            [
+                            $code => [
+                            'code' => $code
+                            ,'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM
+                            ,'description' => !empty($description) ? $description : $person['role_title']
+                            ]
+                            ]
+                        )
+                    );
+                }
+
+                $careTeamResource->addParticipant($participant);
+            }
+        }
+    }
+
+    public function populateManagingOrganization(FHIRCareTeam $careTeamResource, array $dataRecord)
+    {
+        // Set managing organization if primary facility is set
+        if (!empty($dataRecord['primary_facility_uuid'])) {
+            $careTeamResource->addManagingOrganization(
+                [
+                UtilsService::createRelativeReference("Organization", $dataRecord['primary_facility_uuid'])
+                ]
+            );
+        }
+    }
+
+    /**
+     * in FHIR terminology the patient is part of the care team even though the resource still populates the identified patient
+     *
+     * @param  FHIRCareTeam     $careTeamResource
+     * @param  array            $dataRecord
+     * @param  CodeTypesService $codeTypesService
+     * @return void
+     */
+    private function populatePatientMember(FHIRCareTeam $careTeamResource, array $dataRecord, CodeTypesService $codeTypesService)
+    {
+        $participant = new FHIRCareTeamParticipant();
+
+        // Set member reference for organization
+        $participant->setMember(
+            UtilsService::createRelativeReference("Patient", $dataRecord['puuid'])
+        );
+        $code = '116154003'; // if we don't have anything to match then we default to informal caregiver as the safest approach
+        $fullCode = CodeTypesService::CODE_TYPE_SNOMED_CT . ':' . $code;
+        $description = $codeTypesService->lookup_code_description($fullCode);
+        $participant->addRole(
+            UtilsService::createCodeableConcept(
+                [
+                $code => [
+                'code' => $code
+                ,'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM
+                ,'description' => !empty($description) ? $description : 'Patient (person)'
+                ]
+                ]
+            )
+        );
+        $careTeamResource->addParticipant($participant);
     }
 }

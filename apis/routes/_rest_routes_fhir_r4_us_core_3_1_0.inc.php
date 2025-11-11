@@ -63,6 +63,7 @@ use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormSer
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
 use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
+use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -6110,6 +6111,209 @@ return [
             $return = (new FhirProcedureRestController())->getAll($request->getQueryParams());
         }
 
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/RelatedPerson",
+     *      description="Returns a list of RelatedPerson resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the RelatedPerson resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2025-09-30T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/RelatedPerson"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/RelatedPerson" => function (HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams());
+        }
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/RelatedPerson/{uuid}",
+     *      description="Returns a single RelatedPerson resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the RelatedPerson resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                       "id": "c266a919-6b22-4d7b-b169-b96adc5be3ef",
+     *                       "meta": {
+     *                           "versionId": "1",
+     *                           "lastUpdated": "2025-10-25T21:15:11-04:00",
+     *                           "profile": [
+     *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson",
+     *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|7.0.0",
+     *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|8.0.0"
+     *                           ]
+     *                       },
+     *                       "resourceType": "RelatedPerson",
+     *                       "active": true,
+     *                       "patient": {
+     *                           "reference": "Patient/96506861-511f-4f6d-bc97-b65a78cf1995",
+     *                           "type": "Patient"
+     *                       },
+     *                       "relationship": [
+     *                           {
+     *                               "coding": [
+     *                                   {
+     *                                       "system": "http://terminology.hl7.org/CodeSystem/role-code",
+     *                                       "code": "FAMMEMB",
+     *                                       "display": "Family Member"
+     *                                   }
+     *                               ]
+     *                           }
+     *                       ],
+     *                       "name": [
+     *                           {
+     *                               "use": "official",
+     *                               "family": "Doe",
+     *                               "given": [
+     *                                   "John"
+     *                               ]
+     *                           }
+     *                       ],
+     *                       "telecom": [
+     *                           {
+     *                               "system": "phone",
+     *                               "value": "(555) 555-5555",
+     *                               "use": "work"
+     *                           },
+     *                           {
+     *                               "system": "phone",
+     *                               "value": "(333) 333-3333",
+     *                               "use": "home"
+     *                           },
+     *                           {
+     *                               "system": "email",
+     *                               "value": "example@open-emr.org",
+     *                               "use": "home"
+     *                           }
+     *                       ],
+     *                       "address": [
+     *                           {
+     *                               "line": [
+     *                                   "123 example street"
+     *                               ],
+     *                               "city": "Somewhere",
+     *                               "state": "CA",
+     *                               "period": {
+     *                                   "start": "2024-10-25T21:15:11.737-04:00"
+     *                               }
+     *                           }
+     *                       ]
+     *                   }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // resource is part of the patient compartment so will be bound to patient anyways
+            $return = (new FhirRelatedPersonRestController())->getOne($uuid);
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            $return = (new FhirRelatedPersonRestController())->getOne($uuid);
+        }
         return $return;
     },
 
