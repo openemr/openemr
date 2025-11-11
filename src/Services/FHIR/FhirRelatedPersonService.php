@@ -165,6 +165,6 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
 
     public function getLastModifiedSearchField(): FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['updated_date']);
     }
 }

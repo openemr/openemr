@@ -75,7 +75,7 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_modified']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['effective_datetime']);
     }
 
     public function getProfileURIs(): array

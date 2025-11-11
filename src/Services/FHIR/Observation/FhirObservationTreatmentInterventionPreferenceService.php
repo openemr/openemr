@@ -38,7 +38,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
     private const CATEGORY_SYSTEM = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
     private const CATEGORY_CODE   = 'treatment-intervention-preference';
     private const LOINC_SYSTEM    = FhirCodeSystemConstants::LOINC ?? 'http://loinc.org';
-    
+
     // Support ALL treatment intervention preference LOINC codes from the schema
     private const SUPPORTED_LOINC_CODES = [
         '75773-2',  // Goals, preferences, and priorities for medical treatment [Reported]
@@ -76,7 +76,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_modified']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['effective_datetime']);
     }
 
     public function getProfileURIs(): array
@@ -200,11 +200,11 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
     {
         $sql = "SELECT uuid FROM patient_data WHERE pid = ?";
         $result = QueryUtils::fetchRecords($sql, [$pid]);
-        
+
         if (!empty($result[0]['uuid'])) {
             return UuidRegistry::uuidToString($result[0]['uuid']);
         }
-        
+
         return null;
     }
 
@@ -278,29 +278,29 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
                     $obs->setValueBoolean((bool)$dataRecord['value_boolean']);
                 }
                 break;
-                
+
             case 'text':
                 if (!empty($dataRecord['value_text'])) {
                     $obs->setValueString($dataRecord['value_text']);
                 }
                 break;
-                
+
             case 'coded':
             default:
                 if (!empty($dataRecord['value_code']) || !empty($dataRecord['value_display'])) {
                     $cc = new FHIRCodeableConcept();
                     $coding = new FHIRCoding();
-                    
+
                     $coding->setSystem($dataRecord['value_code_system'] ?: self::LOINC_SYSTEM);
-                    
+
                     if (!empty($dataRecord['value_code'])) {
                         $coding->setCode($dataRecord['value_code']);
                     }
-                    
+
                     if (!empty($dataRecord['value_display'])) {
                         $coding->setDisplay($dataRecord['value_display']);
                     }
-                    
+
                     $cc->addCoding($coding);
                     $obs->setValueCodeableConcept($cc);
                 }

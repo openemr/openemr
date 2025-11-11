@@ -88,7 +88,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date_updated']);
     }
 
     /**
