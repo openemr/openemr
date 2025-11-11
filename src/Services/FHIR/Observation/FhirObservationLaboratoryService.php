@@ -26,6 +26,7 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Indicates;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -43,6 +44,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 {
     use FhirServiceBaseEmptyTrait;
     use VersionedProfileTrait;
+    use FhirObservationTrait;
 
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -171,6 +173,15 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         if (!empty($report['specimens'])) {
                             $result['specimens'] = $report['specimens'];
                         }
+                        $ranges = array_filter(array_map(fn($item) => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $dataRecord['range'] ?? '')));
+                        $low = $ranges[0] ?? null;
+                        $high = $ranges[1] ?? null;
+                        $result['range_low'] = $ranges[0] ?? null;
+                        $result['range_high'] = $ranges[0] ?? null;
+                        $result['result_abnormal'] = $result['abnormal'] ?? null;
+                        $result['result_abnormal_title'] = $result['result_abnormal_title'] ?? null;
+                        $result['result_abnormal_codes'] = $result['result_abnormal_codes'] ?? null;
+                        $result['encounter'] = $record['encounter'] ?? null;
 
                         $processingResult->addData($result);
                     }
@@ -235,45 +246,18 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $status = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
         $observation->setStatus($status);
 
-        if (!empty($dataRecord['range_low']) && !empty($dataRecord['range_high'])) {
+        $ranges = array_filter(array_map(fn($item) => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $dataRecord['range'] ?? '')));
+        $low = $ranges[0] ?? null;
+        $high = $ranges[1] ?? null;
+        if (isset($low) && isset($high)) {
+
             $referenceRange = new FHIRObservationReferenceRange();
-            if (isset($dataRecord['range_low'])) {
-                $referenceRange->setLow(UtilsService::createQuantity($dataRecord['range_low'], $dataRecord['units'], $dataRecord['units']));
-            }
-            if (isset($dataRecord['range_high'])) {
-                $referenceRange->setHigh(UtilsService::createQuantity($dataRecord['range_high'], $dataRecord['units'], $dataRecord['units']));
-            }
+            $referenceRange->setLow(UtilsService::createQuantity($low, $dataRecord['units'], $dataRecord['units']));
+            $referenceRange->setHigh(UtilsService::createQuantity($high, $dataRecord['units'], $dataRecord['units']));
             $observation->addReferenceRange($referenceRange);
         }
 
-        if (!empty($dataRecord['result'])) {
-            if (is_numeric($dataRecord['result'])) {
-                $quantity = new FHIRQuantity();
-                $quantityValue = $dataRecord['result'];
-                $unit = $dataRecord['units'] ?? null;
-                if (!empty($unit)) {
-                    if ($unit === 'in') {
-                        $unit = 'in_i';
-                    } elseif ($unit === 'lb') {
-                        $unit = 'lb_av';
-                    }
-                    $quantity->setUnit($unit);
-                    $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
-                }
-
-                if (is_float($quantityValue)) {
-                    $quantity->setValue(floatval($quantityValue));
-                } else {
-                    $quantity->setValue(intval($quantityValue));
-                }
-                $observation->setValueQuantity($quantity);
-            } else {
-                $observation->setValueString($dataRecord['result']);
-            }
-        } else {
-            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-        }
-
+        $this->setObservationValue($observation, $dataRecord);
 
         if (!empty($dataRecord['provider']['uuid']) && !empty($dataRecord['provider']['npi'])) {
             $observation->addPerformer(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid']));
@@ -285,6 +269,10 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         if (!empty($dataRecord['patient'])) {
             $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['patient']['uuid']));
+        }
+
+        if (!empty($dataRecord['encounter']['uuid'])) {
+            $observation->setEncounter(UtilsService::createRelativeReference("Encounter", $dataRecord['encounter']['uuid']));
         }
 
         // USCDI v5 Specimen - Handle MULTIPLE specimen references
@@ -320,16 +308,37 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         // Interpretation (USCDI v5)
         if (!empty($dataRecord['result_abnormal'])) {
-            $interpretation = UtilsService::createCodeableConcept([
-                $dataRecord['result_abnormal'] => [
-                    'code' => $dataRecord['result_abnormal'],
-                    'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION
-                ]
-            ]);
+            // we will popualte the text if we don't have a mapped code
+            if (empty($dataRecord['result_abnormal_codes'])) {
+                $interpretation = new FHIRCodeableConcept();
+                $interpretation->setText($dataRecord['result_abnormal_title'] ?? $dataRecord['result_abnormal'] ?? 'Indeterminate');
+            } else {
+                $interpretation = UtilsService::createCodeableConcept([
+                    $dataRecord['result_abnormal_codes'] => [
+                        'code' => $dataRecord['result_abnormal_codes'],
+                        'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION,
+                        'description' => $dataRecord['result_abnormal_title'] ?? null
+                    ]
+                ]);
+            }
             $observation->addInterpretation($interpretation);
         }
 
         return $observation;
+    }
+
+    protected function setObservationValue(FHIRObservation $observation, array $dataRecord): void
+    {
+        $value = $dataRecord['result'] ?? null;
+        $valueUnit = $dataRecord['units'] ?? null;
+        if (str_contains($value, ':')) {
+            $codeDescription = $this->getCodeTypesService()->lookup_code_description($value);
+        } else {
+            $codeDescription = null;
+        }
+        // if no sub_observations, or components, we treat as a single value observation
+        $children = $dataRecord['sub_observations'] ?? $dataRecord['components'] ?? [];
+        $this->setObservationValueWithDetails($observation, $value, $valueUnit, $codeDescription, $children);
     }
 
     private function getValidStatus($status)

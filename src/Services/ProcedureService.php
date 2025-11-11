@@ -118,6 +118,8 @@ class ProcedureService extends BaseService
         ,presult.result_result
         ,presult.result_range
         ,presult.result_abnormal
+        ,presult.result_abnormal_title
+        ,presult.result_abnormal_codes
         ,presult.result_comments
         ,presult.result_status
 
@@ -221,7 +223,10 @@ class ProcedureService extends BaseService
             ,`abnormal` AS result_abnormal
             ,`comments` AS result_comments
             ,`document_id` AS result_document_id
+            ,`lo_abnormal`.`title` AS result_abnormal_title
+            ,`lo_abnormal`.`codes` AS result_abnormal_codes
         FROM `procedure_result`
+        LEFT JOIN list_options lo_abnormal ON lo_abnormal.option_id = `procedure_result`.`abnormal` AND lo_abnormal.list_id = 'proc_res_abnormal'
     ) presult ON presult.procedure_report_id = preport.procedure_report_id
     LEFT JOIN (
         SELECT
@@ -443,6 +448,8 @@ class ProcedureService extends BaseService
                         , 'result' => $record['result_result']
                         ,'range' => $record['result_range']
                         ,'abnormal' => $record['result_abnormal']
+                        ,'result_abnormal_title' => $record['result_abnormal_title']
+                        ,'result_abnormal_codes' => $record['result_abnormal_codes']
                         , 'comments' => $record['result_comments']
                         ,'document_id' => $record['doc_id']
                         ,'status' => $record['result_status']

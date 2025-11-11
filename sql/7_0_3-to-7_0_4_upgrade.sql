@@ -1953,3 +1953,15 @@ DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' 
 DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0');
 DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0';
 #EndIf
+
+-- Update codes in list_options for Abnormal Procedures
+-- Note this list looks almost like a duplicate of Observation Interpretation but has different option_ids and titles
+-- we may want to combine these at some point
+#IfNotRow3D list_options list_id proc_res_abnormal option_id no codes N
+UPDATE `list_options` SET codes='N' WHERE list_id='proc_res_abnormal' AND option_id='no';
+UPDATE `list_options` SET codes='A' WHERE list_id='proc_res_abnormal' AND option_id='yes';
+UPDATE `list_options` SET codes='H' WHERE list_id='proc_res_abnormal' AND option_id='high';
+UPDATE `list_options` SET codes='L' WHERE list_id='proc_res_abnormal' AND option_id='low';
+UPDATE `list_options` SET codes='HH' WHERE list_id='proc_res_abnormal' AND option_id='vhigh';
+UPDATE `list_options` SET codes='LL' WHERE list_id='proc_res_abnormal' AND option_id='vlow';
+#EndIf
