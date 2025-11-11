@@ -1,0 +1,659 @@
+{#
+  Telecom Form Template
+  Handles editing, creating, and deleting telecom records
+#}
+
+<style>
+    div.table_edit_telecoms div.label_custom, div.form_telecoms div.label_custom {
+        text-align: left !important;
+    }
+    .telecom-inactive {
+        opacity: 0.6;
+        background-color: #f8f9fa;
+    }
+</style>
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_edit_telecoms col-12">
+        <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">
+                    {% if foreign_table == 'patient_data' %}
+                        {{ 'Additional Telecom Contacts'|xlt }}
+                    {% else %}
+                        {{ 'Telecom Contacts'|xlt }}
+                    {% endif %}
+                </div>
+                <div id="btn_add_telecom_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_{{ table_id|attr }}">
+                <label class="form-check-label" for="show_inactive_telecoms_{{ table_id|attr }}" style="font-size: 0.9em;">
+                    {{ 'Show Inactive'|xlt }}
+                </label>
+            </div>
+        </div>
+
+        {% if telecoms|length == 0 %}
+        <div class="no_telecoms">
+            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NONE'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {# Render existing telecoms #}
+        {% for telecom in telecoms %}
+        {% set is_inactive = telecom.status != 'A' %}
+        {% set telecom_index = loop.index0 %}
+        <div class="telecoms_group col-12 pl-0 {{ is_inactive ? 'telecom-inactive d-none' : '' }}" data-status="{{ telecom.status|attr }}" data-index="{{ telecom_index }}">
+
+            {# Hidden fields - always submitted #}
+            <input type="hidden" class="form_telecoms_data_action"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][data_action]" value="NO CHANGE" />
+            <input type="hidden" class="form_telecoms_contact_telecom_id"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][contact_telecom_id]" value="{{ telecom.id|attr }}" />
+            <input type="hidden" class="form_telecoms_contact_id"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][contact_id]" value="{{ telecom.contact_id|attr }}" />
+            <input type="hidden" class="form_telecoms_status"
+                name="{{ name_field_id|attr }}[{{ telecom_index }}][status]" value="{{ telecom.status|attr }}" />
+
+            <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
+                <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
+                    <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-telecom" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
+                    <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} mr-1"></i>
+                    <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;">
+                        {{ list_telecom_systems[telecom.system]|text }}
+                        {% if is_inactive %}
+                            <span class="badge badge-secondary ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="col-6 px-0">
+                    <span class="display_telecoms_value label_custom" style="vertical-align: 0.1rem;">
+                        {{ telecom.value|text }}
+                    </span>
+                </div>
+
+                <div class="col-2 display_telecoms_use_column px-0">
+                    <span class="display_telecoms_use label_custom" style="vertical-align: 0.1rem;">
+                        {{ list_telecom_uses[telecom.use]|text }}
+                    </span>
+                </div>
+
+                {% if is_inactive %}
+                    <div class="fas fa-fw fa-solid fa-phone-circle-check text-success btn-activate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                {% else %}
+                    <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                {% endif %}
+            </div>
+
+            <div class='d-none form_telecoms form-row mx-3 my-2'>
+                {% include 'patient/demographics/telecom_form_fields.html.twig' with {
+                    'telecom': telecom,
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'telecom_index': telecom_index,
+                    'is_new': false
+                } %}
+            </div>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# Template for adding new telecoms #}
+<template class="template_add_telecom">
+    <div class="telecoms_group col-12 pl-0" data-status="A" data-index="__INDEX__">
+
+        {# Hidden fields #}
+        <input type="hidden" class="form_telecoms_data_action"
+            name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+        <input type="hidden" class="form_telecoms_id"
+            name="{{ name_field_id|attr }}[__INDEX__][id]" value="" />
+        <input type="hidden" class="form_telecoms_contact_id"
+            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|attr }}" />
+        <input type="hidden" class="form_telecoms_status"
+            name="{{ name_field_id|attr }}[__INDEX__][status]" value="A" />
+
+        <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
+            <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
+                <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-telecom" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
+                <i class="fas fa-phone mr-1"></i>
+                <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-6 px-0">
+                <span class="display_telecoms_value label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-2 display_telecoms_use_column px-0">
+                <span class="display_telecoms_use label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+        </div>
+
+        <div class='form_telecoms form-row mx-3 my-2'>
+            {% include 'patient/demographics/telecom_form_fields.html.twig' with {
+                'telecom': {
+                    'system': 'phone',
+                    'use': 'home',
+                    'rank': 1,
+                    'period_start': 'now'|date('Y-m-d'),
+                },
+                'field_id_esc': field_id_esc,
+                'name_field_id': 'form_' ~ field_id_esc,
+                'telecom_index': '__INDEX__',
+                'is_new': true,
+                'widget_constants': widget_constants
+            } %}
+        </div>
+        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+    </div>
+</template>
+
+<script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
+    (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableId = {{ table_id|js_escape|raw }}
+        const table = document.getElementById(tableId);
+        if (!table) {
+            console.error('Table not found:', tableId);
+            return;
+        }
+        const container = table.querySelector('.table_edit_telecoms')
+        
+        let TELECOM_ACTION_VALUES = {
+            'INACTIVATE': 'INACTIVATE',
+            'ADD': 'ADD',
+            'UPDATE': 'UPDATE'
+        };
+
+        let telecomDatePickerSettings = {};
+
+        {{ DateToYYYYMMDD_js()|raw }}
+
+        init(tableId);
+
+        function init(tableId) {
+            console.log('Initializing telecom table:', tableId);
+
+            // Event listeners for form changes
+            table.addEventListener('keyup', changeTelecomEdit);
+            table.addEventListener('mouseup', changeTelecomEdit);
+            table.addEventListener('touchend', changeTelecomEdit);
+
+            table.addEventListener('input', telecomUpdated);
+            table.addEventListener('change', telecomUpdated);
+
+            // Setup existing telecom buttons
+            table.querySelectorAll('.telecoms_group .display_telecoms').forEach(function (row) {
+                setupTelecomsRowButtonEventListeners(row);
+            });
+
+            table.querySelectorAll('.form_telecoms').forEach(function (row) {
+                setupContainerDatePickers(row);
+                setupContainerListAddButtons(row);
+            });
+
+            // Setup show inactive checkbox
+            var showInactiveCheckbox = document.getElementById("show_inactive_telecoms_" + tableId);
+            if (showInactiveCheckbox) {
+                showInactiveCheckbox.addEventListener('change', function() {
+                    toggleInactiveTelecoms(tableId);
+                });
+            }
+
+            // Setup add button
+            var addButton = document.getElementById("btn_add_telecom_" + tableId);
+            if (addButton) {
+                console.log('Setting up add button:', addButton.id);
+                addButton.addEventListener('click', function(event) {
+                    console.log('Add telecom button clicked:', tableId);
+                    event.preventDefault();
+                    event.stopPropagation();
+                    addTelecom(event);
+                });
+            } else {
+                console.warn('Add telecom button not found for table:', tableId);
+            }
+        }
+
+        function toggleInactiveTelecoms(tableId) {
+            const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
+            const inactiveTelecoms = table.querySelectorAll('.telecom-inactive');
+
+            inactiveTelecoms.forEach(function (telecom) {
+                if (checkbox.checked) {
+                    telecom.classList.remove('d-none');
+                } else {
+                    telecom.classList.add('d-none');
+                }
+            });
+        }
+
+        function addTelecom(event) {
+            console.log('addTelecom called', event, 'Table:', tableId);
+            
+            // Get the button element
+            const target = event.currentTarget || event.target;         
+            if (!target) {
+                console.error('No target element in event:', event);
+                alert('Error: Could not determine which button was clicked.');
+                return;
+            }
+
+            const addTelecomButton = document.getElementById(target.id);
+
+            let row_telecom_template = null;
+
+            if (table) {
+                let nextSibling = table.nextElementSibling;
+                while (nextSibling) {
+                    if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_telecom')) {
+                        row_telecom_template = nextSibling;
+                        break;
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+            }
+            
+            if (!row_telecom_template) {
+                console.error('✗ Could not find template for this telecom table');
+                console.error('  Table:', table);
+                console.error('  Table ID:', table ? table.id : 'no ID');
+                console.error('  Container:', container);
+                alert('Error: Could not find telecom template. Check console for details.');
+                return;
+            }
+
+            // Find no_telecoms element
+            let noTelecomsElement = table.querySelector(".no_telecoms");
+
+            if (noTelecomsElement && !noTelecomsElement.classList.contains('d-none')) {
+                hideElement(noTelecomsElement);
+            }
+
+            // Find the highest existing index
+            var allGroups = table.querySelectorAll('.telecoms_group[data-index]');
+            var maxIndex = -1;
+            allGroups.forEach(function(group) {
+                var idx = parseInt(group.getAttribute('data-index'));
+                if (!isNaN(idx) && idx > maxIndex) {
+                    maxIndex = idx;
+                }
+            });
+            var newIndex = maxIndex + 1;
+
+            // Clone template content
+            var newRow = row_telecom_template.content.cloneNode(true);
+            var newRowDiv = newRow.querySelector('.telecoms_group');
+
+            // Replace __INDEX__ placeholder
+            newRowDiv.setAttribute('data-index', newIndex);
+            
+            var allElements = newRowDiv.querySelectorAll('*');
+            allElements.forEach(function(el) {
+                // Replace in attributes
+                ['name', 'id', 'for'].forEach(function(attr) {
+                    if (el.hasAttribute(attr)) {
+                        var val = el.getAttribute(attr);
+                        el.setAttribute(attr, val.replace(/__INDEX__/g, newIndex));
+                    }
+                });
+                
+                // Replace in text content for specific elements
+                if (el.tagName === 'LABEL') {
+                    el.textContent = el.textContent.replace(/__INDEX__/g, newIndex);
+                }
+            });
+
+            // Append to container
+            container.appendChild(newRow);
+
+            // Setup event listeners for the new row
+            var actualNewRow = table.querySelector('.telecoms_group[data-index="' + newIndex + '"]');
+            if (actualNewRow) {
+                setupTelecomsRowButtonEventListeners(actualNewRow.querySelector('.display_telecoms'));
+                
+                var formTelecoms = actualNewRow.querySelector('.form_telecoms');
+                if (formTelecoms) {
+                    setupContainerDatePickers(formTelecoms);
+                    setupContainerListAddButtons(formTelecoms);
+                    
+                    // Automatically open the edit form
+                    showElement(formTelecoms);
+                    var firstInput = formTelecoms.querySelector('input.form_telecoms_value, select.form_telecoms_system');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                    // Update the caret icon
+                    var editButton = actualNewRow.querySelector('.btn-edit-telecom');
+                    if (editButton) {
+                        editButton.classList.remove('fa-caret-right');
+                        editButton.classList.add('fa-caret-down');
+                    }
+                }
+            }
+
+            console.log('Added new telecom row with index:', newIndex);
+        }
+
+        function changeTelecomEdit(event) {
+            if (event.type === 'touchend') {
+                event.preventDefault();
+            }
+
+            var target = event.target;
+           
+            var formTelecoms = target.closest('.form_telecoms');
+            if (!formTelecoms) {
+                return;
+            }
+
+            // Find the parent telecoms_group, then find display_telecoms within it
+            var telecoms_group = formTelecoms.closest('.telecoms_group');
+            if (!telecoms_group) {
+                return;
+            }
+
+            var displayTelecoms = formTelecoms.previousElementSibling;
+            if (!displayTelecoms || !displayTelecoms.classList.contains('display_telecoms')) {
+                return;
+            }
+
+            var record = createTelecomRecordFromInput(formTelecoms);
+
+            var displayValue = displayTelecoms.querySelector('.display_telecoms_value');
+            if (displayValue) {
+                displayValue.textContent = record.value;
+            }
+
+            var displaySystem = displayTelecoms.querySelector('.display_telecoms_system');
+            if (displaySystem) {
+                displaySystem.textContent = record.system;
+            }
+
+            var displayUse = displayTelecoms.querySelector('.display_telecoms_use');
+            if (displayUse) {
+                displayUse.textContent = record.use;
+            }
+
+
+        }
+
+        function editTelecom(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const editButton = event.currentTarget;
+            const row_display_telecoms = editButton.closest('.display_telecoms');
+            if (!row_display_telecoms) {
+                return;
+            }
+
+            const telecoms_group = row_display_telecoms.closest('.telecoms_group');
+            if (!telecoms_group) {
+                return;
+            }
+
+            const row_form_telecoms = row_display_telecoms.nextElementSibling;
+            if (!row_form_telecoms || !row_form_telecoms.classList.contains('form_telecoms')) {
+                return;
+            }
+
+            var isCurrentlyHidden = row_form_telecoms.classList.contains('d-none');
+            
+            if (isCurrentlyHidden) {
+                showElement(row_form_telecoms);
+                editButton.classList.remove('fa-caret-right');
+                editButton.classList.add('fa-caret-down');
+            } else {
+                hideElement(row_form_telecoms);
+                editButton.classList.remove('fa-caret-down');
+                editButton.classList.add('fa-caret-right');
+
+                // Update display when closing
+                var record = createTelecomRecordFromInput(row_form_telecoms);
+
+                var systemSelect = row_form_telecoms.querySelector('select.form_telecoms_system');
+                var useSelect = row_form_telecoms.querySelector('select.form_telecoms_use');
+
+                var systemText = systemSelect && systemSelect.selectedOptions.length > 0 
+                    ? systemSelect.selectedOptions[0].textContent 
+                    : '';
+                var useText = useSelect && useSelect.selectedOptions.length > 0 
+                    ? useSelect.selectedOptions[0].textContent 
+                    : '';
+
+                var displaySystem = row_display_telecoms.querySelector('.display_telecoms_system');
+                var displayValue = row_display_telecoms.querySelector('.display_telecoms_value');
+                var displayUse = row_display_telecoms.querySelector('.display_telecoms_use');
+
+                if (displaySystem) {
+                    var badge = displaySystem.querySelector('.badge');
+                    displaySystem.textContent = systemText;
+                    if (badge) {
+                        displaySystem.appendChild(badge);
+                    }
+                }
+                if (displayValue) displayValue.textContent = record.value;
+                if (displayUse) displayUse.textContent = useText;
+
+                // Update icon
+                var iconElement = row_display_telecoms.querySelector('.display_telecoms_system_column i:nth-of-type(2)');
+                if (iconElement) {
+                    iconElement.className = 'fas fa-' + 
+                        (record.system === 'phone' || record.system === 'mobile' ? 'phone' : 
+                         record.system === 'email' ? 'envelope' : 
+                         record.system === 'fax' ? 'fax' : 'link') + ' mr-1';
+                }
+            }
+        }
+
+        function changeTelecomStatus(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const inactivateButton = event.currentTarget || event.target;
+
+            const row_display_telecoms = inactivateButton.closest('.display_telecoms');
+            if (!row_display_telecoms) {
+                return;
+            }
+
+            const telecoms_group = row_display_telecoms.closest('.telecoms_group');
+            if (!telecoms_group) {
+                return;
+            }
+
+            let currentStatus = telecoms_group.getAttribute('data-status');
+
+            const statusInput = telecoms_group.querySelector('input.form_telecoms_status');
+            const actionInput = telecoms_group.querySelector('input.form_telecoms_data_action');
+
+            if (currentStatus === 'I') {
+                // REACTIVATE
+                let prompt = window.xl("Reactivate this contact information?");
+                if (confirm(prompt)) {
+                    telecoms_group.classList.remove('telecom-inactive');
+                    telecoms_group.setAttribute('data-status', 'A');
+
+                    var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    var badge = systemSpan.querySelector('.badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+
+                    inactivateIcon.classList.remove('fa-phone-circle-check', 'text-success', 'btn-activate-telecom');
+                    inactivateIcon.classList.add('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
+                    inactivateIcon.setAttribute('title', window.xl('Inactivate Contact'));
+
+                    if (actionInput) {
+                        actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'A';
+                    }
+
+                    console.log('Reactivated telecom:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                }
+            } else {
+                // INACTIVATE
+                let prompt = window.xl("Are you sure you wish to inactivate this contact information?");
+                if (confirm(prompt)) {
+                    telecoms_group.classList.add('telecom-inactive');
+                    telecoms_group.setAttribute('data-status', 'I');
+
+                    var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    if (!systemSpan.querySelector('.badge')) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        systemSpan.appendChild(badge);
+                    }
+
+                    inactivateIcon.classList.remove('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
+                    inactivateIcon.classList.add('fa-phone-circle-check', 'text-success', 'btn-activate-telecom');
+                    inactivateIcon.setAttribute('title', window.xl('Reactivate Contact'));
+
+                    if (actionInput) {
+                        actionInput.value = TELECOM_ACTION_VALUES.INACTIVATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'I';
+                    }
+
+                    // Hide if "Show Inactive" is not checked
+                    const tableId = telecoms_group.closest('[id^="table_edit_telecoms_"]').id;
+                    const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
+                    if (!checkbox || !checkbox.checked) {
+                        telecoms_group.classList.add('d-none');
+                    }
+
+                    console.log('Marked telecom as inactive:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                }
+            }
+        }
+
+        function setupTelecomsRowButtonEventListeners(row) {
+            let buttonEdit = row.querySelector(".btn-edit-telecom");
+            if (buttonEdit) {
+                buttonEdit.addEventListener('click', editTelecom);
+            }
+
+            let buttonInactivate = row.querySelector(".btn-inactivate-telecom");
+            if (buttonInactivate) {
+                buttonInactivate.addEventListener('click', changeTelecomStatus);
+            }
+
+            let buttonActivate = row.querySelector(".btn-activate-telecom");
+            if (buttonActivate) {
+                buttonActivate.addEventListener('click', changeTelecomStatus);
+            }
+        }
+
+        function setupContainerDatePickers(table) {
+            let datepickers = table.querySelectorAll(".datepicker");
+            $(datepickers).datetimepicker(telecomDatePickerSettings);
+        }
+
+        function setupContainerListAddButtons(table) {
+            if (window.oeUI && window.oeUI.optionWidgets) {
+                $(table).find(".addtolist").on("click", function (event) {
+                    window.oeUI.optionWidgets.AddToList(this, event);
+                });
+            }
+        }
+
+        function createTelecomRecordFromInput(row_form_telecoms) {
+            var record = {};
+            record.system = getSelectValue(row_form_telecoms, "select.form_telecoms_system");
+            record.use = getSelectValue(row_form_telecoms, "select.form_telecoms_use");
+            record.value = getInputValue(row_form_telecoms, "input.form_telecoms_value");
+            record.rank = getInputValue(row_form_telecoms, "input.form_telecoms_rank");
+            record.notes = getInputValue(row_form_telecoms, "textarea.form_telecoms_notes");
+            return record;
+        }
+
+        function telecomUpdated(event) {
+            const formTelecoms = event.target.closest('.form_telecoms');
+            if (!formTelecoms) {
+                return;
+            }
+
+            const telecomsGroup = formTelecoms.closest('.telecoms_group');
+            if (!telecomsGroup) {
+                return;
+            }
+
+            const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
+            if (!actionInput) {
+                return;
+            }
+
+            const currentAction = actionInput.value;
+            if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+                return;
+            }
+
+            if (currentAction === 'NO CHANGE') {
+                actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
+                console.log('Changed action to UPDATE for telecom:', telecomsGroup.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+            }
+        }
+
+        // Utility functions
+        function setInputValue(root, selector, value) {
+            let node = root.querySelector(selector);
+            if (node) node.value = value;
+        }
+
+        function getInputValue(root, selector) {
+            let node = root.querySelector(selector);
+            return node ? node.value : "";
+        }
+
+        function getSelectDisplay(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].textContent : "";
+        }
+
+        function getSelectValue(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].value : "";
+        }
+
+        function hideElement(element) {
+            element.classList.add('d-none');
+        }
+
+        function showElement(element) {
+            element.classList.remove('d-none');
+        }
+    });
+</script>

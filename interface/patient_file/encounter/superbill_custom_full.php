@@ -706,7 +706,7 @@ if ($fend > ($count ?? null)) {
             </div>
             <div class="col-md text-right">
                 <?php if ($fstart) { ?>
-                    <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
+                    <a href="javascript:submitList(-<?php echo attr_js($pagesize); ?>)">
                         &lt;&lt;
                     </a>
                     &nbsp;&nbsp;

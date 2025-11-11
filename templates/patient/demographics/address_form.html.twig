@@ -1,0 +1,673 @@
+{#
+  Address List Form Template
+  Handles editing, updating, creating, and deleting addresses
+  Shows only active addresses by default with option to show inactive
+#}
+
+<style>
+    div.table_edit_addresses div.label_custom, div.form_addresses div.label_custom {
+        text-align: left !important;
+    }
+    .address-inactive {
+        opacity: 0.6;
+        background-color: #f8f9fa;
+    }
+    .address-inactive .display_addresses {
+        font-style: italic;
+    }
+</style>
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_edit_addresses col-12">
+        <div class="display_addresses_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">
+                    {% if foreign_table == 'patient_data' %}
+                        {{ 'Additional Addresses'|xlt }}
+                    {% else %}
+                        {{ 'Addresses'|xlt }}
+                    {% endif %}
+                </div>
+                <div id="btn_add_addresses_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_addresses_{{ table_id|attr }}">
+                <label class="form-check-label" for="show_inactive_addresses_{{ table_id|attr }}" style="font-size: 0.9em;">
+                    {{ 'Show Inactive'|xlt }}
+                </label>
+            </div>
+        </div>
+
+        {% if addresses|length == 0 %}
+        <div class="no_addresses">
+            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NONE'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {# Render existing addresses #}
+        {% for address in addresses %}
+        {% set is_inactive = address.status != 'A' %}
+        {% set address_index = loop.index0 %}
+        <div class="addresses_group col-12 pl-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}" data-index="{{ address_index }}">
+
+            {# CRITICAL: Hidden fields OUTSIDE hideable sections - always submitted #}
+            <input type="hidden" class="form_addresses_data_action" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][data_action]" value="NO CHANGE" />
+            <input type="hidden" class="form_addresses_contact_address_id" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][contact_address_id]" value="{{ address.contact_address_id|default(address.id)|attr }}" />
+            <input type="hidden" class="form_addresses_contact_id" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][contact_id]" value="{{ address.contact_id|attr }}" />
+            <input type="hidden" class="form_addresses_addresses_id" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][addresses_id]" value="{{ address.addresses_id|default(address.address_id)|attr }}" />
+            <input type="hidden" class="form_addresses_status" 
+                name="{{ name_field_id|attr }}[{{ address_index }}][status]" value="{{ address.status|attr }}" />
+
+            <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+                <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
+                    <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
+                    <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;">
+                        {{ list_address_uses[address.use]|text }}
+                        {% if is_inactive %}
+                            <span class="badge badge-secondary ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="col-6 px-0">
+                    <span class="display_addresses_full_address label_custom" style="vertical-align: 0.1rem;">
+                        {% set full_addr = [] %}
+                        {% if address.line1 %}{% set full_addr = full_addr|merge([address.line1]) %}{% endif %}
+                        {% if address.line2 %}{% set full_addr = full_addr|merge([address.line2]) %}{% endif %}
+                        {% if address.city %}{% set full_addr = full_addr|merge([address.city]) %}{% endif %}
+                        {% if address.state or address.zip %}
+                            {% set state_zip = [] %}
+                            {% if address.state %}
+                                {% set state_zip = state_zip|merge([address.state]) %}
+                            {% endif %}
+                            {% if address.zip %}
+                                {% set state_zip = state_zip|merge([address.zip]) %}
+                            {% endif %}
+                            {% set full_addr = full_addr|merge([state_zip|join(' ')]) %}
+                        {% endif %}
+                        {{ full_addr|join(', ')|text }}
+                    </span>
+                </div>
+
+                <div class="col-3 display_addresses_period_column px-0">
+                    <span class="display_addresses_period label_custom" style="vertical-align: 0.1rem;">
+                        {% if address.period_start or address.period_end %}
+                            {% if address.period_start and not address.period_end %}
+                                {{ address.period_start|shortDate }} {{ 'to'|xlt }} {{ 'Current'|xlt }}
+                            {% elseif not address.period_start and address.period_end %}
+                                {{ 'Expired'|xlt }}: {{ address.period_end|shortDate }}
+                            {% else %}
+                                {{ address.period_start|shortDate }} {{ 'to'|xlt }} {{ address.period_end|shortDate }}
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+                {% if is_inactive %}
+                    <div class="fas fa-fw fa-solid fa-house-circle-check text-success btn-activate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                {% else %}
+                    <div class="fas fa-fw fa-solid fa-house-circle-xmark text-danger btn-inactivate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                {% endif %}
+            </div>
+
+            <div class='d-none form_addresses form-row mx-3 my-2'>
+                {# Only editable fields here - hidden fields are above #}
+                {% include 'patient/demographics/address_form_fields.html.twig' with {
+                    'address': address,
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'address_index': address_index,
+                    'is_new': false
+                } %}
+            </div>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# Template for adding new addresses #}
+<template class="template_add_address">
+    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__INDEX__">
+
+        {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
+        <input type="hidden" class="form_addresses_data_action" 
+            name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+        <input type="hidden" class="form_addresses_contact_address_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][contact_address_id]" value="" />
+        <input type="hidden" class="form_addresses_contact_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|default('')|attr }}" />
+        <input type="hidden" class="form_addresses_addresses_id" 
+            name="{{ name_field_id|attr }}[__INDEX__][addresses_id]" value="" />
+        <input type="hidden" class="form_addresses_status" 
+            name="{{ name_field_id|attr }}[__INDEX__][status]" value="A" />
+
+        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+            <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
+                <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
+                <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-6 px-0">
+                <span class="display_addresses_full_address label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-3 display_addresses_period_column px-0">
+                <span class="display_addresses_period label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="fas fa-fw fa-solid fa-house-circle-xmark text-danger btn-inactivate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+
+        </div>
+
+        <div class='form_addresses form-row mx-3 my-2'>
+            {# Only editable fields here - hidden fields are above #}
+            {% include 'patient/demographics/address_form_fields.html.twig' with {
+                'address': {
+                    'use': 'home',
+                    'type': 'both',
+                    'country': 'USA',
+                    'period_start': 'now'|date('Y-m-d')
+                },
+                'field_id_esc': field_id_esc,
+                'name_field_id': 'form_' ~ field_id_esc,
+                'address_index': '__INDEX__',
+                'is_new': true,
+                'widget_constants': widget_constants
+            } %}
+        </div>
+        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+    </div>
+</template>
+
+<script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
+    (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableId = {{ table_id|js_escape|raw }}
+        const table = document.getElementById(tableId);
+        if (!table) {
+            console.error('Table not found:', tableId);
+            return;
+        }
+        const container = table.querySelector('.table_edit_addresses')
+
+        let ADDRESS_ACTION_VALUES = {
+            'INACTIVATE': 'INACTIVATE',
+            'ADD': 'ADD',
+            'UPDATE': 'UPDATE'
+        };
+
+        let datePickerSettings = {};
+
+        {{ DateToYYYYMMDD_js()|raw }}
+
+        init(tableId);
+
+
+        function init(tableId) {
+            console.log('Initializing address table:', tableId);
+
+            // Event listeners for form changes
+            table.addEventListener('keyup', changeEdit);
+            table.addEventListener('mouseup', changeEdit);
+            table.addEventListener('touchend', changeEdit);
+
+            table.addEventListener('input', addressUpdated);
+            table.addEventListener('change', addressUpdated);
+
+            // Setup existing address buttons and datepickers
+            table.querySelectorAll('.addresses_group .display_addresses').forEach(function(row) {
+                setupAddressesRowButtonEventListeners(row);
+            });
+
+            table.querySelectorAll('.form_addresses').forEach(function(row) {
+                setupContainerDatePickers(row);
+                setupContainerListAddButtons(row);
+            });
+
+            // Setup show inactive checkbox
+            var showInactiveCheckbox = document.getElementById('show_inactive_addresses_' + tableId);
+            if (showInactiveCheckbox) {
+                showInactiveCheckbox.addEventListener('change', function() {
+                    toggleInactiveAddresses(tableId);
+                });
+            }
+
+            // Setup add button with event delegation
+            var addButton = document.getElementById('btn_add_addresses_' + tableId);
+            if (addButton) {
+                console.log('Setting up add button:', addButton.id);
+                addButton.addEventListener('click', function(event) {
+                    console.log('Add address button clicked:', tableId);
+                    event.preventDefault();
+                    event.stopPropagation();
+                    addAddress(event);
+                });
+            } else {
+                console.warn('Add address button not found for table:', tableId);
+            }
+        }
+
+        function toggleInactiveAddresses(tableId) {
+            const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
+            const inactiveAddresses = table.querySelectorAll('.address-inactive');
+
+            inactiveAddresses.forEach(function(address) {
+                if (checkbox.checked) {
+                    address.classList.remove('d-none');
+                } else {
+                    address.classList.add('d-none');
+                }
+            });
+        }
+
+        function addAddress(event) {
+            console.log('addAddress called', event);
+            
+            // Get the button element
+            const target = event.currentTarget || event.target;   
+            if (!target) {
+                console.error('No target element in event:', event);
+                alert('Error: Could not determine which button was clicked.');
+                return;
+            }
+            
+            const addAddressButton = document.getElementById(target.id);
+
+            let row_address_template = null;
+            
+            if (table) {
+                let nextSibling = table.nextElementSibling;
+                while (nextSibling) {
+                    if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_address')) {
+                        row_address_template = nextSibling;
+                        console.log('  âœ“ Found template as immediate sibling');
+                        break;
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+            }
+
+            if (!row_address_template) {
+                console.error('âœ— Could not find template for this address table');
+                console.error('  TableRoot:', tableRoot);
+                console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
+                console.error('  Container:', container);
+                alert('Error: Could not find address template. Check console for details.');
+                return;
+            }
+            
+
+
+            // Find no_addresses element within this specific container
+            let noAddressesElement = table.querySelector(".no_addresses");
+
+            if (noAddressesElement && !noAddressesElement.classList.contains('d-none')) {
+                hideElement(noAddressesElement);
+            }
+
+            // Find the highest existing index
+            var allGroups = container.querySelectorAll('.addresses_group[data-index]');
+            var maxIndex = -1;
+            allGroups.forEach(function(group) {
+                var idx = parseInt(group.getAttribute('data-index'));
+                if (!isNaN(idx) && idx > maxIndex) {
+                    maxIndex = idx;
+                }
+            });
+            var newIndex = maxIndex + 1;
+
+            // Clone and replace __INDEX__ with actual index
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = row_address_template.innerHTML;
+            var html = tempDiv.innerHTML;
+            
+            // Check if we're inside a relation form (nested scenario)
+            var relationGroup = container.closest('.relations_group');
+            var relationIndex = null;
+            
+            if (relationGroup) {
+                relationIndex = relationGroup.getAttribute('data-index');
+                console.log('Found parent relation with index:', relationIndex);
+            }
+            
+            // Replace __INDEX__ with actual index
+            html = html.replace(/__INDEX__/g, newIndex);
+            
+            // If we're in a nested relation form, fix the field naming
+            if (relationIndex !== null) {
+                console.log('Fixing nested field names for relation index:', relationIndex);
+                
+                // Fix the pattern: [addresses][NUMBER] should become [RELATION_INDEX][addresses][NUMBER]
+                var namePattern = /name="([^"]*)\[addresses\]\[(\d+)\]/g;
+                html = html.replace(namePattern, function(match, prefix, addressIdx) {
+                    // Check if it already has the relation index
+                    if (prefix.match(/\[\d+\]$/)) {
+                        return match;
+                    }
+                    // Add the relation index
+                    return 'name="' + prefix + '[' + relationIndex + '][addresses][' + addressIdx + ']';
+                });
+            }
+            
+            tempDiv.innerHTML = html;
+            var row_address_clone = tempDiv.firstElementChild;
+
+            let row_form_addresses = row_address_clone.querySelector(".form_addresses");
+            let row_display_addresses = row_address_clone.querySelector(".display_addresses");
+
+            // Append to container
+            container.appendChild(row_address_clone);
+
+            // Setup event listeners for the new row
+            setupAddressesRowButtonEventListeners(row_display_addresses);
+            setupContainerDatePickers(row_form_addresses);
+            setupContainerListAddButtons(row_form_addresses);
+
+            showElement(row_form_addresses);
+            let firstInput = row_form_addresses.querySelector('input.form_addresses_line1');
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            console.log('Added new address with index:', newIndex);
+        }
+
+        function changeEdit(event) {
+            var row_form_addresses = event.target.closest('.form_addresses');
+            if (!row_form_addresses) {
+                return;
+            }
+
+            // Find the parent addresses_group, then find display_addresses within it
+            var addresses_group = row_form_addresses.closest('.addresses_group');
+            if (!addresses_group) {
+                return;
+            }
+            var row_display_addresses = addresses_group.querySelector('.display_addresses');
+            if (!row_display_addresses) {
+                return;
+            }
+
+            let record = createRecordFromInput(row_form_addresses);
+            let useDisplay = getSelectDisplay(row_form_addresses, "select.form_addresses_uses");
+            let fullAddress = fullAddressFromRecord(record, 1);
+            let period = PeriodFromRecord(record);
+
+            row_display_addresses.querySelector(".display_addresses_full_address").innerText = fullAddress[0];
+            row_display_addresses.querySelector(".display_addresses_use").innerText = useDisplay;
+            row_display_addresses.querySelector(".display_addresses_period").innerText = period;
+        }
+
+        function editAddress(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const editButton = event.currentTarget;
+            const row_display_addresses = editButton.closest('.display_addresses');
+            const row_form_addresses = row_display_addresses.nextElementSibling;
+
+            if (editButton.className.includes("fa-caret-right")) {
+                row_form_addresses.classList.remove('d-none');
+                editButton.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
+            } else {
+                row_form_addresses.classList.add('d-none');
+                editButton.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
+            }
+        }
+
+        function changeAddressStatus(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const inactivateButton = event.currentTarget || event.target;            
+            
+            const row_display_addresses = inactivateButton.closest('.display_addresses');
+            if (!row_display_addresses) {
+                return;
+            }
+
+            const addresses_group = row_display_addresses.closest('.addresses_group');
+            const currentStatus = addresses_group.getAttribute('data-status');
+
+            // Get the hidden status input from addresses_group
+            const statusInput = addresses_group.querySelector('input.form_addresses_status');
+            const actionInput = addresses_group.querySelector('input.form_addresses_data_action');
+
+            // Check if this is currently inactive (reactivate) or active (inactivate)
+            if (currentStatus === 'I') {
+                // REACTIVATE
+                let prompt = window.xl("Reactivate this address?");
+                if (confirm(prompt)) {
+                    // Remove inactive styling
+                    addresses_group.classList.remove('address-inactive');
+                    addresses_group.setAttribute('data-status', 'A');
+
+                    // Remove inactive badge from display
+                    var useSpan = row_display_addresses.querySelector('.display_addresses_use');
+                    var badge = useSpan.querySelector('.badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+
+                    // Change icon back to trash
+                    inactivateButton.classList.remove('fa-house-circle-check', 'text-success');
+                    inactivateButton.classList.add('fa-house-circle-xmark', 'text-danger');
+                    inactivateButton.setAttribute('title', window.xl('Inactivate Address'));
+
+                    // Set action to UPDATE and status to A
+                    if (actionInput) {
+                        actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'A';
+                    }
+
+                    console.log('Reactivated address:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+                }
+            } else {
+                // INACTIVATE
+                let prompt = window.xl("Are you sure you wish to inactivate this address?");
+                if (confirm(prompt)) {
+                    // Mark as inactive
+                    addresses_group.classList.add('address-inactive');
+                    addresses_group.setAttribute('data-status', 'I');
+
+                    // Add inactive badge to display
+                    var useSpan = row_display_addresses.querySelector('.display_addresses_use');
+                    if (!useSpan.querySelector('.badge')) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        useSpan.appendChild(badge);
+                    }
+
+                    // Change icon to restore icon
+                    inactivateButton.classList.remove('fa-house-circle-xmark', 'text-danger');
+                    inactivateButton.classList.add('fa-house-circle-check', 'text-success');
+                    inactivateButton.setAttribute('title', window.xl('Reactivate Address'));
+
+                    // Set action to INACTIVATE
+                    if (actionInput) {
+                        actionInput.value = ADDRESS_ACTION_VALUES.INACTIVATE;
+                    }
+                    if (statusInput) {
+                        statusInput.value = 'I';
+                    }
+
+                    // Hide if "Show Inactive" is not checked
+                    const tableId = addresses_group.closest('[id^="table_edit_addresses_"]').id;
+                    const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
+                    if (!checkbox || !checkbox.checked) {
+                        addresses_group.classList.add('d-none');
+                    }
+
+                    console.log('Marked address as inactive:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+                }
+            }
+        }
+
+        function setupAddressesRowButtonEventListeners(row) {
+            const buttonEdit = row.querySelector(".btn-edit-address");
+            if (buttonEdit) {
+                buttonEdit.addEventListener('click', editAddress);
+            }
+
+            const buttonInactivate = row.querySelector(".btn-inactivate-address");
+            if (buttonInactivate) {
+                buttonInactivate.addEventListener('click', changeAddressStatus);
+            }
+
+            const buttonActivate = row.querySelector(".btn-activate-address");
+            if (buttonActivate) {
+                buttonActivate.addEventListener('click', changeAddressStatus);
+            }
+        }
+
+        function setupContainerDatePickers(container) {
+            let datepickers = container.querySelectorAll(".datepicker");
+            $(datepickers).datetimepicker(datePickerSettings);
+        }
+
+        function setupContainerListAddButtons(container) {
+            if (window.oeUI && window.oeUI.optionWidgets) {
+                $(container).find(".addtolist").on("click", function (event) {
+                    window.oeUI.optionWidgets.AddToList(this, event);
+                });
+            }
+        }
+
+        function createRecordFromInput(row_form_addresses) {
+            var record = {};
+            record.line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
+            record.line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");
+            record.city = getInputValue(row_form_addresses, "input.form_addresses_city");
+            record.postalcode = getInputValue(row_form_addresses, "input.form_addresses_postalcode");
+            record.zip = record.postalcode;
+            record.state = getSelectValue(row_form_addresses, "select.form_addresses_state");
+            record.country = getSelectValue(row_form_addresses, "select.form_addresses_country");
+            record.district = getInputValue(row_form_addresses, "input.form_addresses_district");
+            record.use = getSelectValue(row_form_addresses, "select.form_addresses_uses");
+            record.type = getSelectValue(row_form_addresses, "select.form_addresses_types");
+            record.period_start = getInputValue(row_form_addresses, "input.form_addresses_period_start");
+            record.period_end = getInputValue(row_form_addresses, "input.form_addresses_period_end");
+            return record;
+        }
+
+        function fullAddressFromRecord(record, lines) {
+            var fullAddress = ["", ""];
+
+            fullAddress[0] = [record.line1, record.line2].filter(x => x).join(", ");
+
+            if (lines > 1) {
+                fullAddress[1] = [record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+            } else {
+                fullAddress[0] = [fullAddress[0], record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+            }
+
+            return fullAddress[0] || fullAddress[1] ? fullAddress : ["None"];
+        }
+
+        function PeriodFromRecord(record) {
+            let periodStart = record.period_start;
+            let periodEnd = record.period_end;
+
+            if (!periodStart && !periodEnd) return "";
+
+            if (periodStart && !periodEnd) {
+                return periodStart + " " + window.xl('to') + " " + window.xl('Current');
+            } else if (!periodStart && periodEnd) {
+                return window.xl('Expired') + ": " + periodEnd;
+            } else {
+                return periodStart + " " + window.xl('to') + " " + periodEnd;
+            }
+        }
+
+        function setInputValue(root, selector, value) {
+            let node = root.querySelector(selector);
+            if (node) node.value = value;
+        }
+
+        function getInputValue(root, selector) {
+            let node = root.querySelector(selector);
+            return node ? node.value : "";
+        }
+
+        function getSelectDisplay(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].textContent : "";
+        }
+
+        function getSelectValue(root, selector) {
+            let node = root.querySelector(selector);
+            if (!node) return "";
+            let options = node.selectedOptions;
+            return options && options.length ? options[0].value : "";
+        }
+
+        function hideElement(element) {
+            element.classList.add('d-none');
+        }
+
+        function showElement(element) {
+            element.classList.remove('d-none');
+        }
+
+        function addressUpdated(event) {
+            // Check if the changed element is within a form_addresses div
+            const formAddresses = event.target.closest('.form_addresses');
+            if (!formAddresses) {
+                return;
+            }
+
+            // Get the parent addresses_group
+            const addressesGroup = formAddresses.closest('.addresses_group');
+            if (!addressesGroup) {
+                return;
+            }
+
+            // Get the data_action input
+            const actionInput = addressesGroup.querySelector('input.form_addresses_data_action');
+            if (!actionInput) {
+                return;
+            }
+
+            // Only change to UPDATE if it's not already ADD or INACTIVATE
+            const currentAction = actionInput.value;
+            if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+                // Don't change these states
+                return;
+            }
+
+            // Change NO CHANGE to UPDATE
+            if (currentAction === 'NO CHANGE') {
+                actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+                console.log('Changed action to UPDATE for address:', addressesGroup.querySelector('input.form_addresses_contact_address_id')?.value);
+            }
+        }
+    });
+</script>

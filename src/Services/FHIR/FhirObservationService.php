@@ -8,12 +8,14 @@ use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationAdvanceDirectiveService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationCareExperiencePreferenceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationTreatmentInterventionPreferenceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -68,6 +70,8 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationPatientService());
         $this->addMappedService(new FhirObservationEmployerService());
         $this->addMappedService(new FhirObservationAdvanceDirectiveService());
+        $this->addMappedService(new FhirObservationTreatmentInterventionPreferenceService());
+        $this->addMappedService(new FhirObservationCareExperiencePreferenceService());
     }
 
     /**

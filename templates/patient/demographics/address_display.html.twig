@@ -1,0 +1,149 @@
+{#
+  Address List Display Template
+  Displays addresses for a patient in read-only mode
+  Shows only active addresses by default with option to show inactive
+#}
+
+<style>
+    .address-inactive-display {
+        opacity: 0.6;
+        background-color: #f8f9fa;
+        font-style: italic;
+    }
+</style>
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_text_addresses col-12">
+    <div class="text_addresses_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
+        {% if foreign_table == 'patient_data' %}
+        <div>{{ 'Additional Addresses'|xlt }}</div>
+        {% else %}
+        <div>{{ 'Addresses'|xlt }}</div>
+        {% endif %}
+        {% if addresses|length > 0 %}
+        <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+            <input type="checkbox" class="form-check-input" id="show_inactive_addresses_display_{{ table_id|attr }}" onchange="toggleInactiveAddressesDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
+            <label class="form-check-label" for="show_inactive_addresses_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
+                {{ 'Show Inactive'|xlt }}
+            </label>
+        </div>
+        {% endif %}
+    </div>
+        {% set has_active_addresses = false %}
+        {% for address in addresses %}
+            {% if address.status == 'A' %}
+                {% set has_active_addresses = true %}
+            {% endif %}
+        {% endfor %}
+
+        {% if not has_active_addresses %}
+        <div class="no_addresses">
+            <span class="text data pl-1">{{ 'NONE'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {% for address in addresses %}
+        {% set is_inactive = address.status != 'A' %}
+        <div class="text_addresses_row form-group mb-0 {{ is_inactive ? 'address-inactive-display d-none' : '' }}" data-status="{{ address.status|attr }}">
+            <div class="text_addresses_subrow_1 form-row pl-1">
+                <div class="col-2 text data">
+                    <span class="text_addresses_use">
+                        {{ list_address_uses[address.use]|text }}
+                        {% if is_inactive %}
+                            <span class="badge badge-secondary ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="col-6 text data">
+                    <span class="text_addresses_full_address_1">
+                        {% set addr1 = [] %}
+                        {% if address.line1 %}
+                            {% set addr1 = addr1|merge([address.line1]) %}
+                        {% endif %}
+                        {% if address.line2 %}
+                            {% set addr1 = addr1|merge([address.line2]) %}
+                        {% endif %}
+                        {{ addr1|join(', ')|text }}
+                    </span>
+                </div>
+                <div class="col-4 text data">
+                    <span class="text_addresses_period">
+                        {% if address.period_start or address.period_end %}
+                            {% if address.period_start and not address.period_end %}
+                                {{ address.period_start|shortDate }} {{ 'to'|xlt }} {{ 'Current'|xlt }}
+                            {% elseif not address.period_start and address.period_end %}
+                                {{ 'Expired'|xlt }}: {{ address.period_end|shortDate }}
+                            {% else %}
+                                {{ address.period_start|shortDate }} {{ 'to'|xlt }} {{ address.period_end|shortDate }}
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="text_addresses_subrow_2 form-row pl-1">
+                <div class="col-2 text data">
+                    {% if address.is_primary == 'Y' %}
+                        <span class="badge badge-primary">{{ 'Primary'|xlt }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-6 text data">
+                    <span class="text_addresses_full_address_2">
+                        {% set addr2 = [] %}
+                        {% if address.city %}
+                            {% set addr2 = addr2|merge([address.city]) %}
+                        {% endif %}
+                        {% if address.state or address.zip %}
+                            {% set state_zip = [] %}
+                            {% if address.state %}
+                                {% set state_zip = state_zip|merge([address.state]) %}
+                            {% endif %}
+                            {% if address.zip %}
+                                {% set state_zip = state_zip|merge([address.zip]) %}
+                            {% endif %}
+                            {% set addr2 = addr2|merge([state_zip|join(' ')]) %}
+                        {% endif %}
+                        {% if address.country %}
+                            {% set addr2 = addr2|merge([address.country]) %}
+                        {% endif %}
+                        {{ addr2|join(', ')|text }}
+                    </span>
+                </div>
+                <div class="col-4 text data">
+                    <span class="text_addresses_type">{{ list_address_types[address.type]|text }}</span>
+                </div>
+            </div>
+        </div>
+        <hr class="m-0 p-0 {{ is_inactive ? 'address-inactive-display d-none' : '' }}" style="border-top-width: 2px; border-color: var(--gray300)" />
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+    function toggleInactiveAddressesDisplay(tableId) {
+        const checkbox = document.getElementById('show_inactive_addresses_display_' + tableId);
+        const table = document.getElementById(tableId);
+
+        if (!table) {
+            console.error('Table not found:', tableId);
+            return;
+        }
+
+        const inactiveAddresses = table.querySelectorAll('.address-inactive-display');
+
+        console.log('Toggle inactive addresses:', {
+            tableId: tableId,
+            checked: checkbox.checked,
+            foundAddresses: inactiveAddresses.length
+        });
+
+        inactiveAddresses.forEach(function(address) {
+            if (checkbox.checked) {
+                address.classList.remove('d-none');
+            } else {
+                address.classList.add('d-none');
+            }
+        });
+    }
+</script>

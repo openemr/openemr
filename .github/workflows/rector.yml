@@ -10,6 +10,10 @@ on:
     - master
     - rel-*
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   rector:
     name: Rector PHP Analysis

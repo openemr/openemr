@@ -1,0 +1,428 @@
+{#
+  Relation Form Template - Complete Version
+  Handles editing, creating, and deleting relationships with person search
+  No modal popups - uses inline expansion for better UX
+#}
+
+<style>
+    div.table_edit_relations div.label_custom, div.form_relations div.label_custom {
+        text-align: left !important;
+    }
+    .relation-inactive {
+        opacity: 0.6;
+        background-color: #f8f9fa;
+    }
+    .relation-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        margin: 0.5rem 0rem;
+        background-color: #fff;
+
+    }
+    .relation-card-header {
+        background-color: #f8f9fa;
+        padding: 0.3rem 0.3rem;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+    }
+    .relation-card-body {
+        padding: 0.8rem 2rem;
+    }
+</style>
+
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_edit_relations col-12">
+        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">{{ 'Related Persons'|xlt }}</div>
+                <div class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;" onclick="openPersonSearch()"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_relations_{{ table_id|attr }}" onchange="toggleInactiveRelations('{{ table_id|attr }}')">
+                <label class="form-check-label" for="show_inactive_relations_{{ table_id|attr }}" style="font-size: 0.9em;">
+                    {{ 'Show Inactive'|xlt }}
+                </label>
+            </div>
+        </div>
+
+        {# Include Person Search and Create Component #}
+        {% include 'patient/demographics/relation_form_search.html.twig'  with {
+                        'owner_contact_id': owner_contact_id
+        } %}
+
+        {% if relatedPersons|length == 0 %}
+        <div class="no_relations">
+            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NO RELATED PERSONS'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {# Render existing relations #}
+        {% for relatedPerson in relatedPersons %}
+        {% set is_inactive = not relatedPerson.active %}
+        {% set relatedPerson_index = loop.index0 %}
+        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}" data-index="{{ relatedPerson_index }}">
+
+            {# Hidden fields - always submitted #}
+            <input type="hidden" class="form_relations_data_action"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][data_action]" value="NO CHANGE" />
+
+            <input type="hidden" class="form_relations_owner_contact_relation_id"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][owner_contact_relation_id]" value="{{ relatedPerson.owner_contact_relation_id|attr }}" />
+
+            <input type="hidden" class="form_relations_owner_contact_id"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][owner_contact_id]" value="{{ relatedPerson.owner_contact_id|attr }}" />
+
+            <input type="hidden" class="form_relations_target_table"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][target_table]" value="{{ relatedPerson.target_table|attr }}" />
+
+            <input type="hidden" class="form_relations_target_id"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][target_id]" value="{{ relatedPerson.target_id|attr }}" />
+
+            <input type="hidden" class="form_relations_active"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][active]" value="{{ relatedPerson.active ? '1' : '0' }}" />
+
+            <div class="relation-card">
+                <div class="relation-card-header" onclick="toggleRelationEdit(this)">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="display_related_person form-row">
+
+                            <div class="col-2;">
+                                <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;">
+                                    {{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}
+                                    {% if is_inactive %}
+                                        <span class="badge badge-secondary ml-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_relationship">
+                                    {{ list_relationships[relatedPerson.relationship]|text }}
+                                    {% if relatedPerson.role %} - {{ list_roles[relatedPerson.role]|text }}{% endif %}
+                                </small>
+                            </div>
+
+                            <div class="col-2;">
+                                {% if relatedPerson.birth_date %}
+                                <small class="text-muted">{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="display_relations_badges">
+                                {% if relatedPerson.is_emergency_contact %}
+                                    <span class="badge badge-danger mr-1">{{ 'Emergency'|xlt }}</span>
+                                {% endif %}
+                                {% if relatedPerson.is_primary_contact %}
+                                    <span class="badge badge-primary mr-1">{{ 'Primary'|xlt }}</span>
+                                {% endif %}
+                            </span>
+                            {% if is_inactive %}
+                                <button type="button" class="btn btn-sm btn-success btn-activate-relation ml-2" onclick="event.stopPropagation(); changeRelationStatus(this, event)">
+                                    <i class="fas fa-check"></i> {{ 'Reactivate'|xlt }}
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2" onclick="event.stopPropagation(); changeRelationStatus(this, event)">
+                                    <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class='d-none form_relations relation-card-body'>
+                    {% include 'patient/demographics/relation_form_fields.html.twig' with {
+                        'relatedPerson': relatedPerson,
+                        'field_id_esc': field_id_esc,
+                        'name_field_id': 'form_' ~ field_id_esc,
+                        'relatedPerson_index': relatedPerson_index,
+                        'is_new': false
+                    } %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# Template for adding new relations #}
+<template class="template_add_relation">
+    <div class="relations_group col-12 pl-0" data-active="1" data-index="__INDEX__">
+
+        {# Hidden fields #}
+
+        <input type="hidden" class="form_relations_data_action"
+                name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+
+        <input type="hidden" class="form_relations_owner_contact_relation_id"
+                name="{{ name_field_id|attr }}[__INDEX__][owner_contact_relation_id]" value="" />
+
+        <input type="hidden" class="form_relations_owner_contact_id"
+                name="{{ name_field_id|attr }}[__INDEX__][owner_contact_id]" value="" />
+
+        <input type="hidden" class="form_relations_target_table"
+                name="{{ name_field_id|attr }}[__INDEX__][target_table]" value="" />
+
+        <input type="hidden" class="form_relations_target_id"
+                name="{{ name_field_id|attr }}[__INDEX__][target_id]" value="" />
+
+        <input type="hidden" class="form_relations_active"
+                name="{{ name_field_id|attr }}[__INDEX__][active]" value="1" />
+
+        <div class="relation-card">
+            <div class="relation-card-header" onclick="toggleRelationEdit(this)">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-caret-down fa-lg text-primary btn-edit-relation mr-2"></i>
+                        <strong class="display_relations_name">{{ 'New Person'|xlt }}</strong>
+                        <br>
+                        <small class="text-muted ml-4 display_relations_relationship"></small>
+                    </div>
+                    <div>
+                        <span class="display_relations_badges"></span>
+                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2" onclick="event.stopPropagation(); changeRelationStatus(this, event)">
+                            <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class='form_relations relation-card-body'>
+                {% include 'patient/demographics/relation_form_fields.html.twig' with {
+                    'relatedPerson': {
+                        'target_contact_id': '',
+                        'relationship': '',
+                        'role': '',
+                        'contact_priority': 1,
+                        'is_primary_contact': false,
+                        'is_emergency_contact': false,
+                        'can_make_medical_decisions': false,
+                        'can_receive_medical_info': false,
+                        'start_date': 'now'|date('Y-m-d'),
+                        'telecoms': [],
+                        'addresses': []
+                    },
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'relatedPerson_index': '__INDEX__',
+                    'widget_constants': widget_constants,
+                    'is_new': true
+                } %}
+            </div>
+        </div>
+    </div>
+</template>
+
+<script type="text/javascript">
+    let RELATION_ACTION_VALUES = {
+        'INACTIVATE': 'INACTIVATE',
+        'ADD': 'ADD',
+        'UPDATE': 'UPDATE'
+    };
+
+    let relationTableConfig = {
+        tableId: {{ table_id|js_escape|raw }},
+        listRelationships: {{ list_relationships|json_encode|raw }},
+        listRoles: {{ list_roles|json_encode|raw }},
+        foreignTable: {{ foreign_table|js_escape|raw }},
+        foreignId: {{ foreign_id|js_escape|raw }},
+        webroot: {{ webroot|js_escape|raw }}
+    };
+
+    (function() {
+        initRelations(relationTableConfig.tableId);
+    })();
+
+    function initRelations(tableId) {
+        // Event listeners for form changes
+        document.getElementById(tableId).addEventListener('input', relationUpdated);
+        document.getElementById(tableId).addEventListener('change', relationUpdated);
+        document.getElementById(tableId).addEventListener('change', updateRelationDisplayOnChange);
+    }
+
+    function toggleInactiveRelations(tableId) {
+        const checkbox = document.getElementById('show_inactive_relations_' + tableId);
+        const inactiveRelations = document.querySelectorAll('#' + tableId + ' .relation-inactive');
+
+        inactiveRelations.forEach(function(relation) {
+            if (checkbox.checked) {
+                relatedPerson.classList.remove('d-none');
+            } else {
+                relatedPerson.classList.add('d-none');
+            }
+        });
+    }
+
+    function toggleRelationEdit(element) {
+        const card = element.closest('.relation-card');
+        const formDiv = card.querySelector('.form_relations');
+        const icon = element.querySelector('.btn-edit-relation');
+
+        if (formDiv.classList.contains('d-none')) {
+            formDiv.classList.remove('d-none');
+            icon.classList.remove('fa-caret-right');
+            icon.classList.add('fa-caret-down');
+        } else {
+            formDiv.classList.add('d-none');
+            icon.classList.remove('fa-caret-down');
+            icon.classList.add('fa-caret-right');
+        }
+    }
+
+    function changeRelationStatus(button, event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const relationsGroup = button.closest('.relations_group');
+        const currentActive = relationsGroup.getAttribute('data-active') === '1';
+        const activeInput = relationsGroup.querySelector('input.form_relations_active');
+        const actionInput = relationsGroup.querySelector('input.form_relations_data_action');
+
+        if (currentActive) {
+            const confirmMsg = window.xl("Are you sure you wish to inactivate this relationship?");
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            relationsGroup.setAttribute('data-active', '0');
+            activeInput.value = '0';
+            relationsGroup.classList.add('relation-inactive');
+
+            if (actionInput.value === 'ADD') {
+                actionInput.value = 'ADD';
+            } else {
+                actionInput.value = 'INACTIVATE';
+            }
+        } else {
+            relationsGroup.setAttribute('data-active', '1');
+            activeInput.value = '1';
+            relationsGroup.classList.remove('relation-inactive');
+            actionInput.value = 'UPDATE';
+        }
+
+        relationUpdated();
+    }
+
+    function relationUpdated() {
+        console.log('Relation form updated');
+    }
+
+    function updateRelationDisplayOnChange(event) {
+        const relationsGroup = event.target.closest('.relations_group');
+        if (!relationsGroup) return;
+
+        const displayName = relationsGroup.querySelector('.display_relations_name');
+        const displayRelationship = relationsGroup.querySelector('.display_relations_relationship');
+        const displayBadges = relationsGroup.querySelector('.display_relations_badges');
+
+        const relationshipSelect = relationsGroup.querySelector('.form_relations_relationship');
+        const roleSelect = relationsGroup.querySelector('.form_relations_role');
+        const emergencyCheckbox = relationsGroup.querySelector('.form_relations_emergency');
+        const primaryCheckbox = relationsGroup.querySelector('.form_relations_primary');
+
+        if (relationshipSelect && displayRelationship) {
+            let displayText = relationshipSelect.options[relationshipSelect.selectedIndex]?.text || '';
+            if (roleSelect && roleSelect.value) {
+                displayText += ' - ' + roleSelect.options[roleSelect.selectedIndex]?.text;
+            }
+            displayRelationship.textContent = displayText;
+        }
+
+        if (displayBadges) {
+            let badgesHtml = '';
+            if (emergencyCheckbox && emergencyCheckbox.checked) {
+                badgesHtml += '<span class="badge badge-danger mr-1">' + window.xl('Emergency') + '</span>';
+            }
+            if (primaryCheckbox && primaryCheckbox.checked) {
+                badgesHtml += '<span class="badge badge-primary mr-1">' + window.xl('Primary') + '</span>';
+            }
+            displayBadges.innerHTML = badgesHtml;
+        }
+    }
+
+    (function() {
+        'use strict';
+
+        // Find the form and disable HTML5 validation
+        const form = document.querySelector('form[name="DEM"]') || document.querySelector('form');
+
+        if (form) {
+            // DISABLE HTML5 validation entirely
+            form.setAttribute('novalidate', 'novalidate');
+            console.log('HTML5 validation disabled for form');
+
+            // Add our own validation
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitting - custom validation');
+
+                let isValid = true;
+                let firstInvalidField = null;
+                const errors = [];
+
+                // Only validate VISIBLE relation sections
+                const visibleSections = document.querySelectorAll('.relation-card-body:not(.d-none)');
+
+                visibleSections.forEach(section => {
+                    const relationsGroup = section.closest('.relations_group');
+                    const isActive = relationsGroup && relationsGroup.getAttribute('data-active') === '1';
+
+                    if (!isActive) {
+                        return; // Skip inactive relations
+                    }
+
+                    // Check for required relationship field
+                    const relationshipField = section.querySelector('.form_relations_relationship select, .form_relations_relationship input');
+
+                    if (relationshipField) {
+                        if (!relationshipField.value || relationshipField.value.trim() === '') {
+                            isValid = false;
+                            errors.push('Relationship is required');
+                            relationshipField.classList.add('is-invalid');
+
+                            if (!firstInvalidField) {
+                                firstInvalidField = relationshipField;
+                            }
+                        } else {
+                            relationshipField.classList.remove('is-invalid');
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (firstInvalidField) {
+                        // Expand the collapsed section if needed
+                        const parentCard = firstInvalidField.closest('.relation-card');
+                        if (parentCard) {
+                            const formDiv = parentCard.querySelector('.relation-card-body');
+                            if (formDiv && formDiv.classList.contains('d-none')) {
+                                formDiv.classList.remove('d-none');
+                                const icon = parentCard.querySelector('.btn-edit-relation');
+                                if (icon) {
+                                    icon.classList.remove('fa-caret-right');
+                                    icon.classList.add('fa-caret-down');
+                                }
+                            }
+                        }
+
+                        setTimeout(() => {
+                            firstInvalidField.focus();
+                            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                    }
+
+                    alert(window.xl('Please fill in all required fields:\n') + errors.join('\n'));
+                    return false;
+                }
+
+                console.log('Validation passed, allowing submit');
+                return true;
+            });
+        } else {
+            console.error('Could not find form for validation override');
+        }
+    })();
+</script>

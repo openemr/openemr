@@ -35,7 +35,7 @@ class Contact extends ORDataObject
     /**
      * @param int $id
      */
-    public function __construct(private $id)
+    public function __construct(private $id = 0)
     {
         parent::__construct("contact");
 
@@ -44,10 +44,10 @@ class Contact extends ORDataObject
         }
     }
 
-    public function setContactRecord(string $foreign_table_name, int $foreign_id): void
+    public function setContactRecord(string $foreign_table, int $foreign_id): void
     {
         // we set our type to be patient_id and our table type here.
-        $this->foreign_table_name = $foreign_table_name;
+        $this->foreign_table_name = $foreign_table;
         $this->foreign_id = $foreign_id;
 
         $this->setContactIdIfExist();

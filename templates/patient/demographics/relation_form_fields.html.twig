@@ -1,0 +1,416 @@
+{#
+  Relation Form Fields Template
+  Reusable form fields for relationship editing
+#}
+
+<style>
+    /* Custom styling for form fields */
+    .form_relations .form-check-label {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .form_relations .form-check-input {
+        cursor: pointer;
+    }
+
+    .form_relations .form-check-input:checked ~ .form-check-label {
+        color: #007bff;
+    }
+
+    .form_relations .form-group {
+        margin-bottom: 0.3rem;
+    }
+
+    .form_relations .label_custom {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .form_relations textarea.form_relations_notes {
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    .form_relations .alert {
+        border-radius: 0.25rem;
+    }
+
+    .form_relations .text-danger.font-weight-bold {
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* Priority field styling */
+    .form_relations_priority {
+        max-width: 80px;
+    }
+</style>
+
+
+<div class="col-12">
+    {# Basic Information Row #}
+    <div class="form-row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="label_custom">{{ 'Relationship: '|xlt }} <span class="text-danger">*</span></label>
+                {{ generateFormField({
+                    'data_type': widget_constants.listWithAddButton,
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][relationship]',
+                    'smallform': smallform ~ ' form_relations_relationship',
+                    'list_id': 'related_person_relationship',
+                    'description': 'Select Relationship',
+                    'edit_options': edit_options,
+                    'description': 'How this person is related (e.g., spouse, parent, sibling)'
+                }, relatedPerson.relationship|default('')) }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="label_custom">{{ 'Role: '|xlt }}</label>
+                {{ generateFormField({
+                    'data_type': widget_constants.listWithAddButton,
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][role]',
+                    'smallform': smallform ~ ' form_relations_role',
+                    'list_id': 'related_person_role',
+                    'description': 'Select Role',
+                    'edit_options': edit_options,
+                    'description': 'Their role in care (e.g., emergency contact, guarantor)'
+                }, relatedPerson.role|default('')) }}
+            </div>
+        </div>
+    </div>
+
+    {# Priority and Dates Row #}
+    <div class="form-row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    {{ 'Contact Priority:'|xlt }}
+                </label>
+                {{ generateFormField({
+                    'data_type': widget_constants.textbox,
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][contact_priority]',
+                    'smallform': smallform ~ ' form_relations_priority',
+                    'fld_length': 2,
+                    'max_length': 2,
+                    'description': 'Lower numbers indicate higher priority. Use this to order contacts by importance.'
+                }, relatedPerson.contact_priority|default('1')) }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">{{ 'Relationship Start Date:'|xlt }}</label>
+                {{ generateFormField({
+                    'data_type': widget_constants.textDate,
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][start_date]',
+                    'smallform': smallform ~ ' form_relations_start_date datepicker',
+                    'description': 'When this relationship began'
+                }, relatedPerson.start_date|default('now'|date('Y-m-d'))) }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">{{ 'Relationship End Date:'|xlt }}</label>
+                {{ generateFormField({
+                    'data_type': widget_constants.textDate,
+                    'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][end_date]',
+                    'smallform': smallform ~ ' form_relations_end_date datepicker',
+                    'description': 'Leave blank if relationship is ongoing'
+                }, relatedPerson.end_date|default('')) }}
+            </div>
+        </div>
+    </div>
+
+    {# Checkboxes Row #}
+    <div class="form-row">
+        <div class="col-md-2">
+            <div class="mb-2">
+                <label class="label_custom mr-1">{{ 'Contact Permissions: '|xlt }}</label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-1">
+                <input type="checkbox" class="form-check-input form_relations_is_primary_contact"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][is_primary_contact]"
+                       value="1"
+                       {{ relatedPerson.is_primary_contact ? 'checked' : '' }}
+                       id="{{ field_id_esc|attr }}_primary_{{ loop.index0|default('new') }}"
+                       title="Main contact person">
+                <label class="form-check-label label_custom" for="{{ field_id_esc|attr }}_primary_{{ loop.index0|default('new') }}">
+                    {{ 'Primary Contact'|xlt }}
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input form_relations_is_emergency_contact"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][is_emergency_contact]"
+                       value="1"
+                       {{ relatedPerson.is_emergency_contact ? 'checked' : '' }}
+                       id="{{ field_id_esc|attr }}_emergency_{{ loop.index0|default('new') }}"
+                       title="Contact in emergencies">
+                <label class="form-check-label label_custom" for="{{ field_id_esc|attr }}_emergency_{{ loop.index0|default('new') }}">
+                    {{ 'Emergency Contact'|xlt }}
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input form_relations_can_make_medical_decisions"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][can_make_medical_decisions]"
+                       value="1"
+                       {{ relatedPerson.can_make_medical_decisions ? 'checked' : '' }}
+                       id="{{ field_id_esc|attr }}_medical_{{ loop.index0|default('new') }}"
+                       title="Authorized to make medical decisions">
+                <label class="form-check-label label_custom" for="{{ field_id_esc|attr }}_medical_{{ loop.index0|default('new') }}">
+                    {{ 'Medical Decisions'|xlt }}
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input form_relations_can_receive_medical_info"
+                       name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][can_receive_medical_info]"
+                       value="1"
+                       {{ relatedPerson.can_receive_medical_info ? 'checked' : '' }}
+                       id="{{ field_id_esc|attr }}_info_{{ loop.index0|default('new') }}"
+                       title="Receive Medical Info">
+                <label class="form-check-label label_custom" for="{{ field_id_esc|attr }}_info_{{ loop.index0|default('new') }}">
+                    {{ 'Receive Medical Info'|xlt }}
+                </label>
+            </div>
+        </div>
+    </div>
+    {# Telecoms Section #}
+    <div class="form-row">
+        <div class="col-12">
+            {% set telecom_table_id = uniqid("table_edit_telecoms_") %}
+            {% set telecoms_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][telecoms]' %}
+            {% include 'patient/demographics/telecom_form.html.twig' with {
+                'table_id': telecom_table_id,
+                'telecoms': relatedPerson.telecoms|default([]),
+                'field_id_esc': telecoms_field_id_esc,
+                'name_field_id': 'form_' ~ telecoms_field_id_esc,
+                'contact_id': relatedPerson.target_contact_id|default(''),
+                'list_telecom_systems': list_telecom_systems,
+                'list_telecom_uses': list_telecom_uses,
+                'widget_constants': widget_constants,
+                'edit_options': edit_options,
+                'smallform': smallform|default('form-control form-control-sm')
+            } only %}
+        </div>
+    </div>
+
+    {# Addresses Section #}
+    <div class="form-row">
+        <div class="col-12">
+            {% set address_table_id = uniqid("table_edit_addresses_") %}
+            {% set addresses_field_id_esc = field_id_esc ~ '[' ~ relatedPerson_index ~ '][addresses]' %}
+            {% include 'patient/demographics/address_form.html.twig' with {
+                'table_id': address_table_id,
+                'addresses': relatedPerson.addresses|default([]),
+                'field_id_esc': addresses_field_id_esc,
+                'name_field_id': 'form_' ~ addresses_field_id_esc,
+                'contact_id': relatedPerson.target_contact_id|default(''),
+                'list_address_types': list_address_types,
+                'list_address_uses': list_address_uses,
+                'foreign_table': 'person',
+                'widget_constants': widget_constants,
+                'edit_options': edit_options,
+                'smallform': smallform|default('form-control form-control-sm')
+            } only %}
+        </div>
+    </div>
+
+
+    {# Notes Section #}
+    <div class="form-row">
+        <div class="col-12">
+            <div class="form-group mb-2 mt-3">
+                <label class="label_custom">{{ 'Notes: '|xlt }}</label>
+                <textarea class="form-control form_relations_notes"
+                          name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][notes]"
+                          rows="1"
+                          cols="50"
+                          placeholder=""
+                          maxlength="1000">{{ relatedPerson.notes|default('')|text }}
+                </textarea>
+                <small class="form-text text-muted">
+                    <span id="notes_char_count_{{ loop.index0|default('new') }}">0</span>/1000 {{ 'characters'|xlt }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+
+    {# Warning for HIPAA-sensitive permissions #}
+    {% if relatedPerson.can_receive_medical_info or relatedPerson.can_make_medical_decisions %}
+    <div class="alert alert-warning mb-2" role="alert">
+        <div class="d-flex align-items-start">
+            <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+            <div>
+                <strong>{{ 'HIPAA Notice'|xlt }}</strong><br>
+                <small>
+                    {{ 'You have granted medical information permissions. Ensure proper HIPAA authorization forms are completed and on file.'|xlt }}
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Hidden fields for maintaining state #}
+    {% if not is_new %}
+    <input type="hidden" name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][original_relationship]" value="{{ relatedPerson.relationship|attr }}" />
+    <input type="hidden" name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][original_role]" value="{{ relatedPerson.role|attr }}" />
+    {% endif %}
+</div>
+
+<script type="text/javascript">
+    // Character counter for notes field
+    (function() {
+        const notesFields = document.querySelectorAll('.form_relations_notes');
+        notesFields.forEach(function(field, index) {
+            const countSpan = document.getElementById('notes_char_count_' + (index === 0 && notesFields.length === 1 ? 'new' : index));
+
+            if (field && countSpan) {
+                // Initialize count
+                countSpan.textContent = field.value.length;
+
+                // Update count on input
+                field.addEventListener('input', function() {
+                    countSpan.textContent = this.value.length;
+
+                    // Visual warning at 950 characters
+                    if (this.value.length > 950) {
+                        countSpan.classList.add('text-danger', 'font-weight-bold');
+                    } else if (this.value.length > 900) {
+                        countSpan.classList.add('text-warning', 'font-weight-bold');
+                        countSpan.classList.remove('text-danger');
+                    } else {
+                        countSpan.classList.remove('text-danger', 'text-warning', 'font-weight-bold');
+                    }
+                });
+            }
+        });
+    })();
+
+    // Add change listeners to permission checkboxes for HIPAA warning
+    (function() {
+        const medicalInfoCheckboxes = document.querySelectorAll('.form_relations_can_receive_medical_info, .form_relations_can_make_medical_decisions');
+
+        medicalInfoCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const relationsGroup = this.closest('.relations_group');
+                if (!relationsGroup) return;
+
+                const formRelations = relationsGroup.querySelector('.form_relations');
+                if (!formRelations) return;
+
+                // Check if any medical permission is checked
+                const hasPermission = formRelations.querySelector('.form_relations_can_receive_medical_info:checked') ||
+                                     formRelations.querySelector('.form_relations_can_make_medical_decisions:checked');
+
+                // Find or create HIPAA warning
+                let hipaaWarning = formRelations.querySelector('.alert-warning');
+
+                if (hasPermission && !hipaaWarning) {
+                    // Create warning if it doesn't exist
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'alert alert-warning mb-2';
+                    warningDiv.setAttribute('role', 'alert');
+                    warningDiv.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+                            <div>
+                                <strong>${window.xl('HIPAA Notice')}</strong><br>
+                                <small>
+                                    ${window.xl('You have granted medical information permissions. Ensure proper HIPAA authorization forms are completed and on file.')}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                    formRelations.appendChild(warningDiv);
+                } else if (!hasPermission && hipaaWarning) {
+                    // Remove warning if no permissions are checked
+                    hipaaWarning.remove();
+                }
+            });
+        });
+    })();
+
+    // Validate priority field (numbers only)
+    (function() {
+        const priorityFields = document.querySelectorAll('.form_relations_priority');
+
+        priorityFields.forEach(function(field) {
+            field.addEventListener('input', function() {
+                // Remove non-numeric characters
+                this.value = this.value.replace(/[^0-9]/g, '');
+
+                // Ensure value is between 1 and 99
+                if (this.value && parseInt(this.value) < 1) {
+                    this.value = '1';
+                } else if (this.value && parseInt(this.value) > 99) {
+                    this.value = '99';
+                }
+            });
+
+            // Set default if empty on blur
+            field.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.value = '1';
+                }
+            });
+        });
+    })();
+
+    // Date validation - ensure start date is before end date
+    (function() {
+        const startDateFields = document.querySelectorAll('.form_relations_start_date');
+        const endDateFields = document.querySelectorAll('.form_relations_end_date');
+
+        function validateDateRange(startField, endField) {
+            if (!startField.value || !endField.value) return;
+
+            const startDate = new Date(startField.value);
+            const endDate = new Date(endField.value);
+
+            if (startDate > endDate) {
+                endField.setCustomValidity(window.xl('End date must be after start date'));
+                endField.reportValidity();
+            } else {
+                endField.setCustomValidity('');
+            }
+        }
+
+        startDateFields.forEach(function(field, index) {
+            const correspondingEndField = endDateFields[index];
+            if (!correspondingEndField) return;
+
+            field.addEventListener('change', function() {
+                validateDateRange(field, correspondingEndField);
+            });
+
+            correspondingEndField.addEventListener('change', function() {
+                validateDateRange(field, correspondingEndField);
+            });
+        });
+    })();
+
+    // Initialize tooltips for info icons
+    (function() {
+        if (typeof $ !== 'undefined' && $.fn.tooltip) {
+            $('[title]').tooltip({
+                placement: 'top',
+                trigger: 'hover'
+            });
+        }
+    })();
+</script>
+

@@ -54,19 +54,19 @@ $rows = $specimen_by_seq[$seq];
                             <tr class="bg-info">
                                 <!-- CRITICAL: Hidden field to track specimen ID -->
                                 <input type="hidden"
-                                       name="form_proc_specimen_id[<?php echo $i; ?>][]"
-                                       value="<?php echo attr($sp['procedure_specimen_id']); ?>">
+                                    name="form_proc_specimen_id[<?php echo $i; ?>][]"
+                                    value="<?php echo attr($sp['procedure_specimen_id']); ?>">
                                 <td>
                                     <input type="text" class="form-control"
-                                           name="form_proc_specimen_identifier[<?php echo $i; ?>][]"
-                                           value="<?php echo attr($sp['specimen_identifier']); ?>"
-                                           placeholder="<?php echo xla('Tube barcode / internal id'); ?>">
+                                        name="form_proc_specimen_identifier[<?php echo $i; ?>][]"
+                                        value="<?php echo attr($sp['specimen_identifier']); ?>"
+                                        placeholder="<?php echo xla('Tube barcode / internal id'); ?>">
                                 </td>
                                 <td>
                                     <input type="text" class="form-control"
-                                           name="form_proc_accession_identifier[<?php echo $i; ?>][]"
-                                           value="<?php echo attr($sp['accession_identifier']); ?>"
-                                           placeholder="<?php echo xla('Lab accession'); ?>">
+                                        name="form_proc_accession_identifier[<?php echo $i; ?>][]"
+                                        value="<?php echo attr($sp['accession_identifier']); ?>"
+                                        placeholder="<?php echo xla('Lab accession'); ?>">
                                 </td>
                                 <td>
                                     <?php
@@ -168,17 +168,17 @@ $rows = $specimen_by_seq[$seq];
             <tr class="bg-info">
                 <!-- CRITICAL: Empty hidden field for new specimens (no ID yet) -->
                 <input type="hidden"
-                       name="form_proc_specimen_id[<?php echo $i; ?>][]"
-                       value="">
+                    name="form_proc_specimen_id[<?php echo $i; ?>][]"
+                    value="">
                 <td>
                     <input type="text" class="form-control"
-                           name="form_proc_specimen_identifier[<?php echo $i; ?>][]"
-                           placeholder="<?php echo xla('Tube barcode / internal id'); ?>">
+                        name="form_proc_specimen_identifier[<?php echo $i; ?>][]"
+                        placeholder="<?php echo xla('Tube barcode / internal id'); ?>">
                 </td>
                 <td>
                     <input type="text" class="form-control"
-                           name="form_proc_accession_identifier[<?php echo $i; ?>][]"
-                           placeholder="<?php echo xla('Lab accession'); ?>">
+                        name="form_proc_accession_identifier[<?php echo $i; ?>][]"
+                        placeholder="<?php echo xla('Lab accession'); ?>">
                 </td>
 
                 <td>

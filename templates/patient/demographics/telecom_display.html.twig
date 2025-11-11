@@ -1,0 +1,123 @@
+{#
+  Telecom Display
+  Displays telecom records for a contact in read-only mode
+#}
+
+<style>
+    .telecom-inactive-display {
+        opacity: 0.6;
+        background-color: #f8f9fa;
+        font-style: italic;
+    }
+</style>
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_text_telecoms col-12">
+        <div class="text_telecoms_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
+            <div>
+                {% if foreign_table == 'patient_data' %}
+                    {{ 'Additional Telecom Contacts'|xlt }}
+                {% else %}
+                    {{ 'Telecom Contacts'|xlt }}
+                {% endif %}
+            </div>
+            {% if telecoms|length > 0 %}
+            <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_display_{{ table_id|attr }}" onchange="toggleInactiveTelecomsDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
+                <label class="form-check-label" for="show_inactive_telecoms_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
+                    {{ 'Show Inactive'|xlt }}
+                </label>
+            </div>
+            {% endif %}
+        </div>
+
+        {% set has_active_telecoms = false %}
+        {% for telecom in telecoms %}
+            {% if telecom.status == 'A' %}
+                {% set has_active_telecoms = true %}
+            {% endif %}
+        {% endfor %}
+
+        {% if not has_active_telecoms %}
+        <div class="no_telecoms">
+            <span class="text data pl-1">{{ 'NONE'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {% for telecom in telecoms %}
+        {% set is_inactive = telecom.status != 'A' %}
+        <div class="text_telecoms_row form-group mb-0 {{ is_inactive ? 'telecom-inactive-display d-none' : '' }}" data-status="{{ telecom.status|attr }}">
+            <div class="text_telecoms_subrow form-row pl-1">
+                <div class="col-2 text data">
+                    <span class="text_telecoms_system">
+                        <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} mr-1"></i>
+                        {{ list_telecom_systems[telecom.system]|text }}
+                        {% if is_inactive %}
+                            <span class="badge badge-secondary ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="col-2 text data">
+                    <span class="text_telecoms_use">{{ list_telecom_uses[telecom.use]|text }}</span>
+                </div>
+                <div class="col-5 text data">
+                    <span class="text_telecoms_value">
+                        {% if telecom.system == 'email' %}
+                            <a href="mailto:{{ telecom.value|attr }}">{{ telecom.value|text }}</a>
+                        {% elseif telecom.system == 'phone' or telecom.system == 'mobile' %}
+                            <a href="tel:{{ telecom.value|attr }}">{{ telecom.value|text }}</a>
+                        {% elseif telecom.system == 'url' %}
+                            <a href="{{ telecom.value|attr }}" target="_blank">{{ telecom.value|text }}</a>
+                        {% else %}
+                            {{ telecom.value|text }}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="col-3 text data">
+                    {% if telecom.is_primary == 'Y' %}
+                        <span class="badge badge-primary">{{ 'Primary'|xlt }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if telecom.notes %}
+            <div class="text_telecoms_notes form-row pl-1">
+                <div class="col-12 text data">
+                    <small class="text-muted">{{ telecom.notes|text }}</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <hr class="m-0 p-0 {{ is_inactive ? 'telecom-inactive-display d-none' : '' }}" style="border-top-width: 2px; border-color: var(--gray300)" />
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+    function toggleInactiveTelecomsDisplay(tableId) {
+        const table = document.getElementById(tableId);        
+
+        if (!table) {
+            console.error('Telecom table not found:', tableId);
+            return;
+        }
+
+        const checkbox = document.getElementById('show_inactive_telecoms_display_' + tableId);
+        const inactiveTelecoms = table.querySelectorAll('.telecom-inactive-display');
+
+        console.log('Toggle inactive telecoms:', {
+            tableId: tableId,
+            checked: checkbox.checked,
+            foundTelecoms: inactiveTelecoms.length
+        });
+
+        inactiveTelecoms.forEach(function(telecom) {
+            if (checkbox.checked) {
+                telecom.classList.remove('d-none');
+            } else {
+                telecom.classList.add('d-none');
+            }
+        });
+    }
+</script>
