@@ -68,7 +68,7 @@ class FhirOperationExportRestController
     /**
      * @var SystemLogger
      */
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
     /**
      * @var IFhirExportableResourceService[] hashmap of resources to service classes that can be exported
@@ -87,7 +87,7 @@ class FhirOperationExportRestController
     /**
      * @var OEGlobalsBag The OEGlobalsBag instance that holds global configuration values.
      */
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
 
     /**

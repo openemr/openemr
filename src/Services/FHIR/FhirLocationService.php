@@ -305,7 +305,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     {
         if (!empty($dataRecord['location_role_type'])) {
             // ensure two digit format as the codeset has some leading zeros but in the database its stored as a tinyint
-            $type = str_pad($dataRecord['location_role_type'], 2, '0', STR_PAD_LEFT);
+            $type = str_pad((string) $dataRecord['location_role_type'], 2, '0', STR_PAD_LEFT);
             $posEnum = PlaceOfServiceEnum::tryFrom($type);
             if ($posEnum !== null) {
                 $coding = UtilsService::createCodeableConcept([

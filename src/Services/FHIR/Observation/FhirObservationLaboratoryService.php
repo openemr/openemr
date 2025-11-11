@@ -179,8 +179,8 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         $result['range_low'] = $ranges[0] ?? null;
                         $result['range_high'] = $ranges[0] ?? null;
                         $result['result_abnormal'] = $result['abnormal'] ?? null;
-                        $result['result_abnormal_title'] = $result['result_abnormal_title'] ?? null;
-                        $result['result_abnormal_codes'] = $result['result_abnormal_codes'] ?? null;
+                        $result['result_abnormal_title'] ??= null;
+                        $result['result_abnormal_codes'] ??= null;
                         $result['encounter'] = $record['encounter'] ?? null;
 
                         $processingResult->addData($result);
@@ -331,11 +331,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     {
         $value = $dataRecord['result'] ?? null;
         $valueUnit = $dataRecord['units'] ?? null;
-        if (str_contains($value, ':')) {
-            $codeDescription = $this->getCodeTypesService()->lookup_code_description($value);
-        } else {
-            $codeDescription = null;
-        }
+        $codeDescription = str_contains((string) $value, ':') ? $this->getCodeTypesService()->lookup_code_description($value) : null;
         // if no sub_observations, or components, we treat as a single value observation
         $children = $dataRecord['sub_observations'] ?? $dataRecord['components'] ?? [];
         $this->setObservationValueWithDetails($observation, $value, $valueUnit, $codeDescription, $children);
