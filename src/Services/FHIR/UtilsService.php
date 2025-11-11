@@ -19,7 +19,6 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressUse;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -30,7 +29,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMarkdown;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -418,8 +416,7 @@ class UtilsService
         $severity_value,
         $code_value,
         $details_value = ''
-    )
-    {
+    ) {
         $resource = new FHIROperationOutcome();
         $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();
@@ -460,110 +457,5 @@ class UtilsService
             $parsed_reference['type'] = array_pop($splitParts);
         }
         return $parsed_reference;
-    }
-
-    /**
-     * Create a FHIR Annotation element from text
-     *
-     * Annotations are used to capture comments, notes, or other narrative information
-     * in FHIR resources. This is commonly used in Observation.note, Condition.note, etc.
-     *
-     * @param string      $text         The annotation text content
-     * @param string|null $authorString Optional author identifier (username, display name, etc.)
-     * @return FHIRAnnotation The created FHIR Annotation element
-     *
-     * @example
-     * // Simple annotation with just text
-     * $note = UtilsService::createAnnotation("Patient prefers morning appointments");
-     *
-     * @example
-     * // Annotation with author
-     * $note = UtilsService::createAnnotation(
-     *     "Discussed treatment options with patient",
-     *     "Dr. Jane Smith"
-     * );
-     */
-    public static function createAnnotation(string $text, ?string $authorString = null): FHIRAnnotation
-    {
-        $annotation = new FHIRAnnotation();
-
-        // Set the text content as markdown
-        $markdown = new FHIRMarkdown();
-        $markdown->setValue($text);
-        $annotation->setText($markdown);
-
-        // Add author if provided
-        if (!empty($authorString)) {
-            $annotation->setAuthorString($authorString);
-        }
-
-        // Set the time to current UTC time
-        $annotation->setTime(new FHIRDateTime(self::getDateFormattedAsUTC()));
-
-        return $annotation;
-    }
-
-    /**
-     * Alternative: Create annotation with author reference
-     *
-     * Use this when you want to reference a Practitioner, Patient, or other resource
-     * as the author of the annotation.
-     *
-     * @param string $text       The annotation text
-     * @param string $authorType Resource type (e.g., 'Practitioner', 'Patient')
-     * @param string $authorUuid UUID of the author resource
-     * @return FHIRAnnotation
-     *
-     * @example
-     * $note = UtilsService::createAnnotationWithReference(
-     *     "Patient expressed concerns about side effects",
-     *     "Practitioner",
-     *     "550e8400-e29b-41d4-a716-446655440000"
-     * );
-     */
-    public static function createAnnotationWithReference(
-        string $text,
-        string $authorType,
-        string $authorUuid
-    ): FHIRAnnotation
-    {
-        $annotation = new FHIRAnnotation();
-
-        // Set text
-        $markdown = new FHIRMarkdown();
-        $markdown->setValue($text);
-        $annotation->setText($markdown);
-
-        // Set author as reference
-        $authorRef = self::createRelativeReference($authorType, $authorUuid);
-        $annotation->setAuthorReference($authorRef);
-
-        // Set time
-        $annotation->setTime(new FHIRDateTime(self::getDateFormattedAsUTC()));
-
-        return $annotation;
-    }
-
-    /**
-     * Extract text from a FHIR Annotation
-     *
-     * Helper method to get the text content from an Annotation element
-     *
-     * @param FHIRAnnotation $annotation
-     * @return string|null
-     */
-    public static function getAnnotationText(?FHIRAnnotation $annotation): ?string
-    {
-        if ($annotation === null) {
-            return null;
-        }
-
-        $text = $annotation->getText();
-        if ($text === null) {
-            return null;
-        }
-
-        // FHIRMarkdown getValue() returns the string value
-        return $text->getValue();
     }
 }

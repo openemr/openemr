@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
@@ -21,6 +22,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -37,7 +39,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
     private const CATEGORY_CODE   = 'treatment-intervention-preference';
     private const LOINC_SYSTEM    = FhirCodeSystemConstants::LOINC ?? 'http://loinc.org';
     
-    // FIXED: Support ALL treatment intervention preference LOINC codes from your schema
+    // Support ALL treatment intervention preference LOINC codes from the schema
     private const SUPPORTED_LOINC_CODES = [
         '75773-2',  // Goals, preferences, and priorities for medical treatment [Reported]
         '81329-5',  // Thoughts on resuscitation (CPR)
@@ -57,16 +59,24 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
     public function loadSearchParameters(): array
     {
         return [
-            'patient' => new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]),
-            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
+            'patient' => $this->getPatientContextSearchField(),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['p.observation_code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['status']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
-                new ServiceField('uuid', ServiceField::TYPE_UUID)
-            ]),
-            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated'])
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['effective_datetime']),
+            'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['p.status']),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('p.uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getPatientContextSearchField(): FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('pd.uuid', ServiceField::TYPE_UUID)]);
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_modified']);
     }
 
     public function getProfileURIs(): array
@@ -80,7 +90,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
     }
 
     /**
-     * FIXED: Check if code is one of our supported LOINC codes
+     * Check if code is one of our supported LOINC codes
      */
     public function supportsCode($code): bool
     {
@@ -100,14 +110,13 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
             unset($openEMRSearchParameters['category']);
         }
 
-        // FIXED: Handle code filter - check against ALL supported codes
+        // Handle code filter - check against ALL supported codes
         $requestedCodes = null;
         if (isset($openEMRSearchParameters['code'])) {
             $tok = $openEMRSearchParameters['code'];
             if (!($tok instanceof TokenSearchField)) {
                 throw new SearchFieldException('code', 'Invalid code token');
             }
-            
             // Find intersection of requested codes and supported codes
             $requestedCodes = [];
             foreach ($tok->getValues() as $v) {
@@ -116,124 +125,43 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
                     $requestedCodes[] = $code;
                 }
             }
-            
-            unset($openEMRSearchParameters['code']);
-            
             // If no valid codes requested, return empty
             if (empty($requestedCodes)) {
                 return $result;
             }
         }
 
-        // Build WHERE clause
-        $where = [];
-        $args  = [];
-
-        // Patient filter
-        if (isset($openEMRSearchParameters['patient'])) {
-            $pidField = $openEMRSearchParameters['patient'];
-            $pid = (int)($pidField instanceof ServiceField ? $pidField->getValue() : $pidField);
-            if ($pid > 0) {
-                $where[] = "patient_id = ?";
-                $args[]  = $pid;
-            }
-            unset($openEMRSearchParameters['patient']);
-        }
-
-        // Status filter
-        if (isset($openEMRSearchParameters['status'])) {
-            $status = $openEMRSearchParameters['status'];
-            if ($status instanceof TokenSearchField) {
-                $vals = array_map(fn($v) => $v->getCode(), $status->getValues());
-                if (!empty($vals)) {
-                    $where[] = "status IN (" . implode(',', array_fill(0, count($vals), '?')) . ")";
-                    array_push($args, ...$vals);
-                }
-            }
-            unset($openEMRSearchParameters['status']);
-        }
-
-        // Date filter
-        if (isset($openEMRSearchParameters['date'])) {
-            $dateField = $openEMRSearchParameters['date'];
-            foreach ($dateField->getValues() as $val) {
-                $op = $val->getPrefix();
-                $dt = $val->getValue();
-                switch ($op) {
-                    case 'ge':
-                        $where[] = "effective_datetime >= ?";
-                        $args[] = $dt;
-                        break;
-                    case 'le':
-                        $where[] = "effective_datetime <= ?";
-                        $args[] = $dt;
-                        break;
-                    case 'gt':
-                        $where[] = "effective_datetime > ?";
-                        $args[] = $dt;
-                        break;
-                    case 'lt':
-                        $where[] = "effective_datetime < ?";
-                        $args[] = $dt;
-                        break;
-                    default:
-                        $where[] = "DATE(effective_datetime) = DATE(?)";
-                        $args[] = $dt;
-                        break;
-                }
-            }
-            unset($openEMRSearchParameters['date']);
-        }
-
-        // ID filter
-        if (isset($openEMRSearchParameters['_id'])) {
-            $svc = $openEMRSearchParameters['_id'];
-            $uuid = $svc instanceof ServiceField ? $svc->getValue() : null;
-            if (!empty($uuid)) {
-                $where[] = "uuid = ?";
-                $args[]  = UuidRegistry::uuidToBytes($uuid);
-            }
-            unset($openEMRSearchParameters['_id']);
-        }
-
-        // FIXED: Filter by ALL supported LOINC codes or specific requested codes
-        if ($requestedCodes !== null) {
-            // User requested specific codes
-            $placeholders = implode(',', array_fill(0, count($requestedCodes), '?'));
-            $where[] = "observation_code IN ($placeholders)";
-            array_push($args, ...$requestedCodes);
-        } else {
-            // No code filter, return all supported codes
-            $placeholders = implode(',', array_fill(0, count(self::SUPPORTED_LOINC_CODES), '?'));
-            $where[] = "observation_code IN ($placeholders)";
-            array_push($args, ...self::SUPPORTED_LOINC_CODES);
-        }
-
+        $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters, true);
+        $sql_frag = $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
         // Build and execute query
-        $sql = "SELECT id, uuid, patient_id, observation_code, observation_code_text,
-                       value_type, value_code, value_code_system, value_display,
-                       value_text, value_boolean, effective_datetime, status, note
-                  FROM " . self::TABLE .
-            (empty($where) ? "" : " WHERE " . implode(" AND ", $where)) .
-            " ORDER BY effective_datetime DESC, id DESC";
+        $sql = "SELECT p.id, p.uuid, p.patient_id, p.observation_code, p.observation_code_text,
+                       p.value_type, p.value_code, p.value_code_system, p.value_display,
+                       p.value_text, p.value_boolean, p.effective_datetime, p.status, p.note,
+                       pd.uuid as patient_uuid
+                  FROM " . self::TABLE . " p
+                  LEFT JOIN patient_data pd ON pd.pid = p.patient_id" .
+            (empty($sql_frag) ? "" : $sql_frag) .
+            " ORDER BY p.effective_datetime DESC, p.id DESC";
 
-        $rows = QueryUtils::fetchRecords($sql, $args) ?? [];
+        $rows = QueryUtils::fetchRecords($sql, $sqlBindArray) ?? [];
         $result->setData(array_map([$this, 'transformRow'], $rows));
         return $result;
     }
 
     /**
-     * FIXED: Always use constants, handle observation_code from database
+     * Transform database row to internal format
      */
     private function transformRow(array $r): array
     {
         return [
             'uuid' => !empty($r['uuid']) ? UuidRegistry::uuidToString($r['uuid']) : null,
             'pid'  => (int)$r['patient_id'],
+            'puuid' => !empty($r['patient_uuid']) ? UuidRegistry::uuidToString($r['patient_uuid']) : null,
             'date' => $r['effective_datetime'] ?? null,
             'status' => $r['status'] ?: self::DEFAULT_STATUS,
             'category' => self::CATEGORY_CODE,
-            'code' => $r['observation_code'], // FIXED: Use actual code from database
+            'code' => $r['observation_code'], // Use actual code from database
             'code_text' => $r['observation_code_text'] ?: $this->getDisplayForCode($r['observation_code']),
             'value_type' => $r['value_type'],
             'value_code' => $r['value_code'],
@@ -265,6 +193,21 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
         return $displays[$code] ?? 'Treatment intervention preference';
     }
 
+    /**
+     * Get patient UUID from patient ID
+     */
+    private function getPatientUuidFromPid(int $pid): ?string
+    {
+        $sql = "SELECT uuid FROM patient_data WHERE pid = ?";
+        $result = QueryUtils::fetchRecords($sql, [$pid]);
+        
+        if (!empty($result[0]['uuid'])) {
+            return UuidRegistry::uuidToString($result[0]['uuid']);
+        }
+        
+        return null;
+    }
+
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
     {
         if (empty($dataRecord)) {
@@ -276,7 +219,9 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
         // Meta with profile
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->addProfile([new FHIRUri(self::PROFILE)]);
+        $profileUri = new FHIRUri();
+        $profileUri->setValue(self::PROFILE);
+        $meta->addProfile($profileUri);
         $obs->setMeta($meta);
 
         // Resource ID
@@ -286,9 +231,19 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
             $obs->setId($id);
         }
 
-        // Subject (Patient reference)
-        if (!empty($dataRecord['pid'])) {
-            $obs->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['pid']));
+        // Subject (Patient reference) - Use patient UUID not PID
+        if (!empty($dataRecord['puuid'])) {
+            // Use patient UUID from the query join
+            $obs->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
+        } elseif (!empty($dataRecord['pid'])) {
+            // Fallback: fetch patient UUID from pid
+            $patientUuid = $this->getPatientUuidFromPid($dataRecord['pid']);
+            if ($patientUuid) {
+                $obs->setSubject(UtilsService::createRelativeReference('Patient', $patientUuid));
+            } else {
+                // Last resort fallback to PID
+                $obs->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['pid']));
+            }
         }
 
         // Effective DateTime
@@ -307,7 +262,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
         $cat->addCoding($catCoding);
         $obs->addCategory($cat);
 
-        // FIXED: Code - use actual code from database
+        // Code - use actual code from database
         $codeCoding = new FHIRCoding();
         $codeCoding->setSystem(self::LOINC_SYSTEM);
         $codeCoding->setCode($dataRecord['code']);
@@ -354,7 +309,9 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
 
         // Note
         if (!empty($dataRecord['note'])) {
-            $obs->addNote(UtilsService::createAnnotation($dataRecord['note']));
+            $annotation = new FHIRAnnotation();
+            $annotation->setText($dataRecord['note']);
+            $obs->addNote($annotation);
         }
 
         return $encode ? $obs->jsonSerialize() : $obs;
