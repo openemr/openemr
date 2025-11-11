@@ -42,7 +42,7 @@ class ContactRelationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid'];
+        return ['uuid', 'puuid', 'person_uuid'];
     }
 
     /**
