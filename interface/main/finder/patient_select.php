@@ -272,20 +272,14 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . attr($patient) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . attr($findBy) . "' />\n";
 
-    if ($findBy == "Last") {
-        $result = getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "ID") {
-        $result = getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "DOB") {
-        $result = getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "SSN") {
-        $result = getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Phone") {                  //(CHEMED) Search by phone number
-        $result = getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Any") {
-        $result = getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart);
-    } elseif ($findBy == "Filter") {
-        $result = getByPatientDemographicsFilter(
+    $result = match($findBy) {
+        "Last" => getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart),
+        "ID" => getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart),
+        "DOB" => getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart),
+        "SSN" => getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart),
+        "Phone" => getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart),
+        "Any" => getByPatientDemographics($patient, $given, $orderby, $sqllimit, $fstart),
+        "Filter" => getByPatientDemographicsFilter(
             $searchFields,
             $patient,
             $given,
@@ -293,8 +287,9 @@ if ($popup) {
             $sqllimit,
             $fstart,
             $search_service_code
-        );
-    }
+        ),
+        default => [],
+    };
 }
 ?>
 
@@ -352,16 +347,12 @@ if ($fend > $count) {
     <?php if ($from_page == "cdr_report") {
         echo "<td colspan='6' class='text'>";
         echo "<strong>";
-        if ($pass_id == "fail") {
-             echo xlt("Failed Patients");
-        } elseif ($pass_id == "pass") {
-             echo xlt("Passed Patients");
-        } elseif ($pass_id == "exclude") {
-             echo xlt("Excluded Patients");
-        } else { // $pass_id == "all"
-             echo xlt("All Patients");
-        }
-
+        $passMap = [
+            "fail" => "Failed Patients",
+            "pass" => "Passed Patients",
+            "exclude" => "Excluded Patients",
+        ];
+        echo xlt($passMap[$pass_id] ?? "All Patients");
         echo "</strong>";
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
@@ -571,11 +562,11 @@ var SelectPatient = function (eObj) {
 // will set the pid and load all the other frames.
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if (!$popup) { ?>
+    <?php if ($popup) { ?>
+        dlgclose("srchDone", parts[0]);
+    <?php } else { ?>
         top.restoreSession();
         document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
-    <?php } elseif ($popup) { ?>
-        dlgclose("srchDone", parts[0]);
     <?php } ?>
 
     return true;
