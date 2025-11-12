@@ -1,0 +1,23 @@
+[
+  {
+    "procedure_order_id": null,
+    "provider_id": 1,
+    "patient_id": null,
+    "encounter_id": null,
+    "date_collected": "2025-01-15 10:30:00",
+    "date_ordered": "2025-01-15",
+    "order_priority": "routine",
+    "order_status": "pending",
+    "patient_instructions": "Please fast for 12 hours before the test",
+    "activity": 1,
+    "control_id": "test-fixture-order-001",
+    "lab_id": null,
+    "specimen_type": "blood",
+    "specimen_location": "",
+    "specimen_volume": "",
+    "date_transmitted": null,
+    "clinical_hx": "Patient presents with elevated cholesterol",
+    "billing_type": "T",
+    "order_diagnosis": "ICD10:E78.5"
+  }
+]
