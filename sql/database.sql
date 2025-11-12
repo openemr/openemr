@@ -3257,6 +3257,7 @@ CREATE TABLE `immunizations` (
   `ordering_provider` INT(11) DEFAULT NULL,
   `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
   `reason_description` text COMMENT 'Human readable text description of the reason_code column',
+  `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
