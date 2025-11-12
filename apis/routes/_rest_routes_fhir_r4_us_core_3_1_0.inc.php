@@ -2662,7 +2662,7 @@ return [
      *  )
      */
     "GET /fhir/Location" => function (HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        $return = (new FhirLocationRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
 
         return $return;
     },
@@ -2731,7 +2731,7 @@ return [
      *  )
      */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        $return = (new FhirLocationRestController($request))->getOne($uuid, $request->getPatientUUIDString());
 
         return $return;
     },

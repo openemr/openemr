@@ -51,7 +51,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     {
         return  [
             'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
-            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name']),
+            'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::REFERENCE, [new ServiceField('provider_uuid', ServiceField::TYPE_UUID)]),
             '_id' => new FhirSearchParameterDefinition(
                 '_id',
                 SearchFieldType::TOKEN,
