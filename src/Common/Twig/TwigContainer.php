@@ -26,12 +26,12 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigContainer
 {
-    private $paths = [];  // path in /templates
-
     /**
-     * Instance of Kernel
+     * Paths in /templates
      */
-    private $kernel = null;
+    private array $paths = [];
+
+    private ?Kernel $kernel = null;
 
     /**
      * Create a new Twig superclass holding a twig environment
