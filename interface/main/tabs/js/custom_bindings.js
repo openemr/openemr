@@ -88,7 +88,7 @@ ko.bindingHandlers.location={
                         currentUrl.indexOf('newcrop') !== -1 ||
                         (currentUrl.indexOf('demographics.php') !== -1 && tabData.name() === 'pat')
                     );
-                    tabData.title(isErxPage ? 'Ensora eRx' : "Unknown +");
+                    tabData.title(isErxPage ? xl('Ensora eRx') : xl("Unknown"));
                 }
             } ,true
         );
