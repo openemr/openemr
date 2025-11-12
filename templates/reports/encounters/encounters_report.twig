@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ "Encounter Report" | xlt }}</title>
+    {{ setupHeader(['datetime-picker', 'select2', 'datatables']) }}
+
+    <script>
+        {{ DateToYYYYMMDD_js() }}
+
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+
+            {{ jqueryDateTimePicker('.datepicker',false,false,true) }}
+        });
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row mt-5">
+            <div class="col-12">
+                <div>
+                     <h1>{{ 'Encounter Report' | xlt }}</h1>
+                </div>
+                <div class="float-right">
+                    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#helpModal">
+                        <i class="fa fa-question-circle fa-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Help Modal -->
+        <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="helpModalLabel">{{ 'Encounter Report Help'|xlt }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ 'This report shows encounter details filtered by date range, provider, and facility.'|xlt }}</p>
+                        <p>{{ 'There are two views. The default is the summary view which shows the total number of encounters by provider.'|xlt }}</p>
+                        <p>{{ 'Use the filters to customize your report data.'|xlt }}</p>
+                        <p>{{ 'You can also export this report to a CSV file.'|xlt }}</p>
+                        <p>{{ 'Click the column headers to sort the data.'|xlt }}</p>
+                        <hr/>
+                        <h6>{{ 'Signed By Column Color Legend:'|xlt }}</h6>
+                        <p>
+                            <span class="text-primary">{{ 'Blue text = Encounter Signer'|xlt }}</span>
+                            <br/>
+                            <span class="text-success">{{ 'Green text = Form Signer'|xlt }}</span>
+                        </p>
+                        <p>{{ 'When both colors appear, the encounter was signed at the encounter level (blue) and also has individual form signatures (green).'|xlt }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'Close'|xlt }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <form method="get" action="" class="mb-3">
+                <input type="hidden" name="csrf_token_form" value="{{ csrfToken | attr }}" >
+                <div class="row">
+                    <div class="col-md-3">
+
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mt-4">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="facility">{{ "Facility" | xlt }}:</label>
+                                        <select name="facility" id="facility" class="form-control">
+                                            <option value="all">{{ "All Facilities" | xlt }}</option>
+                                            {% for facility in facilities %}
+                                                <option value="{{ facility.id }}" {% if filters.facility == facility.id %}selected{% endif %}>
+                                                    {{ facility.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="provider">{{ "Provider" | xlt }}:</label>
+                                        <select name="provider" id="provider" class="form-control select2">
+                                            <option value="all">{{ "All" | xlt }}</option>
+                                            {% for provider in providers %}
+                                                <option value="{{ provider.id }}" {% if filters.provider == provider.id %}selected{% endif %}>
+                                                    {{ provider.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="date_from">{{ "Date From" | xlt }}:</label>
+                                        <input type="text" name="date_from" id="date_from" class="form-control datepicker" value="{{ filters.date_from|attr }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="date_to">{{ "Date To" | xlt }}:</label>
+                                        <input type="text" name="date_to" id="date_to" class="form-control datepicker" value="{{ filters.date_to|attr }}">
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-md-9 d-flex flex-wrap align-items-center">
+                                <div class="form-check mr-3">
+                                    <input class="form-check-input" type="checkbox" name="details" id="details" value="1" {% if filters.details is defined %}{% if filters.details %}checked{% endif %}{% else %}checked{% endif %}>
+                                    <label class="form-check-label" for="details">{{ "Details" | xlt }}</label>
+                                </div>
+                                <div class="form-check mr-3">
+                                    <input class="form-check-input" type="checkbox" name="signed_only" id="signed_only" {% if filters.signed_only %}checked{% endif %}>
+                                    <label class="form-check-label" for="signed_only">{{ "Signed Encounters Only" | xlt }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex justify-content-end align-items-center">
+                                <button type="submit" class="btn btn-primary mr-2">{{ "Generate Report" | xlt }}</button>
+                                <button type="button" class="btn btn-success" id="exportCsvButton">{{ "Export CSV" | xlt }}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+
+                    </div>
+                </div>
+            </form>
+        <div id="loadingSpinner" class="text-center my-4" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">{{ "Loading..."|xlt }}</span>
+            </div>
+            <p class="mt-2">{{ "Generating report..."|xlt }}</p>
+        </div>
+        {% if errors|length > 0 %}
+            <div class="alert alert-danger">
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="row m-3 w-100 d-flex">
+            {% if filters.details|length == 0 and encounters.providers is defined and encounters.providers|length > 0 %}
+                <h3>{{ "Summary" | xlt }}</h3>
+                <table id="encounterSummaryTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ "Provider" | xlt }}</th>
+                            <th class="text-right">{{ "Encounters" | xlt }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for provider in encounters.providers %}
+                            <tr>
+                                <td>{{ provider.provider_name|text }}</td>
+                                <td class="text-right">{{ provider.encounter_count }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr class="font-weight-bold">
+                            <td>{{ "Total" | xlt }}</td>
+                            <td class="text-right">{{ encounters.total_encounters }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if filters.details|length > 0 and  encounters is defined and encounters|length > 0 %}
+                <div class="detailed-report mt-4 w-100">
+                    <h3>{{ "Detailed Encounters"|xlt }}</h3>
+                    <table id="encounterDetailTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{ "ID"|xlt }}</th>
+                                <th>{{ "Date"|xlt }}</th>
+                                <th>{{ "Patient"|xlt }}</th>
+                                <th>{{ "Provider"|xlt }}</th>
+                                <th style="width: 15%">{{ "Visit Type"|xlt }}</th>
+                                <th style="width: 15%">{{ "Enc#"|xlt }}</th>
+                                <th style="width: 15%">{{ "Forms"|xlt }}</th>
+                                <th>{{ "Coding"|xlt }}</th>
+                                <th>{{ "Signed By"|xlt }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for encounter in encounters %}
+                                <tr>
+                                    <td>{{ encounter.id|default('') }}</td>
+                                    <td>{{ encounter.date|date('Y-m-d') }}</td>
+                                    <td>{{ encounter.patient|default('') }}</td>
+                                    <td>{{ encounter.provider|default('') }}</td>
+                                    <td>{{ encounter.category|default('') }}</td>
+                                    <td><input type="button" class="btn btn-link" value="{{ encounter.encounter }}-{{ encounter.pid }}" onclick="toEncounter('{{ encounter.pid }}', '{{ encounter.encounter }}')"/></td>
+                                    <td>{{ encounter.forms|default('') }}</td>
+                                    <td>{{ encounter.coding|default('') }}</td>
+                                    <td>
+                                        {% set has_encounter_signer = encounter.encounter_signer is not null and encounter.encounter_signer != '' %}
+                                        {% set has_form_signer = encounter.form_signer is not null and encounter.form_signer != '' %}
+                                        
+                                        {% if has_encounter_signer and has_form_signer %}
+                                            {# Both signers exist: show both with colors #}
+                                            <div>
+                                                <span class="text-primary">{{ encounter.encounter_signer|text }}</span>
+                                                <br/>
+                                                <span class="text-success">{{ encounter.form_signer|text }}</span>
+                                            </div>
+                                        {% elseif has_encounter_signer %}
+                                            {# Only encounter signer #}
+                                            <span class="text-primary">{{ encounter.encounter_signer|text }}</span>
+                                        {% elseif has_form_signer %}
+                                            {# Only form signer #}
+                                            <span class="text-success">{{ encounter.form_signer|text }}</span>
+                                        {% else %}
+                                            {# Neither signer exists #}
+                                            {{ "Not signed"|xlt }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p>{{ "Total Encounters"|xlt }}: {{ encounterCount }}</p>
+                </div>
+            {% endif %}
+            {% if filters.details and (encounters is empty or encounters|length == 0) %}
+                <div class="alert alert-info d-flex align-items-center justify-content-center w-100">
+                    {{ "No encounters found matching your criteria"|xlt }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('form').on('submit', function() {
+                $('#loadingSpinner').show();
+            });
+
+            // Hide spinner when page fully loads
+            $('#loadingSpinner').hide();
+        });
+        //AI GENERATED CODE
+        $(document).ready(function() {
+            // Initialize DataTables for both tables
+            $('#encounterSummaryTable, #encounterDetailTable').DataTable({
+                "pageLength": 25,
+                "dom": '<"top"f>rt<"bottom"lip><"clear">',
+                "language": {
+                    "search": "{{ 'Search'|xlt }}",
+                    "lengthMenu": "{{ 'Show _MENU_ entries'|xlt }}",
+                    "info": "{{ 'Showing _START_ to _END_ of _TOTAL_ entries'|xlt }}",
+                    "infoEmpty": "{{ 'Showing 0 to 0 of 0 entries'|xlt }}",
+                    "infoFiltered": "{{ '(filtered from _MAX_ total entries)'|xlt }}",
+                    "paginate": {
+                        "first": "{{ 'First'|xlt }} ",
+                        "last": "{{ 'Last'|xlt }} ",
+                        "next": "{{ 'Next'|xlt }} ",
+                        "previous": " {{ 'Previous'|xlt }}"
+                    }
+                },
+                "drawCallback": function() {
+                    $('.paginate_button').not('.previous,.next,.first,.last').css('margin', '0 5px');
+                }
+            });
+
+            // Export to CSV - Use server-side export for all data
+            $('#exportCsvButton').click(function() {
+                // Check if there's data to export
+                const hasSummaryData = $('#encounterSummaryTable').is(':visible') && $('#encounterSummaryTable tbody tr').length > 0;
+                const hasDetailData = $('#encounterDetailTable').is(':visible') && $('#encounterDetailTable tbody tr').length > 0;
+                
+                if (!hasSummaryData && !hasDetailData) {
+                    alert({{ 'No data to export' | xlj }});
+                    return;
+                }
+                
+                // Build export URL with current filters
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('export_csv', 'true');
+                
+                // Show loading indicator
+                $(this).prop('disabled', true).text({{ 'Exporting...' | xlj }});
+                
+                // Redirect to server-side export
+                window.location.href = '?' + urlParams.toString();
+                
+                // Re-enable button after a delay (page will reload on successful export)
+                setTimeout(function() {
+                    $('#exportCsvButton').prop('disabled', false).text({{ 'Export CSV' | xlj }});
+                }, 3000);
+            });
+        });// END AI GENERATED CODE
+    </script>
+    <script>
+        function toEncounter(pid, encounter) {
+            top.restoreSession();
+            top.RTop.location = '../../patient_file/encounter/encounter_top.php?set_encounter=' +
+                encodeURIComponent(encounter) + '&pid=' + encodeURIComponent(pid);
+        }
+    </script>
+    <script>
+        $('#provider').select2({
+            width: '100%',
+            placeholder: '{{ "Select Provider"|xla }}'
+        });
+    </script>
+</body>
+</html>
