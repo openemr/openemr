@@ -2524,3 +2524,10 @@ UPDATE `list_options` SET codes='L' WHERE list_id='proc_res_abnormal' AND option
 UPDATE `list_options` SET codes='HH' WHERE list_id='proc_res_abnormal' AND option_id='vhigh';
 UPDATE `list_options` SET codes='LL' WHERE list_id='proc_res_abnormal' AND option_id='vlow';
 #EndIf
+
+
+#IfMissingColumn lists_medication is_primary_record
+ALTER TABLE `lists_medication` ADD COLUMN `is_primary_record` TINYINT(1) DEFAULT '1' COMMENT 'Indicates if this medication is a primary record(1) or a reported record(0)';
+UPDATE `lists_medication` SET `is_primary_record` = 1;
+ALTER TABLE `lists_medication` ADD COLUMN `reporting_source_record_id` BIGINT(20) DEFAULT NULL COMMENT 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by';
+#EndIf
