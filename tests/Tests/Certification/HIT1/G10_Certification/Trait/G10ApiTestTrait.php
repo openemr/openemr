@@ -4,11 +4,19 @@ namespace OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Tests\Api\ApiTestClient;
+use Exception;
 
 trait G10ApiTestTrait
 {
+    /**
+     * @var string The previous FHIR profile version that was used in the globals for the max supported fhir version
+     */
+    static protected string $previousProfileValue;
+
     // Alice Jones (96506861-511f-4f6d-bc97-b65a78cf1995),
     // Jeremy Bates (96891ab2-01ad-49f9-9958-cdad71bd33c1),
     // Happy Child(968944d0-180a-48ac-8049-636ae8ac6127),
@@ -65,6 +73,24 @@ trait G10ApiTestTrait
         if (!self::$sessionId) {
             throw new \Exception("Failed to create test session for Inferno Single Patient API tests");
         }
+        self::$previousProfileValue = QueryUtils::fetchSingleValue("SELECT `gl_value` FROM globals WHERE `gl_name` = ?"
+            , 'gl_value', [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]) ?? '';
+        self::setupG10ProfileGlobals();
+    }
+
+    protected static function setupG10ProfileGlobals() {
+        QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
+            , ['3.1.1', GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]);
+        $value = QueryUtils::fetchSingleValue("SELECT `gl_value` FROM globals WHERE `gl_name` = ?"
+            , 'gl_value', [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value]) ?? '';
+        if ($value !== '3.1.1') {
+            throw new Exception("Failed to set FHIR US Core Max Supported Profile Version to 3.1.1 for G10 Certification tests");
+        }
+    }
+
+    public static function teardownG10Test() {
+        QueryUtils::sqlStatementThrowException("UPDATE globals SET `gl_value` = ? WHERE `gl_name` = ?"
+            , [GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, self::$previousProfileValue]);
     }
 
     private static function buildIdMap(array $testGroups): void

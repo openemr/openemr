@@ -20,7 +20,7 @@ use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 trait VersionedProfileTrait
 {
     // TODO: @adunsulag consider making this an enum
-    protected string $highestUSCoreProfileVersion;
+    protected string $highestUSCoreProfileVersion = self::PROFILE_VERSION_8_0_0;
     const PROFILE_VERSION_NONE = '';
 
     const PROFILE_VERSION_3_1_1 = '3.1.1';

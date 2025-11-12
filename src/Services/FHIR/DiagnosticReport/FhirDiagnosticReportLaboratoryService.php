@@ -205,13 +205,24 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
         }
 
         if (isset($openEMRSearchParameters['standard_code']) && $openEMRSearchParameters['standard_code'] instanceof TokenSearchField) {
+            $values = [];
+            $modifier = null;
             foreach ($openEMRSearchParameters['standard_code']->getValues() as $value) {
                 // TODO: @adunsulag do we need to handle unknowable codes across all FHIR code systems?
                 if ($value->getCode() == UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT) {
-                    $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', new TokenSearchValue(true));
-                    $openEMRSearchParameters['standard_code']->setModifier(SearchModifier::MISSING);
+                    $values = [new TokenSearchValue(true)];
+                    $modifier = SearchModifier::MISSING;
                     break;
+                } else if ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
+                    // remove the system as procedure service only cares about the code itself
+                    $values[] = new TokenSearchValue($value->getCode());
+                } else {
+                    $values[] = $value;
                 }
+            }
+            $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', $values);
+            if (!empty($modifier)) {
+                $openEMRSearchParameters['standard_code']->setModifier($modifier);
             }
         }
         $openEMRSearchParameters['procedure_type'] = new TokenSearchField('procedure_type', [new TokenSearchValue(self::PROCEDURE_ORDER_TEST_TYPE)]);
