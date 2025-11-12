@@ -25,7 +25,6 @@ use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\LogoService;
