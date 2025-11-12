@@ -14,6 +14,7 @@ require_once dirname(__DIR__) . '/globals.php'; // Include globals.php
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Reports\Encounter\EncounterReportData;
 use OpenEMR\Reports\Encounter\EncounterReportFormatter;
 use OpenEMR\Reports\Encounter\EncounterReportFormHandler;
@@ -120,7 +121,7 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
 
                 fputcsv($output, [
                     $encounter['id'] ?? '',
-                    $encounter['date'] ? date('Y-m-d', strtotime($encounter['date'])) : '',
+                    $encounter['date'] ? date('Y-m-d', strtotime((string) $encounter['date'])) : '',
                     $encounter['patient'] ?? '',
                     $encounter['provider'] ?? '',
                     $encounter['category'] ?? '',
@@ -156,22 +157,10 @@ $errors = [];
 $summary = [];
 
 // Fetch facilities from the database
-$facilitiesResult = sqlStatement("SELECT id, name FROM facility");
-$facilities = [];
-if ($facilitiesResult) {
-    while ($facility = sqlFetchArray($facilitiesResult)) {
-        $facilities[] = $facility;
-    }
-}
+$facilities = QueryUtils::fetchRecords("SELECT id, name FROM facility");
 
 // Fetch providers from the database
-$providersResult = sqlStatement("SELECT id, CONCAT(lname,' ', fname) AS name FROM users WHERE authorized = 1");
-$providers = [];
-if ($providersResult) {
-    while ($provider = sqlFetchArray($providersResult)) {
-        $providers[] = $provider;
-    }
-}
+$providers = QueryUtils::fetchRecords("SELECT id, CONCAT(lname,' ', fname) AS name FROM users WHERE authorized = 1");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['date_from']) && isset($_GET['date_to'])) {
     $formHandler = new EncounterReportFormHandler();
