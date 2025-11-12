@@ -59,8 +59,6 @@ class TwigContainer
 
     /**
      * Get the Twig Environment.
-     *
-     * @return Environment The twig environment
      */
     public function getTwig(): Environment
     {
