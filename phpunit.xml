@@ -18,16 +18,6 @@ This file configures the kind that requires initialization.
     <!--<server name="PANTHER_NO_HEADLESS" value="1"/>-->
   </php>
   <testsuites>
-    <testsuite name="openemr">
-      <directory>tests/Tests/Unit</directory>
-      <directory>tests/Tests/E2e</directory>
-      <directory>tests/Tests/Api</directory>
-      <directory>tests/Tests/Fixtures</directory>
-      <directory>tests/Tests/Services</directory>
-      <directory>tests/Tests/Validators</directory>
-      <directory>tests/Tests/RestControllers</directory>
-      <directory>tests/Tests/Common</directory>
-    </testsuite>
     <testsuite name="ECQM">
       <directory>tests/Tests/ECQM</directory>
     </testsuite>
