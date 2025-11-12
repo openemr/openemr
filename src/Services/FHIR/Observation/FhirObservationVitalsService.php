@@ -145,7 +145,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:' . self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION
             ,'code' => self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION
             ,'description' => 'Oxygen saturation in Arterial blood'
-            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit']
+            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit', 'inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit']
             ,'in_vitals_panel' => true
             ,'profiles' => [
                 self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
@@ -155,9 +155,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:' . self::VITALS_CODE_PULSE_OXIMETRY,
             'code' => self::VITALS_CODE_PULSE_OXIMETRY,
             'description' => 'Oxygen saturation in Arterial blood by Pulse oximetry',
-            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit'],
-            'in_vitals_panel' => true
-            ,'profiles' => [
+            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit', 'inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit'],
+            'in_vitals_panel' => true,
+            'profiles' => [
                 self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
             ]
         ]

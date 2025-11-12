@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -15,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
@@ -313,5 +315,25 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
         }
 
         return $encode ? $obs->jsonSerialize() : $obs;
+    }
+    /**
+     * Creates the Provenance resource  for the equivalent FHIR Resource
+     *
+     * @param $dataRecord The source OpenEMR data record
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return false|string|FHIRProvenance the FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    public function createProvenanceResource($dataRecord, $encode = false)
+    {
+        if (!($dataRecord instanceof FHIRObservation)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
+        }
     }
 }
