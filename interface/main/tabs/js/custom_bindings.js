@@ -81,14 +81,15 @@ ko.bindingHandlers.location={
                 } else {
                     // need to cancel the loading if we are on another domain
                     // setting the title will hide the spinner and remove the Loading... text
-                    var currentUrl = tabData.url();
+                    const currentUrl = tabData.url?.() ?? '';
+
                     // eRx pages can be direct eRx.php URLs, newcrop redirects, or demographics page (which often means eRx context)
-                    var isErxPage = currentUrl && (
-                        currentUrl.indexOf('/interface/eRx.php') !== -1 ||
-                        currentUrl.indexOf('newcrop') !== -1 ||
-                        (currentUrl.indexOf('demographics.php') !== -1 && tabData.name() === 'pat')
-                    );
-                    tabData.title(isErxPage ? xl('Ensora eRx') : xl("Unknown"));
+                    const erxMarkers = ['/interface/eRx.php', 'newcrop'];
+                    const isErxPage =
+                        (currentUrl && erxMarkers.some(marker => currentUrl.includes(marker))) ||
+                        (currentUrl.includes('demographics.php') && tabData.name?.() === 'pat');
+
+                    tabData.title(xl(isErxPage ? 'Ensora eRx' : 'Unknown') + (isErxPage ? '' : '+'));
                 }
             } ,true
         );
