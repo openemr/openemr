@@ -33,6 +33,9 @@ use OpenEMR\Common\Command\Trait\GlobalInterfaceCommandTrait;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\IGlobalsAware;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Random\RandomException;
@@ -72,6 +75,8 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
                     new InputOption('contexts', 'x', InputOption::VALUE_REQUIRED, 'Fhir contexts to use (comma separated list)', 'user'),
                     new InputOption('operations', 'o', InputOption::VALUE_REQUIRED, 'Fhir operations to grant', ''),
                     new InputOption('force-system-user', 'su', InputOption::VALUE_NONE, 'Force the system user to be used for system scopes'),
+                    new InputOption('scopes', 'sc', InputOption::VALUE_REQUIRED, 'Scopes to use for access token (overrides all other scope options)', ''),
+                    new InputOption('patient', 'p', InputOption::VALUE_REQUIRED, 'Patient uuid to use for bound launch/patient or launch context', ''),
                 ])
             );
     }
@@ -133,32 +138,8 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
                 return Command::FAILURE;
             }
 
-            $scopeIdentifiers = $client->getScopes();
-            if (!empty($input->getOption('contexts'))) {
-                $requestedContexts = array_map('trim', explode(',', (string) $input->getOption('contexts')));
-            }
-            if (empty($requestedContexts)) {
-                $requestedContexts = ['user'];
-            }
-            // if we have been given specific resources then we will limit the scopes to those resources
-            if (!empty($input->getOption('resources'))) {
-                $requestedResources = array_map('trim', explode(',', (string) $input->getOption('resources')));
-                foreach ($requestedContexts as $context) {
-                    $fhirScopes = array_map(fn($resource): string => "{$context}/{$resource}.rs", $requestedResources);
-                }
-                $scopeList = new ServerScopeListEntity();
-
-                $scopeIdentifiers = array_unique(array_merge($fhirScopes, $scopeList->requiredSmartOnFhirScopes()));
-            }
-
-            // add any operations requested
-            if (!empty($input->getOption('operations'))) {
-                $requestedOperations = array_map('trim', explode(',', (string) $input->getOption('operations')));
-                $scopeIdentifiers = array_unique(array_merge($scopeIdentifiers, $requestedOperations));
-            }
-
-            $hasOfflineScope = in_array('offline_access', $scopeIdentifiers, true);
-            $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
+            $scopes = $this->getScopesFromInput($input, $client);
+            $hasOfflineScope = !empty(array_filter($scopes, fn($scope) => $scope->getIdentifier() === 'offline_access'));
 //            $scopes = array_map(function($scope): ScopeEntity { $entity = new ScopeEntity(); $entity->setIdentifier($scope); return $entity; }
 //            , $scopeIdentifiers);
             $session = new Session(new MockFileSessionStorage());
@@ -166,6 +147,19 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             $accessTokenRepository = new AccessTokenRepository($this->getGlobalsBag(), $session);
 //            $accessTokenRepository = new AccessTokenRepository();
             $token = $accessTokenRepository->getNewToken($client, $scopes);
+            if ($input->getOption('patient')) {
+                $patientService = new PatientService();
+                $result = $patientService->search(['uuid' => new TokenSearchField('uuid', [$input->getOption('patient')], true)]);
+                if ($result->hasData()) {
+                    $accessTokenRepository->setContextForNewTokens([
+                        'patient' => $input->getOption('patient')
+                    ]);
+                } else {
+                    $symfonyStyler->error("Patient identifier " . $input->getOption('patient') . " not found.");
+                    return Command::FAILURE;
+                }
+            }
+
             // we could allow the cli to determine the access token expiration time, but for now we will set it to 1 hour
             $token->setExpiryDateTime((new DateTimeImmutable())->add(new DateInterval("PT1H"))); // 1 hour expiration
             $oauth2KeyConfig = new OAuth2KeyConfig($this->globalsBag->get('OE_SITE_DIR'));
@@ -203,6 +197,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
                 ]
             ]);
             $bearerTokenResponse->setAccessToken($token);
+            $scopeIdentifiers = array_map(fn($scope): string => $scope->getIdentifier(), $scopes);
             if ($hasOfflineScope) {
                 $refreshToken = $this->generateRefreshToken($token, $client, $scopeIdentifiers, $session);
                 $symfonyStyler->success("Refresh token successfully generated.");
@@ -267,5 +262,54 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
     private function generateUniqueIdentifier(): string
     {
         return bin2hex(random_bytes(self::ACCESS_TOKEN_IDENTIFIER_RANDOM_BYTES_LENGTH));
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param ClientEntity $client
+     * @return ScopeEntity[]
+     */
+    protected function getScopesFromInput(InputInterface $input, ClientEntity $client): array
+    {
+        $scopeIdentifiers = $client->getScopes();
+        // if we have been given specific resources then we will limit the scopes to those resources
+        if (!empty($input->getOption('scopes'))) {
+            $requestedScopes = array_map('trim', explode(',', (string) $input->getOption('scopes')));
+            $scopeIdentifiers = array_unique($requestedScopes);
+        } else if (!empty($input->getOption('resources'))) {
+            if (!empty($input->getOption('contexts'))) {
+                $requestedContexts = array_map('trim', explode(',', (string) $input->getOption('contexts')));
+            }
+            if (empty($requestedContexts)) {
+                $requestedContexts = ['user'];
+            }
+            // if we have been given specific resources then we will limit the scopes to those resources
+            if (!empty($input->getOption('resources'))) {
+                $requestedResources = array_map('trim', explode(',', (string) $input->getOption('resources')));
+                foreach ($requestedContexts as $context) {
+                    $fhirScopes = array_map(fn($resource): string => "{$context}/{$resource}.rs", $requestedResources);
+                }
+                $scopeList = new ServerScopeListEntity();
+
+                $scopeIdentifiers = array_unique(array_merge($fhirScopes, $scopeList->requiredSmartOnFhirScopes()));
+            }
+
+            // add any operations requested
+            if (!empty($input->getOption('operations'))) {
+                $requestedOperations = array_map('trim', explode(',', (string) $input->getOption('operations')));
+                $scopeIdentifiers = array_unique(array_merge($scopeIdentifiers, $requestedOperations));
+            }
+        }
+
+        if (in_array(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE, $scopeIdentifiers)
+            || in_array(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE, $scopeIdentifiers)) {
+            // verify our input has a patient specified in our context
+            if (!$input->getOption('patient')) {
+                throw new \InvalidArgumentException("Cannot use launch/patient or launch scope without specifying a patient context via the --patient argument");
+            }
+        }
+
+        $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
+        return $scopes;
     }
 }

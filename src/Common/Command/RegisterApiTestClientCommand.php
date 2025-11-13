@@ -76,7 +76,7 @@ class RegisterApiTestClientCommand extends Command
                 'scope' => implode(" ", $scopes),
                 'dsi_type' => ClientEntity::DSI_TYPE_NONE,
                 'jwks_uri' => $jwksUri != '' ? $jwksUri : null,
-                'launch_uri' => $launchUri != '' ? $launchUri : null,
+                'initiate_login_uri' => $launchUri != '' ? $launchUri : null,
             ];
 
             $saved = $clientRepository->insertNewClient($clientId, $info, $site);
