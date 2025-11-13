@@ -27,6 +27,7 @@ This file configures the kind that requires initialization.
       <directory>tests/Tests/Validators</directory>
       <directory>tests/Tests/RestControllers</directory>
       <directory>tests/Tests/Common</directory>
+      <directory>tests/Tests/FrontController</directory>
     </testsuite>
     <testsuite name="ECQM">
       <directory>tests/Tests/ECQM</directory>
@@ -56,6 +57,9 @@ This file configures the kind that requires initialization.
     </testsuite>
     <testsuite name="common">
       <directory>tests/Tests/Common</directory>
+    </testsuite>
+    <testsuite name="frontcontroller">
+      <directory>tests/Tests/FrontController</directory>
     </testsuite>
     <testsuite name="certification">
       <directory>tests/Tests/Certification/HIT1</directory>

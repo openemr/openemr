@@ -803,7 +803,6 @@ jobs:
       with:
         name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml
-
     # Unhide coverage files before combining them
     - name: Unhide coverage files for merging
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
@@ -826,6 +825,18 @@ jobs:
           echo "Unhiding: $hidden -> $file"
           mv "$hidden" "$file"
         done
+        
+    - name: FrontController testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test frontcontroller
+
+    - name: Upload FrontController test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Combine coverage
       if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
