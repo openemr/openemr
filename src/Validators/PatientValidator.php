@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Validators;
 
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -10,13 +20,6 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports Patient Record Validation.
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Dixon Whitmire <dixonwh@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class PatientValidator extends BaseValidator
 {
@@ -44,54 +47,62 @@ class PatientValidator extends BaseValidator
      * Configures validations for the Patient DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than pid are not required.
+     * @param OpenEMRParticleValidator $validator
      */
-    protected function configureValidator()
+    protected function configureValidatorContext(InnerValidator $validator, string $contextName): void
     {
-        parent::configureValidator();
+        // Insert & update
+        $validator
+            ->requiredForInsert('fname', 'First Name', $contextName)
+            ->lengthBetween(1, 255)
+        ;
 
-        // insert validations
-        $this->validator->context(
-            self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context): void {
-                $context->required("fname", "First Name")->lengthBetween(1, 255);
-                $context->required("lname", 'Last Name')->lengthBetween(2, 255);
-                $context->required("sex", 'Gender')->lengthBetween(4, 30);
-                $context->required("DOB", 'Date of Birth')->datetime('Y-m-d');
-                // callback functions are not called for optional parameters unless allowEmpty is false
-                $context->optional("email", "Email")
-                ->required(fn($values): bool => array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null)
-                ->callback(function ($value) {
-                    // Validator->email() does not cover unicode characters in the local part so we use
-                    // the OpenEMR email validator for this.
-                    if (!ValidationUtils::isValidEmail($value)) {
-                        throw new InvalidValueException("Email " . $value . " is not a valid email", "email");
-                    }
-                    return true;
-                });
-            }
-        );
+        $validator
+            ->requiredForInsert('lname', 'Last Name', $contextName)
+            ->lengthBetween(2, 255)
+        ;
 
-        // update validations copied from insert
-        $this->validator->context(
-            self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context): void {
-                $context->copyContext(
-                    self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
-                        foreach ($rules as $chain) {
-                            $chain->required(false);
-                        }
-                    }
-                );
-                // additional uuid validations
-                $context->required("uuid", "uuid")->callback(function ($value) {
-                    if (!$this->isExistingUuid($value)) {
-                        $message = "UUID " . $value . " does not exist";
-                        throw new InvalidValueException($message, $value);
-                    }
-                    return true;
-                })->string();
-            }
-        );
+        $validator
+            ->requiredForInsert('sex', 'Gender', $contextName)
+            ->lengthBetween(4, 30)
+        ;
+
+        $validator
+            ->requiredForInsert('DOB', 'Date of Birth', $contextName)
+            ->datetime('Y-m-d')
+        ;
+
+        // callback functions are not called for optional parameters unless allowEmpty is false
+        $validator
+            ->optional('email', 'Email')
+            ->required(
+                fn($values): bool => BaseValidator::DATABASE_INSERT_CONTEXT === $contextName
+                    && (
+                        array_key_exists('email', $values)
+                        && $values['email'] !== ''
+                        && $values['email'] !== null
+                    )
+            )
+            // Validator->email() does not cover unicode characters in the local part so we use
+            // the OpenEMR email validator for this.
+            ->callback(fn ($value) => ValidationUtils::isValidEmail($value) ?: throw new InvalidValueException(
+                sprintf('Email %s is not a valid email', $value),
+                'email'
+            ))
+        ;
+
+        // Update only
+        if (self::DATABASE_UPDATE_CONTEXT !== $contextName) {
+            return;
+        }
+
+        $validator
+            ->required('uuid', 'uuid')
+            ->callback(fn ($value) => $this->isExistingUuid($value) ?: throw new InvalidValueException(
+                sprintf('UUID %s does not exist', $value),
+                $value
+            ))
+            ->string()
+        ;
     }
 }
