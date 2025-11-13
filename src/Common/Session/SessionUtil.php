@@ -79,6 +79,8 @@ class SessionUtil
 
     public const PORTAL_SESSION_ID = 'PortalOpenEMR';
 
+    public const APP_COOKIE_NAME = 'App';
+
     public const API_WEBROOT = '/apis/';
 
     public const OAUTH_WEBROOT = '/oauth2/';
@@ -308,7 +310,7 @@ class SessionUtil
     public static function setAppCookie(string $appType): void
     {
         setcookie(
-            'App',
+            self::APP_COOKIE_NAME,
             $appType,
             [
                 'expires' => time() + 3600,
