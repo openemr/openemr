@@ -17,8 +17,11 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\PractitionerValidator;
 use OpenEMR\Validators\BaseValidator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('isolated')]
+#[Group('validator')]
 class PractitionerValidatorTest extends TestCase
 {
     private PractitionerValidatorStub $validator;
