@@ -100,30 +100,37 @@ jobs:
       run: mv junit.saved-test-data junit.xml
 
     - name: Upload JUnit test results to GitHub
-      if: ${{ success() || failure() }}
+      if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v5
       with:
         name: junit-isolated-tests-php-${{ matrix.php-version }}
         path: junit.xml
 
     - name: Check if coverage files exist
-      if: ${{ (success() || failure()) }}
+      if: ${{ !cancelled() }}
       id: check-files
       run: |
         echo "clover_exists=$(test -f clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
         echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
 
-    - name: Upload coverage reports to GitHub
-      if: ${{ steps.check-files.outputs.clover_exists == 'true' && steps.check-files.outputs.html_exists == 'true' && (success() || failure()) }}
+    - name: Upload clover coverage report to GitHub
+      if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       uses: actions/upload-artifact@v5
       with:
-        name: coverage-isolated-tests-php-${{ matrix.php-version }}
+        name: coverage-clover-isolated-tests-php-${{ matrix.php-version }}
         path: |
           clover.xml
-          htmlcov/
+
+    - name: Upload html coverage report to GitHub
+      if: ${{ steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
+      uses: actions/upload-artifact@v5
+      with:
+        name: coverage-html-isolated-tests-php-${{ matrix.php-version }}
+        path: |
+          htmlcov
 
     - name: Upload coverage reports to Codecov
-      if: ${{ steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
