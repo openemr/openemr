@@ -44,7 +44,7 @@ use OpenEMR\Core\Header;
 $action = $_REQUEST['action'] ?? '';
 
 if ($action == 'verify_email') {
-    if (!empty($session->get('verifyPortalEmail')) && ($session->get('verifyPortalEmail') === true)) {
+    if ($session->get('verifyPortalEmail') === true) {
         if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session->getSymfonySession())) {

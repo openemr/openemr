@@ -95,7 +95,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
 $password_update = $session->get('password_update', 0);
-//unset($_SESSION['password_update']);
 $session->remove('password_update');
 
 $authorizedPortal = false; // flag

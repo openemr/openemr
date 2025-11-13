@@ -24,7 +24,7 @@ if ($is_module) {
 } else {
     require_once(__DIR__ . "/../verify_session.php");
     // ensure patient is bootstrapped (if sent)
-    if (!empty($session->get('pid'))) {
+    if (!empty($_POST['pid'])) {
         if ($_POST['pid'] != $session->get('pid')) {
             echo xlt("illegal Action");
             SessionUtil::portalSessionCookieDestroy();
