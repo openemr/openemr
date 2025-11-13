@@ -222,10 +222,12 @@ class SessionUtil
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
 //        self::standardSessionCookieDestroy();
-        $session = self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
-        if ($session) {
-            $session->invalidate();
-            unset(self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]);
+        if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
+            $session = self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
+            if ($session) {
+                $session->invalidate();
+                unset(self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]);
+            }
         }
         (new SystemLogger())->debug("SessionUtil: destroyed portal session");
     }
@@ -310,7 +312,7 @@ class SessionUtil
             $appType,
             [
                 'expires' => time() + 3600,
-//                'path' => '/portal',
+                'path' => '/',
         //        'domain' => $cookie->getDomain(),
         //        'secure' => $cookie->isSecure(),
                 'httponly' => true,
