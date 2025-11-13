@@ -83,6 +83,7 @@ use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalsServiceFactory;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -4669,7 +4670,10 @@ if (!empty($GLOBALS['ippf_specific'])) {
 } // end if ippf_specific
 
 if (empty($skipGlobalEvent)) {
-    $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
+    $globalsService = GlobalsServiceFactory::build($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS);
+
+    $globalsInitEvent = new GlobalsInitializedEvent($globalsService);
     $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE, 10);
-    $globalsService = $globalsInitEvent->getGlobalsService()->save();
+
+    $globalsService->save();
 }
