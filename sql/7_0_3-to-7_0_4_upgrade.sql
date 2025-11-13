@@ -2531,3 +2531,23 @@ ALTER TABLE `lists_medication` ADD COLUMN `is_primary_record` TINYINT(1) DEFAULT
 UPDATE `lists_medication` SET `is_primary_record` = 1;
 ALTER TABLE `lists_medication` ADD COLUMN `reporting_source_record_id` BIGINT(20) DEFAULT NULL COMMENT 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by';
 #EndIf
+
+#IfRow3D list_options list_id Clinical_Note_Type option_id imaging_narrative activity 1
+UPDATE `list_options` SET activity=0 WHERE list_id='Clinical_Note_Type' AND option_id='imaging_narrative';
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id diagnostic_imaging_narrative
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','diagnostic_imaging_narrative','Diagnostic imaging study',80,0,0,'','LOINC:18748-4','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id pathology_report_narrative
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Study Narrative',100,0,0,'','LOINC:11526-1','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id surgical_operative_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','surgical_operative_note','Surgical operation note',110,0,0,'','LOINC:11504-8','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id emergency_department_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','emergency_department_note','Emergency department Note',120,0,0,'','LOINC:34111-5','',0,0,1,'',1);
+#EndIf
