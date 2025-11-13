@@ -16,6 +16,8 @@ namespace OpenEMR\Billing;
 
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -1333,11 +1335,195 @@ class Claim
         return str_replace('-', '', substr((string) $this->encounter['date'], 0, 10));
     }
 
-    public function priorAuth()
+    /**
+     * Returns the prior authorization number for this claim.
+     *
+     * Priority order:
+     * 1. Explicitly entered prior auth from misc_billing_options.prior_auth_number
+     * 2. Lookup from module_prior_authorizations table by CPT code and service date
+     *
+     * The module_prior_authorizations table (if it exists) should have the following schema:
+     * - id: INT PRIMARY KEY AUTO_INCREMENT
+     * - pid: INT (patient ID)
+     * - auth_num: VARCHAR (authorization number)
+     * - start_date: DATE (authorization start date, nullable)
+     * - end_date: DATE (authorization end date, nullable)
+     * - cpt: VARCHAR (CPT code or comma-separated list)
+     *
+     * Recommended indexes for optimal query performance:
+     * - INDEX idx_pid_dates (pid, start_date, end_date)
+     * - INDEX idx_cpt (cpt)
+     *
+     * @return string Prior authorization number or empty string if none found
+     */
+    public function priorAuth(): string
     {
-        return $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
+        // Prefer explicitly entered prior auth from misc billing options
+        $explicit = $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
+        if ($explicit !== '') {
+            return $explicit;
+        }
+
+        // If the custom prior auth table exists, try to match by CPT for this encounter's service date
+        if ($this->priorAuthTableExists()) {
+            $svcDate = substr($this->encounter['date'] ?? '', 0, 10);
+            foreach ($this->procs as $prow) {
+                $code = $prow['code'] ?? '';
+                if ($code === '') {
+                    continue;
+                }
+                $auth = $this->priorAuthFromModuleForCpt($this->pid, $svcDate, $code);
+                if ($auth !== '') {
+                    return $this->x12Clean($auth);
+                }
+            }
+        }
+
+        return '';
     }
 
+    /**
+     * Return prior authorization for a specific procedure line when available.
+     *
+     * @param int $prockey The procedure key/index in the procs array
+     * @return string Prior authorization number or empty string if none found
+     */
+    public function priorAuthForProckey($prockey): string
+    {
+        $explicit = $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
+        if ($explicit !== '') {
+            return $explicit;
+        }
+        if (!$this->priorAuthTableExists()) {
+            return '';
+        }
+        $svcDate = substr($this->encounter['date'] ?? '', 0, 10);
+        $code = $this->cptCode($prockey);
+        if ($code === '') {
+            return '';
+        }
+        return $this->x12Clean($this->priorAuthFromModuleForCpt($this->pid, $svcDate, $code));
+    }
+
+    /**
+     * Checks whether the module_prior_authorizations table exists and has the required schema.
+     *
+     * This method validates:
+     * - Table existence
+     * - Presence of required columns: pid, auth_num, start_date, end_date, cpt
+     *
+     * The result is cached for the duration of the request to avoid repeated schema checks.
+     *
+     * @return bool True if table exists with valid schema, false otherwise
+     */
+    private function priorAuthTableExists(): bool
+    {
+        static $exists = null;
+        if ($exists !== null) {
+            return $exists;
+        }
+
+        try {
+            // Verify table exists using QueryUtils
+            $tables = QueryUtils::fetchRecords('SHOW TABLES LIKE ?', ['module_prior_authorizations']);
+            if (empty($tables)) {
+                $exists = false;
+                return $exists;
+            }
+
+            // Validate required columns exist
+            $columns = QueryUtils::listTableFields('module_prior_authorizations');
+            $columnsLower = array_map('strtolower', $columns);
+
+            $required = ['pid', 'auth_num', 'start_date', 'end_date', 'cpt'];
+            foreach ($required as $col) {
+                if (!in_array($col, $columnsLower)) {
+                    $exists = false;
+                    (new SystemLogger())->debug(
+                        "Prior auth table missing required column",
+                        ['column' => $col]
+                    );
+                    return $exists;
+                }
+            }
+
+            $exists = true;
+            return $exists;
+        } catch (\Exception $e) {
+            // Log the error but don't fail the claim generation
+            (new SystemLogger())->error(
+                "Error checking prior auth table existence",
+                ['error' => $e->getMessage()]
+            );
+            $exists = false;
+            return $exists;
+        }
+    }
+
+    /**
+     * Fetch an authorization number for a patient/date/CPT combination.
+     *
+     * Supports both single CPT codes and comma-separated CPT lists in the table.
+     * Uses MySQL FIND_IN_SET for comma-separated CPT matching which is more efficient
+     * than multiple LIKE statements.
+     *
+     * Note: LIKE wildcards (%, _) in CPT codes are escaped to prevent SQL injection.
+     *
+     * @param int $pid Patient ID
+     * @param string $serviceDateYmd Service date in YYYY-MM-DD format
+     * @param string $cpt CPT code to search for
+     * @return string Authorization number or empty string if not found
+     */
+    private function priorAuthFromModuleForCpt($pid, $serviceDateYmd, $cpt): string
+    {
+        if (empty($pid) || empty($serviceDateYmd) || empty($cpt)) {
+            return '';
+        }
+
+        try {
+            // Escape LIKE wildcards to prevent SQL injection
+            $cptEscaped = $this->escapeLikeWildcards($cpt);
+
+            // Query with exact match and comma-separated list support
+            // Using FIND_IN_SET for better performance than multiple LIKE
+            $sql = "SELECT auth_num FROM module_prior_authorizations
+                    WHERE pid = ?
+                      AND (start_date IS NULL OR start_date <= ?)
+                      AND (end_date IS NULL OR end_date >= ?)
+                      AND (cpt = ? OR FIND_IN_SET(?, REPLACE(cpt, ' ', '')))
+                    ORDER BY id DESC
+                    LIMIT 1";
+
+            $params = [
+                $pid,
+                $serviceDateYmd,
+                $serviceDateYmd,
+                $cptEscaped,
+                $cptEscaped
+            ];
+
+            $row = QueryUtils::querySingleRow($sql, $params);
+            return $row['auth_num'] ?? '';
+        } catch (\Exception $e) {
+            // Log error but don't fail claim generation
+            (new SystemLogger())->error(
+                "Error fetching prior auth from module table",
+                ['pid' => $pid, 'cpt' => $cpt, 'error' => $e->getMessage()]
+            );
+            return '';
+        }
+    }
+
+    /**
+     * Escape LIKE wildcards (% and _) in a string to prevent SQL injection.
+     *
+     * @param string $str String to escape
+     * @return string Escaped string
+     */
+    private function escapeLikeWildcards(string $str): string
+    {
+        return str_replace(['%', '_'], ['\%', '\_'], $str);
+    }
     public function isRelatedEmployment()
     {
         return !empty($this->billing_options['employment_related']);
