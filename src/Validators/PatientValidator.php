@@ -23,7 +23,7 @@ class PatientValidator extends BaseValidator
     /**
      * Validates that a patient UUID exists in the database
      */
-    public function isExistingUuid($uuid)
+    public function isExistingUuid(string $uuid): bool
     {
         try {
             $uuidLookup = UuidRegistry::uuidToBytes($uuid);

@@ -337,7 +337,7 @@ class PatientValidatorStub extends PatientValidator
     /**
      * Override isExistingUuid to avoid database calls
      */
-    public function isExistingUuid($uuid)
+    public function isExistingUuid(string $uuid): bool
     {
         // For testing purposes, assume all UUIDs exist
         return true;
@@ -361,12 +361,12 @@ class PatientValidatorTestStub extends PatientValidator
     /**
      * Override isExistingUuid to test different scenarios
      */
-    public function isExistingUuid($uuid)
+    public function isExistingUuid(string $uuid): bool
     {
         // Simulate validation logic without database
 
         // Return false for invalid UUID format
-        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', (string) $uuid)) {
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $uuid)) {
             return false;
         }
 
