@@ -101,8 +101,7 @@ class Claim
         "INNER JOIN code_types as ct ON b.code_type = ct.ct_key " .
         "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND b.pid = ? AND b.encounter = ? AND " .
         "b.activity = '1' ORDER BY b.date, b.id";
-        $res = sqlStatement($sql, [$pid, $encounter_id]);
-        while ($row = sqlFetchArray($res)) {
+        foreach (QueryUtils::fetchRecords($sql, [$pid, $encounter_id]) as $row) {
             // Save all diagnosis codes.
             if ($row['ct_diag'] == '1') {
                 $this->diags[$row['code']] = $row['code'];
@@ -127,12 +126,12 @@ class Claim
             if (!empty($row['provider_id'])) {
                 // Get service provider data for this row.
                 $sql = "SELECT * FROM users WHERE id = ?";
-                $row['provider'] = sqlQuery($sql, [$row['provider_id']]);
+                $row['provider'] = QueryUtils::querySingleRow($sql, [$row['provider_id']]);
                 // Get insurance numbers for this row's provider.
                 $sql = "SELECT * FROM insurance_numbers " .
                 "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
                 "ORDER BY insurance_company_id DESC LIMIT 1";
-                $row['insurance_numbers'] = sqlQuery($sql, [$row['payer_id'], $row['provider_id']]);
+                $row['insurance_numbers'] = QueryUtils::querySingleRow($sql, [$row['payer_id'], $row['provider_id']]);
             }
 
             $this->procs[] = $row;
@@ -142,14 +141,13 @@ class Claim
     public function getCopay($pid, $encounter_id)
     {
         $copay = 0;
-        $resMoneyGot = sqlStatement(
+        //new fees screen copay gives account_code='PCP'
+        foreach (QueryUtils::fetchRecords(
             "SELECT pay_amount as PatientPay, session_id as id, " .
             "date(post_time) as date FROM ar_activity WHERE pid = ? AND encounter = ? AND " .
             "deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
             [$pid, $encounter_id]
-        );
-            //new fees screen copay gives account_code='PCP'
-        while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
+        ) as $rowMoneyGot) {
                 $PatientPay = $rowMoneyGot['PatientPay'] * -1;
                 $copay -= $PatientPay;
         }
@@ -159,7 +157,7 @@ class Claim
     public function getX12Partner($x12_partner_id)
     {
         $sql = "SELECT * FROM x12_partners WHERE id = ?";
-        return sqlQuery($sql, [$x12_partner_id]);
+        return QueryUtils::querySingleRow($sql, [$x12_partner_id]);
     }
 
     public function getInsuranceNumbers($payer_id, $provider_id)
@@ -167,7 +165,7 @@ class Claim
         $sql = "SELECT * FROM insurance_numbers " .
             "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
             "ORDER BY insurance_company_id DESC LIMIT 1";
-        return sqlQuery($sql, [$payer_id, $provider_id]);
+        return QueryUtils::querySingleRow($sql, [$payer_id, $provider_id]);
     }
 
     public function getMiscBillingOptions($pid, $encounter_id)
@@ -177,7 +175,7 @@ class Claim
             "WHERE forms.pid = ? AND forms.encounter = ? AND " .
             "forms.deleted = 0 AND forms.formdir = 'misc_billing_options' " .
             "ORDER BY forms.date";
-        return sqlQuery($sql, [$pid, $encounter_id]);
+        return QueryUtils::querySingleRow($sql, [$pid, $encounter_id]);
     }
 
     public function getReferrerId()
@@ -243,9 +241,8 @@ class Claim
         $this->payers[0] = [];
         $query = "SELECT * FROM insurance_data WHERE pid = ? AND
             (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
-        $dres = sqlStatement($query, [$this->pid, $encounter_date, $encounter_date]);
         $prevtype = '';
-        while ($drow = sqlFetchArray($dres)) {
+        foreach (QueryUtils::fetchRecords($query, [$this->pid, $encounter_date, $encounter_date]) as $drow) {
             if (strcmp($prevtype, $drow['type']) == 0) {
                 continue;
             }
@@ -268,7 +265,7 @@ class Claim
                 $ins = 0;
             }
 
-            $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?", [$drow['provider']]);
+            $crow = QueryUtils::querySingleRow("SELECT * FROM insurance_companies WHERE id = ?", [$drow['provider']]);
             $orow = new InsuranceCompany($drow['provider']);
             $this->payers[$ins] = [];
             $this->payers[$ins]['data']    = $drow;
@@ -774,7 +771,7 @@ class Claim
             return $this->x12Clean(trim($this->billing_facility['attn']));
         } else {
             $query = "SELECT fname, lname FROM users WHERE id = ?";
-            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
+            $ores = QueryUtils::querySingleRow($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             $contact_name = $this->x12Clean(trim($ores['fname'] ?? '')) . " " . $this->x12Clean(trim($ores['lname'] ?? ''));
             return $contact_name;
         }
@@ -786,7 +783,7 @@ class Claim
             $tmp_phone = $this->x12Clean(trim($this->billing_facility['phone']));
         } else {
             $query = "SELECT phonew1 FROM users WHERE id = ?";
-            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
+            $ores = QueryUtils::querySingleRow($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             $tmp_phone = $this->x12Clean(trim($ores['phonew1'] ?? ''));
         }
 
@@ -809,7 +806,7 @@ class Claim
             return $this->x12Clean(trim($this->billing_facility['email'] ?? ''));
         } else {
             $query = "SELECT email FROM users WHERE id = ?";
-            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
+            $ores = QueryUtils::querySingleRow($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             return $this->x12Clean(trim($ores['email'] ?? ''));
         }
     }
@@ -820,7 +817,7 @@ class Claim
             return $this->x12Clean(trim($this->x12_sender_id() ?? ''));
         } else {
             $query = "SELECT federaltaxid FROM users WHERE id = ?";
-            $ores = sqlQuery($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
+            $ores = QueryUtils::querySingleRow($query, [$this->x12_partner['x12_submitter_id'] ?? '']);
             return $this->x12Clean(trim($ores['federaltaxid'] ?? ''));
         }
     }

@@ -225,12 +225,12 @@ class ClaimPriorAuthTest extends TestCase
             KEY `idx_cpt` (`cpt`(191))
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-        sqlStatement($sql);
+        QueryUtils::sqlStatementThrowException($sql);
     }
 
     private static function dropTestTable(): void
     {
-        sqlStatement("DROP TABLE IF EXISTS `module_prior_authorizations`");
+        QueryUtils::sqlStatementThrowException("DROP TABLE IF EXISTS `module_prior_authorizations`");
     }
 
     private function insertTestAuth($pid, $authNum, $startDate, $endDate, $cpt): void
@@ -238,12 +238,12 @@ class ClaimPriorAuthTest extends TestCase
         $sql = "INSERT INTO module_prior_authorizations (pid, auth_num, start_date, end_date, cpt)
                 VALUES (?, ?, ?, ?, ?)";
 
-        sqlStatement($sql, [$pid, $authNum, $startDate, $endDate, $cpt]);
+        QueryUtils::sqlStatementThrowException($sql, [$pid, $authNum, $startDate, $endDate, $cpt]);
     }
 
     private function deleteTestAuth($pid): void
     {
-        sqlStatement("DELETE FROM module_prior_authorizations WHERE pid = ?", [$pid]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM module_prior_authorizations WHERE pid = ?", [$pid]);
     }
 
     private function queryAuth($pid, $serviceDate, $cpt): string
