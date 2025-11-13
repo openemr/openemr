@@ -729,25 +729,25 @@ jobs:
     # The logs for the e2e run are directly in the container logs for nginx/php-fpm
     # but in /var/log/apache2/error.log for apache.
     - name: E2e container logs
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
       run: |
         . ci/ciLibrary.source
         dc logs openemr
 
     - name: E2e error logs
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && steps.parse.outputs.webserver == 'apache' }}
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && steps.parse.outputs.webserver == 'apache' }}
       run: |
         . ci/ciLibrary.source
         dump_error_log ${{ steps.parse.outputs.webserver }}
 
     - name: E2e selenium logs
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
       run: |
         . ci/ciLibrary.source
         dc logs selenium
 
     - name: E2e video logs
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
       run: |
         . ci/ciLibrary.source
         dc logs video
@@ -779,7 +779,7 @@ jobs:
         mv coverage/coverage.e2e.cov coverage/e2e.saved-cov-data
 
     - name: Upload E2E test videos to GitHub
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
       uses: actions/upload-artifact@v5
       with:
         name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
@@ -806,7 +806,7 @@ jobs:
 
     # Unhide coverage files before combining them
     - name: Unhide coverage files for merging
-      if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
       run: |
         shopt -s nullglob
         # Unhide .clover.xml files
@@ -828,13 +828,13 @@ jobs:
         done
 
     - name: Combine coverage
-      if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
       run: |
         . ci/ciLibrary.source
         merge_coverage
 
     - name: Check if combined coverage files exist
-      if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
       id: check-files
       run: |
         {
@@ -846,14 +846,14 @@ jobs:
 
     - name: Upload clover coverage to GitHub
       uses: actions/upload-artifact@v5
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
 
     - name: Upload html coverage to GitHub
       uses: actions/upload-artifact@v5
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
       with:
         name: htmlcov
         path: ./htmlcov/
