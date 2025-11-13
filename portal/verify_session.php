@@ -35,6 +35,13 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 require_once(__DIR__ . "/../vendor/autoload.php");
 $session = SessionWrapperFactory::instance()->getWrapper();
 
+// Landing page definition -- where to go if something goes wrong
+// if this script is included somewhere else we want to support them changing up the landingpage url such as adding
+// parameters, or even setting what the landing page should be for the portal verify session.
+if (!isset($landingpage)) {
+    $landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
+}
+
 if (!isset($skipLandingPageError)) {
     $skipLandingPageError = false;
 }
@@ -44,12 +51,6 @@ if (!isset($skipLandingPageError)) {
 if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
 } else {
-    // Landing page definition -- where to go if something goes wrong
-    // if this script is included somewhere else we want to support them changing up the landingpage url such as adding
-    // parameters, or even setting what the landing page should be for the portal verify session.
-    if (!isset($landingpage)) {
-        $landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
-    }
     SessionUtil::portalSessionCookieDestroy();
     if ($skipLandingPageError === true) {
         header('Location: ' . $landingpage);
