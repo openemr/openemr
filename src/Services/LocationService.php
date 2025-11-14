@@ -108,7 +108,7 @@ class LocationService extends BaseService
                     city,
                     zip as postal_code,
                     state,
-                    null as country_code,
+                    country_code,
                     phone,
                     fax,
                     url as website,

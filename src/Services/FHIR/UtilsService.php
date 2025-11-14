@@ -209,7 +209,9 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_start'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start'], true);
+            // we don't use dateStringToDateTime as that converts from OpenEMR formatted strings to DateTime objects
+            $format = str_contains($dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
+            $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_start'], new \DateTimeZone(date('P')));
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",
@@ -217,6 +219,7 @@ class UtilsService
                 );
                 $date = new \DateTime('now', new \DateTimeZone(date('P')));
             }
+            // TODO: look into why we use RFC3339_EXTENDED here instead of DATE_ATOM like other places
             $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
         } else {
             // we should always have a start period, but if we don't, we will go one year before

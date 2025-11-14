@@ -124,6 +124,17 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
             $practitionerRoleResource->addCode($reason);
         }
 
+        if (!empty($dataRecord['location_uuid'])) {
+            $practitionerRoleResource->addLocation(UtilsService::createRelativeReference("Location", $dataRecord['location_uuid']));
+        }
+        // now let's handle the telecom pieces
+        $telecoms = ['work_phone', 'fax', 'email', 'url'];
+        foreach ($telecoms as $telecom) {
+            if (!empty($dataRecord[$telecom])) {
+                $practitionerRoleResource->addTelecom(UtilsService::createContactPoint($dataRecord[$telecom], $dataRecord[$telecom . '_system'], $dataRecord[$telecom . '_use']));
+            }
+        }
+
         if ($encode) {
             return json_encode($practitionerRoleResource);
         } else {

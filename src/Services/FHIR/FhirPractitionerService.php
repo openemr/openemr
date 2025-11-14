@@ -126,7 +126,15 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
             $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
         }
-        $address = UtilsService::createAddressFromRecord($dataRecord);
+        $address = UtilsService::createAddressFromRecord([
+            'street' => $dataRecord['street'] ?? null,
+            'postal_code' => $dataRecord['zip'] ?? null,
+            'city' => $dataRecord['city'] ?? null,
+            'state' => $dataRecord['state'] ?? null,
+            'country_code' => $dataRecord['country_code'] ?? null,
+            // we don't have a period start for our address so we're going for when the record was last updated
+            'period_start' => $dataRecord['last_updated'] ?? null,
+        ]);
         if (isset($address)) {
             $practitionerResource->addAddress($address);
         }

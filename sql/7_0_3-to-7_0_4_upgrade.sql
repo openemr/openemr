@@ -2551,3 +2551,13 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotRow2D list_options list_id Clinical_Note_Type option_id emergency_department_note
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','emergency_department_note','Emergency department Note',120,0,0,'','LOINC:34111-5','',0,0,1,'',1);
 #EndIf
+
+-- Country is required for Practitioners which still are stored in the users table (as the address book), eventually this will be in addresses
+-- We match the patient_data.country_code
+#IfMissingColumn users country_code
+ALTER TABLE `users` ADD COLUMN `country_code` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
+#EndIf
+
+#IfMissingColumn users country_code2
+ALTER TABLE `users` ADD COLUMN `country_code2` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
+#EndIf
