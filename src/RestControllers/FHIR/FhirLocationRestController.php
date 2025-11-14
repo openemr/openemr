@@ -23,14 +23,14 @@ class FhirLocationRestController
     /**
      * @var FhirLocationService
      */
-    private FhirLocationService $fhirLocationService;
+    private readonly FhirLocationService $fhirLocationService;
 
     /**
      * @var FhirResourcesService
      */
     private $fhirService;
 
-    public function __construct(private HttpRestRequest $request)
+    public function __construct(private readonly HttpRestRequest $request)
     {
         $this->fhirLocationService = new FhirLocationService();
         $this->fhirService = new FhirResourcesService();

@@ -272,7 +272,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
             $patientFacilityType->addChild($patientType);
             $openEMRSearchParameters['patient-facility-type'] = $patientFacilityType;
         }
-        return $this->locationService->getAll($openEMRSearchParameters, false);
+        return $this->locationService->getAll($openEMRSearchParameters, true);
     }
 
     private function hasAccessToUserLocationData()

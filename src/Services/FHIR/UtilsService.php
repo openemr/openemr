@@ -210,7 +210,7 @@ class UtilsService
 
         if (!empty($dataRecord['period_start'])) {
             // we don't use dateStringToDateTime as that converts from OpenEMR formatted strings to DateTime objects
-            $format = str_contains($dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
+            $format = str_contains((string) $dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
             $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_start'], new \DateTimeZone(date('P')));
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
