@@ -50,6 +50,8 @@ class FhirMetaDataRestController
         // TODO: @adunsulag we need to centralize the route inclusion and figure out how to handle the profiles...
         $routes = include $this->config->getWebServerRoot() . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
         $capabilityStatement = new FHIRCapabilityStatement();
+        // TODO: @adunsulag we need to figure out capability statements for different FHIR versions/profiles
+        $capabilityStatement->addInstantiates('http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server');
         $pubStatus = new FHIRPublicationStatus();
         $pubStatus->setValue("active");
         $capabilityStatement->setStatus($pubStatus);
