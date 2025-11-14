@@ -132,6 +132,11 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
         } else {
             $report->addPerformer($fhirOrganizationService->getPrimaryBusinessEntityReference());
         }
+        // director is stored in the users table and linked via procedure_providers.lab_director
+        if (!empty($dataRecord['lab']['director_uuid'])) {
+            $practitionerReference = UtilsService::createRelativeReference("Practitioner", $dataRecord['lab']['director_uuid']);
+            $report->addPerformer($practitionerReference);
+        }
 
         if (!empty($dataRecordReport['results'])) {
             foreach ($dataRecordReport['results'] as $result) {

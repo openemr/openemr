@@ -59,7 +59,7 @@ class ProcedureService extends BaseService
      */
     public function getUuidFields(): array
     {
-        return ['order_uuid', 'result_uuid', 'report_uuid', 'lab_uuid', 'puuid', 'euuid', 'provider_uuid', 'specimen_uuid'];
+        return ['order_uuid', 'result_uuid', 'report_uuid', 'lab_uuid', 'puuid', 'euuid', 'provider_uuid', 'specimen_uuid', 'lab_director_uuid'];
     }
 
     /**
@@ -135,6 +135,8 @@ class ProcedureService extends BaseService
         ,labs.lab_uuid
         ,labs.lab_npi
         ,labs.lab_name
+        ,labs.lab_director_uuid
+        ,labs.lab_director_npi
 
         ,patients.puuid
         ,patients.pid
@@ -244,11 +246,15 @@ class ProcedureService extends BaseService
     LEFT JOIN (
         SELECT
             ppid AS lab_id
-            ,uuid AS lab_uuid
-            ,npi AS lab_npi
-            ,`name` AS lab_name
-            ,`active` AS lab_active
+            ,procedure_providers.uuid AS lab_uuid
+            ,procedure_providers.npi AS lab_npi
+            ,procedure_providers.`name` AS lab_name
+            ,procedure_providers.`active` AS lab_active
+            ,users.uuid AS lab_director_uuid
+            ,users.npi AS lab_director_npi
         FROM procedure_providers
+        LEFT JOIN users ON users.id = procedure_providers.lab_director
+        WHERE users.npi IS NOT NULL AND users.npi != ''
     ) labs ON labs.lab_id = porder.order_lab_id
     LEFT JOIN (
         SELECT
@@ -383,6 +389,8 @@ class ProcedureService extends BaseService
                         ,'uuid' => $record['lab_uuid']
                         , 'name' => $record['lab_name']
                         ,'npi' => $record['lab_npi']
+                        ,'director_uuid' => $record['lab_director_uuid']
+                        ,'director_npi' => $record['lab_director_npi']
                     ];
                 }
 
