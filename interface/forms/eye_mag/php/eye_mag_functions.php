@@ -3193,7 +3193,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
             <div class="tools">
                 <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
                     <span id="sketch_tool_<?php echo attr($zone);?>_color"
-                          class="color_indicator jscolor"
+                          class="color_indicator"
                           data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
                                      previewSize:75,
                                      valueElement:'#selColor_<?php echo attr($zone); ?>',
