@@ -132,15 +132,6 @@ class SMARTLaunchToken
         $jsonEncoded = json_encode($context);
         (new SystemLogger())->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
         $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
-        // sanity check
-        $launchParamsDecoded = $cryptoGen->decryptStandard($launchParams);
-        if ($launchParamsDecoded === false) {
-            throw new \RuntimeException("Could not decrypt launch params after encryption.  Something is wrong with the encryption keys");
-        }
-        $launchParamsDecoded = $cryptoGen->decryptStandard("0076vUgWclTSgzsIo+hdcZ9nVP5LJyEBRfCE13YFVTqPMisUtO1WqG/1o5pTlethdSXvbymZyQbny9Ljy/B4BbkgWyZ6EAYsAOH+HtVxcpenm0NxA/58G3aWlUY2oocbK0S4c8qzJqYep9HHf6ZGt8ANF7jCIZEfSfQrbQsQbi7CwyJdD17unCzP51uKtrIcvXB");
-        if ($launchParamsDecoded === false) {
-            throw new \RuntimeException("Could not decrypt launch params after encryption.  Something is wrong with the encryption keys");
-        }
         return base64_encode($launchParams); // make it URL safe
     }
 
