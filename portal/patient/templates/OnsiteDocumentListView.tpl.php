@@ -16,6 +16,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $pid = $this->cpid;
 $doc_edit = $this->doc_edit;
@@ -37,7 +40,7 @@ $referer_flag = $this->referer_flag ?? 0;
 
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
-$referer_portal = "../home.php?site=" . (urlencode((string) $_SESSION['site_id']) ?? null) ?: 'default';
+$referer_portal = "../home.php?site=" . (urlencode((string) $session->get('site_id', null) ?: 'default'));
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -58,8 +61,8 @@ if (!$docid) {
 }
 
 $isnew = false;
-$ptName = $_SESSION['ptName'] ?? $pid;
-$cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
+$ptName = $session->get('ptName', $pid);
+$cuser = $session->get('sessionUser') ?? $session->get('authUserID');
 
 $templateService = new DocumentTemplateService();
 ?>
@@ -78,7 +81,7 @@ $templateService = new DocumentTemplateService();
     </title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
-    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib'));
+    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib', $session->getSymfonySession()));
     $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
@@ -270,7 +273,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function fetchPdf(divName, docid, printContents = null) {
-            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib')); ?>;
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib', $session->getSymfonySession())); ?>;
             top.restoreSession();
             if (document.getElementById('tempFrame')) {
                 let killFrame = document.getElementById('tempFrame');
@@ -558,7 +561,7 @@ $templateService = new DocumentTemplateService();
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
                 <?php } elseif (!$is_module && !$is_dashboard) {
-                    $referer_portal = "../home.php?site=" . (urlencode((string) $_SESSION['site_id']) ?? null) ?: 'default';
+                    $referer_portal = "../home.php?site=" . (urlencode((string) $session->get('site_id')) ?? null) ?: 'default';
                     ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                 <?php }
@@ -590,7 +593,7 @@ $templateService = new DocumentTemplateService();
                                     <div class="container-fluid h-25" id="file-queue-container">
                                         <div id="file-queue">
                                             <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
-                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                                             </form>
                                             <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
                                         </div>
@@ -606,7 +609,7 @@ $templateService = new DocumentTemplateService();
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib')); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib', $session->getSymfonySession())); ?>" />
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />
