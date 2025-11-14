@@ -14385,6 +14385,7 @@ CREATE TABLE `form_questionnaire_assessments` (
   `questionnaire_response` longtext,
   `lform` longtext,
   `lform_response` longtext,
+  `category` VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 

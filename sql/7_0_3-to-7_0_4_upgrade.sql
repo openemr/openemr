@@ -2561,3 +2561,7 @@ ALTER TABLE `users` ADD COLUMN `country_code` varchar(255) COMMENT 'ISO 3166-1 a
 #IfMissingColumn users country_code2
 ALTER TABLE `users` ADD COLUMN `country_code2` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
 #EndIf
+
+#IfMissingColumn form_questionnaire_assessments category
+ALTER TABLE `form_questionnaire_assessments` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
+#EndIf

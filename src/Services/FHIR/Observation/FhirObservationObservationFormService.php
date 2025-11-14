@@ -40,7 +40,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
     use FhirObservationTrait;
 
     private ObservationService $observationService;
-    const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'therapy'];
+    const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'therapy'];
 
     public function __construct($fhirApiURL = null)
     {
