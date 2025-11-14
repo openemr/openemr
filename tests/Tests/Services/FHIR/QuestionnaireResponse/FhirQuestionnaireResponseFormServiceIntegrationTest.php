@@ -123,7 +123,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $this->createTestQuestionnaireResponse('in-progress');
 
         // Retrieve all using the service
-        $processingResult = $this->service->getAll([]);
+        $processingResult = $this->service->getAll(['patient' => $this->testPatientData['uuid']]);
 
         $this->assertTrue($processingResult->isValid(), "Processing result should be valid");
         $this->assertNotEmpty($processingResult->getData(), "Processing result should contain data");

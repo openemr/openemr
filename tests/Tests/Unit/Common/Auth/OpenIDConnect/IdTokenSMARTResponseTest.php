@@ -237,7 +237,7 @@ class IdTokenSMARTResponseTest extends TestCase
         $scopes = [
             $this->createMockScope('openid'),
             $this->createMockScope('patient/*.read'),
-            $this->createMockScope('site:default') // Should be filtered out
+            $this->createMockScope('api:oemr') // Should be filtered out
         ];
         $accessToken->method('getScopes')->willReturn($scopes);
 
@@ -329,7 +329,7 @@ class IdTokenSMARTResponseTest extends TestCase
         $scopes = [
             $this->createMockScope('openid'),
             $this->createMockScope('patient/*.read'),
-            $this->createMockScope('site:default'), // Should be filtered out
+            $this->createMockScope('api:oemr'), // Should be filtered out
             $this->createMockScope('offline_access')
         ];
 
