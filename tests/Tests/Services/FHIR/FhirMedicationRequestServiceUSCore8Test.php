@@ -99,7 +99,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             'medication_adherence_date_asserted' => '2023-01-15 01:00:00',
             'medication_adherence_information_source' => 'patient',
             'medication_adherence_information_source_title' => 'Patient',
-            'medication_adherence_information_source_codes' => 'SNOMED-CT:116154003'
+            'medication_adherence_information_source_codes' => 'SNOMED-CT:116154003',
+            'reporting_source_type' => 'user',
+            'reporting_source_uuid' => 'practitioner-uuid-789'
         ];
 
         // Minimal US Core compliant data (required fields only)
