@@ -24,7 +24,7 @@ use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 /**
  * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here
  */
-$pid ??= $_SESSION['pid'] ?? null;
+$pid = isset($pid) ? $pid : ($_SESSION['pid'] ?? null);
 
 if (isset($_GET['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
