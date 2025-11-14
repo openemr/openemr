@@ -40,12 +40,12 @@ $isPrimaryRecord = $medication['is_primary_record'] ?? '1';
         <label class="radio-inline">
             <input type="radio" class='medication-reported-option' name="form_medication[is_primary_record]" value="1" <?php if ($isPrimaryRecord == '1') {
                 echo 'checked';
-            } ?>> <?php echo xlt('Yes'); ?>
+                                                                                                                       } ?>> <?php echo xlt('Yes'); ?>
         </label>
         <label class="radio-inline">
             <input type="radio" class='medication-reported-option' name="form_medication[is_primary_record]" value="0" <?php if ($isPrimaryRecord == '0') {
                 echo 'checked';
-            } ?>> <?php echo xlt('No'); ?>
+                                                                                                                       } ?>> <?php echo xlt('No'); ?>
         </label>
     </radiogroup>
 </div>
