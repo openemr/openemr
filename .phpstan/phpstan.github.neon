@@ -9227,7 +9227,7 @@ parameters:
     path: ../interface/forms/questionnaire_assessments/questionnaire_assessments.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
+    count: 2
     path: ../interface/forms/questionnaire_assessments/questionnaire_assessments.php
   - message: '#^Variable \$encounter might not be defined\.$#'
     identifier: variable.undefined

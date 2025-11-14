@@ -37,7 +37,7 @@ class PatientIssuesService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid'];
+        return ['uuid', 'reporting_source_uuid'];
     }
 
     public function getOneById($issueId)
@@ -180,10 +180,14 @@ class PatientIssuesService extends BaseService
                 ,medications.medication_adherence_information_source
                 ,medications.medication_adherence
                 ,medications.medication_adherence_date_asserted
+                ,medications.is_primary_record
+                ,medications.reporting_source_record_id
+                ,medications.reporting_source_uuid
+                ,medications.reporting_source_type
                 FROM lists
                 LEFT JOIN (
                     SELECT
-                       id AS lists_medication_id
+                       lists_medication.id AS lists_medication_id
                        ,list_id
                         ,usage_category
                         ,usage_category_title
@@ -193,7 +197,12 @@ class PatientIssuesService extends BaseService
                         ,medication_adherence_information_source
                         ,medication_adherence
                         ,medication_adherence_date_asserted
+                        ,is_primary_record
+                        ,reporting_source_record_id
+                        ,users.uuid AS reporting_source_uuid
+                        ,'user' AS reporting_source_type
                     FROM lists_medication
+                    LEFT JOIN users ON users.id = lists_medication.reporting_source_record_id
                 ) medications ON medications.list_id = lists.id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
@@ -217,7 +226,8 @@ class PatientIssuesService extends BaseService
         if (!empty($record['lists_medication_id'])) {
             $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title'
                 , 'drug_dosage_instructions', 'medication_adherence_information_source', 'medication_adherence'
-                , 'medication_adherence_date_asserted'];
+                , 'medication_adherence_date_asserted', 'is_primary_record'
+                , 'reporting_source_record_id', 'reporting_source_uuid', 'reporting_source_type'];
             $record['medication'] = [
                 'id' => $row['lists_medication_id']
                 ,'erx_source' => $row['erx_source']

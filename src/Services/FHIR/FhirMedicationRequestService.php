@@ -392,27 +392,30 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateReported(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        $medRequestResource->setReportedBoolean(self::MEDICATION_REQUEST_REPORTED_PRIMARY_SOURCE);
-        if ('1' === ($dataRecord['isReportedRecord'] ?? 0)) {
-            // non-primary source
-            $medRequestResource->setReportedBoolean(true);
+        // reported 0..1  should ONLY have a valueBoolean or valueReference NOT both
+        if (!empty($dataRecord['reporting_source_type'])) {
+            $resourceType = match ($dataRecord['reporting_source_type']) {
+                'user' => 'Practitioner',
+                'patient_data' => 'Patient',
+                'facility' => 'Organization',
+                default => null,
+            };
+            if (!empty($resourceType) && !empty($dataRecord['reporting_source_uuid'])) {
+                $medRequestResource->setReportedReference(UtilsService::createRelativeReference($resourceType, $dataRecord['reporting_source_uuid']));
+            }
+        } else {
+            // reporter needs to be the primary organization
+            $orgService = $this->getFhirOrganizationService();
+            $primaryBusinessEntity = $orgService->getPrimaryBusinessEntityReference();
+            if (empty($primaryBusinessEntity)) {
+                $this->getSystemLogger()->errorLogCaller("No primary organization found for reported field population in MedicationRequest FHIR resource.");
+                // as a fallback we will set reported to true
+                $medRequestResource->setReportedBoolean('0' === ($dataRecord['is_primary_record'] ?? '1'));
+            }
+            else {
+                $medRequestResource->setReportedReference($primaryBusinessEntity);
+            }
         }
-//        // TODO: @adunsulag we fall back to the organization if no reporter is set, but we may want to revisit this logic later
-//        if (!empty($dataRecord['reporter_type'])) {
-//            $resourceType = match ($dataRecord['reporter_type_table_name']) {
-//                'user' => 'Practitioner',
-//                'patient_data' => 'Patient',
-//                'facility' => 'Organization',
-//                default => null,
-//            };
-//            if (!empty($resourceType) && !empty($dataRecord['reporter_uuid'])) {
-//                $medRequestResource->setReportedReference(UtilsService::createRelativeReference($resourceType, $dataRecord['reporter_uuid']));
-//            }
-//        } else {
-//            // reporter needs to be the primary organization
-//            $orgService = $this->getFhirOrganizationService();
-//            $medRequestResource->setReportedReference($orgService->getPrimaryBusinessEntityReference());
-//        }
     }
 
     public function populateSubject(FHIRMedicationRequest $medRequestResource, array $dataRecord)

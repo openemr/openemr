@@ -456,12 +456,14 @@ if (!empty($_POST['form_save'])) {
         "streetb = "      . invalue('form_streetb')      . ", " .
         "city = "         . invalue('form_city')         . ", " .
         "state = "        . invalue('form_state')        . ", " .
+        "country_code = " . invalue('form_country_code') . ", " .
         "zip = "          . invalue('form_zip')          . ", " .
         "street2 = "      . invalue('form_street2')      . ", " .
         "streetb2 = "     . invalue('form_streetb2')     . ", " .
         "city2 = "        . invalue('form_city2')        . ", " .
         "state2 = "       . invalue('form_state2')       . ", " .
         "zip2 = "         . invalue('form_zip2')         . ", " .
+        "country_code2 = ". invalue('form_country_code2'). ", " .
         "phone = "        . invalue('form_phone')        . ", " .
         "phonew1 = "      . invalue('form_phonew1')      . ", " .
         "phonew2 = "      . invalue('form_phonew2')      . ", " .
@@ -476,8 +478,8 @@ if (!empty($_POST['form_save'])) {
         "title, fname, lname, mname, suffix, " .
         "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, cpoe, " .
         "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
-        "street, streetb, city, state, zip, " .
-        "street2, streetb2, city2, state2, zip2, " .
+        "street, streetb, city, state, zip,country_code, " .
+        "street2, streetb2, city2, state2, zip2,country_code2, " .
         "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
         ") VALUES ( "                        .
         "'', "                               . // username
@@ -512,11 +514,13 @@ if (!empty($_POST['form_save'])) {
         invalue('form_city')          . ", " .
         invalue('form_state')         . ", " .
         invalue('form_zip')           . ", " .
+        invalue('form_country_code')  . ", " .
         invalue('form_street2')       . ", " .
         invalue('form_streetb2')      . ", " .
         invalue('form_city2')         . ", " .
         invalue('form_state2')        . ", " .
         invalue('form_zip2')          . ", " .
+        invalue('form_country_code2') . ", " .
         invalue('form_phone')         . ", " .
         invalue('form_phonew1')       . ", " .
         invalue('form_phonew2')       . ", " .
@@ -770,6 +774,8 @@ if ($type) { // note this only happens when its new
     <div class="col">
         <input type='text' size='10' id='form_city' name='form_city' maxlength='30' value='<?php echo attr($row['city'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('City'); ?>" />
     </div>
+</div>
+<div class="form-row my-1">
     <div class="col-2">
         <label for="form_state" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('State') . "/" . xlt('county'); ?>:</label>
     </div>
@@ -781,6 +787,12 @@ if ($type) { // note this only happens when its new
     </div>
     <div class="col">
         <input type='text' size='10' id='form_zip' name='form_zip' maxlength='20' value='<?php echo attr($row['zip'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Postal code'); ?>" />
+    </div>
+    <div class="col-2">
+        <label for="form_country_code" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Country'); ?>:</label>
+    </div>
+    <div class="col">
+        <?php echo generate_select_list('form_country_code', 'country', ($row['country_code'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
 </div>
 
@@ -798,20 +810,28 @@ if ($type) { // note this only happens when its new
     <div class="col-2">
         <label for="form_city2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt City'); ?>:</label>
     </div>
-    <div class="col-auto">
+    <div class="col">
         <input type='text' size='10' id='form_city2' name='form_city2' maxlength='30' value='<?php echo attr($row['city2'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt City'); ?>" />
     </div>
-    <div class="col-auto">
+</div>
+<div class="form-row my-1">
+    <div class="col-2">
         <label for="form_state2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State') . "/" . xlt('county'); ?>:</label>
     </div>
-    <div class="col-auto">
-    <?php echo generate_select_list('form_state2', 'state', ($row['state2'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
+    <div class="col">
+        <?php echo generate_select_list('form_state2', 'state', ($row['state2'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
-    <div class="col-auto">
+    <div class="col-2">
         <label for="form_zip2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Postal code'); ?>:</label>
     </div>
-    <div class="col-auto">
+    <div class="col">
         <input type='text' size='10' id='form_zip2' name='form_zip2' maxlength='20' value='<?php echo attr($row['zip2'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt Postal code'); ?>" />
+    </div>
+    <div class="col-2">
+        <label for="form_country_code2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Country'); ?>:</label>
+    </div>
+    <div class="col">
+        <?php echo generate_select_list('form_country_code2', 'country', ($row['country_code'] ?? null), '', 'Unassigned', 'form-control-sm'); ?>
     </div>
 </div>
 

@@ -134,4 +134,5 @@ class FhirCodeSystemConstants
     const HL7_ROLE_CODE = "http://terminology.hl7.org/CodeSystem/role-code";
 
     const HSOC = "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html";
+    const CMS_PLACE_OF_SERVICE = " https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set";
 }

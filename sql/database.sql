@@ -3257,6 +3257,7 @@ CREATE TABLE `immunizations` (
   `ordering_provider` INT(11) DEFAULT NULL,
   `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
   `reason_description` text COMMENT 'Human readable text description of the reason_code column',
+  `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -4557,12 +4558,12 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','correct','Corrected'  ,60,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_abnormal','Procedure Result Abnormal', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','no'  ,'No'  ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','yes' ,'Yes' ,20,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','high','High',30,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','low' ,'Low' ,40,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal', 'vhigh', 'Above upper panic limits', 50,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal', 'vlow', 'Below lower panic limits', 60,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','no'  ,'No'  ,10,0, 'N');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','yes' ,'Yes' ,20,0, 'A');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','high','High',30,0, 'H');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal','low' ,'Low' ,40,0, 'L');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal', 'vhigh', 'Above upper panic limits', 50,0, 'HH');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('proc_res_abnormal', 'vlow', 'Below lower panic limits', 60,0, 'LL');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_status','Procedure Result Statuses', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_status','final'     ,'Final'      ,10,0);
@@ -7621,23 +7622,23 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
     VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('telecom_systems','PHONE','phone',10,0,1),
-    ('telecom_systems','FAX','fax',20,0,1),
-    ('telecom_systems','EMAIL','email',30,0,1),
-    ('telecom_systems','PAGER','pager',40,0,1),
-    ('telecom_systems','URL','url',50,0,1),
-    ('telecom_systems','SMS','sms',60,0,1),
-    ('telecom_systems','OTHER','other',70,0,1);
+    ('telecom_systems','phone','Phone',10,0,1),
+    ('telecom_systems','fax','Fax',20,0,1),
+    ('telecom_systems','email','Email',30,0,1),
+    ('telecom_systems','pager','Pager',40,0,1),
+    ('telecom_systems','url','URL',50,0,1),
+    ('telecom_systems','sms','SMS',60,0,1),
+    ('telecom_systems','other','Other',70,0,1);
 
 -- Telecome Uses
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','HOME','home',10,0,1),
-    ('telecom_uses','WORK','work',20,0,1),
-    ('telecom_uses','TEMP','temp',30,0,1),
-    ('telecom_uses','OLD','old',40,0,1),
-    ('telecom_uses','MOBILE','mobile',50,0,1);
+    ('telecom_uses','home','Home',10,0,1),
+    ('telecom_uses','work','Work',20,0,1),
+    ('telecom_uses','temp','Temp',30,0,1),
+    ('telecom_uses','old','Old',40,0,1),
+    ('telecom_uses','mobile','Mobile',50,0,1);
 
 -- Person Patient Link Method
 INSERT INTO list_options (list_id, option_id, title, seq, is_default) VALUES ('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);
@@ -7712,6 +7713,8 @@ CREATE TABLE `lists_medication` (
     , `medication_adherence` VARCHAR(50) DEFAULT NULL COMMENT 'fk to list_options.option_id where list_id=medication_adherence to indicate if patient is complying with medication regimen'
     , `medication_adherence_date_asserted` DATETIME DEFAULT NULL COMMENT 'Date when the medication adherence information was asserted'
     , `prescription_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to prescriptions.prescription_id to link medication to prescription record'
+    , `is_primary_record` TINYINT(1) DEFAULT '1' COMMENT 'Indicates if this medication is a primary record(1) or a reported record(0)'
+    , `reporting_source_record_id` BIGINT(20) DEFAULT NULL COMMENT 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by'
     , PRIMARY KEY (`id`)
     , INDEX `lists_med_usage_category_idx`(`usage_category`)
     , INDEX `lists_med_request_intent_idx`(`request_intent`)
@@ -9800,11 +9803,13 @@ CREATE TABLE `users` (
   `city` varchar(30) default NULL,
   `state` varchar(30) default NULL,
   `zip` varchar(20) default NULL,
+  `country_code` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now',
   `street2` varchar(60) default NULL,
   `streetb2` varchar(60) default NULL,
   `city2` varchar(30) default NULL,
   `state2` varchar(30) default NULL,
   `zip2` varchar(20) default NULL,
+  `country_code2` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now',
   `phone` varchar(30) default NULL,
   `fax` varchar(30) default NULL,
   `phonew1` varchar(30) default NULL,
@@ -12263,9 +12268,13 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','discharge_summary','Discharge Summary Note',50,0,0,'','LOINC:18842-5','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','procedure_note','Procedure Note',60,0,0,'','LOINC:28570-0','',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','consultation_note','Consultation Note',70,0,0,'','LOINC:11488-4','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','imaging_narrative','Imaging Narrative',80,0,0,'','LOINC:28570-0','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','diagnostic_imaging_narrative','Diagnostic imaging study',80,0,0,'','LOINC:18748-4','',0,0,1,'',1);
+-- we leave in the old one in case people are still referring to it but we deactivate it
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','imaging_narrative','Imaging Narrative',80,0,0,'','LOINC:28570-0','',0,0,0,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','laboratory_report_narrative','Laboratory Report Narrative',90,0,0,'','LOINC:11502-2','',0,0,1,'',1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Report Narrative',100,0,0,'','','',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Study Narrative',100,0,0,'','','LOINC:11526-1',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','surgical_operative_note','Surgical operation note',110,0,0,'','','LOINC:11504-8',0,0,1,'',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','emergency_department_note','Emergency department Note',120,0,0,'','','LOINC:34111-5',0,0,1,'',1);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`
                            , `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`)
@@ -14376,6 +14385,7 @@ CREATE TABLE `form_questionnaire_assessments` (
   `questionnaire_response` longtext,
   `lform` longtext,
   `lform_response` longtext,
+  `category` VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 

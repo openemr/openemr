@@ -6,6 +6,7 @@ use Google\Service\Bigquery\SessionInfo;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
@@ -16,6 +17,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -204,19 +206,31 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             throw new HttpException(403, "User role does not have permission to access this resource.");
         }
 
-        $this->setupSessionForUserRole($userRole, $userId, $user, $request);
+        // setup our scopes and other attributes needed before we setup the session as those are needed for session setup
+        $scopeValidatorFactory = new ScopeValidatorFactory();
+        $scopeValidatorArray = $scopeValidatorFactory->buildScopeValidatorArray($attributes['oauth_scopes']);
+        $request->setAccessTokenScopeValidationArray($scopeValidatorArray);
+        $request->setAccessTokenId($tokenId);
+//        $request->setAccessTokenScopes($attributes['oauth_scopes']);
+        $request->setRequestUserRole($userRole);
+        $request->setRequestUser($userId, $user);
+        $request->attributes->set('tokenId', $tokenId);
         $request->attributes->set('userId', $userId);
         $request->attributes->set('user', $user);
         $request->attributes->set('userRole', $userRole);
         $request->attributes->set('clientId', $clientId);
-        $request->attributes->set('tokenId', $tokenId);
-        $scopeValidatorFactory = new ScopeValidatorFactory();
-        $scopeValidatorArray = $scopeValidatorFactory->buildScopeValidatorArray($attributes['oauth_scopes']);
-        $request->setAccessTokenScopeValidationArray($scopeValidatorArray);
-//        $request->setAccessTokenScopes($attributes['oauth_scopes']);
-        $request->setAccessTokenId($tokenId);
-        $request->setRequestUserRole($userRole);
-        $request->setRequestUser($userId, $user);
+
+        $this->setupSessionForUserRole($userRole, $userId, $user, $request);
+
+        // set patient uuid if user role is patient
+        if ($userRole === 'patient') {
+            if (!empty($user['pid'])) {
+                $request->setPatientUuidString($userId);
+            } else {
+                $this->getSystemLogger()->error("OpenEMR Error - api patient user role but no patient id found");
+                throw new HttpException(401, "OpenEMR Error: API call failed due to invalid patient user id.");
+            }
+        }
         $request->setClientId($clientId);
         return true;
     }
@@ -242,7 +256,14 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 $this->getSystemLogger()->error("OpenEMR Error: api failed because unable to set critical users session variables");
                 throw new HttpException(401);
             }
-            $this->getSystemLogger()->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
+            $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy::setupSessionForUserRole request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
+            if (
+                $request->requestHasScopeEntity(ScopeEntity::createFromString(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE))
+                || $request->requestHasScopeEntity(ScopeEntity::createFromString(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE))
+            ) {
+                $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy::setupSessionForUserRole api is userRole populating token context for request due to smart launch scope");
+                $this->populateTokenContextForRequest($request);
+            }
         } elseif ($userRole == 'patient') {
             $session->set('pid', $user['pid'] ?? null);
             $this->getSystemLogger()->debug("dispatch.php request setup for patient role", ['patient' => $session->get('pid')]);
@@ -403,5 +424,64 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $this->userService = new UserService();
         }
         return $this->userService;
+    }
+
+    /**
+     * Grabs all of the context information for the request's access token and populates any context variables the
+     * request needs (such as patient binding information).  Returns the populated request
+     * @param HttpRestRequest $restRequest
+     * @return HttpRestRequest
+     */
+    public function populateTokenContextForRequest(HttpRestRequest $restRequest): HttpRestRequest
+    {
+
+        $context = $this->getTokenContextForRequest($restRequest);
+        // note that the context here is the SMART value that is returned in the response for an AccessToken in this
+        // case it is the patient value which is the logical id (ie uuid) of the patient.
+        $patientUuid = $context['patient'] ?? null;
+        if (!empty($patientUuid)) {
+            // we only set the bound patient access if the underlying user can still access the patient
+            if ($this->checkUserHasAccessToPatient($restRequest->getRequestUserId(), $patientUuid)) {
+                $restRequest->setPatientUuidString($patientUuid);
+            } else {
+                $this->getSystemLogger()->error("OpenEMR Error: api had patient launch scope but user did not have access to patient uuid."
+                    . " Resources restricted with patient scopes will not return results");
+            }
+        } else {
+            $this->getSystemLogger()->error("OpenEMR Error: api had patient launch scope but no patient was set in the "
+                . " session cache.  Resources restricted with patient scopes will not return results");
+        }
+        return $restRequest;
+    }
+
+    public function getTokenContextForRequest(HttpRestRequest $restRequest)
+    {
+        $accessTokenRepo = $this->getAccessTokenRepositoryForSession($restRequest->getSession());
+        // note this is pretty confusing as getAccessTokenId comes from the oauth_access_id which is the token NOT
+        // the database id even though this is called accessTokenId....
+        $token = $accessTokenRepo->getTokenByToken($restRequest->getAccessTokenId());
+        $context = $token['context'] ?? "{}"; // if there is no populated context we just return an empty return
+        try {
+            return json_decode($context, true);
+        } catch (\Exception $exception) {
+            $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+                , 'tokenId' => $restRequest->getAccessTokenId()]);
+        }
+        return [];
+    }
+
+
+    /**
+     * Checks whether a user has access to the patient. Returns true if the user can access the given patient, false otherwise
+     * @param $userId The id from the users table that represents the user
+     * @param $patientUuid The uuid from the patient_data table that represents the patient
+     * @return bool True if has access, false otherwise
+     */
+    protected function checkUserHasAccessToPatient($userId, $patientUuid): bool
+    {
+        // TODO: the session should never be populated with the pid from the access token unless the user had access to
+        // it.  However, if we wanted an additional check or if we wanted to fire off any kind of event that does
+        // patient filtering by provider / clinic we would handle that here.
+        return true;
     }
 }
