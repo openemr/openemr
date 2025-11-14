@@ -169,32 +169,20 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
             $dataRecord['type'] = 'physical';
             $locationResource->setAddress(UtilsService::createAddressFromRecord($dataRecord));
 
-            if (!empty($dataRecord['phone'])) {
-                $phone = new FHIRContactPoint();
-                $phone->setSystem('phone');
-                $phone->setValue($dataRecord['phone']);
-                $locationResource->addTelecom($phone);
+            $contactPoints = ['phone', 'fax', 'email'];
+            foreach ($contactPoints as $point) {
+                if (!empty($dataRecord[$point])) {
+                    $contactPoint = new FHIRContactPoint();
+                    $contactPoint->setSystem($point);
+                    $contactPoint->setValue($dataRecord[$point]);
+                    $locationResource->addTelecom($contactPoint);
+                }
             }
-
-            if (!empty($dataRecord['fax'])) {
-                $fax = new FHIRContactPoint();
-                $fax->setSystem('fax');
-                $fax->setValue($dataRecord['fax']);
-                $locationResource->addTelecom($fax);
-            }
-
             if (!empty($dataRecord['website'])) {
                 $url = new FHIRContactPoint();
-                $url->setSystem('website');
+                $url->setSystem('url');
                 $url->setValue($dataRecord['website']);
                 $locationResource->addTelecom($url);
-            }
-
-            if (!empty($dataRecord['email'])) {
-                $email = new FHIRContactPoint();
-                $email->setSystem('email');
-                $email->setValue($dataRecord['email']);
-                $locationResource->addTelecom($email);
             }
         }
 
