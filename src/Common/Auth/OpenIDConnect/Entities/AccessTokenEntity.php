@@ -27,7 +27,18 @@ class AccessTokenEntity implements AccessTokenEntityInterface
     /**
      * @var bool
      */
-    private $revoked;
+    private bool $revoked = false;
+
+    private string $issuer;
+
+    public function setIssuer(?string $issuer): void
+    {
+        $this->issuer = $issuer;
+    }
+    public function getIssuer(): ?string
+    {
+        return $this->issuer;
+    }
 
     public function setIsRevoked(bool $revoked): void
     {
@@ -42,5 +53,27 @@ class AccessTokenEntity implements AccessTokenEntityInterface
     public function isExpired(): bool
     {
         return $this->getExpiryDateTime() < new DateTimeImmutable();
+    }
+
+    // Note iss wasn't required in OAuth2 league https://github.com/thephpleague/oauth2-server/issues/1434
+    // but it now is a required part of OAuth2 JWT access tokens. So we override the method to add it.
+    // it appears that this may come in the future https://github.com/thephpleague/oauth2-server/issues/1434
+    private function convertToJWT()
+    {
+        $this->initJwtConfiguration();
+
+        $builder = $this->jwtConfiguration->builder()
+            ->permittedFor($this->getClient()->getIdentifier())
+            ->identifiedBy($this->getIdentifier())
+            ->issuedAt(new DateTimeImmutable())
+            ->canOnlyBeUsedAfter(new DateTimeImmutable())
+            ->expiresAt($this->getExpiryDateTime())
+            ->relatedTo((string) $this->getUserIdentifier())
+            ->withClaim('scopes', $this->getScopes());
+        // add issuer to token
+        if ($this->getIssuer() != null) {
+            $builder = $builder->issuedBy($this->getIssuer());
+        }
+        return $builder->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
     }
 }

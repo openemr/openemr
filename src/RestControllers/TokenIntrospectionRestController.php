@@ -17,6 +17,7 @@ namespace OpenEMR\RestControllers;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -97,9 +98,7 @@ class TokenIntrospectionRestController {
                 if (empty($request->request->get('client_id'))) {
                     return false;
                 }
-                if (empty($request->request->get('client_secret'))) {
-                    return false;
-                }
+                // we don't check client_secret as public clients can get access tokens without a secret
             }
         }
         return true;
@@ -134,7 +133,7 @@ class TokenIntrospectionRestController {
 
     public function getAccessTokenRepository(SessionInterface $session): AccessTokenRepository {
         if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository($this->getGlobalsBag(), $session);
+            $this->accessTokenRepository = new AccessTokenRepository($this->getServerConfig(), $session);
         }
         return $this->accessTokenRepository;
     }
@@ -400,6 +399,22 @@ class TokenIntrospectionRestController {
                 if ($audience !== $clientId) {
                     // return no info in this case. possible Phishing
                     $result = ['active' => false];
+                } else {
+                    // if we could parse the token, we're going to get the context for the the token
+                    $dbTokenWithContext = $this->getAccessTokenRepository($request->getSession())->getTokenByToken($result['jti']);
+                    $context = $dbTokenWithContext['context'] ?? '{}';
+                    $decodedContext = \json_decode((string)$context, true, 512, JSON_THROW_ON_ERROR);
+                    foreach ($decodedContext as $key => $value) {
+                        // don't allow overwriting of standard claims
+                        if (!in_array($key, ['active', 'status', 'scope', 'exp', 'sub', 'jti', 'aud', 'client_id'], true)) {
+                            $result[$key] = $value;
+                        }
+                    }
+                    if (!empty($dbTokenWithContext['user_id'])) {
+                        $fhirUserClaim = new FhirUserClaim();
+                        $fhirUserClaim->setFhirBaseUrl($this->getServerConfig()->getFhirUrl());
+                        $result['fhirUser'] = $fhirUserClaim->getFhirUser($dbTokenWithContext['user_id']);
+                    }
                 }
             }
             if ($token_hint === 'refresh_token') {

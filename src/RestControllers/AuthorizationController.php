@@ -671,7 +671,7 @@ class AuthorizationController
             $this->session,
             $this->getUserRepository(),
             new ClaimExtractor($customClaim),
-            new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session)
+            new SMARTSessionTokenContextBuilder($this->getServerConfig(), $this->session)
         );
         $responseType->setSystemLogger($this->getSystemLogger());
         if (empty($this->grantType)) {
@@ -1825,7 +1825,7 @@ class AuthorizationController
 
     protected function getUserRepository(): UserRepository
     {
-        $userIdentityRepository = new UserRepository($this->globalsBag, $this->session);
+        $userIdentityRepository = new UserRepository($this->getServerConfig()->getFhirUrl());
         $userIdentityRepository->setSystemLogger($this->getSystemLogger());
         return $userIdentityRepository;
     }
@@ -1834,7 +1834,7 @@ class AuthorizationController
      */
     private function getTokenRepository(): AccessTokenRepository
     {
-        $tokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
+        $tokenRepository = new AccessTokenRepository($this->serverConfig, $this->session);
         $tokenRepository->setSystemLogger($this->getSystemLogger());
         return $tokenRepository;
     }
