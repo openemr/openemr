@@ -129,11 +129,24 @@
                                                                     <hr class="my-2">
                                                                     <div class="restrictions-section">
                                                                         <label class="font-weight-bold small text-muted mb-2">
-                                                                            {{ "Limit access to specific categories:"|xlt }}
+                                                                            {% if resource.isUnrestricted %}
+                                                                                {{ "Select specific data categories to authorize:"|xlt }}
+                                                                            {% else %}
+                                                                                {{ "Limit access to specific categories:"|xlt }}
+                                                                            {% endif %}
                                                                         </label>
-                                                                        <p class="text-muted small mb-2">
-                                                                            {{ "Uncheck categories to deny access to that data"|xlt }}
-                                                                        </p>
+                                                                        {% if resource.isUnrestricted %}
+                                                                            <div class="alert alert-info alert-sm py-2 px-3 mb-2" role="alert">
+                                                                                <small>
+                                                                                    <i class="fas fa-info-circle"></i>
+                                                                                    {{ "This application has requested access to all"|xlt }} <strong>{{ resource.name|text }}</strong> {{ "data. You can limit access by unchecking specific categories below."|xlt }}
+                                                                                </small>
+                                                                            </div>
+                                                                        {% else %}
+                                                                            <p class="text-muted small mb-2">
+                                                                                {{ "Uncheck categories to deny access to that data"|xlt }}
+                                                                            </p>
+                                                                        {% endif %}
                                                                         <div class="pl-3">
                                                                             {% for restrictionKey, restriction in resource.restrictions %}
                                                                                 <div class="form-check mb-2">

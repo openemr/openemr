@@ -25,22 +25,42 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 
 class ScopePermissionParser
 {
+    private ScopeRepository $scopeRepository;
+
     // Human-readable labels for restricted scope categories
     private const RESTRICTION_LABELS = [
-        // Condition categories
+        // Condition categories (ONC Required)
         'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern' => 'Health Concerns',
         'http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis' => 'Encounter Diagnoses',
         'http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item' => 'Problem List Items',
 
-        // Observation categories
-        'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh' => 'Social Determinants of Health',
+        // Observation categories (ONC Required)
+        'http://terminology.hl7.org/CodeSystem/observation-category|clinical-test' => 'Clinical Test',
+        'http://terminology.hl7.org/CodeSystem/observation-category|laboratory' => 'Laboratory',
         'http://terminology.hl7.org//CodeSystem-observation-category|social-history' => 'Social History',
-        'http://terminology.hl7.org/CodeSystem/observation-category|laboratory' => 'Laboratory Results',
-        'http://terminology.hl7.org/CodeSystem/observation-category|survey' => 'Survey Data',
+        'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh' => 'Social Determinants of Health (SDOH)',
+        'http://terminology.hl7.org/CodeSystem/observation-category|survey' => 'Survey',
         'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs' => 'Vital Signs',
 
         // DocumentReference categories
         'http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note' => 'Clinical Notes',
+    ];
+
+    // ONC Required sub-resource scopes by resource type
+    private const ONC_REQUIRED_RESTRICTIONS = [
+        'Condition' => [
+            'http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis',
+            'http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item',
+            'http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern',
+        ],
+        'Observation' => [
+            'http://terminology.hl7.org/CodeSystem/observation-category|clinical-test',
+            'http://terminology.hl7.org/CodeSystem/observation-category|laboratory',
+            'http://terminology.hl7.org//CodeSystem-observation-category|social-history',
+            'http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh',
+            'http://terminology.hl7.org/CodeSystem/observation-category|survey',
+            'http://terminology.hl7.org/CodeSystem/observation-category|vital-signs',
+        ],
     ];
 
     // CRUDS action labels
@@ -52,12 +72,15 @@ class ScopePermissionParser
         's' => 'Search',
     ];
 
-    public function __construct(private readonly ScopeRepository $scopeRepository)
+    public function __construct(ScopeRepository $scopeRepository)
     {
+        $this->scopeRepository = $scopeRepository;
     }
 
     /**
      * Parse scopes into a structured format for improved UI display
+     * Per ONC requirements, unrestricted resource scopes for Condition/Observation
+     * must show ALL sub-resource categories for patient authorization.
      *
      * @param array $scopes Array of scope strings
      * @return array Structured scope data organized by resource
@@ -66,6 +89,9 @@ class ScopePermissionParser
     {
         $structuredScopes = [];
         $serverScopeList = new ServerScopeListEntity();
+
+        // Track which resources have unrestricted scopes
+        $unrestrictedResources = [];
 
         foreach ($scopes as $scopeString) {
             $parsed = $this->parseScopeString($scopeString);
@@ -89,27 +115,28 @@ class ScopePermissionParser
                     'description' => $serverScopeList->lookupDescriptionForResourceScope($resource, $context),
                     'context' => $context,
                     'actions' => [
-                        'c' => ['enabled' => false, 'scopes' => []],
-                        'r' => ['enabled' => false, 'scopes' => []],
-                        'u' => ['enabled' => false, 'scopes' => []],
-                        'd' => ['enabled' => false, 'scopes' => []],
-                        's' => ['enabled' => false, 'scopes' => []],
+                        'c' => ['enabled' => false],
+                        'r' => ['enabled' => false],
+                        'u' => ['enabled' => false],
+                        'd' => ['enabled' => false],
+                        's' => ['enabled' => false],
                     ],
                     'restrictions' => [],
                     'hasRestrictions' => false,
+                    'isUnrestricted' => false, // Will be set to true if no restrictions in scope
                 ];
             }
 
-            // Parse actions
+            // Parse actions - mark them as enabled
             foreach ($parsed['actions'] as $action) {
                 if (isset($structuredScopes[$resource]['actions'][$action])) {
                     $structuredScopes[$resource]['actions'][$action]['enabled'] = true;
-                    $structuredScopes[$resource]['actions'][$action]['scopes'][] = $scopeString;
                 }
             }
 
             // Handle restrictions
             if (!empty($parsed['restriction'])) {
+                // Specific restriction requested
                 $structuredScopes[$resource]['hasRestrictions'] = true;
                 $restrictionKey = $parsed['restriction'];
                 $restrictionLabel = self::RESTRICTION_LABELS[$restrictionKey] ?? $restrictionKey;
@@ -119,11 +146,40 @@ class ScopePermissionParser
                         'label' => $restrictionLabel,
                         'value' => $restrictionKey,
                         'selected' => true,
-                        'scopes' => [],
+                        'actions' => $parsed['actions'],
                     ];
                 }
+            } else {
+                // No restriction in this scope - mark as unrestricted
+                if (!isset($unrestrictedResources[$resource])) {
+                    $unrestrictedResources[$resource] = true;
+                }
+            }
+        }
 
-                $structuredScopes[$resource]['restrictions'][$restrictionKey]['scopes'][] = $scopeString;
+        // ONC Compliance: For unrestricted Condition/Observation scopes,
+        // populate ALL required sub-resource categories
+        foreach ($unrestrictedResources as $resource => $true) {
+            if (isset(self::ONC_REQUIRED_RESTRICTIONS[$resource])) {
+                $structuredScopes[$resource]['hasRestrictions'] = true;
+                $structuredScopes[$resource]['isUnrestricted'] = true;
+
+                // Add all ONC required restrictions for this resource
+                foreach (self::ONC_REQUIRED_RESTRICTIONS[$resource] as $restrictionUri) {
+                    if (!isset($structuredScopes[$resource]['restrictions'][$restrictionUri])) {
+                        $restrictionLabel = self::RESTRICTION_LABELS[$restrictionUri] ?? $restrictionUri;
+
+                        $structuredScopes[$resource]['restrictions'][$restrictionUri] = [
+                            'label' => $restrictionLabel,
+                            'value' => $restrictionUri,
+                            'selected' => true, // All selected by default for ONC compliance
+                            'actions' => array_keys(array_filter(
+                                $structuredScopes[$resource]['actions'],
+                                fn($action) => $action['enabled']
+                            )),
+                        ];
+                    }
+                }
             }
         }
 
