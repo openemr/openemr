@@ -38,10 +38,50 @@ class USPSAddressVerify extends USPSBase
   /**
    * Perform the API call to verify the address
    * @return string
+   * @throws \InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
     public function verify()
     {
+        if ($this->useV3) {
+            return $this->verifyV3();
+        }
         return $this->doRequest();
+    }
+
+  /**
+   * Verify address using v3 API
+   * @return string
+   * @throws \InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+    protected function verifyV3()
+    {
+        // v3 only does one address at a time
+        if (empty($this->addresses['Address'])) {
+            throw new \InvalidArgumentException('No address to verify');
+        }
+
+        $addressToParamsMapping = [
+            'FirmName' => 'firm',
+            'Address1' => 'secondaryAddress',
+            'Address2' => 'streetAddress',
+            'City' => 'city',
+            'State' => 'state',
+            'Zip5' => 'ZIPCode',
+            'Zip4' => 'ZIPPlus4',
+        ];
+
+        $address = $this->addresses['Address'][0];
+        $params = [];
+
+        foreach ($addressToParamsMapping as $addressKey => $paramsKey) {
+            if (isset($address[$addressKey])) {
+                $params[$paramsKey] = $address[$addressKey];
+            }
+        }
+
+        return $this->doRequestV3('/address', $params);
     }
   /**
    * returns array of all addresses added so far
