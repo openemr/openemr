@@ -566,11 +566,50 @@
         });
         var newIndex = maxIndex + 1;
 
-        // Clone and replace __INDEX__ with actual index
+      
+        // Clone the template
         var tempDiv = document.createElement('div');
         tempDiv.innerHTML = relation_template.innerHTML;
         var html = tempDiv.innerHTML;
+
+        // Replace __INDEX__ with actual index
         html = html.replace(/__INDEX__/g, newIndex);
+
+        // ===== TELECOM TABLE ID REPLACEMENTS =====
+      
+        // Create unique ID for related person telecom tables
+        var newTelecomTableIdSuffix = js_uniqid();
+
+        // Find the old telecom table ID
+        var telecomMatch  = html.match(/table_edit_telecoms_([a-f0-9]+)/);
+        
+        if (telecomMatch && telecomMatch[1]) {
+            var oldTelecomTableIdSuffix = telecomMatch[1];
+            console.log('Replacing telecom suffix:', oldTelecomTableIdSuffix, '→', newTelecomTableIdSuffix);
+            
+            // Replace ALL occurrences of the old suffix with new suffix
+            var telecomRegex = new RegExp(oldTelecomTableIdSuffix, 'g');
+            html = html.replace(telecomRegex, newTelecomTableIdSuffix);
+        }
+        
+        // ===== ADDRESS TABLE ID REPLACEMENTS =====
+        
+        // Create unique ID for related person address table
+        var newAddressTableIdSuffix = js_uniqid();
+
+        // Find the old address table ID
+        var addressMatch = html.match(/table_edit_addresses_([a-f0-9]+)/);
+        
+        if (addressMatch && addressMatch[1]) {
+            var oldAddressTableIdSuffix = addressMatch[1];      
+            console.log('Address: Replacing', oldAddressTableIdSuffix, '→', newAddressTableIdSuffix);
+            
+            // Replace table ID everywhere it appears
+            var addressRegex = new RegExp(oldAddressTableIdSuffix, 'g');
+            html = html.replace(addressRegex, newAddressTableIdSuffix);
+        }
+
+        // Update the HTML in the temp div
         tempDiv.innerHTML = html;
         var relation_clone = tempDiv.firstElementChild;
 
@@ -598,7 +637,53 @@
             }
         }
 
+        // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
+        // Scripts inserted via innerHTML don't execute, so we need to replace them
+        var oldScripts = relation_clone.querySelectorAll('script');
+        oldScripts.forEach(function(oldScript) {
+            var newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            
+            // Copy the script content
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            
+            // Copy any other attributes
+            Array.from(oldScript.attributes).forEach(function(attr) {
+                if (attr.name !== 'type') {
+                    newScript.setAttribute(attr.name, attr.value);
+                }
+            });
+            
+            // Replace the old script with the new one
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+
+        // Add Clone
         relation_container.appendChild(relation_clone);
+
+        // Initialize the telecom and address tables with their new unique IDs
+        newTelecomTableId = 'table_edit_telecoms_' + newTelecomTableIdSuffix
+        newAddressTableId = 'table_edit_addresses_' + newAddressTableIdSuffix
+
+        setTimeout(function() {
+            if (newTelecomTableId) {
+                console.log('Dispatching telecomFormHandler event for:', newTelecomTableId);
+                document.dispatchEvent(new CustomEvent('telecomFormHandler', {
+                    detail: { tableId: newTelecomTableId }
+                }));
+            }
+
+            if (newAddressTableId) {
+                console.log('Dispatching addressFormHandler event for:', newAddressTableId);
+                document.dispatchEvent(new CustomEvent('addressFormHandler', {
+                    detail: { tableId: newAddressTableId }
+                }));
+            }
+        }, 100);
 
         // Expand the new relation for editing
         const newRelation = relation_container.querySelector('.relations_group:last-child');
@@ -627,6 +712,8 @@
         if (typeof relationUpdated === 'function') {
             relationUpdated();
         }
+
+        console.log('=== Relation #' + newIndex + ' created successfully ===\n');
     }
 
     function createNewPerson() {

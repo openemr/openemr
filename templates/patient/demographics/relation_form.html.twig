@@ -48,7 +48,8 @@
 
         {# Include Person Search and Create Component #}
         {% include 'patient/demographics/relation_form_search.html.twig'  with {
-                        'owner_contact_id': owner_contact_id
+                        'owner_contact_id': owner_contact_id,
+                        'csrfToken': csrfToken
         } %}
 
         {% if relatedPersons|length == 0 %}
