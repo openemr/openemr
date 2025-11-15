@@ -1950,13 +1950,13 @@ VALUES ('lists','telecom_systems','Telecom Systems',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_systems','PHONE','phone',10,0,1),
-    ('telecom_systems','FAX','fax',20,0,1),
-    ('telecom_systems','EMAIL','email',30,0,1),
-    ('telecom_systems','PAGER','pager',40,0,1),
-    ('telecom_systems','URL','url',50,0,1),
-    ('telecom_systems','SMS','sms',60,0,1),
-    ('telecom_systems','OTHER','other',70,0,1);
+    ('telecom_systems','phone','Phone',10,0,1),
+    ('telecom_systems','fax','FAX',20,0,1),
+    ('telecom_systems','email','Email',30,0,1),
+    ('telecom_systems','pager','Pager',40,0,1),
+    ('telecom_systems','url','URL',50,0,1),
+    ('telecom_systems','sms','SMS',60,0,1),
+    ('telecom_systems','other','Other',70,0,1);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id telecom_uses
@@ -1966,11 +1966,12 @@ VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','HOME','home',10,0,1),
-    ('telecom_uses','WORK','work',20,0,1),
-    ('telecom_uses','TEMP','temp',30,0,1),
-    ('telecom_uses','OLD','old',40,0,1),
-    ('telecom_uses','MOBILE','mobile',50,0,1);
+    ('telecom_uses','mobile','Mobile',10,0,1),    
+    ('telecom_uses','home','Home',20,0,1),
+    ('telecom_uses','work','Work',30,0,1),
+    ('telecom_uses','temp','Temp',40,0,1),
+    ('telecom_uses','old','Old',50,0,1);
+
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id person_patient_link_method

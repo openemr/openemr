@@ -132,19 +132,19 @@
 
 {# Template for adding new addresses #}
 <template class="template_add_address">
-    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__INDEX__">
+    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__A-INDEX__">
 
         {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
         <input type="hidden" class="form_addresses_data_action" 
-            name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+            name="{{ name_field_id|attr }}[__A-INDEX__][data_action]" value="ADD" />
         <input type="hidden" class="form_addresses_contact_address_id" 
-            name="{{ name_field_id|attr }}[__INDEX__][contact_address_id]" value="" />
+            name="{{ name_field_id|attr }}[__A-INDEX__][contact_address_id]" value="" />
         <input type="hidden" class="form_addresses_contact_id" 
-            name="{{ name_field_id|attr }}[__INDEX__][contact_id]" value="{{ contact_id|default('')|attr }}" />
+            name="{{ name_field_id|attr }}[__A-INDEX__][contact_id]" value="{{ contact_id|default('')|attr }}" />
         <input type="hidden" class="form_addresses_addresses_id" 
-            name="{{ name_field_id|attr }}[__INDEX__][addresses_id]" value="" />
+            name="{{ name_field_id|attr }}[__A-INDEX__][addresses_id]" value="" />
         <input type="hidden" class="form_addresses_status" 
-            name="{{ name_field_id|attr }}[__INDEX__][status]" value="A" />
+            name="{{ name_field_id|attr }}[__A-INDEX__][status]" value="A" />
 
         <div class="display_addresses form-row no-gutters justify-content-between pl-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
@@ -175,7 +175,7 @@
                 },
                 'field_id_esc': field_id_esc,
                 'name_field_id': 'form_' ~ field_id_esc,
-                'address_index': '__INDEX__',
+                'address_index': '__A-INDEX__',
                 'is_new': true,
                 'widget_constants': widget_constants
             } %}
@@ -360,7 +360,7 @@
                 });
                 var newIndex = maxIndex + 1;
 
-                // Clone and replace __INDEX__ with actual index
+                // Clone and replace __A-INDEX__ with actual index
                 var tempDiv = document.createElement('div');
                 tempDiv.innerHTML = row_address_template.innerHTML;
                 var html = tempDiv.innerHTML;
@@ -374,8 +374,8 @@
                     console.log('Found parent relation with index:', relationIndex);
                 }
                 
-                // Replace __INDEX__ with actual index
-                html = html.replace(/__INDEX__/g, newIndex);
+                // Replace __A-INDEX__ with actual index
+                html = html.replace(/__A-INDEX__/g, newIndex);
                 
                 // If we're in a nested relation form, fix the field naming
                 if (relationIndex !== null) {

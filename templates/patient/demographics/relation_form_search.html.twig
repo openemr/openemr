@@ -572,8 +572,8 @@
         tempDiv.innerHTML = relation_template.innerHTML;
         var html = tempDiv.innerHTML;
 
-        // Replace __INDEX__ with actual index
-        html = html.replace(/__INDEX__/g, newIndex);
+        // Replace __RP-INDEX__ with actual index
+        html = html.replace(/__RP-INDEX__/g, newIndex);
 
         // ===== TELECOM TABLE ID REPLACEMENTS =====
       
@@ -664,26 +664,6 @@
 
         // Add Clone
         relation_container.appendChild(relation_clone);
-
-        // Initialize the telecom and address tables with their new unique IDs
-        newTelecomTableId = 'table_edit_telecoms_' + newTelecomTableIdSuffix
-        newAddressTableId = 'table_edit_addresses_' + newAddressTableIdSuffix
-
-        setTimeout(function() {
-            if (newTelecomTableId) {
-                console.log('Dispatching telecomFormHandler event for:', newTelecomTableId);
-                document.dispatchEvent(new CustomEvent('telecomFormHandler', {
-                    detail: { tableId: newTelecomTableId }
-                }));
-            }
-
-            if (newAddressTableId) {
-                console.log('Dispatching addressFormHandler event for:', newAddressTableId);
-                document.dispatchEvent(new CustomEvent('addressFormHandler', {
-                    detail: { tableId: newAddressTableId }
-                }));
-            }
-        }, 100);
 
         // Expand the new relation for editing
         const newRelation = relation_container.querySelector('.relations_group:last-child');
