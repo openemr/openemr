@@ -58,19 +58,6 @@ class RequestConstraintFilterer {
                         throw new AccessDeniedException($endpointScope->getContext(), $endpointScope->getResource() ?? ''
                             , "Search parameter contains unauthorized values for parameter '$key'.");
                     }
-//                    // we need to make sure that the query ONLY contains values that are allowed by the scope constraints
-//                    // if there are values that are not allowed, we should throw a 401 unauthorized error
-//                    $existingValues = explode(',', $request->query->get($key));
-//                    $constraintValues = explode(',', $constraintValue);
-//                    // intersect the two arrays to get allowed values from our constraints
-//                    $mergedValues = array_intersect($constraintValues, $existingValues);
-//                    if (count($mergedValues) != count($existingValues)) {
-//                        // some values were not allowed, throw unauthorized error
-//                        throw new AccessDeniedException($endpointScope->getContext(), $endpointScope->getResource() ?? ''
-//                            , "Search parameter contains unauthorized values for parameter '$key'.");
-//                    } else {
-//                        $request->query->set($key, $constraintValue);
-//                    }
                 } else {
                     $request->query->set($key, implode(',', $constraintValues));
                 }
