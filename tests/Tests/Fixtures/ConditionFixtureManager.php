@@ -167,6 +167,12 @@ class ConditionFixtureManager
             $testUser['id'],
             0
         );
+        // for testing we need to be able to set the created_at field to verify our UUID turnover from v1 to v2
+        if (!empty($options['created_at'])) {
+            $sql = "UPDATE issue_encounter SET created_at = ? WHERE pid = ? AND encounter = ? AND list_id = ?";
+            $bind = [$options['created_at'], $patientData['pid'], $encounterData['encounter'], $conditionData['id']];
+            QueryUtils::sqlStatementThrowException($sql, $bind);
+        }
         $this->createdRecords['issue_encounters'][] = [
             'pid' => $patientData['pid'],
             'list_id' => $conditionData['id'],

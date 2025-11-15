@@ -29,7 +29,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\Common\Command\Trait\GlobalInterfaceCommandTrait;
+use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\IGlobalsAware;
@@ -55,7 +55,7 @@ use RuntimeException;
 
 class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 {
-    use GlobalInterfaceCommandTrait;
+    use GlobalInterfaceTrait;
 
     const MAX_GENERATION_ATTEMPTS = 5;
 

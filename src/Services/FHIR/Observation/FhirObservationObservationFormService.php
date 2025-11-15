@@ -71,7 +71,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return [
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['ob_code']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type', 'screening_category_code']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
                 new ServiceField('uuid', ServiceField::TYPE_UUID)

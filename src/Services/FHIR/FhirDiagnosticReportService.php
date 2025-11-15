@@ -95,7 +95,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
                  * @var TokenSearchField
                  */
                 $category = $fhirSearchParameters['category'];
-                $categorySearchField = new TokenSearchField('category', $category);
+                $categorySearchField = new TokenSearchField('category', explode(",",$category));
                 $service = $this->getServiceForCategory(
                     $categorySearchField,
                     'LAB'
