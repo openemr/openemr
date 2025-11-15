@@ -50,6 +50,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
     const USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis';
 
     // Date when UUID from the issue_encounters table begins
+    // TODO: would it be better to key off the db version?
     private const UUID_CUTOVER_DATE = '2025-11-15 00:00:00';
     const CATEGORY_ENCOUNTER_DIAGNOSIS = 'encounter-diagnosis';
 
@@ -208,6 +209,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
                 // Convert UUIDs to string format
                 $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
                 $row['lists_uuid'] = UuidRegistry::uuidToString($row['lists_uuid']);
+                // now determine which uuid to use for the condition resource based on the date
                 $row['uuid'] = $this->getConditionFhirUuid($row);
                 $row['encounter_uuid'] = UuidRegistry::uuidToString($row['encounter_uuid']);
                 $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
@@ -247,7 +249,6 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
         if ($conditionTime >= $cutoverTime) {
             return $dataRecord['uuid'];
         }
-
         // Historical condition - preserve original UUID
         return $dataRecord['lists_uuid'];
     }
