@@ -484,7 +484,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $relatedPersons[] = $relatedPerson;
                 }
             }
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             error_log("fail related person");
             return '';
         }
@@ -1421,7 +1421,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!empty($teamData['status'])) {
                 $careTeamStatus = (string)$teamData['status'];
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // If service fails, we gracefully fall back to empty team (primary provider fallback below still works)
             // You may want to log $e->getMessage() via OpenEMR Logger here.
         }
@@ -1477,7 +1477,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
 
             // Normalize role_code: strip "SNOMED-CT:" prefix if present to match prior behavior
-            $rawRoleCode = (string)($row['role_code'] ?? '');
+            $rawRoleCode = (string)($row['role'] ?? '');
             $normRoleCode = preg_replace('/^SNOMED-CT:/i', '', $rawRoleCode);
 
             $care_team_provider .=
@@ -1500,7 +1500,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <taxonomy_description>" . xmlEscape($ud['taxonomy_desc'] ?? '') . "</taxonomy_description>
                 <provider_since>" . xmlEscape($row['provider_since'] ?? '') . "</provider_since>
                 <role_code>" . xmlEscape($normRoleCode ?? '') . "</role_code>
-                <role_display>" . xmlEscape($row['role_display'] ?? '') . "</role_display>
+                <role_display>" . xmlEscape($row['role_title'] ?? '') . "</role_display>
                 <status>" . xmlEscape($row['status'] ?? '') . "</status>
             </provider>";
         }
