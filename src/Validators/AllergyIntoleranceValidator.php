@@ -1,20 +1,20 @@
 <?php
 
-namespace OpenEMR\Validators;
-
-use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-
 /**
- * Supports AllergyIntolerance Record Validation.
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Validators;
+
+use Particle\Validator\Validator;
+
+/**
+ * Supports AllergyIntolerance Record Validation.
  */
 class AllergyIntoleranceValidator extends BaseValidator
 {
@@ -23,40 +23,46 @@ class AllergyIntoleranceValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidatorContext(Validator $validator, string $contextName): void
     {
-        parent::configureValidator();
+        // Insert & update
+        $validator
+            ->optional('title')
+            ->required(BaseValidator::DATABASE_INSERT_CONTEXT === $contextName)
+            ->lengthBetween(2, 255)
+        ;
 
-        // insert validations
-        $this->validator->context(
-            self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context): void {
-                $context->required('title')->lengthBetween(2, 255);
-                $context->optional('begdate')->datetime('Y-m-d H:i:s');
-                $context->optional('diagnosis')->lengthBetween(2, 255);
-                $context->optional('enddate')->datetime('Y-m-d H:i:s');
-                $context->optional('comments');
-                $context->required("puuid", "Patient UUID")->callback(
-                    fn($value) => $this->validateId("uuid", "patient_data", $value, true)
-                );
-            }
-        );
+        $validator
+            ->optional('begdate')
+            ->datetime('Y-m-d H:i:s')
+        ;
 
-        // update validations copied from insert
-        $this->validator->context(
-            self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context): void {
-                $context->copyContext(
-                    self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
-                        foreach ($rules as $chain) {
-                            $chain->required(false);
-                        }
-                    }
-                );
-                // additional euuid validation
-                $context->required("uuid", "Allergy UUID")->callback(fn($value) => $this->validateId("uuid", "lists", $value, true))->uuid();
-            }
-        );
+        $validator
+            ->optional('diagnosis')
+            ->lengthBetween(2, 255)
+        ;
+
+        $validator
+            ->optional('enddate')
+            ->datetime('Y-m-d H:i:s')
+        ;
+
+        $validator
+            ->optional('comments')
+        ;
+
+        $validator
+            ->optional('puuid', 'Patient UUID')
+            ->required(BaseValidator::DATABASE_INSERT_CONTEXT === $contextName)
+            ->callback(fn($value) => $this->validateId('uuid', 'patient_data', $value, true))
+        ;
+
+        // Update only
+        $validator
+            ->required('uuid', 'Allergy UUID')
+            ->required(BaseValidator::DATABASE_UPDATE_CONTEXT === $contextName)
+            ->callback(fn($value) => $this->validateId('uuid', 'lists', $value, true))
+            ->uuid()
+        ;
     }
 }
