@@ -29,6 +29,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -144,7 +145,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 //            , $scopeIdentifiers);
             $session = new Session(new MockFileSessionStorage());
             $session->set('trusted', 1); // just to have something in the cache
-            $accessTokenRepository = new AccessTokenRepository($this->getGlobalsBag(), $session);
+            $accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $session);
 //            $accessTokenRepository = new AccessTokenRepository();
             $token = $accessTokenRepository->getNewToken($client, $scopes);
             if ($input->getOption('patient')) {

@@ -29,7 +29,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
 {
     use SystemLoggerAwareTrait;
 
-    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session)
+    public function __construct(private $fhirBaseUrl)
     {
     }
 
@@ -160,7 +160,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
         if (!empty($identifier)) {
             $user->setIdentifier($identifier);
         }
-        $user->setFhirBaseUrl($this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id') . '/fhir/');
+        $user->setFhirBaseUrl($this->fhirBaseUrl);
         return $user;
     }
 }

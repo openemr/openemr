@@ -73,7 +73,8 @@ class JsonWebKeyParser
             'exp' => $token->claims()->get('exp'),
             'sub' => $token->claims()->get('sub'), // user_id
             'jti' => $token->claims()->get('jti'),
-            'aud' => $token->claims()->get('aud')
+            'aud' => $token->claims()->get('aud'),
+            'iss' => $token->claims()->get('iss'),
         ];
 
         // Attempt to validate the JWT

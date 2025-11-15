@@ -16,6 +16,7 @@ use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
+use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -64,37 +65,35 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         }
     }
 
+    /**
+     * @return array
+     * @throws OAuthServerException
+     */
     public function getClaims()
     {
         $claims = [];
         // TODO: @adunsulag as far as I can tell the UserEntity class is only used w/o the client_credentials grant type
         // so we don't need this.  Will comment for now, but I believe we can remove this code.
         // Note session type claims like nonce get added in the IdTokenSMARTResponse
-//        if ($this->getClaimsType() === 'oidc') {
-            $uuidToUser = new UuidUserAccount($this->identifier);
-            $fhirUser = '';
-            $userRole = $uuidToUser->getUserRole();
-            $fhirUserResource = "Person";
-        if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
-            // need to find out if its a practitioner or not
-            $practitionerService = new PractitionerService();
-            // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
-            // from the more generic Person resource.
-            if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
-                $fhirUserResource = "Practitioner";
-            }
-        } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
-            $fhirUserResource = "Patient";
-        } else {
-            (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
-        }
-            $fhirUser = $this->getFhirBaseUrl() . $fhirUserResource . "/" . $this->identifier;
-
-            (new SystemLogger())->debug("UserEntity->getClaims() fhirUser claim is ", ['role' => $userRole, 'fhirUser' => $fhirUser]);
-
-            $user = $uuidToUser->getUserAccount();
+        $fhirUserClaim = new FhirUserClaim();
+        $fhirUserClaim->setFhirBaseUrl($this->fhirBaseUrl);
+        $fhirUser = $fhirUserClaim->getFhirUser($this->identifier);
+        $uuidToUser = new UuidUserAccount($this->identifier);
+        $user = $uuidToUser->getUserAccount();
         if (empty($user)) {
-            $user = false;
+            $user = [
+                'fullname' => '',
+                'lastname' => '',
+                'firstname' => '',
+                'middlename' => '',
+                'username' => 'unknown',
+                'email' => '',
+                'phone' => '',
+                'street' => '',
+                'city' => '',
+                'state' => '',
+                'zip' => '',
+            ];
         }
             $claims = [
                 'name' => $user['fullname'],

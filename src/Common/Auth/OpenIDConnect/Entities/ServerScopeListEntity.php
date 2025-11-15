@@ -378,7 +378,7 @@ class ServerScopeListEntity
             'DiagnosticReport' => xl("diagnostic reports including laboratory,cardiology,radiology, and pathology reports"),
             'DocumentReference' => xl("clinical and non-clinical documents"),
             'Encounter' => xl("encounter information"),
-            'Goal' => xl("goals"),
+            'Goal' => xl("intended objective(s) for a patient, group, or organizational care"),
             'Immunization' => xl("immunization history"),
             'MedicationRequest' => xl("planned and prescribed medication history including self-reported medications"),
             'Medication' => xl("drug information related to planned and prescribed medication history"),
