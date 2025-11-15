@@ -476,15 +476,15 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                 'value' => $telecom['value'] ?? '',
                                 'rank' => $telecom['rank'] ?? 1,
                                 'status' => $telecom['status'] ?? 'A',
-                                'is_primary' => $tel['is_primary'] ?? 'N',
-                                'notes' => $tel['notes'] ?? ''
+                                'is_primary' => $telecom['is_primary'] ?? 'N',
+                                'notes' => $telecom['notes'] ?? ''
                             ];
                         }
                     }
                     $relatedPersons[] = $relatedPerson;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             error_log("fail related person");
             return '';
         }
@@ -634,6 +634,21 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $related_persons_xml .= "</related_persons>";
+        // --- Previous names ---
+        $names = $this->getPreviousNames($pid);
+        $previous_names = "<previous_names>";
+        foreach ($names as $n) {
+            $end = !empty($n['previous_name_enddate'] ?? null) ? date("Y-m-d", strtotime($n['previous_name_enddate'])) : null;
+            $previous_names .= "
+            <prefix>" . xmlEscape($n['previous_name_prefix']) . "</prefix>
+            <fname>" . xmlEscape($n['previous_name_first']) . "</fname>
+            <mname>" . xmlEscape($n['previous_name_middle']) . "</mname>
+            <lname>" . xmlEscape($n['previous_name_last']) . "</lname>
+            <suffix>" . xmlEscape($n['previous_name_suffix']) . "</suffix>
+            <end_date>" . xmlEscape($end) . "</end_date>
+        ";
+        }
+        $previous_names .= "</previous_names>";
 
         // --- Previous addresses ---
         $addresses = $this->getPreviousAddresses($pid);
@@ -1421,7 +1436,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!empty($teamData['status'])) {
                 $careTeamStatus = (string)$teamData['status'];
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // If service fails, we gracefully fall back to empty team (primary provider fallback below still works)
             // You may want to log $e->getMessage() via OpenEMR Logger here.
         }
