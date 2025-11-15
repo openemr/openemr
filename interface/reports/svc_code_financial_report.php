@@ -221,7 +221,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     "JOIN (select pid, encounter, code, sum(pay_amount) as paid, sum(adj_amount) as adjust " .
     "from ar_activity WHERE deleted IS NULL group by pid, encounter, code) as ar_act " .
     "ON ar_act.pid=b.pid and ar_act.encounter=b.encounter and ar_act.code=b.code " .
-    "LEFT OUTER JOIN codes AS c ON c.code = b.code " .
+    "LEFT JOIN (select code, max(financial_reporting) as financial_reporting from codes group by code) AS c ON c.code = b.code " .
     "INNER JOIN code_types AS ct ON ct.ct_key = b.code_type AND ct.ct_fee = '1' " .
     "WHERE b.code_type != 'COPAY' AND b.activity = 1 /* AND b.fee != 0 */ AND " .
     "fe.date >=  ? AND fe.date <= ?";
