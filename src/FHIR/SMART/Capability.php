@@ -45,7 +45,7 @@ class Capability
         // which in V2 is NOT the same as the /fhir/metadata endpoint used in SMART v1
         , self::PERMISSION_AUTHORIZE_POST
         // additional capabilities for SMART v2
-        // context-ehr-encounter
+        , self::CONTEXT_EHR_ENCOUNTER
         // client-confidential-asymmetric - JWT authentication
         // context-standalone-encounter
         // permission-v2
