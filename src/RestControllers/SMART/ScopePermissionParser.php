@@ -25,8 +25,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 
 class ScopePermissionParser
 {
-    private ScopeRepository $scopeRepository;
-
     // Human-readable labels for restricted scope categories
     private const RESTRICTION_LABELS = [
         // Condition categories (ONC Required)
@@ -72,9 +70,8 @@ class ScopePermissionParser
         's' => 'Search',
     ];
 
-    public function __construct(ScopeRepository $scopeRepository)
+    public function __construct(private readonly ScopeRepository $scopeRepository)
     {
-        $this->scopeRepository = $scopeRepository;
     }
 
     /**
@@ -93,6 +90,9 @@ class ScopePermissionParser
         // Track which resources have unrestricted scopes
         $unrestrictedResources = [];
 
+        // Track original requested restrictions per resource
+        $requestedRestrictions = [];
+
         foreach ($scopes as $scopeString) {
             $parsed = $this->parseScopeString($scopeString);
 
@@ -102,6 +102,7 @@ class ScopePermissionParser
 
             $resource = $parsed['resource'];
             $context = $parsed['context'];
+            $version = $parsed['version'] ?? 'v2';
 
             // Skip non-resource scopes (handled elsewhere)
             if (empty($resource) || in_array($scopeString, ['openid', 'fhirUser', 'online_access', 'offline_access', 'launch', 'launch/patient', 'api:oemr', 'api:fhir', 'api:port'])) {
@@ -114,6 +115,7 @@ class ScopePermissionParser
                     'name' => $resource,
                     'description' => $serverScopeList->lookupDescriptionForResourceScope($resource, $context),
                     'context' => $context,
+                    'version' => $version,
                     'actions' => [
                         'c' => ['enabled' => false],
                         'r' => ['enabled' => false],
@@ -123,8 +125,10 @@ class ScopePermissionParser
                     ],
                     'restrictions' => [],
                     'hasRestrictions' => false,
-                    'isUnrestricted' => false, // Will be set to true if no restrictions in scope
+                    'isUnrestricted' => true,
+                    'requestedRestrictions' => [], // Track which restrictions were in original request
                 ];
+                $requestedRestrictions[$resource] = [];
             }
 
             // Parse actions - mark them as enabled
@@ -137,9 +141,15 @@ class ScopePermissionParser
             // Handle restrictions
             if (!empty($parsed['restriction'])) {
                 // Specific restriction requested
+                $structuredScopes[$resource]['isUnrestricted'] = false;
                 $structuredScopes[$resource]['hasRestrictions'] = true;
                 $restrictionKey = $parsed['restriction'];
                 $restrictionLabel = self::RESTRICTION_LABELS[$restrictionKey] ?? $restrictionKey;
+
+                // Track that this restriction was in the original request
+                if (!in_array($restrictionKey, $requestedRestrictions[$resource])) {
+                    $requestedRestrictions[$resource][] = $restrictionKey;
+                }
 
                 if (!isset($structuredScopes[$resource]['restrictions'][$restrictionKey])) {
                     $structuredScopes[$resource]['restrictions'][$restrictionKey] = [
@@ -162,7 +172,6 @@ class ScopePermissionParser
         foreach ($unrestrictedResources as $resource => $true) {
             if (isset(self::ONC_REQUIRED_RESTRICTIONS[$resource])) {
                 $structuredScopes[$resource]['hasRestrictions'] = true;
-                $structuredScopes[$resource]['isUnrestricted'] = true;
 
                 // Add all ONC required restrictions for this resource
                 foreach (self::ONC_REQUIRED_RESTRICTIONS[$resource] as $restrictionUri) {
@@ -180,6 +189,13 @@ class ScopePermissionParser
                         ];
                     }
                 }
+            }
+        }
+
+        // Store the requested restrictions for each resource
+        foreach ($requestedRestrictions as $resource => $restrictions) {
+            if (isset($structuredScopes[$resource])) {
+                $structuredScopes[$resource]['requestedRestrictions'] = $restrictions;
             }
         }
 
@@ -202,8 +218,10 @@ class ScopePermissionParser
             return [
                 'context' => $matches[1],
                 'resource' => $matches[2],
-                'actions' => $matches[3] === 'read' ? ['r', 's'] : ['c', 'u'],
+                'actions' => $matches[3] === 'read' ? ['r', 's'] : ['c', 'u', 'd'],
                 'restriction' => null,
+                'version' => 'v1',
+                'originalFormat' => $matches[3], // 'read' or 'write'
             ];
         }
 
@@ -224,6 +242,7 @@ class ScopePermissionParser
                 'resource' => $matches[2],
                 'actions' => $actions,
                 'restriction' => $restriction,
+                'version' => 'v2',
             ];
         }
 
@@ -235,6 +254,7 @@ class ScopePermissionParser
                 'actions' => ['r'], // Operations typically require read
                 'restriction' => null,
                 'operation' => $matches[3],
+                'version' => 'v2',
             ];
         }
 
