@@ -56,6 +56,7 @@
                                                                            class="resource-master-checkbox"
                                                                            id="resource_{{ resourceKey|attr }}_master"
                                                                            data-resource="{{ resourceKey|attr }}"
+                                                                           data-unrestricted="{{ resource.isUnrestricted ? '1' : '0' }}"
                                                                            checked>
                                                                 </div>
 
@@ -85,11 +86,21 @@
                                                              aria-labelledby="heading{{ resourceKey|attr }}"
                                                              data-parent="#resourceAccordion">
                                                             <div class="card-body">
-                                                                {# Store resource context for scope reconstruction #}
+                                                                {# Store resource context and version for scope reconstruction #}
                                                                 <input type="hidden"
                                                                        class="resource-context"
                                                                        data-resource="{{ resourceKey|attr }}"
                                                                        value="{{ resource.context|attr }}">
+                                                                <input type="hidden"
+                                                                       class="resource-version"
+                                                                       data-resource="{{ resourceKey|attr }}"
+                                                                       value="{{ resource.version|default('v2')|attr }}">
+                                                                {% if resource.requestedRestrictions|default([])|length > 0 %}
+                                                            <input type="hidden"
+                                                                   class="resource-requested-restrictions"
+                                                                   data-resource="{{ resourceKey|attr }}"
+                                                                   value="{{ resource.requestedRestrictions|join(',')|attr }}">
+                                                                {% endif %}
 
                                                                 {# Action permissions grid #}
                                                                 <div class="mb-3">
@@ -129,11 +140,24 @@
                                                                     <hr class="my-2">
                                                                     <div class="restrictions-section">
                                                                         <label class="font-weight-bold small text-muted mb-2">
-                                                                            {{ "Limit access to specific categories:"|xlt }}
+                                                                            {% if resource.isUnrestricted %}
+                                                                                {{ "Select specific data categories to authorize:"|xlt }}
+                                                                            {% else %}
+                                                                                {{ "Limit access to specific categories:"|xlt }}
+                                                                            {% endif %}
                                                                         </label>
-                                                                        <p class="text-muted small mb-2">
-                                                                            {{ "Uncheck categories to deny access to that data"|xlt }}
-                                                                        </p>
+                                                                        {% if resource.isUnrestricted %}
+                                                                            <div class="alert alert-info alert-sm py-2 px-3 mb-2" role="alert">
+                                                                                <small>
+                                                                                    <i class="fas fa-info-circle"></i>
+                                                                                    {{ "This application has requested access to all"|xlt }} <strong>{{ resource.name|text }}</strong> {{ "data. You can limit access by unchecking specific categories below."|xlt }}
+                                                                                </small>
+                                                                            </div>
+                                                                        {% else %}
+                                                                            <p class="text-muted small mb-2">
+                                                                                {{ "Uncheck categories to deny access to that data"|xlt }}
+                                                                            </p>
+                                                                        {% endif %}
                                                                         <div class="pl-3">
                                                                             {% for restrictionKey, restriction in resource.restrictions %}
                                                                                 <div class="form-check mb-2">
@@ -297,28 +321,51 @@
             const spinner = document.getElementById('spinner');
             const dynamicScopesContainer = document.getElementById('dynamic-scopes-container');
 
-            // Master checkbox handling - controls all actions and restrictions for a resource
+            // Master checkbox handling - controls whether global (unrestricted) access is allowed
+            // When checked: allows consolidation to global scope if all sub-scopes checked
+            // When unchecked: only restricted sub-scopes can be granted, no global access
             document.querySelectorAll('.resource-master-checkbox').forEach(masterCheckbox => {
                 masterCheckbox.addEventListener('change', function() {
                     const resource = this.dataset.resource;
                     const isChecked = this.checked;
 
-                    // Toggle all action checkboxes
-                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`).forEach(cb => {
-                        cb.checked = isChecked;
-                    });
+                    if (isChecked) {
+                        // Master checkbox was CHECKED - enable all actions and restrictions
+                        // This resets to the "allow everything" state
+                        document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`).forEach(cb => {
+                            cb.checked = true;
+                        });
 
-                    // Toggle all restriction checkboxes
-                    document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]`).forEach(cb => {
-                        cb.checked = isChecked;
-                    });
+                        document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]`).forEach(cb => {
+                            cb.checked = true;
+                        });
+                    } else {
+                        // Master checkbox was UNCHECKED - disable actions but keep restrictions available
+                        // User can still grant specific sub-scope permissions
+                        document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`).forEach(cb => {
+                            cb.checked = false;
+                        });
+                        // Note: We do NOT uncheck restrictions - user can still select specific sub-scopes
+                    }
                 });
             });
 
-            // Action checkbox handling
+            // Action checkbox handling with V1 scope linking
             document.querySelectorAll('.action-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    updateMasterCheckbox(this.dataset.resource);
+                    const resource = this.dataset.resource;
+                    const action = this.dataset.action;
+
+                    // Get version for this resource
+                    const versionInput = document.querySelector(`.resource-version[data-resource="${resource}"]`);
+                    const version = versionInput ? versionInput.value : 'v2';
+
+                    // For V1 scopes, link related actions together
+                    if (version === 'v1') {
+                        handleV1ActionChange(resource, action, this.checked);
+                    }
+
+                    updateMasterCheckbox(resource);
                 });
             });
 
@@ -329,21 +376,65 @@
                 });
             });
 
+            /**
+             * Handle V1 scope action changes - link read+search and create+update+delete
+             */
+            function handleV1ActionChange(resource, changedAction, isChecked) {
+                // Read and Search are linked in V1
+                if (changedAction === 'r' || changedAction === 's') {
+                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"][data-action="r"],
+                                              .action-checkbox[data-resource="${resource}"][data-action="s"]`).forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                }
+                // Create, Update, Delete are linked in V1
+                else if (changedAction === 'c' || changedAction === 'u' || changedAction === 'd') {
+                    document.querySelectorAll(`.action-checkbox[data-resource="${resource}"][data-action="c"],
+                                              .action-checkbox[data-resource="${resource}"][data-action="u"],
+                                              .action-checkbox[data-resource="${resource}"][data-action="d"]`).forEach(cb => {
+                        cb.checked = isChecked;
+                    });
+                }
+            }
+
             // Function to update master checkbox based on child checkboxes
             function updateMasterCheckbox(resource) {
                 const masterCheckbox = document.querySelector(`.resource-master-checkbox[data-resource="${resource}"]`);
                 if (!masterCheckbox) return;
 
-                const allCheckboxes = [
-                    ...document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`),
-                    ...document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]`)
-                ];
+                const actionCheckboxes = document.querySelectorAll(`.action-checkbox[data-resource="${resource}"]`);
+                const restrictionCheckboxes = document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]`);
 
-                const allChecked = allCheckboxes.every(cb => cb.checked);
-                const someChecked = allCheckboxes.some(cb => cb.checked);
+                // Check action states
+                const allActionsChecked = Array.from(actionCheckboxes).every(cb => cb.checked);
+                const someActionsChecked = Array.from(actionCheckboxes).some(cb => cb.checked);
 
-                masterCheckbox.checked = allChecked;
-                masterCheckbox.indeterminate = !allChecked && someChecked;
+                // Check restriction states (if any exist)
+                const hasRestrictions = restrictionCheckboxes.length > 0;
+                const allRestrictionsChecked = !hasRestrictions || Array.from(restrictionCheckboxes).every(cb => cb.checked);
+                const someRestrictionsChecked = !hasRestrictions || Array.from(restrictionCheckboxes).some(cb => cb.checked);
+
+                // Master checkbox should be:
+                // - CHECKED if all actions AND all restrictions are checked (full access)
+                // - INDETERMINATE if some actions or restrictions are checked but not all
+                // - UNCHECKED if no actions are checked (even if restrictions are checked)
+
+                if (!someActionsChecked) {
+                    // No actions checked = master unchecked (no global access possible)
+                    masterCheckbox.checked = false;
+                    masterCheckbox.indeterminate = someRestrictionsChecked;
+                    // once the master checkbox is unchecked, we do not set it to checked even if all restrictions are checked
+                    // as sub-scopes only are allowed in this state
+                    // to trigger a full access state, user must re-check the master checkbox manually
+                // } else if (allActionsChecked && allRestrictionsChecked) {
+                //     // Everything checked = master checked (global access enabled)
+                //     masterCheckbox.checked = true;
+                //     masterCheckbox.indeterminate = false;
+                } else {
+                    // Partial selection = indeterminate (restricted access only)
+                    masterCheckbox.checked = false;
+                    masterCheckbox.indeterminate = true;
+                }
             }
 
             // Form submission handling - RECONSTRUCT SCOPES
@@ -377,7 +468,7 @@
 
             /**
              * Reconstruct scope strings based on user selections
-             * Format: <context>/<resource>.<actions>?<restriction>
+             * Handles V1 format, V2 format, and sub-scope consolidation
              */
             function reconstructScopes() {
                 // Get all unique resources
@@ -387,10 +478,13 @@
                 });
 
                 resources.forEach(resource => {
-                    // Get context for this resource
+                    // Get context and version for this resource
                     const contextInput = document.querySelector(`.resource-context[data-resource="${resource}"]`);
+                    const versionInput = document.querySelector(`.resource-version[data-resource="${resource}"]`);
                     if (!contextInput) return;
+
                     const context = contextInput.value;
+                    const version = versionInput ? versionInput.value : 'v2';
 
                     // Get checked actions
                     const checkedActions = [];
@@ -401,29 +495,74 @@
                     // If no actions selected, skip this resource
                     if (checkedActions.length === 0) return;
 
-                    // Sort actions in CRUDS order
-                    const actionOrder = ['c', 'r', 'u', 'd', 's'];
-                    checkedActions.sort((a, b) => actionOrder.indexOf(a) - actionOrder.indexOf(b));
-                    const actionsString = checkedActions.join('');
+                    // Handle V1 scopes
+                    if (version === 'v1') {
+                        reconstructV1Scope(context, resource, checkedActions);
+                    }
+                    // Handle V2 scopes
+                    else {
+                        reconstructV2Scope(context, resource, checkedActions);
+                    }
+                });
+            }
 
-                    // Get checked restrictions
-                    const checkedRestrictions = [];
-                    document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]:checked`).forEach(cb => {
-                        checkedRestrictions.push(cb.dataset.restriction);
-                    });
+            /**
+             * Reconstruct V1 format scopes (context/resource.read or context/resource.write)
+             */
+            function reconstructV1Scope(context, resource, checkedActions) {
+                const hasRead = checkedActions.includes('r') || checkedActions.includes('s');
+                const hasWrite = checkedActions.includes('c') || checkedActions.includes('u') || checkedActions.includes('d');
 
-                    // If there are restrictions, create separate scopes for each
+                if (hasRead) {
+                    const scopeString = `${context}/${resource}.read`;
+                    addScopeInput(scopeString);
+                }
+
+                if (hasWrite) {
+                    const scopeString = `${context}/${resource}.write`;
+                    addScopeInput(scopeString);
+                }
+            }
+
+            /**
+             * Reconstruct V2 format scopes with sub-scope consolidation
+             * Respects master checkbox state - if unchecked, only grants restricted sub-scopes
+             */
+            function reconstructV2Scope(context, resource, checkedActions) {
+                // Sort actions in CRUDS order
+                const actionOrder = ['c', 'r', 'u', 'd', 's'];
+                checkedActions.sort((a, b) => actionOrder.indexOf(a) - actionOrder.indexOf(b));
+                const actionsString = checkedActions.join('');
+
+                // Check if master checkbox is checked (allows global/unrestricted access)
+                const masterCheckbox = document.querySelector(`.resource-master-checkbox[data-resource="${resource}"]`);
+                const masterChecked = masterCheckbox ? masterCheckbox.checked : true;
+                const unrestricted = masterCheckbox.dataset['unrestricted'] === '1';
+
+                // Get checked restrictions
+                const checkedRestrictions = [];
+                document.querySelectorAll(`.restriction-checkbox[data-resource="${resource}"]:checked`).forEach(cb => {
+                    checkedRestrictions.push(cb.dataset.restriction);
+                });
+
+                // SUB-SCOPE CONSOLIDATION LOGIC:
+                // 1. If master checkbox is UNCHECKED: only grant checked restricted sub-scopes (no global access)
+                // 2. If master checkbox is CHECKED but is a restricted resource grant only checked sub-scopes
+                // 3. If master checkbox is CHECKED and is not a restricted resource (global scope requested): grant global access
+
+                if (!masterChecked || !unrestricted) {
+                    // Master unchecked - or we are not a global scope requested, only allow restricted sub-scope access
                     if (checkedRestrictions.length > 0) {
                         checkedRestrictions.forEach(restriction => {
                             const scopeString = `${context}/${resource}.${actionsString}?category=${restriction}`;
                             addScopeInput(scopeString);
                         });
-                    } else {
-                        // No restrictions - create single scope
-                        const scopeString = `${context}/${resource}.${actionsString}`;
-                        addScopeInput(scopeString);
                     }
-                });
+                } else {
+                    // Master checked, no restrictions - create single unrestricted scope
+                    const scopeString = `${context}/${resource}.${actionsString}`;
+                    addScopeInput(scopeString);
+                }
             }
 
             /**
