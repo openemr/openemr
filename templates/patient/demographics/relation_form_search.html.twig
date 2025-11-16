@@ -9,7 +9,7 @@
     #addPersonSection {
         border: 2px solid #007bff;
         border-radius: 0.5rem;
-        background-color: #f8f9fa;
+        background-color: var(—light);
         margin-bottom: 1.5rem;
         box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
         animation: slideDown 0.3s ease-out;
@@ -509,7 +509,7 @@
             }
 
             if (person.is_linked && person.target_table === 'patient_data') {
-                badges += '<span class="badge badge-secondary ml-2">' +
+                badges += '<span class="badge badge-secondary text-white ml-2">' +
                          '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
             }
 
