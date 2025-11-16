@@ -526,9 +526,9 @@ foreach ($providers as $provider) {
 
             $eventid = $event['eid'];
             $patientid = $event['pid'];
-            $commapos = strpos($event['patient_name'], ",");
-            $lname = substr($event['patient_name'], 0, $commapos);
-	        $fname = substr($event['patient_name'], $commapos + 2);
+            $commapos = strpos(($event['patient_name'] ?? ''), ",");
+            $lname = substr(($event['patient_name'] ?? ''), 0, $commapos);
+	        $fname = substr(($event['patient_name'] ?? ''), $commapos + 2);
 	        $address = $event['patient_address']; //RM
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
