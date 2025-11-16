@@ -53,7 +53,7 @@ $language = $tmp['language'];
 ?>
 <html>
 <head>
-<?php Header::setupHeader('popper'); ?>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Patient Issues'); ?></title>
 <script>
 
