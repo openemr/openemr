@@ -46,6 +46,10 @@ enum DocumentReferenceAdvancedDirectiveCodeEnum: string {
         return $this->getCodeType() . '|' . $this->value;
     }
 
+    public function getSearchValue(): string {
+        return $this->getSystem() . '|' . $this->value;
+    }
+
     public static function getFullOpenEMRCodeList(): array {
         $list = [];
         foreach (self::cases() as $case) {
@@ -57,7 +61,7 @@ enum DocumentReferenceAdvancedDirectiveCodeEnum: string {
     public static function getFullCodeWithSystemList(): array {
         $list = [];
         foreach (self::cases() as $case) {
-            $list[] = $case->getSystem() . '|' . $case->value;
+            $list[] = $case->getSearchValue();
         }
         return $list;
     }

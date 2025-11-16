@@ -597,7 +597,7 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
             $this->assertNotNull($reference, 'ValueReference must have reference');
 
             $reference = UtilsService::createRelativeReference("DocumentReference", $this->compliantLivingWillData['document_uuid'], $this->compliantLivingWillData['document_name']);
-            $referenceString = (string)$reference;
+            $referenceString = $reference->getReference();
             $this->assertEquals(
                 (string)$reference->getReference(),
                 $referenceString,
@@ -634,11 +634,11 @@ class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
     }
 
     #[Test]
-    public function testServiceSupportsAssessmentCategory(): void
+    public function testServiceSupportsObservationAdiDocumentationCategory(): void
     {
         // Verify service declares support for assessment category
         $this->assertTrue(
-            $this->fhirAdiService->supportsCategory('assessment'),
+            $this->fhirAdiService->supportsCategory('observation-adi-documentation'),
             'Service must support assessment category'
         );
 
