@@ -754,7 +754,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
 
         $data = [];
-        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        $data['uuid'] = (string)$fhirResource->getId();
 
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
@@ -764,7 +764,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                     break;
                 }
             }
-            $data['lname'] = (string)$name->getFamily() ?? null;
+            $data['lname'] = (string)$name->getFamily();
 
             $given = $name->getGiven() ?? [];
             // we cast due to the way FHIRString works
@@ -799,18 +799,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
             $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
-            $data['city'] = (string)$activeAddress->getCity() ?? null;
-            $data['state'] = (string)$activeAddress->getState() ?? null;
+            $data['postal_code'] = (string)$activeAddress->getPostalCode();
+            $data['city'] = (string)$activeAddress->getCity();
+            $data['state'] = (string)$activeAddress->getState();
         }
 
         $telecom = $fhirResource->getTelecom();
         if (!empty($telecom)) {
             foreach ($telecom as $contactPoint) {
-                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $systemValue = (string)$contactPoint->getSystem();
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
-                    $use = (string)$contactPoint->getUse() ?? "home";
+                    $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'email_direct'];
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
@@ -818,7 +818,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                         $data[$systemValue] = $contactValue;
                     }
                 } elseif ($systemValue == "phone") {
-                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'phone_cell', 'home' => 'phone_home', 'work' => 'phone_biz'];
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;

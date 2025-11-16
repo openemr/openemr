@@ -638,7 +638,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", [$uuid])['pid'] ?? '';
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
                         // We did so let check the type. If encounters then a CDA
-                        $enc_exist = sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", [(int)$pid_exist])['cnt'] ?? 0;
+                        $enc_exist = (sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", [(int)$pid_exist])['cnt']) ?? 0;
                         // If not CDA and not unstructured means unstructured already created a new PID
                         // otherwise merge one or the other to each other.
                         if ((!$this->is_unstructured_import && empty($enc_exist)) || $this->is_unstructured_import) {

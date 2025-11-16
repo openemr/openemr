@@ -1463,7 +1463,7 @@ class AuthorizationController
                     throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
                 }
             }
-            $session_nonce = json_decode((string) $trustedUser['session_cache'], true)['nonce'] ?? '';
+            $session_nonce = (json_decode((string) $trustedUser['session_cache'], true)['nonce']) ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);

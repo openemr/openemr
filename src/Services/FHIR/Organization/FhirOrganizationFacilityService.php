@@ -252,9 +252,9 @@ class FhirOrganizationFacilityService extends FhirServiceBase
 
         $data = [];
 
-        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        $data['uuid'] = (string)$fhirResource->getId();
         // convert the strings to a
-        $data['name'] = (string)$fhirResource->getName() ?? null;
+        $data['name'] = (string)$fhirResource->getName();
 
         $addresses = $fhirResource->getAddress();
         if (!empty($addresses)) {
@@ -273,28 +273,28 @@ class FhirOrganizationFacilityService extends FhirServiceBase
 
             $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
-            $data['city'] = (string)$activeAddress->getCity() ?? null;
-            $data['state'] = (string)$activeAddress->getState() ?? null;
+            $data['postal_code'] = (string)$activeAddress->getPostalCode();
+            $data['city'] = (string)$activeAddress->getCity();
+            $data['state'] = (string)$activeAddress->getState();
         }
 
         $telecom = $fhirResource->getTelecom();
         if (!empty($telecom)) {
             foreach ($telecom as $contactPoint) {
-                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $systemValue = (string)$contactPoint->getSystem();
                 $validSystems = ['phone' => 'phone', 'email' => 'email', 'fax' => 'fax'];
                 if (isset($validSystems[$systemValue])) {
-                    $data[$systemValue] = (string)$contactPoint->getValue() ?? null;
+                    $data[$systemValue] = (string)$contactPoint->getValue();
                 }
             }
         }
 
         foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
-                $data['facility_npi'] = (string)$identifier->getValue() ?? null;
+                $data['facility_npi'] = (string)$identifier->getValue();
             }
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::OID_CLINICAL_LABORATORY_IMPROVEMENT_ACT_NUMBER) {
-                $data['domain_identifier'] = (string)$identifier->getValue() ?? null;
+                $data['domain_identifier'] = (string)$identifier->getValue();
             }
         }
         return $data;

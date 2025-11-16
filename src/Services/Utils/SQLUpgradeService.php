@@ -1402,7 +1402,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         try {
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
-                    $options = json_decode((string) $row['edit_options'], true) ?? [];
+                    $options = (json_decode((string) $row['edit_options'], true)) ?? [];
                     if (!in_array($add_option, $options) && stripos((string) $mode, 'add') !== false) {
                         $options[] = $add_option;
                     } elseif (in_array($add_option, $options) && stripos((string) $mode, 'remove') !== false) {
