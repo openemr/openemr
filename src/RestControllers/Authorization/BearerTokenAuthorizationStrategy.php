@@ -17,6 +17,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
@@ -126,7 +127,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     {
         // This method is intended to create and return an instance of AccessTokenRepository.
         // Implementation details would depend on the specific requirements of the application.
-        return new AccessTokenRepository($this->globalsBag, $session);
+        return new AccessTokenRepository(new ServerConfig(), $session);
     }
 
     public function shouldProcessRequest(HttpRestRequest $request): bool
