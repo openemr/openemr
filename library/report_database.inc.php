@@ -468,7 +468,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
  */
 function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode((string) $data, true) ?? [];
+    $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
