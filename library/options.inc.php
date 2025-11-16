@@ -2403,10 +2403,10 @@ function generate_display_field($frow, $currvalue)
           $s = htmlspecialchars((string) xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43,46
-        if ($lrow == 0 && !empty($backup_list) && (in_array($data_type, [1, 26, 43, 46]))) {
+        if (empty($lrow) && !empty($backup_list) && (in_array($data_type, [1, 26, 43, 46]))) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", [$backup_list,$currvalue]);
-              $s = htmlspecialchars((string) xl_list_label($lrow['title']), ENT_NOQUOTES);
+              $s = htmlspecialchars((string) xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         }
 
         // If match is not found in main and backup lists, return the key with exclamation mark
