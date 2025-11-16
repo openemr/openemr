@@ -1951,11 +1951,7 @@ INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
     ('telecom_systems','phone','Phone',10,0,1),
-<<<<<<< HEAD
-    ('telecom_systems','fax','FAX',20,0,1),
-=======
     ('telecom_systems','fax','Fax',20,0,1),
->>>>>>> origin/master
     ('telecom_systems','email','Email',30,0,1),
     ('telecom_systems','pager','Pager',40,0,1),
     ('telecom_systems','url','URL',50,0,1),
@@ -1970,20 +1966,12 @@ VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-<<<<<<< HEAD
     ('telecom_uses','mobile','Mobile',10,0,1),    
     ('telecom_uses','home','Home',20,0,1),
     ('telecom_uses','work','Work',30,0,1),
     ('telecom_uses','temp','Temp',40,0,1),
     ('telecom_uses','old','Old',50,0,1);
 
-=======
-    ('telecom_uses','home','Home',10,0,1),
-    ('telecom_uses','work','Work',20,0,1),
-    ('telecom_uses','temp','Temp',30,0,1),
-    ('telecom_uses','old','Old',40,0,1),
-    ('telecom_uses','mobile','Mobile',50,0,1);
->>>>>>> origin/master
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id person_patient_link_method
