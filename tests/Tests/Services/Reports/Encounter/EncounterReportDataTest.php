@@ -81,7 +81,7 @@ class EncounterReportDataTest extends TestCase
         
         // Verify all returned encounters fall within the date range
         foreach ($result as $encounter) {
-            $encounterDate = date('Y-m-d', strtotime($encounter['date']));
+            $encounterDate = date('Y-m-d', strtotime((string) $encounter['date']));
             $this->assertGreaterThanOrEqual('2024-06-01', $encounterDate);
             $this->assertLessThanOrEqual('2024-06-30', $encounterDate);
         }
@@ -331,7 +331,7 @@ class EncounterReportDataTest extends TestCase
         // Verify descending date order
         $previousDate = null;
         foreach ($result as $encounter) {
-            $currentDate = strtotime($encounter['date']);
+            $currentDate = strtotime((string) $encounter['date']);
             if ($previousDate !== null) {
                 $this->assertLessThanOrEqual($previousDate, $currentDate, 'Encounters should be ordered by date descending');
             }
