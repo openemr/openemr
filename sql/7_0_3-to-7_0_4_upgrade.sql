@@ -2565,3 +2565,20 @@ ALTER TABLE `users` ADD COLUMN `country_code2` varchar(255) COMMENT 'ISO 3166-1 
 #IfMissingColumn form_questionnaire_assessments category
 ALTER TABLE `form_questionnaire_assessments` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
 #EndIf
+
+-- our ad_completed field in patient_data needs an authenticator field to track who validated the advance care directive
+#IfMissingColumn patient_data advance_directive_user_authenticator
+ALTER TABLE `patient_data` ADD COLUMN `advance_directive_user_authenticator` BIGINT(20) COMMENT 'fk to users.id of the user who authenticates that the advance care directive is valid.';
+ALTER TABLE `patient_data` MODIFY COLUMN `ad_reviewed` DATETIME DEFAULT NULL COMMENT 'Date and time the advance care directive was reviewed and validated by the authenticator user.';
+UPDATE categories
+    JOIN (
+        SELECT 'Advance Directive' AS cat_name, 'LOINC:42348-3' AS cat_code FROM DUAL
+        UNION SELECT 'Do Not Resuscitate Order' AS cat_name, 'LOINC:84095-9' AS cat_code FROM DUAL
+        UNION SELECT 'Durable Power of Attorney' AS cat_name, 'LOINC:64298-3' AS cat_code FROM DUAL
+        UNION SELECT 'Living Will' AS cat_name, 'LOINC:86533-7' AS cat_code FROM DUAL
+    ) ad_categories ON categories.name = ad_categories.cat_name
+    SET
+        categories.codes = ad_categories.cat_code
+    WHERE
+      categories.codes = '' OR categories.codes IS NULL;
+#EndIf
