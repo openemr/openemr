@@ -2572,8 +2572,7 @@ ALTER TABLE `patient_data` ADD COLUMN `advance_directive_user_authenticator` BIG
 ALTER TABLE `patient_data` MODIFY COLUMN `ad_reviewed` DATETIME DEFAULT NULL COMMENT 'Date and time the advance care directive was reviewed and validated by the authenticator user.';
 UPDATE categories
     JOIN (
-        SELECT 'Advance Directive' AS cat_name, 'LOINC:42348-3' AS cat_code FROM DUAL
-        UNION SELECT 'Do Not Resuscitate Order' AS cat_name, 'LOINC:84095-9' AS cat_code FROM DUAL
+        SELECT 'Do Not Resuscitate Order' AS cat_name, 'LOINC:84095-9' AS cat_code FROM DUAL
         UNION SELECT 'Durable Power of Attorney' AS cat_name, 'LOINC:64298-3' AS cat_code FROM DUAL
         UNION SELECT 'Living Will' AS cat_name, 'LOINC:86533-7' AS cat_code FROM DUAL
     ) ad_categories ON categories.name = ad_categories.cat_name
@@ -2581,4 +2580,5 @@ UPDATE categories
         categories.codes = ad_categories.cat_code
     WHERE
       categories.codes = '' OR categories.codes IS NULL;
+UPDATE categories SET codes='LOINC:42348-3' WHERE name='Advance Directive' AND codes='LOINC:LP173418-7';
 #EndIf
