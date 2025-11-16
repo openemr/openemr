@@ -466,9 +466,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
 
             $eventid = $event['eid'];
             $patientid = $event['pid'];
-            $commapos = strpos(($event['patient_name'] ?? ''), ",");
-            $lname = substr(($event['patient_name'] ?? ''), 0, $commapos);
-            $fname = substr(($event['patient_name'] ?? ''), $commapos + 2);
+            [$lname, $fname] = explode(", ", ($event['patient_name'] ?? ''), 2) + ['', ''];
             $address = $event['patient_address']; //RM
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
