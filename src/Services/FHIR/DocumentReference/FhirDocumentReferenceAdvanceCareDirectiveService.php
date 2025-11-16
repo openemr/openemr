@@ -183,7 +183,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
     {
         // mandatory category
         $docReference->addCategory(UtilsService::createCodeableConcept([
-                'LOINC:42348-3' => [
+                '42348-3' => [
                     'system' => FhirCodeSystemConstants::LOINC,
                     'description' => 'Advance healthcare directives',
                     'code' => '42348-3'

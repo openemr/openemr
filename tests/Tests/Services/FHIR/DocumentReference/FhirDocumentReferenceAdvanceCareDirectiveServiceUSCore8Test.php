@@ -34,6 +34,7 @@ namespace OpenEMR\Tests\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -384,7 +385,6 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
 
         // Category is required (min=1, max=*) and must-support
         $categories = $docReference->getCategory();
-        var_dump($categories);
         $this->assertNotEmpty($categories, 'DocumentReference.category is required and must have at least one category');
 
         // CRITICAL: Must include ADI category (LOINC 42348-3)
@@ -744,7 +744,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
             // Format may be present
             if ($format !== null) {
                 $this->assertInstanceOf(
-                    FHIRCodeableConcept::class,
+                    FHIRCoding::class,
                     $format,
                     'DocumentReference.content.format must be valid CodeableConcept'
                 );
@@ -828,11 +828,6 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
             {
                 // Verify service declares support for advance-care-directive category
                 $this->assertTrue(
-                    $this->fhirAdiDocService->supportsCategory('advance-care-directive'),
-                    'Service must support advance-care-directive category'
-                );
-
-                $this->assertTrue(
                     $this->fhirAdiDocService->supportsCategory(DocumentReferenceCategoryEnum::ADVANCE_CARE_DIRECTIVE->value),
                     'Service must support ADVANCE_CARE_DIRECTIVE enum value'
                 );
@@ -853,18 +848,18 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
     #[Test]
     #[DataProvider('advanceDirectiveDataProvider')]
     public function testMultipleAdvanceDirectiveTypes(array $adiData, string $expectedCode): void
-            {
-                $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($adiData);
+    {
+        $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($adiData);
 
-                // Verify DocumentReference is created
-                $this->assertInstanceOf(FHIRDocumentReference::class, $docReference);
+        // Verify DocumentReference is created
+        $this->assertInstanceOf(FHIRDocumentReference::class, $docReference);
 
-                // Verify correct type code
-                $type = $docReference->getType();
-                $this->assertNotNull($type, 'Type must be present');
+        // Verify correct type code
+        $type = $docReference->getType();
+        $this->assertNotNull($type, 'Type must be present');
 
-                $codings = $type->getCoding();
-                $foundCode = false;
+        $codings = $type->getCoding();
+        $foundCode = false;
         foreach ($codings as $coding) {
             if ((string)$coding->getSystem() === FhirCodeSystemConstants::LOINC &&
                 (string)$coding->getCode() === $expectedCode) {
@@ -873,207 +868,207 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
             }
         }
 
-                $this->assertTrue(
-                    $foundCode,
-                    "DocumentReference.type must have LOINC code: $expectedCode"
-                );
+        $this->assertTrue(
+            $foundCode,
+            "DocumentReference.type must have LOINC code: $expectedCode"
+        );
     }
 
     public static function advanceDirectiveDataProvider(): array
-            {
-                // Note: This will be called before setUp(), so we create minimal data here
-                return [
-                    'Living Will' => [
-                        [
-                            'uuid' => 'test-uuid-1',
-                            'puuid' => 'patient-uuid-1',
-                            'name' => 'living_will.pdf',
-                            'category_codes' => 'LOINC:86533-7',
-                            'status' => 'current',
-                            'created_date' => '2024-01-01',
-                            'location' => 'EHR',
-                            'mimetype' => 'application/pdf',
-                        ],
-                        '86533-7'
-                    ],
-                    'Power of Attorney' => [
-                        [
-                            'uuid' => 'test-uuid-2',
-                            'puuid' => 'patient-uuid-1',
-                            'name' => 'poa.pdf',
-                            'category_codes' => 'LOINC:64298-3',
-                            'status' => 'current',
-                            'created_date' => '2024-01-01',
-                            'location' => 'EHR',
-                            'mimetype' => 'application/pdf',
-                        ],
-                        '64298-3'
-                    ],
-                    'DNR Order' => [
-                        [
-                            'uuid' => 'test-uuid-3',
-                            'puuid' => 'patient-uuid-1',
-                            'name' => 'dnr.pdf',
-                            'category_codes' => 'LOINC:84095-9',
-                            'status' => 'current',
-                            'created_date' => '2024-01-01',
-                            'location' => 'EHR',
-                            'mimetype' => 'application/pdf',
-                        ],
-                        '84095-9'
-                    ],
-                    'Mental Health Directive' => [
-                        [
-                            'uuid' => 'test-uuid-4',
-                            'puuid' => 'patient-uuid-1',
-                            'name' => 'mental_health.pdf',
-                            'category_codes' => 'LOINC:104144-1',
-                            'status' => 'current',
-                            'created_date' => '2024-01-01',
-                            'location' => 'EHR',
-                            'mimetype' => 'application/pdf',
-                        ],
-                        '104144-1'
-                    ],
-                    'Generic Advance Directive' => [
-                        [
-                            'uuid' => 'test-uuid-5',
-                            'puuid' => 'patient-uuid-1',
-                            'name' => 'advance_directive.pdf',
-                            'category_codes' => 'LOINC:42348-3',
-                            'status' => 'current',
-                            'created_date' => '2024-01-01',
-                            'location' => 'EHR',
-                            'mimetype' => 'application/pdf',
-                        ],
-                        '42348-3'
-                    ],
-                ];
+    {
+        // Note: This will be called before setUp(), so we create minimal data here
+        return [
+            'Living Will' => [
+                [
+                    'uuid' => 'test-uuid-1',
+                    'puuid' => 'patient-uuid-1',
+                    'name' => 'living_will.pdf',
+                    'category_codes' => 'LOINC:86533-7',
+                    'status' => 'current',
+                    'created_date' => '2024-01-01',
+                    'location' => 'EHR',
+                    'mimetype' => 'application/pdf',
+                ],
+                '86533-7'
+            ],
+            'Power of Attorney' => [
+                [
+                    'uuid' => 'test-uuid-2',
+                    'puuid' => 'patient-uuid-1',
+                    'name' => 'poa.pdf',
+                    'category_codes' => 'LOINC:64298-3',
+                    'status' => 'current',
+                    'created_date' => '2024-01-01',
+                    'location' => 'EHR',
+                    'mimetype' => 'application/pdf',
+                ],
+                '64298-3'
+            ],
+            'DNR Order' => [
+                [
+                    'uuid' => 'test-uuid-3',
+                    'puuid' => 'patient-uuid-1',
+                    'name' => 'dnr.pdf',
+                    'category_codes' => 'LOINC:84095-9',
+                    'status' => 'current',
+                    'created_date' => '2024-01-01',
+                    'location' => 'EHR',
+                    'mimetype' => 'application/pdf',
+                ],
+                '84095-9'
+            ],
+            'Mental Health Directive' => [
+                [
+                    'uuid' => 'test-uuid-4',
+                    'puuid' => 'patient-uuid-1',
+                    'name' => 'mental_health.pdf',
+                    'category_codes' => 'LOINC:104144-1',
+                    'status' => 'current',
+                    'created_date' => '2024-01-01',
+                    'location' => 'EHR',
+                    'mimetype' => 'application/pdf',
+                ],
+                '104144-1'
+            ],
+            'Generic Advance Directive' => [
+                [
+                    'uuid' => 'test-uuid-5',
+                    'puuid' => 'patient-uuid-1',
+                    'name' => 'advance_directive.pdf',
+                    'category_codes' => 'LOINC:42348-3',
+                    'status' => 'current',
+                    'created_date' => '2024-01-01',
+                    'location' => 'EHR',
+                    'mimetype' => 'application/pdf',
+                ],
+                '42348-3'
+            ],
+        ];
     }
 
     #[Test]
     public function testDocumentReferenceWithMinimalRequiredElements(): void
-            {
-                // Test with minimal required data (no optional must-support elements)
-                $minimalData = [
-                    'uuid' => 'minimal-doc-uuid',
-                    'puuid' => $this->testPatientUuid,
-                    'name' => 'minimal_directive.pdf',
-                    'category_codes' => 'LOINC:42348-3',
-                    'status' => 'current',
-                    'created_date' => '2024-01-15',
-                    'location' => 'EHR',
-                    'mimetype' => 'application/pdf',
-                ];
+    {
+        // Test with minimal required data (no optional must-support elements)
+        $minimalData = [
+            'uuid' => 'minimal-doc-uuid',
+            'puuid' => $this->testPatientUuid,
+            'name' => 'minimal_directive.pdf',
+            'category_codes' => 'LOINC:42348-3',
+            'status' => 'current',
+            'created_date' => '2024-01-15',
+            'location' => 'EHR',
+            'mimetype' => 'application/pdf',
+        ];
 
-                $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($minimalData);
+        $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($minimalData);
 
-                // Should still create valid DocumentReference with mandatory elements
-                $this->assertInstanceOf(FHIRDocumentReference::class, $docReference);
-                $this->assertNotNull($docReference->getStatus());
-                $this->assertNotNull($docReference->getType());
-                $this->assertNotNull($docReference->getSubject());
-                $this->assertNotEmpty($docReference->getCategory());
-                $this->assertNotEmpty($docReference->getContent());
+        // Should still create valid DocumentReference with mandatory elements
+        $this->assertInstanceOf(FHIRDocumentReference::class, $docReference);
+        $this->assertNotNull($docReference->getStatus());
+        $this->assertNotNull($docReference->getType());
+        $this->assertNotNull($docReference->getSubject());
+        $this->assertNotEmpty($docReference->getCategory());
+        $this->assertNotEmpty($docReference->getContent());
     }
 
     #[Test]
     public function testDocumentReferenceWithoutAuthenticator(): void
-            {
-                // Test that documents without authenticator still validate
-                $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($this->compliantPowerOfAttorneyData);
+    {
+        // Test that documents without authenticator still validate
+        $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($this->compliantPowerOfAttorneyData);
 
-                $this->assertInstanceOf(FHIRDocumentReference::class, $docReference);
+        $this->assertInstanceOf(FHIRDocumentReference::class, $docReference);
 
-                // Authenticator and authentication time are optional
-                $authenticator = $docReference->getAuthenticator();
-                // May be null, which is valid
+        // Authenticator and authentication time are optional
+        $authenticator = $docReference->getAuthenticator();
+        // May be null, which is valid
 
-                $authTimeExtension = $this->findExtensionByUrl(
-                    $docReference,
-                    'http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time'
-                );
-                // May be null, which is valid
+        $authTimeExtension = $this->findExtensionByUrl(
+            $docReference,
+            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time'
+        );
+        // May be null, which is valid
     }
 
     #[Test]
     public function testEnteredInErrorDocumentStatus(): void
-            {
-                // Test superseded status
-                $deletedData = $this->compliantLivingWillData;
-                $deletedData['deleted'] = 1;
+    {
+        // Test superseded status
+        $deletedData = $this->compliantLivingWillData;
+        $deletedData['deleted'] = 1;
 
-                $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($deletedData);
+        $docReference = $this->fhirAdiDocService->parseOpenEMRRecord($deletedData);
 
-                $status = $docReference->getStatus();
-                $this->assertNotNull($status);
-                $this->assertEquals(
-                    'entered-in-error',
-                    $status,
-                    'DocumentReference should support entered-in-error status'
-                );
+        $status = $docReference->getStatus();
+        $this->assertNotNull($status);
+        $this->assertEquals(
+            'entered-in-error',
+            $status,
+            'DocumentReference should support entered-in-error status'
+        );
     }
 
     #[Test]
     public function testSearchParametersSupport(): void {
-                // Verify service supports required search parameters, an exception will be thrown if the search parameters are invalid
-                // US Core 8.0 requires these search parameters
+        // Verify service supports required search parameters, an exception will be thrown if the search parameters are invalid
+        // US Core 8.0 requires these search parameters
 
-                $requiredParams = [
-                    'patient' => UuidV4::uuid4()->toString()
-                    ,'_id' => UuidV4::uuid4()->toString()
-                    , '_lastUpdated' => UtilsService::getDateFormattedAsUTC()
-                    , 'category' => DocumentReferenceAdvancedDirectiveCodeEnum::ADVANCE_DIRECTIVE->getSearchValue()
-                    , 'date' => UtilsService::getDateFormattedAsUTC()
-                ];
-                $processingResult = $this->fhirAdiDocService->getAll($requiredParams);
-                $this->assertTrue($processingResult->isValid(), "Search with required parameters should be valid");
+        $requiredParams = [
+            'patient' => UuidV4::uuid4()->toString()
+            ,'_id' => UuidV4::uuid4()->toString()
+            , '_lastUpdated' => UtilsService::getDateFormattedAsUTC()
+            , 'category' => DocumentReferenceAdvancedDirectiveCodeEnum::ADVANCE_DIRECTIVE->getSearchValue()
+            , 'date' => UtilsService::getDateFormattedAsUTC()
+        ];
+        $processingResult = $this->fhirAdiDocService->getAll($requiredParams);
+        $this->assertTrue($processingResult->isValid(), "Search with required parameters should be valid");
     }
 
     #[Test]
     public function testCategoryCodesValidation(): void
-            {
-                // Verify all valid ADI category codes are supported
-                $validCodes = [
-                    '104144-1', // Mental Health Advance Directive
-                    '86533-7',  // Living Will
-                    '64298-3',  // Power of Attorney
-                    '84095-9',  // DNR Order
-                    '42348-3',  // Generic Advance Directive
-                ];
+    {
+        // Verify all valid ADI category codes are supported
+        $validCodes = [
+            '104144-1', // Mental Health Advance Directive
+            '86533-7',  // Living Will
+            '64298-3',  // Power of Attorney
+            '84095-9',  // DNR Order
+            '42348-3',  // Generic Advance Directive
+        ];
 
-                foreach ($validCodes as $code) {
-                    $found = false;
-                    foreach (DocumentReferenceAdvancedDirectiveCodeEnum::cases() as $enum) {
-                        if ($enum->value === $code) {
-                            $found = true;
-                            break;
-                        }
-                    }
-
-                    $this->assertTrue(
-                        $found,
-                        "Valid ADI code $code must be in DocumentReferenceAdvancedDirectiveCodeEnum"
-                    );
+        foreach ($validCodes as $code) {
+            $found = false;
+            foreach (DocumentReferenceAdvancedDirectiveCodeEnum::cases() as $enum) {
+                if ($enum->value === $code) {
+                    $found = true;
+                    break;
                 }
+            }
+
+            $this->assertTrue(
+                $found,
+                "Valid ADI code $code must be in DocumentReferenceAdvancedDirectiveCodeEnum"
+            );
+        }
     }
 
     // Helper methods
 
     private function findExtensionByUrl(FHIRDocumentReference $docReference, string $url): ?FHIRExtension
-            {
-                $extensions = $docReference->getExtension();
+    {
+        $extensions = $docReference->getExtension();
         foreach ($extensions as $extension) {
             if ((string)$extension->getUrl() === $url) {
                 return $extension;
             }
         }
-                return null;
+        return null;
     }
 
     private function findCategoryByCode(FHIRDocumentReference $docReference, string $code): ?FHIRCodeableConcept
-            {
-                $categories = $docReference->getCategory();
+    {
+        $categories = $docReference->getCategory();
         foreach ($categories as $category) {
             $codings = $category->getCoding();
             foreach ($codings as $coding) {
@@ -1082,7 +1077,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCa
                 }
             }
         }
-                return null;
+        return null;
     }
 }
 // END AI GENERATED CODE
