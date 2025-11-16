@@ -4096,7 +4096,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
         // --- Append SDOH Goals, Concerns, and Interventions from HistorySdohService ---
         try {
-            $sdoh = HistorySdohService::getCurrentAssessment((int)$pid) ?? null;
+            $sdoh = (HistorySdohService::getCurrentAssessment((int)$pid)) ?? null;
             if ($sdoh) {
                 // Author/provenance (use last updater or current user)
                 $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? ($GLOBALS['authUserID'] ?? null);

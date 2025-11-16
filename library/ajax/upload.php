@@ -44,7 +44,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
 
 // check if this is for dicom image maintenance.
 $action = $_POST['action'] ?? null;
-$doc_id = (int)$_POST['doc_id'] ?? null;
+$doc_id = (int)($_POST['doc_id'] ?? null);
 $json_data = $_POST['json_data'] ?? null;
 
 if ($action == 'save') {
