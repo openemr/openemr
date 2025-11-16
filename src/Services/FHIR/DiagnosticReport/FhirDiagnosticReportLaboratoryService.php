@@ -15,7 +15,8 @@
 namespace OpenEMR\Services\FHIR\DiagnosticReport;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
@@ -24,11 +25,10 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
-use OpenEMR\Services\FHIR\Indicates;
-use OpenEMR\Services\FHIR\OpenEMR;
-use OpenEMR\Services\FHIR\openEMRSearchParameters;
+use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -39,16 +39,20 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
+use BadMethodCallException;
 
-class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
+class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab';
 
     /**
      * @var ProcedureService
      */
-    private $service;
+    private ProcedureService $service;
 
     const LAB_CATEGORY = "LAB";
 
@@ -66,7 +70,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         return  [
             'patient' => $this->getPatientContextSearchField(),
@@ -84,13 +88,13 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): string
     {
         return $category === self::LAB_CATEGORY;
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // we'll let them search on any LOINC code, technically we could just search procedure_codes for a valid code
         // and return false if there is nothing there... but unless the queries get really inefficient, we can just
@@ -98,18 +102,11 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         return true;
     }
 
-    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDiagnosticReport
     {
         $report = new FHIRDiagnosticReport();
         $dataRecordReport = array_pop($dataRecord['reports']);
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        if (!empty($dataRecordReport['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecordReport['date']));
-        } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $report->setMeta($fhirMeta);
+        $this->populateMeta($report, $dataRecordReport);
 
         $id = new FHIRId();
         $id->setValue($dataRecordReport['uuid']);
@@ -120,7 +117,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
             $report->setEffectiveDateTime(new FHIRDateTime($utcDate));
             $report->setIssued(new FHIRInstant($utcDate));
         } else {
-            $report->setDate(UtilsService::createDataMissingExtension());
+            $report->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
 
         if (!empty($dataRecord['euuid'])) {
@@ -134,6 +131,11 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
             $report->addPerformer($orgReference);
         } else {
             $report->addPerformer($fhirOrganizationService->getPrimaryBusinessEntityReference());
+        }
+        // director is stored in the users table and linked via procedure_providers.lab_director
+        if (!empty($dataRecord['lab']['director_uuid'])) {
+            $practitionerReference = UtilsService::createRelativeReference("Practitioner", $dataRecord['lab']['director_uuid']);
+            $report->addPerformer($practitionerReference);
         }
 
         if (!empty($dataRecordReport['results'])) {
@@ -208,13 +210,24 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         }
 
         if (isset($openEMRSearchParameters['standard_code']) && $openEMRSearchParameters['standard_code'] instanceof TokenSearchField) {
+            $values = [];
+            $modifier = null;
             foreach ($openEMRSearchParameters['standard_code']->getValues() as $value) {
                 // TODO: @adunsulag do we need to handle unknowable codes across all FHIR code systems?
                 if ($value->getCode() == UtilsService::UNKNOWNABLE_CODE_DATA_ABSENT) {
-                    $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', new TokenSearchValue(true));
-                    $openEMRSearchParameters['standard_code']->setModifier(SearchModifier::MISSING);
+                    $values = [new TokenSearchValue(true)];
+                    $modifier = SearchModifier::MISSING;
                     break;
+                } else if ($value->getSystem() == FhirCodeSystemConstants::LOINC) {
+                    // remove the system as procedure service only cares about the code itself
+                    $values[] = new TokenSearchValue($value->getCode());
+                } else {
+                    $values[] = $value;
                 }
+            }
+            $openEMRSearchParameters['standard_code'] = new TokenSearchField('standard_code', $values);
+            if (!empty($modifier)) {
+                $openEMRSearchParameters['standard_code']->setModifier($modifier);
             }
         }
         $openEMRSearchParameters['procedure_type'] = new TokenSearchField('procedure_type', [new TokenSearchValue(self::PROCEDURE_ORDER_TEST_TYPE)]);
@@ -224,14 +237,14 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     /**
      * Creates the Provenance resource  for the equivalent FHIR Resource
      *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @param FHIRDiagnosticReport $dataRecord The source OpenEMR data record
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return FHIRProvenance|string|false the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false)
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRDiagnosticReport)) {
-            throw new \BadMethodCallException("Data record should be correct instance class");
+            throw new BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
@@ -240,5 +253,38 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
         } else {
             return $fhirProvenance;
         }
+    }
+
+    protected function populateMeta(FHIRDiagnosticReport $report, array $dataRecordReport): void
+    {
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId('1');
+        if (!empty($dataRecordReport['date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecordReport['date']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        // Set profile (required, mustSupport)
+        $this->addProfilesToMeta($fhirMeta, $dataRecordReport);
+        $report->setMeta($fhirMeta);
+    }
+
+    /**
+     * @param FHIRMeta $meta
+     * @param array $dataRecord
+     * @return void
+     */
+    protected function addProfilesToMeta(FHIRMeta $fhirMeta, array $dataRecordReport): void
+    {
+        $profiles = $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
+        foreach ($profiles as $profileUrl) {
+            $profile = new FHIRCanonical();
+            $profile->setValue($profileUrl);
+            $fhirMeta->addProfile($profile);
+        }
+    }
+    public function getProfileURIs(): array
+    {
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

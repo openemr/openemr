@@ -49,6 +49,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
@@ -1017,18 +1018,27 @@ class AuthorizationController
         }
     }
 
+// ============================================================================
+// AI-GENERATED CODE START
+// Generated using Claude (Anthropic) on 2025-11-14
+// This code implements an improved scope authorization UI with granular
+// permission controls for FHIR resources with restricted scopes
+// ============================================================================
+
+    /**
+     * Improved scope authorization confirmation method with granular permission controls
+     * This replaces the existing scopeAuthorizeConfirm method in AuthorizationController
+     */
     public function scopeAuthorizeConfirm(HttpRestRequest $request): ResponseInterface
     {
-        // TODO: @adunsulag if there are no scopes or claims here we probably want to show an error...
-        // show our scope auth piece
         $redirect = $this->authBaseUrl . self::DEVICE_CODE_ENDPOINT;
         $session = $this->session;
         $scopeString = $session->get('scopes', '');
-        // check for offline_access
 
         $scopesList = explode(' ', (string) $scopeString);
         $offline_requested = false;
         $scopes = [];
+
         foreach ($scopesList as $scope) {
             if ($scope !== self::OFFLINE_ACCESS_SCOPE) {
                 $scopes[] = $scope;
@@ -1036,6 +1046,7 @@ class AuthorizationController
                 $offline_requested = true;
             }
         }
+
         $offline_access_date = (new DateTimeImmutable())->add(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL))->format("Y-m-d");
         $claims = $session->get('claims', []);
 
@@ -1047,37 +1058,26 @@ class AuthorizationController
         $userAccount = $uuidToUser->getUserAccount();
         $scopeString ??= "";
         $userRole ??= UuidUserAccount::USER_ROLE_PATIENT;
-        $scopesByResource = [];
+
+        // Parse and structure scopes with granular permissions
+        $scopeParser = new ScopePermissionParser($this->getScopeRepository($session));
+        $structuredScopes = $scopeParser->parseScopes($scopes);
+
         $otherScopes = [];
         $hiddenScopes = [];
         $scopeRepository = $this->getScopeRepository($session);
         $fhirRequiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+
         foreach ($scopes as $scope) {
-            // if there are any other scopes we want hidden we can put it here.
+            // Hidden scopes
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
             } else if (in_array($scope, $fhirRequiredSmartScopes)) {
                 $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
-                continue;
-            }
-
-            $parts = explode("/", $scope);
-            reset($parts);
-            $resourcePerm = $parts[1] ?? "";
-            $resourcePermParts = explode(".", $resourcePerm);
-            $resource = $resourcePermParts[0];
-
-            if (!empty($resource)) {
-                $scopesByResource[$resource] ??= ['permissions' => []];
-
-                $scopesByResource[$resource]['permissions'][$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
-        // TODO: @adunsulag need to fire off an event here so that api writers can grab descriptions or update them for their scopes
 
-// sort by the resource
-        ksort($scopesByResource);
-
+        // Process claims
         $updatedClaims = [];
         foreach ($claims as $key => $value) {
             $key_n = explode('_', (string) $key);
@@ -1098,16 +1098,22 @@ class AuthorizationController
             'redirect' => $redirect
             ,'client' => $client
             ,'otherScopes' => $otherScopes
-            ,'scopesByResource' => $scopesByResource
+            ,'structuredScopes' => $structuredScopes  // New structured data
             ,'hiddenScopes' => $hiddenScopes
             ,'claims' => $updatedClaims
             ,'userAccount' => $userAccount
             ,'offlineRequested' => true == $offline_requested
             ,'offline_access_date' => $offline_access_date
-            , "csrfToken" => CsrfUtils::collectCsrfToken('oauth2', $session)
+            ,'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
         ];
+
         return $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
     }
+
+// ============================================================================
+// AI-GENERATED CODE END
+// ============================================================================
+
 
     /**
      * Checks if we are in a SMART authorization endpoint
@@ -1263,19 +1269,34 @@ class AuthorizationController
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() attempting to update auth request with user approved scopes",
             ['userApprovedScopes' => $approvedScopes ]
         );
-        $requestScopes = $request->getScopes();
+        // the request scopes are just the straight up identifier and not our more complex ScopeEntity so we can't use
+        // them directly for validation.
+        $requestScopeIdentifiers = array_map(fn(ScopeEntityInterface $scope) => $scope->getIdentifier(), $request->getScopes());
         $scopeUpdates = [];
-        // we only allow scopes from the original session request, if user approved scope it will show up here.
-        foreach ($requestScopes as $scope) {
-            if (isset($approvedScopes[$scope->getIdentifier()])) {
-                $scopeUpdates[] = $scope;
+        $scopeValidatorArray = $this->getScopeRepository($this->session)->buildScopeValidatorArray($requestScopeIdentifiers);
+        foreach ($approvedScopes as $scope) {
+            try {
+                $approvedScopeEntity = ScopeEntity::createFromString($scope);
+                $lookupKey = $approvedScopeEntity->getScopeLookupKey();
+                if (
+                    isset($scopeValidatorArray[$lookupKey])
+                    && $scopeValidatorArray[$lookupKey]->containsScope($approvedScopeEntity)
+                ) {
+                    $scopeUpdates[] = $approvedScopeEntity;
+                }
+            }
+            catch (Exception $e) {
+                $this->getSystemLogger()->error(
+                    "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
+                    ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
+                );
             }
         }
         $this->getSystemLogger()->debug(
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
             ['updatedScopes' => $scopeUpdates]
         );
-
+        // set the approved scopes back onto the request
         $request->setScopes($scopeUpdates);
         return $request;
     }

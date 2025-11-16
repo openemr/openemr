@@ -19,6 +19,7 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
@@ -133,39 +134,15 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction(
                 'encounterSelectList',
                 function ($name, $pid, $selectedValue = '', $title = '', $opts = []) {
-                    // Return empty string if no patient ID provided
-                    if (empty($pid)) {
-                        return '';
-                    }
 
-                    // Get encounters for the patient
-                    $encounterService = new EncounterService();
-                    $encounters = $encounterService->getPatientEncounterListWithCategories($pid);
-                    $count = count($encounters);
-
-                    // Build the options list
-                    $optionsList = [];
-                    // go in reverse order so most recent encounter is first
-                    for ($i = $count - 1; $i >= 0; $i--) {
-                        // Create display text: "2024-01-15 14:30 - Office Visit"
-                        $displayText = $encounters['dates'][$i] . ' - ' . $encounters['categories'][$i];
-                        $optionValue = $encounters['ids'][$i];
-                        // Only add if we have a valid option value
-                        if (!empty($optionValue)) {
-                            $optionsList[$optionValue] = $displayText;
-                        }
-                    }
-                    $html = [];
-                    $html[] = "<select class=\"form-control\" name=\"" . attr($name) . "\" id=\"" . attr($name) . "\" title=\"" . attr($title) . "\">";
-                    if (!empty($opts['empty_name'])) {
-                        $html[] = "<option value=\"\">" . text($opts['empty_name']) . "</option>";
-                    }
-                    foreach ($optionsList as $value => $text) {
-                        $selected = ($value == $selectedValue) ? ' selected' : '';
-                        $html[] = "<option value=\"" . attr($value) . "\"" . $selected . ">" . text($text) . "</option>";
-                    }
-                    $html[] = "</select>";
-                    return implode("", $html);
+                    $encounterOptionType = new EncounterListOptionType($pid);
+                    $frow = [
+                        'field_id' => $name,
+                        'title' => $title,
+                        'edit_options' => '',
+                        'empty_name' => $opts['empty_name'] ?? ''
+                    ];
+                    return $encounterOptionType->buildDisplayView($frow, $selectedValue);
                 }
             ),
 

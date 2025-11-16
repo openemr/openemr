@@ -2,7 +2,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
@@ -37,7 +39,8 @@ abstract class FhirServiceBase implements
     IResourceReadableService,
     IResourceCreatableService,
     IResourceUpdateableService,
-    SessionAwareInterface
+    SessionAwareInterface,
+    IGlobalsAware
 {
     use ResourceServiceSearchTrait;
     use SystemLoggerAwareTrait;
@@ -56,6 +59,11 @@ abstract class FhirServiceBase implements
 
     private ?SessionInterface $session = null;
 
+    /**
+     * @var ?OEGlobalsBag The globals configuration settings in the database
+     */
+    private ?OEGlobalsBag $globalsBag = null;
+
     public function __construct(?string $fhirApiURL = null)
     {
         $params = $this->loadSearchParameters();
@@ -65,6 +73,15 @@ abstract class FhirServiceBase implements
         $this->setFhirApiUrl($fhirApiURL);
     }
 
+    public function getGlobalsBag(): ?OEGlobalsBag
+    {
+        return $this->globalsBag;
+    }
+
+    public function setGlobalsBag(OEGlobalsBag $globalsBag): void
+    {
+        $this->globalsBag = $globalsBag;
+    }
 
     public function setSession(SessionInterface $session): void
     {

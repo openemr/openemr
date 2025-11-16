@@ -29,6 +29,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirObservationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -84,6 +85,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     const USCDI_PROFILE_HEAD_OCCIPITAL_FRONTAL_CIRCUMFERENCE = self::USCDI_URI_BASE_PATH . 'head-occipital-frontal-circumference-percentile';
     const USCDI_PROFILE_PEDIATRIC_WEIGHT_FOR_HEIGHT = self::USCDI_URI_BASE_PATH . 'pediatric-weight-for-height';
+    const VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE = '3151-8';
+    const VITALS_CODE_PULSE_OXIMETRY = '59408-5';
+    const VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION = '2708-6';
+    const VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION = '3150-0';
+    const VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE = '8480-6';
+    const VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE = '8462-4';
+    const VITALS_CODE_BLOOD_PRESSURE = '85354-9';
 
     /**
      * @var VitalsService
@@ -133,33 +141,23 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 , self::USCDI_PROFILE_HEART_RATE => self::PROFILE_VERSIONS_V2
             ]
         ]
-        ,'2708-6' => [
-            'fullcode' => 'LOINC:2708-6'
-            ,'code' => '2708-6'
+        , self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION => [
+            'fullcode' => 'LOINC:' . self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION
+            ,'code' => self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION
             ,'description' => 'Oxygen saturation in Arterial blood'
-            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit']
+            ,'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit', 'inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit']
             ,'in_vitals_panel' => true
             ,'profiles' => [
                 self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
             ]
         ]
-        ,'59408-5' => [
-            'fullcode' => 'LOINC:59408-5',
-            'code' => '59408-5',
+        , self::VITALS_CODE_PULSE_OXIMETRY => [
+            'fullcode' => 'LOINC:' . self::VITALS_CODE_PULSE_OXIMETRY,
+            'code' => self::VITALS_CODE_PULSE_OXIMETRY,
             'description' => 'Oxygen saturation in Arterial blood by Pulse oximetry',
-            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit'],
-            'in_vitals_panel' => true
-            ,'profiles' => [
-                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
-            ]
-        ]
-        ,'3151-8' => [
-            'fullcode' => 'LOINC:3151-8'
-            ,'code' => '3151-8',
-            'description' => 'Inhaled oxygen flow rate',
-            'column' => ['oxygen_flow_rate', 'oxygen_flow_rate_unit'],
-            'in_vitals_panel' => true
-            ,'profiles' => [
+            'column' => ['oxygen_saturation', 'oxygen_saturation_unit', 'oxygen_flow_rate', 'oxygen_flow_rate_unit', 'inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit'],
+            'in_vitals_panel' => true,
+            'profiles' => [
                 self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
             ]
         ]
@@ -180,11 +178,11 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'description' => 'Temperature Location',
             'column' => ['temp_method'],
             'in_vitals_panel' => true
-            // TODO: @adunsulag later versions of US Core allow this method to be bundled as a component in the Body Temperature observation
-            // which makes sense but then what do we do with prior versions that were treated as a separate observation?
             ,'profiles' => [
-                self::USCDI_PROFILE_BODY_TEMPERATURE_V3_1_1 => self::PROFILE_VERSIONS_V1
-                , self::USCDI_PROFILE_BODY_TEMPERATURE => self::PROFILE_VERSIONS_V2
+                // we supported in 3.1.1 this location, but it doesn't conform to the full body temperature profile
+                // so we are only including it in 7.0.0+ as a valid profile for this observation as it won't pass validation
+                // on anything else.
+                FhirObservationObservationFormService::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_V2
             ]
         ]
         ,'8302-2' => [
@@ -229,36 +227,14 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 self::USCDI_PROFILE_BMI => self::PROFILE_VERSIONS_ALL
             ]
         ]
-        ,'85354-9' => [
+        // note we removed the observations for the raw bps and bpd values as apparently they are not conformant to USCDI
+        // and it was the full blood pressure panel that was required.
+        , self::VITALS_CODE_BLOOD_PRESSURE => [
             'fullcode' => 'LOINC:85354-9'
-            ,'code' => '85354-9'
+            ,'code' => self::VITALS_CODE_BLOOD_PRESSURE
             ,'description' => 'Blood pressure systolic and diastolic'
             // we hack this a bit to make it work by having our systolic and diastolic together
             ,'column' => ['bps', 'bps_unit', 'bpd', 'bpd_unit']
-            ,'in_vitals_panel' => true
-            ,'profiles' => [
-                self::USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 => self::PROFILE_VERSIONS_V1
-                , self::USCDI_PROFILE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
-            ]
-        ]
-        ,'8480-6' => [
-            'fullcode' => 'LOINC:8480-6'
-            ,'code' => '8480-6'
-            ,'description' => 'Systolic blood pressure'
-            // we hack this a bit to make it work by having our systolic and diastolic together
-            ,'column' => ['bps', 'bps_unit']
-            ,'in_vitals_panel' => true
-            ,'profiles' => [
-                self::USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 => self::PROFILE_VERSIONS_V1
-                , self::USCDI_PROFILE_BLOOD_PRESSURE => self::PROFILE_VERSIONS_V2
-            ]
-        ]
-        ,'8462-4' => [
-            'fullcode' => 'LOINC:8462-4'
-            ,'code' => '8462-4'
-            ,'description' => 'Diastolic blood pressure'
-            // we hack this a bit to make it work by having our systolic and diastolic together
-            ,'column' => ['bpd', 'bpd_unit']
             ,'in_vitals_panel' => true
             ,'profiles' => [
                 self::USCDI_PROFILE_BLOOD_PRESSURE_V3_1_1 => self::PROFILE_VERSIONS_V1
@@ -310,16 +286,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 self::USCDI_PROFILE_PEDIATRIC_WEIGHT_FOR_HEIGHT => self::PROFILE_VERSIONS_ALL
             ]
         ],
-        '3150-0' => [
-            'fullcode' => 'LOINC:3150-0'
-            ,'code' => '3150-0'
-            ,'description' => 'Inhaled Oxygen Saturation'
-            ,'column' => ['inhaled_oxygen_concentration', 'inhaled_oxygen_concentration_unit']
-            ,'in_vitals_panel' => false
-            ,'profiles' => [
-                self::USCDI_PROFILE_PULSE_OXIMETRY => self::PROFILE_VERSIONS_ALL
-            ]
-        ]
         // need pediatric weight for height observations...
     ];
     const AVERAGE_BLOOD_PRESSURE_LOINC_CODE = '96607-7';
@@ -361,6 +327,13 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         ]
     ];
 
+    const COMPONENT_CODES = [
+        self::VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE,
+        self::VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE,
+        self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE,
+        self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION
+    ];
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
@@ -383,7 +356,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
     {
         return in_array($code, array_keys(self::COLUMN_MAPPINGS))
             // our only calculated vital sign at the moment
-            || in_array($code, self::CALCULATED_MAPPING_CODES);
+            || in_array($code, self::CALCULATED_MAPPING_CODES)
+            || in_array($code, self::COMPONENT_CODES);
     }
 
     public function setVitalsCalculatedService(VitalsCalculatedService $service): void
@@ -445,6 +419,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 }
                 foreach ($code->getValues() as $value) {
                     $code = $value->getCode();
+                    // if we have a component value we are searching on, we need to convert it to the base code so we can return those records
+                    $code = $this->convertComponentCodeToBaseCode($code);
                     if ($this->supportsCode($code)) {
                         $observationCodesToReturn[$code] = $code;
                     }
@@ -537,6 +513,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'category' => self::CATEGORY,
             'description' => $mapping['description'],
             'user_uuid' => $calculatedRecord['created_by_uuid'] ?? null,
+            'user_npi' => $calculatedRecord['created_by_npi'] ?? null,
             'last_updated_time' => $calculatedRecord['updated_at'],
             'parent_observation_uuid' => $calculatedRecord['parent_observation_uuid'] ?? [],
             'components' => $calculatedRecord['components'] ?? [],
@@ -563,6 +540,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                     , "sub_observations" => []
                     , "uuid" => UuidRegistry::uuidToString($uuidMappings[self::VITALS_PANEL_LOINC_CODE])
                     , "user_uuid" => $record['user_uuid']
+                    , "user_npi" => $record['user_npi'] ?? null
                     , "date" => $record['date']
                     , "last_updated" => $record['last_updated']
                     , "notes" => $record['note'] ?? null
@@ -587,8 +565,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 continue;
             }
             $codeMapping = self::COLUMN_MAPPINGS[$code];
+            if (!isset($uuidMappings[$code])) {
+                $this->getSystemLogger()->errorLogCaller("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vital sign record as mapping uuid is missing for code " . $code);
+                continue;
+            }
             // uuid mappings are binary values, we need to convert them to string
-            $uuid = UuidRegistry::uuidToString($uuidMappings[$code] ?? null);
+            $uuid = UuidRegistry::uuidToString($uuidMappings[$code]);
             $vitalsRecord = [
                 "code" => $code
                 ,"description" => $this->getDescriptionForCode($code)
@@ -596,6 +578,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 , "puuid" => $record['puuid']
                 , "euuid" => $record['euuid']
                 , "user_uuid" => $record['user_uuid']
+                , "user_npi" => $record['user_npi'] ?? null
                 ,"uuid" => $uuid
                 ,"date" => $record['date']
                 , "last_updated" => $record['last_updated']
@@ -699,9 +682,8 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
 
         $basic_codes = [
-            "9279-1" => 'respiration', "8867-4" => 'pulse', '2708-6' => 'oxygen_saturation'
-            , '3150-0' => 'inhaled_oxygen_concentration'
-            , '3151-8' => 'oxygen_flow_rate'
+            "9279-1" => 'respiration', "8867-4" => 'pulse'
+            , self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION => 'oxygen_saturation'
             , '8310-5' => 'temperature'
             ,'8302-2' => 'height', '9843-4' => 'head_circ', '29463-7' => 'weight', '39156-5' => 'BMI'
             ,'59576-9' => 'ped_bmi', '8289-1' => 'ped_head_circ', '77606-2' => 'ped_weight_height'
@@ -718,23 +700,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             self::VITALS_PANEL_LOINC_CODE => $this->populateVitalSignsPanelObservation($observation, $dataRecord),
             '8327-9' => $this->populateBodyTemperatureLocation($observation, $dataRecord),
             // blood pressure panel that includes systolic & diastolic pressure
-            '85354-9' => $this->populateBloodPressurePanel($observation, $dataRecord),
-            '8480-6' => $this->populateComponentColumn(
-                $observation,
-                $dataRecord,
-                'bps',
-                '8480-6',
-                $this->getDescriptionForCode('8480-6')
-            ),
-            '8462-4' => $this->populateComponentColumn(
-                $observation,
-                $dataRecord,
-                'bpd',
-                '8462-4',
-                $this->getDescriptionForCode('8462-4')
-            ),
-            '2708-6' => $this->populateCoding($observation, '59408-5'),
-            '59408-5' => $this->populatePulseOximetryObservation($observation, $dataRecord),
+            self::VITALS_CODE_BLOOD_PRESSURE => $this->populateBloodPressurePanel($observation, $dataRecord),
+            // PulseOx(59408-5) or Oxygen saturation (2708-6) are combined into one observation in 7.0.0+ which is backwards compatible for older versions
+            self::VITALS_CODE_PULSE_OXIMETRY, self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION => $this->populatePulseOximetryObservation($observation, $dataRecord),
             self::AVERAGE_BLOOD_PRESSURE_LOINC_CODE => $this->addAverageBPComponents($observation, $dataRecord['components'] ?? []),
             default => $observation,
         };
@@ -792,36 +760,47 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     private function populatePulseOximetryObservation(FHIRObservation $observation, $dataRecord): void
     {
-        $this->populateCoding($observation, '2708-6');
-        if (
-            $this->columnHasPositiveFloatValue('oxygen_flow_rate', $dataRecord)
-            || $this->columnHasPositiveFloatValue('oxygen_saturation', $dataRecord)
+        // going to reset the codeable concept as inferno validation appears to care about the order of the codings
+        $concept = new FHIRCodeableConcept();
+        $concept->setText("oxygen_saturation"); // this is set in the profile example, so we'll follow that, but its not listed anywhere in SPEC
+        $observation->setCode($concept);
+        $this->populateCoding($observation, self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_SATURATION);
+        $this->populateCoding($observation, self::VITALS_CODE_PULSE_OXIMETRY);
+
+        if (!($this->columnHasPositiveFloatValue('oxygen_saturation', $dataRecord))) {
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+        }
+        $addComponentsWithMissingData = $this->getHighestCompatibleUSCoreProfileVersion() != self::PROFILE_VERSION_3_1_1;
+
+        if ($this->columnHasPositiveFloatValue('oxygen_flow_rate', $dataRecord)
+            || $addComponentsWithMissingData
         ) {
             $this->populateComponentColumn(
                 $observation,
                 $dataRecord,
                 'oxygen_flow_rate',
-                '3151-8',
-                $this->getDescriptionForCode('3151-8')
+                self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE,
+                'Inhaled oxygen flow rate'
             );
+        }
+        if ($this->columnHasPositiveFloatValue('inhaled_oxygen_concentration', $dataRecord)
+            || $addComponentsWithMissingData
+        ) {
             $this->populateComponentColumn(
                 $observation,
                 $dataRecord,
-                'oxygen_saturation',
-                '3150-0',
-                // only place this is used.
-                'Oxygen saturation in Arterial blood'
+                'inhaled_oxygen_concentration',
+                self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION,
+                'Inhaled oxygen concentration'
             );
-        } else {
-            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
     }
 
     private function populateVitalSignsPanelObservation(FHIRObservation $observation, $record): void
     {
-        if (!empty($record['members'])) {
-            foreach ($record['members'] as $code => $uuid) {
-                $reference = UtilsService::createRelativeReference("Observation", $uuid);
+        if (!empty($record['sub_observations'])) {
+            foreach ($record['sub_observations'] as $code => $member) {
+                $reference = UtilsService::createRelativeReference("Observation", $member['uuid']);
                 $reference->setDisplay($this->getDescriptionForCode($code));
                 $observation->addHasMember($reference);
             }
@@ -895,9 +874,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     private function populateBloodPressurePanel(FHIRObservation $observation, $dataRecord): void
     {
-            // Based on conversations with Jerry Padget and Brady Miller on August 14th 2021 we decided that if the values
-            // were both 0 for bpd and bps we would treat this as a data absent reason.  In this case an attempt was made
-            // to record the data but no value was recorded (such as the blood pressure cuff becoming loose).
+        // Based on conversations with Jerry Padget and Brady Miller on August 14th 2021 we decided that if the values
+        // were both 0 for bpd and bps we would treat this as a data absent reason.  In this case an attempt was made
+        // to record the data but no value was recorded (such as the blood pressure cuff becoming loose).
         if ($dataRecord['bpd'] == 0 && $dataRecord['bps'] == 0) {
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
         }
@@ -905,15 +884,15 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 $observation,
                 $dataRecord,
                 'bps',
-                '8480-6',
-                $this->getDescriptionForCode('8480-6')
+                self::VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE,
+                'Systolic blood pressure'
             );
             $this->populateComponentColumn(
                 $observation,
                 $dataRecord,
                 'bpd',
-                '8462-4',
-                $this->getDescriptionForCode('8462-4')
+                self::VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE,
+                'Diastolic blood pressure'
             );
     }
 
@@ -1041,5 +1020,14 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
             $observation->addComponent($comp);
         }
+    }
+
+    protected function convertComponentCodeToBaseCode(string $code): string
+    {
+        return match($code) {
+            self::VITALS_CODE_SYSTOLIC_BLOOD_PRESSURE, self::VITALS_CODE_DIASTOLIC_BLOOD_PRESSURE => self::VITALS_CODE_BLOOD_PRESSURE,
+            self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_FLOW_RATE, self::VITALS_CODE_PULSE_OXIMETRY_OXYGEN_CONCENTRATION => self::VITALS_CODE_PULSE_OXIMETRY,
+            default => $code,
+        };
     }
 }

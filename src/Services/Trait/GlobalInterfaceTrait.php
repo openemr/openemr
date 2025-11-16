@@ -9,12 +9,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Common\Command\Trait;
+namespace OpenEMR\Services\Trait;
 
-use OpenEMR\Common\Command\IGlobalsAwareCommand;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Core\OEGlobalsBag;
 
-trait GlobalInterfaceCommandTrait
+trait GlobalInterfaceTrait
 {
     private OEGlobalsBag $globalsBag;
 

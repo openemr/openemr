@@ -26,8 +26,8 @@ $rows = $specimen_by_seq[$seq];
             <div class="card-header py-1 d-flex justify-content-between align-items-center bg-info m-1">
                 <span class="font-weight-bold"><?php echo xlt('Specimens for Test') . ' => ' . text($oprow['procedure_name']); ?></span>
                 <button type="button"
-                    class="btn btn-sm btn-secondary add-specimen-row"
-                    data-specimen-line="<?php echo attr($i); ?>">
+                        class="btn btn-sm btn-secondary add-specimen-row"
+                        data-specimen-line="<?php echo attr($i); ?>">
                     <i class="fa fa-plus mr-1"></i><?php echo xlt('Add Specimen'); ?>
                 </button>
             </div>
@@ -79,8 +79,8 @@ $rows = $specimen_by_seq[$seq];
                                     echo ob_get_clean();
                                     ?>
                                     <input type="hidden"
-                                        name="form_proc_specimen_type[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['specimen_type'] ?? ''); ?>">
+                                           name="form_proc_specimen_type[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['specimen_type'] ?? ''); ?>">
                                 </td>
                                 <td>
                                     <?php
@@ -93,8 +93,8 @@ $rows = $specimen_by_seq[$seq];
                                     echo ob_get_clean();
                                     ?>
                                     <input type="hidden"
-                                        name="form_proc_collection_method[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['collection_method'] ?? ''); ?>">
+                                           name="form_proc_collection_method[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['collection_method'] ?? ''); ?>">
                                 </td>
                                 <td>
                                     <?php
@@ -107,29 +107,29 @@ $rows = $specimen_by_seq[$seq];
                                     echo ob_get_clean();
                                     ?>
                                     <input type="hidden"
-                                        name="form_proc_specimen_location[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['specimen_location'] ?? ''); ?>">
+                                           name="form_proc_specimen_location[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['specimen_location'] ?? ''); ?>">
                                 </td>
                                 <td>
                                     <input type="text" class="form-control datetimepicker"
-                                        name="form_proc_specimen_date_low[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['collection_date_low'] ?? ''); ?>"
-                                        placeholder="<?php echo xla('Start'); ?>">
+                                           name="form_proc_specimen_date_low[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['collection_date_low'] ?? ''); ?>"
+                                           placeholder="<?php echo xla('Start'); ?>">
                                 </td>
                                 <td>
                                     <input type="text" class="form-control datetimepicker"
-                                        name="form_proc_specimen_date_high[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['collection_date_high'] ?? ''); ?>"
-                                        placeholder="<?php echo xla('End (optional)'); ?>">
+                                           name="form_proc_specimen_date_high[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['collection_date_high'] ?? ''); ?>"
+                                           placeholder="<?php echo xla('End (optional)'); ?>">
                                 </td>
                                 <td class="d-flex">
                                     <input type="number" step="0.1" min="0" class="form-control"
-                                        name="form_proc_specimen_volume_value[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['volume_value'] ?? ''); ?>"
-                                        placeholder="<?php echo xla('mL'); ?>">
+                                           name="form_proc_specimen_volume_value[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['volume_value'] ?? ''); ?>"
+                                           placeholder="<?php echo xla('mL'); ?>">
                                     <input type="hidden"
-                                        name="form_proc_specimen_volume_unit[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['volume_unit'] ?? 'mL'); ?>">
+                                           name="form_proc_specimen_volume_unit[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['volume_unit'] ?? 'mL'); ?>">
                                 </td>
                                 <td>
                                     <?php
@@ -142,13 +142,13 @@ $rows = $specimen_by_seq[$seq];
                                     echo ob_get_clean();
                                     ?>
                                     <input type="hidden"
-                                        name="form_proc_specimen_condition[<?php echo $i; ?>][]"
-                                        value="<?php echo attr($sp['specimen_condition'] ?? ''); ?>">
+                                           name="form_proc_specimen_condition[<?php echo $i; ?>][]"
+                                           value="<?php echo attr($sp['specimen_condition'] ?? ''); ?>">
                                 </td>
                                 <td>
                                 <textarea class="form-control" rows="1"
-                                    name="form_proc_specimen_comments[<?php echo $i; ?>][]"
-                                    placeholder="<?php echo xla('Notes'); ?>"><?php echo text($sp['comments'] ?? ''); ?></textarea>
+                                          name="form_proc_specimen_comments[<?php echo $i; ?>][]"
+                                          placeholder="<?php echo xla('Notes'); ?>"><?php echo text($sp['comments'] ?? ''); ?></textarea>
                                 </td>
                                 <td class="text-right">
                                     <button type="button" class="btn btn-sm btn-link text-danger remove-specimen-row" title="<?php echo xla('Remove'); ?>">
@@ -219,18 +219,18 @@ $rows = $specimen_by_seq[$seq];
                 </td>
                 <td>
                     <input type="text" class="form-control datetimepicker"
-                        name="form_proc_specimen_date_low[<?php echo $i; ?>][]"
-                        placeholder="<?php echo xla('Start'); ?>">
+                           name="form_proc_specimen_date_low[<?php echo $i; ?>][]"
+                           placeholder="<?php echo xla('Start'); ?>">
                 </td>
                 <td>
                     <input type="text" class="form-control datetimepicker"
-                        name="form_proc_specimen_date_high[<?php echo $i; ?>][]"
-                        placeholder="<?php echo xla('End (optional)'); ?>">
+                           name="form_proc_specimen_date_high[<?php echo $i; ?>][]"
+                           placeholder="<?php echo xla('End (optional)'); ?>">
                 </td>
                 <td class="d-flex">
                     <input type="number" step="0.1" min="0" class="form-control"
-                        name="form_proc_specimen_volume_value[<?php echo $i; ?>][]"
-                        placeholder="<?php echo xla('mL'); ?>">
+                           name="form_proc_specimen_volume_value[<?php echo $i; ?>][]"
+                           placeholder="<?php echo xla('mL'); ?>">
                     <input type="hidden" name="form_proc_specimen_volume_unit[<?php echo $i; ?>][]" value="mL">
                 </td>
                 <td>
@@ -247,8 +247,8 @@ $rows = $specimen_by_seq[$seq];
                 </td>
                 <td>
                     <textarea class="form-control" rows="1"
-                        name="form_proc_specimen_comments[<?php echo $i; ?>][]"
-                        placeholder="<?php echo xla('Notes'); ?>"></textarea>
+                              name="form_proc_specimen_comments[<?php echo $i; ?>][]"
+                              placeholder="<?php echo xla('Notes'); ?>"></textarea>
                 </td>
                 <td class="text-right">
                     <button type="button" class="btn btn-sm btn-link text-danger remove-specimen-row" title="<?php echo xla('Remove'); ?>">

@@ -13,9 +13,11 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Enum\PlaceOfServiceEnum;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -44,18 +46,39 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     /**
      * @var LocationService
      */
-    private $locationService;
+    private LocationService $locationService;
 
+    /**
+     * @var FhirOrganizationService
+     */
+    private FhirOrganizationService $fhirOrganizationService;
     /**
      * The patient uuid bound in the current request
      * @var string
      */
     private $patientUuid;
 
+    private FhirOrganizationService $organizationService;
+
     public function __construct()
     {
         parent::__construct();
         $this->locationService = new LocationService();
+    }
+
+    public function getOrganizationService(): FhirOrganizationService {
+        if (!isset($this->fhirOrganizationService)) {
+            $this->fhirOrganizationService = new FhirOrganizationService();
+        }
+        return $this->fhirOrganizationService;
+    }
+
+    /**
+     * @param FhirOrganizationService $organizationService
+     */
+    public function setOrganizationService(FhirOrganizationService $organizationService): void
+    {
+        $this->organizationService = $organizationService;
     }
 
     /**
@@ -66,6 +89,31 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     {
         return  [
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            'address' => new FhirSearchParameterDefinition(
+                'address',
+                SearchFieldType::STRING,
+                ['street', 'city', 'postal_code', 'state']
+            ),
+            'name' => new FhirSearchParameterDefinition(
+                'name',
+                SearchFieldType::STRING,
+                ['name']
+            ),
+            'address-city' => new FhirSearchParameterDefinition(
+                'address-city',
+                SearchFieldType::STRING,
+                ['city']
+            ),
+            'address-state' => new FhirSearchParameterDefinition(
+                'address-state',
+                SearchFieldType::STRING,
+                ['state']
+            ),
+            'address-postalcode' => new FhirSearchParameterDefinition(
+                'address-postalcode',
+                SearchFieldType::STRING,
+                ['postal_code']
+            ),
             '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
     }
@@ -99,6 +147,9 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         $id->setValue($dataRecord['uuid']);
         $locationResource->setId($id);
 
+        $this->populateIdentifier($locationResource, $dataRecord);
+        $this->populateServiceRoleType($locationResource, $dataRecord);
+
         $locationResource->setStatus("active");
 
         if (!empty($dataRecord['name'])) {
@@ -118,34 +169,30 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
             $dataRecord['type'] = 'physical';
             $locationResource->setAddress(UtilsService::createAddressFromRecord($dataRecord));
 
-            if (!empty($dataRecord['phone'])) {
-                $phone = new FHIRContactPoint();
-                $phone->setSystem('phone');
-                $phone->setValue($dataRecord['phone']);
-                $locationResource->addTelecom($phone);
+            $contactPoints = ['phone', 'fax', 'email'];
+            foreach ($contactPoints as $point) {
+                if (!empty($dataRecord[$point])) {
+                    $contactPoint = new FHIRContactPoint();
+                    $contactPoint->setSystem($point);
+                    $contactPoint->setValue($dataRecord[$point]);
+                    $locationResource->addTelecom($contactPoint);
+                }
             }
-
-            if (!empty($dataRecord['fax'])) {
-                $fax = new FHIRContactPoint();
-                $fax->setSystem('fax');
-                $fax->setValue($dataRecord['fax']);
-                $locationResource->addTelecom($fax);
-            }
-
             if (!empty($dataRecord['website'])) {
                 $url = new FHIRContactPoint();
-                $url->setSystem('website');
+                $url->setSystem('url');
                 $url->setValue($dataRecord['website']);
                 $locationResource->addTelecom($url);
             }
-
-            if (!empty($dataRecord['email'])) {
-                $email = new FHIRContactPoint();
-                $email->setSystem('email');
-                $email->setValue($dataRecord['email']);
-                $locationResource->addTelecom($email);
-            }
         }
+
+        // we set the managing organization to the primary business entity of the system
+        $businessEntity = $this->getOrganizationService()->getPrimaryBusinessEntityReference();
+        if (!empty($businessEntity)) {
+            $locationResource->setManagingOrganization($businessEntity);
+        }
+
+
 
         if ($encode) {
             return json_encode($locationResource);
@@ -213,12 +260,12 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
             $patientFacilityType->addChild($patientType);
             $openEMRSearchParameters['patient-facility-type'] = $patientFacilityType;
         }
-        return $this->locationService->getAll($openEMRSearchParameters, false);
+        return $this->locationService->getAll($openEMRSearchParameters, true);
     }
 
     private function hasAccessToUserLocationData()
     {
-        return AclMain::aclCheckCore('admin', 'users') !== false;
+        return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }
 
     private function shouldIncludeContactInformationForLocationType($type, $recordUuid)
@@ -227,7 +274,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         // if its not a patient requesting their own record location information we need to check permissions on this.
         if ($type == 'patient' && !$isPatientBoundUuid) {
             // only those with access to a patient's demographic information can get their data
-            return AclMain::aclCheckCore("patients", "demo") !== false;
+            return AclMain::aclCheckCore("patients", "demo",$this->getSession()->get("authUser")) !== false;
         } else if ($type == 'user') {
             // only those with access to the user information can get address information about a user.
             return $this->hasAccessToUserLocationData();
@@ -247,5 +294,46 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     public function getProfileURIs(): array
     {
         return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
+    }
+
+    protected function populateIdentifier(FHIRLocation $locationResource, array $dataRecord)
+    {
+        $system = $this->getSystemForIdentifier($dataRecord['identifier_type'] ?? 'none');
+        if (!empty($dataRecord['identifier'])) {
+            $identifier = new FHIRIdentifier();
+            if (!empty($system)) {
+                $identifier->setSystem($system);
+            }
+            $identifier->setValue($dataRecord['identifier']);
+            $locationResource->addIdentifier($identifier);
+        }
+    }
+
+    protected function getSystemForIdentifier(string $identifierType): ?string
+    {
+        // allows for expansion of identifiers in the future
+        return match ($identifierType) {
+            'npi' => FhirCodeSystemConstants::PROVIDER_NPI
+            ,default => null
+        };
+    }
+
+    private function populateServiceRoleType(FHIRLocation $locationResource, array $dataRecord)
+    {
+        if (!empty($dataRecord['location_role_type'])) {
+            // ensure two digit format as the codeset has some leading zeros but in the database its stored as a tinyint
+            $type = str_pad((string) $dataRecord['location_role_type'], 2, '0', STR_PAD_LEFT);
+            $posEnum = PlaceOfServiceEnum::tryFrom($type);
+            if ($posEnum !== null) {
+                $coding = UtilsService::createCodeableConcept([
+                    $posEnum->value => [
+                        'code' => $posEnum->value,
+                        'description' => $posEnum->getName(),
+                        'system' => FhirCodeSystemConstants::CMS_PLACE_OF_SERVICE
+                    ]
+                ]);
+                $locationResource->addType($coding);
+            }
+        }
     }
 }

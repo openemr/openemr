@@ -413,8 +413,9 @@ class Prescription extends ORDataObject
                     "select l.id from lists l join lists_medication lm on "
                     . " l.id = lm.list_id where l.type = 'medication' and (l.enddate is null or cast(now() as date) < l.enddate) "
                     . " and lm.prescription_id = ? and l.pid = ? limit 1",
-                    [$this->id],
-                    $this->patient->id
+                    [
+                        $this->id, $this->patient->id
+                    ]
                 );
                 $dataRow = $dataRow[0] ?? [];
             }
@@ -424,8 +425,7 @@ class Prescription extends ORDataObject
                 $dataRow = QueryUtils::fetchRecords(
                     "select id from lists where type = 'medication' and "
                     . "(enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim(?)) and pid = ? limit 1",
-                    [$this->original_drug],
-                    $this->patient->id
+                    [$this->original_drug, $this->patient->id]
                 );
                 $dataRow = $dataRow[0] ?? [];
             }

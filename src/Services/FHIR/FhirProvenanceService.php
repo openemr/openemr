@@ -441,6 +441,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             $searchParams['_revinclude'] = 'Provenance:target';
             if ($resource != "Provenance" && isset($servicesByResource[$resource]) && $servicesByResource[$resource] instanceof IResourceReadableService) {
                 $service = $servicesByResource[$resource];
+                if ($service instanceof SessionAwareInterface) {
+                    $service->setSession($this->getSession());
+                }
                 if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
                     // service supports filtering by patients so let's do that
                     if ($service instanceof IPatientCompartmentResourceService) {

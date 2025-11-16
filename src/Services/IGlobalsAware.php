@@ -9,13 +9,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Common\Command;
+namespace OpenEMR\Services;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-interface IGlobalsAwareCommand
+interface IGlobalsAware
 {
+    /**
+     * @param OEGlobalsBag $globalsBag The globals bag that will be used in the object.
+     * @return void
+     */
     function setGlobalsBag(OEGlobalsBag $globalsBag): void;
 
-    function getGlobalsBag(): OEGlobalsBag;
+    /**
+     * @return OEGlobalsBag|null Returns the globals bag if it has been set, null otherwise
+     */
+    function getGlobalsBag(): ?OEGlobalsBag;
 }

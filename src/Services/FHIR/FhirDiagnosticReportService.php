@@ -95,7 +95,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
                  * @var TokenSearchField
                  */
                 $category = $fhirSearchParameters['category'];
-                $categorySearchField = new TokenSearchField('category', $category);
+                $categorySearchField = new TokenSearchField('category', explode(",",$category));
                 $service = $this->getServiceForCategory(
                     $categorySearchField,
                     'LAB'
@@ -126,10 +126,13 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
 
     public function getProfileURIs(): array
     {
-        $profileSets = [
-            $this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note', $this->getSupportedVersions())
-            ,$this->getProfileForVersions('http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab', $this->getSupportedVersions())
-        ];
-        return array_merge(...$profileSets);
+        $profileSets = [];
+        foreach ($this->getMappedServices() as $service) {
+            if ($service instanceof IResourceUSCIGProfileService) {
+                $profileSets[] = $service->getProfileURIs();
+            }
+        }
+        $profiles = array_merge(...$profileSets);
+        return $profiles;
     }
 }

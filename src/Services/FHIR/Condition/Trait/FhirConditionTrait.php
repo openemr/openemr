@@ -31,6 +31,16 @@ trait FhirConditionTrait
 {
     use VersionedProfileTrait;
 
+    protected function filterCategorySearchForSupportedCategories(array $categories): array
+    {
+        $supportedCategories = [
+            FhirConditionCategory::PROBLEM_LIST_ITEM->value,
+            FhirConditionCategory::ENCOUNTER_DIAGNOSIS->value,
+            FhirConditionCategory::HEALTH_CONCERNS->value,
+        ];
+        return array_filter($categories, fn($category) => in_array($category, $supportedCategories));
+    }
+
     protected function populateId(array $dataRecord, FHIRCondition $conditionResource)
     {
         if (isset($dataRecord['uuid'])) {

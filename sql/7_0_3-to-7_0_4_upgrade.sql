@@ -1951,7 +1951,11 @@ INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
     ('telecom_systems','phone','Phone',10,0,1),
+<<<<<<< HEAD
     ('telecom_systems','fax','FAX',20,0,1),
+=======
+    ('telecom_systems','fax','Fax',20,0,1),
+>>>>>>> origin/master
     ('telecom_systems','email','Email',30,0,1),
     ('telecom_systems','pager','Pager',40,0,1),
     ('telecom_systems','url','URL',50,0,1),
@@ -1966,12 +1970,20 @@ VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
+<<<<<<< HEAD
     ('telecom_uses','mobile','Mobile',10,0,1),    
     ('telecom_uses','home','Home',20,0,1),
     ('telecom_uses','work','Work',30,0,1),
     ('telecom_uses','temp','Temp',40,0,1),
     ('telecom_uses','old','Old',50,0,1);
 
+=======
+    ('telecom_uses','home','Home',10,0,1),
+    ('telecom_uses','work','Work',20,0,1),
+    ('telecom_uses','temp','Temp',30,0,1),
+    ('telecom_uses','old','Old',40,0,1),
+    ('telecom_uses','mobile','Mobile',50,0,1);
+>>>>>>> origin/master
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id person_patient_link_method
@@ -2206,9 +2218,9 @@ DROP TEMPORARY TABLE `addresses_seq`;
 
 -- address_id = contact -> person
 INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_1, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_1 IS NOT NULL AND p.related_phone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_1 IS NOT NULL AND p.related_workphone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_1 IS NOT NULL AND p.related_email_1 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'home', p.related_phone_1, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_1 IS NOT NULL AND p.related_phone_1 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'work', p.related_workphone_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_1 IS NOT NULL AND p.related_workphone_1 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'email', 'home', p.related_email_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_1 IS NOT NULL AND p.related_email_1 != ''  AND pe.is_new=1;
 
 UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
 DROP TEMPORARY TABLE `person_temp`;
@@ -2274,9 +2286,9 @@ DROP TEMPORARY TABLE `addresses_seq`;
 
 -- address_id = contact -> person
 INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_3, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_3 IS NOT NULL AND p.related_phone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_3 IS NOT NULL AND p.related_workphone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_3 IS NOT NULL AND p.related_email_3 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'home', p.related_phone_3, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_3 IS NOT NULL AND p.related_phone_3 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'work', p.related_workphone_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_3 IS NOT NULL AND p.related_workphone_3 != ''  AND pe.is_new=1;
+INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'email', 'home', p.related_email_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_3 IS NOT NULL AND p.related_email_3 != ''  AND pe.is_new=1;
 
 UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
 DROP TEMPORARY TABLE `person_temp`;
@@ -2481,4 +2493,88 @@ INSERT INTO `preference_value_sets`
 ('81364-2','309687009','http://snomed.info/sct','Baptist',11,1),
 ('81364-2','160540005','http://snomed.info/sct','Sikh',12,1),
 ('81364-2','LA14063-6','http://loinc.org','Prefer not to answer',98,1);
+#EndIf
+
+
+#IfMissingColumn immunizations encounter_id
+ALTER TABLE `immunizations` ADD COLUMN `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record';
+#EndIf
+
+-- We need to clean up any existing UUID mappings for the old vital signs Observation code for systolic BP (8480-6) as the observations are intended to be sub-component observations and not directly retrievable
+-- Users can retrieve systolic BP from the blood pressure observation which groups systolic and diastolic together
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=8480-6
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8480-6');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8480-6';
+#EndIf
+
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=8462-4
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8462-4');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=8462-4';
+#EndIf
+
+-- Also clean up all of the Pulse Oximetry related Observation UUID mappings as these are now sub-component observations under the Oxygen Saturation observation (59408-5)
+-- Inferno won't validate with these resources as stand-alone
+-- Delete any existing mappings for Pulse Oximetry Oxygen Flow Rate (3150-8)
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=3151-8
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3151-8');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3151-8';
+#EndIf
+
+-- Delete any existing mappings for Pulse Oximetry Oxygen Concentration (3150-0)
+#IfRow2D uuid_mapping resource Observation resource_path category=vital-signs&code=3150-0
+DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0');
+DELETE FROM uuid_mapping WHERE `table`='form_vitals' AND resource='Observation' AND resource_path='category=vital-signs&code=3150-0';
+#EndIf
+
+-- Update codes in list_options for Abnormal Procedures
+-- Note this list looks almost like a duplicate of Observation Interpretation but has different option_ids and titles
+-- we may want to combine these at some point
+#IfNotRow3D list_options list_id proc_res_abnormal option_id no codes N
+UPDATE `list_options` SET codes='N' WHERE list_id='proc_res_abnormal' AND option_id='no';
+UPDATE `list_options` SET codes='A' WHERE list_id='proc_res_abnormal' AND option_id='yes';
+UPDATE `list_options` SET codes='H' WHERE list_id='proc_res_abnormal' AND option_id='high';
+UPDATE `list_options` SET codes='L' WHERE list_id='proc_res_abnormal' AND option_id='low';
+UPDATE `list_options` SET codes='HH' WHERE list_id='proc_res_abnormal' AND option_id='vhigh';
+UPDATE `list_options` SET codes='LL' WHERE list_id='proc_res_abnormal' AND option_id='vlow';
+#EndIf
+
+
+#IfMissingColumn lists_medication is_primary_record
+ALTER TABLE `lists_medication` ADD COLUMN `is_primary_record` TINYINT(1) DEFAULT '1' COMMENT 'Indicates if this medication is a primary record(1) or a reported record(0)';
+UPDATE `lists_medication` SET `is_primary_record` = 1;
+ALTER TABLE `lists_medication` ADD COLUMN `reporting_source_record_id` BIGINT(20) DEFAULT NULL COMMENT 'If this is a reported record, this is the fk to the users.id column for the address book user that the medication was reported by';
+#EndIf
+
+#IfRow3D list_options list_id Clinical_Note_Type option_id imaging_narrative activity 1
+UPDATE `list_options` SET activity=0 WHERE list_id='Clinical_Note_Type' AND option_id='imaging_narrative';
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id diagnostic_imaging_narrative
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','diagnostic_imaging_narrative','Diagnostic imaging study',80,0,0,'','LOINC:18748-4','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id pathology_report_narrative
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','pathology_report_narrative','Pathology Study Narrative',100,0,0,'','LOINC:11526-1','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id surgical_operative_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','surgical_operative_note','Surgical operation note',110,0,0,'','LOINC:11504-8','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id Clinical_Note_Type option_id emergency_department_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','emergency_department_note','Emergency department Note',120,0,0,'','LOINC:34111-5','',0,0,1,'',1);
+#EndIf
+
+-- Country is required for Practitioners which still are stored in the users table (as the address book), eventually this will be in addresses
+-- We match the patient_data.country_code
+#IfMissingColumn users country_code
+ALTER TABLE `users` ADD COLUMN `country_code` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
+#EndIf
+
+#IfMissingColumn users country_code2
+ALTER TABLE `users` ADD COLUMN `country_code2` varchar(255) COMMENT 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now';
+#EndIf
+
+#IfMissingColumn form_questionnaire_assessments category
+ALTER TABLE `form_questionnaire_assessments` ADD COLUMN `category` VARCHAR(64) DEFAULT NULL;
 #EndIf

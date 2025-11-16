@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Api\BulkAPITestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
@@ -21,6 +23,8 @@ class BulkPatientExport311APITest extends TestCase
     const ENCRYPTION_ALGORITHM_RS384 = 'RS384';
     const ENCRYPTION_ALGORITHM_ES384 = 'ES384';
 
+    static protected string $previousProfileValue;
+
     /**
      * @return void
      * @throws Exception
@@ -31,6 +35,10 @@ class BulkPatientExport311APITest extends TestCase
         self::setupG10Test();
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        self::teardownG10Test();
+    }
 //    private function getFakeTestGroupResponse() : array {
 //        $response = file_get_contents(__DIR__ . '/../../../data/single_patient_api_test_run_20250624.json');
 //        $response = json_decode($response, true);

@@ -46,6 +46,7 @@ $lform_response = $_POST['lform_response'] ?? '';
 $lform = $_POST['lform'] ?? '';
 $qid = null;
 $qrid = null;
+$category = $_POST['category'] ?? null;
 // so form save will work
 unset($_POST['select_item']);
 // security
@@ -83,7 +84,7 @@ if (isset($_POST['save_registry'])) {
     if (empty($check['id'])) {
         $service = new QuestionnaireService();
         try {
-            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter');
+            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter', $category);
         } catch (Exception $e) {
             die(xlt("New Questionnaire insert failed") . '<br />' . text($e->getMessage()));
         }

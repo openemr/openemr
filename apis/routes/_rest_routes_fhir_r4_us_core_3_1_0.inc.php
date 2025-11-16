@@ -25,7 +25,6 @@ use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
-use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
 use OpenEMR\RestControllers\FHIR\FhirCoverageRestController;
 use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
@@ -64,6 +63,9 @@ use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
 use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
 use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
+use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
+use OpenEMR\Services\FHIR\FhirConditionService;
+use OpenEMR\Services\FHIR\FhirObservationService;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -667,14 +669,16 @@ return [
      *      security={{"openemr_auth":{}}}
      * )
      */
-    "GET /fhir/CareTeam" => function (HttpRestRequest $request) {
+    "GET /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $getParams = $request->getQueryParams();
+        $restController = new FhirCareTeamRestController();
+        $restController->setOEGlobals($globalsBag);
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirCareTeamRestController())->getAll($getParams, $request->getPatientUUIDString());
+            $return = $restController->getAll($getParams, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirCareTeamRestController())->getAll($getParams);
+            $return = $restController->getAll($getParams);
         }
 
         return $return;
@@ -868,17 +872,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Condition" => function (HttpRestRequest $request) {
-        $getParams = $request->getQueryParams();
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirConditionRestController())->getAll($getParams, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirConditionRestController())->getAll($getParams);
-        }
-
-        return $return;
+    "GET /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getAll();
     },
 
     /**
@@ -973,16 +970,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirConditionRestController())->getOne($uuid, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirConditionRestController())->getOne($uuid);
-        }
-
-        return $return;
+    "GET /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getOne($uuid);
     },
 
     /**
@@ -2662,7 +2653,7 @@ return [
      *  )
      */
     "GET /fhir/Location" => function (HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        $return = (new FhirLocationRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
 
         return $return;
     },
@@ -2731,7 +2722,7 @@ return [
      *  )
      */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        $return = (new FhirLocationRestController($request))->getOne($uuid, $request->getPatientUUIDString());
 
         return $return;
     },
@@ -3548,17 +3539,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Observation" => function (HttpRestRequest $request) {
-        $getParams = $request->getQueryParams();
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirObservationRestController())->getAll($getParams, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirObservationRestController())->getAll($getParams);
-        }
-
-        return $return;
+    "GET /fhir/Observation" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getAll();
     },
 
     /**
@@ -3673,16 +3657,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirObservationRestController())->getOne($uuid, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirObservationRestController())->getOne($uuid);
-        }
-
-        return $return;
+    "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getOne($uuid);
     },
 
     /**
@@ -4590,10 +4568,12 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "POST /fhir/Patient" => function (HttpRestRequest $request) {
+    "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->post($data);
+        $restController = new FhirPatientRestController();
+        $restController->setOEGlobals($globalsBag);
+        $return = $restController->post($data);
 
         return $return;
     },
@@ -4721,10 +4701,12 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->put($uuid, $data);
+        $restController = new FhirPatientRestController();
+        $restController->setOEGlobals($globalsBag);
+        $return = $restController->put($uuid, $data);
 
         return $return;
     },
@@ -5104,7 +5086,7 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
@@ -5114,7 +5096,9 @@ return [
         } else {
             RestConfig::request_authorization_check($request, "patients", "demo");
         }
-        $return = (new FhirPatientRestController())->getOne($uuid);
+        $controller = new FhirPatientRestController();
+        $controller->setOEGlobals($globalsBag);
+        $return = $controller->getOne($uuid);
 
         return $return;
     },

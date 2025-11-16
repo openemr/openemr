@@ -40,6 +40,9 @@ class Capability
         , self::PERMISSION_OFFLINE
         , self::PERMISSION_V1
         , self::PERMISSION_V2
+        // note that SMART v1 did not have authorize-post capability and this is new in SMART v2
+        // these capabilities are used in the .well-known/smart-configuration endpoint
+        // which in V2 is NOT the same as the /fhir/metadata endpoint used in SMART v1
         , self::PERMISSION_AUTHORIZE_POST
         // additional capabilities for SMART v2
         // context-ehr-encounter
@@ -52,7 +55,7 @@ class Capability
         self::LAUNCH_EHR, self::CONTEXT_BANNER_PASSTHROUGH, self::CONTEXT_EHR_PATIENT
         , self::CONTEXT_STYLE_PASSTHROUGH, self::SSO_OPENID_CONNECTION, self::CLIENT_CONFIDENTIAL_SYMMETRIC, self::PERMISSION_USER
         , self::CONTEXT_STANDALONE_PATIENT, self::LAUNCH_STANDALONE, self::PERMISSION_PATIENT
-        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC, self::PERMISSION_AUTHORIZE_POST
+        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC
     ];
 
     // support for SMART’s EHR Launch mode

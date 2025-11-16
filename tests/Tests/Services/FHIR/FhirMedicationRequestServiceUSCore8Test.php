@@ -99,7 +99,9 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             'medication_adherence_date_asserted' => '2023-01-15 01:00:00',
             'medication_adherence_information_source' => 'patient',
             'medication_adherence_information_source_title' => 'Patient',
-            'medication_adherence_information_source_codes' => 'SNOMED-CT:116154003'
+            'medication_adherence_information_source_codes' => 'SNOMED-CT:116154003',
+            'reporting_source_type' => 'user',
+            'reporting_source_uuid' => 'practitioner-uuid-789'
         ];
 
         // Minimal US Core compliant data (required fields only)
@@ -200,10 +202,10 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
         $reportedBoolean = $medicationRequest->getReportedBoolean();
         $reportedReference = $medicationRequest->getReportedReference();
 
-        $this->assertTrue(
-            $reportedBoolean !== null || $reportedReference !== null,
-            'MedicationRequest should have reported[x] (must support)'
-        );
+        $this->assertNotNull($reportedReference, 'MedicationRequest should have reported[x] (must support)');
+
+        // since we support reportedReference, verify that reportedBoolean is null as we can't report both
+        $this->assertNull($reportedBoolean, 'MedicationRequest should not have reportedBoolean when reportedReference is used');
 
         // If reportedReference is used, test structure
         if ($reportedReference !== null) {
@@ -219,7 +221,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
             }
         }
     }
-
+    // TODO: @adunsulag need tests on reported for primary organization fall back and for reportedBoolean
     #[Test]
     public function testRequiredMedication(): void
     {

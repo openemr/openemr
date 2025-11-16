@@ -27,6 +27,7 @@ use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ObservationService;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -39,7 +40,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
     use FhirObservationTrait;
 
     private ObservationService $observationService;
-    const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'survey', 'therapy'];
+    const SUPPORTED_CATEGORIES = ['survey', 'exam', 'social-history', 'vital-signs', 'imaging', 'laboratory', 'procedure', 'therapy'];
 
     public function __construct($fhirApiURL = null)
     {
@@ -70,7 +71,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return [
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['ob_code']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type', 'screening_category_code']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
                 new ServiceField('uuid', ServiceField::TYPE_UUID)
@@ -81,7 +82,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     private function createProfile(string $profileUri): FHIRCanonical
@@ -126,6 +127,37 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        if (isset($openEMRSearchParameters['ob_code'])) {
+            // need to loop through and grab all of our systems that we support for observation codes
+            // if there is a SNOMED system then we need to handle that differently since we store the system separately
+            /**
+             * @var TokenSearchField $codeSearchField
+             */
+            $codeSearchField = $openEMRSearchParameters['ob_code'];
+            // this isn't ideal, but we have much more complex logic here since observation codes can come from multiple code systems
+            // we need to break them down by system and then build a compound search field that includes code + code type for each system
+            $compoundObCode = new CompositeSearchField('ob_code', [], false);
+            $systemLookupHash = [];
+
+            foreach ($codeSearchField->getValues() as $codeSearchFieldValue) {
+                $system = $codeSearchFieldValue->getSystem() ?? null;
+                if (isset($systemLookupHash[$system])) {
+                    $codeTypes = $systemLookupHash[$system];
+                } else {
+                    $codeTypes = $this->getCodeTypesService()->getCodeTypeListForSystem($system);
+                    $systemLookupHash[$system] = $codeTypes;
+                }
+                if (!empty($codeTypes)) {
+                    $compoundObCodeWithCodeType = new CompositeSearchField('ob_code_code_type', [], true);
+                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                    $compoundObCodeWithCodeType->addChild(new TokenSearchField('code_type', $codeTypes));
+                    $compoundObCode->addChild($compoundObCodeWithCodeType);
+                } else {
+                    $compoundObCode->addChild(new TokenSearchField('ob_code', [$codeSearchFieldValue->getCode()]));
+                }
+            }
+            $openEMRSearchParameters['ob_code'] = $compoundObCode;
+        }
         // we grab the records and grab any children records and populate them if we have them.
         return $this->observationService->searchAndPopulateChildObservations($openEMRSearchParameters);
     }

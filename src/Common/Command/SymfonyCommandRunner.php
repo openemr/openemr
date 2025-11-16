@@ -23,6 +23,7 @@ use OpenEMR\Common\Command\Runner\Register;
 use OpenEMR\Common\Command\Runner\ZfcModule;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Command\CommandRunnerFilterEvent;
+use OpenEMR\Services\IGlobalsAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -90,7 +91,7 @@ class SymfonyCommandRunner
                 }
                 if (class_exists($fqn)) {
                     $command = new $fqn();
-                    if ($command instanceof IGlobalsAwareCommand) {
+                    if ($command instanceof IGlobalsAware) {
                         $command->setGlobalsBag($this->getGlobalsBag());
                     }
                     if ($command instanceof Command) {

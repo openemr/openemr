@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -15,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
@@ -59,7 +61,7 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
     {
         return [
             'patient' => $this->getPatientContextSearchField(),
-            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['p.observation_code']),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['observation_code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['effective_datetime']),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['p.status']),
@@ -75,7 +77,7 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_modified']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['effective_datetime']);
     }
 
     public function getProfileURIs(): array
@@ -110,9 +112,8 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
         }
 
         // Handle code filter - check against ALL supported codes
-        $requestedCodes = null;
-        if (isset($openEMRSearchParameters['code'])) {
-            $tok = $openEMRSearchParameters['code'];
+        if (isset($openEMRSearchParameters['observation_code'])) {
+            $tok = $openEMRSearchParameters['observation_code'];
             if (!($tok instanceof TokenSearchField)) {
                 throw new SearchFieldException('code', 'Invalid code token');
             }
@@ -121,12 +122,18 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
             foreach ($tok->getValues() as $v) {
                 $code = $v->getCode();
                 if (in_array($code, self::SUPPORTED_LOINC_CODES, true)) {
-                    $requestedCodes[] = $code;
+                    // only accept if system is LOINC or not specified
+                    if (in_array($v->getSystem(), [null, self::LOINC_SYSTEM])) {
+                        $requestedCodes[] = $code;
+                    }
                 }
             }
             // If no valid codes requested, return empty
             if (empty($requestedCodes)) {
                 return $result;
+            } else {
+                // we remove the system code as we only support LOINC codes here
+                $openEMRSearchParameters['observation_code'] = new TokenSearchField('observation_code', $requestedCodes);
             }
         }
 
@@ -313,5 +320,25 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
         }
 
         return $encode ? $obs->jsonSerialize() : $obs;
+    }
+    /**
+     * Creates the Provenance resource  for the equivalent FHIR Resource
+     *
+     * @param $dataRecord The source OpenEMR data record
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @return false|string|FHIRProvenance the FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    public function createProvenanceResource($dataRecord, $encode = false)
+    {
+        if (!($dataRecord instanceof FHIRObservation)) {
+            throw new \BadMethodCallException("Data record should be correct instance class");
+        }
+        $fhirProvenanceService = new FhirProvenanceService();
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
+        if ($encode) {
+            return json_encode($fhirProvenance);
+        } else {
+            return $fhirProvenance;
+        }
     }
 }
