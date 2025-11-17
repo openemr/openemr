@@ -214,16 +214,8 @@ class SessionUtil
         (new SystemLogger())->debug("SessionUtil: started portal predis session");
     }
 
-//    public static function getPortalSession(): ?Session
-//    {
-//        return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID] ?? null;
-//    }
-
     public static function portalSessionCookieDestroy(): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-//        self::standardSessionCookieDestroy();
         if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
             $session = self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
             if ($session) {
@@ -315,8 +307,8 @@ class SessionUtil
             [
                 'expires' => time() + 3600,
                 'path' => '/',
-        //        'domain' => $cookie->getDomain(),
-        //        'secure' => $cookie->isSecure(),
+        //        'domain' => // TODO check how to use proper domain here
+                'secure' => true,
                 'httponly' => true,
                 'samesite' => Cookie::SAMESITE_STRICT
             ]
