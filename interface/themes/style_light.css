@@ -1,0 +1,64 @@
+/* Patient Context Image Enhancement Styles */
+
+.patient-image-container {
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.patient-context-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
+
+.patient-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #aaaaaa;
+}
+
+/* Make the patient data container a flex container for better layout */
+#attendantData {
+    display: flex !important;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Responsive styling for small screens */
+@media screen and (max-width: 768px) {
+    .patient-image-container {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .patient-image-placeholder {
+        font-size: 22px;
+    }
+    
+    #attendantData {
+        flex-wrap: wrap;
+    }
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+    .patient-image-container {
+        border: 1px solid CanvasText;
+    }
+}
