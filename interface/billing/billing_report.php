@@ -915,6 +915,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $mmo_empty_mod = false;
                         $mmo_num_charges = 0;
                         $encount = 0;
+                        $DivPut = 'no';
 
                         foreach ($ret as $iter) {
                         // We include encounters here that have never been billed. However
