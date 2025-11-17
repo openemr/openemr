@@ -15,12 +15,14 @@
  */
 
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../../vendor/autoload.php");
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+$session = SessionWrapperFactory::instance()->getWrapper();
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }
@@ -117,7 +119,7 @@ $is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_
 
 if ($patientPortalSession && !empty($formid)) {
     $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
-    if (empty($pidForm) || ($pidForm != $_SESSION['pid'])) {
+    if (empty($pidForm) || ($pidForm != $session->get('pid'))) {
         echo xlt("illegal Action");
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         exit;
@@ -300,7 +302,7 @@ if (
                 "REPLACE INTO shared_attributes SET " .
                 "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
                 "user_id = ?, field_value = ?",
-                [$pid, $visitid, $field_id, $_SESSION['authUserID'], $value]
+                [$pid, $visitid, $field_id, $session->get('authUserID'), $value]
             );
             continue;
         } elseif ($source == 'V') {
@@ -585,7 +587,7 @@ if (
                         '&code=' + encodeURIComponent(code) +
                         '&selector=' + encodeURIComponent(selector) +
                         '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
                 }
                 return '';
             }
@@ -800,7 +802,7 @@ if (
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -827,7 +829,7 @@ if (
                 '&code=' + encodeURIComponent(a[1]) +
                 '&selector=' + encodeURIComponent(a[2]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -853,7 +855,7 @@ if (
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
         }
 
         // Respond to selecting a package of codes.
@@ -864,7 +866,7 @@ if (
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                     '?list=' + encodeURIComponent(sel.value) +
                     '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
             }
             sel.selectedIndex = 0;
         }
@@ -943,7 +945,7 @@ if (
                                 [$formname, $formid]
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                            $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
+                            $default = empty($firow['provider_id']) ? ($session->get('authUserID') ?? null) : intval($firow['provider_id']);
 
                             if (!$patient_portal) {
                                 // Provider selector.
@@ -1450,7 +1452,7 @@ if (
                     $tmp_provider_id = $fs->provider_id ?: 0;
                     if (!$tmp_provider_id && $userauthorized) {
                         // Default to the logged-in user if they are a provider.
-                        $tmp_provider_id = $_SESSION['authUserID'];
+                        $tmp_provider_id = $session->get('authUserID');
                     }
                     echo xlt('Main Provider') . ": ";
                     echo "<select class='form-control' name='form_fs_provid'>";
@@ -1858,7 +1860,7 @@ if (
 
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken() . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 
