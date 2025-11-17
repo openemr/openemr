@@ -29,9 +29,9 @@ use LaLit\XML2Array;
  */
 class USPSBase
 {
-    const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
-    const LIVE_API_V3_URL = 'https://apis.usps.com/addresses/v3';
-    const OAUTH_TOKEN_URL = 'https://apis.usps.com/oauth2/v3/token';
+    public const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
+    public const LIVE_API_V3_URL = 'https://apis.usps.com/addresses/v3';
+    public const OAUTH_TOKEN_URL = 'https://apis.usps.com/oauth2/v3/token';
   /**
    *  the error code if one exists
    * @var integer
