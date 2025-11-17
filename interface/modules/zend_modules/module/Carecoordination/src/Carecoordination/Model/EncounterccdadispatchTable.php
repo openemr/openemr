@@ -956,9 +956,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         <physician_type_system>" . xmlEscape($type_system) . "</physician_type_system>
         <physician_type_system_name>" . xmlEscape($type_system_name) . "</physician_type_system_name>
         <streetAddressLine>" . xmlEscape($details['street'] ?? '') . "</streetAddressLine>
-        <facility_oid>" . xmlEscape($details['facility_oid']) . "</facility_oid>
-        <facility_npi>" . xmlEscape($details['facility_npi']) . "</facility_npi>
-        <facility_name>" . xmlEscape($details['facility_name']) . "</facility_name>
+        <facility_oid>" . xmlEscape($details['facility_oid'] ?? '') . "</facility_oid>
+        <facility_npi>" . xmlEscape($details['facility_npi'] ?? '') . "</facility_npi>
+        <facility_name>" . xmlEscape($details['facility_name'] ?? '') . "</facility_name>
         <city>" . xmlEscape($details['city'] ?? '') . "</city>
         <state>" . xmlEscape($details['state'] ?? '') . "</state>
         <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
@@ -1183,18 +1183,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $participant = "<participant>
             <date_time>" . xmlEscape($referralDate) . "</date_time>
-            <fname>" . xmlEscape($details['fname']) . "</fname>
-            <lname>" . xmlEscape($details['lname']) . "</lname>
-            <organization>" . xmlEscape($details['organization']) . "</organization>
+            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+            <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
-            <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
-            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
+            <organization_npi>" . xmlEscape($details['facility_npi'] ?? '') . "</organization_npi>
+            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy'] ?? '') . "</organization_taxonomy>
             <organization_taxonomy_desc>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</organization_taxonomy_desc>
-            <street>" . xmlEscape($details['street']) . "</street>
-            <city>" . xmlEscape($details['city']) . "</city>
-            <state>" . xmlEscape($details['state']) . "</state>
-            <postalCode>" . xmlEscape($details['zip']) . "</postalCode>
-            <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
+            <street>" . xmlEscape($details['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details['state'] ?? '') . "</state>
+            <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
+            <phonew1>" . xmlEscape($details['phonew1'] ?? '') . "</phonew1>
             <address_use>WP</address_use>
             <type>REFB</type>
         </participant>";
@@ -1229,18 +1229,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $time = $this->getAuthorDate($pid, $encounter);
         $officeContact = "<participant>
             <date_time>" . xmlEscape($time) . "</date_time>
-            <fname>" . xmlEscape($details['fname']) . "</fname>
-            <lname>" . xmlEscape($details['lname']) . "</lname>
-            <organization>" . xmlEscape($details['organization']) . "</organization>
+            <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+            <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+            <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
             <organization_id>" . xmlEscape($organization_uuid) . "</organization_id>
-            <organization_npi>" . xmlEscape($details['facility_npi']) . "</organization_npi>
-            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy']) . "</organization_taxonomy>
+            <organization_npi>" . xmlEscape($details['facility_npi'] ?? '') . "</organization_npi>
+            <organization_taxonomy>" . xmlEscape($details['facility_taxonomy'] ?? '') . "</organization_taxonomy>
             <organization_taxonomy_desc>" . xmlEscape($details['taxonomy_desc'] ?? '') . "</organization_taxonomy_desc>
-            <street>" . xmlEscape($details['street']) . "</street>
-            <city>" . xmlEscape($details['city']) . "</city>
-            <state>" . xmlEscape($details['state']) . "</state>
-            <postalCode>" . xmlEscape($details['zip']) . "</postalCode>
-            <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
+            <street>" . xmlEscape($details['street'] ?? '') . "</street>
+            <city>" . xmlEscape($details['city'] ?? '') . "</city>
+            <state>" . xmlEscape($details['state'] ?? '') . "</state>
+            <postalCode>" . xmlEscape($details['zip'] ?? '') . "</postalCode>
+            <phonew1>" . xmlEscape($details['phonew1'] ?? '') . "</phonew1>
             <address_use>WP</address_use>
             <type>CALLBCK</type>
         </participant>";
@@ -1322,14 +1322,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $information_recipient = "<information_recipient>
-        <fname>" . xmlEscape($details['fname']) . "</fname>
-        <lname>" . xmlEscape($details['lname']) . "</lname>
-        <organization>" . xmlEscape($details['organization']) . "</organization>
-        <street>" . xmlEscape($details['street']) . "</street>
-        <city>" . xmlEscape($details['city']) . "</city>
-        <state>" . xmlEscape($details['state']) . "</state>
-        <zip>" . xmlEscape($details['zip']) . "</zip>
-        <phonew1>" . xmlEscape($details['phonew1']) . "</phonew1>
+        <fname>" . xmlEscape($details['fname'] ?? '') . "</fname>
+        <lname>" . xmlEscape($details['lname'] ?? '') . "</lname>
+        <organization>" . xmlEscape($details['organization'] ?? '') . "</organization>
+        <street>" . xmlEscape($details['street'] ?? '') . "</street>
+        <city>" . xmlEscape($details['city'] ?? '') . "</city>
+        <state>" . xmlEscape($details['state'] ?? '') . "</state>
+        <zip>" . xmlEscape($details['zip'] ?? '') . "</zip>
+        <phonew1>" . xmlEscape($details['phonew1'] ?? '') . "</phonew1>
         </information_recipient>";
 
         return $information_recipient;
