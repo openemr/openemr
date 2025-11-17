@@ -43,7 +43,7 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
     }
 }
 
-if (!empty($_REQUEST['me']) && $_REQUEST['sent_by_app'] === 'core_api') {
+if (!empty($_REQUEST['me']) && isset($_REQUEST['sent_by_app']) && $_REQUEST['sent_by_app'] === 'core_api') {
     // pick up already running session from api's
     //  Need access to classes, so run autoloader now instead of in globals.php.
     $GLOBALS['already_autoloaded'] = true;
