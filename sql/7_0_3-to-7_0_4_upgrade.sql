@@ -2582,3 +2582,11 @@ UPDATE categories
       categories.codes = '' OR categories.codes IS NULL;
 UPDATE categories SET codes='LOINC:42348-3' WHERE name='Advance Directive' AND codes='LOINC:LP173418-7';
 #EndIf
+
+-- FHIR mandates that the general care experience code support a valueCodeableConcept so we add at least one to the list
+-- this was found as an example on the Behavioral Health Guides here: https://www.fhir.org/guides/astp/bhp/Observation-provider-preference-observation-example-2.xml.html
+-- so adding it to our list of care experience preferences so we can pass certification testing, a future improvement would be to give
+-- a general code selector or something for the general care experience so anything in SNOMED-CT could be used.
+#IfNotRow2D preference_value_sets loinc_code 95541-9 answer_code 314433002
+INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_display,sort_order,active) VALUES('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
+#EndIf
