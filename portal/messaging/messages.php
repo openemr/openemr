@@ -35,7 +35,7 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $session->get('portal_username'));
 } else {
-    SessionUtil::portalSessionCookieDestroy(); // TODO check how to do this
+    SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
     if (empty($session->get('authUserID'))) {
@@ -159,7 +159,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', IS_PORTAL !== false ? $session->getSymfonySession() : null)); ?>;
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>;
                 $scope.isInit = false;
 
                 $scope.init = function () {
