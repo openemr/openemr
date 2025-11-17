@@ -836,7 +836,11 @@ class C_Document extends Controller
         }
 
         if (!file_exists($url)) {
-            echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $url;
+            (new SystemLogger())->error(
+                "Document file not found or insufficient permissions",
+                ['url' => $url, 'document_id' => $document_id, 'patient_id' => $patient_id]
+            );
+            return '';
         } else {
             if ($original_file) {
                 //normal case when serving the file referenced in database
