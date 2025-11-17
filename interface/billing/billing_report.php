@@ -915,7 +915,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $mmo_empty_mod = false;
                         $mmo_num_charges = 0;
                         $encount = 0;
-                        $DivPut = 'no';
+                        $divPut = false;
 
                         foreach ($ret as $iter) {
                         // We include encounters here that have never been billed. However
@@ -949,9 +949,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     // This test handles the case where we are only listing encounters
                                     // that appear to have a missing "25" modifier.
                                     if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
-                                        if ($DivPut == 'yes') {
+                                        if ($divPut) {
                                             $lhtml .= '</div>';
-                                            $DivPut = 'no';
+                                            $divPut = false;
                                         }
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n\n";
@@ -1139,7 +1139,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         $lhtml .= '>' . text($xname) . '</option>';
                                     }
                                     $lhtml .= "</select></span>";
-                                    $DivPut = 'yes';
+                                    $divPut = true;
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                                         $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
@@ -1379,9 +1379,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 ++$rcount;
                             }
                             if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
-                                if ($DivPut == 'yes') {
+                                if ($divPut) {
                                     $lhtml .= '</div>';
-                                    $DivPut = 'no';
+                                    $divPut = false;
                                 }
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
