@@ -34,7 +34,6 @@
     }
 
     #addPersonSection .card-header {
-        background-color: #007bff;
         border-bottom: 1px solid #0056b3;
         padding: 0rem 1rem;
         font-size: 0.8rem;
@@ -111,7 +110,7 @@
 
 
     .person-form-section {
-        background-color: #fff;
+        background-color: var(--white);
         padding: 0rem;
         margin: 0rem;
     }
@@ -144,11 +143,11 @@
         cursor: pointer;
         border-radius: 0.25rem;
         transition: all 0.2s;
-        background-color: #fff;
+        background-color: var(--white);
     }
 
     .person-search-result:hover {
-        background-color: #e9ecef;
+        background-color: var(--info);
         border-color: #007bff;
         transform: translateX(2px);
     }
@@ -159,7 +158,7 @@
         font-size: 0.85rem;
         margin-top: 0.5rem;
         padding: 0.5rem;
-        background-color: #e7f3ff;
+        background-color: var(--info);
         border-radius: 0.25rem;
     }
 
@@ -198,7 +197,7 @@
 {# Inline Person Search and Create Section #}
 <div id="addPersonSection" class="d-none mt-3" data-csrf-token="{{ csrfToken }}">
     <div class="card">
-        <div class="card-header text-white">
+        <div class="card-header text-white bg-primary">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="mb-0">
                     <i class="fas fa-user-plus mr-2"></i>{{ 'Add Related Person'|xlt }}
