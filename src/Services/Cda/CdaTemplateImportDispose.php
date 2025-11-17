@@ -2290,7 +2290,7 @@ class CdaTemplateImportDispose
             ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
         $rtn = sqlQuery($sql, [$item_date, $item_pid]);
 
-        return (int)$rtn['encounter'] ?? 0;
+        return (int)($rtn['encounter'] ?? 0);
     }
 
     /**

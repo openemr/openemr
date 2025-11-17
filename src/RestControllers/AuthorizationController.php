@@ -49,6 +49,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
@@ -670,7 +671,7 @@ class AuthorizationController
             $this->session,
             $this->getUserRepository(),
             new ClaimExtractor($customClaim),
-            new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session)
+            new SMARTSessionTokenContextBuilder($this->getServerConfig(), $this->session)
         );
         $responseType->setSystemLogger($this->getSystemLogger());
         if (empty($this->grantType)) {
@@ -1017,18 +1018,27 @@ class AuthorizationController
         }
     }
 
+// ============================================================================
+// AI-GENERATED CODE START
+// Generated using Claude (Anthropic) on 2025-11-14
+// This code implements an improved scope authorization UI with granular
+// permission controls for FHIR resources with restricted scopes
+// ============================================================================
+
+    /**
+     * Improved scope authorization confirmation method with granular permission controls
+     * This replaces the existing scopeAuthorizeConfirm method in AuthorizationController
+     */
     public function scopeAuthorizeConfirm(HttpRestRequest $request): ResponseInterface
     {
-        // TODO: @adunsulag if there are no scopes or claims here we probably want to show an error...
-        // show our scope auth piece
         $redirect = $this->authBaseUrl . self::DEVICE_CODE_ENDPOINT;
         $session = $this->session;
         $scopeString = $session->get('scopes', '');
-        // check for offline_access
 
         $scopesList = explode(' ', (string) $scopeString);
         $offline_requested = false;
         $scopes = [];
+
         foreach ($scopesList as $scope) {
             if ($scope !== self::OFFLINE_ACCESS_SCOPE) {
                 $scopes[] = $scope;
@@ -1036,6 +1046,7 @@ class AuthorizationController
                 $offline_requested = true;
             }
         }
+
         $offline_access_date = (new DateTimeImmutable())->add(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL))->format("Y-m-d");
         $claims = $session->get('claims', []);
 
@@ -1047,37 +1058,26 @@ class AuthorizationController
         $userAccount = $uuidToUser->getUserAccount();
         $scopeString ??= "";
         $userRole ??= UuidUserAccount::USER_ROLE_PATIENT;
-        $scopesByResource = [];
+
+        // Parse and structure scopes with granular permissions
+        $scopeParser = new ScopePermissionParser($this->getScopeRepository($session));
+        $structuredScopes = $scopeParser->parseScopes($scopes);
+
         $otherScopes = [];
         $hiddenScopes = [];
         $scopeRepository = $this->getScopeRepository($session);
         $fhirRequiredSmartScopes = $scopeRepository->fhirRequiredSmartScopes();
+
         foreach ($scopes as $scope) {
-            // if there are any other scopes we want hidden we can put it here.
+            // Hidden scopes
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
             } else if (in_array($scope, $fhirRequiredSmartScopes)) {
                 $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
-                continue;
-            }
-
-            $parts = explode("/", $scope);
-            reset($parts);
-            $resourcePerm = $parts[1] ?? "";
-            $resourcePermParts = explode(".", $resourcePerm);
-            $resource = $resourcePermParts[0];
-
-            if (!empty($resource)) {
-                $scopesByResource[$resource] ??= ['permissions' => []];
-
-                $scopesByResource[$resource]['permissions'][$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
-        // TODO: @adunsulag need to fire off an event here so that api writers can grab descriptions or update them for their scopes
 
-// sort by the resource
-        ksort($scopesByResource);
-
+        // Process claims
         $updatedClaims = [];
         foreach ($claims as $key => $value) {
             $key_n = explode('_', (string) $key);
@@ -1098,16 +1098,22 @@ class AuthorizationController
             'redirect' => $redirect
             ,'client' => $client
             ,'otherScopes' => $otherScopes
-            ,'scopesByResource' => $scopesByResource
+            ,'structuredScopes' => $structuredScopes  // New structured data
             ,'hiddenScopes' => $hiddenScopes
             ,'claims' => $updatedClaims
             ,'userAccount' => $userAccount
             ,'offlineRequested' => true == $offline_requested
             ,'offline_access_date' => $offline_access_date
-            , "csrfToken" => CsrfUtils::collectCsrfToken('oauth2', $session)
+            ,'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
         ];
+
         return $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
     }
+
+// ============================================================================
+// AI-GENERATED CODE END
+// ============================================================================
+
 
     /**
      * Checks if we are in a SMART authorization endpoint
@@ -1263,19 +1269,34 @@ class AuthorizationController
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() attempting to update auth request with user approved scopes",
             ['userApprovedScopes' => $approvedScopes ]
         );
-        $requestScopes = $request->getScopes();
+        // the request scopes are just the straight up identifier and not our more complex ScopeEntity so we can't use
+        // them directly for validation.
+        $requestScopeIdentifiers = array_map(fn(ScopeEntityInterface $scope) => $scope->getIdentifier(), $request->getScopes());
         $scopeUpdates = [];
-        // we only allow scopes from the original session request, if user approved scope it will show up here.
-        foreach ($requestScopes as $scope) {
-            if (isset($approvedScopes[$scope->getIdentifier()])) {
-                $scopeUpdates[] = $scope;
+        $scopeValidatorArray = $this->getScopeRepository($this->session)->buildScopeValidatorArray($requestScopeIdentifiers);
+        foreach ($approvedScopes as $scope) {
+            try {
+                $approvedScopeEntity = ScopeEntity::createFromString($scope);
+                $lookupKey = $approvedScopeEntity->getScopeLookupKey();
+                if (
+                    isset($scopeValidatorArray[$lookupKey])
+                    && $scopeValidatorArray[$lookupKey]->containsScope($approvedScopeEntity)
+                ) {
+                    $scopeUpdates[] = $approvedScopeEntity;
+                }
+            }
+            catch (Exception $e) {
+                $this->getSystemLogger()->error(
+                    "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
+                    ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
+                );
             }
         }
         $this->getSystemLogger()->debug(
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
             ['updatedScopes' => $scopeUpdates]
         );
-
+        // set the approved scopes back onto the request
         $request->setScopes($scopeUpdates);
         return $request;
     }
@@ -1442,7 +1463,7 @@ class AuthorizationController
                     throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
                 }
             }
-            $session_nonce = json_decode((string) $trustedUser['session_cache'], true)['nonce'] ?? '';
+            $session_nonce = (json_decode((string) $trustedUser['session_cache'], true)['nonce']) ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);
@@ -1471,170 +1492,14 @@ class AuthorizationController
 
     public function tokenIntrospection(HttpRestRequest $request): ResponseInterface
     {
-        $response = $this->createServerResponse();
-        $response->withHeader("Cache-Control", "no-store");
-        $response->withHeader("Pragma", "no-cache");
-        $response->withHeader('Content-Type', 'application/json');
-
-        $rawToken = $request->request->get('token');
-        $token_hint = $request->request->get('token_type_hint');
-        $clientId = $request->request->get('client_id');
-        // not required for public apps but mandatory for confidential
-        $clientSecret = $request->request->get('client_secret');
-
-        // Check for JWT client assertion
-        $clientAssertion = $request->request->get('client_assertion');
-        $clientAssertionType = $request->request->get('client_assertion_type');
-
-        $this->getSystemLogger()->debug(
-            self::class . "->tokenIntrospection() start",
-            ['token_type_hint' => $token_hint, 'client_id' => $clientId, 'has_assertion' => !empty($clientAssertion)]
-        );
-
-        $result = ['active' => false];
-        // the ride starts. had to use a try because PHP doesn't support tryhard yet!
-        try {
-            // Handle JWT client authentication if present
-            if (!empty($clientAssertion) && !empty($clientAssertionType)) {
-                // Create JWT authentication service
-                $jwtAuthService = new JWTClientAuthenticationService(
-                    $this->getServerConfig()->getTokenUrl(),
-                    $this->getClientRepository(),
-                    new JWTRepository(),
-                    null
-                );
-                $jwtAuthService->setLogger($this->getSystemLogger());
-
-                // Convert the request to PSR-7 format for JWT validation
-                $psrRequest = $this->convertHttpRestRequestToServerRequest($request);
-
-                // Extract client ID from JWT and validate
-                if ($jwtAuthService->hasJWTClientAssertion($psrRequest)) {
-                    $extractedClientId = $jwtAuthService->extractClientIdFromJWT($psrRequest);
-
-                    // Verify extracted client ID matches provided client_id if both present
-                    if (!empty($clientId) && $clientId !== $extractedClientId) {
-                        throw new OAuthServerException('Client ID mismatch', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
-                    }
-
-                    $clientId = $extractedClientId;
-                    $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
-
-                    if (empty($client)) {
-                        throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                    }
-
-                    if (intval($client['is_enabled']) !== 1) {
-                        throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                    }
-
-                    // Create client entity for JWT validation
-                    $clientEntity = $this->getClientRepository()->getClientEntity($clientId);
-
-                    // Validate JWT assertion
-                    $jwtAuthService->validateJWTClientAssertion($psrRequest, $clientEntity);
-
-                    $this->getSystemLogger()->debug("tokenIntrospection() JWT client authentication successful");
-                }
-            } else {
-                // so regardless of client type(private/public) we need client for client app type and secret.
-                $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
-                if (empty($client)) {
-                    throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                }
-                // a no no. if private we need a secret.
-                if (empty($clientSecret) && !empty($client['is_confidential'])) {
-                    throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
-                }
-                // lets verify secret to prevent bad guys.
-                if (intval($client['is_enabled'] !== 1)) {
-                    // client is disabled and we don't allow introspection of tokens for disabled clients.
-                    throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                }
-                // lets verify secret to prevent bad guys.
-                if (!empty($client['client_secret'])) {
-                    $decryptedSecret = $this->cryptoGen->decryptStandard($client['client_secret']);
-                    if ($decryptedSecret !== $clientSecret) {
-                        throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                    }
-                }
-            }
-            $jsonWebKeyParser = new JsonWebKeyParser($this->oaEncryptionKey, $this->publicKey);
-            // will try hard to go on if missing token hint. this is to help with universal conformance.
-            if (empty($token_hint)) {
-                $token_hint = $jsonWebKeyParser->getTokenHintFromToken($rawToken);
-            } elseif (($token_hint !== 'access_token' && $token_hint !== 'refresh_token') || empty($rawToken)) {
-                throw new OAuthServerException('Missing token or unsupported hint.', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
-            }
-
-            // are we there yet! client's okay but, is token?
-            if ($token_hint === 'access_token') {
-                try {
-                    $result = $jsonWebKeyParser->parseAccessToken($rawToken);
-                    $result['client_id'] = $clientId;
-                    $trusted = $this->trustedUser($result['client_id'], $result['sub']);
-                    if (empty($trusted['id'])) {
-                        $result['active'] = false;
-                        $result['status'] = 'revoked';
-                    }
-                    $tokenRepository = $this->getTokenRepository();
-                    if ($tokenRepository->isAccessTokenRevokedInDatabase($result['jti'])) {
-                        $result['active'] = false;
-                        $result['status'] = 'revoked';
-                    }
-                    $audience = $result['aud'];
-                    if (!empty($audience)) {
-                        // audience is an array... we will only validate against the first item
-                        $audience = current($audience);
-                    }
-                    if ($audience !== $clientId) {
-                        // return no info in this case. possible Phishing
-                        $result = ['active' => false];
-                    }
-                } catch (Exception $exception) {
-                    // JWT couldn't be parsed
-                    $body = $response->getBody();
-                    $body->write($exception->getMessage());
-                    $this->session->invalidate();
-                    return $response->withStatus(Response::HTTP_BAD_REQUEST)->withBody($body);
-                }
-            }
-            if ($token_hint === 'refresh_token') {
-                try {
-                    // client_id comes back from the parsed refresh token
-                    $result = $jsonWebKeyParser->parseRefreshToken($rawToken);
-                } catch (Exception $exception) {
-                    $body = $response->getBody();
-                    $body->write($exception->getMessage());
-                    $this->session->invalidate();
-                    return $response->withStatus(Response::HTTP_BAD_REQUEST)->withBody($body);
-                }
-                $trusted = $this->trustedUser($result['client_id'], $result['sub']);
-                if (empty($trusted['id'])) {
-                    $result['active'] = false;
-                    $result['status'] = 'revoked';
-                }
-                $tokenRepository = $this->getRefreshTokenRepository();
-                if ($tokenRepository->isRefreshTokenRevoked($result['jti'])) {
-                    $result['active'] = false;
-                    $result['status'] = 'revoked';
-                }
-                if ($result['client_id'] !== $clientId) {
-                    // return no info in this case. possible Phishing
-                    $result = ['active' => false];
-                }
-            }
-        } catch (OAuthServerException $exception) {
-            // JWT couldn't be parsed
-            $this->session->invalidate();
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-            return $exception->generateHttpResponse($response);
-        }
-        // we're here so emit results to interface thank you very much.
-        $body = $response->getBody();
-        $body->write(json_encode($result));
-        $this->session->invalidate();
-        return $response->withStatus(Response::HTTP_OK)->withBody($body);
+        $tokenRestController = new TokenIntrospectionRestController($this->globalsBag);
+        $tokenRestController->setServerConfig($this->getServerConfig());
+        $tokenRestController->setRefreshTokenRepository($this->getRefreshTokenRepository());
+        $tokenRestController->setCryptoGen($this->cryptoGen);
+        $tokenRestController->setClientRepository($this->getClientRepository());
+        $tokenRestController->setSystemLogger($this->getSystemLogger());
+        $tokenRestController->setAccessTokenRepository($this->getTokenRepository());
+        return $tokenRestController->postAction($request);
     }
 
     /**
@@ -1960,7 +1825,7 @@ class AuthorizationController
 
     protected function getUserRepository(): UserRepository
     {
-        $userIdentityRepository = new UserRepository($this->globalsBag, $this->session);
+        $userIdentityRepository = new UserRepository($this->getServerConfig()->getFhirUrl());
         $userIdentityRepository->setSystemLogger($this->getSystemLogger());
         return $userIdentityRepository;
     }
@@ -1969,7 +1834,7 @@ class AuthorizationController
      */
     private function getTokenRepository(): AccessTokenRepository
     {
-        $tokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
+        $tokenRepository = new AccessTokenRepository($this->serverConfig, $this->session);
         $tokenRepository->setSystemLogger($this->getSystemLogger());
         return $tokenRepository;
     }

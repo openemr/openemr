@@ -21,7 +21,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$disablePreviousNameAdds = (int)$_SESSION['disablePreviousNameAdds'] ?? 0;
+$disablePreviousNameAdds = (int)($_SESSION['disablePreviousNameAdds'] ?? 0);
 
 $form = trim((string) $_GET['form_handler']);
 echo "<script>var form=" . js_escape($form) . "</script>";

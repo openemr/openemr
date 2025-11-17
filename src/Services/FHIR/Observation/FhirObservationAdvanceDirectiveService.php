@@ -21,13 +21,17 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -97,6 +101,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             ]
         ],
     ];
+    const SUPPORTING_INFORMATION_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/workflow-supportingInfo";
 
     private ?PatientAdvanceDirectiveService $advanceDirectiveService = null;
 
@@ -161,6 +166,28 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
     public function setAdvanceDirectiveService(PatientAdvanceDirectiveService $service): void
     {
         $this->advanceDirectiveService = $service;
+    }
+
+    /**
+     * @param $dataRecord
+     * @param $encode
+     * @return FHIRDomainResource|string
+     * @throws \JsonException
+     */
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
+    {
+        $resource = $this->parseObservationOpenEMRRecord($dataRecord, false);
+        $this->populateIssued($resource, $dataRecord);
+        $this->populateSupportingInformation($resource, $dataRecord);
+        return $encode ? json_encode($resource, JSON_THROW_ON_ERROR) : $resource;
+    }
+
+    public function populateIssued(FHIRObservation $observation, array $dataRecord): void
+    {
+        if (!empty($observation->getMeta()->getLastUpdated())) {
+            // Set issued to last updated time
+            $observation->setIssued($observation->getMeta()->getLastUpdated());
+        }
     }
 
     /**
@@ -291,6 +318,7 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             // Convert patient UUID bytes to string for observation records
             $patientUuidString = UuidRegistry::uuidToString($patientUuidBytes);
 
+            $codeTypesService = new CodeTypesService();
             // Transform observations to OpenEMR record format
             foreach ($adiData['observations'] as $observation) {
                 $code = $observation['code'];
@@ -340,22 +368,16 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
                     "date" => $observation['effective_date'],
                     "last_modified" => $observation['provenance']['time'] ?? $observation['effective_date'],
                     "profiles" => $profiles,
-                    // Value as CodeableConcept - format: "system:code"
-                    "value" => $observation['value_system'] . ":" . $observation['value_code'],
+                    // our value is 'yes' if present... indicating the directive exists so hard-coding the system
+                    "value" => CodeTypesService::CODE_TYPE_SNOMED_CT . ":" . $observation['value_code'],
                     "value_code_description" => $observation['value_display'], // "Yes"
-                    // Add focus element for DocumentReference link
-                    "focus" => [
-                        [
-                            'reference' => 'DocumentReference/' . $observation['document_uuid']
-                        ]
-                    ],
                     // DocumentReference details
                     "document_id" => $observation['document_id'],
                     "document_uuid" => $observation['document_uuid'],
                     "document_location" => $observation['document_location'],
                     "document_name" => $observation['document_name'],
-                    // Author/provenance
-                    "author_id" => $observation['provenance']['author_id'] ?? null,
+                    // performer and provenance author
+                    "performer_uuid" => $observation['provenance']['uuid'] ?? null,
                 ];
 
                 $processingResult->addData($record);
@@ -443,6 +465,17 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
             }
 
             $observation->setCode($codeableConcept);
+        }
+    }
+
+    protected function populateSupportingInformation(FHIRObservation|string $resource, array $dataRecord): void
+    {
+        if (!empty($dataRecord['document_uuid'])) {
+            $reference = UtilsService::createRelativeReference("DocumentReference", $dataRecord['document_uuid'], $dataRecord['document_name'] ?? null);
+            $extension = new FHIRExtension();
+            $extension->setUrl(self::SUPPORTING_INFORMATION_EXTENSION_URL);
+            $extension->setValueReference($reference);
+            $resource->addExtension($extension);
         }
     }
 }

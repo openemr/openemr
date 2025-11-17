@@ -84,6 +84,7 @@ trait FhirObservationTrait
      *
      * @param array $dataRecord The source OpenEMR data record
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @throws \JsonException if $encode is true and encoding fails
      * @return FHIRObservation|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
     public function parseObservationOpenEMRRecord(array $dataRecord = [], bool $encode = false): FHIRDomainResource|string
@@ -146,12 +147,22 @@ trait FhirObservationTrait
         // we do meta last as it needs to know about other fields
         $this->setObservationMeta($observation, $dataRecord);
 
-        if ($encode) {
-            return json_encode($observation);
-        }
-
-        return $observation;
         // AI-generated implementation ends
+        if ($encode) {
+            return $this->encodeObservation($observation);
+        } else {
+            return $observation;
+        }
+    }
+
+    /**
+     * @param FHIRObservation $observation
+     * @return string
+     * @throws \JsonException
+     */
+    protected function encodeObservation(FHIRObservation $observation): string
+    {
+        return json_encode($observation, JSON_THROW_ON_ERROR);
     }
 
     protected function setObservationMeta(FHIRObservation $observation, array $dataRecord): void
@@ -285,7 +296,8 @@ trait FhirObservationTrait
         $observation->addCategory($initialCategory);
 
         // Optional screening-assessment category slice if we have a questionnaire category (mustSupport, 0..1)
-        if (!empty($dataRecord['screening_category_code'])) {
+        // make sure we don't duplicate the category
+        if (!empty($dataRecord['screening_category_code']) && $dataRecord['screening_category_code'] !== $catCoding->getCode()->getValue()) {
             if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
                 $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
             }

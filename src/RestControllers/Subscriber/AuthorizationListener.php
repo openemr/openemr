@@ -23,6 +23,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\SMART\RequestConstraintFilterer;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
@@ -201,26 +202,11 @@ class AuthorizationListener implements EventSubscriberInterface
      * @param ScopeEntity $scope The scope to match against
      * @return void
      */
-    private function updateRequestWithConstraints(HttpRestRequest $request, ScopeEntity $scope): void
+    private function updateRequestWithConstraints(HttpRestRequest $request, ScopeEntity $endpointScope): void
     {
-        $scopeEntities = $request->getAllContainedScopesForScopeEntity($scope);
-        $constraints = [];
-
-        foreach ($scopeEntities as $scopeEntity) {
-            // Check if this scope entity matches or is contained by the given scope
-            $scope->addScopePermissions($scopeEntity);
-        }
-        $constraints = $scope->getPermissions()->getConstraints();
-        if (!empty($constraints)) {
-            // Merge constraints with existing query parameters
-            $request->query->add($constraints);
-            $logValues = [
-                'scope' => $scope->getIdentifier(),
-                'constraints' => $constraints,
-                'mergedQuery' => $request->query->all()
-            ];
-            $this->getLogger()->debug("Updated request with scope constraints", $logValues);
-        }
+        $constraintFilterer = new RequestConstraintFilterer();
+        $constraintFilterer->setSystemLogger($this->getLogger());
+        $constraintFilterer->updateRequestWithConstraints($request, $endpointScope);
     }
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void
