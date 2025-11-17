@@ -43,7 +43,7 @@ border-radius: 4px 0 0 4px!important;
 	function callTemplateModule(patient_id, cuser, templateName, id, edit) {
 		top.restoreSession();
         let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?is_module=1' +
-            '&catid=' + {$category_id|js_url} +
+            '&catid=' + {$category_id|default:1|js_url} +
             '&pid=' + encodeURIComponent(patient_id) +
             '&cuser=' + encodeURIComponent(cuser) +
             '&recid=' + encodeURIComponent(id) +
