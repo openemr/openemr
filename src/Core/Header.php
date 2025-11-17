@@ -183,6 +183,9 @@ class Header
             $assets = [$assets];
         }
 
+        // Filter out any empty strings in case assets array contains them
+        $assets = array_filter($assets, fn ($asset) => is_string($asset) && trim($asset) !== '');
+
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
         $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
         self::$scripts = [];
@@ -212,6 +215,18 @@ class Header
     {
         $foundAssets = [];
         $excludedCount = 0;
+
+        // Count exclusion tokens (assets starting with "no_") where the corresponding asset exists in map
+        foreach ($selectedAssets as $selectedAsset) {
+            $selectedAsset = (string) $selectedAsset;
+            if (str_starts_with($selectedAsset, 'no_')) {
+                $assetName = substr($selectedAsset, 3); // Remove "no_" prefix
+                if (array_key_exists($assetName, $map)) {
+                    $excludedCount++;
+                }
+            }
+        }
+
         foreach ($map as $k => $opts) {
             $autoload = $opts['autoload'] ?? false;
             $allowNoLoad = $opts['allowNoLoad'] ?? false;
@@ -220,11 +235,9 @@ class Header
             $rtl = $opts['rtl'] ?? false;
 
             if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
-                if ($allowNoLoad === true) {
-                    if (in_array("no_" . $k, $selectedAssets)) {
-                        $excludedCount++;
-                        continue;
-                    }
+                // Skip loading if exclusion token (no_<asset>) is present in selectedAssets
+                if (in_array("no_" . $k, $selectedAssets)) {
+                    continue;
                 }
                 $foundAssets[] = $k;
 
