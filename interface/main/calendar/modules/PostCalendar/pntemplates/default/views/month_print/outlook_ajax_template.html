@@ -387,7 +387,7 @@ foreach ($providers as $provider) {
 
             $eventid = $event['eid'];
             $patientid = $event['pid'];
-            [$lname, $fname] = explode(", ", ($event['patient_name'] ?? ''), 2) + ['', ''];
+            [$lname, $fname] = preg_split('/,\s*/', ($event['patient_name'] ?? ''), 2) + ['', ''];
             $address = $event['patient_address'];
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
