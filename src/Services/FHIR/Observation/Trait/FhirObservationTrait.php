@@ -297,7 +297,10 @@ trait FhirObservationTrait
 
         // Optional screening-assessment category slice if we have a questionnaire category (mustSupport, 0..1)
         // make sure we don't duplicate the category
-        if (!empty($dataRecord['screening_category_code']) && $dataRecord['screening_category_code'] !== $catCoding->getCode()->getValue()) {
+        // we can only have ONE category from the self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY.  If the observation's primary category is
+        // NOT survey then we skip adding the screening category otherwise we could have two codes from that code system
+        // and that fails validation
+        if ($dataRecord['ob_type'] == 'survey' && !empty($dataRecord['screening_category_code']) && $dataRecord['screening_category_code'] !== $catCoding->getCode()->getValue()) {
             if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
                 $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
             }
