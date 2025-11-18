@@ -42,15 +42,17 @@ border-radius: 4px 0 0 4px!important;
 <script>
 	function callTemplateModule(patient_id, cuser, templateName, id, edit) {
 		top.restoreSession();
-        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?is_module=1' +
-            '&catid=' + {$category_id|default:1|js_url} +
-            '&pid=' + encodeURIComponent(patient_id) +
-            '&cuser=' + encodeURIComponent(cuser) +
-            '&recid=' + encodeURIComponent(id) +
-            '&edit=' + encodeURIComponent(edit) +
-            '&new=' + encodeURIComponent(templateName) +
-            '&referer_flag=' + encodeURIComponent(isNewRefererFlag)
-		location.assign(callUrl);
+		const params = new URLSearchParams({
+			is_module: '1',
+			catid: {$category_id|default:1|js_url},
+			pid: patient_id,
+			cuser: cuser,
+			recid: id,
+			edit: edit,
+			new: templateName,
+			referer_flag: isNewRefererFlag
+		});
+		location.assign('{$GLOBALS.webroot}/portal/patient/onsitedocuments?' + params.toString());
 	}
 </script>
 <title id="new-doc-title">{xlt t='Documents'}</title>
