@@ -52,7 +52,7 @@ border-radius: 4px 0 0 4px!important;
 			referer_flag: isNewRefererFlag
 		};
 {if isset($category_id)}
-		queryParams.catid = {$category_id|js_url};
+		queryParams.catid = {$category_id|js_escape};
 {/if}
 		const params = new URLSearchParams(queryParams);
 		location.assign('{$GLOBALS.webroot}/portal/patient/onsitedocuments?' + params.toString());
