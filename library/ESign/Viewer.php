@@ -28,7 +28,6 @@ namespace ESign;
 require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Model.php';
 require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 
-#[\AllowDynamicProperties]
 class Viewer extends Abstract_Model
 {
     public $target;
@@ -38,6 +37,7 @@ class Viewer extends Abstract_Model
     public $formDir;
     public $signatures;
     public $verified;
+    public $form;
 
     public function __construct(?array $args = null)
     {
