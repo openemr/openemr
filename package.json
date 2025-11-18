@@ -44,7 +44,7 @@
     "eslint": "9.39.1",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jest": "28.14.0",
-    "glob": "11.0.3",
+    "glob": "11.1.0",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.9",
     "gulp-csso": "4.0.1",
