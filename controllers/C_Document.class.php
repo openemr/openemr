@@ -841,95 +841,94 @@ class C_Document extends Controller
                 ['url' => $url, 'document_id' => $document_id, 'patient_id' => $patient_id]
             );
             return '';
+        }
+        if ($original_file) {
+            //normal case when serving the file referenced in database
+            if ($d->get_encrypted() == 1) {
+                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
+            } else {
+                if (!is_dir($url)) {
+                    $filetext = file_get_contents($url);
+                }
+            }
+            if ($disable_exit == true) {
+                return $filetext ?? '';
+            }
+            header('Content-Description: File Transfer');
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            if ($doEncryption) {
+                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
+                header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
+                header("Content-Type: application/octet-stream");
+                header("Content-Length: " . strlen($ciphertext));
+                echo $ciphertext;
+            } else {
+                header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
+                header("Content-Type: " . $d->get_mimetype());
+                header("Content-Length: " . strlen($filetext ?? ''));
+                echo $filetext ?? '';
+            }
+            exit;
         } else {
-            if ($original_file) {
-                //normal case when serving the file referenced in database
+            //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
+            //try to convert it if it has not yet been converted
+            $originalUrl = $url;
+            if (strrpos((string) basename_international($url), '.') === false) {
+                $convertedFile = basename_international($url) . '_converted.jpg';
+            } else {
+                $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
+            }
+            $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
+            if (!is_file($url)) {
+                if ($d->get_encrypted() == 1) {
+                    // decrypt the from-file into a temporary file
+                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
+                    $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                    file_put_contents($from_file_tmp_name, $from_file_unencrypted);
+                    // prepare a temporary file for the unencrypted to-file
+                    $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                    $to_file_tmp_name = $to_file_tmp . ".jpg";
+                    // convert file to jpg
+                    exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
+                    // remove unencrypted tmp file
+                    unlink($from_file_tmp_name);
+                    // make the encrypted to-file if a to-file was created in above convert call
+                    if (is_file($to_file_tmp_name)) {
+                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                        file_put_contents($url, $to_file_encrypted);
+                        // remove unencrypted tmp files
+                        unlink($to_file_tmp);
+                        unlink($to_file_tmp_name);
+                    }
+                } else {
+                    // convert file to jpg
+                    exec("convert -density 200 " . escapeshellarg((string) $originalUrl) . " -append -resize 850 " . escapeshellarg($url));
+                }
+            }
+            if (is_file($url)) {
                 if ($d->get_encrypted() == 1) {
                     $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                 } else {
-                    if (!is_dir($url)) {
-                        $filetext = file_get_contents($url);
-                    }
+                    $filetext = file_get_contents($url);
                 }
-                if ($disable_exit == true) {
-                    return $filetext ?? '';
-                }
-                header('Content-Description: File Transfer');
-                header('Content-Transfer-Encoding: binary');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Pragma: public');
-                if ($doEncryption) {
-                    $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
-                    header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
-                    header("Content-Type: application/octet-stream");
-                    header("Content-Length: " . strlen($ciphertext));
-                    echo $ciphertext;
-                } else {
-                    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
-                    header("Content-Type: " . $d->get_mimetype());
-                    header("Content-Length: " . strlen($filetext ?? ''));
-                    echo $filetext ?? '';
-                }
-                exit;
             } else {
-                //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
-                //try to convert it if it has not yet been converted
-                $originalUrl = $url;
-                if (strrpos((string) basename_international($url), '.') === false) {
-                    $convertedFile = basename_international($url) . '_converted.jpg';
-                } else {
-                    $convertedFile = substr((string) basename_international($url), 0, strrpos((string) basename_international($url), '.')) . '_converted.jpg';
-                }
-                $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
-                if (!is_file($url)) {
-                    if ($d->get_encrypted() == 1) {
-                        // decrypt the from-file into a temporary file
-                        $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $from_file_unencrypted);
-                        // prepare a temporary file for the unencrypted to-file
-                        $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        $to_file_tmp_name = $to_file_tmp . ".jpg";
-                        // convert file to jpg
-                        exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
-                        // remove unencrypted tmp file
-                        unlink($from_file_tmp_name);
-                        // make the encrypted to-file if a to-file was created in above convert call
-                        if (is_file($to_file_tmp_name)) {
-                            $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
-                            file_put_contents($url, $to_file_encrypted);
-                            // remove unencrypted tmp files
-                            unlink($to_file_tmp);
-                            unlink($to_file_tmp_name);
-                        }
-                    } else {
-                        // convert file to jpg
-                        exec("convert -density 200 " . escapeshellarg((string) $originalUrl) . " -append -resize 850 " . escapeshellarg($url));
-                    }
-                }
-                if (is_file($url)) {
-                    if ($d->get_encrypted() == 1) {
-                        $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
-                    } else {
-                        $filetext = file_get_contents($url);
-                    }
-                } else {
-                    $filetext = '';
-                    error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
-                }
-                if ($disable_exit == true) {
-                    return $filetext;
-                }
-                header("Pragma: public");
-                header("Expires: 0");
-                header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-                header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
-                header("Content-Type: image/jpeg");
-                header("Content-Length: " . strlen($filetext));
-                echo $filetext;
-                exit;
+                $filetext = '';
+                error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
             }
+            if ($disable_exit == true) {
+                return $filetext;
+            }
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . $d->get_name() . "\"");
+            header("Content-Type: image/jpeg");
+            header("Content-Length: " . strlen($filetext));
+            echo $filetext;
+            exit;
         }
     }
 
