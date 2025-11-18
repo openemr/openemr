@@ -42,18 +42,19 @@ border-radius: 4px 0 0 4px!important;
 <script>
 	function callTemplateModule(patient_id, cuser, templateName, id, edit) {
 		top.restoreSession();
-		const params = new URLSearchParams({
+		const queryParams = {
 			is_module: '1',
-{if isset($category_id)}
-			catid: {$category_id|js_url},
-{/if}
 			pid: patient_id,
 			cuser: cuser,
 			recid: id,
 			edit: edit,
 			'new': templateName,
 			referer_flag: isNewRefererFlag
-		});
+		};
+{if isset($category_id)}
+		queryParams.catid = {$category_id|js_url};
+{/if}
+		const params = new URLSearchParams(queryParams);
 		location.assign('{$GLOBALS.webroot}/portal/patient/onsitedocuments?' + params.toString());
 	}
 </script>
