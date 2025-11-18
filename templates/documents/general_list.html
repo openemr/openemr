@@ -44,12 +44,14 @@ border-radius: 4px 0 0 4px!important;
 		top.restoreSession();
 		const params = new URLSearchParams({
 			is_module: '1',
-			catid: {$category_id|default:1|js_url},
+{if isset($category_id)}
+			catid: {$category_id|js_url},
+{/if}
 			pid: patient_id,
 			cuser: cuser,
 			recid: id,
 			edit: edit,
-			new: templateName,
+			'new': templateName,
 			referer_flag: isNewRefererFlag
 		});
 		location.assign('{$GLOBALS.webroot}/portal/patient/onsitedocuments?' + params.toString());
