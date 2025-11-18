@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceCont
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceAdvancedDirectiveCodeEnum;
 use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
+use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -48,6 +49,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use FhirDocumentReferenceTrait;
 
     /**
      * @var DocumentService
@@ -172,27 +174,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         // populate the link to download the patient document
-        if (!empty($dataRecord['uuid'])) {
-            $url = $this->getFhirApiURL() . '/fhir/Binary/' . $dataRecord['uuid'];
-            $content = new FHIRDocumentReferenceContent();
-            $attachment = new FHIRAttachment();
-            $attachment->setContentType($dataRecord['mimetype']);
-            $attachment->setUrl(new FHIRUrl($url));
-            $attachment->setTitle($dataRecord['name'] ?? '');
-            $content->setAttachment($attachment);
-            // TODO: if we support tagging a specific document with a reference code we can put that here.
-            // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
-            $contentCoding = UtilsService::createCoding(
-                "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-                "mimeType Sufficient",
-                FhirCodeSystemConstants::IHE_FORMATCODE_CODESYSTEM
-            );
-            $content->setFormat($contentCoding);
-            $docReference->addContent($content);
-        } else {
-            // need to support data missing if its not there.
-            $docReference->addContent(UtilsService::createDataMissingExtension());
-        }
+        $this->populateContent($docReference, $dataRecord);
 
         if (!empty($dataRecord['puuid'])) {
             $docReference->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
