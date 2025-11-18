@@ -587,7 +587,7 @@ if (
                         '&code=' + encodeURIComponent(code) +
                         '&selector=' + encodeURIComponent(selector) +
                         '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
                 }
                 return '';
             }
@@ -802,7 +802,7 @@ if (
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -829,7 +829,7 @@ if (
                 '&code=' + encodeURIComponent(a[1]) +
                 '&selector=' + encodeURIComponent(a[2]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -855,7 +855,7 @@ if (
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
         }
 
         // Respond to selecting a package of codes.
@@ -866,7 +866,7 @@ if (
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                     '?list=' + encodeURIComponent(sel.value) +
                     '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>);
+                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
             }
             sel.selectedIndex = 0;
         }
@@ -1860,7 +1860,7 @@ if (
 
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session) . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 
