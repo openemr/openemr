@@ -10,7 +10,10 @@ class PHPSessionWrapper implements SessionWrapperInterface
 
     public function get(string $key, $default = null)
     {
-        return array_key_exists($key, $_SESSION) ? $_SESSION[$key] : $default;
+        if (is_array($_SESSION)) {
+            return array_key_exists($key, $_SESSION) ? $_SESSION[$key] : $default;
+        }
+        return $default;
     }
 
     public function set(string $key, $value)
@@ -20,7 +23,10 @@ class PHPSessionWrapper implements SessionWrapperInterface
 
     public function has(string $key)
     {
-        return array_key_exists($key, $_SESSION);
+        if (is_array($_SESSION)) {
+            return array_key_exists($key, $_SESSION);
+        }
+        return false;
     }
 
     public function remove(string $key)
