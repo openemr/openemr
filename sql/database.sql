@@ -7634,11 +7634,11 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','home','Home',10,0,1),
-    ('telecom_uses','work','Work',20,0,1),
-    ('telecom_uses','temp','Temp',30,0,1),
-    ('telecom_uses','old','Old',40,0,1),
-    ('telecom_uses','mobile','Mobile',50,0,1);
+    ('telecom_uses','mobile','Mobile',10,0,1),    
+    ('telecom_uses','home','Home',20,0,1),
+    ('telecom_uses','work','Work',30,0,1),
+    ('telecom_uses','temp','Temp',40,0,1),
+    ('telecom_uses','old','Old',50,0,1);
 
 -- Person Patient Link Method
 INSERT INTO list_options (list_id, option_id, title, seq, is_default) VALUES ('lists', 'person_patient_link_method', 'Person-Patient Link Method', 1, 0);

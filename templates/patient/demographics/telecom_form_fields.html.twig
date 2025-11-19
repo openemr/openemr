@@ -28,6 +28,7 @@
                 'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][system]',
                 'smallform': smallform ~ ' form_telecoms_system',
                 'list_id': 'telecom_systems',
+                'empty_name': 'Unassigned',
                 'edit_options': edit_options
             }, telecom.system|default('')) }}
         </div>
@@ -37,6 +38,7 @@
                 'field_id': field_id_esc ~ '[' ~ telecom_index ~ '][use]',
                 'smallform': smallform ~ ' form_telecoms_use',
                 'list_id': 'telecom_uses',
+                'empty_name': 'Unassigned',
                 'edit_options': edit_options
             }, telecom.use|default('')) }}
         </div>
