@@ -671,6 +671,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 // order by
+    $odrstmt = "";
     if (!empty($_POST['form_pt_name'])) {
         $odrstmt .= ",patient_name";
     }
