@@ -630,3 +630,39 @@ function normalizeToFilename(str) {
     .toLowerCase()
     .substring(0, 100); // Limit length
 }
+
+/*
+* @function js_uniqid()
+* @summary call this function where you need a unique id, based on php uniqid()
+*
+* @param string prefix to go before unique id that is generated
+* @param boolean
+*/
+function js_uniqid(prefix = "", moreEntropy = true) {
+
+    // Get microseconds since Unix epoch
+    const time = Date.now();
+    const micro = (performance.now() * 1000) % 1000000;
+    const uniqidTime = Math.floor(time / 1000) * 1000000 + Math.floor(micro);
+    
+    // Convert to hex (PHP uses 8 chars for seconds + 5 for microseconds)
+    let id = uniqidTime.toString(16);
+    
+    if (moreEntropy) {
+        // Ensure at least 4 random digits, exactly 13 total
+        const entropyDigits = 4;
+        const timestampDigits = 13 - entropyDigits; // 9 digits
+        
+        // Trim timestamp if needed to make room for entropy
+        if (id.length > timestampDigits) {
+            id = id.slice(0, timestampDigits); // Keep the first 9 digits
+        }
+        
+        // Generate random hex string
+        const maxEntropy = Math.pow(16, entropyDigits);
+        const entropy = Math.floor(Math.random() * maxEntropy);
+        id += entropy.toString(16).padStart(entropyDigits, '0');
+    }
+    
+    return prefix + id;
+}
