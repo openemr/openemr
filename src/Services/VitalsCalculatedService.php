@@ -142,7 +142,7 @@ class VitalsCalculatedService extends BaseService
                     'date_start' => $record['date_start'],
                     'date_end' => $record['date_end'],
                     'created_at' => $record['created_at'],
-                    'updated_at' => $record['updated_at'],
+                    'updated_at' => $record['last_updated'],
                     'created_by' => $record['created_by'],
                     'created_by_uuid' => UuidRegistry::uuidToString($record['created_by_uuid']),
                     'updated_by' => $record['updated_by'],
