@@ -216,20 +216,8 @@ class Header
         $foundAssets = [];
         $excludedCount = 0;
 
-        // Count exclusion tokens (assets starting with "no_") where the corresponding asset exists in map
-        foreach ($selectedAssets as $selectedAsset) {
-            $selectedAsset = (string) $selectedAsset;
-            if (str_starts_with($selectedAsset, 'no_')) {
-                $assetName = substr($selectedAsset, 3); // Remove "no_" prefix
-                if (array_key_exists($assetName, $map)) {
-                    $excludedCount++;
-                }
-            }
-        }
-
         foreach ($map as $k => $opts) {
             $autoload = $opts['autoload'] ?? false;
-            $allowNoLoad = $opts['allowNoLoad'] ?? false;
             $alreadyBuilt = $opts['alreadyBuilt'] ?? false;
             $loadInFile = $opts['loadInFile'] ?? false;
             $rtl = $opts['rtl'] ?? false;
@@ -237,6 +225,7 @@ class Header
             if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
                 // Skip loading if exclusion token (no_<asset>) is present in selectedAssets
                 if (in_array("no_" . $k, $selectedAssets)) {
+                    $excludedCount++;
                     continue;
                 }
                 $foundAssets[] = $k;
@@ -251,7 +240,7 @@ class Header
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
                     $t = '';
-                } else if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
+                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
                   // Do not display compact theme if it is turned off
                 } else {
                     foreach ($tmp['links'] as $l) {
@@ -278,7 +267,8 @@ class Header
         if (($thisCnt = count(array_diff($selectedAssets, $foundAssets))) > 0) {
             if ($thisCnt !== $excludedCount) {
                 (new SystemLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
-            }}
+            }
+        }
     }
 
     /**
@@ -312,7 +302,7 @@ class Header
             foreach ($script as $k) {
                 if (is_string($k)) {
                     $k = ['src' => $k, 'type' => 'text/javascript'];
-                } else if (empty($k['src'])) {
+                } elseif (empty($k['src'])) {
                     throw new \InvalidArgumentException("Script must be of type string or object with src property");
                 }
                 $k['src'] = self::parsePlaceholders($k['src']);
