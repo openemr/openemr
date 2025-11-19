@@ -134,7 +134,6 @@ $USER_SPECIFIC_GLOBALS = ['default_top_pane',
     'css_header',
     'enable_compact_mode',
     'vertical_responsive_menu',
-    'menu_styling_vertical',
     'search_any_patient',
     'default_encounter_view',
     'gbl_pt_list_page_size',
@@ -217,16 +216,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Changes the current theme to be more compact.')
-        ],
-
-        'menu_styling_vertical' => [
-            xl('Vertical Menu Style for Frames'),
-            [
-                '0' => xl('Tree'),
-                '1' => xl('Sliding'),
-            ],
-            '1',
-            xl('Vertical Menu Style for frame based layouts')
         ],
 
         'search_any_patient' => [
