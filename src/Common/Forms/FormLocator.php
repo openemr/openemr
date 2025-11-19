@@ -55,7 +55,7 @@ class FormLocator
 
     private function locateFile(string $formDir, string $fileName, string $page): string
     {
-        $isLBF = str_starts_with($formDir, 'LBF');
+        $isLBF = str_starts_with($formDir, 'LBF') || str_starts_with($formDir, 'LBT');
         $basePath = $isLBF ? "/interface/forms/LBF/" : "/interface/forms/{$formDir}/";
         $initialPath = $this->fileRoot . $basePath;
         $initialFilename = $initialPath . $fileName;
