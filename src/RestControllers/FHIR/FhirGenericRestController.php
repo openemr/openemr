@@ -13,6 +13,7 @@ namespace OpenEMR\RestControllers\FHIR;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
@@ -31,9 +32,19 @@ class FhirGenericRestController implements IGlobalsAware {
 
     private array $aclChecks = [];
 
+    private ResourceConstraintFilterer $resourcePolicyEnforcementDecisionChecker;
+
     public function __construct(protected HttpRestRequest $request, protected FhirServiceBase $fhirService, OEGlobalsBag $globalsBag)
     {
         $this->setGlobalsBag($globalsBag);
+    }
+
+    public function getResourcePolicyEnforcementDecisionChecker(): ResourceConstraintFilterer {
+        // TODO: eventually we could inject the ACLs here and do more advanced checking on a per-resource basis
+        if (!isset($this->resourcePolicyEnforcementDecisionChecker)) {
+            $this->resourcePolicyEnforcementDecisionChecker = new ResourceConstraintFilterer();
+        }
+        return $this->resourcePolicyEnforcementDecisionChecker;
     }
 
     public function addAclRestrictions(string $section, string $subSection = '', string $aclPermission = '') : void {
@@ -88,7 +99,18 @@ class FhirGenericRestController implements IGlobalsAware {
             }
             $puuidBind = null;
         }
-        return $this->getFhirService()->getAll($searchParams, $puuidBind);
+        $filteredProcessingResult = new ProcessingResult();
+        $searchResult = $this->getFhirService()->getAll($searchParams, $puuidBind);
+        if ($searchResult->isValid() && $searchResult->hasData()) {
+            foreach ($searchResult->getData() as $resource) {
+                if ($this->canAccessResource($resource)) {
+                    $filteredProcessingResult->addData($resource);
+                }
+            }
+        } else {
+            $filteredProcessingResult = $searchResult;
+        }
+        return $filteredProcessingResult;
     }
 
     /**
@@ -119,5 +141,9 @@ class FhirGenericRestController implements IGlobalsAware {
         $bundleSearchResult = $this->getFhirResourcesService()->createBundle($resourceName, $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
+    }
+
+    public function canAccessResource(FHIRDomainResource $resource): bool {
+        return $this->getResourcePolicyEnforcementDecisionChecker()->canAccessResource($resource, $this->getHttpRestRequest());
     }
 }

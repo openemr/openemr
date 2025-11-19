@@ -23,7 +23,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\FHIR\SMART\RequestConstraintFilterer;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
@@ -204,9 +203,7 @@ class AuthorizationListener implements EventSubscriberInterface
      */
     private function updateRequestWithConstraints(HttpRestRequest $request, ScopeEntity $endpointScope): void
     {
-        $constraintFilterer = new RequestConstraintFilterer();
-        $constraintFilterer->setSystemLogger($this->getLogger());
-        $constraintFilterer->updateRequestWithConstraints($request, $endpointScope);
+        $request->setRequestRequiredScope($endpointScope);
     }
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void
