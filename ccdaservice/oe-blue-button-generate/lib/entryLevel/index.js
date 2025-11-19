@@ -56,7 +56,7 @@ exports.disabilityStatusObservation = functionalStatusEntryLevel.disabilityStatu
 exports.resultOrganizer = resultEntryLevel.resultOrganizer;
 exports.careTeamOrganizer = careTeamEntryLevel.careTeamOrganizer;
 
-exports.advanceDirectiveOrganizer = advanceDirectivesEntryLevel.advanceDirectiveOrganizer;
+exports.advanceDirectiveObservation = advanceDirectivesEntryLevel.advanceDirectiveObservation;
 
 exports.socialHistoryObservation = socialHistoryEntryLevel.socialHistoryObservation;
 exports.smokingStatusObservation = socialHistoryEntryLevel.smokingStatusObservation;
@@ -66,5 +66,8 @@ exports.tribalAffiliationObservation = socialHistoryEntryLevel.tribalAffiliation
 exports.pregnancyStatusObservation = socialHistoryEntryLevel.pregnancyStatusObservation;
 exports.hungerVitalSignsObservation = socialHistoryEntryLevel.hungerVitalSignsObservation;
 exports.disabilityAssessmentObservation = socialHistoryEntryLevel.disabilityAssessmentObservation;
+exports.sexualOrientationObservation = socialHistoryEntryLevel.sexualOrientationObservation;
+exports.genderIdentityObservation = socialHistoryEntryLevel.genderIdentityObservation;
+exports.sexObservation = socialHistoryEntryLevel.sexObservation;
 
 exports.medicalDeviceActivityProcedure = medicalDeviceEntryLevel.medicalDeviceActivityProcedure;

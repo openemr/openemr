@@ -627,13 +627,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     <email>" . xmlEscape($rp['email']) . "</email>
 </participant>";
             $index++;
-            // Optional: Limit to first 3 related persons for compatibility
-            if ($index > 3) {
+            if ($index > 5) {
                 break;
             }
         }
-
-        $related_persons_xml .= "</related_persons>";
+        $related_persons_xml .= "</related_persons>"; // Close related person xml
         // --- Previous names ---
         $names = $this->getPreviousNames($pid);
         $previous_names = "<previous_names>";
@@ -705,6 +703,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <dob>" . xmlEscape(str_replace('-', '', $result['DOB'])) . "</dob>
             <gender>" . xmlEscape($result['sex']) . "</gender>
             <gender_code>" . xmlEscape(strtoupper(substr((string)$result['sex'], 0, 1))) . "</gender_code>
+            <sex_observation>" . xmlEscape($result['sex_identified']) . "</sex_observation>
             <status>" . xmlEscape($result['status'] ?: "") . "</status>
             <status_code>" . xmlEscape($result['status'] ? strtoupper(substr((string)$result['status'], 0, 1)) : 0) . "</status_code>
             <phone_home>" . xmlEscape(($result['phone_home'] ?: '')) . "</phone_home>
@@ -814,6 +813,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <code_system>" . xmlEscape($observation['code_system']) . "</code_system>
                 <display>" . xmlEscape($observation['code_display']) . "</display>
                 <value_code>" . xmlEscape($observation['value_code']) . "</value_code>
+                <value_code_system>" . xmlEscape($observation['value_system']) . "</value_code_system>
                 <value_display>" . xmlEscape($observation['value_display']) . "</value_display>
                 <effective_date>" . xmlEscape($observation['effective_date']) . "</effective_date>
             </observation>";
@@ -1433,16 +1433,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (!empty($teamData['members']) && is_array($teamData['members'])) {
                 $careTeamMembers = $teamData['members'];
             }
-            if (!empty($teamData['status'])) {
-                $careTeamStatus = (string)$teamData['status'];
+            if (!empty($teamData['team_status'])) {
+                $careTeamStatus = (string)$teamData['team_status'];
             }
         } catch (\Throwable) {
             // If service fails, we gracefully fall back to empty team (primary provider fallback below still works)
             // You may want to log $e->getMessage() via OpenEMR Logger here.
         }
 
-        $team_count = count($careTeamMembers);
-
+        $team_count = $teamData['member_count'] ?? 0;
+        if (empty($team_count)) {
+            $careTeamStatus = 'inactive';
+        }
         // Primary Care Provider fallback (unchanged)
         $primary_care_provider = '';
         if (!empty($details) && $team_count === 0) {
@@ -3126,14 +3128,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             'toxic_exposure' => '425400000'
         ];
         $arr_status = [
-            'currenttobacco' => 'Current',
-            'quittobacco' => 'Quit',
-            'nevertobacco' => 'Never',
+            'currenttobacco' => 'Current every day smoker',
+            'quittobacco' => 'Former smoker',
+            'nevertobacco' => 'Never smoker',
             'currentalcohol' => 'Current',
             'quitalcohol' => 'Quit',
             'neveralcohol' => 'Never'
         ];
-
+        $arr_code = [
+            'currenttobacco' => '449868002',
+            'quittobacco' => '8517006',
+            'nevertobacco' => '266919005',
+        ];
         $snomeds_status = [
             'currenttobacco' => 'completed',
             'quittobacco' => 'completed',
@@ -3180,12 +3186,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <extension>" . xmlEscape(base64_encode('smoking' . $_SESSION['site_id'] . $row['id'])) . "</extension>
                                   <sha_extension>" . xmlEscape("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1") . "</sha_extension>
                                   <element>" . xmlEscape('Smoking') . "</element>
-                                  <description>" . xmlEscape((new CarecoordinationTable())->getListTitle($tobacco[3] ?? '', 'smoking_status')) . "</description>
+                                  <description>" . xmlEscape(($arr_status[$tobacco[1]] ?: '')) . "</description>
                                   <status_code>" . xmlEscape(($status_code ?: '')) . "</status_code>
                                   <status>" . xmlEscape((($snomeds_status[$tobacco[1] ?? ''] ?? '') ? $snomeds_status[$tobacco[1]] : "")) . "</status>
                                   <date>" . (($tobacco[2] ?? '') ? xmlEscape($this->date_format($tobacco[2])) : '') . "</date>
                                   <date_formatted>" . (($tobacco[2] ?? '') ? xmlEscape(preg_replace('/-/', '', $tobacco[2])) : '') . "</date_formatted>
-                                  <code>" . xmlEscape(($arr['smoking'] ?: '')) . "</code>
+                                  <code>" . xmlEscape(($arr_code[$tobacco[1]] ?: '')) . "</code>
                             </history_element>";
             $alcohol = explode('|', $row['alcohol'] ?? '');
             $social_history .= "<history_element>" . $provenanceXml . "
