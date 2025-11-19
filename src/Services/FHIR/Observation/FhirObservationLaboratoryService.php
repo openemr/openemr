@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -199,6 +200,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         $result['result_abnormal'] = $result['abnormal'] ?? null;
                         $result['result_abnormal_title'] ??= null;
                         $result['result_abnormal_codes'] ??= null;
+                        $result['provider'] = $record['provider'] ?? null;
                         $result['encounter'] = $record['encounter'] ?? null;
 
                         $processingResult->addData($result);
@@ -245,6 +247,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $obsCategoryCoding = new FhirCoding();
         $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
         $obsCategoryCoding->setCode(self::CATEGORY);
+        $obsCategoryCoding->setDisplay("Laboratory");
         $obsConcept->addCoding($obsCategoryCoding);
         $observation->addCategory($obsConcept);
 
@@ -326,7 +329,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         // Interpretation (USCDI v5)
         if (!empty($dataRecord['result_abnormal'])) {
-            // we will popualte the text if we don't have a mapped code
+            // we will populate the text if we don't have a mapped code
             if (empty($dataRecord['result_abnormal_codes'])) {
                 $interpretation = new FHIRCodeableConcept();
                 $interpretation->setText($dataRecord['result_abnormal_title'] ?? $dataRecord['result_abnormal'] ?? 'Indeterminate');

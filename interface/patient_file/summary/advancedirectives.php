@@ -159,8 +159,8 @@ use OpenEMR\Services\UserService;
         <!-- API will not be able to provide the legal attestation for which user that reviewed this information without a valid medical license number (NPI) -->
         <div class="row mt-2">
             <div class="col-12 alert-danger">
-                <p><?php echo xlt("No medical license number is setup for your account."); ?></p>
-                <p><?php echo xlt("The system will not be able to provide legal attestation that you have reviewed this information without a valid medical license number."); ?></p>
+                <p><?php echo xlt("No national provider number is setup for your account."); ?></p>
+                <p><?php echo xlt("The system will not be able to provide legal attestation that you have reviewed this information without a valid national provider number."); ?></p>
             </div>
         </div>
         <?php endif; ?>

@@ -48,6 +48,7 @@
     "getPatientFullNameAsString",
     "getRegistryEntryByDirectory",
     "getSqlLastError",
+    "getSmokeCodes",
     "getUserSetting",
     "get_db",
     "get_patient_balance",

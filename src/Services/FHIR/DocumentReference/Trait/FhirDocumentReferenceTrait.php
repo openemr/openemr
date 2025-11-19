@@ -69,7 +69,8 @@ trait FhirDocumentReferenceTrait {
     public function populateIdentifiers(FHIRDocumentReference $docReference, array $dataRecord)
     {
         $identifier = new FHIRIdentifier();
-        $identifier->setValue(new FHIRString($dataRecord['uuid']));
+        // follow the URN syntas with a Namespace Identifier of UUID
+        $identifier->setValue(new FHIRString('urn:uuid:' . $dataRecord['uuid']));
         // using RFC 3986 URN as the system for the document reference identifier since we have no
         // other business identifier and these are globally unique
         $identifier->setSystem(FhirCodeSystemConstants::RFC_3986);
@@ -107,23 +108,39 @@ trait FhirDocumentReferenceTrait {
             $url = $this->getFhirApiURL() . '/fhir/Binary/' . $dataRecord['uuid'];
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
-            $attachment->setContentType($dataRecord['mimetype']);
+            if ($this->isValidFhirMimetype($dataRecord['mimetype'])) {
+                $attachment->setContentType($dataRecord['mimetype']);
+                // TODO: if we support tagging a specific document with a reference code we can put that here.
+                // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
+                $contentCoding = UtilsService::createCoding(
+                    "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+                    "mimeType Sufficient",
+                    FhirCodeSystemConstants::IHE_FORMATCODE_CODESYSTEM
+                );
+                $content->setFormat($contentCoding);
+            }
             $attachment->setUrl(new FHIRUrl($url));
             $attachment->setTitle($dataRecord['name'] ?? '');
             $content->setAttachment($attachment);
-            // TODO: if we support tagging a specific document with a reference code we can put that here.
-            // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
-            $contentCoding = UtilsService::createCoding(
-                "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-                "mimeType Sufficient",
-                FhirCodeSystemConstants::IHE_FORMATCODE_CODESYSTEM
-            );
-            $content->setFormat($contentCoding);
             $docReference->addContent($content);
         } else {
             // need to support data missing if its not there.
             $docReference->addContent(UtilsService::createDataMissingExtension());
         }
+    }
+
+    protected function isValidFhirMimetype(?string $mimetype): bool
+    {
+        // FHIR doesn't support some of our mime type settings such as our ExportJob ndjson mimetype
+        // so we exclude those, if there are others that the FHIR validator rejects we can add those as well
+        // it seems like their version has bugs they are working through that comes off and on
+        // since mimetype is a must-support and not a required we'll just skip invalid ones
+        // They say the issue is fixed but I continue to have validation errors on inferno with it
+        // here: https://github.com/onc-healthit/onc-certification-g10-test-kit/issues/524
+        $invalidMimetypes = [
+            'application/fhir+ndjson'
+        ];
+        return !in_array($mimetype, $invalidMimetypes);
     }
 
     public function populateSubject(FHIRDocumentReference $docReference, array $dataRecord): void

@@ -1006,8 +1006,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ]);
             $comp->setCode($codeableConcept);
 
-            // Set value
-            if (!empty($component['value'])) {
+            // Set value, if the value is 0 we will treat that as a data absent reason
+            $value = floatval($component['value'] ?? 0);
+            if ($value > 0) {
                 $quantity = new FHIRQuantity();
                 $quantity->setValue(floatval($component['value']));
                 $quantity->setUnit($component['value_unit']);
