@@ -1,4 +1,3 @@
-
 "use strict";
 
 var headerLevel = require('../headerLevel');
@@ -11,95 +10,143 @@ var required = contentModifier.required;
 var dataKey = contentModifier.dataKey;
 var key = contentModifier.key;
 
-exports.advanceDirectiveOrganizer = {
-    key: "organizer",
+// Individual Advance Directive Observation (V3) - used directly in entries
+exports.advanceDirectiveObservation = {
+    key: "observation",
     attributes: {
-        classCode: "CLUSTER",
+        classCode: "OBS",
         moodCode: "EVN"
     },
     content: [
-        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.222", "2016-11-01"),
-        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.222"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.48", "2015-08-01"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.48"),
         fieldLevel.id,
         {
             key: "code",
             attributes: {
-                code: "42348-3",
-                codeSystem: "2.16.840.1.113883.6.1",
-                codeSystemName: "LOINC",
-                displayName: "Advance directives"
-            }
+                code: leafLevel.inputProperty("observation_code"),
+                codeSystem: leafLevel.inputProperty("observation_code_system"),
+                codeSystemName: leafLevel.inputProperty("observation_code_system_name"),
+                displayName: leafLevel.inputProperty("observation_display")
+            },
+            content: [
+                {
+                    key: "translation",
+                    attributes: {
+                        code: "75320-2",
+                        codeSystem: "2.16.840.1.113883.6.1",
+                        codeSystemName: "LOINC",
+                        displayName: "Advance directive"
+                    }
+                }
+            ]
         },
         fieldLevel.statusCodeCompleted,
-        fieldLevel.effectiveTime,
+        {
+            key: "effectiveTime",
+            content: [
+                {
+                    key: "low",
+                    attributes: {
+                        value: leafLevel.inputProperty("effective_date")
+                    }
+                },
+                {
+                    key: "high",
+                    attributes: {
+                        nullFlavor: "NA"
+                    }
+                }
+            ]
+        },
+        {
+            key: "value",
+            attributes: {
+                "xsi:type": "CD",
+                code: leafLevel.inputProperty("observation_value_code"),
+                codeSystem: leafLevel.inputProperty("observation_value_code_system"),
+                codeSystemName: leafLevel.inputProperty("observation_value_code_system_name"),
+                displayName: leafLevel.inputProperty("observation_value_display")
+            }
+        },
         fieldLevel.author,
         {
-            key: "component",
-            dataKey: "directives", // Move this here
+            key: "participant",
+            attributes: {
+                typeCode: "CST"
+            },
             content: {
-                key: "observation",
+                key: "participantRole",
                 attributes: {
-                    classCode: "OBS",
-                    moodCode: "EVN"
+                    classCode: "AGNT"
                 },
                 content: [
-                    fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.48", "2015-08-01"),
-                    fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.48"),
-                    fieldLevel.id,
                     {
-                        key: "code",
+                        key: "addr",
                         attributes: {
-                            code: leafLevel.inputProperty("observation_code"),
-                            codeSystem: leafLevel.inputProperty("observation_code_system"),
-                            codeSystemName: "LOINC",
-                            displayName: leafLevel.inputProperty("observation_display")
-                        }
-                    },
-                    fieldLevel.statusCodeCompleted,
-                    {
-                        key: "effectiveTime",
-                        attributes: {
-                            value: leafLevel.inputProperty("effective_date")
+                            nullFlavor: "UNK"
                         }
                     },
                     {
-                        key: "value",
+                        key: "telecom",
                         attributes: {
-                            "xsi:type": "CD",
-                            code: leafLevel.inputProperty("observation_value_code"),
-                            codeSystem: "2.16.840.1.113883.6.1",
-                            codeSystemName: "LOINC",
-                            displayName: leafLevel.inputProperty("observation_value_display")
+                            nullFlavor: "UNK"
                         }
                     },
                     {
-                        key: "reference",
+                        key: "playingEntity",
                         attributes: {
-                            typeCode: "REFR"
+                            classCode: "PSN"
                         },
                         content: {
-                            key: "externalDocument",
+                            key: "name",
                             attributes: {
-                                classCode: "DOC",
-                                moodCode: "EVN"
-                            },
-                            content: [
-                                {
-                                    key: "id",
-                                    attributes: {
-                                        root: leafLevel.inputProperty("document_reference")
-                                    }
-                                },
-                                {
-                                    key: "text",
-                                    text: leafLevel.inputProperty("location")
-                                }
-                            ]
-                        },
-                        existsWhen: condition.keyExists("document_reference")
+                                nullFlavor: "UNK"
+                            }
+                        }
                     }
                 ]
             }
+        },
+        {
+            key: "reference",
+            attributes: {
+                typeCode: "REFR"
+            },
+            content: {
+                key: "externalDocument",
+                attributes: {
+                    classCode: "DOC",
+                    moodCode: "EVN"
+                },
+                content: [
+                    {
+                        key: "id",
+                        attributes: {
+                            root: leafLevel.inputProperty("document_reference")
+                        }
+                    },
+                    {
+                        key: "code",
+                        attributes: {
+                            nullFlavor: "UNK"
+                        }
+                    },
+                    {
+                        key: "text",
+                        attributes: {
+                            mediaType: "text/plain"
+                        },
+                        content: {
+                            key: "reference",
+                            attributes: {
+                                value: leafLevel.inputProperty("location")
+                            }
+                        }
+                    }
+                ]
+            },
+            existsWhen: condition.keyExists("document_reference")
         }
     ]
 };

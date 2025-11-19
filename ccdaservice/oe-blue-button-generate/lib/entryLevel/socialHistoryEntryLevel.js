@@ -95,7 +95,7 @@ exports.genderStatusObservation = {
             ],
             required: true,
             dataKey: "gender"
-        } , //[fieldLevel.author, contentModifier.dataKey("gender_author")]
+        }, //[fieldLevel.author, contentModifier.dataKey("gender_author")]
     ],
     existsWhen: function (input) {
         return input && input.gender;
@@ -302,7 +302,7 @@ exports.hungerVitalSignsObservation = {
                             ]
                         }],
                         dataKey: "question1",
-                        existsWhen: function(input) {
+                        existsWhen: function (input) {
                             return input && input.answer_code;
                         }
                     },
@@ -350,7 +350,7 @@ exports.hungerVitalSignsObservation = {
                             ]
                         }],
                         dataKey: "question2",
-                        existsWhen: function(input) {
+                        existsWhen: function (input) {
                             return input && input.answer_code;
                         }
                     }
@@ -359,7 +359,7 @@ exports.hungerVitalSignsObservation = {
             dataKey: "hunger_vital_signs"
         }
     ],
-    existsWhen: function(input) {
+    existsWhen: function (input) {
         return input && input.hunger_vital_signs &&
             (input.hunger_vital_signs.question1 || input.hunger_vital_signs.question2);
     }
@@ -395,7 +395,7 @@ exports.disabilityAssessmentObservation = {
                 codeSystem: "2.16.840.1.113883.6.1"
             },
             dataKey: "disability_status",
-            existsWhen: function(input) {
+            existsWhen: function (input) {
                 return input && input.answer_code;
             }
         },
@@ -439,7 +439,7 @@ exports.disabilityAssessmentObservation = {
             multiple: true
         }
     ],
-    existsWhen: function(input) {
+    existsWhen: function (input) {
         return input && (input.disability_status ||
             (input.disability_questions && input.disability_questions.length > 0));
     }
@@ -477,7 +477,7 @@ exports.occupationObservation = {
                 attributes: {
                     value: leafLevel.inputProperty("end_date")
                 },
-                existsWhen: function(input) {
+                existsWhen: function (input) {
                     return input && input.end_date;
                 }
             }]
@@ -530,7 +530,7 @@ exports.occupationObservation = {
                             attributes: {
                                 value: leafLevel.inputProperty("industry_end_date")
                             },
-                            existsWhen: function(input) {
+                            existsWhen: function (input) {
                                 return input && input.industry_end_date;
                             }
                         }]
@@ -552,3 +552,266 @@ exports.occupationObservation = {
     ],
     dataKey: "occupation",
 };
+
+exports.sexualOrientationObservation = {
+    key: "observation",
+    attributes: {
+        classCode: "OBS",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.38"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.501", "2022-06-01"),
+        fieldLevel.uniqueIdRoot,
+        {
+            key: "code",
+            attributes: {
+                code: "76690-7",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "Sexual Orientation"
+            }
+        },
+        fieldLevel.statusCodeCompleted,
+        {
+            key: "effectiveTime",
+            attributes: {
+                nullFlavor: "NI"
+            }
+        },
+        {
+            key: "value",
+            attributes: function (input) {
+                const attrs = {
+                    "xsi:type": "CD"
+                };
+                // If we have actual data, include it; otherwise use nullFlavor
+                if (input && input.code) {
+                    attrs.code = input.code;
+                    attrs.displayName = input.display;
+                    attrs.codeSystem = input.code_system || "2.16.840.1.113883.6.1";
+                    attrs.codeSystemName = input.code_system_name || "LOINC";
+                } else {
+                    attrs.nullFlavor = "UNK";
+                }
+                return attrs;
+            },
+            dataKey: "sexual_orientation"
+        }
+    ],
+    existsWhen: function (input) {
+        // Always include this observation if the social_history section exists
+        return true;
+    }
+};
+
+exports.genderIdentityObservation = {
+    key: "observation",
+    attributes: {
+        classCode: "OBS",
+        moodCode: "EVN"
+    },
+    content: [
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.38"),
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.34.3.45", "2022-06-01"),
+        fieldLevel.uniqueIdRoot,
+        {
+            key: "code",
+            attributes: {
+                code: "76691-5",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "Gender Identity"
+            }
+        },
+        fieldLevel.statusCodeCompleted,
+        {
+            key: "effectiveTime",
+            attributes: {
+                nullFlavor: "NI"
+            }
+        },
+        {
+            key: "value",
+            attributes: function (input) {
+                const attrs = {
+                    "xsi:type": "CD"
+                };
+                // If we have actual data, include it; otherwise use nullFlavor
+                if (input && input.code) {
+                    attrs.code = input.code;
+                    attrs.displayName = input.display;
+                    attrs.codeSystem = input.code_system || "2.16.840.1.113883.6.1";
+                    attrs.codeSystemName = input.code_system_name || "LOINC";
+                } else {
+                    attrs.nullFlavor = "ASKU";
+                }
+                return attrs;
+            },
+            dataKey: "gender_identity"
+        }
+    ],
+    existsWhen: function (input) {
+        // Always include this observation if the social_history section exists
+        return true;
+    }
+};
+
+function resolveAdministrativeSexFromOptionId(optionIdRaw) {
+    if (!optionIdRaw) return null;
+    const optionId = String(optionIdRaw).trim().toLowerCase();
+
+    switch (optionId) {
+        case 'male':
+            return {code: '248153007', system: '2.16.840.1.113883.6.96', display: 'Male'}; // SNOMED
+        case 'female':
+            return {code: '248152002', system: '2.16.840.1.113883.6.96', display: 'Female'}; // SNOMED
+        case 'nonbinary':
+            return {code: '33791000087105', system: '2.16.840.1.113883.6.96', display: 'Identifies as nonbinary gender (finding)'}; // SNOMED
+        case 'asked-declined':
+            return { code: 'asked-declined', system: '2.16.840.1.113883.4.642.4.1048', display: 'Asked But Declined' };
+        case 'unk':
+        case 'unknown':
+            return { code: 'unknown', system: '2.16.840.1.113883.4.642.4.1048', display: 'Unknown' };
+        default:
+            return null;
+    }
+}
+
+function parseCodeSpec(spec) {
+    if (!spec || typeof spec !== 'string') return null;
+    const [sys, code] = spec.split(':').map(s => (s || '').trim());
+    if (!sys || !code) return null;
+    const SYSTEMS = {
+        'SNOMED-CT': '2.16.840.1.113883.6.96',
+        'SNOMED': '2.16.840.1.113883.6.96',
+        'DataAbsentReason': '2.16.840.1.113883.4.642.4.1048'
+    };
+    return {systemUri: SYSTEMS[sys] || sys, code};
+}
+
+function displayForSexCode(systemUri, code) {
+    if (systemUri === '2.16.840.1.113883.6.96') {
+        if (code === '248153007') return 'Male';
+        if (code === '248152002') return 'Female';
+        if (code === '33791000087105') return 'Identifies as nonbinary gender (finding)';
+    }
+    return '';
+}
+
+exports.sexObservation = {
+    key: "observation",
+    attributes: {classCode: "OBS", moodCode: "EVN"},
+    content: [
+        fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.4.507", "2023-06-28"),
+        fieldLevel.templateId("2.16.840.1.113883.10.20.22.4.507"),
+        fieldLevel.uniqueIdRoot,
+        {
+            key: "code",
+            attributes: {
+                code: "46098-0",
+                codeSystem: "2.16.840.1.113883.6.1",
+                codeSystemName: "LOINC",
+                displayName: "Sex"
+            }
+        },
+        fieldLevel.statusCodeCompleted,
+        {
+            key: "effectiveTime",
+            attributes: {
+                nullFlavor: "NI"
+            }
+        }, {
+            key: "value",
+            attributes: function (input) {
+                const so = (input && input.sex_observation) || {};
+                const attrs = {"xsi:type": "CD"};
+
+                const optionId = so.gender;
+                const resolved = resolveAdministrativeSexFromOptionId(optionId);
+                if (resolved) {
+                    attrs.code = resolved.code;
+                    attrs.codeSystem = resolved.system;
+                    if (resolved.display) attrs.displayName = resolved.display;
+                    return attrs;
+                }
+
+                const fromSpec = parseCodeSpec(so.code_spec);
+                if (fromSpec) {
+                    attrs.code = fromSpec.code;
+                    attrs.codeSystem = fromSpec.systemUri;
+                    attrs.displayName =
+                        displayForSexCode(fromSpec.systemUri, fromSpec.code) ||
+                        (fromSpec.systemUri === "2.16.840.1.113883.4.642.4.1048"
+                            ? (fromSpec.code === "asked-declined" ? "Asked But Declined"
+                                : fromSpec.code === "unknown" ? "Unknown" : undefined)
+                            : undefined);
+                    return attrs;
+                }
+
+                if (so.code && (so.code_system || so.codeSystem)) {
+                    const sys = so.code_system || so.codeSystem;
+                    attrs.code = String(so.code);
+                    attrs.codeSystem = String(sys);
+                    attrs.displayName =
+                        so.display || displayForSexCode(sys, so.code) ||
+                        (sys === "2.16.840.1.113883.4.642.4.1048"
+                            ? (so.code === "asked-declined" ? "Asked But Declined"
+                                : so.code === "unknown" ? "Unknown" : undefined)
+                            : undefined);
+                    return attrs;
+                }
+
+                const g = (input && input.gender) ? String(input.gender).toLowerCase() : null;
+                if (g === 'm' || g === 'male') {
+                    attrs.code = '248153007';
+                    attrs.codeSystem = '2.16.840.1.113883.6.96';
+                    attrs.displayName = 'Male';
+                    return attrs;
+                }
+                if (g === 'f' || g === 'female') {
+                    attrs.code = '248152002';
+                    attrs.codeSystem = '2.16.840.1.113883.6.96';
+                    attrs.displayName = 'Female';
+                    return attrs;
+                }
+                if (g === 'nonbinary') {
+                    attrs.code = '33791000087105';
+                    attrs.codeSystem = '2.16.840.1.113883.6.96';
+                    attrs.displayName = 'Identifies as nonbinary gender (finding)';
+                    return attrs;
+                }
+                if (g === 'asked-declined') {
+                    attrs.code = 'asked-declined';
+                    attrs.codeSystem = '2.16.840.1.113883.4.642.4.1048';
+                    attrs.displayName = 'Asked But Declined';
+                    return attrs;
+                }
+                if (g === 'unk' || g === 'unknown') {
+                    attrs.code = 'unknown';
+                    attrs.codeSystem = '2.16.840.1.113883.4.642.4.1048';
+                    attrs.displayName = 'Unknown';
+                    return attrs;
+                }
+
+                // 4) Last resort
+                attrs.code = 'unknown';
+                attrs.codeSystem = '2.16.840.1.113883.4.642.4.1048';
+                attrs.displayName = 'Unknown';
+                return attrs;
+            },
+            dataKey: "sex_observation"
+        }
+    ],
+    existsWhen: function (input) {
+        // Emit when we have an option_id, a code, a code_spec, or gender
+        const so = input && input.sex_observation;
+        return !!(
+            (typeof so === 'string' && so) ||
+            (so && (so.gender || so.code_spec || so.code)) ||
+            (input && input.gender)
+        );
+    }
+};
+
+
