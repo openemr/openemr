@@ -34,13 +34,13 @@ class SmokingStatusType implements IOptionFormType {
         $field_id    = $frow['field_id'];
         $list_id     = $frow['list_id'] ?? null;
 
-        list($smokingQuantity, $resnote, $restype, $resdate, $reslist) = $this->getSmokingData($currvalue);
+        [$smokingQuantity, $resnote, $restype, $resdate, $reslist] = $this->getSmokingData($currvalue);
 
         $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
         $printView .= "<table class='table'>";
         $printView .= "<tr>";
         $fldlength = htmlspecialchars((string) $fldlength, ENT_QUOTES);
-        $resnote = htmlspecialchars($resnote, ENT_QUOTES);
+        $resnote = htmlspecialchars((string) $resnote, ENT_QUOTES);
         $resdate = htmlspecialchars((string) $resdate, ENT_QUOTES);
 
         $printView .= "<tr><td><input type='text'" .
@@ -101,7 +101,7 @@ class SmokingStatusType implements IOptionFormType {
         $list_id     = $frow['list_id'] ?? null;
         $s = '';
         // VicarePlus :: A selection list for smoking status.
-        list($smokingQuantity, $resnote, $restype, $resdate, $reslist) = $this->getSmokingData($currvalue);
+        [$smokingQuantity, $resnote, $restype, $resdate, $reslist] = $this->getSmokingData($currvalue);
         if ($restype == "current" . $field_id) {
             $res = xl('Current');
         }
@@ -156,7 +156,7 @@ class SmokingStatusType implements IOptionFormType {
         $s = '';
         // and a date text field:
         // VicarePlus :: A selection list for smoking status.
-        list($smokingQuantity, $resnote, $restype, $resdate, $reslist) = $this->getSmokingData($currvalue);
+        [$smokingQuantity, $resnote, $restype, $resdate, $reslist] = $this->getSmokingData($currvalue);
 
         $s .= "<table class='table'>";
 
@@ -183,6 +183,7 @@ class SmokingStatusType implements IOptionFormType {
        //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
         // changes on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
         $smoke_codes = getSmokeCodes();
+        $code_desc = '';
         if (!empty($reslist)) {
             if ($smoke_codes[$reslist] != "") {
                 $code_desc = "( " . $smoke_codes[$reslist] . " )";
@@ -192,7 +193,7 @@ class SmokingStatusType implements IOptionFormType {
         }
 
         if (!empty($resnote)) {
-            $s .= "<td class='text align-top'>" . htmlspecialchars($resnote, ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
+            $s .= "<td class='text align-top'>" . htmlspecialchars((string) $resnote, ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
         }
         if (!empty($res)) {
             $s .= "<td class='text align-top'><strong>" . htmlspecialchars((string) xl('Status'), ENT_NOQUOTES) . "</strong>:&nbsp;" . htmlspecialchars((string) $res, ENT_NOQUOTES) . "&nbsp;</td>";
@@ -261,7 +262,7 @@ class SmokingStatusType implements IOptionFormType {
         // VicarePlus :: A selection list box for smoking status:
 
         // TODO: this whole thing needs to be rewritten as a proper data structure
-        list($smokingQuantity, $resnote, $restype, $resdate, $reslist) = $this->getSmokingData($currvalue);
+        [$smokingQuantity, $resnote, $restype, $resdate, $reslist] = $this->getSmokingData($currvalue);
 
         $maxlength = $frow['max_length'];
         $string_maxlength = "";
@@ -273,7 +274,7 @@ class SmokingStatusType implements IOptionFormType {
         $fldlength = empty($frow['fld_length']) ? 20 : $frow['fld_length'];
 
         $fldlength = htmlspecialchars((string)$fldlength, ENT_QUOTES);
-        $resnote = htmlspecialchars($resnote, ENT_QUOTES);
+        $resnote = htmlspecialchars((string) $resnote, ENT_QUOTES);
         $resdate = htmlspecialchars((string)$resdate, ENT_QUOTES);
         $formView .= "<table class='table'>";
         $formView .= "<tr>";
@@ -439,7 +440,7 @@ class SmokingStatusType implements IOptionFormType {
         $resdate = !empty($tmp[2]) ? oeFormatShortDate($tmp[2]) : '';
         $reslist = $tmp[self::COLUMN_TOBACCO_INDEX_SMOKING_STATUS] ?? '';
         $smokingQuantity = intval($tmp[self::COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT] ?? 0);
-        return array($smokingQuantity, $resnote, $restype, $resdate, $reslist);
+        return [$smokingQuantity, $resnote, $restype, $resdate, $reslist];
     }
 
 }
