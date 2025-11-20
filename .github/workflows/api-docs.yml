@@ -1,0 +1,65 @@
+name: API Docs Freshness Checks
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php-version: ['8.2']
+    name: API Docs Freshness Check
+    steps:
+    - name: "Checkout Code"
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: "Setup PHP"
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+
+    - name: "Get composer cache directory"
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: "Composer Cache"
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
+
+    - name: "Composer Install"
+      run: composer install --prefer-dist --no-progress
+
+    - name: "Refresh API Documentation"
+      run: php bin/console openemr:create-api-documentation --skip-globals
+
+    # If after docs regeneration there are any diff - that means docs are not in sync with new API code changes
+    - name: "Check Docs Freshness"
+      run: |
+        if git diff --quiet; then
+          echo '✅ The API documentation is in sync with the code'
+          echo '# ✅ The API documentation is in sync with the code' >> $GITHUB_STEP_SUMMARY
+          echo '`openemr-api.yaml` is in sync with your changes' >> $GITHUB_STEP_SUMMARY
+          exit 0
+        fi
+        echo '⚠️ The API documentation is not in sync with the code — see the Job Summary for next steps.'
+        echo '# ⚠️ The API documentation is not in sync with the code' >> $GITHUB_STEP_SUMMARY
+        echo 'Looks like `openemr-api.yaml` is not in sync with your changes.' >> $GITHUB_STEP_SUMMARY
+        echo 'Please, run:' >> $GITHUB_STEP_SUMMARY
+        echo '`php bin/console openemr:create-api-documentation --skip-globals`' >> $GITHUB_STEP_SUMMARY
+        echo 'and push updated `openemr-api.yaml` file into your PR' >> $GITHUB_STEP_SUMMARY
+        exit 1
