@@ -20,6 +20,7 @@ use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -35,6 +36,7 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
 {
     use FhirServiceBaseEmptyTrait;
     use VersionedProfileTrait;
+    use FhirObservationTrait;
 
     private const PROFILE = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-care-experience-preference';
     private const CATEGORY_SYSTEM = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
@@ -165,6 +167,7 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
             'pid' => (int)$r['patient_id'],
             'puuid' => !empty($r['patient_uuid']) ? UuidRegistry::uuidToString($r['patient_uuid']) : null,
             'date' => $r['effective_datetime'] ?? null,
+            'last_updated_time' => $r['effective_datetime'] ?? null,
             'status' => $r['status'] ?: self::DEFAULT_STATUS,
             'category' => self::CATEGORY_CODE,
             'code' => $r['observation_code'], // Use actual code from database
@@ -221,13 +224,9 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
 
         $obs = new FHIRObservation();
 
-        // Meta with profile - Don't wrap in array, addProfile expects a FHIRUri
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $profileUri = new FHIRUri();
-        $profileUri->setValue(self::PROFILE);
-        $meta->addProfile($profileUri);
-        $obs->setMeta($meta);
+
+        $dataRecord['profiles'] = [self::PROFILE];
+        $this->setObservationMeta($obs, $dataRecord);
 
         // Resource ID
         if (!empty($dataRecord['uuid'])) {
@@ -260,12 +259,12 @@ class FhirObservationCareExperiencePreferenceService extends FhirServiceBase imp
         $obs->setStatus($dataRecord['status'] ?: self::DEFAULT_STATUS);
 
         // Category
-        $catCoding = new FHIRCoding();
-        $catCoding->setSystem(self::CATEGORY_SYSTEM);
-        $catCoding->setCode(self::CATEGORY_CODE);
-        $cat = new FHIRCodeableConcept();
-        $cat->addCoding($catCoding);
-        $obs->addCategory($cat);
+        $obs->addCategory(UtilsService::createCodeableConcept([
+            self::CATEGORY_CODE => [
+                'system' => self::CATEGORY_SYSTEM,
+                'code' => self::CATEGORY_CODE
+            ]
+        ]));
 
         // Code - use actual code from database
         $codeCoding = new FHIRCoding();

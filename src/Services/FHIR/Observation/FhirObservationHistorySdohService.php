@@ -137,7 +137,7 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
             $observationCodesToReturn = [];
             $supportedCodes = $this->getSupportedCodes();
             $supportedCodes = array_combine($supportedCodes, $supportedCodes);
-            $noCodes = !(isset($openEMRSearchParameters['category']) || isset($observationCodesToReturn['code']));
+            $noCodes = !(isset($openEMRSearchParameters['category']) || isset($openEMRSearchParameters['code']));
             // if we have categories AND codes we need to make sure we only return codes that match both constraints
 
             // once we've reached here (via calls to supportCategory and supportCode) we know that any category or code

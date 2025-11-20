@@ -20,6 +20,7 @@ use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
@@ -34,6 +35,7 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceBase implements IResourceSearchableService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
+    use FhirObservationTrait;
     use VersionedProfileTrait;
 
     private const PROFILE = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-treatment-intervention-preference';
@@ -166,6 +168,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
             'pid'  => (int)$r['patient_id'],
             'puuid' => !empty($r['patient_uuid']) ? UuidRegistry::uuidToString($r['patient_uuid']) : null,
             'date' => $r['effective_datetime'] ?? null,
+            'last_updated_time' => $r['effective_datetime'] ?? null,
             'status' => $r['status'] ?: self::DEFAULT_STATUS,
             'category' => self::CATEGORY_CODE,
             'code' => $r['observation_code'], // Use actual code from database
@@ -224,12 +227,8 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
         $obs = new FHIRObservation();
 
         // Meta with profile
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $profileUri = new FHIRUri();
-        $profileUri->setValue(self::PROFILE);
-        $meta->addProfile($profileUri);
-        $obs->setMeta($meta);
+        $dataRecord['profiles'] = [self::PROFILE];
+        $this->setObservationMeta($obs, $dataRecord);
 
         // Resource ID
         if (!empty($dataRecord['uuid'])) {
@@ -239,35 +238,21 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
         }
 
         // Subject (Patient reference) - Use patient UUID not PID
-        if (!empty($dataRecord['puuid'])) {
-            // Use patient UUID from the query join
-            $obs->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['puuid']));
-        } elseif (!empty($dataRecord['pid'])) {
-            // Fallback: fetch patient UUID from pid
-            $patientUuid = $this->getPatientUuidFromPid($dataRecord['pid']);
-            if ($patientUuid) {
-                $obs->setSubject(UtilsService::createRelativeReference('Patient', $patientUuid));
-            } else {
-                // Last resort fallback to PID
-                $obs->setSubject(UtilsService::createRelativeReference('Patient', $dataRecord['pid']));
-            }
-        }
+        $this->setObservationSubject($obs, $dataRecord);
 
         // Effective DateTime
-        if (!empty($dataRecord['date'])) {
-            $obs->setEffectiveDateTime(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date'])));
-        }
-
+        $this->setObservationEffective($obs, $dataRecord);
         // Status
         $obs->setStatus($dataRecord['status'] ?: self::DEFAULT_STATUS);
 
         // Category
-        $catCoding = new FHIRCoding();
-        $catCoding->setSystem(self::CATEGORY_SYSTEM);
-        $catCoding->setCode(self::CATEGORY_CODE);
-        $cat = new FHIRCodeableConcept();
-        $cat->addCoding($catCoding);
-        $obs->addCategory($cat);
+        $obs->addCategory(UtilsService::createCodeableConcept([
+            self::CATEGORY_CODE => [
+                'system' => self::CATEGORY_SYSTEM,
+                'code' => self::CATEGORY_CODE,
+                'description' => 'Treatment Intervention Preference'
+            ]
+        ]));
 
         // Code - use actual code from database
         $codeCoding = new FHIRCoding();

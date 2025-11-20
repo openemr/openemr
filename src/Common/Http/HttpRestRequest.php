@@ -113,6 +113,11 @@ class HttpRestRequest extends Request implements Stringable
      */
     private string $apiBaseFullUrl;
 
+    /**
+     * @var ScopeEntity The required endpoint scope for this request
+     */
+    protected ScopeEntity $requiredEndpointScope;
+
     public static function createFromGlobals(): static
     {
         // Handle the rewrite command transformation before calling parent
@@ -829,5 +834,23 @@ class HttpRestRequest extends Request implements Stringable
         $clonedRequest = clone $this;
         $clonedRequest->attributes->remove($name);
         return $clonedRequest;
+    }
+
+    /**
+     * @param ScopeEntity $endpointScope Sets the required endpoint scope necessary for the current request to be authorized
+     * @return void
+     */
+    public function setRequestRequiredScope(ScopeEntity $endpointScope): void
+    {
+        $this->requiredEndpointScope = $endpointScope;
+    }
+
+    /**
+     * Returns the required endpoint scope necessary for the current request to be authorized.  This can be useful
+     * to do additional access checks based on the scope required for the request.
+     * @return ScopeEntity The required endpoint scope necessary for the current request to be authorized
+     */
+    public function getRequestRequiredScope(): ScopeEntity {
+        return $this->requiredEndpointScope;
     }
 }

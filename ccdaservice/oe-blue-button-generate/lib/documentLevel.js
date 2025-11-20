@@ -32,6 +32,8 @@ exports.ccd2 = function (html_renderer) {
                 extension: "POCD_HD000040"
             }
         },
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2023-05-01"),
+            fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
             fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
             {

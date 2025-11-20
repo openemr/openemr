@@ -48,7 +48,8 @@
 
         {# Include Person Search and Create Component #}
         {% include 'patient/demographics/relation_form_search.html.twig'  with {
-                        'owner_contact_id': owner_contact_id
+                        'owner_contact_id': owner_contact_id,
+                        'csrfToken': csrfToken
         } %}
 
         {% if relatedPersons|length == 0 %}
@@ -150,27 +151,27 @@
 
 {# Template for adding new relations #}
 <template class="template_add_relation">
-    <div class="relations_group col-12 pl-0" data-active="1" data-index="__INDEX__">
+    <div class="relations_group col-12 pl-0" data-active="1" data-index="__RP-INDEX__">
 
         {# Hidden fields #}
 
         <input type="hidden" class="form_relations_data_action"
-                name="{{ name_field_id|attr }}[__INDEX__][data_action]" value="ADD" />
+                name="{{ name_field_id|attr }}[__RP-INDEX__][data_action]" value="ADD" />
 
         <input type="hidden" class="form_relations_owner_contact_relation_id"
-                name="{{ name_field_id|attr }}[__INDEX__][owner_contact_relation_id]" value="" />
+                name="{{ name_field_id|attr }}[__RP-INDEX__][owner_contact_relation_id]" value="" />
 
         <input type="hidden" class="form_relations_owner_contact_id"
-                name="{{ name_field_id|attr }}[__INDEX__][owner_contact_id]" value="" />
+                name="{{ name_field_id|attr }}[__RP-INDEX__][owner_contact_id]" value="" />
 
         <input type="hidden" class="form_relations_target_table"
-                name="{{ name_field_id|attr }}[__INDEX__][target_table]" value="" />
+                name="{{ name_field_id|attr }}[__RP-INDEX__][target_table]" value="" />
 
         <input type="hidden" class="form_relations_target_id"
-                name="{{ name_field_id|attr }}[__INDEX__][target_id]" value="" />
+                name="{{ name_field_id|attr }}[__RP-INDEX__][target_id]" value="" />
 
         <input type="hidden" class="form_relations_active"
-                name="{{ name_field_id|attr }}[__INDEX__][active]" value="1" />
+                name="{{ name_field_id|attr }}[__RP-INDEX__][active]" value="1" />
 
         <div class="relation-card">
             <div class="relation-card-header" onclick="toggleRelationEdit(this)">
@@ -206,7 +207,7 @@
                     },
                     'field_id_esc': field_id_esc,
                     'name_field_id': 'form_' ~ field_id_esc,
-                    'relatedPerson_index': '__INDEX__',
+                    'relatedPerson_index': '__RP-INDEX__',
                     'widget_constants': widget_constants,
                     'is_new': true
                 } %}

@@ -652,14 +652,15 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $code = $dataRecord['code'];
         $description = $dataRecord['description'] ?? $this->getDescriptionForCode($code);
 
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
         if (!empty($dataRecord['code'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($description);
-            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observation->setCode($categoryCode);
+            $obsCodeConcept = UtilsService::createCodeableConcept([
+                $dataRecord['code'] => [
+                    'description' => $description,
+                    'system' => FhirCodeSystemConstants::LOINC,
+                    'code' => $dataRecord['code']
+                ]
+            ]);
+            $observation->setCode($obsCodeConcept);
         }
 
         $observation->setStatus(self::VITALS_DEFAULT_OBSERVATION_STATUS);
@@ -668,12 +669,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             $observation->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['user_uuid']));
         }
 
-        $obsConcept = new FHIRCodeableConcept();
-        $obsCategoryCoding = new FhirCoding();
-        $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
-        $obsCategoryCoding->setCode($dataRecord['category']);
-        $obsConcept->addCoding($obsCategoryCoding);
-        $observation->addCategory($obsConcept);
+        $observation->addCategory(UtilsService::createCodeableConcept([
+            $dataRecord['category'] => [
+                'code' => $dataRecord['category'],
+                'system' => FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY
+            ]
+        ]));
 
         $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['puuid']));
 
@@ -1006,8 +1007,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             ]);
             $comp->setCode($codeableConcept);
 
-            // Set value
-            if (!empty($component['value'])) {
+            // Set value, if the value is 0 we will treat that as a data absent reason
+            $value = floatval($component['value'] ?? 0);
+            if ($value > 0) {
                 $quantity = new FHIRQuantity();
                 $quantity->setValue(floatval($component['value']));
                 $quantity->setUnit($component['value_unit']);

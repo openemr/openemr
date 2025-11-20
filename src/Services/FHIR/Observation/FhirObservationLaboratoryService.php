@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -199,6 +200,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         $result['result_abnormal'] = $result['abnormal'] ?? null;
                         $result['result_abnormal_title'] ??= null;
                         $result['result_abnormal_codes'] ??= null;
+                        $result['provider'] = $record['provider'] ?? null;
                         $result['encounter'] = $record['encounter'] ?? null;
 
                         $processingResult->addData($result);
@@ -241,22 +243,24 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
 
-        $obsConcept = new FHIRCodeableConcept();
-        $obsCategoryCoding = new FhirCoding();
-        $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
-        $obsCategoryCoding->setCode(self::CATEGORY);
-        $obsConcept->addCoding($obsCategoryCoding);
-        $observation->addCategory($obsConcept);
+        $obsCategoryCoding = UtilsService::createCodeableConcept([
+            self::CATEGORY => [
+                'code' => self::CATEGORY,
+                'system' => FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY,
+                'description' => "Laboratory"
+            ]
+        ]);
+        $observation->addCategory($obsCategoryCoding);
 
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
         // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
         if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($dataRecord['text']);
-            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observation->setCode($categoryCode);
+            $observation->setCode(UtilsService::createCodeableConcept([
+                $dataRecord['code'] => [
+                    'code' => $dataRecord['code'],
+                    'system' => FhirCodeSystemConstants::LOINC,
+                    'description' => $dataRecord['text']
+                ]
+            ]));
         } else {
             $observation->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
@@ -326,7 +330,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         // Interpretation (USCDI v5)
         if (!empty($dataRecord['result_abnormal'])) {
-            // we will popualte the text if we don't have a mapped code
+            // we will populate the text if we don't have a mapped code
             if (empty($dataRecord['result_abnormal_codes'])) {
                 $interpretation = new FHIRCodeableConcept();
                 $interpretation->setText($dataRecord['result_abnormal_title'] ?? $dataRecord['result_abnormal'] ?? 'Indeterminate');

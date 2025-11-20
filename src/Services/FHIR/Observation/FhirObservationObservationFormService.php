@@ -31,8 +31,10 @@ use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationObservationFormService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
@@ -71,7 +73,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return [
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['ob_code']),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type', 'screening_category_code']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['ob_type']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [
                 new ServiceField('uuid', ServiceField::TYPE_UUID)
@@ -96,25 +98,13 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
             $meta->addProfile($this->createProfile($profile));
         }
-
-        if ($observation->getCategory() !== null) {
-            foreach ($observation->getCategory() as $category) {
-                if ($category->getCoding() !== null) {
-                    $coding = $category->getCoding()[0]; // there's only one coding per category in our implementation
-                    if ($coding->getCode() !== null && in_array($coding->getCode()->getValue(), self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
-                        // this observation has a category in the US Core observation category code system, so we add the screening/assessment profile
-                        foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
-                            $meta->addProfile($this->createProfile($profile));
-                        }
-                        break;
-                    }
-                    if ($coding->getCode() !== null && in_array($coding->getCode()->getValue(), self::US_CORE_CODESYSTEM_CATEGORY)) {
-                        // this observation has a category in the US Core category code system, so we add the screening/assessment profile
-                        foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
-                            $meta->addProfile($this->createProfile($profile));
-                        }
-                        break;
-                    }
+        $categoryCodes = array_map(fn($category) => $category->getCoding()[0]->getCode(), $observation->getCategory() ?? []);
+        // check for linked questionnaire
+        if (!empty($dataRecord['questionnaire_uuid'])) {
+            // verify we have a survey category
+            if (in_array('survey', $categoryCodes)) {
+                foreach ($this->getProfileForVersions(self::USCGI_SCREENING_ASSESSMENT_URI, $this->getSupportedVersions()) as $profile) {
+                    $meta->addProfile($this->createProfile($profile));
                 }
             }
         }
@@ -160,6 +150,13 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         }
         // we grab the records and grab any children records and populate them if we have them.
         return $this->observationService->searchAndPopulateChildObservations($openEMRSearchParameters);
+    }
+
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRDomainResource|string
+    {
+        // convert fields in the data array to the format that FhirObservationTrait expects
+        $dataRecord['last_updated_time'] = $dataRecord['date'];
+        return $this->parseObservationOpenEMRRecord($dataRecord, $encode);
     }
 
     /**

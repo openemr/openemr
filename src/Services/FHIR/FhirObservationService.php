@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
