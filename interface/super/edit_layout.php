@@ -2204,9 +2204,18 @@ $(function () {
     }
 
   // Support for beforeunload handler.
-  // AI-generated code - GitHub Copilot: Made selector more specific to the form
+  // AI-generated code start - GitHub Copilot: Made selector more specific to the form
+  // Enable debug logging: window.DEBUG_TAB_CHANGES = true or localStorage.setItem('DEBUG_TAB_CHANGES', 'true');
+  if (typeof window.DEBUG_TAB_CHANGES === 'undefined') {
+    window.DEBUG_TAB_CHANGES = localStorage.getItem('DEBUG_TAB_CHANGES') === 'true';
+  }
+  if (window.DEBUG_TAB_CHANGES) console.log('[edit_layout] Initializing change detection');
+  if (window.DEBUG_TAB_CHANGES) console.log('[edit_layout] Form elements found:', $('#theform tbody input, #theform tbody select, #theform tbody textarea').not('.selectfield').length);
+  
   $('#theform tbody input, #theform tbody select, #theform tbody textarea').not('.selectfield').change(function() {
+    if (window.DEBUG_TAB_CHANGES) console.log('[edit_layout] Change detected on element:', this);
     somethingChanged = true;
+    if (window.DEBUG_TAB_CHANGES) console.log('[edit_layout] somethingChanged set to:', somethingChanged);
   });
   // AI-generated code end
   window.addEventListener("beforeunload", function (e) {

@@ -10,6 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// AI-generated code - GitHub Copilot: Debug flag for tab change detection logging
+// Set to true in browser console to enable debug logging: window.DEBUG_TAB_CHANGES = true
+// Or set persistently: localStorage.setItem('DEBUG_TAB_CHANGES', 'true');
+window.DEBUG_TAB_CHANGES = window.DEBUG_TAB_CHANGES || localStorage.getItem('DEBUG_TAB_CHANGES') === 'true';
+
 function tabStatus(title,url,name,loading_label,closable,visible,locked)
 {
     var self=this;
@@ -29,11 +34,28 @@ function tabStatus(title,url,name,loading_label,closable,visible,locked)
         self.spinner("");
     });
     self.window=null;
+    // AI-generated code start - GitHub Copilot: Add methods to tab object for Knockout bindings
+    self.tabClicked = function(data, evt) {
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabStatus.tabClicked] called');
+        return tabClicked(self, evt);
+    };
+    self.tabRefresh = function(data, evt) {
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabStatus.tabRefresh] called');
+        return tabRefresh(self, evt);
+    };
+    self.tabClose = function(data, evt) {
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabStatus.tabClose] called');
+        return tabClose(self, evt);
+    };
+    self.tabLockToggle = function(data, evt) {
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabStatus.tabLockToggle] called');
+        return tabLockToggle(self, evt);
+    };
+    // AI-generated code end
     return this;
 }
 
 /**
- *
  * @returns {tabs_view_model}
  *
  * Initial setup of the tabs view model to be an observable array
@@ -119,29 +141,45 @@ function tabRefreshByName(name) {
 // AI-generated code start - GitHub Copilot
 function tabClose(data,evt)
 {
+    if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] Starting tab close, data:', data);
+
     // Check for unsaved changes in the iframe before closing
     var hasUnsavedChanges = false;
     try {
         // Get the iframe window object
         var iframeWindow = data.window;
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] iframeWindow:', iframeWindow);
+
         if (iframeWindow) {
+            if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] iframeWindow.somethingChanged:', iframeWindow.somethingChanged);
+
             // Check if the iframe has a somethingChanged variable set to true
             if (iframeWindow.somethingChanged === true) {
                 hasUnsavedChanges = true;
+                if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] Detected unsaved changes');
             }
+        } else {
+            if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] iframeWindow is null/undefined');
         }
     } catch(e) {
         // If we can't access the iframe (cross-origin), just proceed with closing
         // This is acceptable as we can't reliably check for changes anyway
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] Exception accessing iframe:', e);
     }
-    
+
+    if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] hasUnsavedChanges:', hasUnsavedChanges);
+
     // If there are unsaved changes, confirm with the user
     if (hasUnsavedChanges) {
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] Showing confirmation dialog');
         if (!confirm(xl('You have unsaved changes. Are you sure you want to close this tab?'))) {
+            if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] User cancelled close');
             return; // User cancelled, don't close the tab
         }
+        if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] User confirmed close');
     }
-    
+
+    if (window.DEBUG_TAB_CHANGES) console.log('[tabClose] Proceeding to close tab');
     //remove the tab
     app_view_model.application_data.tabs.tabsList.remove(data);
     //activate the next tab
@@ -166,25 +204,42 @@ function tabCloseByName(name)
 // AI-generated code start - GitHub Copilot
 function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
+    if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] Starting navigation to:', url, 'name:', name);
+
     top.restoreSession();
     if($("iframe[name='"+name+"']").length>0)
     {
+        if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] Found existing iframe');
+
         // Check for unsaved changes before navigating to a different URL in the same tab
         try {
             var iframe = $("iframe[name='"+name+"']").get(0);
+            if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] iframe:', iframe);
+
             if (iframe && iframe.contentWindow) {
                 var currentUrl = iframe.contentWindow.location.href;
+                if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] currentUrl:', currentUrl);
+                if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] newUrl:', url);
+                if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] somethingChanged:', iframe.contentWindow.somethingChanged);
+
                 // Only check if we're navigating to a different URL
                 if (currentUrl !== url && iframe.contentWindow.somethingChanged === true) {
+                    if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] Detected unsaved changes, showing confirmation');
                     if (!confirm(xl('You have unsaved changes. Are you sure you want to navigate away from this page?'))) {
+                        if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] User cancelled navigation');
                         return; // User cancelled, don't navigate
                     }
+                    if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] User confirmed navigation');
+                } else {
+                    if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] No unsaved changes or same URL');
                 }
             }
         } catch(e) {
             // If we can't access the iframe (cross-origin), just proceed with navigation
+            if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] Exception accessing iframe:', e);
         }
-        
+
+        if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] Proceeding with navigation');
         if(typeof afterLoadFunction !== 'function'){
             $( "body" ).off( "load", "iframe[name='"+name+"']");
         } else {
@@ -197,6 +252,7 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
     }
     else
     {
+        if (window.DEBUG_TAB_CHANGES) console.log('[navigateTab] Creating new tab');
         let curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
