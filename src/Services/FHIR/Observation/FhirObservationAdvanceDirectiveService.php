@@ -417,13 +417,13 @@ class FhirObservationAdvanceDirectiveService extends FhirServiceBase implements 
     protected function setObservationCategory(FHIRObservation $observation, array $dataRecord): void
     {
         // Required survey category slice (mustSupport, min 1..1)
-        $initialCategory = new FHIRCodeableConcept();
-        $catCoding = new FHIRCoding();
-        $catCoding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_US_CORE_CATEGORY_OBSERVATION));
-        $catCoding->setCode(new FhirCode($dataRecord['ob_type'] ?? self::CATEGORY_OBSERVATION_ADI));
-        $catCoding->setDisplay($dataRecord['ob_type'] ?? 'Observation ADI Documentation');
-        $initialCategory->addCoding($catCoding);
-        $observation->addCategory($initialCategory);
+        $observation->addCategory(UtilsService::createCodeableConcept([
+            $dataRecord['ob_type'] ?? self::CATEGORY_OBSERVATION_ADI => [
+                'system' => FhirCodeSystemConstants::HL7_US_CORE_CATEGORY_OBSERVATION,
+                'code' => $dataRecord['ob_type'] ?? self::CATEGORY_OBSERVATION_ADI,
+                'description' => $dataRecord['ob_type'] ?? 'Observation ADI Documentation'
+            ]
+        ]));
     }
 
     /**

@@ -268,14 +268,7 @@ trait FhirObservationTrait
         } else if (empty($children)) {
             // Set dataAbsentReason (mustSupport)
             // If no value and no children (not a panel), dataAbsentReason is required (us-core-2)
-//            $dataAbsentReason = new FHIRCodeableConcept();
-//            $darCoding = new FHIRCoding();
-//            $darCoding->setSystem($dataRecord['data_absent_reason_system'] ?? 'http://terminology.hl7.org/CodeSystem/data-absent-reason');
-//            $darCoding->setCode($dataRecord['data_absent_reason']);
-//            $darCoding->setDisplay($dataRecord['data_absent_reason_display'] ?? '');
-//            $dataAbsentReason->addCoding($darCoding);
             $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-//            $observation->setDataAbsentReason($dataAbsentReason);
         }
     }
 
@@ -288,20 +281,21 @@ trait FhirObservationTrait
     {
         $obType = $dataRecord['ob_type'] ?? null;
         // Required survey category slice (mustSupport, min 1..1)
-        $initialCategory = new FHIRCodeableConcept();
-        $catCoding = new FHIRCoding();
-        $catCoding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION));
-        $catCoding->setCode(new FhirCode($obType ?? 'survey'));
-        $catCoding->setDisplay($obType ?? 'Survey');
-        $initialCategory->addCoding($catCoding);
-        $observation->addCategory($initialCategory);
+        $catCode = $obType ?? 'survey';
+        $observation->addCategory(UtilsService::createCodeableConcept([
+            $catCode => [
+                'code' => $catCode,
+                'description' => $obType ?? 'Survey',
+                'system' => FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION
+            ]
+        ]));
 
         // Optional screening-assessment category slice if we have a questionnaire category (mustSupport, 0..1)
         // make sure we don't duplicate the category
         // we can only have ONE category from the self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY.  If the observation's primary category is
         // NOT survey then we skip adding the screening category otherwise we could have two codes from that code system
         // and that fails validation
-        if ($obType == 'survey' && !empty($dataRecord['screening_category_code']) && $dataRecord['screening_category_code'] !== $catCoding->getCode()->getValue()) {
+        if ($obType == 'survey' && !empty($dataRecord['screening_category_code']) && $dataRecord['screening_category_code'] !== $catCode) {
             if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
                 $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
             }
@@ -312,13 +306,13 @@ trait FhirObservationTrait
                 $this->getSystemLogger()->warning("Observation screening category code {$dataRecord['screening_category_code']} not in supported code systems");
                 return;
             }
-            $screeningCategory = new FHIRCodeableConcept();
-            $screeningCoding = new FHIRCoding();
-            $screeningCoding->setSystem(new FHIRUri($systemUri));
-            $screeningCoding->setCode(new FHIRCode($dataRecord['screening_category_code']));
-            $screeningCoding->setDisplay($dataRecord['screening_category_display'] ?? '');
-            $screeningCategory->addCoding($screeningCoding);
-            $observation->addCategory($screeningCategory);
+            $observation->addCategory(UtilsService::createCodeableConcept([
+                $dataRecord['screening_category_code'] => [
+                    'code' => $dataRecord['screening_category_code'],
+                    'description' => $dataRecord['screening_category_display'] ?? '',
+                    'system' => $systemUri
+                ]
+            ]));
         }
     }
 
