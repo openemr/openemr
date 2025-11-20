@@ -112,33 +112,26 @@ class RxList
         $in_token = false;
         $tokens = []; // Initialize tokens array to prevent undefined array key warnings
         while ($pos < strlen((string) $page)) {
+            $tokens[$token] ??= ''; // Initialize token if not set
             switch (substr((string) $page, $pos, 1)) {
                 case "<":
                     if ($in_token) {
                         $token++;
+                        $tokens[$token] ??= ''; // Re-initialize after increment
                         $in_token = false;
                     }
 
-                    if (!isset($tokens[$token])) {
-                        $tokens[$token] = '';
-                    }
                     $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = true;
                     break;
 
                 case ">":
-                    if (!isset($tokens[$token])) {
-                        $tokens[$token] = '';
-                    }
                     $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = false;
                     $token++;
                     break;
 
                 default:
-                    if (!isset($tokens[$token])) {
-                        $tokens[$token] = '';
-                    }
                     $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = false;
                     break;
