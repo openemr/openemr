@@ -242,19 +242,16 @@ class RestConfig
 
     public static function is_fhir_request($resource): bool
     {
-        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
         return str_contains((string) $resource, "/fhir/");
     }
 
     public static function is_portal_request($resource): bool
     {
-        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
         return str_contains((string) $resource, "/portal/");
     }
 
     public static function is_api_request($resource): bool
     {
-        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
         return str_contains((string) $resource, "/api/");
     }
 

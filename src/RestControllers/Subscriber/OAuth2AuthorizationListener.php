@@ -119,14 +119,13 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         $authServer->setSystemLogger($logger);
 
 
-        $end_point = $request->getRequestPathWithoutSite();
-        // GitHub Copilot AI-generated code - case-sensitive endpoint checks per RFC 3986 and OIDC
-        if (str_contains((string) $end_point, '/token')) {
+        $end_point = (string) $request->getRequestPathWithoutSite();
+        if (str_contains($end_point, '/token')) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->oauthAuthorizeToken($request));
         }
 
-        if (str_contains((string) $end_point, '/.well-known/openid-configuration')) {
+        if (str_contains($end_point, '/.well-known/openid-configuration')) {
             $oauth2DiscoverController = new OAuth2DiscoveryController(
                 new ClaimRepository(),
                 $authServer->getScopeRepository($session),
@@ -136,22 +135,22 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
             return $oauth2DiscoverController->getDiscoveryResponse($request);
         }
 
-        if (str_contains((string) $end_point, '/authorize')) {
+        if (str_contains($end_point, '/authorize')) {
             // session is destroyed (when throws exception) within below function
             return $this->convertPsrResponse($authServer->oauthAuthorizationFlow($request));
         }
 
-        if (str_contains((string) $end_point, AuthorizationController::DEVICE_CODE_ENDPOINT)) {
+        if (str_contains($end_point, AuthorizationController::DEVICE_CODE_ENDPOINT)) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->authorizeUser($request));
         }
 
-        if (str_contains((string) $end_point, '/jwk')) {
+        if (str_contains($end_point, '/jwk')) {
             $oauth2JWKController = new OAuth2PublicJsonWebKeyController($authServer->getPublicKeyLocation());
             return $oauth2JWKController->getJsonWebKeyResponse($request);
         }
 
-        if (str_contains((string) $end_point, '/login')) {
+        if (str_contains($end_point, '/login')) {
             // session is maintained
             return $this->convertPsrResponse($authServer->userLogin($request));
         }
@@ -159,31 +158,30 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
             return $this->convertPsrResponse($authServer->dispatchSMARTAuthorizationEndpoint($end_point, $request));
         }
 
-        if (str_contains((string) $end_point, '/scope-authorize-confirm')) {
+        if (str_contains($end_point, '/scope-authorize-confirm')) {
             // session is maintained
             return $this->convertPsrResponse($authServer->scopeAuthorizeConfirm($request));
         }
 
-        if (str_contains((string) $end_point, '/registration')) {
+        if (str_contains($end_point, '/registration')) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->clientRegistration($request));
         }
 
-        if (str_contains((string) $end_point, '/client')) {
+        if (str_contains($end_point, '/client')) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->clientRegisteredDetails($request));
         }
 
-        if (str_contains((string) $end_point, '/logout')) {
+        if (str_contains($end_point, '/logout')) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->userSessionLogout($request));
         }
 
-        if (str_contains((string) $end_point, '/introspect')) {
+        if (str_contains($end_point, '/introspect')) {
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->tokenIntrospection($request));
         }
-        // GitHub Copilot AI-generated code end
         return new Response('', Response::HTTP_NOT_FOUND);
     }
 }
