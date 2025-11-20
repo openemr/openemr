@@ -42,9 +42,6 @@ $textarea_cols = 80;
 $debug = '';
 $error = '';
 
-$preselect_category = '';
-$preselect_subcategory = '';
-$preselect_item = '';
 $preselect_category_override = '';
 $preselect_subcategory_override = '';
 $preselect_item_override = '';
