@@ -243,23 +243,24 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
 
-        $obsConcept = new FHIRCodeableConcept();
-        $obsCategoryCoding = new FhirCoding();
-        $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
-        $obsCategoryCoding->setCode(self::CATEGORY);
-        $obsCategoryCoding->setDisplay("Laboratory");
-        $obsConcept->addCoding($obsCategoryCoding);
-        $observation->addCategory($obsConcept);
+        $obsCategoryCoding = UtilsService::createCodeableConcept([
+            self::CATEGORY => [
+                'code' => self::CATEGORY,
+                'system' => FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY,
+                'description' => "Laboratory"
+            ]
+        ]);
+        $observation->addCategory($obsCategoryCoding);
 
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
         // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
         if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($dataRecord['text']);
-            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observation->setCode($categoryCode);
+            $observation->setCode(UtilsService::createCodeableConcept([
+                $dataRecord['code'] => [
+                    'code' => $dataRecord['code'],
+                    'system' => FhirCodeSystemConstants::LOINC,
+                    'description' => $dataRecord['text']
+                ]
+            ]));
         } else {
             $observation->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
