@@ -200,9 +200,11 @@ $CPR = 4; // cells per row
             });
 
             // Support for beforeunload handler.
-            $('.tab input, .tab select, .tab textarea').change(function () {
+            // AI-generated code - GitHub Copilot: Fixed selector to match actual form ID
+            $('#DEM input, #DEM select, #DEM textarea').change(function () {
                 somethingChanged = true;
             });
+            // AI-generated code end
             window.addEventListener("beforeunload", function (e) {
                 if (somethingChanged && !top.timed_out) {
                     var msg = <?php echo xlj('You have unsaved changes.'); ?>;

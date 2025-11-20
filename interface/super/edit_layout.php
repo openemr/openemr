@@ -2204,9 +2204,11 @@ $(function () {
     }
 
   // Support for beforeunload handler.
-  $('tbody input, tbody select, tbody textarea').not('.selectfield').change(function() {
+  // AI-generated code - GitHub Copilot: Made selector more specific to the form
+  $('#theform tbody input, #theform tbody select, #theform tbody textarea').not('.selectfield').change(function() {
     somethingChanged = true;
   });
+  // AI-generated code end
   window.addEventListener("beforeunload", function (e) {
     if (somethingChanged && !top.timed_out) {
       var msg = <?php echo xlj('You have unsaved changes.'); ?>;
