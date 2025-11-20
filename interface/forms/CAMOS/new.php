@@ -57,17 +57,9 @@ $category = str_replace($quote_search, $quote_replace, $_POST['change_category']
 $subcategory = str_replace($quote_search, $quote_replace, $_POST['change_subcategory'] ?? '');
 $item = str_replace($quote_search, $quote_replace, $_POST['change_item'] ?? '');
 $content = str_replace($quote_search_content, $quote_replace_content, $_POST['textarea_content'] ?? '');
-if (!empty($_POST['hidden_category'])) {
-    $preselect_category = $_POST['hidden_category'];
-}
-
-if (!empty($_POST['hidden_subcategory'])) {
-    $preselect_subcategory = $_POST['hidden_subcategory'];
-}
-
-if (!empty($_POST['hidden_item'])) {
-    $preselect_item = $_POST['hidden_item'];
-}
+$preselect_category = $_POST['hidden_category'] ?? '';
+$preselect_subcategory = $_POST['hidden_subcategory'] ?? '';
+$preselect_item = $_POST['hidden_item'] ?? '';
 
 //handle changes to database
 if (str_starts_with($_POST['hidden_mode'] ?? '', 'add')) {
