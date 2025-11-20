@@ -116,8 +116,32 @@ function tabRefreshByName(name) {
     }
 }
 
+// AI-generated code start - GitHub Copilot
 function tabClose(data,evt)
 {
+    // Check for unsaved changes in the iframe before closing
+    var hasUnsavedChanges = false;
+    try {
+        // Get the iframe window object
+        var iframeWindow = data.window;
+        if (iframeWindow) {
+            // Check if the iframe has a somethingChanged variable set to true
+            if (iframeWindow.somethingChanged === true) {
+                hasUnsavedChanges = true;
+            }
+        }
+    } catch(e) {
+        // If we can't access the iframe (cross-origin), just proceed with closing
+        // This is acceptable as we can't reliably check for changes anyway
+    }
+    
+    // If there are unsaved changes, confirm with the user
+    if (hasUnsavedChanges) {
+        if (!confirm(xl('You have unsaved changes. Are you sure you want to close this tab?'))) {
+            return; // User cancelled, don't close the tab
+        }
+    }
+    
     //remove the tab
     app_view_model.application_data.tabs.tabsList.remove(data);
     //activate the next tab
@@ -125,6 +149,7 @@ function tabClose(data,evt)
         activateTab(app_view_model.application_data.tabs.tabsList()[app_view_model.application_data.tabs.tabsList().length-1]);
     }
 }
+// AI-generated code end
 
 function tabCloseByName(name)
 {
