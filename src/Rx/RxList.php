@@ -75,7 +75,7 @@ class RxList
     public function getList($query)
     {
         $page = $this->getPage($query);
-        $tokens = $this->parseToTokens($page);
+        $tokens = $this->parseToTokens($page ?: '');
         $hash = $this->tokensToHash($tokens);
         if (!empty($hash)) {
             foreach ($hash as $data) {
@@ -102,43 +102,20 @@ class RxList
         return $list;
     }
 
-    /* break the web page into a collection of TAGS
-     * such as <input ..> or <img ... >
+    /**
+     * Parse HTML/XML content into tokens by splitting on tags
+     *
+     * Splits the input string into an array of tokens, where each token is either
+     * a tag (e.g., "<name>", "</name>") or content between tags.
+     *
+     * @param string $page The HTML/XML content to parse
+     * @return array Array of tokens (tags and content)
      */
-    public function parseToTokens($page)
+    protected function parseToTokens(string $page): array
     {
-        $pos = 0;
-        $token = 0;
-        $in_token = false;
-        $tokens = []; // Initialize tokens array to prevent undefined array key warnings
-        while ($pos < strlen((string) $page)) {
-            $tokens[$token] ??= ''; // Initialize token if not set
-            switch (substr((string) $page, $pos, 1)) {
-                case "<":
-                    if ($in_token) {
-                        $token++;
-                        $tokens[$token] ??= ''; // Re-initialize after increment
-                        $in_token = false;
-                    }
-
-                    $tokens[$token] .= substr((string) $page, $pos, 1);
-                    $in_token = true;
-                    break;
-
-                case ">":
-                    $tokens[$token] .= substr((string) $page, $pos, 1);
-                    $in_token = false;
-                    $token++;
-                    break;
-
-                default:
-                    $tokens[$token] .= substr((string) $page, $pos, 1);
-                    $in_token = false;
-                    break;
-            }
-            $pos++;
-        }
-        return $tokens;
+        return array_values(array_filter(
+            preg_split('/(<[^>]*>)/', $page, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)
+        ));
     }
 
     public function tokensToHash($tokens)
@@ -182,7 +159,7 @@ class RxList
 
             if ($pos === ($record + 1) and ($ending != "")) {
                 $my_pos = stripos((string) $tokens[$pos], "<");
-                $hash[$type] = substr((string) $tokens[$pos], 0, $my_pos);
+                $hash[$type] = $my_pos !== false ? substr((string) $tokens[$pos], 0, $my_pos) : $tokens[$pos];
                 $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
                 //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
                 $type = "";
