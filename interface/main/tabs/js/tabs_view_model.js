@@ -163,11 +163,28 @@ function tabCloseByName(name)
     }
 }
 
+// AI-generated code start - GitHub Copilot
 function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
     top.restoreSession();
     if($("iframe[name='"+name+"']").length>0)
     {
+        // Check for unsaved changes before navigating to a different URL in the same tab
+        try {
+            var iframe = $("iframe[name='"+name+"']").get(0);
+            if (iframe && iframe.contentWindow) {
+                var currentUrl = iframe.contentWindow.location.href;
+                // Only check if we're navigating to a different URL
+                if (currentUrl !== url && iframe.contentWindow.somethingChanged === true) {
+                    if (!confirm(xl('You have unsaved changes. Are you sure you want to navigate away from this page?'))) {
+                        return; // User cancelled, don't navigate
+                    }
+                }
+            }
+        } catch(e) {
+            // If we can't access the iframe (cross-origin), just proceed with navigation
+        }
+        
         if(typeof afterLoadFunction !== 'function'){
             $( "body" ).off( "load", "iframe[name='"+name+"']");
         } else {
@@ -187,6 +204,7 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
         }
     }
 }
+// AI-generated code end
 
 function tabLockToggle(data,evt)
 {
