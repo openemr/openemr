@@ -110,6 +110,7 @@ class RxList
         $pos = 0;
         $token = 0;
         $in_token = false;
+        $tokens = []; // Initialize tokens array to prevent undefined array key warnings
         while ($pos < strlen((string) $page)) {
             switch (substr((string) $page, $pos, 1)) {
                 case "<":
@@ -118,17 +119,26 @@ class RxList
                         $in_token = false;
                     }
 
+                    if (!isset($tokens[$token])) {
+                        $tokens[$token] = '';
+                    }
                     $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = true;
                     break;
 
                 case ">":
+                    if (!isset($tokens[$token])) {
+                        $tokens[$token] = '';
+                    }
                     $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = false;
                     $token++;
                     break;
 
                 default:
+                    if (!isset($tokens[$token])) {
+                        $tokens[$token] = '';
+                    }
                     $tokens[$token] .= substr((string) $page, $pos, 1);
                     $in_token = false;
                     break;
