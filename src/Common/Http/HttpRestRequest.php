@@ -604,17 +604,20 @@ class HttpRestRequest extends Request implements Stringable
 
     public function isFhirRequest(): bool
     {
-        return stripos(strtolower($this->getPathInfo()), "/fhir/") !== false;
+        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
+        return str_contains($this->getPathInfo(), "/fhir/");
     }
 
     public function isPortalRequest(): bool
     {
-        return stripos(strtolower($this->getPathInfo()), "/portal/") !== false;
+        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
+        return str_contains($this->getPathInfo(), "/portal/");
     }
 
     public function isStandardApiRequest(): bool
     {
-        return stripos(strtolower($this->getPathInfo()), "/api/") !== false;
+        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
+        return str_contains($this->getPathInfo(), "/api/");
     }
 
     public function isFhir(): bool

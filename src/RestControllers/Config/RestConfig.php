@@ -242,17 +242,20 @@ class RestConfig
 
     public static function is_fhir_request($resource): bool
     {
-        return stripos(strtolower((string) $resource), "/fhir/") !== false;
+        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
+        return str_contains((string) $resource, "/fhir/");
     }
 
     public static function is_portal_request($resource): bool
     {
-        return stripos(strtolower((string) $resource), "/portal/") !== false;
+        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
+        return str_contains((string) $resource, "/portal/");
     }
 
     public static function is_api_request($resource): bool
     {
-        return stripos(strtolower((string) $resource), "/api/") !== false;
+        // GitHub Copilot AI-generated code - case-sensitive endpoint check per RFC 3986
+        return str_contains((string) $resource, "/api/");
     }
 
     /** prevents external cloning */
