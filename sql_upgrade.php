@@ -339,7 +339,7 @@ header('Content-type: text/html; charset=utf-8');
                 </a>
             </span>
             </div>
-            <div id="serverStatus" class="card card-body pb-2 h-25 overflow-auto collapse show">
+            <div id="serverStatus" class="card card-body mb-1 mt-0 pb-2 h-25 overflow-auto collapse show">
                 <div class="bg-light text-dark">
                     <ul id="status-message"></ul>
                 </div>
