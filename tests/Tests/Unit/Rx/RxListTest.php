@@ -26,7 +26,6 @@ class RxListTest extends TestCase
     {
         $reflection = new ReflectionClass($rxList);
         $method = $reflection->getMethod('parseToTokens');
-        $method->setAccessible(true);
         return $method->invoke($rxList, $page);
     }
 
@@ -36,18 +35,18 @@ class RxListTest extends TestCase
     public function testParseToTokensSplitsByTags(): void
     {
         $rxList = new RxList();
-        
+
         // Test with XML-like content
         $page = '<name>Aspirin</name><rxcui>1191</rxcui>';
         $result = $this->invokeParseToTokens($rxList, $page);
-        
+
         // Should return an array
         $this->assertIsArray($result);
-        
+
         // Should have parsed the content into tokens (tags and content separated)
         $this->assertNotEmpty($result);
         $this->assertCount(6, $result);
-        
+
         // Verify token content - tags and content are now separated
         $this->assertEquals('<name>', $result[0]);
         $this->assertEquals('Aspirin', $result[1]);
@@ -64,7 +63,7 @@ class RxListTest extends TestCase
     {
         $rxList = new RxList();
         $result = $this->invokeParseToTokens($rxList, '');
-        
+
         $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
@@ -76,7 +75,7 @@ class RxListTest extends TestCase
     {
         $rxList = new RxList();
         $result = $this->invokeParseToTokens($rxList, 'plain text');
-        
+
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertEquals('plain text', $result[0]);
@@ -90,10 +89,10 @@ class RxListTest extends TestCase
         $rxList = new RxList();
         $page = '<name>Drug A</name><synonym>Generic A</synonym><rxcui>12345</rxcui>';
         $result = $this->invokeParseToTokens($rxList, $page);
-        
+
         $this->assertIsArray($result);
         $this->assertNotEmpty($result);
-        
+
         // Should have tokens for each tag and content
         $this->assertContains('<name>', $result);
         $this->assertContains('</name>', $result);
@@ -112,7 +111,7 @@ class RxListTest extends TestCase
         $page = '<name>Aspirin</name><synonym>Acetylsalicylic acid</synonym><rxcui>1191</rxcui>';
         $tokens = $this->invokeParseToTokens($rxList, $page);
         $hash = $rxList->tokensToHash($tokens);
-        
+
         $this->assertIsArray($hash);
         $this->assertCount(1, $hash);
         $this->assertEquals('Aspirin', $hash[0]['name']);
