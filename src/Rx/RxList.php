@@ -157,7 +157,7 @@ class RxList
                 $ending = "";
             }
 
-            if ($pos === ($record + 1) and ($ending != "")) {
+            if ($pos === ($record + 1) && ($ending !== "")) {
                 $my_pos = stripos((string) $tokens[$pos], "<");
                 $hash[$type] = $my_pos !== false ? substr((string) $tokens[$pos], 0, $my_pos) : $tokens[$pos];
                 $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
