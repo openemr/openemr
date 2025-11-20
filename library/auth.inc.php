@@ -128,7 +128,7 @@ function authCloseSession(): void
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
     global $incoming_site_id;
-    $incoming_site_id = $_SESSION['site_id'];
+    $incoming_site_id = $_SESSION['site_id'] ?? '';
     SessionUtil::coreSessionDestroy();
 }
 
