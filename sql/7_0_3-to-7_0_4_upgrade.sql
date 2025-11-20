@@ -2591,3 +2591,8 @@ UPDATE categories SET codes='LOINC:42348-3' WHERE name='Advance Directive' AND c
 #IfNotRow2D preference_value_sets loinc_code 95541-9 answer_code 314433002
 INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_display,sort_order,active) VALUES('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
 #EndIf
+
+-- --------------------------------------------------------- sjp 11/20/2025 ----------------------------------------------------------------------------------------------------
+#IfColumn pregnancy_gravida
+ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `pregnancy_para`;
+#EndIf
