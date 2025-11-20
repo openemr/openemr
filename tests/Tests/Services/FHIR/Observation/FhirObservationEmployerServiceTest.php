@@ -273,7 +273,7 @@ class FhirObservationEmployerServiceTest extends TestCase
         foreach ($categories as $category) {
             $categoryCoding = $category->getCoding();
             foreach ($categoryCoding as $coding) {
-                if ($coding->getCode()->getValue() === 'social-history') {
+                if ($coding->getCode() === 'social-history') {
                     $socialHistoryFound = true;
                     break 2;
                 }

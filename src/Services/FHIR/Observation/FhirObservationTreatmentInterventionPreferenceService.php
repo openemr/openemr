@@ -246,12 +246,13 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
         $obs->setStatus($dataRecord['status'] ?: self::DEFAULT_STATUS);
 
         // Category
-        $catCoding = new FHIRCoding();
-        $catCoding->setSystem(self::CATEGORY_SYSTEM);
-        $catCoding->setCode(self::CATEGORY_CODE);
-        $cat = new FHIRCodeableConcept();
-        $cat->addCoding($catCoding);
-        $obs->addCategory($cat);
+        $obs->addCategory(UtilsService::createCodeableConcept([
+            self::CATEGORY_CODE => [
+                'system' => self::CATEGORY_SYSTEM,
+                'code' => self::CATEGORY_CODE,
+                'description' => 'Treatment Intervention Preference'
+            ]
+        ]));
 
         // Code - use actual code from database
         $codeCoding = new FHIRCoding();
