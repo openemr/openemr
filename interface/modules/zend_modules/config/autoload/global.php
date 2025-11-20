@@ -17,6 +17,16 @@
 
 use OpenEMR\Common\Crypto\CryptoGen;
 
+// Use the new namespaced constant if available (PHP 8.4+), otherwise use the deprecated one (PHP 8.2-8.3)
+// This ensures compatibility with PHP 8.2+ while avoiding deprecation warnings in PHP 8.5+
+// GitHub Copilot AI-generated compatibility code
+if (defined('Pdo\Mysql::ATTR_INIT_COMMAND')) {
+    define('MYSQL_ATTR_INIT_COMMAND_COMPAT', constant('Pdo\Mysql::ATTR_INIT_COMMAND'));
+} else {
+    define('MYSQL_ATTR_INIT_COMMAND_COMPAT', PDO::MYSQL_ATTR_INIT_COMMAND);
+}
+// End AI-generated code
+
 // If to use utf-8 or not in my sql query
 if (!$GLOBALS['disable_utf8_flag']) {
     if (!empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4")) {
@@ -30,9 +40,9 @@ if (!$GLOBALS['disable_utf8_flag']) {
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
 
 if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
+    $utf8 = [MYSQL_ATTR_INIT_COMMAND_COMPAT => $tmp, PDO::ATTR_PERSISTENT => true];
 } else {
-    $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
+    $utf8 = [MYSQL_ATTR_INIT_COMMAND_COMPAT => $tmp];
 }
 
 // Set mysql to use ssl, if applicable.
