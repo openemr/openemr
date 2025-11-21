@@ -9,13 +9,13 @@
     }
     .telecom-inactive {
         opacity: 0.6;
-        background-color: #f8f9fa;
+        background-color: var(--light);
     }
 </style>
 
 <div id="{{ table_id|attr }}" class="row mt-3">
     <div class="table_edit_telecoms col-12">
-        <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
+        <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
                     {% if foreign_table == 'patient_data' %}
@@ -64,7 +64,7 @@
                     <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;">
                         {{ list_telecom_systems[telecom.system]|text }}
                         {% if is_inactive %}
-                            <span class="badge badge-secondary ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge badge-secondary text-white ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </span>
                 </div>
@@ -548,14 +548,14 @@
                         telecoms_group.classList.add('telecom-inactive');
                         telecoms_group.setAttribute('data-status', 'I');
 
-                        var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
-                        if (!systemSpan.querySelector('.badge')) {
-                            var badge = document.createElement('span');
-                            badge.className = 'badge badge-secondary ml-1';
-                            badge.style.fontSize = '0.7em';
-                            badge.textContent = window.xl('Inactive');
-                            systemSpan.appendChild(badge);
-                        }
+                    var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    if (!systemSpan.querySelector('.badge')) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        systemSpan.appendChild(badge);
+                    }
 
                         inactivateIcon.classList.remove('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
                         inactivateIcon.classList.add('fa-phone-circle-check', 'text-success', 'btn-activate-telecom');

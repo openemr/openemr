@@ -6,7 +6,7 @@
 <style>
     .telecom-inactive-display {
         opacity: 0.6;
-        background-color: #f8f9fa;
+        background-color: var(—light);
         font-style: italic;
     }
 </style>
@@ -54,7 +54,7 @@
                         <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} mr-1"></i>
                         {{ list_telecom_systems[telecom.system]|text }}
                         {% if is_inactive %}
-                            <span class="badge badge-secondary ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge  text-white ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </span>
                 </div>

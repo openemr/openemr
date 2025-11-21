@@ -37,7 +37,7 @@ class FhirOperationDocRefRestController
     private readonly FhirDocRefService $fhirDocRefService;
     private readonly FhirResourcesService $fhirService;
 
-    public function __construct(HttpRestRequest $request)
+    public function __construct(private readonly HttpRestRequest $request)
     {
         $this->fhirDocRefService = new FhirDocRefService($request->getApiBaseFullUrl());
         $this->fhirService = new FhirResourcesService();
@@ -51,6 +51,14 @@ class FhirOperationDocRefRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         try {
+            // TODO: figure out how to get the session storage down into the CCDA service
+            $sessionBag = $this->request->getSession()->all();
+            foreach ($sessionBag as $key => $value) {
+                if (str_starts_with((string) $key, "_")) {
+                    continue; // skip internal session keys
+                }
+                $_SESSION[$key] = $value;
+            }
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
             $bundleEntries = [];
             foreach ($processingResult->getData() as $searchResult) {
