@@ -10,17 +10,17 @@
     }
     .relation-inactive {
         opacity: 0.6;
-        background-color: #f8f9fa;
+        background-color: var(--light);
     }
     .relation-card {
         border: 1px solid #dee2e6;
         border-radius: 0.25rem;
         margin: 0.5rem 0rem;
-        background-color: #fff;
+        background-color: var(--white);
 
     }
     .relation-card-header {
-        background-color: #f8f9fa;
+        background-color:  var(--light);
         padding: 0.3rem 0.3rem;
         border-bottom: 1px solid #dee2e6;
         cursor: pointer;
@@ -33,8 +33,8 @@
 
 <div id="{{ table_id|attr }}" class="row mt-3">
     <div class="table_edit_relations col-12">
-        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
-            <div style="display: flex; align-items: center;">
+        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem;">
+            <div style="display: flex; align-items: center; background: var(--gray300)">
                 <div class="label_custom mb-0">{{ 'Related Persons'|xlt }}</div>
                 <div class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;" onclick="openPersonSearch()"></div>
             </div>
@@ -94,13 +94,13 @@
                                 <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;">
                                     {{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}
                                     {% if is_inactive %}
-                                        <span class="badge badge-secondary ml-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                                        <span class="badge   text-white ml-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                                     {% endif %}
                                 </span>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ml-4 display_relations_relationship">
+                                <small class="text-muted ml-4 display_relations_relationship style="vertical-align: 0.1rem;">
                                     {{ list_relationships[relatedPerson.relationship]|text }}
                                     {% if relatedPerson.role %} - {{ list_roles[relatedPerson.role]|text }}{% endif %}
                                 </small>
