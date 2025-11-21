@@ -19,8 +19,11 @@ require_once("$srcdir/amc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
@@ -42,12 +45,12 @@ $grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
-    $sqlBindArray = [$form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized];
+    $sqlBindArray = [$form_id, $session->get('authUser'), $session->get('authProvider'), $userauthorized];
 
     if ($transid) {
         array_push($sqlBindArray, $transid);
@@ -305,7 +308,7 @@ function sel_related(e) {
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+ dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>, '_blank', 500, 450);
  return false;
 }
 
@@ -390,7 +393,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <input type='hidden' name='mode' value='add' />
             <div class="row">
                 <div class="col-sm-12">
