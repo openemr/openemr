@@ -26,6 +26,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use Application\Listener\Listener;
 use Error;
 
@@ -95,8 +96,9 @@ class MultipledbController extends BaseController
 
     public function saveAction()
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $this->checkAcl('write');
-        $id = substr((int)$_SESSION['multiple_edit_id'], 0, 11);
+        $id = substr((int)$session->get('multiple_edit_id'), 0, 11);
         $db = [];
         if ($_REQUEST['db']) {
             foreach ($_REQUEST['db'] as $key => $value) {

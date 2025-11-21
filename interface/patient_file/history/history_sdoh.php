@@ -17,9 +17,12 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -29,7 +32,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     die(xlt("Not authorized"));
 }
 
-$csrf = CsrfUtils::collectCsrfToken();
+$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
 
 // Fetch record
 if ($is_new) {
@@ -180,7 +183,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                             <select class="form-control" name="assessor">
                                 <option value=""><?php echo xlt("Select Assessor"); ?></option>
                                 <?php
-                                $current_user = $_SESSION['authUser'] ?? '';
+                                $current_user = $session->get('authUser') ?? '';
                                 $res = sqlStatement("SELECT id, username, CONCAT(fname, ' ', lname) as name FROM users WHERE authorized=1 ORDER BY lname, fname");
                                 while ($row = sqlFetchArray($res)) {
                                     $selected = '';

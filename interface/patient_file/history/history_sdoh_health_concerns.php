@@ -32,6 +32,9 @@ use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $sdoh_id = (int)($_GET['sdoh_id'] ?? 0);
@@ -65,7 +68,7 @@ foreach ($assessmentConcerns as $healthConcern) {
         'diagnosis' => $fullCode,
         'comments' => $healthConcern['text'] ?? '',
         'date' => $healthConcern['date'] ?? date("Y-m-d"),
-        'author_id' => $healthConcern['author']['author_id'] ?? $_SESSION['authUserID']
+        'author_id' => $healthConcern['author']['author_id'] ?? $session->get('authUserID')
     ];
 }
 
@@ -76,12 +79,12 @@ $patientName = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     $selectedConcerns = $_POST['health_concerns'] ?? [];
-    $userId = $_SESSION['authUserID'] ?? 0;
+    $userId = $session->get('authUserID') ?? 0;
 
     try {
         $committed = false;
@@ -105,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'date' => date('Y-m-d H:i:s'),
                     'activity' => 1,
                     'user' => $concern['author_id'] ?? '',
-                    'groupname' => $_SESSION['authProvider'] ?? '',
+                    'groupname' => $session->get('authProvider') ?? '',
                     'comments' => $concern['comments'],
                     'subtype' => 'sdoh',
                     'begdate' => $concern['date'] ?? date("Y-m-d"),
@@ -140,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$csrf = CsrfUtils::collectCsrfToken();
+$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
 ?>
 
 <!DOCTYPE html>
