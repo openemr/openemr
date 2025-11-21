@@ -94,8 +94,7 @@ class ExportKeyDefinitionFilterer
             'postpartum_status' => ['localValueOverride' => 'postpartum_status', 'foreignKeyColumn' => 'list_id'],
             'disability_status' => ['localValueOverride' => 'disability_status', 'foreignKeyColumn' => 'list_id'],
             'hunger_q1' => ['localValueOverride' => 'vital_signs_answers', 'foreignKeyColumn' => 'list_id'],
-            'hunger_q1' => ['localValueOverride' => 'vital_signs_answers', 'foreignKeyColumn' => 'list_id']
-
+            'hunger_q2' => ['localValueOverride' => 'vital_signs_answers', 'foreignKeyColumn' => 'list_id']
         ]
         ,'employer_data' => [
             'occupation' => ['localValueOverride' => 'OccupationODH', 'foreignKeyColumn' => 'list_id'],
