@@ -20,6 +20,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 
 class ContactRelationService extends BaseService
@@ -955,12 +956,30 @@ class ContactRelationService extends BaseService
         if (isset($data['can_receive_medical_info'])) {
             $relation->set_can_receive_medical_info($data['can_receive_medical_info']);
         }
-        if (isset($data['start_date'])) {
-            $relation->set_start_date($data['start_date']);
+
+        // Convert start_date using DateFormatterUtils to handle different date formats
+        if (isset($data['start_date']) && !empty($data['start_date'])) {
+            $startDate = DateFormatterUtils::dateStringToDateTime($data['start_date']);
+            if ($startDate !== false) {
+                $relation->set_start_date($startDate);
+            } else {
+                $this->getLogger()->warning("Invalid start_date format", [
+                    'start_date' => $data['start_date']
+                ]);
+            }
         }
-        if (isset($data['end_date'])) {
-            $relation->set_end_date($data['end_date']);
+
+        if (isset($data['end_date']) && !empty($data['end_date'])) {
+            $endDate = DateFormatterUtils::dateStringToDateTime($data['end_date']);
+            if ($endDate !== false) {
+                $relation->set_end_date($endDate);
+            } else {
+                $this->getLogger()->warning("Invalid end_date format", [
+                    'end_date' => $data['end_date']
+                ]);
+            }
         }
+
         if (isset($data['notes'])) {
             $relation->set_notes($data['notes']);
         }
