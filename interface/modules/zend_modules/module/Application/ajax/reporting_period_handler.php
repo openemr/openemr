@@ -14,11 +14,14 @@
 require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 header('Content-Type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+if (!CsrfUtils::verifyCsrfToken(($_POST['csrf_token'] ?? ''), $session->getSymfonySession())) {
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
 }
@@ -44,6 +47,7 @@ exit;
  */
 function handleUpdateReportingPeriod()
 {
+    global $session;
     $period = $_POST['period'] ?? '';
 
     if (empty($period)) {
@@ -51,16 +55,16 @@ function handleUpdateReportingPeriod()
     }
 
     // Validate the period exists in list_options
-    $sql = "SELECT COUNT(*) as count FROM list_options 
-            WHERE list_id = 'ecqm_reporting_period' 
-                AND option_id = ? 
+    $sql = "SELECT COUNT(*) as count FROM list_options
+            WHERE list_id = 'ecqm_reporting_period'
+                AND option_id = ?
                 AND activity = 1";
 
     $result = sqlQuery($sql, [$period]);
 
     if ($result['count'] > 0) {
         // Update session
-        $_SESSION['selected_ecqm_period'] = $period;
+        $session->set('selected_ecqm_period', $period);
 
         // Update global
         $GLOBALS['cqm_performance_period'] = $period;

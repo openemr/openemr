@@ -2,6 +2,8 @@
 
 /** @package    verysimple::HTTP */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * Context Persistence Storage
  *
@@ -41,7 +43,8 @@ class Context
      */
     public function Get($var, $default = null)
     {
-        return (isset($_SESSION [$this->GUID . "_" . $var])) ? unserialize($_SESSION [$this->GUID . "_" . $var]) : null;
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        return $session->has($this->GUID . "_" . $var) ? unserialize($session->get($this->GUID . "_" . $var)) : null;
     }
 
     /**
@@ -56,6 +59,7 @@ class Context
      */
     public function Set($var, $val)
     {
-        $_SESSION [$this->GUID . "_" . $var] = serialize($val);
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session->set($this->GUID . "_" . $var, serialize($val));
     }
 }
