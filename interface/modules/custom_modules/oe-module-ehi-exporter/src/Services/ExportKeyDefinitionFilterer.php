@@ -60,6 +60,14 @@ class ExportKeyDefinitionFilterer
         , 'form_vital_details' => [
             'interpretation_option_id' => ['localValueOverride' => 'observation_interpretation', 'foreignKeyColumn' => 'list_id']
         ]
+        , 'form_observation' => [
+            'category' => ['localValueOverride' => 'Observation_Types', 'foreignKeyColumn' => 'list_id']
+            ,'ob_status' => ['localValueOverride' => 'observation-status', 'foreignKeyColumn' => 'list_id']
+        ]
+        , 'form_care_plan' => [
+            'care_plan_type' => ['localValueOverride' => 'Plan_of_Care_Type', 'foreignKeyColumn' => 'list_id'],
+            'plan_status' => ['localValueOverride' => 'care_plan_status', 'foreignKeyColumn' => 'list_id']
+        ]
         ,'ar_session' => [
             'payment_type' => ['localValueOverride' => 'payment_type', 'foreignKeyColumn' => 'list_id'],
             'adjustment_code' => ['localValueOverride' => 'payment_adjustment_code', 'foreignKeyColumn' => 'list_id'],
@@ -68,6 +76,30 @@ class ExportKeyDefinitionFilterer
         ,'form_clinical_notes' => [
             'clinical_notes_type' => ['localValueOverride' => 'Clinical_Note_Type', 'foreignKeyColumn' => 'list_id'],
             'clinical_notes_category' => ['localValueOverride' => 'Clinical_Note_Category', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'form_history_sdoh' => [
+            'screening_tool' => ['localValueOverride' => 'sdoh_instruments', 'foreignKeyColumn' => 'list_id'],
+            'food_insecurity' => ['localValueOverride' => 'sdoh_food_insecurity_risk', 'foreignKeyColumn' => 'list_id'],
+            'housing_instability' => ['localValueOverride' => 'sdoh_housing_worry', 'foreignKeyColumn' => 'list_id'],
+            'transportation_insecurity' => ['localValueOverride' => 'sdoh_transportation_barrier', 'foreignKeyColumn' => 'list_id'],
+            'utilities_insecurity' => ['localValueOverride' => 'sdoh_utilities_shutoff', 'foreignKeyColumn' => 'list_id'],
+            'interpersonal_safety' => ['localValueOverride' => 'sdoh_ipv_yesno', 'foreignKeyColumn' => 'list_id'],
+            'financial_strain' => ['localValueOverride' => 'sdoh_financial_strain', 'foreignKeyColumn' => 'list_id'],
+            'social_isolation' => ['localValueOverride' => 'sdoh_social_isolation_freq', 'foreignKeyColumn' => 'list_id'],
+            'childcare_needs' => ['localValueOverride' => 'sdoh_childcare_needs', 'foreignKeyColumn' => 'list_id'],
+            'digital_access' => ['localValueOverride' => 'sdoh_digital_access', 'foreignKeyColumn' => 'list_id'],
+            'employment_status' => ['localValueOverride' => 'sdoh_employment_status', 'foreignKeyColumn' => 'list_id'],
+            'education_level' => ['localValueOverride' => 'sdoh_education_level', 'foreignKeyColumn' => 'list_id'],
+            'pregnancy_status' => ['localValueOverride' => 'pregnancy_status', 'foreignKeyColumn' => 'list_id'],
+            'postpartum_status' => ['localValueOverride' => 'postpartum_status', 'foreignKeyColumn' => 'list_id'],
+            'disability_status' => ['localValueOverride' => 'disability_status', 'foreignKeyColumn' => 'list_id'],
+            'hunger_q1' => ['localValueOverride' => 'vital_signs_answers', 'foreignKeyColumn' => 'list_id'],
+            'hunger_q1' => ['localValueOverride' => 'vital_signs_answers', 'foreignKeyColumn' => 'list_id']
+
+        ]
+        ,'employer_data' => [
+            'occupation' => ['localValueOverride' => 'OccupationODH', 'foreignKeyColumn' => 'list_id'],
+            'industry' => ['localValueOverride' => 'IndustryODH', 'foreignKeyColumn' => 'list_id']
         ]
         ,'patient_tracker_element' => [
             'room' => ['localValueOverride' => 'patient_flow_board_rooms', 'foreignKeyColumn' => 'list_id']
@@ -82,11 +114,19 @@ class ExportKeyDefinitionFilterer
         ,'procedure_type' => [
             'procedure_type' => ['localValueOverride' => 'proc_type', 'foreignKeyColumn' => 'list_id']
         ]
+        ,'procedure_specimen' => [
+            'specimen_type_code' => ['localValueOverride' => 'specimen_type', 'foreignKeyColumn' => 'list_id']
+            ,'collection_method_code' => ['localValueOverride' => 'specimen_collection_method', 'foreignKeyColumn' => 'list_id']
+            ,'specimen_location_code' => ['localValueOverride' => 'specimen_location', 'foreignKeyColumn' => 'list_id']
+            ,'condition_code' => ['localValueOverride' => 'specimen_condition', 'foreignKeyColumn' => 'list_id']
+        ]
         ,'procedure_order' => [
             'order_priority' => ['localValueOverride' => 'ord_priority', 'foreignKeyColumn' => 'list_id'],
             'order_status' => ['localValueOverride' => 'ord_status', 'foreignKeyColumn' => 'list_id'],
             'billing_type' => ['localValueOverride' => 'procedure_billing', 'foreignKeyColumn' => 'list_id'],
-            'procedure_order_type' => ['localValueOverride' => 'order_type', 'foreignKeyColumn' => 'list_id']
+            'procedure_order_type' => ['localValueOverride' => 'order_type', 'foreignKeyColumn' => 'list_id'],
+            'order_intent' => ['localValueOverride' => 'order_intent', 'foreignKeyColumn' => 'list_id'],
+            'performer_type' => ['localValueOverride' => 'performer_type', 'foreignKeyColumn' => 'list_id']
         ]
         ,'procedure_report' => [
             'procedure_type' => ['localValueOverride' => 'proc_rep_status', 'foreignKeyColumn' => 'list_id']
@@ -100,7 +140,24 @@ class ExportKeyDefinitionFilterer
             'information_source' => ['localValueOverride' => 'immunization_informationsource', 'foreignKeyColumn' => 'list_id'],
             'completion_status' => ['localValueOverride' => 'Immunization_Completion_Status', 'foreignKeyColumn' => 'list_id'],
             'refusal_reason' => ['localValueOverride' => 'immunization_refusal_reason', 'foreignKeyColumn' => 'list_id'],
-
+        ]
+        ,'patient_treatment_intervention_preferences' => [
+            'observation_code' => ['localValueOverride' => 'treatment_intervention_preferences', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'patient_care_experience_preferences' => [
+            'observation_code' => ['localValueOverride' => 'care_experience_preferences', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'prescriptions' => [
+            'usage_category' => ['localValueOverride' => 'medication-usage-category', 'foreignKeyColumn' => 'list_id'],
+            'request_intent' => ['localValueOverride' => 'medication-request-intent', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'contact_address' => [
+            'type' => ['localValueOverride' => 'address-types', 'foreignKeyColumn' => 'list_id'],
+            'use' => ['localValueOverride' => 'address-uses', 'foreignKeyColumn' => 'list_id'],
+        ]
+        ,'contact_telecom' => [
+            'type' => ['localValueOverride' => 'telecom_systems', 'foreignKeyColumn' => 'list_id'],
+            'use' => ['localValueOverride' => 'telecom_uses', 'foreignKeyColumn' => 'list_id'],
         ]
     ];
 
