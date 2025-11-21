@@ -358,7 +358,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function getPatientOccupation($pid)
     {
-        $sql = "SELECT 
+        $sql = "SELECT
             p.pid,
             p.fname,
             p.lname,
@@ -514,7 +514,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         left join list_options AS l5 ON l5.list_id=? AND l5.option_id=tribal_affiliations
         where pid=?";
 
-        $appTable = new ApplicationTable();
+        $appTable = $this->applicationTable;
         $row = $appTable->zQuery($query, ['race', 'ethnicity', 'religious_affiliation', 'language', 'tribal_affiliations', $pid]);
 // --- Related persons using new Contact/Person/Relationship services ---
 // Call your existing getRelatedPersons method
@@ -1969,7 +1969,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
         $rows = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " b.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -4443,7 +4443,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getSocialHistorySDOH($pid)
     {
         $sql = "
-        SELECT 
+        SELECT
             hunger_q1,
             hunger_q2,
             hunger_score,
@@ -4451,7 +4451,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             disability_status,
             disability_scale,
             assessment_date
-        FROM form_history_sdoh 
+        FROM form_history_sdoh
         WHERE pid = ?
         ORDER BY COALESCE(updated_at, created_at) DESC
         LIMIT 1
@@ -4846,7 +4846,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         foreach ($types as $type) {
             $sql = "
-            SELECT i.*, c.name AS company_name, 
+            SELECT i.*, c.name AS company_name,
                    c.uuid as compuuid,
                    a.line1, a.line2, a.city, a.state, a.zip, a.plus_four, a.country,
                    a.foreign_id,
