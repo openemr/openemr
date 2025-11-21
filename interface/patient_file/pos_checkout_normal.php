@@ -56,9 +56,12 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
@@ -133,7 +136,7 @@ function receiptPaymentLine($paydate, $amount, $description = ''): void
 function generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
-    global $sl_err, $sl_cash_acc, $details, $facilityService;
+    global $sl_err, $sl_cash_acc, $details, $facilityService, $session;
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
@@ -205,7 +208,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         function deleteme() {
             const params = new URLSearchParams({
                 billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
             });
             dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
             return false;
@@ -585,7 +588,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // If the Save button was clicked...
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"]. $session->getSymfonySession())) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -707,7 +710,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             ")";
             sqlStatement(
                 $query,
-                [$form_pid, $form_encounter, $sequence_no['increment'], $_SESSION['authUserID'], $this_bill_date, $memo, $amount]
+                [$form_pid, $form_encounter, $sequence_no['increment'], $session->get('authUserID'), $this_bill_date, $memo, $amount]
             );
             sqlCommitTrans();
         }
@@ -736,7 +739,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                   "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                   " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                   " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
-                  [$_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc]
+                  [$session->get('authUserID'),$form_source,$dosdate,$amount,$form_pid,$paydesc]
               );
 
               sqlBeginTrans();
@@ -744,7 +747,7 @@ function generate_receipt($patient_id, $encounter = 0): void
               $insrt_id = sqlInsert(
                   "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                   " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                  [$form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$_SESSION['authUserID'],$session_id,$amount]
+                  [$form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$session->get('authUserID'),$session_id,$amount]
               );
               sqlCommitTrans();
         }
@@ -974,7 +977,7 @@ function generate_receipt($patient_id, $encounter = 0): void
             <div class="row">
                 <div class="col-sm-12">
                     <form action='pos_checkout.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                         <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>' />
                         <fieldset>
                             <legend><?php echo xlt('Item Details'); ?></legend>
