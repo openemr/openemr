@@ -143,6 +143,11 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="amendments_history.created_by references users.id"><a href='amendments_history.html'>amendments_history</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="ar_activity.post_user references users.id"><a href='ar_activity.html'>ar_activity</a><span class='relatedKey'>.post_user</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -158,7 +163,77 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="care_team.created_by references users.id"><a href='care_team.html'>care_team</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team.updated_by references users.id"><a href='care_team.html'>care_team</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team_member.contact_id references users.id"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.contact_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team_member.created_by references users.id"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team_member.updated_by references users.id"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="care_team_member.user_id references users.id"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.user_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="contact_address.created_by references users.id"><a href='contact_address.html'>contact_address</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="contact_address.updated_by references users.id"><a href='contact_address.html'>contact_address</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="contact_relation.created_by references users.id"><a href='contact_relation.html'>contact_relation</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="contact_relation.updated_by references users.id"><a href='contact_relation.html'>contact_relation</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="documents.owner references users.id"><a href='documents.html'>documents</a><span class='relatedKey'>.owner</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="drug_sales.created_by references users.id"><a href='drug_sales.html'>drug_sales</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="drug_sales.updated_by references users.id"><a href='drug_sales.html'>drug_sales</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ehi_export_job.user_id references users.id via FK_ehi_export_job_users"><a href='ehi_export_job.html'>ehi_export_job</a><span class='relatedKey'>.user_id</span></td>
+                                                <td class="constraint detail">FK_ehi_export_job_users</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="employer_data.created_by references users.id"><a href='employer_data.html'>employer_data</a><span class='relatedKey'>.created_by</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -174,6 +249,21 @@
                                             </tr>
                                             <tr>
                                                 <td title="form_groups_encounter.supervisor_id references users.id"><a href='form_groups_encounter.html'>form_groups_encounter</a><span class='relatedKey'>.supervisor_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_history_sdoh.created_by references users.id"><a href='form_history_sdoh.html'>form_history_sdoh</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_history_sdoh.updated_by references users.id"><a href='form_history_sdoh.html'>form_history_sdoh</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_history_sdoh_health_concerns.created_by references users.id"><a href='form_history_sdoh_health_concerns.html'>form_history_sdoh_health_concerns</a><span class='relatedKey'>.created_by</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -213,7 +303,22 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="issue_encounter.created_by references users.id"><a href='issue_encounter.html'>issue_encounter</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="issue_encounter.updated_by references users.id"><a href='issue_encounter.html'>issue_encounter</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="lists_medication.created_by references users.id"><a href='lists_medication.html'>lists_medication</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="lists_medication.reporting_source_record_id references users.id"><a href='lists_medication.html'>lists_medication</a><span class='relatedKey'>.reporting_source_record_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -223,12 +328,12 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="onsite_documents.user references users.id"><a href='onsite_documents.html'>onsite_documents</a><span class='relatedKey'>.user</span></td>
+                                                <td title="notes.owner references users.id"><a href='notes.html'>notes</a><span class='relatedKey'>.owner</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="amendments_history.created_by references users.id"><a href='amendments_history.html'>amendments_history</a><span class='relatedKey'>.created_by</span></td>
+                                                <td title="onsite_documents.user references users.id"><a href='onsite_documents.html'>onsite_documents</a><span class='relatedKey'>.user</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -258,17 +363,17 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
-                                                <td title="notes.owner references users.id"><a href='notes.html'>notes</a><span class='relatedKey'>.owner</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
                                                 <td title="openemr_postcalendar_events.pc_aid references users.id"><a href='openemr_postcalendar_events.html'>openemr_postcalendar_events</a><span class='relatedKey'>.pc_aid</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
                                                 <td title="openemr_postcalendar_events.pc_informant references users.id"><a href='openemr_postcalendar_events.html'>openemr_postcalendar_events</a><span class='relatedKey'>.pc_informant</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient_data.advance_directive_user_authenticator references users.id"><a href='patient_data.html'>patient_data</a><span class='relatedKey'>.advance_directive_user_authenticator</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -294,6 +399,26 @@
                                             </tr>
                                             <tr>
                                                 <td title="patient_history.created_by references users.id"><a href='patient_history.html'>patient_history</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="person.created_by references users.id"><a href='person.html'>person</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="person.updated_by references users.id"><a href='person.html'>person</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="person_patient_link.linked_by references users.id"><a href='person_patient_link.html'>person_patient_link</a><span class='relatedKey'>.linked_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="person_patient_link.person_id references users.id"><a href='person_patient_link.html'>person_patient_link</a><span class='relatedKey'>.person_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -348,6 +473,16 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="procedure_specimen.created_by references users.id"><a href='procedure_specimen.html'>procedure_specimen</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="procedure_specimen.updated_by references users.id"><a href='procedure_specimen.html'>procedure_specimen</a><span class='relatedKey'>.updated_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="questionnaire_response.audit_user_id references users.id"><a href='questionnaire_response.html'>questionnaire_response</a><span class='relatedKey'>.audit_user_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -381,6 +516,23 @@
                                     <td><p>Unique identifier for each user in the system.</p></td>
                                 </tr>
                                 <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Universally unique identifier for the user.</p></td>
+                                </tr>
+                                <tr>
                                     <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="username">username</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
@@ -390,7 +542,32 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
+                                                <td title="clinical_notes_documents.created_by references users.username"><a href='clinical_notes_documents.html'>clinical_notes_documents</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="clinical_notes_procedure_results.created_by references users.username"><a href='clinical_notes_procedure_results.html'>clinical_notes_procedure_results</a><span class='relatedKey'>.created_by</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_CAMOS_category.user references users.username"><a href='form_CAMOS_category.html'>form_CAMOS_category</a><span class='relatedKey'>.user</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_CAMOS_item.user references users.username"><a href='form_CAMOS_item.html'>form_CAMOS_item</a><span class='relatedKey'>.user</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="form_group_attendance.user references users.username"><a href='form_group_attendance.html'>form_group_attendance</a><span class='relatedKey'>.user</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="form_history_sdoh.assessor references users.username"><a href='form_history_sdoh.html'>form_history_sdoh</a><span class='relatedKey'>.assessor</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -431,16 +608,6 @@
                                             </tr>
                                             <tr>
                                                 <td title="form_bronchitis.user references users.username"><a href='form_bronchitis.html'>form_bronchitis</a><span class='relatedKey'>.user</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_CAMOS_category.user references users.username"><a href='form_CAMOS_category.html'>form_CAMOS_category</a><span class='relatedKey'>.user</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td title="form_CAMOS_item.user references users.username"><a href='form_CAMOS_item.html'>form_CAMOS_item</a><span class='relatedKey'>.user</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -580,6 +747,23 @@
                                         </table>
                                     </td>
                                     <td><p>Last name of the user.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="suffix">suffix</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Suffix for the user&rsquo;s name (e.g., Jr., Sr.).</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="federaltaxid">federaltaxid</span></td>
@@ -789,6 +973,40 @@
                                         </table>
                                     </td>
                                     <td><p>Email address associated with the user&rsquo;s account. EMPTY for exports</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="email_direct">email_direct</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>&#39;&#39;</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Trusted Direct email address for the user.</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="google_signin_email">google_signin_email</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Email address for Google Sign-In (if applicable). EMPTY for exports</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="url">url</span></td>
@@ -1115,8 +1333,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="notes">notes</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -1250,6 +1468,23 @@
                                     <td><p>State license number for the user.</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="weno_prov_id">weno_prov_id</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>15</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>WENO Provider ID for the user. EMPTY for exports</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="newcrop_user_role">newcrop_user_role</span></td>
                                     <td>VARCHAR</td>
                                     <td>30</td>
@@ -1265,40 +1500,6 @@
                                         </table>
                                     </td>
                                     <td><p>NewCrop user role for the user.EMPTY for exports</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="email_direct">email_direct</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>&#39;&#39;</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Trusted Direct email address for the user.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="physician_type">physician_type</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>50</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Type or designation of the physician (e.g., standard, specialist).</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="cpoe">cpoe</span></td>
@@ -1318,9 +1519,9 @@
                                     <td><p>Indicates whether the user has CPOE (Computerized Physician Order Entry) capabilities.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="suffix">suffix</span></td>
+                                    <td><span id="physician_type">physician_type</span></td>
                                     <td>VARCHAR</td>
-                                    <td>255</td>
+                                    <td>50</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -1332,7 +1533,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Suffix for the user&rsquo;s name (e.g., Jr., Sr.).</p></td>
+                                    <td><p>Type or designation of the physician (e.g., standard, specialist).</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="main_menu_role">main_menu_role</span></td>
@@ -1350,23 +1551,6 @@
                                         </table>
                                     </td>
                                     <td><p>Main menu role for the user. EMPTY for exports</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="weno_prov_id">weno_prov_id</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>15</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>WENO Provider ID for the user. EMPTY for exports</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="patient_menu_role">patient_menu_role</span></td>
@@ -1420,43 +1604,9 @@
                                     <td><p>Unique identifier of the user&rsquo;s supervisor. EMPTY for exports</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Universally unique identifier for the user.</p></td>
-                                </tr>
-                                <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="google_signin_email">google_signin_email</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Email address for Google Sign-In (if applicable). EMPTY for exports</p></td>
-                                </tr>
-                                <tr>
                                     <td><span id="billing_facility">billing_facility</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -1525,6 +1675,40 @@
                                         </table>
                                     </td>
                                     <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="country_code">country_code</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>ISO 3166-1 alpha-2 country code for address but can take entire country name for now</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="country_code2">country_code2</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>ISO 3166-1 alpha-2 country code for address but can take entire country name for now</p></td>
                                 </tr>
                                 </tbody>
                             </table>

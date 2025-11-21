@@ -287,6 +287,40 @@
                                     <td><p>Debugging or Production (MSH-11). Empty on Export</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="direction">direction</span></td>
+                                    <td>CHAR</td>
+                                    <td>1</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>&#39;B&#39;</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Bidirectional or Results-only. Empty on Export</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="lab_id">lab_id</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Laboratory ID</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="protocol">protocol</span></td>
                                     <td>VARCHAR</td>
                                     <td>15</td>
@@ -390,8 +424,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="notes">notes</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -404,23 +438,6 @@
                                         </table>
                                     </td>
                                     <td><p>Additional notes or information. Empty on Export</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="direction">direction</span></td>
-                                    <td>CHAR</td>
-                                    <td>1</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>&#39;B&#39;</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Bidirectional or Results-only. Empty on Export</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="lab_director">lab_director</span></td>
@@ -457,40 +474,6 @@
                                     <td><p>Indicates whether the provider is active</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="date_created">date_created</span></td>
-                                    <td>DATETIME</td>
-                                    <td>19</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>current_timestamp()</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="lab_id">lab_id</span></td>
-                                    <td>Unknown</td>
-                                    <td>0</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Laboratory ID</p></td>
-                                </tr>
-                                <tr>
                                     <td><span id="type">type</span></td>
                                     <td>VARCHAR</td>
                                     <td>31</td>
@@ -506,6 +489,23 @@
                                         </table>
                                     </td>
                                     <td><p>Type of provider or organization</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="date_created">date_created</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>current_timestamp()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
                                 </tr>
                                 <tr>
                                     <td><span id="last_updated">last_updated</span></td>
