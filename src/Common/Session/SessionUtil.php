@@ -154,9 +154,15 @@ class SessionUtil
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
                 unset($_SESSION[$value]);
+                foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+                    $symfonySessionInstance->remove($value);
+                }
             }
         } else {
             unset($_SESSION[$session_key_or_array]);
+            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+                $symfonySessionInstance->remove($session_key_or_array);
+            }
         }
         session_write_close();
         (new SystemLogger())->debug("SessionUtil: unset session value", [

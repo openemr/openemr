@@ -11,6 +11,11 @@ class SymfonySessionWrapper implements SessionWrapperInterface
     {
     }
 
+    public function getId(): string
+    {
+        return $this->session->getId();
+    }
+
     public function get(string $key, $default = null)
     {
         return $this->session->get($key, $default);

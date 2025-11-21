@@ -25,17 +25,20 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Services\DemographicsRelatedPersonsService;
 
+$session = SessionWrapperFactory::instance()->getWrapper();
+
 // Session pid must be right or bad things can happen when demographics are saved!
 //
 $set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
-if ($set_pid && $set_pid != $_SESSION["pid"]) {
+if ($set_pid && $set_pid != $session->get("pid")) {
     setpid($set_pid);
 }
-$pid = $_SESSION["pid"] ?: $set_pid;
+$pid = $session->get("pid") ?: $set_pid;
 if (!$pid) {
     die(xlt('No patient selected.'));
 }
@@ -105,7 +108,7 @@ $CPR = 4; // cells per row
                     // delete from table.
                     const url = top.webroot_url + '/library/ajax/specialty_form_ajax.php?delete=true';
                     let doData = new FormData();
-                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
                     doData.append('id', data.id);
                     doData.append('task_name_history', 'delete');
                     fetch(url, {
@@ -387,7 +390,7 @@ $CPR = 4; // cells per row
       }
 
       <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
+        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($session->get('language_direction') == 'ltr')) { ?>
       div.label_custom {
         text-align: right !important;
       }
@@ -413,7 +416,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
         <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
         onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0; ?>,event,'DEM',constraints)">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
         <input type='hidden' name='mode' value='save' />
         <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
         <input type="hidden" name="isSwapClicked" value="" />

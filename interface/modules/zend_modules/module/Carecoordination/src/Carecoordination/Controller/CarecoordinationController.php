@@ -26,6 +26,7 @@ use C_Document;
 use Document;
 use CouchDB;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use xmltoarray_parser_htmlfix;
 
@@ -106,6 +107,7 @@ class CarecoordinationController extends AbstractActionController
         $action = $request->getPost('action');
         $am_id = $request->getPost('am_id');
         $document_id = $request->getPost('document_id');
+        $session = SessionWrapperFactory::instance()->getWrapper();
 
         if ($action == 'add_new_patient') {
             $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
@@ -140,7 +142,7 @@ class CarecoordinationController extends AbstractActionController
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    ['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
+                    ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
                     $_REQUEST["document_id"] = $uploaded_documents[0]['id'];

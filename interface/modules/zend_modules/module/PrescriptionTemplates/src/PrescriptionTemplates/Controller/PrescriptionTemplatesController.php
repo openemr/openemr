@@ -23,6 +23,7 @@ namespace PrescriptionTemplates\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class PrescriptionTemplatesController extends AbstractActionController
 {
@@ -31,6 +32,7 @@ class PrescriptionTemplatesController extends AbstractActionController
      */
     protected function getDefaultTemplate($id)
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         $prescriptions = [];
         foreach ($ids as $id) {
@@ -44,7 +46,7 @@ class PrescriptionTemplatesController extends AbstractActionController
         }
         $patient = $p->patient;
 
-        $defaultHtml = new ViewModel(['patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $_SESSION['language_direction']]);
+        $defaultHtml = new ViewModel(['patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $session->get('language_direction')]);
         $defaultHtml->setTemplate("prescription-templates/default.phtml");
 
         return $defaultHtml;

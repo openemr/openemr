@@ -7,6 +7,7 @@ require_once("verysimple/DB/ISqlFunction.php");
 require_once("verysimple/DB/DatabaseException.php");
 require_once("verysimple/DB/DatabaseConfig.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
@@ -65,7 +66,7 @@ class DataDriverMySQLi implements IDataDriver
         if (! function_exists("mysqli_connect")) {
             throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         }
-
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $globalsBag = OEGlobalsBag::getInstance();
 
             // if the port is provided in the connection string then strip it out and provide it as a separate param
@@ -73,7 +74,7 @@ class DataDriverMySQLi implements IDataDriver
         $host = $hostAndPort [0];
         $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
 
-        if ((!empty($globalsBag->get("enable_database_connection_pooling")) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($globalsBag->get('connection_pooling_off'))) {
+        if ((!empty($globalsBag->get("enable_database_connection_pooling")) || !empty($session->get("enable_database_connection_pooling"))) && empty($globalsBag->get('connection_pooling_off'))) {
             $host = "p:" . $host;
         }
 

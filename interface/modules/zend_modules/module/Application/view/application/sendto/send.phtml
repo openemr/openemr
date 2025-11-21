@@ -13,6 +13,9 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $combinationFormData = $this->combinationFormData;
 $faxRecievers = $this->faxRecievers;
@@ -36,7 +39,7 @@ while ($row = sqlFetchArray($ecqm_reporting_periods)) {
     }
 }
 // Get current selected period from session/globals or use default
-$selected_period = $_SESSION['selected_ecqm_period'] ?? $GLOBALS['cqm_performance_period'] ?? $default_period ?? '2023';
+$selected_period = $session->get('selected_ecqm_period') ?? $GLOBALS['cqm_performance_period'] ?? $default_period ?? '2023';
 
 ?>
 <div class="header_wrap_left">
@@ -228,7 +231,7 @@ $selected_period = $_SESSION['selected_ecqm_period'] ?? $GLOBALS['cqm_performanc
                 </span>
         </div>
         <div id="componentsForQRDA" style="height:325px !important;display:none;" class="ap-st-st-13">
-            <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
             <label for="report_measures"><?php echo $this->listenerObject->z_xlt('Select Measures to appear in report.'); ?></label>
             <select size="12" id="report_measures" name="report_measures[]" style="width:100%;">

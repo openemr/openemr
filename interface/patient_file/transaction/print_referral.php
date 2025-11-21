@@ -18,6 +18,10 @@ require_once("$srcdir/transactions.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
+
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
 $TEMPLATE_LABELS = [
@@ -153,7 +157,7 @@ if (empty($facrow['facility_npi'])) {
 
 // Generate link to MA logo if it exists.
 $logo = "";
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }

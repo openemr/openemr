@@ -24,6 +24,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\ActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BaseController extends AbstractActionController
 {
@@ -77,9 +78,9 @@ class BaseController extends AbstractActionController
      */
     protected function getCssFiles()
     {
-
+        $session = SessionWrapperFactory::instance()->getWrapper();
         //adding bootstrap rtl for rtl languages
-        if ($_SESSION['language_direction'] == 'rtl') {
+        if ($session->get('language_direction') === 'rtl') {
             $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
         }
 
@@ -121,8 +122,8 @@ class BaseController extends AbstractActionController
      */
     protected function getUserId()
     {
-
-        return $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        return $session->get('authUserID');
     }
 
     /**

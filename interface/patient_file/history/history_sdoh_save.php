@@ -17,10 +17,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$pid = (int)$_SESSION['pid'];
+$session = SessionWrapperFactory::instance()->getWrapper();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+$pid = (int)$session->get('pid');
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
@@ -58,7 +61,7 @@ $data['positive_domain_count'] = HistorySdohService::countPositiveDomains($_POST
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
-$uid = $_SESSION['authUserID'] ?? null;
+$uid = $session->get('authUserID') ?? null;
 
 $clean = fn($k): string => trim($_POST[$k] ?? '');
 $intOrNull = function ($k) {

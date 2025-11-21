@@ -14,6 +14,9 @@ require_once("../../globals.php");
 require_once("$srcdir/clinical_rules.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 ?>
 <html>
@@ -30,10 +33,10 @@ use OpenEMR\Core\Header;
 $all_allergy_alerts = [];
 if ($GLOBALS['enable_allergy_check']) {
   // Will show allergy and medication/prescription conflicts here
-    $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser']);
+    $all_allergy_alerts = allergy_conflict($pid, 'all', $session->get('authUser'));
 }
 
-$active_alerts = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser']);
+$active_alerts = active_alert_summary($pid, "reminders-due", '', 'default', $session->get('authUser'));
 ?>
 
 <td><span class="title">

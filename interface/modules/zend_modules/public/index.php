@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
@@ -36,7 +37,8 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
         session_id($_REQUEST['me']);
         SessionUtil::sessionStartWrapper();
     }
-    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
+    $session = SessionWrapperFactory::instance()->getWrapper();
+    if ($session->get('pid') && $session->get('sessionUser') === '-patient-' && $session->get('portal_init')) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.
         $ignoreAuth_onsite_portal = true;
     }

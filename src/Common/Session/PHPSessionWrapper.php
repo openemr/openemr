@@ -7,6 +7,10 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 class PHPSessionWrapper implements SessionWrapperInterface
 {
+    public function getId(): string
+    {
+        return session_id();
+    }
 
     public function get(string $key, $default = null)
     {

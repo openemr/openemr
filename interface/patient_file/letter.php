@@ -17,7 +17,10 @@ require_once($GLOBALS['srcdir'] . "/patient.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 // Set up crypto object
 $cryptoGen = new CryptoGen();
@@ -25,13 +28,13 @@ $cryptoGen = new CryptoGen();
 $template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -214,7 +217,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -372,7 +375,7 @@ while ($urow = sqlFetchArray($ures)) {
     $tmp1 = " <option value='" . attr($urow['id']) . "'";
     $tmp2 = ">" . text($uname) . "</option>\n";
     $optto .= $tmp1 . $tmp2;
-    if ($urow['id'] == $_SESSION['authUserID']) {
+    if ($urow['id'] == $session->get('authUserID')) {
         $tmp1 .= " selected";
     }
 
@@ -478,7 +481,7 @@ function insertAtCursor(myField, myValue) {
 <body class="body_top" onunload='imclosing()'>
 
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 

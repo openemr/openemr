@@ -18,7 +18,10 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 
 //ensure user has proper access
@@ -30,11 +33,11 @@ $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
 $addAccess = ($editAccess || AclMain::aclCheckCore('patients', 'amendment', '', 'addonly'));
 
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $currentUser = $_SESSION['authUserID'];
+    $currentUser = $session->get('authUserID');
     $created_time = date('Y-m-d H:i');
     if ($_POST["amendment_id"] == "") {
         // New. Insert
@@ -179,7 +182,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Requested Date'); ?></label>

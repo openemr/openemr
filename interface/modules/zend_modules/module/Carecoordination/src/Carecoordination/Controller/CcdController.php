@@ -24,6 +24,7 @@ use C_Document;
 use Document;
 use CouchDB;
 use xmltoarray_parser_htmlfix;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcdController extends AbstractActionController
 {
@@ -64,13 +65,14 @@ class CcdController extends AbstractActionController
         $request          = $this->getRequest();
         $upload           = $request->getPost('upload');
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCD');
+        $session = SessionWrapperFactory::instance()->getWrapper();
 
         if ($upload == 1) {
             $time_start         = date('Y-m-d H:i:s');
             $obj_doc            = $this->documentsController;
             $cdoc               = $obj_doc->uploadAction($request);
             $uploaded_documents = [];
-            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
+            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"]   = 'YES';
