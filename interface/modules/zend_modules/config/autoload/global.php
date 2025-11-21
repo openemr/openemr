@@ -89,14 +89,17 @@ if (!empty($GLOBALS['allow_multiple_databases'])) {
 
     $dbh = null; // Close pdo connection
 }
+// sites/<site_id>/sqlconf.php stores the database connection settings into a global sqlconf variable
+// we will use that instead of the individual globals set previously.
+$sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', 'pass' => '', 'port' => ''];
 
 return [
     'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . ($GLOBALS['dbase'] ?? '') . ';host=' . ($GLOBALS['host'] ?? ''),
-        'username'       => $GLOBALS['login'] ?? '',
-        'password'       => $GLOBALS['pass'] ?? '',
-        'port'           => $GLOBALS['port'] ?? '',
+        'dsn'            => 'mysql:dbname=' . ($sqlConf['dbase'] ?? '') . ';host=' . ($sqlConf['host'] ?? ''),
+        'username'       => $sqlConf['login'] ?? '',
+        'password'       => $sqlConf['pass'] ?? '',
+        'port'           => $sqlConf['port'] ?? '',
         'driver_options' => $utf8,
         'adapters' => $adapters
 
