@@ -24,6 +24,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\ActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BaseController extends AbstractActionController
 {
@@ -114,8 +115,8 @@ class BaseController extends AbstractActionController
      */
     protected function getUserId()
     {
-
-        return $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        return $session->get('authUserID');
     }
 
     /**
