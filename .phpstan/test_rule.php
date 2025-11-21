@@ -14,7 +14,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\String_;
 use PhpParser\ParserFactory;
 
 echo "Testing ForbiddenGlobalsAccessRule detection logic...\n\n";
