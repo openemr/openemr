@@ -8,7 +8,7 @@
  * with external secrets providers.
  *
  * @package   OpenEMR
- * @author    GitHub Copilot AI-generated // AI-generated
+ * @author    GitHub Copilot // AI-generated
  * @copyright Copyright (c) 2025 OpenEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
