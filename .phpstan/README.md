@@ -6,7 +6,17 @@ This directory contains custom PHPStan rules to enforce modern coding patterns i
 
 ### ForbiddenGlobalsAccessRule
 
-**Purpose:** Prevents direct `$GLOBALS` access in favor of `OEGlobalsBag::getInstance()`.
+**Purpose:** Prevents direct `$GLOBALS` array access in favor of `OEGlobalsBag::getInstance()`.
+
+**What it catches:**
+- `$GLOBALS['key']` - Direct array access (single or double quotes)
+- `$GLOBALS["key"]` - Direct array access with double quotes
+- `$value = $GLOBALS['setting']` - Variable assignment from $GLOBALS
+- `function($GLOBALS['param'])` - Passing $GLOBALS values as parameters
+
+**What it doesn't catch (intentionally):**
+- `global $GLOBALS;` - Global declarations (rare edge case, can be addressed separately if needed)
+- References to `$GLOBALS` in comments or strings
 
 **Rationale:**
 - **Testability** - `OEGlobalsBag` can be mocked in unit tests
@@ -54,13 +64,3 @@ Existing violations of these rules are recorded in `phpstan-database-baseline.ne
 ```bash
 vendor/bin/phpstan --memory-limit=8G analyze
 ```
-
-## Adding to Baseline
-
-If you need to add more violations to the baseline (e.g., for legacy code), you can regenerate it:
-
-```bash
-vendor/bin/phpstan --memory-limit=8G analyze --generate-baseline=.phpstan/phpstan-database-baseline.neon
-```
-
-Note: Only add existing violations to the baseline. New code should not violate these rules.
