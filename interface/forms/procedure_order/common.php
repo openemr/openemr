@@ -983,7 +983,7 @@ if (!empty($row['lab_id'])) {
         }
 
         // The name of the form field for find-code popup results.
-        let rcvarname, targetElement, targetProcedure, promiseData;
+        var rcvarname, targetElement, targetProcedure, promiseData;
 
         /*
         * I could have used a callback like set_related_target but I wanted

@@ -188,7 +188,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
         $existingSpecimens[$row['procedure_specimen_id']] = $row['uuid'];
     }
 
-    $new_key = array_key_exists(-1, $postData['form_proc_specimen_id']);
+    $new_key = array_key_exists(-1, $postData['form_proc_specimen_id'] ?? []);
     $index = $new_key ? -1 : $index;
 
     // Get specimen IDs from POST (tracks which specimens to keep)
