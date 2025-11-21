@@ -7,7 +7,7 @@
  * It's not a full PHPStan test but shows the logic is sound.
  *
  * @package   OpenEMR
- * @author    GitHub Copilot AI-generated // AI-generated
+ * @author    GitHub Copilot // AI-generated
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
