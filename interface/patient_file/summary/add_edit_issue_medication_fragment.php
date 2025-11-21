@@ -57,7 +57,6 @@ $isPrimaryRecord = $medication['is_primary_record'] ?? '1';
 </div>
 <script>
     $(function () {
-        debugger;
        $("input.medication-reported-option").click(function () {
            var isPrimary = $(this).val();
            if (isPrimary === '1') {
