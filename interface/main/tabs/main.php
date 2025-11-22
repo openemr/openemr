@@ -30,7 +30,8 @@ use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
-use OpenEMR\Telemetry\TelemetryService;
+use OpenEMR\Services\ServiceLocator;
+use OpenEMR\Telemetry\TelemetryServiceInterface;
 use Symfony\Component\Filesystem\Path;
 
 $logoService = new LogoService();
@@ -123,7 +124,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
         const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
         const isServicesOther = (isSms || isFax);
-        var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
+        var telemetryEnabled = <?php echo js_escape(ServiceLocator::get(TelemetryServiceInterface::class)->isTelemetryEnabled()); ?>;
 
         /**
          * Async function to get session value from the server
