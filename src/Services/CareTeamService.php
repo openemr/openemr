@@ -438,9 +438,6 @@ class CareTeamService extends BaseService
         foreach ($existingMembers as $member) {
             $this->markMemberAsInactive($member['id']);
         }
-
-        // Trigger care team update event for FHIR sync if needed
-        $this->triggerCareTeamUpdateEvent();
     }
 
     /**
@@ -585,10 +582,11 @@ class CareTeamService extends BaseService
 
         while ($member = QueryUtils::fetchArrayFromResultSet($careTeamResult)) {
             $teamName = $member['team_name'] ?? 'default';
+            $teamId = $member['team_id'];
 
-            if (!isset($careTeams[$teamName])) {
-                $careTeams[$teamName] = [
-                    'team_id' => $member['team_id'],
+            if (!isset($careTeams[$teamId])) {
+                $careTeams[$teamId] = [
+                    'team_id' => $teamId,
                     'team_name' => $teamName,
                     'team_status' => $member['team_status'],
                     'members' => [],
@@ -615,7 +613,7 @@ class CareTeamService extends BaseService
                 continue; // Skip if neither user nor contact
             }
 
-            $careTeams[$teamName]['members'][] = [
+            $careTeams[$teamId]['members'][] = [
                 'id' => $member['id'],
                 'care_team_id' => $member['care_team_id'],
                 'member_type' => $memberType,
@@ -642,11 +640,19 @@ class CareTeamService extends BaseService
                 'date_updated' => $member['date_updated']
             ];
 
-            $careTeams[$teamName]['member_count']++;
+            $careTeams[$teamId]['member_count']++;
         }
 
         // Return the primary team or create empty structure
+        // TODO: @adunsulag at some point we want to support multiple care teams... for now return first active or first found.
         if ($careTeams !== []) {
+            foreach ($careTeams as $team) {
+                // return the first active team found
+                // otherwise return the first team
+                if ($team['team_status'] === 'active') {
+                    return $team;
+                }
+            }
             return reset($careTeams); // Get first team
         }
 
@@ -675,37 +681,5 @@ class CareTeamService extends BaseService
             $members[] = $row;
         }
         return $members;
-    }
-
-    private function triggerCareTeamUpdateEvent(): void
-    {
-        // This would trigger an event for FHIR resource update
-        // You can implement event dispatching here if needed
-        // Example:
-        // $this->getEventDispatcher()->dispatch(
-        //     new CareTeamUpdateEvent($pid, $teamName, $members),
-        //     CareTeamUpdateEvent::EVENT_HANDLE
-        // );
-    }
-
-    /**
-     * Legacy
-     * Create care team history record
-     */
-    public function createCareTeamHistory($pid, $oldProviders, $oldFacilities)
-    {
-        // we should never be null here but for legacy reasons we are going to default to this
-        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
-
-        $insertData = [
-            'pid' => $pid, 'care_team_provider' => $oldProviders, 'care_team_facility' => $oldFacilities,
-            'history_type_key' => 'care_team_history',
-            'created_by' => $createdBy,
-            'uuid' => UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid()
-        ];
-        $insert = $this->buildInsertColumns($insertData);
-
-        $sql = "INSERT INTO " . self::PATIENT_HISTORY_TABLE . " SET " . $insert['set'];
-        return QueryUtils::sqlInsert($sql, $insert['bind']);
     }
 }

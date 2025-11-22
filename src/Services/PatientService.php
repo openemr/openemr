@@ -238,14 +238,6 @@ class PatientService extends BaseService
         array_push($query['bind'], $data['pid']);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
-        if (
-            $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
-            || ($dataBeforeUpdate['care_team_facility'] ?? '') != ($data['care_team_facility'] ?? '')
-        ) {
-            // need to save off our care team
-            $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);
-        }
-
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
@@ -653,12 +645,6 @@ class PatientService extends BaseService
     public function getPidByUuid($uuid)
     {
         return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
-    }
-
-    private function saveCareTeamHistory($patientData, $oldProviders, $oldFacilities)
-    {
-        $careTeamService = new CareTeamService();
-        $careTeamService->createCareTeamHistory($patientData['pid'], $oldProviders, $oldFacilities);
     }
 
     public function formatPreviousName($item)
