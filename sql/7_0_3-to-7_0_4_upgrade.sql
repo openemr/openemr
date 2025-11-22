@@ -2634,7 +2634,7 @@ ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `preg
 -- we don't want to destroy any patient data entered in these deprecated fields but we do want to stop them from appearing on the DEM form
 #IfNotRow2D layout_options form_id DEM field_id care_team_facility uor 0
 UPDATE layout_options SET uor=0 WHERE form_id='DEM' AND field_id IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND uor=1;
-ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text DEFAULT NULL COMMENT 'Deprecated field, use care_team_member table instead';
-ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text DEFAULT NULL COMMENT 'Deprecated field, use care_team_member table instead';
-ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text DEFAULT NULL COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text COMMENT 'Deprecated field, use care_team_member table instead';
 #EndIf
