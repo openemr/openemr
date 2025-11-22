@@ -73,8 +73,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
         // and make sure we don't have a mapped care team resource created already for our resource
         $mappedRecords = UuidMapping::getMappedRecordsForTableUUID($targetUuid);
         $resourceRecordsToCreate = [
-            CareTeamService::MAPPING_RESOURCE_NAME => true
-            ,'Observation' => true
+            'Observation' => true
         ];
         foreach ($mappedRecords as $record) {
             if (in_array($record['resource'], $resourceRecordsToCreate)) {
