@@ -55,9 +55,7 @@ function saveProcedureOrderCodes($formid, $postData): array
         }
 
         // Check if user provided an existing order_seq (for updates)
-        $existing_seq = !empty($postData['form_proc_order_seq'][$i])
-            ? (int)$postData['form_proc_order_seq'][$i]
-            : 0;
+        $existing_seq = !empty($postData['form_proc_order_seq'][$i]) ? (int)$postData['form_proc_order_seq'][$i] : 0;
 
         // Prepare data for insert/update
         $reason_code = trim($postData['form_proc_reason_code'][$i] ?? '');
@@ -190,6 +188,9 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
         $existingSpecimens[$row['procedure_specimen_id']] = $row['uuid'];
     }
 
+    $new_key = array_key_exists(-1, $postData['form_proc_specimen_id'] ?? []);
+    $index = $new_key ? -1 : $index;
+
     // Get specimen IDs from POST (tracks which specimens to keep)
     $specimenIds = $postData['form_proc_specimen_id'][$index] ?? [];
 
@@ -233,7 +234,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
 
     $processedSpecimenIds = [];
 
-    for ($s = 0; $s < $rows; $s++) {
+    for ($s = 0; $s <= $rows; $s++) {
         // Skip blank lines
         $any = trim(($ids[$s] ?? '')) . trim(($accs[$s] ?? '')) . trim(($types[$s] ?? '')) .
             trim(($sites[$s] ?? '')) . trim(($lowDates[$s] ?? '')) . trim(($highDates[$s] ?? '')) .
