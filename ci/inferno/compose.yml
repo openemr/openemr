@@ -47,6 +47,7 @@ services:
       INFERNO_TEST: "${INFERNO_TEST:-false}"
       XDEBUG_ON: "${XDEBUG_ON:-0}"
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      XDEBUG_CLIENT_HOST: host.docker.internal
     depends_on:
       couchdb:
         condition: service_started
@@ -62,6 +63,7 @@ services:
       service: inferno
     environment:
       INFERNO_DISABLE_TLS_TEST: "true"
+      INFERNO_HOST: http://localhost:8000
   worker:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
