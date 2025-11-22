@@ -1,6 +1,7 @@
 includes:
   - extension.neon
   - phpstan-database-baseline.neon
+  - phpstan-globals-baseline.neon
 
 parameters:
   reportUnmatchedIgnoredErrors: false
