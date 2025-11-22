@@ -1537,7 +1537,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $facilitiesIds = array_filter(array_map('intval', $facilities));
         foreach ($providers as $providerId) {
             // skip invalid provider ids
-            if (intval($providerId ?? 0) <= 0) {
+            if (intval($providerId) <= 0) {
                 continue;
             }
             $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "

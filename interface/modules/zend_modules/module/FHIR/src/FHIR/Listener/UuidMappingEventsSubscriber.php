@@ -18,7 +18,6 @@ namespace OpenEMR\ZendModules\FHIR\Listener;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Services\ServiceSaveEvent;
-use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
@@ -79,9 +78,6 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
             if (in_array($record['resource'], $resourceRecordsToCreate)) {
                 $resourceRecordsToCreate[$record['resource']] = false;
             }
-        }
-        if ($resourceRecordsToCreate[CareTeamService::MAPPING_RESOURCE_NAME]) {
-            UuidMapping::createMappingRecord($targetUuid, CareTeamService::MAPPING_RESOURCE_NAME, PatientService::TABLE_NAME);
         }
         // for observations we have to grab a bunch of keys
         if ($resourceRecordsToCreate['Observation']) {
