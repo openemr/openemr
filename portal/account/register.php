@@ -15,6 +15,7 @@
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -28,6 +29,8 @@ if ($portalRegistrationAuthorization !== true) {
     die();
 }
 
+$session = SessionWrapperFactory::instance()->getWrapper();
+
 if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
     (new SystemLogger())->debug("Attempted to use register.php despite register feature being turned off, so failed");
     SessionUtil::portalSessionCookieDestroy();
@@ -36,18 +39,18 @@ if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_reca
     die();
 }
 
-unset($_SESSION['itsme']);
-$_SESSION['authUser'] = 'portal-user';
-$_SESSION['pid'] = true;
-$_SESSION['register'] = true;
-$_SESSION['register_silo_ajax'] = true;
+$session->remove('itsme');
+$session->set('authUser', 'portal-user');
+$session->set('pid', true);
+$session->set('register', true);
+$session->set('register_silo_ajax', true);
 
-$landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 
 // Prepare data for the template
 $data = [
 'global' => $GLOBALS,
-'session' => $_SESSION,
+'session' => $_SESSION, // TODO this seems as not used inside of template
 'languageRegistration' => $languageRegistration ?? '',
 'fnameRegistration' => $fnameRegistration ?? '',
 'mnameRegistration' => $mnameRegistration ?? '',
