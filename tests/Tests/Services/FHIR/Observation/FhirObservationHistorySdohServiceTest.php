@@ -202,9 +202,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
         // Insert SDOH record with pregnancy status
         $recordId = $this->insertSdohRecord([
             'pregnancy_status' => 'pregnant', // Maps to SNOMED-CT:77386006 from list_options
-            'pregnancy_edd' => '2025-09-01',
-            'pregnancy_gravida' => 2,
-            'pregnancy_para' => 1
+            'pregnancy_edd' => '2025-09-01'
         ]);
 
         // Retrieve observations using the FHIR service

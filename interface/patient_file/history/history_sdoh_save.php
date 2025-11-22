@@ -117,8 +117,6 @@ $data = [
     // Pregnancy
     'pregnancy_status' => $clean('pregnancy_status'),
     'pregnancy_edd' => $dateOrNull('pregnancy_edd'),
-    'pregnancy_gravida' => $intOrNull('pregnancy_gravida'),
-    'pregnancy_para' => $intOrNull('pregnancy_para'),
     'postpartum_status' => $clean('postpartum_status'),
     'postpartum_end' => $dateOrNull('postpartum_end'),
     'pregnancy_intent' => $clean('pregnancy_intent'),
