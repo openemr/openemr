@@ -1056,3 +1056,33 @@ patient/Condition.cud
 **Support:**
 - Community Forum: https://community.open-emr.org/
 - Scope Reference: https://hl7.org/fhir/smart-app-launch/scopes-and-launch-context.html
+
+
+---
+## Documentation Attribution
+
+### Authorship
+This documentation represents the collective knowledge and contributions of the OpenEMR open-source community. The content is based on:
+- Original documentation by OpenEMR developers and contributors
+- Technical specifications from the OpenEMR codebase
+- Community feedback and real-world implementation experience
+
+### AI Assistance
+The organization, structure, and presentation of this documentation was enhanced using Claude AI (Anthropic) to:
+- Reorganize content into a more accessible modular structure
+- Add comprehensive examples and use cases
+- Improve navigation and cross-referencing
+- Enhance clarity and consistency across documents
+
+All technical accuracy is maintained from the original community-authored documentation.
+
+### Contributing
+OpenEMR is an open-source project. To contribute to this documentation:
+- **Report Issues:** [GitHub Issues](https://github.com/openemr/openemr/issues)
+- **Discuss:** [Community Forum](https://community.open-emr.org/)
+- **Submit Changes:** [Pull Requests](https://github.com/openemr/openemr/pulls)
+
+**Last Updated:** November 2025
+**License:** GPL v3
+
+For complete documentation, see **[Documentation/api/](Documentation/api/)**
