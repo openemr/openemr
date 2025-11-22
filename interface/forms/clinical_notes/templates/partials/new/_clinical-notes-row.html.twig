@@ -7,7 +7,7 @@
             <div class="forms col-lg-4">
                 <div class="row pl-2">
                     <div class="col-12">
-                        <label for="code_date_{{ index|attr }}" class="h5">{{"Date"|xlt}}:</label>
+                        <label for="code_date_{{ index|attr }}" class="h5">{{ "Date"|xlt }}:</label>
                         <input type='text' id="code_date_{{ index|attr }}" name='code_date[]' class="form-control code_date datepicker" value='{{ obj.date|default('')|attr }}' title='{{ 'yyyy-mm-dd Date of service'|xla }}' />
                     </div>
                     {% if clinical_notes_type|length > 0 %}
@@ -33,7 +33,7 @@
                     {% endif %}
                     {% if clinical_notes_category|length > 0 %}
                         <div class="col-12">
-                            <label for="clinical_notes_category_{{ index|attr }}" class="h5">{{ 'Category'|xlt  }}:</label>
+                            <label for="clinical_notes_category_{{ index|attr }}" class="h5">{{ 'Category'|xlt }}:</label>
                             <select name="clinical_notes_category[]" id="clinical_notes_category_{{ index|attr }}" class="form-control clinical_notes_category">
                                 <option value="">{{ 'Select Note Category'|xlt }}</option>
                                 {% for type in clinical_notes_category %}
@@ -53,14 +53,16 @@
                         </div>
                     {% endif %}
                     <!-- Note Author -->
-                    <div class="col-12">
-                        <label class="h6">{{ 'Author'|xlt }}:</label>
-                        <span>{{ obj.full_name|text }}</span>
-                    </div>
-                    <!-- Last edited date -->
-                    <div class="col-12">
-                        <label class="h6">{{ 'Last Updated'|xlt }}:</label>
-                        <span>{{ obj.last_updated|text }}</span>
+                    <div class="hide-author">
+                        <div class="col-12">
+                            <label class="h6">{{ 'Author'|xlt }}:</label>
+                            <span class="text-muted">{{ obj.full_name|text }}</span>
+                        </div>
+                        <!-- Last edited date -->
+                        <div class="col-12">
+                            <label class="h6">{{ 'Last Updated'|xlt }}:</label>
+                            <span>{{ obj.last_updated|text }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -184,17 +186,17 @@
                 </div>
                 {# until we can get more clarity on the different types of linkage we'll have for clinical notes we'll just link to procedure #}
                 <input type="hidden" value="laboratory" id="result-category" />
-{#                <div class="col-md-3">#}
-{#                    <label for="result-category">{{ 'Category'|xlt }}:</label>#}
-{#                    <select class="form-control" id="result-category">#}
-{#                        <option value="">{{ 'All Categories'|xlt }}</option>#}
-{#                        <option#}
-{#                        {% for option in resultCategories %}#}
-{#                            <option value="{{ option.option_id|attr }}" {% if option.option_id == 'laboratory' %}selected="selected"{% endif %}>#}
-{#                                {{ option.title|xlListLabel|text }}</option>#}
-{#                        {% endfor %}#}
-{#                    </select>#}
-{#                </div>#}
+                {#                <div class="col-md-3"> #}
+                {#                    <label for="result-category">{{ 'Category'|xlt }}:</label> #}
+                {#                    <select class="form-control" id="result-category"> #}
+                {#                        <option value="">{{ 'All Categories'|xlt }}</option> #}
+                {#                        <option #}
+                {#                        {% for option in resultCategories %} #}
+                {#                            <option value="{{ option.option_id|attr }}" {% if option.option_id == 'laboratory' %}selected="selected"{% endif %}> #}
+                {#                                {{ option.title|xlListLabel|text }}</option> #}
+                {#                        {% endfor %} #}
+                {#                    </select> #}
+                {#                </div> #}
                 <div class="col-md-3">
                     <label for="result-date-from">{{ 'From Date'|xlt }}:</label>
                     <input type="date" class="form-control" id="result-date-from">
@@ -269,25 +271,29 @@
 </template>
 
 <style>
-    .document-item, .result-item {
-        transition: background-color 0.2s;
-    }
-    .document-item:hover, .result-item:hover {
-        background-color: #f8f9fa !important;
-    }
-    .document-item.selected {
-        background-color: #007bff !important;
-        color: white !important;
-        border-color: #0056b3 !important;
-    }
-    .result-item.selected {
-        background-color: #17a2b8 !important;
-        color: white !important;
-        border-color: #138496 !important;
-    }
-    .document-item.selected .badge,
-    .result-item.selected .badge {
-        background-color: rgba(255,255,255,0.2) !important;
-        color: white !important;
-    }
+  .document-item, .result-item {
+    transition: background-color 0.2s;
+  }
+
+  .document-item:hover, .result-item:hover {
+    background-color: #f8f9fa !important;
+  }
+
+  .document-item.selected {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #0056b3 !important;
+  }
+
+  .result-item.selected {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    border-color: #138496 !important;
+  }
+
+  .document-item.selected .badge,
+  .result-item.selected .badge {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
 </style>
