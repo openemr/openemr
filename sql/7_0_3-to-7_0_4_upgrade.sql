@@ -176,21 +176,86 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
 
+
+#IfNotTable care_team_member
+RENAME TABLE `care_teams` TO `care_teams_old`;
+#EndIf
+
 #IfNotTable care_teams
 CREATE TABLE `care_teams` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  `pid` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
-  `status` varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
-  `team_name` varchar(255) DEFAULT NULL,
-  `note` text,
-  `date_created` datetime DEFAULT current_timestamp(),
-  `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_by` BIGINT(20) COMMENT 'fk to users.id for user who created this record',
-  `updated_by` BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB;
+    `id`           int(11) NOT NULL AUTO_INCREMENT,
+    `uuid`         binary(16)   DEFAULT NULL,
+    `pid`          int(11) NOT NULL COMMENT 'fk to patient_data.pid',
+    `status`       varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `team_name`    varchar(255) DEFAULT NULL,
+    `note`         text,
+    `date_created` datetime     DEFAULT current_timestamp(),
+    `date_updated` datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`   BIGINT(20) COMMENT 'fk to users.id for user who created this record',
+    `updated_by`   BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
+) ENGINE = InnoDB;
+
+CREATE TABLE `care_team_member` (
+    `id`             int(11)     NOT NULL AUTO_INCREMENT,
+    `care_team_id`   int(11)     NOT NULL,
+    `user_id`        BIGINT(20) COMMENT 'fk to users.id represents a provider or staff member',
+    `contact_id`     BIGINT(20) COMMENT 'fk to contact.id which represents a contact person not in users or facility table',
+    `role`           varchar(50) NOT NULL COMMENT 'fk to list_options.option_id WHERE list_id=care_team_roles',
+    `facility_id`    BIGINT(20) COMMENT 'fk to facility.id represents an organization or location',
+    `provider_since` date        NULL,
+    `status`         varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `date_created`   datetime     DEFAULT current_timestamp(),
+    `date_updated`   datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`     BIGINT(20) COMMENT 'fk to users.id and is the user that added this team member',
+    `updated_by`     BIGINT(20) COMMENT 'fk to users.id and is the user that last updated this team member',
+    `note`           text,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
+) ENGINE = InnoDB COMMENT ='Stores members of a care team for a patient';
+
+-- Migrate existing care teams. Thank you, Claude.ai for the help.
+INSERT INTO `care_teams` (`uuid`, `pid`, `status`, `team_name`, `date_created`, `date_updated`)
+SELECT
+    `uuid`,
+    `pid`,
+    `status`,
+    `team_name`,
+    MIN(`date_created`) AS `date_created`,
+    MAX(`date_updated`) AS `date_updated`
+FROM `care_teams_old`
+GROUP BY `pid`, `team_name`, `status`;
+
+-- Step 5: Migrate all members to care_team_member table
+INSERT INTO `care_team_member` (
+    `care_team_id`,
+    `user_id`,
+    `role`,
+    `facility_id`,
+    `provider_since`,
+    `status`,
+    `date_created`,
+    `date_updated`,
+    `note`
+)
+SELECT
+    ct_new.`id` AS `care_team_id`,
+    ct_old.`user_id`,
+    ct_old.`role`,
+    ct_old.`facility_id`,
+    ct_old.`provider_since`,
+    ct_old.`status`,
+    ct_old.`date_created`,
+    ct_old.`date_updated`,
+    ct_old.`note`
+FROM `care_teams_old` ct_old
+         INNER JOIN `care_teams` ct_new
+                    ON ct_old.`pid` = ct_new.`pid`
+                        AND (ct_old.`team_name` = ct_new.`team_name` OR (ct_old.`team_name` IS NULL AND ct_new.`team_name` IS NULL))
+                        AND ct_old.`status` = ct_new.`status`;
+
+-- DROP TABLE `care_teams_old`;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id care_team_roles
@@ -727,7 +792,7 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='religion' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','tribal_affiliations',@group_id,'Tribal Affiliations',@seq_add_to+10,1,1,0,0,'tribal_affiliations',1,1,'','','Tribal Affiliations entries',0,'','F','','','');
 ALTER TABLE `patient_data` ADD `tribal_affiliations` TEXT;
-#Endif
+#EndIf
 
 -- =========================
 -- form_history_sdoh: grouped adds
@@ -1116,6 +1181,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('specimen_collection_method', '225116006', 'Drainage of fluid', 180, 0, 0, 'SNOMED-CT:225116006', 'Fluid drainage');
 #EndIf
 
+-- This is necessary due to potential third party. A common lab resource name
+#IfColumn procedure_specimen source_quantifier
+RENAME TABLE procedure_specimen TO procedure_specimen_by_v704;
+#EndIf
+
 #IfNotTable procedure_specimen
 CREATE TABLE `procedure_specimen` (
   `procedure_specimen_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'record id',
@@ -1165,7 +1235,7 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','em_start_date',@group_id,'Employment Start Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment Start Date',63,'','F',NULL,NULL,'');
 ALTER TABLE `employer_data` ADD `start_date` datetime DEFAULT NULL COMMENT 'Employment start date for patient';
-#Endif
+#EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id em_end_date
 SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='em_start_date' AND form_id='DEM');
@@ -1175,7 +1245,7 @@ SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
 ('DEM','em_end_date',@group_id,'Employment End Date',@seq_add_to+10,4,1,20,0, '',1,1,'','','Employment End Date',63,'','F',NULL,NULL,'');
 ALTER TABLE `employer_data` ADD `end_date` datetime DEFAULT NULL COMMENT 'Employment end date for patient';
-#Endif
+#EndIf
 
 #IfMissingColumn employer_data occupation
 -- to avoid data truncation issues, use longtext, however, the list_options are limited to 64 chars so in the future we may need to truncate or re-map some values.
@@ -1342,7 +1412,7 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='gender_identity' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','sex_identified',@group_id,'Sex',@seq_add_to+10,1,1,20,0,'administrative_sex',1,1,'UNK','sex_identified',"Sex",1,'','[\"N\"]','Sex',0,'');
-#Endif
+#EndIf
 
 #IfNotRow list_options list_id yes_no_unknown
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
@@ -1374,7 +1444,7 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='homeless' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
     ('DEM','interpreter_needed',@group_id,'Interpreter',@seq_add_to+5,1,1,20,0,'yes_no_unknown',1,1,'UNK','interpreter_needed',"Interpreter needed?",1,'','','',0,'');
-#Endif
+#EndIf
 
 #IfMissingColumn form_misc_billing_options encounter
 ALTER TABLE `form_misc_billing_options` ADD `encounter` BIGINT(20) DEFAULT NULL;
@@ -1940,8 +2010,8 @@ CREATE TABLE `person_patient_link` (
         (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
     VALUES
         ('DEM','additional_telecoms',@group_id,'',@max_seq+9,55,0,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Telecoms',0);
-    #Endif
-#Endif
+    #EndIf
+#EndIf
 
 #IfNotRow2D list_options list_id lists option_id telecom_systems
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value)
@@ -1966,7 +2036,7 @@ VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','mobile','Mobile',10,0,1),
+    ('telecom_uses','mobile','Mobile',10,0,1),    
     ('telecom_uses','home','Home',20,0,1),
     ('telecom_uses','work','Work',30,0,1),
     ('telecom_uses','temp','Temp',40,0,1),
@@ -2140,8 +2210,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
     -- Self
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','ONESELF','self',1100,0,1);
-#Endif
-
+#EndIf
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------
 -- relatedperson-relationshiptype Valuesets
@@ -2293,15 +2362,14 @@ DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstna
 DELETE FROM layout_group_properties WHERE  grp_form_id = 'DEM' AND grp_title = 'Related';
 #EndIf
 
-
 #IfRow3D layout_options form_id DEM field_id guardiansname title Name
 UPDATE layout_options SET title = 'Guardian Name' WHERE form_id = 'DEM' AND field_id = 'guardiansname';
-#Endif
+#EndIf
 
 #IfRow2D layout_group_properties grp_form_id DEM grp_title Guardian
 SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='guardianemail' AND form_id='DEM');
 UPDATE layout_group_properties SET grp_title = 'Related' WHERE grp_title = 'Guardian' AND grp_form_id = 'DEM' AND grp_group_id = @group_id;
-#Endif
+#EndIf
 
 #IfNotRow2D layout_group_properties grp_form_id DEM grp_title Related
 SET @group_id = (SELECT max(`grp_group_id`)+1 FROM layout_group_properties WHERE grp_form_id='DEM');
@@ -2309,8 +2377,7 @@ INSERT INTO layout_group_properties
 (grp_form_id, grp_group_id, grp_title, grp_mapping)
 VALUES
     ('DEM', @group_id, 'Related','');
-#Endif
-
+#EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id related_persons
 -- Add Related Persons field to DEM form under Related group, if there are duplicates we add to the end
@@ -2320,50 +2387,14 @@ INSERT INTO `layout_options`
 (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
 VALUES
     ('DEM','related_persons',@group_id,'',@seq_add_to+1,56,1,0,0,'',4,4,'','["J","SP"]','Related Persons',0);
-#Endif
+#EndIf
 
 #IfNotIndex patient_data idx_patient_name
 CREATE INDEX idx_patient_name ON patient_data(lname, fname);
 #EndIf
 
--- Catch up new table structure
-#IfColumn care_teams user_id
-ALTER TABLE `care_teams`
-    DROP `user_id`,
-    DROP `role`,
-    DROP `facility_id`,
-    DROP `provider_since`,
-    CHANGE `status` `status` VARCHAR(100);
-#EndIf
-
-#IfMissingColumn care_teams created_by
-ALTER TABLE `care_teams`
-    ADD `created_by` BIGINT(20) DEFAULT NULL,
-    ADD  `updated_by` BIGINT(20) DEFAULT NULL;
-#EndIf
-
 #IfNotIndex patient_data idx_patient_dob
 CREATE INDEX idx_patient_dob ON patient_data(DOB);
-#EndIf
-
-#IfNotTable care_team_member
-CREATE TABLE `care_team_member` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `care_team_id` int(11) NOT NULL,
-    `user_id` BIGINT(20) COMMENT 'fk to users.id represents a provider or staff member',
-    `contact_id` BIGINT(20) COMMENT 'fk to contact.id which represents a contact person not in users or facility table',
-    `role` varchar(50) NOT NULL COMMENT 'fk to list_options.option_id WHERE list_id=care_team_roles',
-    `facility_id` BIGINT(20) COMMENT 'fk to facility.id represents an organization or location',
-    `provider_since` date NULL,
-    `status` varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
-    `date_created` datetime DEFAULT current_timestamp(),
-    `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `created_by` BIGINT(20) COMMENT 'fk to users.id and is the user that added this team member',
-    `updated_by` BIGINT(20) COMMENT 'fk to users.id and is the user that last updated this team member',
-    `note` text,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
-) ENGINE=InnoDB COMMENT='Stores members of a care team for a patient';
 #EndIf
 
 -- ----------------------------------------------------------------------- sjp 11/10/2025 --------------------------------------------------------------
@@ -2595,12 +2626,4 @@ INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_di
 -- --------------------------------------------------------- sjp 11/20/2025 ----------------------------------------------------------------------------------------------------
 #IfColumn form_history_sdoh pregnancy_gravida
 ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `pregnancy_para`;
-#EndIf
-
-#IfCareTeamsV1MigrationNeeded
--- we don't want to destroy any patient data entered in these deprecated fields but we do want to stop them from appearing on the DEM form
-UPDATE layout_options SET uor=0 WHERE form_id='DEM' AND field_id IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND uor=1;
-ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Deprecated field, use care_team_member table instead';
-ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';
-ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text COMMENT 'Deprecated field, use care_team_member table instead';
 #EndIf
