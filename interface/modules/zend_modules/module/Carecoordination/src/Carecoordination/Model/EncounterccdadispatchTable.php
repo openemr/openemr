@@ -25,7 +25,6 @@ use Documents\Plugin\Documents;
 use Laminas\Db\Adapter\AdapterInterface;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use Matrix\Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -3038,7 +3037,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $bp_avg_value = round(($avg_systolic + (2.0 * $avg_diastolic)) / 3.0, 1);
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // do not fail CCDA generation if calculation service errors
             $bp_avg_value = '';
         }
@@ -3098,9 +3097,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <extension_bps>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bps')) . "</extension_bps>
             <bp_avg>" . xmlEscape(($bp_avg_value !== '' ? $bp_avg_value : '')) . "</bp_avg>
             <extension_bp_avg>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bp_avg')) . "</extension_bp_avg>
-            <avg_systolic>" . xmlEscape(($avg_systolic !== null ? round((float)$avg_systolic, 1) : '')) . "</avg_systolic>
+            <avg_systolic>" . xmlEscape(($avg_systolic !== null ? round($avg_systolic, 1) : '')) . "</avg_systolic>
             <extension_avg_systolic>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'avg_systolic')) . "</extension_avg_systolic>
-            <avg_diastolic>" . xmlEscape(($avg_diastolic !== null ? round((float)$avg_diastolic, 1) : '')) . "</avg_diastolic>
+            <avg_diastolic>" . xmlEscape(($avg_diastolic !== null ? round($avg_diastolic, 1) : '')) . "</avg_diastolic>
             <extension_avg_diastolic>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'avg_diastolic')) . "</extension_avg_diastolic>
 
             <head_circ>" . xmlEscape(((float)$row['head_circ'] ?: '')) . "</head_circ>
