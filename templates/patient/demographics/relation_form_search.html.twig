@@ -287,6 +287,8 @@
 <script type="text/javascript">
     // ============= UNIFIED PERSON SEARCH AND CREATE =============
 
+    const tableId = {{ table_id|js_escape|raw }};
+    const webroot = {{ webroot|js_escape|raw }};
     let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
     let searchTimeout = null;
     let lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
@@ -296,6 +298,21 @@
     if (!csrfToken) {
         console.error('CSRF token not found!');
     }
+
+    // Setup add button
+    var addButton = document.getElementById("btn_add_relation_" + tableId);
+    if (addButton) {
+        console.log('Setting up add button:', addButton.id);
+        addButton.addEventListener('click', function(event) {
+            console.log('Add telecom button clicked:', tableId);
+            event.preventDefault();
+            event.stopPropagation();
+            openPersonSearch(event);
+        });
+    } else {
+        console.warn('Add telecom button not found for table:', tableId);
+    }
+
 
 
     function openPersonSearch() {
@@ -400,7 +417,7 @@
 
         const resultsContainer = document.getElementById('personSearchResults');
 
-        fetch(relationTableConfig.webroot + '/library/ajax/person_search_ajax.php', {
+        fetch(webroot + '/library/ajax/person_search_ajax.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -413,8 +430,8 @@
                 last_name: last_name,
                 birth_date: dob,
                 phone: phone,
-                foreign_table: relationTableConfig.foreignTable,
-                foreign_id: relationTableConfig.foreignId
+                foreign_table: {{ foreignTable|js_escape|raw }},
+                foreign_id: {{ foreignId|js_escape|raw }}
             })
         })
         .then(response => {
@@ -725,7 +742,7 @@
         createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
 
         // Create person via AJAX
-        fetch(relationTableConfig.webroot + '/library/ajax/person_search_ajax.php', {
+        fetch(webroot + '/library/ajax/person_search_ajax.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

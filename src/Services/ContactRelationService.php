@@ -959,24 +959,43 @@ class ContactRelationService extends BaseService
 
         // Convert start_date using DateFormatterUtils to handle different date formats
         if (isset($data['start_date']) && !empty($data['start_date'])) {
-            $startDate = DateFormatterUtils::dateStringToDateTime($data['start_date']);
-            if ($startDate !== false) {
+            try {
+                // Try DateFormatterUtils first
+                $startDate = DateFormatterUtils::dateStringToDateTime($data['start_date']);
+                
+                if ($startDate === false) {
+                    // If that fails, try creating DateTime directly
+                    // This handles Y-m-d format and other common formats
+                    $startDate = new \DateTime($data['start_date']);
+                }
+                
                 $relation->set_start_date($startDate);
-            } else {
+            } catch (\Exception $e) {
                 $this->getLogger()->warning("Invalid start_date format", [
-                    'start_date' => $data['start_date']
+                    'start_date' => $data['start_date'],
+                    'error' => $e->getMessage()
                 ]);
+                // Don't set the date if it's invalid, but don't fail the whole operation
             }
         }
 
         if (isset($data['end_date']) && !empty($data['end_date'])) {
-            $endDate = DateFormatterUtils::dateStringToDateTime($data['end_date']);
-            if ($endDate !== false) {
+            try {
+                // Try DateFormatterUtils first
+                $endDate = DateFormatterUtils::dateStringToDateTime($data['end_date']);
+                
+                if ($endDate === false) {
+                    // If that fails, try creating DateTime directly
+                    $endDate = new \DateTime($data['end_date']);
+                }
+                
                 $relation->set_end_date($endDate);
-            } else {
+            } catch (\Exception $e) {
                 $this->getLogger()->warning("Invalid end_date format", [
-                    'end_date' => $data['end_date']
+                    'end_date' => $data['end_date'],
+                    'error' => $e->getMessage()
                 ]);
+                // Don't set the date if it's invalid, but don't fail the whole operation
             }
         }
 

@@ -622,19 +622,13 @@
 
             function telecomUpdated(event) {
                 const formTelecoms = event.target.closest('.form_telecoms');
-                if (!formTelecoms) {
-                    return;
-                }
+                if (!formTelecoms) return;
 
                 const telecomsGroup = formTelecoms.closest('.telecoms_group');
-                if (!telecomsGroup) {
-                    return;
-                }
+                if (!telecomsGroup) return;
 
                 const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
-                if (!actionInput) {
-                    return;
-                }
+                if (!actionInput) return;
 
                 const currentAction = actionInput.value;
                 if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
