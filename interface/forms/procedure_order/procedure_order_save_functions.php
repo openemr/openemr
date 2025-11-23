@@ -179,7 +179,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
          FROM procedure_specimen 
          WHERE procedure_order_id = ? 
            AND procedure_order_seq = ?
-           AND deleted = 0
+
          ORDER BY procedure_specimen_id",
         [$formid, $order_seq]
     );
@@ -188,8 +188,6 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
         $existingSpecimens[$row['procedure_specimen_id']] = $row['uuid'];
     }
 
-    $new_key = array_key_exists(-1, $postData['form_proc_specimen_id'] ?? []);
-    $index = $new_key ? -1 : $index;
 
     // Get specimen IDs from POST (tracks which specimens to keep)
     $specimenIds = $postData['form_proc_specimen_id'][$index] ?? [];
@@ -278,7 +276,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
     }
 
     // Soft delete specimens that were removed (not in processedSpecimenIds)
-    softDeleteRemovedSpecimens($formid, $order_seq, $processedSpecimenIds);
+    deleteRemovedSpecimens($formid, $order_seq, $processedSpecimenIds);
 }
 
 /**
