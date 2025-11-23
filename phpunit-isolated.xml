@@ -43,5 +43,11 @@ This file configures the kind that does not require initialization.
       <directory>tests/Tests/Unit/Common/Http</directory>
       <directory>tests/Tests/Unit/library</directory>
     </testsuite>
+
+    <!-- Reports unit tests (isolated from database) -->
+    <testsuite name="reports-unit">
+      <file>tests/Tests/Services/Reports/Encounter/EncounterReportFormatterTest.php</file>
+      <file>tests/Tests/Services/Reports/Encounter/EncounterReportFormHandlerTest.php</file>
+    </testsuite>
   </testsuites>
 </phpunit>
