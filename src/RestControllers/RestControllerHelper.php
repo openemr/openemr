@@ -56,11 +56,8 @@ class RestControllerHelper
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
-    private string $restURL = "";
-
-    public function __construct($restAPIUrl = "")
+    public function __construct(private readonly string $restURL = "")
     {
-        $this->restURL = $restAPIUrl;
     }
 
     const FHIR_PREFER_HEADER_RETURN_VALUES = ['minimal', 'representation', 'OperationOutcome'];
@@ -365,7 +362,7 @@ class RestControllerHelper
             }
 
             foreach ($capResource->getSearchParam() as $searchParam) {
-                if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {
+                if (strcmp($searchParam->getName(), (string) $fhirSearchField) == 0) {
                     $paramExists = true;
                 }
             }
@@ -421,7 +418,7 @@ class RestControllerHelper
             $definitionName = 'export';
             $operationName = 'export';
             if ($resource != '$export') {
-                $definitionName = strtolower($resource) . '-export';
+                $definitionName = strtolower((string) $resource) . '-export';
             }
             // define export operation
             $fhirOperation = new FHIRCapabilityStatementOperation();
@@ -439,14 +436,14 @@ class RestControllerHelper
             $fhirOperation->setName($operation);
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
-        } elseif (is_string($operation) && strpos($operation, '$') === 0) {
+        } elseif (is_string($operation) && str_starts_with($operation, '$')) {
             (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
 
     public function addRequestMethods($items, FHIRCapabilityStatementResource $capResource)
     {
-        $reqMethod = trim($items[0], " ");
+        $reqMethod = trim((string) $items[0], " ");
         $numberItems = count($items);
         $code = "";
         // we want to skip over $export operations.
@@ -456,11 +453,7 @@ class RestControllerHelper
 
         // now setup our interaction types
         if (strcmp($reqMethod, "GET") == 0) {
-            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
-                $code = "read";
-            } else {
-                $code = "search-type";
-            }
+            $code = !empty(preg_match('/:/', (string) $items[$numberItems - 1])) ? "read" : "search-type";
         } elseif (strcmp($reqMethod, "POST") == 0) {
             $code = "create";
         } elseif (strcmp($reqMethod, "PUT") == 0) {
@@ -486,9 +479,9 @@ class RestControllerHelper
         $mode->setValue('server');
         $restItem->setMode($mode);
 
-        $resourcesHash = array();
+        $resourcesHash = [];
         foreach ($routes as $key => $function) {
-            $items = explode("/", $key);
+            $items = explode("/", (string) $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
                 // FHIR routes always have the resource at $items[2]
                 $resource = $items[2];
@@ -498,7 +491,7 @@ class RestControllerHelper
                     $resource = $items[2];
                 } elseif (count($items) < 7) {
                     $resource = $items[4];
-                    if (substr($resource, 0, 1) === ':') {
+                    if (str_starts_with($resource, ':')) {
                         // special behavior needed for the API portal route
                         $resource = $items[3];
                     }

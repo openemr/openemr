@@ -20,8 +20,8 @@ use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
 class FormLocator
 {
     private array $pathCache = [];
-    private string $fileRoot;
-    private SystemLogger $logger;
+    private readonly string $fileRoot;
+    private readonly SystemLogger $logger;
 
     // AI GENERATED CODE: HEADER END
     public function __construct(?SystemLogger $logger = null)
@@ -55,7 +55,7 @@ class FormLocator
 
     private function locateFile(string $formDir, string $fileName, string $page): string
     {
-        $isLBF = substr($formDir, 0, 3) === 'LBF';
+        $isLBF = str_starts_with($formDir, 'LBF') || str_starts_with($formDir, 'LBT');
         $basePath = $isLBF ? "/interface/forms/LBF/" : "/interface/forms/{$formDir}/";
         $initialPath = $this->fileRoot . $basePath;
         $initialFilename = $initialPath . $fileName;

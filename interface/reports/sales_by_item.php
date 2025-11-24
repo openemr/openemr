@@ -51,7 +51,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
 function display_desc($desc)
 {
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
+    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
         $desc = $matches[1];
     }
 
@@ -76,7 +76,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
     global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
     global $productleft, $catleft;
 
-    $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
+    $invnumber = $irnumber ?: "$patient_id.$encounter_id";
     $rowamount = sprintf('%01.2f', $amount);
 
     $patdata = sqlQuery("SELECT " .
@@ -85,7 +85,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
     "p.ss, p.sex, p.status, p.phone_home, " .
     "p.phone_biz, p.phone_cell, p.hipaa_notice " .
     "FROM patient_data AS p " .
-    "WHERE p.pid = ? LIMIT 1", array($patient_id));
+    "WHERE p.pid = ? LIMIT 1", [$patient_id]);
 
     $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
 
@@ -556,7 +556,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $grandtotal = 0;
     $grandqty = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
     "b.code_text, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno, lo.title " .
     "FROM billing AS b " .
@@ -585,9 +585,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         salesByItemLineItem(
             $row['pid'],
             $row['encounter'],
-            $row['title'],
+            $row['title'] ?? '',
             $row['code'] . ' ' . $row['code_text'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['units'] ?? 1,
             $row['fee'],
             $row['invoice_refno']
@@ -595,7 +595,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     }
 
     //
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "SELECT s.sale_date, s.fee, s.quantity, s.pid, s.encounter, " .
     "d.name, fe.date, fe.facility_id, fe.provider_id, fe.invoice_refno " .
     "FROM drug_sales AS s " .
@@ -625,7 +625,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $row['encounter'],
             xl('Products'),
             $row['name'],
-            substr($row['date'], 0, 10),
+            substr((string) $row['date'], 0, 10),
             $row['quantity'],
             $row['fee'],
             $row['invoice_refno']

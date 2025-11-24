@@ -44,7 +44,7 @@ class InvoiceSummary
 {
     public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false)
     {
-        $codes = array();
+        $codes = [];
         $keysuff1 = 1000;
         $keysuff2 = 5000;
 
@@ -53,7 +53,7 @@ class InvoiceSummary
             "date, code_type, code, modifier, code_text, fee " .
             "FROM billing WHERE " .
             "pid = ? AND encounter = ? AND " .
-            "activity = 1 AND fee != 0.00 ORDER BY id", array($patient_id, $encounter_id));
+            "activity = 1 AND fee != 0.00 ORDER BY id", [$patient_id, $encounter_id]);
 
         while ($row = sqlFetchArray($res)) {
             $amount = sprintf('%01.2f', $row['fee']);
@@ -67,10 +67,10 @@ class InvoiceSummary
                 $code .= ':' . $row['modifier'];
             }
 
-            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] += $amount;
 
-            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] += $amount;
 
             // Pass the code type, code and code_text fields
@@ -84,10 +84,10 @@ class InvoiceSummary
             // Add the details if they want 'em.
             if ($with_detail) {
                 if (empty($codes[$code]['dtl'])) {
-                    $codes[$code]['dtl'] = array();
+                    $codes[$code]['dtl'] = [];
                 }
 
-                $tmp = array();
+                $tmp = [];
                 $tmp['chg'] = $amount;
                 $tmpkey = "          " . $keysuff1++;
                 $codes[$code]['dtl'][$tmpkey] = $tmp;
@@ -100,7 +100,7 @@ class InvoiceSummary
             "WHERE " .
             "s.pid = ? AND s.encounter = ? AND s.fee != 0 " .
             "ORDER BY s.sale_id";
-        $res = sqlStatement($query, array($patient_id, $encounter_id));
+        $res = sqlStatement($query, [$patient_id, $encounter_id]);
         while ($row = sqlFetchArray($res)) {
             $amount = sprintf('%01.2f', $row['fee']);
             $code = 'PROD:' . $row['drug_id'];
@@ -109,21 +109,21 @@ class InvoiceSummary
             // Add the details if they want 'em.
             if ($with_detail) {
                 if (!$codes[$code]['dtl']) {
-                    $codes[$code]['dtl'] = array();
+                    $codes[$code]['dtl'] = [];
                 }
 
-                $tmp = array();
+                $tmp = [];
                 $tmp['chg'] = $amount;
                 $tmpkey = "          " . $keysuff1++;
                 $codes[$code]['dtl'][$tmpkey] = $tmp;
             }
         }
         // Get insurance data for stuff
-        $ins_data = array();
+        $ins_data = [];
         $res = sqlStatement("SELECT insurance_data.type as type, insurance_companies.name as name " .
             "FROM insurance_data " .
             "INNER JOIN insurance_companies ON insurance_data.provider = insurance_companies.id " .
-            "WHERE insurance_data.pid = ?", array($patient_id));
+            "WHERE insurance_data.pid = ?", [$patient_id]);
         while ($row = sqlFetchArray($res)) {
             $ins_data[$row['type']] = $row['name'];
         }
@@ -137,15 +137,11 @@ class InvoiceSummary
             "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
             "LEFT OUTER JOIN insurance_companies AS i ON i.id = s.payer_id " .
             "WHERE a.deleted IS NULL AND a.pid = ? AND a.encounter = ? " .
-            "ORDER BY s.check_date, a.sequence_no", array($patient_id, $encounter_id));
+            "ORDER BY s.check_date, a.sequence_no", [$patient_id, $encounter_id]);
         while ($row = sqlFetchArray($res)) {
             $code = $row['code'];
             if (!$code) {
-                if ($row['account_code'] == "PCP") {
-                    $code = "Copay";
-                } else {
-                    $code = "Claim level";
-                }
+                $code = $row['account_code'] == "PCP" ? "Copay" : "Claim level";
             }
 
             if ($row['modifier']) {
@@ -153,14 +149,14 @@ class InvoiceSummary
             }
 
             $ins_id = (int) $row['payer_id'];
-            $codes[$code]['bal'] = $codes[$code]['bal'] ?? null;
+            $codes[$code]['bal'] ??= null;
             $codes[$code]['bal'] -= $row['pay_amount'];
             $codes[$code]['bal'] -= $row['adj_amount'];
 
-            $codes[$code]['chg'] = $codes[$code]['chg'] ?? null;
+            $codes[$code]['chg'] ??= null;
             $codes[$code]['chg'] -= $row['adj_amount'];
 
-            $codes[$code]['adj'] = $codes[$code]['adj'] ?? null;
+            $codes[$code]['adj'] ??= null;
             $codes[$code]['adj'] += $row['adj_amount'];
             if ($ins_id) {
                 $codes[$code]['ins'] = $ins_id;
@@ -169,11 +165,11 @@ class InvoiceSummary
             // Add the details if they want 'em.
             if ($with_detail) {
                 if (!($codes[$code]['dtl'] ?? '')) {
-                    $codes[$code]['dtl'] = array();
+                    $codes[$code]['dtl'] = [];
                 }
 
-                $tmp = array();
-                $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
+                $tmp = [];
+                $paydate = empty($row['deposit_date']) ? substr((string) $row['post_time'], 0, 10) : $row['deposit_date'];
                 if ($row['pay_amount'] != 0) {
                     $tmp['pmt'] = $row['pay_amount'];
                     $tmp['pmt_method'] = $row['payment_method'];
@@ -188,7 +184,7 @@ class InvoiceSummary
 
                 if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
                     $tmp['chg'] = 0 - $row['adj_amount'];
-                    $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim($row['follow_up_note'])) : $row['memo'];
+                    $row['memo'] = (!empty($row['follow_up_note']) && empty($row['memo'])) ? (xlt("Payment note") . ": " . trim((string) $row['follow_up_note'])) : $row['memo'];
                     $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
                     $tmp['rsn'] = str_replace("Ins1", ($ins_data['primary'] ?? ''), $tmp['rsn']);
                     $tmp['rsn'] = str_replace("Ins2", ($ins_data['secondary'] ?? ''), $tmp['rsn']);
@@ -228,7 +224,7 @@ class InvoiceSummary
         $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
             "FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? " .
-            "ORDER BY id DESC LIMIT 1", array($patient_id, $encounter_id));
+            "ORDER BY id DESC LIMIT 1", [$patient_id, $encounter_id]);
         if (empty($row)) {
             return -1;
         }
@@ -238,7 +234,7 @@ class InvoiceSummary
             return $next_level;
         }
 
-        if (SLEOB::arGetPayerID($patient_id, substr($row['date'], 0, 10), $next_level)) {
+        if (SLEOB::arGetPayerID($patient_id, substr((string) $row['date'], 0, 10), $next_level)) {
             return $next_level;
         }
 

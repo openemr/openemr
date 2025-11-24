@@ -58,7 +58,7 @@ function mapToTable($row): void
         echo "<td>" . text($row["ndc_number"]) . " </td>\n";
         echo "<td>";
         foreach ($row['inventory_id'] as $key => $value) {
-            echo "<div onclick='doclick(" . attr(addslashes($row['drug_id'])) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+            echo "<div onclick='doclick(" . attr(addslashes((string) $row['drug_id'])) . "," . attr(addslashes((string) $row['inventory_id'][$key])) . ")'>" .
             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
         }
         echo "</td>\n<td>";
@@ -203,7 +203,7 @@ if ($_POST['form_refresh']) {
     "WHERE $where " .
     "ORDER BY d.name, i.drug_id, i.destroy_date, i.lot_number";
 
-    $res = sqlStatement($query, array($form_from_date, $form_to_date));
+    $res = sqlStatement($query, [$form_from_date, $form_to_date]);
     $prevRow = '';
     while ($row = sqlFetchArray($res)) {
         $row = processData($row);

@@ -16,13 +16,15 @@ use OpenEMR\Services\Search\SearchFieldType;
 class TokenSearchField extends BasicSearchField
 {
     /**
-     * @var boolean True if the token represents a UUID that is a binary field in the database
+     * @param mixed $field
+     * @param mixed $values
+     * @param bool $isUUID True if the token represents a UUID that is a binary field in the database
      */
-    private $isUUID;
-
-    public function __construct($field, $values, $isUUID = false)
-    {
-        $this->isUUID = $isUUID;
+    public function __construct(
+        $field,
+        $values,
+        private $isUUID = false
+    ) {
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 
@@ -85,5 +87,34 @@ class TokenSearchField extends BasicSearchField
         }
 
         return TokenSearchValue::buildFromFHIRString($value, $this->isUUID);
+    }
+
+    /**
+     * Checks if this TokenSearchField contains all of the values of the given TokenSearchField
+     * a token value is considered contained if both system and code match OR if only code matches and the system
+     * of the containedSearchToken is null
+     * @param TokenSearchField $containedSearchToken
+     * @return bool
+     */
+    public function containsSearchToken(TokenSearchField $containedSearchToken): bool
+    {
+        foreach ($containedSearchToken->getValues() as $containedValue) {
+            $found = false;
+            foreach ($this->getValues() as $ownValue) {
+                if ($containedValue instanceof TokenSearchValue && $ownValue instanceof TokenSearchValue) {
+                    if ($containedValue->getCode() === $ownValue->getCode()) {
+                        // codes match, now check system
+                        if ($containedValue->getSystem() === null || $containedValue->getSystem() === $ownValue->getSystem()) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!$found) {
+                return false;
+            }
+        }
+        return true;
     }
 }

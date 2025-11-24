@@ -23,6 +23,8 @@ class BulkAPITestClient extends ApiTestClient
 {
     protected string $baseUrl;
 
+    private string $scopes = self::SYSTEM_SCOPES;
+
     public function __construct($baseUrl, $isHttpErrorEnabled = true, $timeOut = 10)
     {
         parent::__construct($baseUrl, $isHttpErrorEnabled, $timeOut);
@@ -30,8 +32,14 @@ class BulkAPITestClient extends ApiTestClient
     }
 
     const SYSTEM_SCOPES = 'system/Group.$export system/Binary.read system/*.$bulkdata-status system/Patient.read system/Medication.read system/AllergyIntolerance.read system/CarePlan.read system/CareTeam.read system/Condition.read system/Device.read system/DiagnosticReport.read system/DocumentReference.read system/Encounter.read system/Goal.read system/Immunization.read system/Location.read system/MedicationRequest.read system/Observation.read system/Organization.read system/Practitioner.read system/Procedure.read system/Provenance.read';
+    const SYSTEM_SCOPES_V2 = 'system/Patient.$export system/Group.$export system/*.$bulkdata-status system/*.$export system/Patient.rs system/Group.rs system/Medication.rs system/AllergyIntolerance.rs system/CarePlan.rs system/CareTeam.rs system/Condition.rs system/Device.rs system/DiagnosticReport.rs system/DocumentReference.rs system/Encounter.rs system/Goal.rs system/Immunization.rs system/Location.rs system/MedicationRequest.rs system/Observation.rs system/Organization.rs system/Practitioner.rs system/Procedure.rs system/Provenance.rs system/Binary.rs system/ServiceRequest.rs system/Specimen.rs system/QuestionnaireResponse.rs';
 
-    public function setAuthToken($authURL, $credentials = array(), $client = 'private')
+    public function setScopesForBulkData(string $scopes): void
+    {
+        $this->scopes = $scopes;
+    }
+
+    public function setAuthToken($authURL, $credentials = [], $client = 'private')
     {
         if (!empty($credentials['client_id'])) {
             $this->client_id = $credentials['client_id'];
@@ -67,7 +75,7 @@ class BulkAPITestClient extends ApiTestClient
             "client_assertion" => $assertion,
             "grant_type" => "client_credentials",
             "client_id" => $this->client_id,
-            "scope" => self::SYSTEM_SCOPES,
+            "scope" => $this->scopes
         ];
         $this->headers = [
             "Accept" => "application/json",

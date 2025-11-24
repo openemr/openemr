@@ -54,11 +54,7 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        if (isset($units_of_measurement)) {
-            $this->units_of_measurement = $units_of_measurement;
-        } else {
-            $this->units_of_measurement = $GLOBALS['units_of_measurement'];
-        }
+        $this->units_of_measurement = $units_of_measurement ?? $GLOBALS['units_of_measurement'];
         if (!empty($GLOBALS['kernel'])) {
             $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
         } else {
@@ -393,6 +389,8 @@ class VitalsService extends BaseService
                 $vitalsData['id'] = $id;
             }
             QueryUtils::sqlStatementThrowException($sql, $values);
+            $vitalsData['eid'] = $eid;
+            $vitalsData['authorized'] = $authorized;
         }
 
         // now go through and update all of our vital details

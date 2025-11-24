@@ -61,12 +61,6 @@ class Document extends ORDataObject
      */
     public const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
 
-    /*
-    *   Database unique identifier
-    *   @public id
-    */
-    public $id;
-
     /**
      * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
      */
@@ -105,7 +99,7 @@ class Document extends ORDataObject
     *   mapping is array text name to index
     *   @public array
     */
-    public $type_array = array();
+    public $type_array = [];
 
     /*
     *   Size of the document in bytes if that is available
@@ -225,13 +219,10 @@ class Document extends ORDataObject
      * Constructor sets all Document attributes to their default value
      * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
      */
-    public function __construct($id = "")
+    public function __construct(public $id = "")
     {
         //call the parent constructor so we have a _db to work with
         parent::__construct();
-
-        //shore up the most basic ORDataObject bits
-        $this->id = $id;
         $this->_table = self::TABLE_NAME;
 
         //load the enum type from the db using the parent helper function,
@@ -252,7 +243,7 @@ class Document extends ORDataObject
         $this->encrypted = 0;
         $this->deleted = 0;
 
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
 
@@ -375,9 +366,9 @@ class Document extends ORDataObject
      */
     function documents_factory($foreign_id = "")
     {
-        $documents = array();
+        $documents = [];
 
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";
@@ -407,9 +398,9 @@ class Document extends ORDataObject
      */
     public function documents_factory_for_foreign_reference(string $foreign_reference_table, $foreign_reference_id = "")
     {
-        $documents = array();
+        $documents = [];
 
-        $sqlArray = array($foreign_reference_table);
+        $sqlArray = [$foreign_reference_table];
 
         if (empty($foreign_reference_id)) {
             $foreign_reference_id_sql = " like '%'";
@@ -599,7 +590,7 @@ class Document extends ORDataObject
     }
     function get_hash_algo_title()
     {
-        if (!empty($this->hash) && strlen($this->hash) < 50) {
+        if (!empty($this->hash) && strlen((string) $this->hash) < 50) {
             return "SHA1";
         } else {
             return "SHA3-512";
@@ -626,7 +617,7 @@ class Document extends ORDataObject
     */
     function get_url_filepath()
     {
-        return preg_replace("|^(.*)://|", "", $this->url);
+        return preg_replace("|^(.*)://|", "", (string) $this->url);
     }
 
     /**
@@ -648,9 +639,9 @@ class Document extends ORDataObject
         // etc.
         // NOTE that $from_filename and basename($url) are the same thing
         $filepath = $this->get_url_filepath();
-        $from_all = explode("/", $filepath);
+        $from_all = explode("/", (string) $filepath);
         $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
+        $from_pathname_array = [];
         for ($i = 0; $i < $this->get_path_depth(); $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
@@ -664,14 +655,14 @@ class Document extends ORDataObject
     */
     function get_url_file()
     {
-        return basename_international(preg_replace("|^(.*)://|", "", $this->url));
+        return basename_international(preg_replace("|^(.*)://|", "", (string) $this->url));
     }
     /**
     * get the url path only
     */
     function get_url_path()
     {
-        return dirname(preg_replace("|^(.*)://|", "", $this->url)) . "/";
+        return dirname((string) preg_replace("|^(.*)://|", "", (string) $this->url)) . "/";
     }
     function get_path_depth()
     {
@@ -772,7 +763,7 @@ class Document extends ORDataObject
             "SELECT c.name FROM categories AS c
              LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id
              WHERE ctd.document_id = ?",
-            array($doc_id)
+            [$doc_id]
         );
         return $type['name'];
     }
@@ -786,7 +777,7 @@ class Document extends ORDataObject
     }
     function update_imported($doc_id)
     {
-        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($doc_id));
+        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", [$doc_id]);
     }
     function set_encrypted($encrypted)
     {
@@ -928,11 +919,7 @@ class Document extends ORDataObject
             $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
-            if (!is_null($tmpfile)) {
-                $has_thumbnail = $thumbnail_class->file_support_thumbnail($tmpfile);
-            } else {
-                $has_thumbnail = false;
-            }
+            $has_thumbnail = !is_null($tmpfile) ? $thumbnail_class->file_support_thumbnail($tmpfile) : false;
 
             if ($has_thumbnail) {
                 $thumbnail_resource = $thumbnail_class->create_thumbnail(null, $data);
@@ -1015,12 +1002,12 @@ class Document extends ORDataObject
             } elseif (!empty($higher_level_path)) {
                 // Allow higher level directory structure in documents directory and there is no patient mapping
                 // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . rand(1, 10000)  . '/';
+                $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
                 ++$path_depth;
             } elseif (!(is_numeric($patient_id)) || !($patient_id > 0)) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . rand(1, 10000)  . '/';
+                $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
                 $path_depth = 2;
                 $patient_id = 0;
             } else {
@@ -1047,11 +1034,7 @@ class Document extends ORDataObject
             }
 
             // Store the file.
-            if ($GLOBALS['drive_encryption']) {
-                $storedData = $cryptoGen->encryptStandard($data, null, 'database');
-            } else {
-                $storedData = $data;
-            }
+            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, 'database') : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1098,7 +1081,7 @@ class Document extends ORDataObject
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
-        $this->owner = $owner ? $owner : ($_SESSION['authUserID'] ?? null);
+        $this->owner = $owner ?: $_SESSION['authUserID'] ?? null;
         $this->date_expires = $date_expires;
         $this->encounter_id = $encounter_id;
         $this->set_foreign_id($patient_id);
@@ -1106,7 +1089,7 @@ class Document extends ORDataObject
         $this->populate();
         if (is_numeric($this->get_id()) && is_numeric($category_id)) {
             $sql = "REPLACE INTO categories_to_documents SET category_id = ?, document_id = ?";
-            $this->_db->Execute($sql, array($category_id, $this->get_id()));
+            $this->_db->Execute($sql, [$category_id, $this->get_id()]);
         }
 
         return '';
@@ -1154,7 +1137,7 @@ class Document extends ORDataObject
                 $data = $this->decrypt_content($data);
             }
             if ($base64Decode) {
-                $data = base64_decode($data);
+                $data = base64_decode((string) $data);
             }
         }
         return $data;
@@ -1226,7 +1209,7 @@ class Document extends ORDataObject
         // See pnotes_full.php which uses this to auto-display the document.
         $note = $this->get_url_file();
         for ($tmp = $category_id; $tmp;) {
-            $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+            $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", [$tmp]);
             $note = $catrow['name'] . "/$note";
             $tmp = $catrow['parent'];
         }

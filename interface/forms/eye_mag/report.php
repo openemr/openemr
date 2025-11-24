@@ -74,10 +74,10 @@ if (!($id ?? '')) {
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query, array($_SESSION['authUserID']));
+$result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
-    $$LOCATION = text($prefs['GOVALUE']);
+    ${$LOCATION} = text($prefs['GOVALUE']);
 }
 
 function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): void
@@ -120,7 +120,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
                     forms.form_id=form_eye_locking.id and
                     forms.encounter=? and
                     forms.pid=? ";
-    $objQuery = sqlQuery($query, array($encounter,$pid));
+    $objQuery = sqlQuery($query, [$encounter,$pid]);
     @extract($objQuery);
 
     $dated = new DateTime($encounter_date);
@@ -207,7 +207,7 @@ function left_overs(): void
 
     if ($data) {
         foreach ($data as $key => $value) {
-            $$key = $value;
+            ${$key} = $value;
         }
     }
 }
@@ -251,7 +251,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     forms.encounter=? and
                     forms.pid=? ";
 
-    $encounter_data = sqlQuery($query, array($encounter, $pid));
+    $encounter_data = sqlQuery($query, [$encounter, $pid]);
     @extract($encounter_data);
     $providerID = getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
@@ -281,7 +281,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     </style>
     <div>
     <?php
-    if (($cols == 'Fax') || ($cols == 'Report') || ($cols == 'Fax-resend')) {
+    if (in_array($cols, ['Fax', 'Report', 'Fax-resend'])) {
         echo report_header($pid, 'PDF');
     }
 
@@ -475,7 +475,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-                    $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+                    $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
 
                 if (empty($result) || empty($result['id'])) {
                     //echo "no photo";
@@ -520,7 +520,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         $count_rx = '0';
 
                         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
-                        $wear = sqlStatement($query, array($pid, $form_id, $encounter));
+                        $wear = sqlStatement($query, [$pid, $form_id, $encounter]);
                     while ($wearing = sqlFetchArray($wear)) {
                         $count_rx++;
                         ${"display_W_$count_rx"} = '';
@@ -728,7 +728,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 $bad = 0;
                 for ($z = 1; $z < 5; $z++) {
                     $ODzone = "ODVF" . $z;
-                    if ($$ODzone == '1') {
+                    if (${$ODzone} == '1') {
                         $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
                         if ($PDF_OUTPUT) {
                             $ODVF[$z] = 'X';
@@ -743,7 +743,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
 
                     $OSzone = "OSVF" . $z;
-                    if ($$OSzone == "1") {
+                    if (${$OSzone} == "1") {
                         $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
                         if ($PDF_OUTPUT) {
                             $OSVF[$z] = 'X';
@@ -854,7 +854,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
                         }
 
-                        $zone = array(
+                        $zone = [
                             "MOTILITY_RRSO",
                             "MOTILITY_RS",
                             "MOTILITY_RLSO",
@@ -873,9 +873,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             "MOTILITY_LRIO",
                             "MOTILITY_LI",
                             "MOTILITY_LLIO"
-                        );
+                        ];
                         for ($i = 0; $i < count($zone); ++$i) {
-                            ($$zone[$i] >= '1') ? ($$zone[$i] = "-" . $$zone[$i]) : ($$zone[$i] = '');
+                            (${$zone}[$i] >= '1') ? (${$zone}[$i] = "-" . ${$zone}[$i]) : (${$zone}[$i] = '');
                         }
                         ?>
                             <table cellspacing="2" style="margin:2px;text-align:center;">
@@ -2366,13 +2366,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
      *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
      */
     $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? order by IMPPLAN_order ASC";
-    $result = sqlStatement($query, array($form_id, $pid));
+    $result = sqlStatement($query, [$form_id, $pid]);
     $i = '0';
-    $order = array("\r\n", "\n", "\r", "\v", "\f", "\x85", "\u2028", "\u2029");
+    $order = ["\r\n", "\n", "\r", "\v", "\f", "\x85", "\u2028", "\u2029"];
     $replace = "<br />";
     // echo '<ol>';
     while ($ip_list = sqlFetchArray($result)) {
-        $newdata = array(
+        $newdata = [
             'form_id' => $ip_list['form_id'],
             'pid' => $ip_list['pid'],
             'title' => $ip_list['title'],
@@ -2381,7 +2381,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             'codetext' => $ip_list['codetext'],
             'plan' => str_replace($order, $replace, $ip_list['plan']),
             'IMPPLAN_order' => $ip_list['IMPPLAN_order']
-        );
+        ];
         $IMPPLAN_items[$i] = $newdata;
         $i++;
     }
@@ -2392,7 +2392,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
             echo '<div style="padding-left:15px;">';
             $pattern = '/Code/';
-            if (preg_match($pattern, $item['code'])) {
+            if (preg_match($pattern, (string) $item['code'])) {
                 $item['code'] = '';
             }
 
@@ -2408,7 +2408,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             echo $item['plan'] . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
-            $PLAN_results = sqlStatement($query, array($form_id, $pid));
+            $PLAN_results = sqlStatement($query, [$form_id, $pid]);
 
 
         if (!empty($PLAN_results)) { ?>
@@ -2484,7 +2484,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
     if (($document_id > '1') && (is_numeric($document_id))) {
         $d = new Document($document_id);
-        $fname = basename($d->get_url());
+        $fname = basename((string) $d->get_url());
 
         $extension = substr($fname, strrpos($fname, "."));
         $notes = $d->get_notes();
@@ -2518,7 +2518,7 @@ function display_draw_image($zone, $encounter, $pid): void
             echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
             $tmp_files_remove[] = $from_file_tmp_web_name;
         } else {
-            $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(rand());
+            $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
             echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
         }
     } else {
@@ -2537,7 +2537,7 @@ function display_draw_image($zone, $encounter, $pid): void
 
 function report_ACT($term)
 {
-    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
+    $term = nl2br(htmlspecialchars((string) $term, ENT_NOQUOTES));
     return $term . "&nbsp;";
 }
 ?>

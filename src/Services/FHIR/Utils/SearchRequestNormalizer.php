@@ -23,21 +23,17 @@ class SearchRequestNormalizer
         // parameter.  In our case we treat the parameter as a union search if it appears in both the query string and
         // the post body.
         // chop off the back
-        $pos = strripos($dispatchRestRequest->getRequestPath(), "/_search");
+        $pos = strripos((string) $dispatchRestRequest->getRequestPath(), "/_search");
         if ($pos === false) {
             throw new \BadMethodCallException("Attempted to normalize search request on a path that does not contain search");
         }
-        $requestPath = substr($dispatchRestRequest->getRequestPath(), 0, $pos);
+        $requestPath = substr((string) $dispatchRestRequest->getRequestPath(), 0, $pos);
         $dispatchRestRequest->setRequestPath($requestPath);
 
         // grab any post vars and stuff them into our query vars
         // @see https://www.hl7.org/fhir/http.html#search
         $queryVars = $dispatchRestRequest->getQueryParams();
-        if ($dispatchRestRequest->getMethod() !== 'GET') {
-            $postParams = $dispatchRestRequest->request->all();
-        } else {
-            $postParams = [];
-        }
+        $postParams = $dispatchRestRequest->getMethod() !== 'GET' ? $dispatchRestRequest->request->all() : [];
 
         if (!empty($postParams)) {
             foreach ($postParams as $key => $value) {

@@ -28,9 +28,9 @@ class QueryBuilder
     public function __construct($phreezer)
     {
         $this->_phreezer = & $phreezer;
-        $this->Columns = array ();
-        $this->Tables = array ();
-        $this->Joins = array ();
+        $this->Columns =  [];
+        $this->Tables =  [];
+        $this->Joins =  [];
     }
 
     /**
@@ -50,7 +50,7 @@ class QueryBuilder
 
         $this->Columns [$tablealias . "-" . $fm->ColumnName] = $fm->FieldType == FM_CALCULATION ? $fm->ColumnName : "`" . $tablealias . "`.`" . $fm->ColumnName . "` as `" . $fm->ColumnName . "___" . $fm->TableName . "___" . $this->_counter++ . "`";
     }
-    private $_keymapcache = array (); // used to check for recursive eager fetching
+    private $_keymapcache =  []; // used to check for recursive eager fetching
     private $_prevkeymap; // used to check for recursive eager fetching
 
     /**
@@ -149,7 +149,7 @@ class QueryBuilder
             for ($i = 1; $i < count($tablenames); $i++) { // this iterates forwards
                 try {
                     $sql .= $this->Joins [$tablenames [$i]];
-                } catch (Exception $ex) {
+                } catch (Exception) {
                     // if 'undefined index' occurs here, there is likely a foreign field in the fieldmap that does not have it's related keymap set to KM_LOAD_EAGER
                     throw new Exception("An invalid join was attempted from table '" . $tablenames [$i] . "'. Please verify that the KeyMap fetching strategy for table '" . $tablenames [0] . "' has been properly configured.");
                 }

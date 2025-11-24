@@ -34,7 +34,7 @@ abstract class C_AbstractClickmap extends Controller
      *
      * @var template_dir
      */
-    var $template_dir;
+    public $template_dir;
 
     /**
      * @brief Initialize a newly created object belonging to this class
@@ -114,6 +114,7 @@ abstract class C_AbstractClickmap extends Controller
         $model = $this->createModel();
         $this->assign("form", $model);
         $this->set_context($model);
+        $this->assign("reportMode", false);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -130,6 +131,7 @@ abstract class C_AbstractClickmap extends Controller
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
         $this->set_context($model);
+        $this->assign("reportMode", false);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

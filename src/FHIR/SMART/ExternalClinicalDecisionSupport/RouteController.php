@@ -21,12 +21,12 @@ class RouteController
     const CDR_ACTION_INFO = "cdr-info";
 
     public function __construct(
-        private SessionInterface $session,
-        private ClientRepository $repo,
-        private LoggerInterface $logger,
+        private readonly SessionInterface $session,
+        private readonly ClientRepository $repo,
+        private readonly LoggerInterface $logger,
         private Environment $twig,
-        private ActionUrlBuilder $actionUrlBuilder,
-        private DecisionSupportInterventionService $dsiService
+        private readonly ActionUrlBuilder $actionUrlBuilder,
+        private readonly DecisionSupportInterventionService $dsiService
     ) {
         $this->setTwigEnvironment($twig);
     }
@@ -46,12 +46,12 @@ class RouteController
         // make sure the request matches the EXTERNAL_CDR_ACTION route either standalone or as a prefix
         $action = $request->get('action', '');
         return $action === self::EXTERNAL_CDR_ACTION ||
-            str_starts_with($action, self::EXTERNAL_CDR_ACTION . '/');
+            str_starts_with((string) $action, self::EXTERNAL_CDR_ACTION . '/');
     }
 
     public function parseRequest(Request $request)
     {
-        $parts = explode("/", $request->get('action'));
+        $parts = explode("/", (string) $request->get('action'));
 
         $mainAction = $parts[0] ?? null;
         $mainActionChild = $parts[1] ?? null;
@@ -101,7 +101,7 @@ class RouteController
         if (CsrfUtils::verifyCsrfToken($csrfToken, $this->session) === false) {
             return $this->notFoundAction($request);
         }
-        if (empty(trim($serviceId))) {
+        if (empty(trim((string) $serviceId))) {
             return $this->notFoundAction($request);
         }
         $dsiService = $this->getDecisionsSupportInterventionService();

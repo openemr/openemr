@@ -132,8 +132,8 @@ class EncountermanagerController extends AbstractActionController
                     $pids .= $combination[$i] . '|';
                 }
             }
-            $components = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
-            $send_params = array(
+            $components = $request->getPost('components') ?: $request->getQuery()->components;
+            $send_params = [
                 'action' => 'index',
                 'pids' => $pids,
                 'view' => 1,
@@ -142,35 +142,35 @@ class EncountermanagerController extends AbstractActionController
                 'latest_ccda' => $latest_ccda,
                 'form_date_from' => $fromDate,
                 'form_date_to' => $toDate
-            );
+            ];
             if ($downloadqrda == 'download_qrda') {
-                $send_params = array(
+                $send_params = [
                     'action' => 'index',
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda' => $downloadqrda
-                );
+                ];
             }
             if ($downloadqrda3 == 'download_qrda3') {
-                $send_params = array(
+                $send_params = [
                     'action' => 'index',
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda3' => $downloadqrda3
-                );
+                ];
             }
             if ($downloadqrda3_consolidated == 'download_qrda3_consolidated') {
-                $send_params = array(
+                $send_params = [
                     'action' => 'index',
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda3_consolidated' => $downloadqrda3_consolidated
-                );
+                ];
             }
             $this->forward()->dispatch(EncounterccdadispatchController::class, $send_params);
         }
         // view
-        $params = array(
+        $params = [
             'from_date' => $fromDate,
             'to_date' => $toDate,
             'pid' => $pid,
@@ -187,7 +187,7 @@ class EncountermanagerController extends AbstractActionController
             'search_type_date' => $form_search_type_date,
             'provider_id' => $form_provider_id,
             "billing_facility_id" => $form_billing_facility_id
-        );
+        ];
         if ($new_search) {
             $count = $this->getEncountermanagerTable()->getEncounters($params, 1);
         } else {
@@ -211,7 +211,7 @@ class EncountermanagerController extends AbstractActionController
         $facilityService = new FacilityService();
         $billingLocations = $facilityService->getAllBillingLocations();
 
-        $index = new ViewModel(array(
+        $index = new ViewModel([
             'details' => $details,
             'form_data' => $params,
             'current_measures' => $measures,
@@ -221,7 +221,7 @@ class EncountermanagerController extends AbstractActionController
             'commonplugin' => $this->CommonPlugin(),
             'providers' => $practitioners,
             'billing_facilities' => $billingLocations
-        ));
+        ]);
         return $index;
     }
 
@@ -370,7 +370,7 @@ class EncountermanagerController extends AbstractActionController
             }
 
             $dir = $parent_dir . "/";
-            $arr = explode('|', $pids);
+            $arr = explode('|', (string) $pids);
             foreach ($arr as $row) {
                 $pid = $row;
                 $ids = $this->getEncountermanagerTable()->getFileID($pid, 2);
@@ -459,7 +459,7 @@ class EncountermanagerController extends AbstractActionController
         $combination = $this->getRequest()->getQuery('combination');
         $recipients = $this->getRequest()->getQuery('recipients');
         $xml_type = $this->getRequest()->getQuery('xml_type');
-        $result = $this->getEncountermanagerTable()->transmitCcdToRecipients(array("ccda_combination" => $combination, "recipients" => $recipients, "xml_type" => $xml_type));
+        $result = $this->getEncountermanagerTable()->transmitCcdToRecipients(["ccda_combination" => $combination, "recipients" => $recipients, "xml_type" => $xml_type]);
         // need to make sure we escape this since we are escaping this into html
         echo text($result);
         return $this->response;

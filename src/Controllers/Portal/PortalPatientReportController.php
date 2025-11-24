@@ -29,12 +29,12 @@ class PortalPatientReportController
         $records = QueryUtils::sqlStatementThrowException($sql, [$pid]);
         $documents = [];
         foreach ($records as $record) {
-            $fname = basename($record['url']);
+            $fname = basename((string) $record['url']);
             $extension = strtolower(substr($fname, strrpos($fname, ".")));
             if ($extension !== '.zip' && $extension !== '.dcm') {
                 $documents[] = [
                     'id' => $record['id'],
-                    'url' => basename($record['url']),
+                    'url' => basename((string) $record['url']),
                     'name' => $record['document_name'],
                     'category' => xl_document_category($record['name'])
                 ];
@@ -52,7 +52,7 @@ class PortalPatientReportController
             "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
             "WHERE po.patient_id = ? " .
             "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-            array($pid)
+            [$pid]
         );
         $procedures = [];
         $proceduresById = [];
@@ -110,7 +110,7 @@ class PortalPatientReportController
                 $issuesIndex = 0;
             }
             $rowid = $prow['id'];
-            $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
+            $disptitle = trim((string) $prow['title']) ? $prow['title'] : "[Missing Title]";
 
 
             $issuesByTypeMap[$lasttype][$rowid] = $issuesIndex;
@@ -150,10 +150,10 @@ class PortalPatientReportController
         $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
         $encountersByDate = [];
         $encountersByEncounter = [];
-        $html_strings = array();
-        $registry_form_name = array();
+        $html_strings = [];
+        $registry_form_name = [];
         while ($result2 = sqlFetchArray($res2)) {
-            array_push($registry_form_name, trim($result2['name']));
+            array_push($registry_form_name, trim((string) $result2['name']));
         }
 
         $encounter = null;
@@ -170,16 +170,16 @@ class PortalPatientReportController
                 // show encounter reason, not just 'New Encounter'
                 // trim to a reasonable length for display purposes --cfapress
                 $maxReasonLength = 20;
-                if (strlen($result["reason"]) > $maxReasonLength) {
-                    $encounter['display'] = substr($result['reason'], 0, $maxReasonLength) . " ... ";
+                if (strlen((string) $result["reason"]) > $maxReasonLength) {
+                    $encounter['display'] = substr((string) $result['reason'], 0, $maxReasonLength) . " ... ";
                 } else {
                     $encounter['display'] = $result['reason'] ?? '';
                 }
-                $encounter['date'] = date("Y-m-d", strtotime($result["date"]));
+                $encounter['date'] = date("Y-m-d", strtotime((string) $result["date"]));
                 $encountersByDate[] = $encounterId;
                 $encountersByEncounter[$encounterId] = $encounter;
             } else {
-                $form_name = trim($result["form_name"]);
+                $form_name = trim((string) $result["form_name"]);
                 // TODO: @adunsulag we need to investigate why procedure order form saves
                 // its name as this way.. so odd.
                 if ($form_name === '-procedure') {
@@ -200,7 +200,7 @@ class PortalPatientReportController
                 // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
                 if (!$form_name_found_flag) {
                     foreach ($registry_form_name as $var) {
-                        if (strpos($form_name, $var) === 0) {
+                        if (str_starts_with($form_name, $var)) {
                             $form_name = $var;
                         }
                     }

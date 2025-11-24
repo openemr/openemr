@@ -22,7 +22,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
  */
 abstract class RuleCriteriaFactory
 {
-    var $strategyMap;
+    public $strategyMap;
 
     function __construct()
     {

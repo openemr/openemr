@@ -57,7 +57,7 @@ function escape_limit($s)
  */
 function escape_sort_order($s)
 {
-    return escape_identifier(strtolower($s), array("asc","desc"));
+    return escape_identifier(strtolower($s), ["asc","desc"]);
 }
 
 /**
@@ -106,7 +106,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     if (is_array($s)) {
         $multiple_columns = [];
         foreach ($s as $column) {
-            $multiple_columns[] = escape_sql_column_name(trim($column), $tables);
+            $multiple_columns[] = escape_sql_column_name(trim((string) $column), $tables);
         }
         return implode(", ", $multiple_columns);
     }
@@ -114,7 +114,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     // If the $tables is empty, then process them all
     if (empty($tables)) {
         $res = sqlStatementNoLog("SHOW TABLES");
-        $tables = array();
+        $tables = [];
         while ($row = sqlFetchArray($res)) {
             $keys_return = array_keys($row);
             $tables[] = $row[$keys_return[0]];
@@ -122,21 +122,17 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     }
 
     // First need to escape the $tables
-    $tables_escaped = array();
+    $tables_escaped = [];
     foreach ($tables as $table) {
         $tables_escaped[] = escape_table_name($table);
     }
 
     // Collect all the possible sql columns from the tables
-    $columns_options = array();
+    $columns_options = [];
     foreach ($tables_escaped as $table_escaped) {
         $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
         while ($row = sqlFetchArray($res)) {
-            if ($long) {
-                $columns_options[] = $table_escaped . "." . $row['Field'];
-            } else {
-                $columns_options[] = $row['Field'];
-            }
+            $columns_options[] = $long ? $table_escaped . "." . $row['Field'] : $row['Field'];
         }
     }
 
@@ -168,7 +164,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
 function escape_table_name($s)
 {
     $res = sqlStatementNoLog("SHOW TABLES");
-    $tables_array = array();
+    $tables_array = [];
     while ($row = sqlFetchArray($res)) {
         $keys_return = array_keys($row);
         $tables_array[] = $row[$keys_return[0]];
@@ -238,7 +234,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 // Still no match
                 if ($die_if_no_match) {
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
-                    error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
+                    error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                     die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
                 } else if ($throw_exception_if_no_match) {
                     throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
@@ -254,7 +250,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
         if ($die_if_no_match) {
             if (preg_match('/[^' . $whitelist_items . ']/', $s)) {
                 // Contains illegal character and $die_if_no_match is set, so die() and send error messages to screen and log
-                error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
+                error_log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
                 die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
             } else if ($throw_exception_if_no_match) {
                 throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
@@ -281,11 +277,11 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
 function formData($name, $type = 'P', $isTrim = false)
 {
     if ($type == 'P') {
-        $s = isset($_POST[$name]) ? $_POST[$name] : '';
+        $s = $_POST[$name] ?? '';
     } elseif ($type == 'G') {
-        $s = isset($_GET[$name]) ? $_GET[$name] : '';
+        $s = $_GET[$name] ?? '';
     } else {
-        $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+        $s = $_REQUEST[$name] ?? '';
     }
 
     return formDataCore($s, $isTrim);

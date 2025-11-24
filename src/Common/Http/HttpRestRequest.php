@@ -113,6 +113,11 @@ class HttpRestRequest extends Request implements Stringable
      */
     private string $apiBaseFullUrl;
 
+    /**
+     * @var ScopeEntity The required endpoint scope for this request
+     */
+    protected ScopeEntity $requiredEndpointScope;
+
     public static function createFromGlobals(): static
     {
         // Handle the rewrite command transformation before calling parent
@@ -128,7 +133,7 @@ class HttpRestRequest extends Request implements Stringable
             unset($_GET['_REWRITE_COMMAND']);
 
             // Set up PATH_INFO for Symfony
-            $_SERVER['PATH_INFO'] = '/' . ltrim($rewritePath, '/');
+            $_SERVER['PATH_INFO'] = '/' . ltrim((string) $rewritePath, '/');
 
             // Update REQUEST_URI to reflect the clean path
             $queryString = http_build_query($_GET);
@@ -555,10 +560,10 @@ class HttpRestRequest extends Request implements Stringable
 
     /**
      * Returns the scope context (patient,user,system) that is used for the given resource as parsed from the request scopes
-     * @param $resource string The resource to check (IE Patient, AllergyIntolerance, etc).
+     * @param $resource string|null The resource to check (IE Patient, AllergyIntolerance, etc).
      * @return string|null The context or null if the resource does not exist in the scopes.
      */
-    public function getScopeContextForResource(string $resource): ?string
+    public function getScopeContextForResource(?string $resource): ?string
     {
         return $this->resourceScopeContexts[$resource] ?? null;
     }
@@ -633,7 +638,7 @@ class HttpRestRequest extends Request implements Stringable
     public function isFhirSearchRequest(): bool
     {
         if ($this->isFhir() && $this->getRequestMethod() == "POST") {
-            return str_ends_with($this->getRequestPath(), '_search') !== false;
+            return str_ends_with((string) $this->getRequestPath(), '_search') !== false;
         }
         return false;
     }
@@ -829,5 +834,23 @@ class HttpRestRequest extends Request implements Stringable
         $clonedRequest = clone $this;
         $clonedRequest->attributes->remove($name);
         return $clonedRequest;
+    }
+
+    /**
+     * @param ScopeEntity $endpointScope Sets the required endpoint scope necessary for the current request to be authorized
+     * @return void
+     */
+    public function setRequestRequiredScope(ScopeEntity $endpointScope): void
+    {
+        $this->requiredEndpointScope = $endpointScope;
+    }
+
+    /**
+     * Returns the required endpoint scope necessary for the current request to be authorized.  This can be useful
+     * to do additional access checks based on the scope required for the request.
+     * @return ScopeEntity The required endpoint scope necessary for the current request to be authorized
+     */
+    public function getRequestRequiredScope(): ScopeEntity {
+        return $this->requiredEndpointScope;
     }
 }

@@ -49,7 +49,7 @@ class ImmunizationController extends AbstractActionController
         $isPost = '';
         $data = $request->getPost();
         $isFormRefresh = 'true';
-        $form_code = isset($data['codes']) ? $data['codes'] : array();
+        $form_code = $data['codes'] ?? [];
         $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
         $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         $form_get_hl7 = '';
@@ -66,7 +66,7 @@ class ImmunizationController extends AbstractActionController
         if (empty($patient_id)) {
             $query_pids = '';
         } else {
-            $pid_arr = explode(',', $patient_id);
+            $pid_arr = explode(',', (string) $patient_id);
             $query_pids = '(';
             foreach ($pid_arr as $pid_val) {
                 $query_pids .= "p.pid = ( '";
@@ -96,7 +96,7 @@ class ImmunizationController extends AbstractActionController
             $query_codes .= ') and ';
         }
 
-        $params = array(
+        $params = [
             'form_from_date' => $from_date,
             'form_to_date' => $to_date,
             'form_get_hl7' => $form_get_hl7,
@@ -107,7 +107,7 @@ class ImmunizationController extends AbstractActionController
             'limit_end' => $end,
             'query_pids' => $query_pids,
             'patient_id' => $patient_id,
-        );
+        ];
 
         if ($new_search) {
             $count = $this->getImmunizationTable()->immunizedPatientDetails($params, 1);
@@ -120,7 +120,7 @@ class ImmunizationController extends AbstractActionController
 
         $totalpages = ceil($count / $results);
         $details = $this->getImmunizationTable()->immunizedPatientDetails($params);
-        $rows = array();
+        $rows = [];
         foreach ($details as $row) {
             $rows[] = $row;
         }
@@ -133,14 +133,14 @@ class ImmunizationController extends AbstractActionController
             $form->get('codes')->setValueOptions($codes);
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'listenerObject' => $this->listenerObject,
             'form' => $form,
             'view' => $rows,
             'isFormRefresh' => $isFormRefresh,
             'form_data' => $params,
             'commonplugin' => $this->CommonPlugin(),
-        ));
+        ]);
         return $view;
     }
 
@@ -150,21 +150,17 @@ class ImmunizationController extends AbstractActionController
      */
     public function getAllCodes($data)
     {
-        $defaultCode = isset($data['codes']) ? $data['codes'] : '';
+        $defaultCode = $data['codes'] ?? '';
         $res = $this->getImmunizationTable()->codeslist();
         $i = 0;
         foreach ($res as $value) {
-            if ($value == $defaultCode) {
-                $select = true;
-            } else {
-                $select = false;
-            }
+            $select = $value == $defaultCode ? true : false;
 
-            $rows[$i] = array(
+            $rows[$i] = [
                 'value' => $value['id'],
                 'label' => $value['NAME'],
                 'selected' => $select,
-            );
+            ];
             $i++;
         }
 
@@ -181,7 +177,7 @@ class ImmunizationController extends AbstractActionController
         $data = $request->getPost();
         $key_val = '';
         if (isset($data['hl7button'])) {
-            $form_code = isset($data['codes']) ? $data['codes'] : array();
+            $form_code = $data['codes'] ?? [];
             $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
             $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
             $form_get_hl7 = 'true';
@@ -210,7 +206,7 @@ class ImmunizationController extends AbstractActionController
             if (empty($patient_id)) {
                 $query_pids = '';
             } else {
-                $pid_arr = explode(',', $patient_id);
+                $pid_arr = explode(',', (string) $patient_id);
                 $query_pids = '(';
                 foreach ($pid_arr as $pid_val) {
                     $query_pids .= "p.pid = ( '";
@@ -228,7 +224,7 @@ class ImmunizationController extends AbstractActionController
                 $query_pids .= ') and ';
             }
 
-            $params = array(
+            $params = [
                 'form_from_date' => $from_date,
                 'form_to_date' => $to_date,
                 'form_get_hl7' => $form_get_hl7,
@@ -238,7 +234,7 @@ class ImmunizationController extends AbstractActionController
                 'limit_start' => $start,
                 'limit_end' => $end,
                 'query_pids' => $query_pids,
-            );
+            ];
 
             if ($new_search) {
                 $count = $this->getImmunizationTable()->immunizedPatientDetails($params, 1);
@@ -252,7 +248,7 @@ class ImmunizationController extends AbstractActionController
             $totalpages = ceil($count / $results);
 
             $details = $this->getImmunizationTable()->immunizedPatientDetails($params);
-            $rows = array();
+            $rows = [];
             foreach ($details as $row) {
                 $rows[] = $row;
             }
@@ -285,7 +281,7 @@ class ImmunizationController extends AbstractActionController
                         $race_title = $this->CommonPlugin()->getListtitle('race', $r['race']);
                         $ethnicity_code = $this->getImmunizationTable()->getNotes($r['ethnicity'], 'ethnicity');
                         $ethnicity_title = $this->CommonPlugin()->getListtitle('ethnicity', $r['ethnicity']);
-                        $guardianarray = explode(' ', $r['guardiansname']);
+                        $guardianarray = explode(' ', (string) $r['guardiansname']);
                         $guardianname = $guardianarray[1] . '^' . $guardianarray[0];
                         if ($r['sex'] === 'Male') {
                             $r['sex'] = 'M';
@@ -574,7 +570,7 @@ class ImmunizationController extends AbstractActionController
                             $criteria_notes = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria'], 'immunization_observation');
                             $obs_value_notes = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria_value'], 'imm_vac_eligibility_results');
                             $criteria_value = $criteria_code . "^" . $val_obs['imo_criteria'] . "^" . $criteria_notes;
-                            $date_obs = preg_replace('/-/', '', substr($val_obs['imo_date_observation'], 0, 10));
+                            $date_obs = preg_replace('/-/', '', substr((string) $val_obs['imo_date_observation'], 0, 10));
                             if ($val_obs['imo_criteria'] == 'funding_program_eligibility') {
                                 $obs_value = $obs_value_notes . "^" . $val_obs['imo_criteria_value'] . "^HL70064";
                                 $obs_method = "VXC40^per immunization^CDCPHINVS";
@@ -621,7 +617,7 @@ class ImmunizationController extends AbstractActionController
                             if ($val_obs['imo_vis_date_published'] != 0) {
                                 $value_type = "TS";
                                 $criteria_value = "29768-9^Date vaccine information statement published^LN";
-                                $obs_value = preg_replace('/-/', '', $val_obs['imo_vis_date_published']);
+                                $obs_value = preg_replace('/-/', '', (string) $val_obs['imo_vis_date_published']);
                                 if ($key_obs > 1) {
                                     if ($last_key == 4) {
                                         $key_val = $last_key + 1;
@@ -657,7 +653,7 @@ class ImmunizationController extends AbstractActionController
                             if ($val_obs['imo_vis_date_presented'] != 0) {
                                 $value_type = "TS";
                                 $criteria_value = "29769-7^Date vaccine information statement presented^LN";
-                                $obs_value = preg_replace('/-/', '', $val_obs['imo_vis_date_presented']);
+                                $obs_value = preg_replace('/-/', '', (string) $val_obs['imo_vis_date_presented']);
                                 if ($key_obs > 1) {
                                     if ($last_key == 5) {
                                         $key_val = $last_key + 1;
@@ -754,10 +750,10 @@ class ImmunizationController extends AbstractActionController
      */
     public function format_phone($phone)
     {
-        $phone = preg_replace("/[^0-9]/", "", $phone);
-        return match (strlen($phone)) {
-            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone)),
-            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone)),
+        $phone = preg_replace("/[^0-9]/", "", (string) $phone);
+        return match (strlen((string) $phone)) {
+            7 => $this->tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
+            10 => $this->tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
             default => $this->tr("000 0000000"),
         };
     }

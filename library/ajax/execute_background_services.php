@@ -105,12 +105,12 @@ function execute_background_service_calls(): void
    */
     global $service_name;
 
-    $single_service = isset($_REQUEST['background_service']) ? $_REQUEST['background_service'] : '';
+    $single_service = $_REQUEST['background_service'] ?? '';
     $force = (isset($_REQUEST['background_force']) && $_REQUEST['background_force']);
 
     $sql = 'SELECT * FROM background_services WHERE ' . ($force ? '1' : 'execute_interval > 0');
     if ($single_service != "") {
-        $services = sqlStatementNoLog($sql . ' AND name=?', array($single_service));
+        $services = sqlStatementNoLog($sql . ' AND name=?', [$single_service]);
     } else {
         $services = sqlStatementNoLog($sql . ' ORDER BY sort_order');
     }
@@ -127,7 +127,7 @@ function execute_background_service_calls(): void
         //will need to assess performance in high concurrency setting at some point
         $sql = 'UPDATE background_services SET running = 1, next_run = NOW()+ INTERVAL ?'
         . ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
-        if (sqlStatementNoLog($sql, array($interval,$service_name)) === false) {
+        if (sqlStatementNoLog($sql, [$interval,$service_name]) === false) {
             continue;
         }
 
@@ -147,12 +147,12 @@ function execute_background_service_calls(): void
         //use try/catch in case service functions throw an unexpected Exception
         try {
             $service['function']();
-        } catch (Exception $e) {
+        } catch (Exception) {
           //do nothing
         }
 
         $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
-        $res = sqlStatementNoLog($sql, array($service_name));
+        $res = sqlStatementNoLog($sql, [$service_name]);
     }
 }
 
@@ -169,7 +169,7 @@ function background_shutdown(): void
     global $service_name;
     if (isset($service_name)) {
         $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
-        $res = sqlStatementNoLog($sql, array($service_name));
+        $res = sqlStatementNoLog($sql, [$service_name]);
     }
 }
 

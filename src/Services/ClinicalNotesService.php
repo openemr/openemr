@@ -160,10 +160,14 @@ class ClinicalNotesService extends BaseService
             $sqlBindArray = $whereClause->getBoundValues();
 
             $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-            while ($row = sqlFetchArray($statementResults)) {
+            $records = [];
+            while ($row = QueryUtils::fetchArrayFromResultSet($statementResults)) {
                 $resultRecord = $this->createResultRecordFromDatabaseResult($row);
-                $processingResult->addData($resultRecord);
+                $records[] =  $resultRecord;
             }
+
+            $updatedRecords = $this->populateResultsWithLinkedData($records);
+            $processingResult->setData($updatedRecords);
         } catch (SearchFieldException $exception) {
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
@@ -194,7 +198,7 @@ class ClinicalNotesService extends BaseService
     public function setActivityForClinicalRecord($clinicalNoteId, $pid, $encounter, $activity)
     {
         $sql = "UPDATE `form_clinical_notes` SET activity = ? WHERE id=? AND pid = ? AND encounter = ?";
-        $bindings = array($activity, $clinicalNoteId, $pid, $encounter);
+        $bindings = [$activity, $clinicalNoteId, $pid, $encounter];
         QueryUtils::sqlStatementThrowException($sql, $bindings);
     }
 
@@ -208,7 +212,7 @@ class ClinicalNotesService extends BaseService
     {
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM `form_clinical_notes` WHERE form_id=? AND pid = ? AND encounter = ?",
-            array($formId, $pid, $encounter)
+            [$formId, $pid, $encounter]
         );
     }
 
@@ -226,11 +230,7 @@ class ClinicalNotesService extends BaseService
     {
         $largestId = QueryUtils::fetchSingleValue("SELECT COALESCE(MAX(form_id), 0) as largestId FROM `form_clinical_notes`", 'largestId');
 
-        if ($largestId > 0) {
-            $form_id = $largestId + 1;
-        } else {
-            $form_id = 1;
-        }
+        $form_id = $largestId > 0 ? $largestId + 1 : 1;
 
         addForm($encounter, "Clinical Notes Form", $form_id, "clinical_notes", $pid, $userauthorized);
         return $form_id;
@@ -259,11 +259,7 @@ class ClinicalNotesService extends BaseService
         if (empty($form_id)) {
             $largestId = QueryUtils::fetchSingleValue("SELECT COALESCE(MAX(form_id), 0) as largestId FROM `form_clinical_notes`", 'largestId');
 
-            if ($largestId > 0) {
-                $record['form_id'] = $largestId + 1;
-            } else {
-                $record['form_id'] = 1;
-            }
+            $record['form_id'] = $largestId > 0 ? $largestId + 1 : 1;
 
             addForm($encounter, "Clinical Notes Form", $record['form_id'], "clinical_notes", $pid, $userauthorized);
         }
@@ -278,6 +274,7 @@ class ClinicalNotesService extends BaseService
             $bindValues = array_values($record);
             $bindValues[] = $id;
             QueryUtils::sqlStatementThrowException($sql, $bindValues);
+            $record['id'] = $id;
         } else {
             $sql = "INSERT INTO " . self::TABLE_NAME . " SET " . implode(", ", $setValues);
             $bindValues = array_values($record);
@@ -295,7 +292,7 @@ class ClinicalNotesService extends BaseService
         }
 
         $sql = "SELECT id FROM `form_clinical_notes` WHERE `form_id`=? AND `pid` = ? AND `encounter` = ?";
-        return QueryUtils::fetchTableColumn($sql, 'id', array($formid, $pid, $encounter));
+        return QueryUtils::fetchTableColumn($sql, 'id', [$formid, $pid, $encounter]);
     }
 
     /**
@@ -321,7 +318,7 @@ class ClinicalNotesService extends BaseService
                 LEFT JOIN list_options lo_category ON lo_category.list_id = 'Clinical_Note_Category' AND lo_category.option_id = fcn.clinical_notes_category
                 LEFT JOIN list_options lo_type ON lo_type.list_id = 'Clinical_Note_Type' AND lo_type.option_id = fcn.clinical_notes_type
                 WHERE fcn.`form_id`=? AND fcn.`pid` = ? AND fcn.`encounter` = ?";
-        return QueryUtils::fetchRecords($sql, array($formid, $pid, $encounter));
+        return $this->populateResultsWithLinkedData(QueryUtils::fetchRecords($sql, [$formid, $pid, $encounter]));
     }
 
     public function deleteClinicalNoteRecordForPatient($recordId, $pid, $encounter)
@@ -339,7 +336,7 @@ class ClinicalNotesService extends BaseService
     public function isValidClinicalNoteCode($code)
     {
         // make it a LOINC code
-        if (strpos($code, ":") === false) {
+        if (!str_contains((string) $code, ":")) {
             $code = "LOINC:" . $code;
         }
         $listService = new ListService();
@@ -379,5 +376,232 @@ class ClinicalNotesService extends BaseService
             ];
         }
         return $selectList;
+    }
+
+    /**
+     * AI Generated
+     * @param array $clinicalNoteIds
+     * @return array
+     */
+    protected function getLinkedDocumentsBatch(array $clinicalNoteIds): array
+    {
+        if (empty($clinicalNoteIds)) {
+            return [];
+        }
+
+        $placeholders = str_repeat('?,', count($clinicalNoteIds) - 1) . '?';
+        $sql = "
+        SELECT
+            cnd.clinical_note_id,
+            d.id as document_id,
+            d.uuid as document_uuid,
+            d.name as document_name,
+            d.mimetype as document_type,
+            d.date as document_date
+        FROM clinical_notes_documents cnd
+        JOIN documents d ON cnd.document_id = d.id
+        WHERE cnd.clinical_note_id IN ($placeholders)
+        AND d.deleted = 0
+        ORDER BY cnd.clinical_note_id, d.date DESC
+    ";
+
+        $results = QueryUtils::fetchRecords($sql, $clinicalNoteIds);
+
+        // Group by clinical note ID
+        $grouped = [];
+        foreach ($results as $row) {
+            $noteId = $row['clinical_note_id'];
+            if (!isset($grouped[$noteId])) {
+                $grouped[$noteId] = [];
+            }
+            $grouped[$noteId][] = [
+                'uuid' => UuidRegistry::uuidToString($row['document_uuid']),
+                'name' => $row['document_name'],
+                'type' => $row['document_type'],
+                'date' => $row['document_date']
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * AI Generated
+     * @param array $clinicalNoteIds
+     * @return array
+     */
+    protected function getLinkedProcedureResultsBatch(array $clinicalNoteIds): array
+    {
+        if (empty($clinicalNoteIds)) {
+            return [];
+        }
+
+        $placeholders = str_repeat('?,', count($clinicalNoteIds) - 1) . '?';
+        $sql = "
+        SELECT
+            cnpr.clinical_note_id,
+            pr.procedure_result_id,
+            pr.uuid as result_uuid,
+            pr.result_text,
+            pr.result,
+            pr.date as result_date,
+            poc.procedure_name
+        FROM clinical_notes_procedure_results cnpr
+        JOIN procedure_result pr ON cnpr.procedure_result_id = pr.procedure_result_id
+        JOIN procedure_report prep ON pr.procedure_report_id = prep.procedure_report_id
+        JOIN procedure_order po ON prep.procedure_order_id = po.procedure_order_id
+        JOIN procedure_order_code poc ON po.procedure_order_id = poc.procedure_order_id AND prep.procedure_order_seq = poc.procedure_order_seq
+        WHERE cnpr.clinical_note_id IN ($placeholders)
+        ORDER BY cnpr.clinical_note_id, pr.date DESC
+    ";
+
+        $results = QueryUtils::fetchRecords($sql, $clinicalNoteIds);
+
+        // Group by clinical note ID
+        $grouped = [];
+        foreach ($results as $row) {
+            $noteId = $row['clinical_note_id'];
+            if (!isset($grouped[$noteId])) {
+                $grouped[$noteId] = [];
+            }
+            $grouped[$noteId][] = [
+                'uuid' => UuidRegistry::uuidToString($row['result_uuid']),
+                'procedure_name' => $row['procedure_name'],
+                'result' => $row['result'],
+                'result_text' => $row['result_text'],
+                'date' => $row['result_date']
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * AI Generated
+     * Save linked documents for a clinical note
+     * @param int $clinicalNoteId The clinical note ID
+     * @param array $documentsData Array of document data with uuid values
+     * @param string $createdBy Username of the user creating the links
+     */
+    public function saveLinkedDocuments(int $clinicalNoteId, array $documentsData, string $createdBy)
+    {
+        // First clear existing links
+        $this->clearLinkedDocuments($clinicalNoteId);
+
+        if (empty($documentsData)) {
+            return;
+        }
+
+        // Insert new links
+        foreach ($documentsData as $documentData) {
+            if (isset($documentData['uuid']) && !empty($documentData['uuid'])) {
+                // Get document ID from UUID
+                $documentId = $this->getDocumentIdFromUuid($documentData['uuid']);
+                if ($documentId) {
+                    $sql = "INSERT INTO clinical_notes_documents (clinical_note_id, document_id, created_by) VALUES (?, ?, ?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$clinicalNoteId, $documentId, $createdBy]);
+                }
+            }
+        }
+    }
+
+    /**
+     * AI Generated
+     * Clear all linked documents for a clinical note
+     * @param int $clinicalNoteId The clinical note ID
+     */
+    public function clearLinkedDocuments(int $clinicalNoteId)
+    {
+        $sql = "DELETE FROM clinical_notes_documents WHERE clinical_note_id = ?";
+        QueryUtils::sqlStatementThrowException($sql, [$clinicalNoteId]);
+    }
+
+    /**
+     * AI Generated
+     * Save linked procedure results for a clinical note
+     * @param int $clinicalNoteId The clinical note ID
+     * @param array $resultsData Array of result data with uuid values
+     * @param string $createdBy Username of the user creating the links
+     */
+    public function saveLinkedResults(int $clinicalNoteId, array $resultsData, string $createdBy)
+    {
+        // First clear existing links
+        $this->clearLinkedResults($clinicalNoteId);
+
+        if (empty($resultsData)) {
+            return;
+        }
+
+        // Insert new links
+        foreach ($resultsData as $resultData) {
+            if (isset($resultData['uuid']) && !empty($resultData['uuid'])) {
+                // Get procedure result ID from UUID
+                $procedureResultId = $this->getProcedureResultIdFromUuid($resultData['uuid']);
+                if ($procedureResultId) {
+                    $sql = "INSERT INTO clinical_notes_procedure_results (clinical_note_id, procedure_result_id, created_by) VALUES (?, ?, ?)";
+                    QueryUtils::sqlStatementThrowException($sql, [$clinicalNoteId, $procedureResultId, $createdBy]);
+                }
+            }
+        }
+    }
+
+    /**
+     * AI Generated
+     * Clear all linked procedure results for a clinical note
+     * @param int $clinicalNoteId The clinical note ID
+     */
+    public function clearLinkedResults(int $clinicalNoteId)
+    {
+        $sql = "DELETE FROM clinical_notes_procedure_results WHERE clinical_note_id = ?";
+        QueryUtils::sqlStatementThrowException($sql, [$clinicalNoteId]);
+    }
+
+    /**
+     * AI Generated
+     * Get document ID from UUID
+     * @param string $uuid The document UUID
+     * @return int|null The document ID or null if not found
+     */
+    private function getDocumentIdFromUuid(string $uuid)
+    {
+        $sql = "SELECT id FROM documents WHERE uuid = ? AND deleted = 0";
+        $binaryUuid = UuidRegistry::uuidToBytes($uuid);
+        return QueryUtils::fetchSingleValue($sql, 'id', [$binaryUuid]);
+    }
+
+    /**
+     * AI Generated
+     * Get procedure result ID from UUID
+     * @param string $uuid The procedure result UUID
+     * @return int|null The procedure result ID or null if not found
+     */
+    private function getProcedureResultIdFromUuid(string $uuid)
+    {
+        $sql = "SELECT procedure_result_id FROM procedure_result WHERE uuid = ?";
+        $binaryUuid = UuidRegistry::uuidToBytes($uuid);
+        return QueryUtils::fetchSingleValue($sql, 'procedure_result_id', [$binaryUuid]);
+    }
+
+    private function populateResultsWithLinkedData(array $records): array
+    {
+        if (empty($records)) {
+            return [];
+        }
+        $clinicalNoteIds = array_map(fn($record) => $record['id'], $records);
+        // Batch fetch all linked documents
+        $linkedDocuments = $this->getLinkedDocumentsBatch($clinicalNoteIds);
+
+        // Batch fetch all linked procedure results
+        $linkedResults = $this->getLinkedProcedureResultsBatch($clinicalNoteIds);
+
+        // Attach linked data to each record
+        $updatedRecords = [];
+        foreach ($records as $record) {
+            $noteId = $record['id'];
+            $record['documents'] = $linkedDocuments[$noteId] ?? [];
+            $record['linked_results'] = $linkedResults[$noteId] ?? [];
+            $updatedRecords[] = $record;
+        }
+        return $updatedRecords;
     }
 }

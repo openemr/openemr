@@ -56,10 +56,10 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
 }
 
 if (
-    !AclMain::aclCheckCore('patients', 'med', '', array(
+    !AclMain::aclCheckCore('patients', 'med', '', [
     'write',
     'addonly'
-    ))
+    ])
 ) {
     die(xlt("Add is not authorized!"));
 }
@@ -71,11 +71,11 @@ if (!($_SESSION['providerID'] ?? '') && $providerID) {
     ($_SESSION['providerID'] = $providerID);
 }
 
-$irow = array();
+$irow = [];
 if ($issue) {
-    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array(
+    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", [
         $issue
-    ));
+    ]);
 } elseif ($thistype ?? '') {
     $irow['type'] = $thistype;
     $irow['subtype'] = $subtype;
@@ -92,12 +92,12 @@ if (!empty($irow['type'])) {
 
 $given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
 $query = "SELECT $given from form_eye_ros where id=? and pid=?";
-$rres = sqlQuery($query, array(
+$rres = sqlQuery($query, [
     $form_id,
     $pid
-));
+]);
 foreach (explode(',', $given) as $item) {
-    $$item = $rres[$item];
+    ${$item} = $rres[$item];
 }
 ?>
 <html>
@@ -118,71 +118,71 @@ foreach (explode(',', $given) as $item) {
             $local = '1';
             echo " aitypes['" . attr($key) . "'] = '0';\n";
             if ($key == "PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 20", array(
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 20", [
                     "medical_problem",
                     $_SESSION['providerID']
-                ));
+                ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array(
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
                         "medical_problem_issue_list"
-                    ));
+                    ]);
                 }
             } elseif ($key == "Medication") {
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array(
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "medication",
                     $_SESSION['providerID']
-                ));
+                ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array(
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
                         "medication_issue_list"
-                    ));
+                    ]);
                 }
             } elseif ($key == "Surgery") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
     subtype = '' and pid in (select pid from form_encounter where provider_id =?
-    and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array(
+    and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "surgery",
                     $_SESSION['providerID']
-                ));
+                ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array(
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
                         "surgery_issue_list"
-                    ));
+                    ]);
                 }
             } elseif ($key == "Allergy") {
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array(
+                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "allergy",
                     $_SESSION['providerID']
-                ));
+                ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array(
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
                         "allergy_issue_list"
-                    ));
+                    ]);
                 }
             } elseif ($key == "POH") { // POH medical group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query, array(
+                $qry = sqlStatement($query, [
                     $_SESSION['providerID']
-                ));
+                ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
                 }
             } elseif ($key == "POS") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query, array(
+                $qry = sqlStatement($query, [
                     $_SESSION['providerID']
-                ));
+                ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
                 }
             } elseif ($key == "Eye Meds") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq FROM `lists` WHERE `type` LIKE 'medication' and subtype = 'eye' and pid in ( select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query, array(
+                $qry = sqlStatement($query, [
                     $_SESSION['providerID']
-                ));
+                ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medication_issue_list' and subtype = 'eye'");
                 }
@@ -199,9 +199,9 @@ foreach (explode(',', $given) as $item) {
 
             if ($local == "1") { // leave FH/SocHx/ROS for later - done below separately
                 while ($res = sqlFetchArray($qry ?? '')) { //Should we take the top 10 and display alphabetically?
-                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
+                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim((string) $res['title']))) . ", " . js_escape(trim((string) $res['option_id'])) . ", false, false);\n";
                     if ($res['codes']) {
-                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim($res['codes'])) . "');\n";
+                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim((string) $res['codes'])) . "');\n";
                     }
                 }
             }
@@ -491,12 +491,12 @@ foreach (explode(',', $given) as $item) {
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert("<?php echo addslashes(xl('Please Enter End Date greater than Begin Date!')); ?>");
+                alert("<?php echo addslashes((string) xl('Please Enter End Date greater than Begin Date!')); ?>");
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert("<?php echo addslashes(xl('Please enter a title!')); ?>");
+                    alert("<?php echo addslashes((string) xl('Please enter a title!')); ?>");
                     return false;
                 }
             }
@@ -609,7 +609,7 @@ foreach (explode(',', $given) as $item) {
                 $output = '';
                 global $counter_header;
                 $count_header = '0';
-                $output = array();
+                $output = [];
                 foreach ($PMSFH[0] as $key => $value) {
                     $checked = '';
                     if ($key == "POH") {
@@ -714,12 +714,12 @@ foreach (explode(',', $given) as $item) {
                         <td colspan="2">
                             <?php
 // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
-                            generate_form_field(array(
+                            generate_form_field([
                             'data_type' => 1,
                             'field_id' => 'occur',
                             'list_id' => 'occurrence',
                             'empty_title' => 'SKIP'
-                            ), $irow['occurrence'] ?? '');
+                            ], $irow['occurrence'] ?? '');
                             ?>
                         </td>
                         <td class="indent20">
@@ -804,25 +804,25 @@ foreach (explode(',', $given) as $item) {
                     $dateStart = $_POST['dateState'] ?? '';
                     $dateEnd = $_POST['dateEnd'] ?? '';
                     if ($dateStart && $dateEnd) {
-                        $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array(
+                        $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", [
                             $pid,
                             $dateStart,
                             $dateEnd
-                        ));
+                        ]);
                     } elseif ($dateStart && !$dateEnd) {
-                        $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array(
+                        $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", [
                             $pid,
                             $dateStart
-                        ));
+                        ]);
                     } elseif (!$dateStart && $dateEnd) {
-                        $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array(
+                        $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", [
                             $pid,
                             $dateEnd
-                        ));
+                        ]);
                     } else {
-                        $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array(
+                        $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", [
                             $pid
-                        ));
+                        ]);
                     }
 
                     $group_fields_query = sqlStatement("SELECT * FROM layout_options " . "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " . "ORDER BY seq");
@@ -866,9 +866,9 @@ foreach (explode(',', $given) as $item) {
                             }
 
                             $fldlength = empty($frow['fld_length']) ? 20 : $frow['fld_length'];
-                            $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
-                            $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
-                            $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
+                            $fldlength = htmlspecialchars((string) $fldlength, ENT_QUOTES);
+                            $result2[$field_id]['resnote'] = htmlspecialchars((string) $result2[$field_id]['resnote'], ENT_QUOTES);
+                            $result2[$field_id]['resdate'] = htmlspecialchars((string) $result2[$field_id]['resdate'], ENT_QUOTES);
                         } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }

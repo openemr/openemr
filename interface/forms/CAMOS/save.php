@@ -25,13 +25,13 @@ if ($_GET["mode"] == "delete") {
     }
 
     foreach ($_POST as $key => $val) {
-        if (!(str_starts_with($key, 'ch_') and $val === 'on')) {
+        if (!(str_starts_with((string) $key, 'ch_') and $val === 'on')) {
             continue;
         }
-        $id = substr($key, 3);
+        $id = substr((string) $key, 3);
         if ($_POST['delete']) {
-            sqlStatement("delete from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id=?", array($id));
-            sqlStatement("delete from forms where form_name like 'CAMOS%' and form_id=?", array($id));
+            sqlStatement("delete from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id=?", [$id]);
+            sqlStatement("delete from forms where form_name like 'CAMOS%' and form_id=?", [$id]);
         }
 
         if ($_POST['update']) {
@@ -42,7 +42,7 @@ if ($_GET["mode"] == "delete") {
             //   version 4.0).
             $content = $_POST['textarea_' . $id];
             $content = replace($pid, $encounter, $content);
-            sqlStatement("update " . mitigateSqlTableUpperCase("form_CAMOS") . " set content=? where id=?", array($content, $id));
+            sqlStatement("update " . mitigateSqlTableUpperCase("form_CAMOS") . " set content=? where id=?", [$content, $id]);
         }
     }
 }

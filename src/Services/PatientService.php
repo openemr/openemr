@@ -88,7 +88,7 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-        return sqlStatement($sql, array($pid));
+        return sqlStatement($sql, [$pid]);
     }
 
     /**
@@ -192,10 +192,10 @@ class PatientService extends BaseService
         $data = $this->databaseInsert($data);
 
         if (false !== $data['pid']) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'pid' => $data['pid'],
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -237,14 +237,6 @@ class PatientService extends BaseService
 
         array_push($query['bind'], $data['pid']);
         $sqlResult = sqlStatement($sql, $query['bind']);
-
-        if (
-            $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
-            || ($dataBeforeUpdate['care_team_facility'] ?? '') != ($data['care_team_facility'] ?? '')
-        ) {
-            // need to save off our care team
-            $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);
-        }
 
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
@@ -346,7 +338,7 @@ class PatientService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
+    public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -355,8 +347,8 @@ class PatientService extends BaseService
             } elseif (isset($search['uuid'])) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $search['uuid']);
             }
-            $wildcardFields = array('fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
-            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode');
+            $wildcardFields = ['fname', 'mname', 'lname', 'street', 'city', 'state','postal_code','title'
+            , 'contact_address_line1', 'contact_address_city', 'contact_address_state','contact_address_postalcode'];
             foreach ($wildcardFields as $field) {
                 if (isset($search[$field])) {
                     $querySearch[$field] = new StringSearchField($field, $search[$field], SearchModifier::CONTAINS, $isAndCondition);
@@ -630,7 +622,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+        $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -653,12 +645,6 @@ class PatientService extends BaseService
     public function getPidByUuid($uuid)
     {
         return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
-    }
-
-    private function saveCareTeamHistory($patientData, $oldProviders, $oldFacilities)
-    {
-        $careTeamService = new CareTeamService();
-        $careTeamService->createCareTeamHistory($patientData['pid'], $oldProviders, $oldFacilities);
     }
 
     public function formatPreviousName($item)
@@ -698,10 +684,10 @@ class PatientService extends BaseService
             return '';
         }
         // strip any dashes from the DOB
-        $dobYMD = preg_replace("/-/", "", $dobYMD);
-        $dobDay = substr($dobYMD, 6, 2);
-        $dobMonth = substr($dobYMD, 4, 2);
-        $dobYear = (int) substr($dobYMD, 0, 4);
+        $dobYMD = preg_replace("/-/", "", (string) $dobYMD);
+        $dobDay = substr((string) $dobYMD, 6, 2);
+        $dobMonth = substr((string) $dobYMD, 4, 2);
+        $dobYear = (int) substr((string) $dobYMD, 0, 4);
 
         // set the 'now' date values
         if ($nowYMD == null) {
@@ -709,9 +695,9 @@ class PatientService extends BaseService
             $nowMonth = date("m");
             $nowYear = date("Y");
         } else {
-            $nowDay = substr($nowYMD, 6, 2);
-            $nowMonth = substr($nowYMD, 4, 2);
-            $nowYear = substr($nowYMD, 0, 4);
+            $nowDay = substr((string) $nowYMD, 6, 2);
+            $nowMonth = substr((string) $nowYMD, 4, 2);
+            $nowYear = substr((string) $nowYMD, 0, 4);
         }
 
         $dayDiff = $nowDay - $dobDay;
@@ -870,7 +856,7 @@ class PatientService extends BaseService
         $suffixes = $this->getPatientSuffixKeys();
         $suffix = null;
         foreach ($suffixes as $s) {
-            if (stripos($patientRecord['lname'], $s) !== false) {
+            if (stripos((string) $patientRecord['lname'], (string) $s) !== false) {
                 $suffix = $s;
                 $result['lname'] = trim(str_replace($s, '', $patientRecord['lname']));
                 break;
@@ -882,7 +868,7 @@ class PatientService extends BaseService
     private function getPatientSuffixKeys()
     {
         if (!isset($this->patientSuffixKeys)) {
-            $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
+            $this->patientSuffixKeys = [xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}')];
         }
         return $this->patientSuffixKeys;
     }

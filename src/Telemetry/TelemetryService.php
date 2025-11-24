@@ -186,7 +186,7 @@ class TelemetryService
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode($response, true);
+            $responseData = json_decode((string) $response, true);
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report
             } else {
@@ -216,11 +216,7 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        if (!empty($GLOBALS['webroot'])) {
-            $normalized = preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path);
-        } else {
-            $normalized = $path;
-        }
+        $normalized = !empty($GLOBALS['webroot']) ? preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 

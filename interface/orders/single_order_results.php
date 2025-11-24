@@ -41,16 +41,16 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
   // in the sending form. While this will usually be all the reports linked to
   // the order it's possible for a new report to come in while viewing these,
   // and it would be very bad to sign results that nobody has seen!
-    $arrSign = explode(',', $_POST['form_sign_list']);
+    $arrSign = explode(',', (string) $_POST['form_sign_list']);
     foreach ($arrSign as $id) {
         sqlStatement("UPDATE procedure_report SET " .
         "review_status = 'reviewed' WHERE " .
-        "procedure_report_id = ?", array($id));
+        "procedure_report_id = ?", [$id]);
     }
     if ($orderid) {
         sqlStatement("UPDATE procedure_order SET " .
             "order_status = 'complete' WHERE " .
-            "procedure_order_id = ?", array($orderid));
+            "procedure_order_id = ?", [$orderid]);
     }
 }
 
@@ -74,15 +74,15 @@ if (!empty($_POST['form_send_to_portal'])) {
     $pdf->writeHTML(ob_get_clean());
     $contents = $pdf->Output('', true);
   // Send message with PDF as attachment.
-    $result = cms_portal_call(array(
+    $result = cms_portal_call([
     'action'   => 'putmessage',
     'user'     => $_POST['form_send_to_portal'],
     'title'    => xl('Your Lab Results'),
     'message'  => xl('Please see the attached PDF.'),
     'filename' => 'results.pdf',
     'mimetype' => 'application/pdf',
-    'contents' => base64_encode($contents),
-    ));
+    'contents' => base64_encode((string) $contents),
+    ]);
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }

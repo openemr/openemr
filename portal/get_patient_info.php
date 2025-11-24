@@ -27,12 +27,12 @@ session_regenerate_id(true);
 //
 
 // landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
+$landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? $_GET['site'] ?? 'default'));
 //
 
 if (!empty($_REQUEST['redirect'])) {
     // let's add the redirect back in case there are any errors or other problems.
-    $landingpage .= "&redirect=" . urlencode($_REQUEST['redirect']);
+    $landingpage .= "&redirect=" . urlencode((string) $_REQUEST['redirect']);
 }
 
 // checking whether the request comes from index.php
@@ -88,7 +88,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
-$password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
+$password_update = $_SESSION['password_update'] ?? 0;
 unset($_SESSION['password_update']);
 
 $authorizedPortal = false; // flag
@@ -104,15 +104,15 @@ DEFINE("COL_POR_ONETIME", "portal_onetime");
 // 2 is flag for one time credential reset else 1 = normal reset.
 // one time reset requires a PIN where normal uses a new temp pass sent to user.
 if ($password_update === 2 && !empty($_SESSION['pin'])) {
-    $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT, COL_POR_ONETIME)) . " FROM " . TBL_PAT_ACC_ON .
+    $sql = "SELECT " . implode(",", [
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT, COL_POR_ONETIME]) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE BINARY " . COL_POR_ONETIME . "= ?";
-    $auth = privQuery($sql, array($_SESSION['forward']));
+    $auth = privQuery($sql, [$_SESSION['forward']]);
     if ($auth !== false) {
         // remove the token from database
         privStatement("UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_ONETIME . "=NULL WHERE BINARY " . COL_POR_ONETIME . " = ?", [$auth['portal_onetime']]);
         // validation
-        $validate = substr($auth[COL_POR_ONETIME], 32, 6);
+        $validate = substr((string) $auth[COL_POR_ONETIME], 32, 6);
         if (!empty($validate) && !empty($_POST['token_pin'])) {
             if ($_SESSION['pin'] !== $_POST['token_pin']) {
                 $auth = false;
@@ -128,16 +128,16 @@ if ($password_update === 2 && !empty($_SESSION['pin'])) {
     }
 } else {
     // normal login
-    $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+    $sql = "SELECT " . implode(",", [
+            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE " . COL_POR_LOGINUSER . "= ?";
     if ($password_update === 1) {
-        $sql = "SELECT " . implode(",", array(
-                COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+        $sql = "SELECT " . implode(",", [
+                COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) . " FROM " . TBL_PAT_ACC_ON .
             " WHERE " . COL_POR_USER . "= ?";
     }
 
-    $auth = privQuery($sql, array($_POST['uname']));
+    $auth = privQuery($sql, [$_POST['uname']]);
 }
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
@@ -187,7 +187,7 @@ $_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
-if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
+if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         SessionUtil::portalSessionCookieDestroy();
@@ -230,11 +230,11 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
             // Update the password and continue (patient is authorized)
             privStatement(
                 "UPDATE " . TBL_PAT_ACC_ON . "  SET " . COL_POR_LOGINUSER . "=?," . COL_POR_PWD . "=?," . COL_POR_PWD_STAT . "=1 WHERE id=?",
-                array(
+                [
                     $_POST['login_uname'],
                     $new_hash,
                     $auth['id']
-                )
+                ]
             );
             $authorizedPortal = true;
             $logit->portalLog('password update', $auth['pid'], ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success'));
@@ -266,7 +266,7 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
         $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
-        $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
+        $_SESSION['providerId'] = $userData['providerID'] ?: 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
         // never set authUserID though authUser is used for ACL!
         $_SESSION['authUser'] = 'portal-user';

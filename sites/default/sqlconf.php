@@ -12,7 +12,7 @@ $pass   = 'openemr';
 $dbase  = 'openemr';
 $db_encoding = 'utf8mb4';
 
-$sqlconf = array();
+$sqlconf = [];
 global $sqlconf;
 $sqlconf["host"]= $host;
 $sqlconf["port"] = $port;

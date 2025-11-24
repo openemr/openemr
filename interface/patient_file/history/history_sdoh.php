@@ -89,11 +89,11 @@ function render_list_select(string $field, string $list_id, $current, string $pl
         $code = $system = '';
         if ($codes) {
             if ($codes[0] === '{') {
-                $cd = json_decode($codes, true) ?: [];
+                $cd = json_decode((string) $codes, true) ?: [];
                 $code = $cd['code'] ?? '';
                 $system = $cd['system'] ?? '';
-            } elseif (strpos($codes, ':') !== false) {
-                [$system, $code] = explode(':', $codes, 2);
+            } elseif (str_contains((string) $codes, ':')) {
+                [$system, $code] = explode(':', (string) $codes, 2);
             }
         }
         echo "<option value='" . attr($o['option_id']) . "'"
@@ -103,7 +103,7 @@ function render_list_select(string $field, string $list_id, $current, string $pl
     echo "</select>";
 }
 
-$self = basename($_SERVER['PHP_SELF']);
+$self = basename((string) $_SERVER['PHP_SELF']);
 ?>
 <!doctype html>
 <html>
@@ -374,6 +374,12 @@ $self = basename($_SERVER['PHP_SELF']);
                             <label><?php echo xlt("Postpartum End Date"); ?></label>
                             <input type="text" class="form-control datepicker" name="postpartum_end"
                                 value="<?php echo attr(v($info, 'postpartum_end')); ?>">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label><?php echo xlt("Pregnancy intention in the next year"); ?></label>
+                            <?php render_list_select('pregnancy_intent', 'pregnancy_intent', v($info, 'pregnancy_intent')); ?>
                         </div>
                     </div>
                 </div>

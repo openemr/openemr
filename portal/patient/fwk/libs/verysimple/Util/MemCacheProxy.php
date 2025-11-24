@@ -30,7 +30,7 @@ class MemCacheProxy extends CacheMemCache
      * @param
      *          string a unique string. prevents conflicts in case multiple apps are using the same memcached server bank
      */
-    public function __construct($server_array = array('localhost' => '11211'), $uniquePrefix = "CACHE-")
+    public function __construct($server_array = ['localhost' => '11211'], $uniquePrefix = "CACHE-")
     {
         if (class_exists('Memcache')) {
             $memcache = new Memcache();

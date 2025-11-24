@@ -58,7 +58,7 @@ function addNewDocument(
     }
 
     // Build the $_FILES array
-    $TEMP_FILES = array();
+    $TEMP_FILES = [];
     $TEMP_FILES['file']['name'][0] = $name;
     $TEMP_FILES['file']['type'][0] = $type;
     $TEMP_FILES['file']['tmp_name'][0] = $tmp_name;
@@ -88,7 +88,7 @@ function addNewDocument(
         return false;
     }
 
-    return array("doc_id" => $v[0]->id, "url" => $v[0]->url, "name" => $v[0]->name);
+    return ["doc_id" => $v[0]->id, "url" => $v[0]->url, "name" => $v[0]->name];
 }
 
 /**
@@ -99,7 +99,7 @@ function addNewDocument(
  */
 function document_category_to_id($category_title)
 {
-    $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", array($category_title));
+    $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", [$category_title]);
     if ($ret['id']) {
         return $ret['id'];
     } else {

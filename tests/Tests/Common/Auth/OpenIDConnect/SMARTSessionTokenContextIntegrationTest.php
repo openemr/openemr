@@ -40,6 +40,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenIDConnectServer\ClaimExtractor;
@@ -62,18 +63,31 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
     private MockObject $logger;
 
     const KEY_PATH_PRIVATE = __DIR__ . '/../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key';
+    private OEGlobalsBag $oldGlobals;
+
+    private ServerConfig $serverConfig;
 
     protected function setUp(): void
     {
+        $this->oldGlobals = new OEGlobalsBag(
+            [
+                'site_addr_oath' => $GLOBALS['site_addr_oath'] ?? null,
+                'web_root' => $GLOBALS['web_root'] ?? null,
+            ]
+        );
         // Set up global variables that are referenced
         $this->globalsBag = new OEGlobalsBag([
             'site_addr_oath' => 'https://example.com',
             'web_root' => '/openemr',
         ]);
+        foreach ($this->globalsBag->all() as $key => $value) {
+            $GLOBALS[$key] = $value;
+        }
+        $this->serverConfig = new ServerConfig();
         // Use a real session with mock storage for integration testing
         $this->session = new Session(new MockArraySessionStorage());
         $this->session->set('site_id', 'default');
-        $this->contextBuilder = new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session);
+        $this->contextBuilder = new SMARTSessionTokenContextBuilder($this->serverConfig, $this->session);
 
 
         $mockUserEntity = $this->createMock(UserEntity::class);
@@ -109,6 +123,13 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
+        foreach ($this->oldGlobals->all() as $key => $value) {
+            if ($value === null) {
+                unset($GLOBALS[$key]);
+            } else {
+                $GLOBALS[$key] = $value;
+            }
+        }
     }
 
     public function testEHRLaunchContextIntegration(): void
@@ -152,7 +173,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Use reflection to test the protected getExtraParams method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -196,7 +216,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Use reflection to test the protected getExtraParams method
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -344,7 +363,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Use reflection to set the protected accessToken property
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $property = $reflection->getProperty('accessToken');
-        $property->setAccessible(true);
         $property->setValue($this->idTokenResponse, $accessToken);
     }
 
@@ -401,7 +419,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Test the complete flow through getExtraParams
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -468,7 +485,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         // Test the complete flow
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 
@@ -523,7 +539,6 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
 
         $reflection = new \ReflectionClass($this->idTokenResponse);
         $method = $reflection->getMethod('getExtraParams');
-        $method->setAccessible(true);
 
         $extraParams = $method->invoke($this->idTokenResponse, $accessToken);
 

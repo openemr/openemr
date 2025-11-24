@@ -162,7 +162,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
     private function unregister($modId, $currentActionStatus): mixed
     {
         $sql = "DELETE FROM `background_services` WHERE `name` = ? OR `name` = ?";
-        sqlQuery($sql, array('WenoExchange', 'WenoExchangePharmacies'));
+        sqlQuery($sql, ['WenoExchange', 'WenoExchangePharmacies']);
         return $currentActionStatus;
     }
 
@@ -236,9 +236,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
+        $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
         }
 
         return $registry;

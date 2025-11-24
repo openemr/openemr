@@ -23,21 +23,21 @@ class HttpRestParsedRoute
      * Whether the route definition is a valid match against the current request
      * @var bool
      */
-    private $isValid;
+    private bool $isValid = false;
 
     /**
      * The endpoint resource that the api request is for.  Only populated if the route definition
      * matches against the current route
-     * @var string
+     * @var ?string
      */
-    private $resource;
+    private ?string $resource = null;
 
     /**
      * The endpoint operation that the api request is for.  Only populated if the route definition
      * matches against the current route
-     * @var string
+     * @var ?string
      */
-    private $operation;
+    private ?string $operation = null;
 
     /**
      * The identifier of a resource for an instance level operation ie fhir/Patient/{id} -> id or
@@ -49,43 +49,34 @@ class HttpRestParsedRoute
     /**
      * The endpoint paramters (identifiers, and anything else marked with the :colon param).
      * Only populated if the route definition matches against the current route
-     * @var string
+     * @var array
      */
-    private $routeParams;
+    private array $routeParams = [];
 
     /**
-     * The OpenEMR route definition that this request is being matched / parsed against
-     * @var string
+     * @param mixed $requestMethod
+     * @param string $requestRoute The current HTTP request route we are attempting to match against a route definition
+     * @param string $routeDefinition The OpenEMR route definition that this request is being matched / parsed against
      */
-    private $routeDefinition;
-
-    /**
-     * The current HTTP request route we are attempting to match against a route definition
-     * @var string
-     */
-    private $requestRoute;
-
-    private $requestMethod;
-
-    public function __construct($requestMethod, $requestRoute, $routeDefinition)
-    {
+    public function __construct(
+        private $requestMethod,
+        private $requestRoute,
+        private $routeDefinition
+    ) {
         $this->instanceIdentifier = null;
-        $this->routeDefinition = $routeDefinition;
-        $this->requestRoute = $requestRoute;
-        $this->requestMethod = $requestMethod;
 
-        $routePieces = explode(" ", $routeDefinition);
+        $routePieces = explode(" ", $this->routeDefinition);
         $routeDefinitionMethod = $routePieces[0];
         $pattern = $this->getRouteMatchExpression($routePieces[1]);
-        $matches = array();
-        if ($requestMethod === $routeDefinitionMethod && preg_match($pattern, $requestRoute, $matches)) {
+        $matches = [];
+        if ($this->requestMethod === $routeDefinitionMethod && preg_match($pattern, $this->requestRoute, $matches)) {
             $this->isValid = true;
             array_shift($matches); // drop request method
             $this->routeParams = $matches;
-            $this->parseRouteParams($matches, $routeDefinition);
-            $this->getSystemLogger()->debug("HttpRestParsedRoute->__construct() matched", ['routePath' => $routeDefinition,
-                'requestPath' => $requestRoute
-                ,'method' => $requestMethod, 'routeParams' => $this->routeParams
+            $this->parseRouteParams($matches, $this->routeDefinition);
+            $this->getSystemLogger()->debug("HttpRestParsedRoute->__construct() matched", ['routePath' => $this->routeDefinition,
+                'requestPath' => $this->requestRoute
+                ,'method' => $this->requestMethod, 'routeParams' => $this->routeParams
                 , 'resource' => $this->getResource(), 'operation' => $this->getOperation()]);
         } else {
             $this->isValid = false;
@@ -160,7 +151,7 @@ class HttpRestParsedRoute
     private function getRouteMatchExpression($path)
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
-        return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$\:]+)', preg_quote($path)) . "$@D";
+        return "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\$\:]+)', preg_quote((string) $path)) . "$@D";
     }
 
     /**
@@ -180,14 +171,14 @@ class HttpRestParsedRoute
      */
     private function parseRouteParams($routeParams, $routeDefinition)
     {
-        $parts = explode("/", $routeDefinition);
+        $parts = explode("/", (string) $routeDefinition);
         if (empty($parts)) {
             return; // nothing we can do here
         }
         $apiType = $parts[1] ?? null;
 
         $finalArg = end($parts);
-        if (strpos($finalArg, '$') !== false) {
+        if (str_contains($finalArg, '$')) {
             $this->operation = $finalArg;
             array_pop($parts);
             $finalArg = end($parts);

@@ -12,10 +12,10 @@
 
 require_once("../../globals.php");
 
-$pid_list = array();
+$pid_list = [];
 $pid_list = $_SESSION['pidList'];
 
-$pdf = new FPDF('L', 'mm', array(148, 105));
+$pdf = new FPDF('L', 'mm', [148, 105]);
 $last = 1;
 $pdf->SetFont('Arial', '', 14);
 
@@ -24,11 +24,7 @@ $facility = sqlQuery($sql);
 
 $sql = "SELECT * FROM medex_prefs";
 $prefs = sqlQuery($sql);
-if ($prefs['postcard_top']) {
-    $postcard_top = $prefs['postcard_top'];
-} else {
-    $postcard_top = '';
-}
+$postcard_top = $prefs['postcard_top'] ?: '';
 
 $postcard_message = $postcard_top . "\n" . xl('Please call our office to schedule') . "\n" . xl('your next appointment at') . " " . $facility['phone'] . ".
 	\n\n" . $facility['street'] . "\n
@@ -41,8 +37,8 @@ foreach ($pid_list as $pid) {
         "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
         "p.street, p.city, p.state, p.postal_code, p.pid " .
         "FROM patient_data AS p " .
-        "WHERE p.pid = ? LIMIT 1", array($pid));
-    $prov = sqlQuery("SELECT * FROM users WHERE id IN (SELECT r_provider  FROM `medex_recalls` WHERE `r_pid`=?)", array($pid));
+        "WHERE p.pid = ? LIMIT 1", [$pid]);
+    $prov = sqlQuery("SELECT * FROM users WHERE id IN (SELECT r_provider  FROM `medex_recalls` WHERE `r_pid`=?)", [$pid]);
     if (isset($prov['fname']) && isset($prov['lname'])) {
         $prov_name = ": " . $prov['fname'] . " " . $prov['lname'];
         if (isset($prov['suffix'])) {

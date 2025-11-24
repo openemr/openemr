@@ -47,7 +47,7 @@ class CcdTable extends AbstractTableGateway
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['city']         = $xml['recordTarget']['patientRole']['addr']['city'];
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['state']        = $xml['recordTarget']['patientRole']['addr']['state'];
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['postal_code']  = $xml['recordTarget']['patientRole']['addr']['postalCode'];
-        $this->ccd_data_array['field_name_value_array']['patient_data'][1]['phone_home']   = preg_replace('/[^0-9]+/i', '', $xml['recordTarget']['patientRole']['telecom']['value']);
+        $this->ccd_data_array['field_name_value_array']['patient_data'][1]['phone_home']   = preg_replace('/[^0-9]+/i', '', (string) $xml['recordTarget']['patientRole']['telecom']['value']);
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['extension']    = $xml['recordTarget']['patientRole']['id']['extension'];
 
 
@@ -64,9 +64,9 @@ class CcdTable extends AbstractTableGateway
                   imported = ?,
                   audit_master_approval_status=?
               WHERE id = ?";
-        $appTable->zQuery($query, array($audit_master_id,
+        $appTable->zQuery($query, [$audit_master_id,
                                     1,
                                     $audit_master_approval_status,
-                                    $document_id));
+                                    $document_id]);
     }
 }

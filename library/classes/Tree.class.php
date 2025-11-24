@@ -17,34 +17,29 @@ class Tree
     *   This is the name of the table this tree is stored in
     *   @var string
     */
-    var $_table;
+    public $_table;
 
     /*
     *   This is a lookup table so that you can get a node name or parent id from its id
     *   @var array
     */
-    var $_id_name;
+    public $_id_name;
 
     /*
     *   This is a db abstraction object compatible with ADODB
     *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
     */
-    var $_db;
-
-    var $_root;
-    var $_root_type;
-    var $tree;
+    public $_db;
+    public $tree;
 
     /*
     *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
     *   @param mixed $root name or id of desired root node
     *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
     */
-    function __construct($root, $root_type = ROOT_TYPE_ID)
+    function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
         $this->_db = $GLOBALS['adodb']['db'];
-        $this->_root = $root;
-        $this->_root_type = $root_type;
         $this->load_tree();
     }
 
@@ -61,8 +56,8 @@ class Tree
     function load_tree()
     {
         $root = $this->_root;
-        $tree = array();
-        $tree_tmp = array();
+        $tree = [];
+        $tree_tmp = [];
 
         //get the left and right value of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE id=?";
@@ -72,25 +67,25 @@ class Tree
         }
 
         $result = $this->_db->Execute($sql, [$root]) or die("Error: " . text($this->_db->ErrorMsg()));
-        $row = array();
+        $row = [];
 
         if ($result && !$result->EOF) {
             $row = $result->fields;
         } else {
-            $this->tree = array();
+            $this->tree = [];
         }
 
         // start with an empty right stack
-        $right = array();
+        $right = [];
 
         // now, retrieve all descendants of the root node
         $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN ? AND ? ORDER BY parent,name ASC;";
         $result = $this->_db->Execute($sql, [$row['lft'], $row['rght']]);
-        $this->_id_name = array();
+        $this->_id_name = [];
 
 
         while ($result && !$result->EOF) {
-            $ar = array();
+            $ar = [];
             $row = $result->fields;
 
             //create a lookup table of id to name for every node that will end up in this tree, this is used
@@ -333,7 +328,7 @@ class Tree
         if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id];
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -354,7 +349,7 @@ function array_merge_2(&$array, &$array_i): void
         // If the value itself is an array, the process repeats recursively:
         if (is_array($v)) {
             if (!isset($array[$k])) {
-                $array[$k] = array();
+                $array[$k] = [];
             }
 
             array_merge_2($array[$k], $v);
@@ -366,7 +361,7 @@ function array_merge_2(&$array, &$array_i): void
             } else {
                 if (isset($array) && !is_array($array)) {
                     $temp = $array;
-                    $array = array();
+                    $array = [];
                     $array[0] = $temp;
                 }
 
@@ -380,7 +375,7 @@ function array_merge_2(&$array, &$array_i): void
 function array_merge_n()
 {
     // Initialization of the resulting array:
-    $array = array();
+    $array = [];
 
     // Arrays to be merged (function's arguments):
     $arrays = func_get_args();

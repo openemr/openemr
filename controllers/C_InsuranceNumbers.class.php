@@ -13,16 +13,14 @@
 
 class C_InsuranceNumbers extends Controller
 {
-        var $template_mod;
-        var $providers;
-        var $insurance_numbers;
+        public $providers;
+        public $insurance_numbers;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->providers = array();
-        $this->insurance_numbers = array();
-        $this->template_mod = $template_mod;
+        $this->providers = [];
+        $this->insurance_numbers = [];
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&");
         $this->assign("STYLE", $GLOBALS['style']);
@@ -68,19 +66,19 @@ class C_InsuranceNumbers extends Controller
 
         //It is possible to set a group and provider number to be used in the event that there is not direct hit on the insurance-provider lookup
         //Those numbers are entered uder default
-        $ic_array = array("Default");
+        $ic_array = ["Default"];
 
         foreach ($icompanies as $ic_tmp) {
             $ic_array[$ic_tmp->get_id()] = $ic_tmp->get_name();
         }
 
-        $ic_type_options_array = array();
+        $ic_type_options_array = [];
 
         foreach ($this->insurance_numbers[0]->provider_number_type_array as $type => $type_title) {
             $ic_type_options_array[$type] = "$type  $type_title";
         }
 
-        $ic_rendering_type_options_array = array();
+        $ic_rendering_type_options_array = [];
 
         foreach ($this->insurance_numbers[0]->rendering_provider_number_type_array as $type => $type_title) {
             $ic_rendering_type_options_array[$type] = "$type  $type_title";
@@ -118,11 +116,7 @@ class C_InsuranceNumbers extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->insurance_numbers[0] = new InsuranceNumbers($_POST['id']);
-        } else {
-            $this->insurance_numbers[0] = new InsuranceNumbers();
-        }
+        $this->insurance_numbers[0] = is_numeric($_POST['id']) ? new InsuranceNumbers($_POST['id']) : new InsuranceNumbers();
 
         parent::populate_object($this->insurance_numbers[0]);
 

@@ -33,7 +33,7 @@ class ModuleconfigController extends AbstractActionController
         return get_object_vars($this);
     }
 
-    public function setInputFilter(InputFilterInterface $inputFilter)
+    public function setInputFilter(InputFilterInterface $inputFilter): never
     {
         throw new \Exception("Not used");
     }
@@ -50,25 +50,25 @@ class ModuleconfigController extends AbstractActionController
 
     public function getHookConfig()
     {
-        $hooks  =  array();
+        $hooks  =  [];
         return $hooks;
     }
 
     public function getAclConfig()
     {
-        $acl = array();
+        $acl = [];
         return $acl;
     }
 
     public function configSettings()
     {
-        $settings = array();
+        $settings = [];
         return $settings;
     }
 
     public function getDependedModulesConfig()
     {
-        $dependedModules = array();
+        $dependedModules = [];
         return $dependedModules;
     }
 }

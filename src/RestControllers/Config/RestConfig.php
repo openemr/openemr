@@ -6,8 +6,8 @@ use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
 use LogicException;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -20,6 +20,7 @@ use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // also a handy place to add utility methods
@@ -162,9 +163,9 @@ class RestConfig
     public static function parseEndPoint($resource): array
     {
         if ($resource[0] === '/') {
-            $resource = substr($resource, 1);
+            $resource = substr((string) $resource, 1);
         }
-        return explode('/', $resource);
+        return explode('/', (string) $resource);
     }
 
     public static function getRequestEndPoint(): string
@@ -176,8 +177,8 @@ class RestConfig
             $resource = str_replace('_REWRITE_COMMAND=', '/', $_SERVER['REDIRECT_QUERY_STRING']);
         } else {
             if (!empty($_SERVER['REQUEST_URI'])) {
-                if (strpos($_SERVER['REQUEST_URI'], '?') > 0) {
-                    $resource = strstr($_SERVER['REQUEST_URI'], '?', true);
+                if (strpos((string) $_SERVER['REQUEST_URI'], '?') > 0) {
+                    $resource = strstr((string) $_SERVER['REQUEST_URI'], '?', true);
                 } else {
                     $resource = str_replace(self::$ROOT_URL ?? '', '', $_SERVER['REQUEST_URI']);
                 }
@@ -196,11 +197,10 @@ class RestConfig
     {
         $result = AclMain::aclCheckCore($section, $value, $user, $aclPermission);
         if (!$result) {
-            if (!self::$notRestCall) {
-                throw HttpException::fromStatusCode(403, "Organization policy does not have permit access resource");
-            } else {
+            if (self::$notRestCall) {
                 exit(); // not sure why we exit here, but this is how it was before
             }
+            throw new AccessDeniedHttpException("Organization policy does not have permit access resource");
         }
     }
 
@@ -242,17 +242,17 @@ class RestConfig
 
     public static function is_fhir_request($resource): bool
     {
-        return stripos(strtolower($resource), "/fhir/") !== false;
+        return stripos(strtolower((string) $resource), "/fhir/") !== false;
     }
 
     public static function is_portal_request($resource): bool
     {
-        return stripos(strtolower($resource), "/portal/") !== false;
+        return stripos(strtolower((string) $resource), "/portal/") !== false;
     }
 
     public static function is_api_request($resource): bool
     {
-        return stripos(strtolower($resource), "/api/") !== false;
+        return stripos(strtolower((string) $resource), "/api/") !== false;
     }
 
     /** prevents external cloning */

@@ -27,9 +27,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class HttpRestRouteHandler
 {
-    private SystemLogger $logger;
+    private readonly SystemLogger $logger;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     public function __construct(private readonly OEHttpKernel $kernel)
     {
@@ -121,7 +121,12 @@ class HttpRestRouteHandler
                     ,'trace' => $exception->getTraceAsString()
                 ]
             );
-            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, "System error occurred", $exception);
+            if ($exception instanceof HttpException) {
+                // rethrow http exceptions as is
+                throw $exception;
+            } else {
+                throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, "System error occurred", $exception);
+            }
         }
     }
 

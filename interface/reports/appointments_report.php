@@ -120,7 +120,7 @@ function fetch_rule_txt($list_id, $option_id): array|false
 {
     $rs = sqlQuery(
         'SELECT title, seq from list_options WHERE list_id = ? AND option_id = ? AND activity = 1',
-        array($list_id, $option_id)
+        [$list_id, $option_id]
     );
     if (!$rs) {
         return false;
@@ -131,11 +131,11 @@ function fetch_rule_txt($list_id, $option_id): array|false
 function fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
-    $seq_due = array();
-    $seq_cat = array();
-    $seq_act = array();
+    $seq_due = [];
+    $seq_cat = [];
+    $seq_act = [];
     foreach ($rems as $ix => $rem) {
-        $rem_out = array();
+        $rem_out = [];
         $rule_txt = fetch_rule_txt('rule_reminder_due_opt', $rem['due_status']);
         $seq_due[$ix] = $rule_txt['seq'];
         $rem_out['due_txt'] = $rule_txt['title'];
@@ -149,7 +149,7 @@ function fetch_reminders($pid, $appt_date): array
     }
 
     array_multisort($seq_due, SORT_DESC, $seq_cat, SORT_ASC, $seq_act, SORT_ASC, $rems_out);
-    $rems = array();
+    $rems = [];
     foreach ($rems_out as $rem) {
         $rems[$rem['due_txt']] .= (isset($rems[$rem['due_txt']]) ? ', ' : '') .
             $rem['act_txt'] . ' ' . $rem['cat_txt'];
@@ -291,7 +291,7 @@ if (empty($_POST['form_csvexport'])) {
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), ($_POST['form_apptstatus'] ?? ''));?></td>
+                <td><?php generate_form_field(['data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'], ($_POST['form_apptstatus'] ?? ''));?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -532,8 +532,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             $logger->logError($e->getMessage());
         }
     } else {
-        $pid_list = array();  // Initialize list of PIDs for Superbill option
-        $apptdate_list = array(); // same as above for the appt details
+        $pid_list = [];  // Initialize list of PIDs for Superbill option
+        $apptdate_list = []; // same as above for the appt details
         $totalAppointments = count($appointments);
         $canceledAppointments = 0;
 
@@ -567,7 +567,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
             <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
                 <?php
-                    echo date('D', strtotime($appointment['pc_eventDate']));
+                    echo date('D', strtotime((string) $appointment['pc_eventDate']));
                 ?>
             </td>
 
@@ -623,7 +623,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
         <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
                     <?php
-                    if (trim($appointment['pc_hometext'])) {
+                    if (trim((string) $appointment['pc_hometext'])) {
                         echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
                     }
 

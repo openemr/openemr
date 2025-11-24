@@ -20,20 +20,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ActionRouter
 {
-    /**
-     * @var BaseController
-     */
-    protected $controller;
     protected $path;
     protected $webRoot;
     protected $appRoot;
-    protected $action;
     protected $templateRoot;
 
-    public function __construct($controller, $action)
+    /**
+     * @param \BaseController $controller
+     */
+    public function __construct(protected $controller, protected $action)
     {
-        $this->controller = $controller;
-        $this->action = $action;
         $this->appRoot = Common::base_dir();
         $this->webRoot = $GLOBALS['webroot'];
         $this->templateRoot = Common::template_dir();
@@ -108,7 +104,7 @@ class ActionRouter
 
     protected function resolveViewLocation($viewName)
     {
-        $controllerName = strtolower($this->controller->getControllerName());
+        $controllerName = strtolower((string) $this->controller->getControllerName());
         $viewLocation = $this->templateRoot . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $viewName;
         if (!is_file($viewLocation)) {
             $viewLocation = $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $viewName;

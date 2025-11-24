@@ -19,6 +19,22 @@ use OpenEMR\Services\Search\TokenSearchValue;
 trait MappedServiceCodeTrait
 {
     use MappedServiceTrait;
+    use MappedServiceCategoryTrait;
+
+    public function getServiceListForCategory(TokenSearchField $field)
+    {
+        $serviceList = [];
+        foreach ($this->getMappedServices() as $service) {
+            $categoryCodes = $field->getValues();
+            foreach ($categoryCodes as $categoryCode) {
+                if ($service->supportsCategory($categoryCode->getCode())) {
+                    $serviceList[] = $service;
+                    break;
+                }
+            }
+        }
+        return $serviceList;
+    }
 
     public function getServiceListForCode(TokenSearchField $field)
     {

@@ -27,7 +27,7 @@ class SLEOB
     public static function slInvoiceNumber(&$out)
     {
         $invnumber = $out['our_claim_id'];
-        $atmp = preg_split('/[ -]/', $invnumber);
+        $atmp = preg_split('/[ -]/', (string) $invnumber);
         $acount = count($atmp);
 
         $pid = 0;
@@ -38,18 +38,18 @@ class SLEOB
         } elseif ($acount == 3) {
             $pid = $atmp[0];
             $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
-                "pid = '$pid' AND encounter = ? AND activity = 1", array($atmp[1]));
+                "pid = '$pid' AND encounter = ? AND activity = 1", [$atmp[1]]);
 
             $encounter = $brow['encounter'];
         } elseif ($acount == 1) {
             $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
                 "lname LIKE ? AND " .
                 "fname LIKE ? " .
-                "ORDER BY pid DESC", array($out['patient_lname'], $out['patient_fname']));
+                "ORDER BY pid DESC", [$out['patient_lname'], $out['patient_fname']]);
             while ($prow = sqlFetchArray($pres)) {
-                if (strpos($invnumber, $prow['pid']) === 0) {
+                if (str_starts_with((string) $invnumber, (string) $prow['pid'])) {
                     $pid = $prow['pid'];
-                    $encounter = substr($invnumber, strlen($pid));
+                    $encounter = substr((string) $invnumber, strlen((string) $pid));
                     break;
                 }
             }
@@ -59,7 +59,7 @@ class SLEOB
             $invnumber = "$pid.$encounter";
         }
 
-        return array($pid, $encounter, $invnumber);
+        return [$pid, $encounter, $invnumber];
     }
 
     // This gets a posting session ID.  If the payer ID is not 0 and a matching
@@ -76,7 +76,7 @@ class SLEOB
             $row = sqlQuery("SELECT session_id FROM ar_session WHERE " .
                 "payer_id = ? AND reference = ? AND " .
                 "check_date = ? AND deposit_date = ? " .
-                "ORDER BY session_id DESC LIMIT 1", array($payer_id, $reference, $check_date, $deposit_date));
+                "ORDER BY session_id DESC LIMIT 1", [$payer_id, $reference, $check_date, $deposit_date]);
             if (!empty($row['session_id'])) {
                 return $row['session_id'];
             }
@@ -84,7 +84,7 @@ class SLEOB
 
         return sqlInsert("INSERT INTO ar_session ( " .
             "payer_id, user_id, reference, check_date, deposit_date, pay_total " .
-            ") VALUES ( ?, ?, ?, ?, ?, ? )", array($payer_id, $_SESSION['authUserID'], $reference, $check_date, $deposit_date, $pay_total));
+            ") VALUES ( ?, ?, ?, ?, ?, ? )", [$payer_id, $_SESSION['authUserID'], $reference, $check_date, $deposit_date, $pay_total]);
     }
 
     //writing the check details to Session Table on ERA proxcessing
@@ -96,7 +96,7 @@ class SLEOB
         if ($debug) {
             echo text($query) . "<br />\n";
         } else {
-            $sessionId = sqlInsert($query, array($payer_id, $_SESSION['authUserID'], 'ePay - ' . $check_number, $check_date, $pay_total, $post_to_date, $deposit_date));
+            $sessionId = sqlInsert($query, [$payer_id, $_SESSION['authUserID'], 'ePay - ' . $check_number, $check_date, $pay_total, $post_to_date, $deposit_date]);
             return $sessionId;
         }
     }
@@ -119,10 +119,10 @@ class SLEOB
     ) {
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         if (empty($time)) {
@@ -132,7 +132,7 @@ class SLEOB
         sqlBeginTrans();
         $sequence_no = sqlQuery(
             "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?",
-            array($patient_id, $encounter_id)
+            [$patient_id, $encounter_id]
         );
         $query = "INSERT INTO ar_activity ( " .
             "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_date, post_user, " .
@@ -140,7 +140,7 @@ class SLEOB
             ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         sqlStatement(
             $query,
-            array(
+            [
                 $patient_id,
                 $encounter_id,
                 $sequence_no['increment'],
@@ -155,7 +155,7 @@ class SLEOB
                 $memo,
                 $amount,
                 $payer_claim_number
-            )
+            ]
         );
         sqlCommitTrans();
         return;
@@ -188,10 +188,10 @@ class SLEOB
 
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         BillingUtilities::addBilling(
@@ -216,10 +216,10 @@ class SLEOB
     {
         $codeonly = $code;
         $modifier = '';
-        $tmp = strpos($code, ':');
+        $tmp = strpos((string) $code, ':');
         if ($tmp) {
-            $codeonly = substr($code, 0, $tmp);
-            $modifier = substr($code, $tmp + 1);
+            $codeonly = substr((string) $code, 0, $tmp);
+            $modifier = substr((string) $code, $tmp + 1);
         }
 
         if (empty($time)) {
@@ -227,12 +227,12 @@ class SLEOB
         }
 
         sqlBeginTrans();
-        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
         $query = "INSERT INTO ar_activity ( " .
             "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_user, post_time, " .
             "session_id, memo, adj_amount " .
             ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        sqlStatement($query, array($patient_id, $encounter_id, $sequence_no['increment'], $codetype, $codeonly, $modifier, $payer_type, $_SESSION['authUserID'], $time, $session_id, $reason, $amount));
+        sqlStatement($query, [$patient_id, $encounter_id, $sequence_no['increment'], $codetype, $codeonly, $modifier, $payer_type, $_SESSION['authUserID'], $time, $session_id, $reason, $amount]);
         sqlCommitTrans();
         return;
     }
@@ -243,12 +243,12 @@ class SLEOB
             return 0;
         }
 
-        $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
+        $tmp = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'];
         $value = $tmp[$payer_type];
         $query = "SELECT provider FROM insurance_data WHERE " .
             "pid = ? AND type = ? AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) " .
             "ORDER BY date DESC LIMIT 1";
-        $nprow = sqlQuery($query, array($patient_id, $value, $date_of_service, $date_of_service));
+        $nprow = sqlQuery($query, [$patient_id, $value, $date_of_service, $date_of_service]);
         if (empty($nprow)) {
             return 0;
         }
@@ -270,8 +270,8 @@ class SLEOB
         // Determine the next insurance level to be billed.
         $ferow = sqlQuery("SELECT date, last_level_billed " .
             "FROM form_encounter WHERE " .
-            "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
-        $date_of_service = substr($ferow['date'], 0, 10);
+            "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
+        $date_of_service = substr((string) $ferow['date'], 0, 10);
         $new_payer_type = 0 + $ferow['last_level_billed'];
         if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0) {
             ++$new_payer_type;

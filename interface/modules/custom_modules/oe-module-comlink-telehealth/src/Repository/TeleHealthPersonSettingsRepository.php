@@ -18,14 +18,8 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class TeleHealthPersonSettingsRepository
 {
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
-
-    public function __construct(SystemLogger $logger)
+    public function __construct(private readonly SystemLogger $logger)
     {
-        $this->logger = $logger;
     }
 
     public function saveSettingsForPerson(TeleHealthPersonSettings $settings): TeleHealthPersonSettings

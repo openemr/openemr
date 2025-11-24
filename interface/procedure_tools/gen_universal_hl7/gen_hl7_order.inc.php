@@ -1,24 +1,16 @@
 <?php
 
 /**
-* Functions to support HL7 order generation.
-*
-* Copyright (C) 2012-2013 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
+ * Functions to support HL7 order generation
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 /*
 * A bit of documentation that will need to go into the manual:
@@ -38,6 +30,8 @@
 require_once("$webserver_root/custom/code_types.inc.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderResult;
 
 function hl7Text($s)
 {
@@ -53,12 +47,12 @@ function hl7Text($s)
 
 function hl7Zip($s)
 {
-    return hl7Text(preg_replace('/[-\s]*/', '', $s));
+    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
 }
 
 function hl7Date($s)
 {
-    return preg_replace('/[^\d]/', '', $s);
+    return preg_replace('/[^\d]/', '', (string) $s);
 }
 
 function hl7Time($s)
@@ -67,12 +61,12 @@ function hl7Time($s)
         return '';
     }
 
-    return date('YmdHis', strtotime($s));
+    return date('YmdHis', strtotime((string) $s));
 }
 
 function hl7Sex($s)
 {
-    $s = strtoupper(substr($s, 0, 1));
+    $s = strtoupper(substr((string) $s, 0, 1));
     if ($s !== 'M' && $s !== 'F') {
         $s = 'U';
     }
@@ -82,11 +76,11 @@ function hl7Sex($s)
 
 function hl7Phone($s)
 {
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
     }
 
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2];
     }
 
@@ -95,7 +89,7 @@ function hl7Phone($s)
 
 function hl7SSN($s)
 {
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
+    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
     }
 
@@ -104,12 +98,12 @@ function hl7SSN($s)
 
 function hl7Priority($s)
 {
-    return strtoupper(substr($s, 0, 1)) == 'H' ? 'S' : 'R';
+    return strtoupper(substr((string) $s, 0, 1)) == 'H' ? 'S' : 'R';
 }
 
 function hl7Relation($s)
 {
-    $tmp = strtolower($s);
+    $tmp = strtolower((string) $s);
     if ($tmp == 'self' || $tmp == '') {
         return 'self';
     } elseif ($tmp == 'spouse') {
@@ -149,11 +143,11 @@ function loadPayerInfo($pid, $date = '')
 
         $crow = sqlQuery(
             "SELECT * FROM insurance_companies WHERE id = ?",
-            array($drow['provider'])
+            [$drow['provider']]
         );
 
         $orow = new InsuranceCompany($drow['provider']);
-        $payers[$key] = array();
+        $payers[$key] = [];
         $payers[$key]['data']    = $drow;
         $payers[$key]['company'] = $crow;
         $payers[$key]['object']  = $orow;
@@ -165,11 +159,11 @@ function loadPayerInfo($pid, $date = '')
 /**
  * Generate HL7 for the specified procedure order.
  *
- * @param  integer $orderid  Procedure order ID.
- * @param  string  &$out     Container for target HL7 text.
- * @return string            Error text, or empty if no errors.
+ * @param  int   $orderid  Procedure order ID.
+ * @return Hl7OrderResult  Result object containing HL7 text and optional lab-specific requisition data.
+ * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order($orderid, &$out)
+function gen_hl7_order(int $orderid): Hl7OrderResult
 {
 
   // Delimiters
@@ -196,10 +190,10 @@ function gen_hl7_order($orderid, &$out)
         "f.form_id = po.procedure_order_id AND " .
         "pd.pid = f.pid AND " .
         "u.id = po.provider_id",
-        array($orderid)
+        [$orderid]
     );
     if (empty($porow)) {
-        return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+        throw new Hl7OrderGenerationException("Procedure order, ordering provider or lab is missing for order ID '$orderid'");
     }
 
     $pcres = sqlStatement(
@@ -210,10 +204,10 @@ function gen_hl7_order($orderid, &$out)
         "pc.procedure_order_id = ? AND " .
         "pc.do_not_send = 0 " .
         "ORDER BY pc.procedure_order_seq",
-        array($orderid)
+        [$orderid]
     );
 
-    $padOrderId = trim($porow['send_fac_id']) . "-" . trim(str_pad((string)$orderid, 4, "0", STR_PAD_LEFT));
+    $padOrderId = trim((string) $porow['send_fac_id']) . "-" . trim(str_pad((string)$orderid, 4, "0", STR_PAD_LEFT));
   // Message Header
     $out .= "MSH" .
     $d1 . "$d2~\\&" .               // Encoding Characters (delimiters)
@@ -262,9 +256,9 @@ function gen_hl7_order($orderid, &$out)
 
     // NTE segment(s).
     $msql = sqlStatement("SELECT drug FROM prescriptions WHERE active=1 AND patient_id=?", [$porow['pid']]);
-    $drugs = array();
+    $drugs = [];
     while ($mres = sqlFetchArray($msql)) {
-        $drugs[] = trim($mres['drug']);
+        $drugs[] = trim((string) $mres['drug']);
     }
     $med_list = count($drugs) > 0 ? implode(",", $drugs) : 'NONE';
 
@@ -289,7 +283,7 @@ function gen_hl7_order($orderid, &$out)
     $d0;
 
   // Insurance stuff.
-    $ins_type = trim($porow['billing_type']);
+    $ins_type = trim((string) $porow['billing_type']);
     $payers = loadPayerInfo($porow['pid'], $porow['date_ordered']);
     $setid = 0;
     if ($ins_type == 'T') {
@@ -333,7 +327,7 @@ function gen_hl7_order($orderid, &$out)
             }
         }
         if ($setid === 0) {
-            return "\nInsurance is being billed but patient does not have any payers on record!";
+            throw new Hl7OrderGenerationException("Insurance is being billed but patient does not have any payers on record!");
         }
     } else { // no insurance record
         ++$setid;
@@ -409,13 +403,13 @@ function gen_hl7_order($orderid, &$out)
         }
         $setid2 = 0;
         if (!empty($test_diagnosis)) {
-            $relcodes = explode(';', $test_diagnosis);
+            $relcodes = explode(';', (string) $test_diagnosis);
             foreach ($relcodes as $codestring) {
                 if ($codestring === '') {
                     continue;
                 }
 
-                list($codetype, $code) = explode(':', $codestring);
+                [$codetype, $code] = explode(':', $codestring);
                 if ($codetype !== 'ICD10') {
                     continue;
                 }
@@ -444,13 +438,13 @@ function gen_hl7_order($orderid, &$out)
             "a.procedure_order_id = ? AND " .
             "a.procedure_order_seq = ? " .
             "ORDER BY q.seq, a.answer_seq",
-            array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq'])
+            [$porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']]
         );
         $setid2 = 0;
         while ($qrow = sqlFetchArray($qres)) {
               // Formatting of these answer values may be lab-specific and we'll figure
               // out how to deal with that as more labs are supported.
-              $answer = trim($qrow['answer']);
+              $answer = trim((string) $qrow['answer']);
               $fldtype = $qrow['fldtype'];
               $datatype = 'ST';
             if ($fldtype == 'N') {
@@ -473,7 +467,7 @@ function gen_hl7_order($orderid, &$out)
         }
     }
 
-    return '';
+    return new Hl7OrderResult($out);
 }
 
 /**
@@ -490,7 +484,7 @@ function send_hl7_order($ppid, $out)
     $d0 = "\r";
 
     $pprow = sqlQuery("SELECT * FROM procedure_providers " .
-    "WHERE ppid = ?", array($ppid));
+    "WHERE ppid = ?", [$ppid]);
     if (empty($pprow)) {
         return xl('Procedure provider') . " $ppid " . xl('not found');
     }

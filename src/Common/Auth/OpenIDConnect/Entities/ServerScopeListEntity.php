@@ -142,6 +142,7 @@ class ServerScopeListEntity
                 'Encounter',
                 'Goal',
                 'Immunization',
+                'Media',
                 'MedicationDispense',
                 'MedicationRequest',
                 'Observation',
@@ -354,10 +355,7 @@ class ServerScopeListEntity
             "api:fhir" => xl("Permission to use the OpenEMR FHIR api"),
             "api:port" => xl("Permission to use the OpenEMR apis from inside the patient portal"),
         ];
-        if (isset($requiredSmart[$scope])) {
-            return $requiredSmart[$scope];
-        }
-        return "";
+        return $requiredSmart[$scope] ?? "";
     }
 
     /**
@@ -380,7 +378,7 @@ class ServerScopeListEntity
             'DiagnosticReport' => xl("diagnostic reports including laboratory,cardiology,radiology, and pathology reports"),
             'DocumentReference' => xl("clinical and non-clinical documents"),
             'Encounter' => xl("encounter information"),
-            'Goal' => xl("goals"),
+            'Goal' => xl("intended objective(s) for a patient, group, or organizational care"),
             'Immunization' => xl("immunization history"),
             'MedicationRequest' => xl("planned and prescribed medication history including self-reported medications"),
             'Medication' => xl("drug information related to planned and prescribed medication history"),

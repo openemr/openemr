@@ -20,7 +20,7 @@ use Laminas\Form\Form;
 
 class Configuration extends Form implements InputFilterAwareInterface
 {
-    protected ?InputFilterInterface $inputFilter;
+    protected ?InputFilterInterface $inputFilter = null;
 
     public function __construct()
     {
@@ -54,18 +54,18 @@ class Configuration extends Form implements InputFilterAwareInterface
 
     public function getHookConfig()
     {
-        $hooks    =  array();
+        $hooks    =  [];
         return $hooks;
     }
     public function getAclConfig()
     {
-        $acl = array();
+        $acl = [];
         return $acl;
     }
 
     public function configSettings()
     {
-        $settings = array();
+        $settings = [];
         return $settings;
     }
 

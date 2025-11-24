@@ -37,15 +37,15 @@ function smarty_function_pc_date_select($args): void
     $Date = postcalendar_getDate();
 
     if (!isset($y)) {
-        $y = substr($Date, 0, 4);
+        $y = substr((string) $Date, 0, 4);
     }
 
     if (!isset($m)) {
-        $m = substr($Date, 4, 2);
+        $m = substr((string) $Date, 4, 2);
     }
 
     if (!isset($d)) {
-        $d = substr($Date, 6, 2);
+        $d = substr((string) $Date, 6, 2);
     }
 
     if (!isset($args['day']) || strtolower($args['day']) == 'on') {
@@ -80,22 +80,22 @@ function smarty_function_pc_date_select($args): void
     $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if ($args['day'] === true) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day' => $d));
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $d]);
         $dayselect = $output->FormSelectMultiple('jumpday', $sel_data);
     }
 
     if ($args['month'] === true) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month' => $m));
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $m]);
         $monthselect = $output->FormSelectMultiple('jumpmonth', $sel_data);
     }
 
     if ($args['year'] === true) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year' => $y));
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => $y]);
         $yearselect = $output->FormSelectMultiple('jumpyear', $sel_data);
     }
 
     if ($args['view'] === true) {
-        $sel_data = array();
+        $sel_data = [];
         $sel_data[0]['id']         = 'day';
         $sel_data[0]['selected']   = $viewtype == 'day';
         $sel_data[0]['name']       = _CAL_DAYVIEW;
@@ -118,14 +118,14 @@ function smarty_function_pc_date_select($args): void
         $jumpsubmit = '<input type="submit" class="btn btn-primary align-middle" name="submit" value="' . $args['label'] . '" />';
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
 
-    $orderArray = array('day' => $dayselect,
+    $orderArray = ['day' => $dayselect,
                         'month' => $monthselect,
                         'year' => $yearselect,
                         'view' => $viewselect,
-                        'jump' => $jumpsubmit);
+                        'jump' => $jumpsubmit];
 
     if (isset($args['order'])) {
-        $newOrder = array();
+        $newOrder = [];
         $order = explode(',', $args['order']);
         foreach ($order as $tmp_order) {
             array_push($newOrder, $orderArray[$tmp_order]);

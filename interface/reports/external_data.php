@@ -21,8 +21,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 
-$records1 = array();
-$records2 = array();
+$records1 = [];
+$records2 = [];
 ?>
 <html>
     <head>
@@ -30,17 +30,17 @@ $records2 = array();
         <title><?php echo xlt('External Data'); ?></title>
         <script><?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
         <?php
-        $arrOeUiSettings = array(
+        $arrOeUiSettings = [
             'heading_title' => xl('External Data'),
             'include_patient_name' => true,
             'expandable' => true,
-            'expandable_files' => array("external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd"),//all file names need suffix _xpd
+            'expandable_files' => ["external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd"],//all file names need suffix _xpd
             'action' => "",//conceal, reveal, search, reset, link or back
             'action_title' => "",
             'action_href' => "",//only for actions - reset, link or back
             'show_help_icon' => false,
             'help_file_name' => "external_data_dashboard_help.php"
-        );
+        ];
         $oemr_ui = new OemrUI($arrOeUiSettings);
         ?>
     </head>
@@ -80,7 +80,7 @@ $records2 = array();
                                     LEFT JOIN users AS u1 ON u1.id = ee.ee_provider_id
                                     LEFT JOIN users AS u2 ON u2.id = ee.ee_facility_id
                                     WHERE ee.ee_pid = ?";
-                                $res1 = sqlStatement($query1, array($pid));
+                                $res1 = sqlStatement($query1, [$pid]);
                                 while ($row1 = sqlFetchArray($res1)) {
                                     $records1[] = $row1;
                                 }
@@ -119,7 +119,7 @@ $records2 = array();
                             <div class="table-responsive">
                                 <?php
                                 $query2 = "SELECT ep.*,u.organization AS facility FROM external_procedures AS ep LEFT JOIN users AS u ON u.id = ep.ep_facility_id WHERE ep.ep_pid = ?";
-                                $res2 = sqlStatement($query2, array($pid));
+                                $res2 = sqlStatement($query2, [$pid]);
                                 while ($row2 = sqlFetchArray($res2)) {
                                     $records2[] = $row2;
                                 }

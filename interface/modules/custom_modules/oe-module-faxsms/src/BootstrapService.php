@@ -35,7 +35,7 @@ class BootstrapService
 
         $gl = sqlStatementNoLog(
             "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?)",
-            array("oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice')
+            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice']
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -77,7 +77,7 @@ class BootstrapService
         foreach ($items as $key => $vendor) {
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
-                array($key, $vendor, $key, $vendor)
+                [$key, $vendor, $key, $vendor]
             );
         }
     }
@@ -93,9 +93,9 @@ class BootstrapService
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
+        $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
         }
 
         return $registry;
@@ -110,7 +110,7 @@ class BootstrapService
         foreach ($items as $key => $vendor) {
             $id = sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
-                array($key, $vendor, $key, $vendor)
+                [$key, $vendor, $key, $vendor]
             );
         }
     }
@@ -128,7 +128,7 @@ class BootstrapService
         $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
             VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
 
-        return sqlQuery($sql, array('', $authId, $vendor, $content, $authId, $vendor, $content));
+        return sqlQuery($sql, ['', $authId, $vendor, $content, $authId, $vendor, $content]);
     }
 
     /**
@@ -138,7 +138,7 @@ class BootstrapService
     {
         $vendor = '_persisted';
         $authUserId = 0;
-        $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($authUserId, $vendor)) ?? [];
+        $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$authUserId, $vendor]) ?? [];
         if (is_string($globals['credentials'])) {
             return json_decode($globals['credentials'], true) ?? [];
         }

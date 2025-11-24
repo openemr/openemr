@@ -26,36 +26,18 @@ use Twig\Environment;
 
 class TeleHealthUserAdminController
 {
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-
-    /**
-     * @var TeleHealthPersonSettingsRepository
-     */
-    private $personSettingsRepository;
-
-    public function __construct(TelehealthGlobalConfig $globalConfig, Environment $twig, TeleHealthPersonSettingsRepository $settingsRepository)
+    public function __construct(private readonly TelehealthGlobalConfig $config, private readonly Environment $twig, private readonly TeleHealthPersonSettingsRepository $personSettingsRepository)
     {
-        $this->config = $globalConfig;
-        $this->twig = $twig;
-        $this->personSettingsRepository = $settingsRepository;
     }
 
     public function subscribeToEvents(EventDispatcher $dispatcher)
     {
 
-        $dispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, [$this, 'saveTelehealthUserAction']);
-        $dispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, [$this, 'saveTelehealthUserAction']);
+        $dispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, $this->saveTelehealthUserAction(...));
+        $dispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, $this->saveTelehealthUserAction(...));
 
         // add our user admin flags
-        $dispatcher->addListener(UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER, [$this, 'render']);
+        $dispatcher->addListener(UserEditRenderEvent::EVENT_USER_EDIT_RENDER_AFTER, $this->render(...));
     }
 
     public function render(UserEditRenderEvent $event)

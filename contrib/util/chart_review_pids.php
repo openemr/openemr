@@ -59,13 +59,13 @@ $encs_result = array_intersect(array_column($policies_by_payer_id, 'pid'), array
 
 // sort and remove duplicate pids from encounters
 asort($encs_result);
-$result = array();
+$result = [];
 foreach ($encs_result as $key => $value) {
     if (!in_array($value, $result)) {
         $result[$key] = $value;
     }
 }
-$output = $output ?? '';
+$output ??= '';
 foreach ($result as $value) {
     $output .= ($value ?? '') . ", ";
 }

@@ -28,11 +28,6 @@ use LaLit\XML2Array;
 class USPSBase
 {
     const LIVE_API_URL = 'https://secure.shippingapis.com/ShippingAPI.dll';
-
-  /**
-   * @var string - the usps username provided by the usps website
-   */
-    protected $username = '';
   /**
    *  the error code if one exists
    * @var integer
@@ -57,12 +52,12 @@ class USPSBase
    * The response represented as an array
    * @var array
    */
-    protected $arrayResponse = array();
+    protected $arrayResponse = [];
   /**
    * All the post fields we will add to the call
    * @var array
    */
-    protected $postFields = array();
+    protected $postFields = [];
   /**
    * The api type we are about to call
    * @var string
@@ -75,7 +70,7 @@ class USPSBase
   /**
    * @var array - different kind of supported api calls by this wrapper
    */
-    protected $apiCodes = array(
+    protected $apiCodes = [
     'RateV2' => 'RateV2Request',
     'RateV4' => 'RateV4Request',
     'IntlRateV2' => 'IntlRateV2Request',
@@ -92,11 +87,11 @@ class USPSBase
     'ExpressMailIntl' => 'ExpressMailIntlRequest',
     'PriorityMailIntl' => 'PriorityMailIntlRequest',
     'FirstClassMailIntl' => 'FirstClassMailIntlRequest',
-    );
+    ];
   /**
    * Default options for curl.
      */
-    public static $CURL_OPTS = array(
+    public static $CURL_OPTS = [
     CURLOPT_CONNECTTIMEOUT => 30,
     CURLOPT_TIMEOUT        => 60,
     CURLOPT_FRESH_CONNECT  => 1,
@@ -104,14 +99,13 @@ class USPSBase
     CURLOPT_USERAGENT      => 'usps-php',
     CURLOPT_FOLLOWLOCATION => true,
     CURLOPT_RETURNTRANSFER => true,
-    );
+    ];
   /**
    * Constructor
    * @param string $username - the usps api username
    */
-    public function __construct($username = '')
+    public function __construct(protected $username = '')
     {
-        $this->username = $username;
     }
   /**
    * set the usps api username we are going to user
@@ -127,7 +121,7 @@ class USPSBase
    */
     public function getPostData()
     {
-        $fields = array('API' => $this->apiVersion, 'XML' => $this->getXMLString());
+        $fields = ['API' => $this->apiVersion, 'XML' => $this->getXMLString()];
         return $fields;
     }
   /**
@@ -175,7 +169,7 @@ class USPSBase
         $opts[CURLOPT_URL] = $this->getEndpoint();
 
       // Replace 443 with 80 if it's not secured
-        if (strpos($opts[CURLOPT_URL], 'https://') === false) {
+        if (!str_contains((string) $opts[CURLOPT_URL], 'https://')) {
             $opts[CURLOPT_PORT] = 80;
         }
 
@@ -224,9 +218,9 @@ class USPSBase
     protected function getXMLString()
     {
       // Add in the defaults
-        $postFields = array(
-        '@attributes' => array('USERID' => $this->username),
-        );
+        $postFields = [
+        '@attributes' => ['USERID' => $this->username],
+        ];
 
       // Add in the sub class data
         $postFields = array_merge($postFields, $this->getPostFields());
@@ -253,7 +247,7 @@ class USPSBase
         }
 
       // Check to see if we have the Error word in the response
-        if (strpos($this->getResponse(), '<Error>') !== false) {
+        if (str_contains((string) $this->getResponse(), '<Error>')) {
             return true;
         }
 

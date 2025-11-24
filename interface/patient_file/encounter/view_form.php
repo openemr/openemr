@@ -27,7 +27,7 @@ $isLBF = false;
 /**
  * @global $incdir
  */
-if (!str_starts_with($_GET["formname"], 'LBF')) {
+if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];

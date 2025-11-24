@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,6 +33,9 @@ trait BaseTrait
             $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
             $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
             $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+            // Configurable timeouts (higher when coverage is enabled due to performance impact)
+            $implicitWait = (int)(getenv("SELENIUM_IMPLICIT_WAIT") ?: 30);
+            $pageLoadTimeout = (int)(getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60);
 
             $capabilities = DesiredCapabilities::chrome();
 
@@ -56,8 +61,8 @@ trait BaseTrait
             $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
             $this->client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
 
-            $this->client->manage()->timeouts()->implicitlyWait(30);
-            $this->client->manage()->timeouts()->pageLoadTimeout(60);
+            $this->client->manage()->timeouts()->implicitlyWait($implicitWait);
+            $this->client->manage()->timeouts()->pageLoadTimeout($pageLoadTimeout);
         } else {
             // Use local ChromeDriver (not a consistent testing environment, which is thus not stable, good luck :) )
             $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
@@ -82,7 +87,7 @@ trait BaseTrait
                     $alert = $driver->switchTo()->alert();
                     $alert->accept();
                     return true; // Alert is present and has been cleared
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return false; // Alert is not present
                 }
             });

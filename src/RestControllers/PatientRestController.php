@@ -20,12 +20,12 @@ use Psr\Http\Message\ResponseInterface;
 
 class PatientRestController
 {
-    private PatientService $patientService;
+    private readonly PatientService $patientService;
 
     /**
      * White list of patient search fields
      */
-    private const SUPPORTED_SEARCH_FIELDS = array(
+    private const SUPPORTED_SEARCH_FIELDS = [
         "fname",
         "lname",
         "ss",
@@ -41,7 +41,7 @@ class PatientRestController
         'country_code',
         "email",
         "DOB",
-    );
+    ];
 
     public function __construct()
     {

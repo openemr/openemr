@@ -33,7 +33,7 @@ $pid = $_SESSION['pid'];
 // Process each selected document
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
-    $file = sqlQuery($sql, array($documentId));
+    $file = sqlQuery($sql, [$documentId]);
     if ($file['foreign_id'] != $pid && $file['foreign_id'] != $_SESSION['pid']) {
         die(xlt("Invalid document selected."));
     }
@@ -41,11 +41,11 @@ foreach ($documentIds as $documentId) {
     $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
             WHERE `categories_to_documents`.`category_id` = `categories`.`id`
             AND `categories_to_documents`.`document_id` = ?";
-    $cat = sqlQuery($sql, array($file['id']));
+    $cat = sqlQuery($sql, [$file['id']]);
 
     // Find the tree of the document's category
     $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
-    $pathres = sqlStatement($sql, array($cat['lft'], $cat['rght']));
+    $pathres = sqlStatement($sql, [$cat['lft'], $cat['rght']]);
 
     // Create the tree of the categories
     $path = "";
@@ -66,7 +66,7 @@ foreach ($documentIds as $documentId) {
     $obj->onReturnRetrieveKey();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
-        $pos = strpos(substr($file['name'], -5), '.');
+        $pos = strpos(substr((string) $file['name'], -5), '.');
         // Check if has an extension or find it from the mimetype
         if ($pos === false) {
             $file['name'] .= get_extension($file['mimetype']);
@@ -101,8 +101,8 @@ unlink($tmp . "/" . $pid . '.zip');
 
 function recursive_remove_directory($directory, $empty = false)
 {
-    if (substr($directory, -1) == '/') {
-        $directory = substr($directory, 0, -1);
+    if (str_ends_with((string) $directory, '/')) {
+        $directory = substr((string) $directory, 0, -1);
     }
 
     if (!file_exists($directory) || !is_dir($directory)) {

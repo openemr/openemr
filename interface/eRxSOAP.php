@@ -28,14 +28,14 @@ class eRxSOAP
     private $authUserDetails;
     private $patientId;
     private $soapClient;
-    private $soapSettings = array();
+    private $soapSettings = [];
     private $siteId;
 
     protected static function fixHtmlEntities($array, $xmltoarray)
     {
         $encoded = json_encode($array);
         $fixed = $xmltoarray->fix_html_entities($encoded);
-        return json_decode($fixed, true);
+        return json_decode((string) $fixed, true);
     }
 
     /**
@@ -236,7 +236,7 @@ class eRxSOAP
      * @param  array   $settings [optional] Setting to send with SOAP call to NewCrop
      * @return eRxSOAP           This object is returned for method chaining
      */
-    public function setSoapSettings($settings = array())
+    public function setSoapSettings($settings = [])
     {
         $this->soapSettings = (array) $settings;
 
@@ -285,7 +285,7 @@ class eRxSOAP
             return true;
         }
 
-        return strtotime('-' . $ttl . ' seconds') >= strtotime($soap);
+        return strtotime('-' . $ttl . ' seconds') >= strtotime((string) $soap);
     }
 
     /**
@@ -312,11 +312,7 @@ class eRxSOAP
                 $this->getPatientId()
             );
 
-        if (is_array($status)) {
-            $return = in_array($currentStatus, $status);
-        } else {
-            $return = ($currentStatus == $status);
-        }
+        $return = is_array($status) ? in_array($currentStatus, $status) : $currentStatus == $status;
 
         return $return;
     }
@@ -345,11 +341,11 @@ class eRxSOAP
     {
         $credentials = $this->getGlobals()->getCredentials();
 
-        $this->soapSettings['credentials'] = array(
+        $this->soapSettings['credentials'] = [
             'PartnerName'   => $credentials['0'],
             'Name'          => $credentials['1'],
             'Password'      => $credentials['2'],
-        );
+        ];
 
         return $this;
     }
@@ -360,10 +356,10 @@ class eRxSOAP
      */
     public function initializeAccountRequest()
     {
-        $this->soapSettings['accountRequest'] = array(
+        $this->soapSettings['accountRequest'] = [
             'AccountId' => $this->getGlobals()->getAccountId(),
             'SiteId'    => $this->getSiteId(),
-        );
+        ];
 
         return $this;
     }
@@ -376,10 +372,10 @@ class eRxSOAP
     {
         $userDetails = $this->getAuthUserDetails();
 
-        $this->soapSettings['patientInformationRequester'] = array(
+        $this->soapSettings['patientInformationRequester'] = [
             'UserId'    => $userDetails['id'],
             'UserType'  => 'D',
-        );
+        ];
 
         return $this;
     }
@@ -438,13 +434,13 @@ class eRxSOAP
 
         $this->soapSettings['patientRequest']['PatientId'] = $this->getPatientId();
 
-        $this->soapSettings['prescriptionHistoryRequest'] = array(
+        $this->soapSettings['prescriptionHistoryRequest'] = [
             'StartHistory'              => '2011-01-01T00:00:00.000',
             'EndHistory'                => date('Y-m-d') . 'T23:59:59.000',
             'PrescriptionStatus'        => 'C',
             'PrescriptionSubStatus'     => '%',
             'PrescriptionArchiveStatus' => 'N',
-        );
+        ];
 
         $this->soapSettings['patientIdType'] = '';
         $this->soapSettings['includeSchema'] = '';
@@ -606,7 +602,7 @@ class eRxSOAP
                 ->PatientFreeFormAllergyExtendedDetail;
 
             if (!is_array($response)) {
-                $response = array($response);
+                $response = [$response];
             }
 
             foreach ($response as $response) {
@@ -636,32 +632,20 @@ class eRxSOAP
         $store->updatePrescriptionsActiveByPatientId($this->getPatientId());
         if (is_array($medArray)) {
             foreach ($medArray as $med) {
-                if ($med['DosageForm']) {
-                    $optionIdDosageForm = $this->insertMissingListOptions(
-                        'drug_form',
-                        $med['DosageForm']
-                    );
-                } else {
-                    $optionIdDosageForm = null;
-                }
+                $optionIdDosageForm = $med['DosageForm'] ? $this->insertMissingListOptions(
+                    'drug_form',
+                    $med['DosageForm']
+                ) : null;
 
-                if ($med['Route']) {
-                    $optionIdRoute = $this->insertMissingListOptions(
-                        'drug_route',
-                        $med['Route']
-                    );
-                } else {
-                    $optionIdRoute = null;
-                }
+                $optionIdRoute = $med['Route'] ? $this->insertMissingListOptions(
+                    'drug_route',
+                    $med['Route']
+                ) : null;
 
-                if ($med['StrengthUOM']) {
-                    $optionIdStrengthUOM = $this->insertMissingListOptions(
-                        'drug_units',
-                        $med['StrengthUOM']
-                    );
-                } else {
-                    $optionIdStrengthUOM = null;
-                }
+                $optionIdStrengthUOM = $med['StrengthUOM'] ? $this->insertMissingListOptions(
+                    'drug_units',
+                    $med['StrengthUOM']
+                ) : null;
 
                 if ($med['DosageFrequencyDescription']) {
                     $optionIdFrequencyDescription = $this->insertMissingListOptions(

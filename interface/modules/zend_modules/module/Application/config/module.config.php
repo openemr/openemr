@@ -29,130 +29,130 @@ use OpenEmr\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 //
-return array(
-    'router' => array(
-        'routes' => array(
-            'home' => array(
+return [
+    'router' => [
+        'routes' => [
+            'home' => [
                 'type' => Literal::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/',
-                    'defaults' => array(
+                    'defaults' => [
                         'controller' => IndexController::class,
                         'action'     => 'index',
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
             // The literal match does a simple string comparison and serves up the controller
             // when the expression matches exactly
-            'application' => array(
+            'application' => [
                 'type'    => Literal::class,
-                'options' => array(
+                'options' => [
                     'route'    => '/application',
-                    'defaults' => array(
+                    'defaults' => [
                         'controller'    => IndexController::class,
                         'action'        => 'index',
-                    ),
-                ),
+                    ],
+                ],
                 // child routes will load up as /application/child_route_key/ using the segment matcher which uses regex for the routers
                 'may_terminate' => true,
-                'child_routes' => array(
-                    'index' => array(
+                'child_routes' => [
+                    'index' => [
                         'type'    => Segment::class,
-                        'options' => array(
+                        'options' => [
                             'route'    => '/index[/:action]',
-                            'constraints' => array(
+                            'constraints' => [
                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ),
-                            'defaults' => array(
+                            ],
+                            'defaults' => [
                                 'controller' => IndexController::class,
                                 'action'     => 'index',
-                            ),
-                        ),
-                    ),
-                    'sendto' => array(
+                            ],
+                        ],
+                    ],
+                    'sendto' => [
                         'type'    => Segment::class,
-                        'options' => array(
+                        'options' => [
                             'route'    => '/sendto[/:action]',
-                            'constraints' => array(
+                            'constraints' => [
                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ),
-                            'defaults' => array(
+                            ],
+                            'defaults' => [
                                 'controller' => SendtoController::class,
                                 'action'     => 'index',
-                            ),
-                        ),
-                    ),
-                    'soap' => array(
+                            ],
+                        ],
+                    ],
+                    'soap' => [
                         'type'    => Segment::class,
-                        'options' => array(
+                        'options' => [
                             'route'    => '/soap[/:action]',
-                            'constraints' => array(
+                            'constraints' => [
                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                 'id'     => '[a-zA-Z_]*',
                                 'val'    => '[0-9]*',
-                            ),
-                            'defaults' => array(
+                            ],
+                            'defaults' => [
                                 'controller' => SoapController::class,
                                 'action'     => 'index',
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        ),
-    )
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ]
     // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller
     // that extends AbstractActionController.  An example below:
     // $this->CommonPlugin() as it uses (in ZF3) AbstractActionController->AbstractController->__call to call the plugin's code.  Similar to duck-typing or mixins
     // from other frameworks/languages.
     // in Several of the views the CommonPlugin is injected as 'commonplugin'
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
-    ,'controller_plugins' => array(
-        'factories' => array(
+    ,'controller_plugins' => [
+        'factories' => [
             'CommonPlugin' => fn(ContainerInterface $container, $requestedName): \Application\Plugin\CommonPlugin => new Plugin\CommonPlugin($container)
             ,'Phimail' => fn(ContainerInterface $container): \Application\Plugin\Phimail => new Plugin\Phimail($container)
-        )
-    )
-    ,'controllers' => array(
+        ]
+    ]
+    ,'controllers' => [
         'factories' => [
             IndexController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\IndexController => new IndexController($container->get(ApplicationTable::class)),
             SoapController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SoapController => new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class)),
             SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class))
         ]
-    ),
-    'service_manager' => array(
-        'factories' => array(
+    ],
+    'service_manager' => [
+        'factories' => [
             Listener::class => InvokableFactory::class,
             ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get('Laminas\Db\Adapter\Adapter');
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new ApplicationTable();
                 return $table;
             },
             SendtoTable::class => fn(ContainerInterface $container, $requestedName): \Application\Model\SendtoTable => new SendtoTable(),
             SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
             ModuleMenuSubscriber::class => InvokableFactory::class
-        ),
-    ),
-    'view_manager' => array(
+        ],
+    ],
+    'view_manager' => [
         'display_not_found_reason' => true,
         'display_exceptions'       => true,
         'doctype'                  => 'HTML5',
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
-        'template_map' => array(
+        'template_map' => [
             'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
             'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
-        ),
-        'template_path_stack' => array(
+        ],
+        'template_path_stack' => [
             __DIR__ . '/../view',
-        ),
-    ),
-    'view_helpers' => array(
-        'invokables' => array(
+        ],
+    ],
+    'view_helpers' => [
+        'invokables' => [
             'javascriptGlobals' => \Application\Helper\Javascript::class,
-        ),
+        ],
         'factories' => [
             'translate' => fn(\Interop\Container\ContainerInterface $container, $requestedName): \Application\Helper\TranslatorViewHelper =>
                 // TODO: we should look at renaming this to be TranslatorAdapter
@@ -160,5 +160,5 @@ return array(
             // TODO: this used to be the Getvariables functionality.. the whole thing has a leaky abstraction and should be refactored into services instead of jumping to a controller view
             , 'sendToHie'      => fn(\Interop\Container\ContainerInterface $container, $requestedName): \Application\Helper\SendToHieHelper => new \Application\Helper\SendToHieHelper($container->get(SendtoController::class))
         ]
-    ),
-);
+    ],
+];

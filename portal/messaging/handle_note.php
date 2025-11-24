@@ -99,7 +99,7 @@ if (! $task) {
 }
 
 $noteid = ($_POST['noteid'] ?? null) ?: 0;
-$notejson = ($_POST['notejson'] ?? null) ? json_decode($_POST['notejson'], true) : 0;
+$notejson = ($_POST['notejson'] ?? null) ? json_decode((string) $_POST['notejson'], true) : 0;
 $reply_noteid = $_POST['replyid'] ?? null ?: 0;
 $note = $_POST['inputBody'] ?? null;
 $title = $_POST['title'] ?? null;
@@ -111,7 +111,7 @@ $header = '';
 
 switch ($task) {
     case "forward":
-        $pid = isset($_POST['pid']) ? $_POST['pid'] : 0;
+        $pid = $_POST['pid'] ?? 0;
         addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {

@@ -36,7 +36,7 @@ if (!empty($_POST)) {
 
 // These settings are sticky user preferences linked to a given page.
 // mdsupport - user_settings prefix
-$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
+$uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
 $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'setting_new_window', ' ');
 // flow board and recall board share bootstrap settings:
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
@@ -83,14 +83,14 @@ if (!$GLOBALS['ptkr_date_range']) {
 
 //set default end date of flow board to value based on globals
 if ($GLOBALS['ptkr_date_range']) {
-    if (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'Y') {
-        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+    if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
+        $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'M') {
-        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+    } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'M')) {
+        $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-    } elseif (substr($GLOBALS['ptkr_end_date'], 0, 1) == 'D') {
-        $ptkr_time = substr($GLOBALS['ptkr_end_date'], 1, 1);
+    } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'D')) {
+        $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
     }
 
@@ -104,11 +104,11 @@ $form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['for
 $form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
 
 
-$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
+$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", ['apptstat']);
 while ($lrow = sqlFetchArray($lres)) {
     // if exists, remove the legend character
     if ($lrow['title'][1] == ' ') {
-        $splitTitle = explode(' ', $lrow['title']);
+        $splitTitle = explode(' ', (string) $lrow['title']);
         array_shift($splitTitle);
         $title = implode(' ', $splitTitle);
     } else {
@@ -127,14 +127,10 @@ if ($GLOBALS['medex_enable'] == '1') {
     $sql = "SELECT * FROM medex_prefs LIMIT 1";
     $preferences = sqlStatement($sql);
     $prefs = sqlFetchArray($preferences);
-    $results = json_decode($prefs['status'], true);
+    $results = json_decode((string) $prefs['status'], true);
     $logged_in = $results;
     $logged_in = $results;
-    if (!empty($logged_in['token'])) {
-        $current_events = xlt("On-line");
-    } else {
-        $current_events = xlt("Currently off-line");
-    }
+    $current_events = !empty($logged_in['token']) ? xlt("On-line") : xlt("Currently off-line");
 }
 
 if (!($_REQUEST['flb_table'] ?? null)) {
@@ -328,14 +324,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 } else {
     //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
     // get all appts for date range and refine view client side.  very fast...
-    $appointments = array();
+    $appointments = [];
     $datetime = date("Y-m-d H:i:s");
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date', 'time');
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
-    $chk_prov = array();  // list of providers with appointments
+    $chk_prov = [];  // list of providers with appointments
     // Scan appointments for additional info
     foreach ($appointments as $apt) {
         $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
@@ -472,12 +468,12 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $title = '';
                             $icon2_here = '';
                             $appt['stage'] = '';
-                            $icon_here = array();
+                            $icon_here = [];
                             $prog_text = '';
                             $FINAL = '';
 
                             $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
-                            $myMedEx = sqlStatement($query, array($appointment['eid']));
+                            $myMedEx = sqlStatement($query, [$appointment['eid']]);
                             /**
                              * Each row for this pc_eid in the medex_outgoing table represents an event.
                              * Every event is recorded in $prog_text.
@@ -526,10 +522,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
                                 } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
                                     if (
-                                        ($appointment[$row['msg_type']]['stage'] != "CONFIRMED") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "READ") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "SENT") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "FAILED")
+                                        !in_array($appointment[$row['msg_type']]['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
                                     ) {
                                         $appointment[$row['msg_type']]['stage'] = "QUEUED";
                                         $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
@@ -584,7 +577,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         $statalert = $colorevents['time_alert'];
                         // process the time to allow items with a check out status to be displayed
                         if (is_checkout($status) && (($GLOBALS['checkout_roll_off'] > 0) && strlen($form_apptstatus) != 1)) {
-                            $to_time = strtotime($newend);
+                            $to_time = strtotime((string) $newend);
                             $from_time = strtotime($datetime);
                             $display_check_out = round(abs($from_time - $to_time) / 60, 0);
                             if ($display_check_out >= $GLOBALS['checkout_roll_off']) {
@@ -671,9 +664,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         //time in current status
                         $to_time = strtotime(date("Y-m-d H:i:s"));
                         $yestime = '0';
-                        if (strtotime($newend) != '') {
-                            $from_time = strtotime($newarrive);
-                            $to_time = strtotime($newend);
+                        if (strtotime((string) $newend) != '') {
+                            $from_time = strtotime((string) $newarrive);
+                            $to_time = strtotime((string) $newend);
                             $yestime = '0';
                         } else {
                             $from_time = (($appointment['start_datetime'] ?? null) ? strtotime($appointment['start_datetime']) : null);
@@ -686,7 +679,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         } else {
                             echo "<td class='detail text-center' nowrap> "; // and if not do not blink
                         }
-                        if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
+                        if (($yestime == '1') && ($timecheck >= 1) && (strtotime((string) $newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
                         } elseif (($icon_here ?? null) || ($icon2_here ?? null)) {
                             echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode('', $icon_here) . $icon2_here . "</span> " . $icon_4_CALL;
@@ -710,15 +703,15 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <td class="detail text-center">
                             <?php
                             // total time in practice
-                            if (strtotime($newend) != '') {
-                                $from_time = strtotime($newarrive);
-                                $to_time = strtotime($newend);
+                            if (strtotime((string) $newend) != '') {
+                                $from_time = strtotime((string) $newarrive);
+                                $to_time = strtotime((string) $newend);
                             } else {
-                                $from_time = strtotime($newarrive);
+                                $from_time = strtotime((string) $newarrive);
                                 $to_time = strtotime(date("Y-m-d H:i:s"));
                             }
                             $timecheck2 = round(abs($to_time - $from_time) / 60, 0);
-                            if (strtotime($newarrive) != '' && ($timecheck2 >= 1)) {
+                            if (strtotime((string) $newarrive) != '' && ($timecheck2 >= 1)) {
                                 echo text($timecheck2 . ' ' . ($timecheck2 >= 2 ? xl('minutes') : xl('minute')));
                             }
                             // end total time in practice
@@ -726,8 +719,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         </td>
                         <td class="detail text-center">
                             <?php
-                            if (strtotime($newend) != '') {
-                                echo text(oeFormatTime(substr($newend, 11))) ;
+                            if (strtotime((string) $newend) != '') {
+                                echo text(oeFormatTime(substr((string) $newend, 11))) ;
                             }
                             ?>
                         </td>
@@ -740,7 +733,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <?php
                         }
                         if ($GLOBALS['drug_screen']) {
-                            if (strtotime($newarrive) != '') { ?>
+                            if (strtotime((string) $newarrive) != '') { ?>
                                 <td class="detail text-center" name="kiosk_hide">
                                     <?php
                                     if ($appointment['random_drug_test'] == '1') {
@@ -753,10 +746,10 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             } else { ?>
                                 <td class="detail text-center" name="kiosk_hide"></td>
                             <?php }
-                            if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
+                            if (strtotime((string) $newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
                                 <td class="detail text-center" name="kiosk_hide">
                                     <?php
-                                    if (strtotime($newend) != '') {
+                                    if (strtotime((string) $newend) != '') {
                                         // the following block allows the check box for drug screens to be disabled once the status is check out ?>
                                         <input type='checkbox' disabled='disable' class="drug_screen_completed" id="<?php echo attr($appointment['pt_tracker_id']) ?>" <?php echo ($appointment['drug_screen_completed'] == "1") ? "checked" : ""; ?> />
                                         <?php

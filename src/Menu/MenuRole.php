@@ -37,7 +37,7 @@ class MenuRole
         //   An empty menu_update_map array is created in MenuRole class
         //   constructor. Adding to this array will link special menu items
         //   to functions in the class.
-        $this->menu_update_map = array();
+        $this->menu_update_map = [];
     }
 
     /**
@@ -122,8 +122,8 @@ class MenuRole
                     for ($globalIdx = 0; $globalIdx < count($srcEntry->global_req); $globalIdx++) {
                         $curSetting = $srcEntry->global_req[$globalIdx];
                         // ! at the start of the string means test the negation
-                        if (substr($curSetting, 0, 1) === '!') {
-                            $curSetting = substr($curSetting, 1);
+                        if (str_starts_with((string) $curSetting, '!')) {
+                            $curSetting = substr((string) $curSetting, 1);
                             // If the global isn't set at all, or if it is false, then show it
                             if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting]) {
                                 $noneSet = false;
@@ -141,8 +141,8 @@ class MenuRole
                     }
                 } else {
                     // ! at the start of the string means test the negation
-                    if (substr($srcEntry->global_req, 0, 1) === '!') {
-                        $globalSetting = substr($srcEntry->global_req, 1);
+                    if (str_starts_with((string) $srcEntry->global_req, '!')) {
+                        $globalSetting = substr((string) $srcEntry->global_req, 1);
                         // If the setting is both set and true, then skip this entry
                         if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
                             $includeEntry = false;
@@ -164,8 +164,8 @@ class MenuRole
                     for ($globalIdx = 0; $globalIdx < count($srcEntry->global_req_strict); $globalIdx++) {
                         $curSetting = $srcEntry->global_req_strict[$globalIdx];
                         // ! at the start of the string means test the negation
-                        if (substr($curSetting, 0, 1) === '!') {
-                            $curSetting = substr($curSetting, 1);
+                        if (str_starts_with((string) $curSetting, '!')) {
+                            $curSetting = substr((string) $curSetting, 1);
                             // If the setting is both set and true, then do not show it
                             if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting]) {
                                 $allSet = false;
@@ -183,8 +183,8 @@ class MenuRole
                     }
                 } else {
                     // ! at the start of the string means test the negation
-                    if (substr($srcEntry->global_req_strict, 0, 1) === '!') {
-                        $globalSetting = substr($srcEntry->global_req_strict, 1);
+                    if (str_starts_with((string) $srcEntry->global_req_strict, '!')) {
+                        $globalSetting = substr((string) $srcEntry->global_req_strict, 1);
                         // If the setting is both set and true, then skip this entry
                         if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
                             $includeEntry = false;
@@ -200,7 +200,7 @@ class MenuRole
 
             if (isset($srcEntry->children)) {
                 // Iterate through and check the child elements
-                $checked_children = array();
+                $checked_children = [];
                 $this->menuApplyRestrictions($srcEntry->children, $checked_children);
                 $srcEntry->children = $checked_children;
             }
@@ -225,8 +225,8 @@ class MenuRole
     {
         if (isset($arr[2])) {
             for ($i = 2; isset($arr[$i]); ++$i) {
-                if (substr($arr[0], 0, 1) == '!') {
-                    if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
+                if (str_starts_with((string) $arr[0], '!')) {
+                    if (!AclMain::aclCheckCore(substr((string) $arr[0], 1), $arr[1], '', $arr[$i])) {
                         return true;
                     }
                 } else {
@@ -236,8 +236,8 @@ class MenuRole
                 }
             }
         } else {
-            if (substr($arr[0], 0, 1) == '!') {
-                if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1])) {
+            if (str_starts_with((string) $arr[0], '!')) {
+                if (!AclMain::aclCheckCore(substr((string) $arr[0], 1), $arr[1])) {
                     return true;
                 }
             } else {

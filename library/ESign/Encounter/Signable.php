@@ -31,12 +31,9 @@ require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
 
 class Encounter_Signable extends DbRow_Signable implements SignableIF
 {
-    private $_encounterId = null;
-
-    public function __construct($encounterId)
+    public function __construct(private $_encounterId)
     {
-        $this->_encounterId = $encounterId;
-        parent::__construct($encounterId, 'form_encounter');
+        parent::__construct($this->_encounterId, 'form_encounter');
     }
 
     /**
@@ -51,8 +48,8 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
     {
         $encStatement = "SELECT F.id, F.date, F.encounter, F.form_name, F.form_id, F.pid, F.user, F.formdir FROM forms F ";
         $encStatement .= "WHERE F.encounter = ? ";
-        $data = array();
-        $res = sqlStatement($encStatement, array( $this->_encounterId ));
+        $data = [];
+        $res = sqlStatement($encStatement, [ $this->_encounterId ]);
         while ($encRow = sqlFetchArray($res)) {
             $formFactory = new Form_Factory($encRow['id'], $encRow['formdir'], $this->_encounterId);
             $signable = $formFactory->createSignable();

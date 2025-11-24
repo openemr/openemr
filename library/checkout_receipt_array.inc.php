@@ -33,7 +33,7 @@ function getAdjustTitle($option)
     $row = sqlQuery(
         "SELECT title, notes FROM list_options WHERE " .
         "list_id = 'adjreason' AND option_id = ? AND activity = 1",
-        array($option)
+        [$option]
     );
     if (empty($row['title'])) {
         return $option;
@@ -64,7 +64,7 @@ function receiptArrayDetailLine(
         $tmprow = sqlQuery(
             "SELECT notes FROM list_options WHERE list_id = 'chargecats' AND " .
             "option_id = ? AND activity = 1 AND notes LIKE '%=Ins%' LIMIT 1",
-            array($chargecat)
+            [$chargecat]
         );
         if (!empty($tmprow['notes'])) {
             $insurer = true;
@@ -106,7 +106,7 @@ function receiptArrayDetailLine(
         $price = $tmp; // converts xx.xx00 to xx.xx.
     }
 
-    $aReceipt['items'][] = array(
+    $aReceipt['items'][] = [
         'code_type'   => $code_type,
         'code'        => $code,
         'description' => $description,
@@ -118,7 +118,7 @@ function receiptArrayDetailLine(
         'total'       => $total,
         'insurer'     => $insurer,
         'tax'         => $tax,
-    );
+    ];
 
     $aReceipt['total_price']       = sprintf('%01.2f', $aReceipt['total_price'      ] + $price);
     $aReceipt['total_quantity']    = sprintf('%01.2f', $aReceipt['total_quantity'   ] + $quantity);
@@ -132,12 +132,12 @@ function receiptArrayDetailLine(
 function receiptArrayPaymentLine(&$aReceipt, $paydate, $amount, $description = '', $method = ''): void
 {
     $amount = sprintf('%01.2f', $amount);
-    $aReceipt['payments'][] = array(
+    $aReceipt['payments'][] = [
         'date'        => $paydate,
         'method'      => $method,
         'description' => $description,
         'amount'      => $amount,
-    );
+    ];
     $aReceipt['total_payments'] += $amount;
 }
 
@@ -153,7 +153,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "FROM form_encounter AS fe " .
         "LEFT JOIN users AS u ON u.id = fe.provider_id " .
         "WHERE fe.pid = ? ";
-    $binds = array($patient_id);
+    $binds = [$patient_id];
     if ($encounter) {
         $query .= "AND encounter = ?";
         $binds[] = $encounter;
@@ -166,23 +166,23 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     }
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
-    $svcdate = substr($ferow['date'], 0, 10);
+    $svcdate = substr((string) $ferow['date'], 0, 10);
     $invoice_refno = $ferow['invoice_refno'];
     $docname = '';
     if (!empty($ferow['fname'])) {
-        $docname = trim($ferow['fname']);
+        $docname = trim((string) $ferow['fname']);
     }
     if (!empty($ferow['mname'])) {
         if ($docname) {
             $docname .= ' ';
         }
-        $docname .= trim($ferow['fname']);
+        $docname .= trim((string) $ferow['fname']);
     }
     if (!empty($ferow['lname'])) {
         if ($docname) {
             $docname .= ' ';
         }
-        $docname .= trim($ferow['lname']);
+        $docname .= trim((string) $ferow['lname']);
     }
 
     // Get details for the visit's facility and organization facility.
@@ -196,7 +196,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     $userrow = sqlQuery(
         "SELECT id, username, fname, mname, lname FROM users " .
         "WHERE id = ?",
-        array($_SESSION["authUserID"])
+        [$_SESSION["authUserID"]]
     );
     if ($userrow['id']) {
         if (!empty($userrow['fname'])) {
@@ -222,7 +222,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     $query = "SELECT SUM(fee) AS amount FROM billing WHERE " .
         "pid = ? AND encounter = ? AND activity = 1 AND " .
         "code_type != 'COPAY'";
-    $binds = array($patient_id, $encounter);
+    $binds = [$patient_id, $encounter];
     if ($billtime) {
         $query .= " AND billed = 1 AND bill_date <= ?";
         $binds[] = $billtime;
@@ -232,7 +232,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
 
     $query = "SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
         "pid = ? AND encounter = ?";
-    $binds = array($patient_id, $encounter);
+    $binds = [$patient_id, $encounter];
     if ($billtime) {
         $query .= " AND billed = 1 AND bill_date <= ?";
         $binds[] = $billtime;
@@ -243,7 +243,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     $query = "SELECT SUM(pay_amount) AS payments, " .
         "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
         "deleted IS NULL AND pid = ? AND encounter = ?";
-    $binds = array($patient_id, $encounter);
+    $binds = [$patient_id, $encounter];
     if ($billtime) {
         $query .= " AND post_time <= ?";
         $binds[] = $billtime;
@@ -255,7 +255,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     $query = "SELECT SUM(fee) AS amount FROM billing WHERE " .
         "pid = ? AND encounter = ? AND activity = 1 AND " .
         "code_type = 'COPAY'";
-    $binds = array($patient_id, $encounter);
+    $binds = [$patient_id, $encounter];
     if ($billtime) {
         $query .= " AND billed = 1 AND bill_date <= ?";
         $binds[] = $billtime;
@@ -267,7 +267,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     $encounter_due = $head_charges - $head_payments;
     $head_endbal = $head_begbal + $encounter_due;
 
-    $aReceipt = array(
+    $aReceipt = [
         'encounter_id'      => $encounter,
         'encounter_date'    => $svcdate,
         'invoice_refno'     => $invoice_refno,
@@ -295,8 +295,8 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         'userlogin'         => $userrow['username'],
         'starting_balance'  => $head_begbal,
         'ending_balance'    => $head_endbal,
-        'items'             => array(),
-        'payments'          => array(),
+        'items'             => [],
+        'payments'          => [],
         'total_price'       => 0,
         'total_quantity'    => 0,
         'total_charges'     => 0,
@@ -306,7 +306,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         'checkout_prvbal'   => 0, // see calculation at end of this function
         'encounter_due'     => $encounter_due,
         'cashier'           => '',
-    );
+    ];
 
     // Get timestamp of the previous checkout, if any.
     $prevtime = '1900-01-01 00:00:00';
@@ -316,7 +316,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
             "UNION " .
             "(SELECT bill_date FROM drug_sales WHERE pid = ? AND encounter = ? AND billed = 1 AND bill_date < ?) " .
             "ORDER BY bill_date DESC LIMIT 1",
-            array($patient_id, $encounter, $billtime, $patient_id, $encounter, $billtime)
+            [$patient_id, $encounter, $billtime, $patient_id, $encounter, $billtime]
         );
         if (!empty($tmp['bill_date'])) {
             $prevtime = $tmp['bill_date'];
@@ -324,7 +324,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
     }
 
     // Create array aAdjusts from ar_activity rows for $inv_encounter.
-    $aReceipt['_adjusts'] = array();
+    $aReceipt['_adjusts'] = [];
     $ares = sqlStatement(
         "SELECT " .
         "a.payer_type, a.adj_amount, a.memo, a.code_type, a.code, a.post_time, " .
@@ -333,7 +333,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
         "a.deleted IS NULL AND a.pid = ? AND a.encounter = ? AND " .
         "(a.adj_amount != 0 || a.pay_amount = 0)",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($arow = sqlFetchArray($ares)) {
         if ($billtime && $arow['post_time'] != $billtime) {
@@ -349,7 +349,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "FROM drug_sales AS s LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
         "WHERE s.pid = ? AND s.encounter = ? " .
         "ORDER BY s.sale_id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         if ($billtime && $inrow['bill_date'] != $billtime) {
@@ -362,7 +362,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         $taxrow = sqlQuery(
             "SELECT SUM(fee) AS fee FROM billing WHERE " .
             "pid = ? AND encounter = ? AND code_type = 'TAX' AND activity = 1 AND ndc_info = ?",
-            array($patient_id, $encounter, 'P:' . $inrow['sale_id'])
+            [$patient_id, $encounter, 'P:' . $inrow['sale_id']]
         );
         $tax = $taxrow['fee'];
         receiptArrayDetailLine(
@@ -392,7 +392,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "b.code_type != 'COPAY' AND b.code_type != 'TAX' AND b.activity = 1 AND " .
         "(ct.ct_id IS NULL OR ct.ct_fee = 1 OR ct.ct_diag = 0) " .
         "ORDER BY b.id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         if ($billtime && $inrow['bill_date'] != $billtime) {
@@ -402,7 +402,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         $taxrow = sqlQuery(
             "SELECT SUM(fee) AS fee FROM billing WHERE " .
             "pid = ? AND encounter = ? AND code_type = 'TAX' AND activity = 1 AND ndc_info = ?",
-            array($patient_id, $encounter, 'S:' . $inrow['id'])
+            [$patient_id, $encounter, 'S:' . $inrow['id']]
         );
         $tax = $taxrow['fee'];
         receiptArrayDetailLine(
@@ -445,7 +445,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "SELECT * FROM billing WHERE " .
         "pid = ? AND encounter = ? AND code_type = 'TAX' AND activity = 1 " .
         "ORDER BY id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         if ($billtime && $inrow['bill_date'] != $billtime) {
@@ -469,7 +469,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "pid = ? AND encounter = ? AND " .
         "code_type = 'COPAY' AND activity = 1 AND fee != 0 " .
         "ORDER BY id",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     while ($inrow = sqlFetchArray($inres)) {
         if ($billtime && $inrow['bill_date'] != $billtime) {
@@ -495,7 +495,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         "a.deleted IS NULL AND a.pid = ? AND a.encounter = ? AND " .
         "a.pay_amount != 0 " .
         "ORDER BY a.post_time, s.check_date, a.sequence_no",
-        array($patient_id, $encounter)
+        [$patient_id, $encounter]
     );
     $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
@@ -528,7 +528,7 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
         " JOIN users AS u ON u.id = a.post_user" .
         " WHERE" .
         " a.deleted IS NULL AND a.pid = ? AND a.encounter = ?";
-    $binds = array($patient_id, $encounter);
+    $binds = [$patient_id, $encounter];
     if ($billtime) {
         $query .= " AND a.post_time = ?";
         $binds[] = $billtime;
@@ -546,13 +546,13 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
 //
 function craGetTimestamps($patient_id, $encounter_id)
 {
-    $ret = array();
+    $ret = [];
     $res = sqlStatement(
         "(SELECT bill_date FROM billing WHERE pid = ? AND encounter = ? AND activity = 1 AND billed = 1) " .
         "UNION " .
         "(SELECT bill_date FROM drug_sales WHERE pid = ? AND encounter = ? AND billed = 1) " .
         "ORDER BY bill_date",
-        array($patient_id, $encounter_id, $patient_id, $encounter_id)
+        [$patient_id, $encounter_id, $patient_id, $encounter_id]
     );
     while ($row = sqlFetchArray($res)) {
         $ret[] = $row['bill_date'];

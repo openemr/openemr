@@ -25,21 +25,15 @@ use Psr\Http\Message\ResponseInterface;
 class FhirQuestionnaireResponseRestController
 {
     /**
-     * @var FhirQuestionnaireResponseService
-     */
-    private FhirQuestionnaireResponseService $resourceService;
-
-    /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
     /**
      * @param ?FhirQuestionnaireResponseService $resourceService
      */
-    public function __construct(?FhirQuestionnaireResponseService $resourceService = null)
+    public function __construct(private readonly ?FhirQuestionnaireResponseService $resourceService = null)
     {
-        $this->resourceService = $resourceService;
         $this->fhirService = new FhirResourcesService();
     }
 
@@ -104,7 +98,7 @@ class FhirQuestionnaireResponseRestController
     private function getAll($searchParams, $puuidBind = null): FHIRBundle|false
     {
         $processingResult = $this->resourceService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

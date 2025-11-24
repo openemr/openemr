@@ -209,10 +209,10 @@ if (!empty($_POST['form_csvexport'])) {
    // end not export
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
-    $rows = array();
+    $rows = [];
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     $query = "select b.code,sum(b.units) as units,sum(b.fee) as billed,sum(ar_act.paid) as PaidAmount, " .
     "sum(ar_act.adjust) as AdjustAmount,(sum(b.fee)-(sum(ar_act.paid)+sum(ar_act.adjust))) as Balance, " .
     "c.financial_reporting " .
@@ -252,7 +252,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $grand_total_amt_balance  = 0;
 
     while ($erow = sqlFetchArray($res)) {
-        $row = array();
+        $row = [];
         $row['pid'] = $erow['pid'] ?? null;
         $row['provider_id'] = $erow['provider_id'] ?? null;
         $row['Procedure codes'] = $erow['code'];
@@ -308,11 +308,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $print = '';
         $csv = '';
 
-        if ($row['financial_reporting']) {
-            $bgcolor = "#FFFFDD";
-        } else {
-            $bgcolor = "#FFDDDD";
-        }
+        $bgcolor = $row['financial_reporting'] ? "#FFFFDD" : "#FFDDDD";
 
         $print = "<tr bgcolor='" . attr($bgcolor) . "'><td class='detail'>" . text($row['Procedure codes']) . "</td><td class='detail'>" . text($row['Units']) . "</td><td class='detail'>" . text(oeFormatMoney($row['Amt Billed'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Paid Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Adjustment Amt'])) . "</td><td class='detail'>" . text(oeFormatMoney($row['Balance Amt'])) . "</td>";
 

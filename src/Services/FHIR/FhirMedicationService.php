@@ -12,7 +12,9 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -29,6 +31,9 @@ use OpenEMR\Validators\ProcessingResult;
 class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
+    use VersionedProfileTrait;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication';
 
     /**
      * @var MedicationService
@@ -66,7 +71,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRMedication
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $medicationResource = new FHIRMedication();
 
@@ -102,7 +107,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         }
 
         //alternative for switch case
-        list($formDisplay, $formCode) = [
+        [$formDisplay, $formCode] = [
             '1' => ['suspension', 'C60928'],
             '2' => ['tablet', 'C42998'],
             '3' => ['capsule', 'C25158'],
@@ -149,13 +154,12 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param  array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Patient uuid to return drug resources that are only visible to the current patient
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
-        return $this->medicationService->getAll($openEMRSearchParameters, true, $puuidBind);
+        return $this->medicationService->getAll($openEMRSearchParameters, true);
     }
 
     /**
@@ -165,10 +169,8 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

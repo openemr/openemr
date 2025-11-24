@@ -19,12 +19,14 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\OeUI\RenderFormFieldHelper;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -45,7 +47,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     protected OemrUI $oemrUI;
 
-    protected function getOemrUiInstance($oemrSettings = array())
+    protected function getOemrUiInstance($oemrSettings = [])
     {
         if (!isset($this->oemrUI)) {
             $this->oemrUI = new OemrUI($oemrSettings);
@@ -130,6 +132,21 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
 
             new TwigFunction(
+                'encounterSelectList',
+                function ($name, $pid, $selectedValue = '', $title = '', $opts = []) {
+
+                    $encounterOptionType = new EncounterListOptionType($pid);
+                    $frow = [
+                        'field_id' => $name,
+                        'title' => $title,
+                        'edit_options' => '',
+                        'empty_name' => $opts['empty_name'] ?? ''
+                    ];
+                    return $encounterOptionType->buildDisplayView($frow, $selectedValue);
+                }
+            ),
+
+            new TwigFunction(
                 'tabRow',
                 function ($formType, $result1, $result2) {
                     ob_start();
@@ -157,7 +174,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'fireEvent',
-                function ($eventName, $eventData = array()) {
+                function ($eventName, $eventData = []) {
                     if (empty($this->kernel)) {
                         return '';
                     }
@@ -243,10 +260,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction(
                 'getListItemTitle',
                 LayoutsUtils::getListItemTitle(...)
-            )
-            ,new TwigFunction(
+            ),
+            new TwigFunction(
                 'getAssetCacheParamRaw',
                 CacheUtils::getAssetCacheParamRaw(...)
+            ),
+            new TwigFunction(
+                'uniqid', 
+                fn(string $prefix = "", bool $more_entropy = false): string => uniqid($prefix, $more_entropy)
             )
         ];
     }
@@ -335,7 +356,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(
                 'dateToTime',
-                fn($str): int|false => strtotime($str)
+                fn($str): int|false => strtotime((string) $str)
             ),
             new TwigFilter(
                 'addCacheParam',

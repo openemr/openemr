@@ -40,9 +40,12 @@ class Capability
         , self::PERMISSION_OFFLINE
         , self::PERMISSION_V1
         , self::PERMISSION_V2
+        // note that SMART v1 did not have authorize-post capability and this is new in SMART v2
+        // these capabilities are used in the .well-known/smart-configuration endpoint
+        // which in V2 is NOT the same as the /fhir/metadata endpoint used in SMART v1
+        , self::PERMISSION_AUTHORIZE_POST
         // additional capabilities for SMART v2
-        // authorize-post
-        // context-ehr-encounter
+        , self::CONTEXT_EHR_ENCOUNTER
         // client-confidential-asymmetric - JWT authentication
         // context-standalone-encounter
         // permission-v2
@@ -119,4 +122,9 @@ class Capability
      * Support for SMART v2 scopes with more granular controls (e.g. patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs)
      */
     const PERMISSION_V2 = "permission-v2";
+
+    /**
+     * Support for SMART's authorize-post capability to allow apps to post authorization requests directly to the authorization endpoint instead of using a GET request
+     */
+    const PERMISSION_AUTHORIZE_POST = "authorize-post";
 }

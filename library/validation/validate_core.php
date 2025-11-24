@@ -23,16 +23,16 @@ function collectValidationPageRules($title, $active = true)
 
     if ($active) {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", array('page_validation',1,$title));
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", ['page_validation',1,$title]);
     } else {
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND title=?", array('page_validation', $title));
+            "FROM `list_options` WHERE list_id=? AND title=?", ['page_validation', $title]);
     }
 
-    $dataArray = array();
+    $dataArray = [];
     while ($row = sqlFetchArray($sql)) {
-        $formPageNameArray = explode('#', $row['option_id']);
-        $dataArray[$formPageNameArray[1]] = array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
+        $formPageNameArray = explode('#', (string) $row['option_id']);
+        $dataArray[$formPageNameArray[1]] = ['page_name' => $formPageNameArray[0] ,'rules' => $row['notes']];
     }
 
     return $dataArray;
@@ -47,11 +47,7 @@ function validateUsingPageRules($fileNamePath): void
 
     $path = '';
 
-    if ($GLOBALS['webroot'] != '') {
-        $path = str_replace($GLOBALS['webroot'], '', $fileNamePath);
-    } else {
-        $path = $fileNamePath;
-    }
+    $path = $GLOBALS['webroot'] != '' ? str_replace($GLOBALS['webroot'], '', $fileNamePath) : $fileNamePath;
 
     print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a

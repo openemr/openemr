@@ -17,23 +17,19 @@
  */
 class Bcrypt
 {
-    private $rounds;
     private $randomState;
 
     /**
      * Constructor
      *
-     * @param
-     *          int number of crypt rounds
+     * @param int $rounds number of crypt rounds
      * @throws Exception if bcrypt is not supported
      */
-    public function __construct($rounds = 12)
+    public function __construct(private $rounds = 12)
     {
         if (CRYPT_BLOWFISH != 1) {
             throw new Exception("bcrypt not supported in this installation. See http://php.net/crypt");
         }
-
-        $this->rounds = $rounds;
     }
 
     /**
@@ -43,7 +39,7 @@ class Bcrypt
      */
     static function isBlowfish($hash)
     {
-        return substr($hash, 0, 4) == '$2a$';
+        return str_starts_with($hash, '$2a$');
     }
 
     /**
@@ -54,7 +50,7 @@ class Bcrypt
      */
     public function hash($input)
     {
-        $hash = crypt($input, $this->getSalt());
+        $hash = crypt((string) $input, (string) $this->getSalt());
 
         if (strlen($hash) > 13) {
             return $hash;
@@ -73,7 +69,7 @@ class Bcrypt
      */
     public function verify($input, $existingHash)
     {
-        $hash = crypt($input, $existingHash);
+        $hash = crypt((string) $input, (string) $existingHash);
 
         return $hash === $existingHash;
     }

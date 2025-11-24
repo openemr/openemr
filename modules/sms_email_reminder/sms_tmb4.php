@@ -15,14 +15,8 @@
 ////////////////////////////////////////////////////////////////////
 class sms
 {
-       // init vars
-    var $username = "";
-    var $password = "";
-
-    function __construct($strUser, $strPass)
+    function __construct(public $username, public $password)
     {
-        $this->username = $strUser;
-        $this->password = $strPass;
     }
 
     /**
@@ -35,18 +29,18 @@ class sms
     {
         /* Prepare the server request */
         $request = "";
-        $request .= "username=" . urlencode($this->username);
-        $request .= "&password=" . urlencode($this->password);
+        $request .= "username=" . urlencode((string) $this->username);
+        $request .= "&password=" . urlencode((string) $this->password);
         $request .= "&revision=2.0";
         $request .= "&type=broadcast";
-        $request .= "&msg=" . urlencode($message);
-        $request .= "&to=" . urlencode($phoneNo);
+        $request .= "&msg=" . urlencode((string) $message);
+        $request .= "&to=" . urlencode((string) $phoneNo);
 
             // larry :: default if not defined - TODO  replace
         if (!$sender) {
               $request .= "&from=BosmanGGZ";
         } else {
-            $request .= "&from=" . urlencode($sender);
+            $request .= "&from=" . urlencode((string) $sender);
         }
 
         $request .= "&route=GD02";
@@ -142,7 +136,7 @@ class sms
         $http_header .= "Host: tm4b.com\r\n";
         $http_header .= "User-Agent: HTTP/1.1\r\n";
         $http_header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $http_header .= "Content-Length: " . strlen($request) . "\r\n";
+        $http_header .= "Content-Length: " . strlen((string) $request) . "\r\n";
         $http_header .= "Connection: close\r\n\r\n";
         $http_header .= $request . "\r\n";
 

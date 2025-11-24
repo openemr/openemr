@@ -31,35 +31,15 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 
 //global variables:
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -83,52 +63,24 @@ if (!isset($_GET["mode"])) {
             <br />
 
             <?php
-            if ($my_authorized === 'on') {
-                $my_authorized = true;
-            } else {
-                $my_authorized = '%';
-            }
+            $my_authorized = $my_authorized === 'on' ? true : '%';
 
-            if ($unbilled === 'on') {
-                $unbilled = '0';
-            } else {
-                $unbilled = '%';
-            }
+            $unbilled = $unbilled === 'on' ? '0' : '%';
 
             if ($code_type === 'all') {
                 $code_type = '%';
             }
 
             if (!isset($_GET["mode"])) {
-                if (!isset($_GET["from_date"])) {
-                    $from_date = date("Y-m-d");
-                } else {
-                    $from_date = $_GET["from_date"];
-                }
+                $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-                if (!isset($_GET["to_date"])) {
-                    $to_date = date("Y-m-d");
-                } else {
-                    $to_date = $_GET["to_date"];
-                }
+                $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-                if (!isset($_GET["code_type"])) {
-                    $code_type = "all";
-                } else {
-                    $code_type = $_GET["code_type"];
-                }
+                $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-                if (!isset($_GET["unbilled"])) {
-                    $unbilled = "on";
-                } else {
-                    $unbilled = $_GET["unbilled"];
-                }
+                $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-                if (!isset($_GET["authorized"])) {
-                    $my_authorized = "on";
-                } else {
-                    $my_authorized = $_GET["authorized"];
-                }
+                $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
             } else {
                 $from_date = $_GET["from_date"];
                 $to_date = $_GET["to_date"];
@@ -137,17 +89,9 @@ if (!isset($_GET["mode"])) {
                 $my_authorized = $_GET["authorized"];
             }
 
-            if ($my_authorized === 'on') {
-                $my_authorized = true;
-            } else {
-                $my_authorized = '%';
-            }
+            $my_authorized = $my_authorized === 'on' ? true : '%';
 
-            if ($unbilled === 'on') {
-                $unbilled = '0';
-            } else {
-                $unbilled = '%';
-            }
+            $unbilled = $unbilled === 'on' ? '0' : '%';
 
             if ($code_type === 'all') {
                 $code_type = '%';
@@ -162,7 +106,7 @@ if (!isset($_GET["mode"])) {
             $k = 1;
             $anypats = 0;
             $the_first_time = 1;
-            $itero = array();
+            $itero = [];
 
             if ($ret = getBillsBetweendayReport($code_type)) {
             // checking to see if there is any information in the array if not display a message (located after this if statment)
@@ -1103,10 +1047,10 @@ if (!isset($_GET["mode"])) {
                         // get dollar amounts to appear on pat,ins payments and copays
 
                         if ($iter['code_type'] != 'payment_info') {
-                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') { ?>
+                            if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) { ?>
                                 <tr>
                                     <td class='text text-center' width='70'>
-                                        <?php echo text(date("Y-m-d", strtotime($iter['date']))); ?>
+                                        <?php echo text(date("Y-m-d", strtotime((string) $iter['date']))); ?>
                                     </td>
                                     <td class='text text-center' width='50'>
                                         <?php echo text($iter['pid']); ?>
@@ -1213,7 +1157,7 @@ if (!isset($_GET["mode"])) {
                                     <?php if ($iter['fee'] != 0) {
                                         $line_total += $iter['fee']; ?>
                                         <td class='text' width='70'>
-                                            <?php echo text(date("Y-m-d", strtotime($iter['date']))); ?>
+                                            <?php echo text(date("Y-m-d", strtotime((string) $iter['date']))); ?>
                                         </td>
                                         <td class='text' width='50'>
                                             <?php echo text($iter['pid']); ?>
@@ -1224,11 +1168,11 @@ if (!isset($_GET["mode"])) {
 
                                         <?php if ($GLOBALS['language_default'] === 'English (Standard)') { ?>
                                             <td class='text' width='100'>
-                                                <?php echo text(ucwords(strtolower(substr($iter['code_text'], 0, 25)))); ?>
+                                                <?php echo text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 25)))); ?>
                                             </td>
                                         <?php } else { ?>
                                             <td class='text' width='100'>
-                                                <?php echo text(substr($iter['code_text'], 0, 25)); ?>
+                                                <?php echo text(substr((string) $iter['code_text'], 0, 25)); ?>
                                             </td>
                                         <?php } ?>
 
@@ -1236,7 +1180,7 @@ if (!isset($_GET["mode"])) {
                                             <?php echo text($iter['code']); ?>
                                         </td>
                                         <td class='small' width='100'>
-                                            <?php echo text(substr($iter['justify'], 5, 3)); ?>
+                                            <?php echo text(substr((string) $iter['justify'], 5, 3)); ?>
                                         </td>
                                         <td class='small' width='100'>
                                             <?php echo text($iter['fee']); ?>
@@ -1245,7 +1189,7 @@ if (!isset($_GET["mode"])) {
                                     }
                             }
 
-                            if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment' || $iter['fee'] != 0) {
+                            if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true) || $iter['fee'] != 0) {
                                 $res_count++;
                             }
 
@@ -1759,8 +1703,8 @@ if (!isset($_GET["mode"])) {
             }
 
             if ($totals_only === 1) {
-                $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
-                $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));?>
+                $from_date = oeFormatShortDate(substr((string) $query_part_day, 37, 10));
+                $to_date = oeFormatShortDate(substr((string) $query_part_day, 63, 10));?>
                 <br />
                 <br />
                 <p><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></p>

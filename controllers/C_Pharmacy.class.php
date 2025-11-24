@@ -13,17 +13,15 @@
 
 class C_Pharmacy extends Controller
 {
-    var $template_mod;
-    var $pharmacies;
+    public $pharmacies;
     public $totalpages;
     private $pageno;
     private $Pharmacy;
 
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->pharmacies = array();
-        $this->template_mod = $template_mod;
+        $this->pharmacies = [];
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&");
         $this->assign("STYLE", $GLOBALS['style']);
@@ -68,11 +66,7 @@ class C_Pharmacy extends Controller
         }
 
         //print_r($_POST);
-        if (is_numeric($_POST['id'])) {
-            $this->pharmacies[0] = new Pharmacy($_POST['id']);
-        } else {
-            $this->pharmacies[0] = new Pharmacy();
-        }
+        $this->pharmacies[0] = is_numeric($_POST['id']) ? new Pharmacy($_POST['id']) : new Pharmacy();
 
         parent::populate_object($this->pharmacies[0]);
         //print_r($this->pharmacies[0]);

@@ -52,12 +52,10 @@ final class EventAuditLoggerBreakglassTest extends TestCase
 
         // Reset breakglassUser property to null to force re-evaluation
         $breakglassProperty = $reflectionClass->getProperty('breakglassUser');
-        $breakglassProperty->setAccessible(true);
         $breakglassProperty->setValue($eventAuditLogger, null);
 
         // Access the protected isBreakglassUser method
         $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-        $reflectionMethod->setAccessible(true);
 
         // Test breakglass user - should execute line 995: $this->breakglassUser = true;
         $result = $reflectionMethod->invoke($eventAuditLogger, 'testbreakglassuser');

@@ -16,19 +16,8 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
  */
 class Code
 {
-    //put your code here
-
-    var $id;
-    var $code;
-    var $text;
-    var $codeType;
-
-    function __construct($id, $code, $text, $codeType)
+    function __construct(public $id, public $code, public $text, public $codeType)
     {
-        $this->id = $id;
-        $this->code = $code;
-        $this->text = $text;
-        $this->codeType = $codeType;
     }
 
     function display()

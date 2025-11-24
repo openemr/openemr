@@ -48,7 +48,7 @@ trait ResourceServiceSearchTrait
      */
     protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null): array
     {
-        $oeSearchParameters = array();
+        $oeSearchParameters = [];
 
         $specialColumns = ['_sort' => '', '_count' => '', '_offset' => ''];
         $hasSort = false;
@@ -102,7 +102,7 @@ trait ResourceServiceSearchTrait
     private function createSortParameter($sort): array
     {
         $newSortOrder = [];
-        $sortFields = explode(',', $sort);
+        $sortFields = explode(',', (string) $sort);
         $searchFactory = $this->getSearchFieldFactory();
         foreach ($sortFields as $sortField) {
             $isDescending = ($sortField[0] ?? '') === '-';

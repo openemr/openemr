@@ -780,7 +780,7 @@ class TelemetryServiceTest extends TestCase
 
         // Verify method exists and is callable
         $this->assertTrue(method_exists($telemetryService, 'trackApiRequestEvent'));
-        $this->assertTrue(is_callable([$telemetryService, 'trackApiRequestEvent']));
+        $this->assertTrue(is_callable($telemetryService->trackApiRequestEvent(...)));
 
         // Test method signature
         $reflection = new \ReflectionMethod($telemetryService, 'trackApiRequestEvent');
@@ -953,7 +953,7 @@ class TelemetryServiceTest extends TestCase
         // Mock error_log function using a custom error handler
         set_error_handler(function ($severity, $message, $file, $line) use (&$errorLogCalled, &$errorMessage) {
             // Check if this is our expected error_log call
-            if (strpos($message, 'cURL error: Connection timeout') !== false) {
+            if (str_contains($message, 'cURL error: Connection timeout')) {
                 $errorLogCalled = true;
                 $errorMessage = $message;
             }

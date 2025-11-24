@@ -36,11 +36,11 @@ if (!empty($GLOBALS['cdr_report_nice'])) {
 function getLabelNumber($label)
 {
 
-    if (strlen($label) == 0) {
+    if (strlen((string) $label) == 0) {
         return "1";
     }
 
-    $tokens = explode(" ", $label);
+    $tokens = explode(" ", (string) $label);
 
     $num_tokens = count($tokens);
     if ($tokens[$num_tokens - 1] != null) {
@@ -69,8 +69,8 @@ function getMeasureNumber($row)
 
 
 // Collect parameters (set defaults if empty)
-$target_date = (isset($_GET['target_date'])) ? trim($_GET['target_date']) : date('Y-m-d H:i:s');
-$nested = (isset($_GET['nested'])) ? trim($_GET['nested']) : 'false';
+$target_date = (isset($_GET['target_date'])) ? trim((string) $_GET['target_date']) : date('Y-m-d H:i:s');
+$nested = (isset($_GET['nested'])) ? trim((string) $_GET['nested']) : 'false';
 $xml = new PQRIXml();
 
 // Add the XML parent tag.
@@ -109,7 +109,7 @@ foreach ($dataSheet as $row) {
     if (isset($row['is_main']) || isset($row['is_sub'])) {
         if (isset($row['is_main'])) {
             // Add PQRI measures
-            $pqri_measures = array();
+            $pqri_measures = [];
             $pqri_measures['pqri-measure-number'] =  getMeasureNumber($row);
             $pqri_measures['patient-population'] = getLabelNumber($row['population_label']);
             $pqri_measures['numerator'] = getLabelNumber($row['numerator_label']);
@@ -130,7 +130,7 @@ foreach ($dataSheet as $row) {
         }
 
          // Add the provider
-        $physician_ids = array();
+        $physician_ids = [];
         if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
             if (!empty($row['npi'])) {
                 $physician_ids['npi'] = $row['npi'];

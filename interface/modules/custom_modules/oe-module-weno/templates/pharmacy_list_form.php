@@ -46,9 +46,9 @@ $pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
 $activeStatus = sqlQuery("SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'");
 
 // should always be set, but just in case we will set it to 0 so we can grab it
-$field_id_esc = $field_id_esc ?? '0';
+$field_id_esc ??= '0';
 $name_field_id = "form_" . $field_id_esc;
-$small_form = $small_form ?? '';
+$small_form ??= '';
 
 $pharmacyService = new PharmacyService();
 $prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
@@ -61,7 +61,7 @@ $res = sqlStatement($sql);
 $error = false;
 
 $pharmacyService = new PharmacyService();
-$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
+$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
 
 ?>
 

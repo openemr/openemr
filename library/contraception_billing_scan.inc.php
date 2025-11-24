@@ -42,22 +42,22 @@ function _contraception_billing_check($code_type, $code, $provider): void
     // are flagged as Initial Consult.
     $sql = "SELECT related_code FROM codes WHERE " .
         "code_type = ? AND code = ? AND cyp_factor != 0 LIMIT 1";
-    $codesrow = sqlQuery($sql, array($code_types[$code_type]['id'], $code));
+    $codesrow = sqlQuery($sql, [$code_types[$code_type]['id'], $code]);
 
     if (!empty($codesrow['related_code'])) {
-        $relcodes = explode(';', $codesrow['related_code']);
+        $relcodes = explode(';', (string) $codesrow['related_code']);
         foreach ($relcodes as $relstring) {
             if ($relstring === '') {
                 continue;
             }
-            list($reltype, $relcode) = explode(':', $relstring);
+            [$reltype, $relcode] = explode(':', $relstring);
             if ($reltype !== 'IPPFCM') {
                 continue;
             }
             $tmprow = sqlQuery(
                 "SELECT cyp_factor FROM codes WHERE " .
                 "code_type = '32' AND code = ? LIMIT 1",
-                array($relcode)
+                [$relcode]
             );
             $cyp = 0 + $tmprow['cyp_factor'];
             if ($cyp > $contraception_billing_cyp) {
@@ -87,7 +87,7 @@ function contraception_billing_scan($patient_id, $encounter_id, $provider_id = 0
     $billresult = BillingUtilities::getBillingByEncounter($patient_id, $encounter_id, "*");
     if (is_array($billresult)) {
         foreach ($billresult as $iter) {
-            _contraception_billing_check($iter["code_type"], trim($iter["code"]), $iter['provider_id']);
+            _contraception_billing_check($iter["code_type"], trim((string) $iter["code"]), $iter['provider_id']);
         }
     }
     // If no provider at the line level, use the encounter's default provider.

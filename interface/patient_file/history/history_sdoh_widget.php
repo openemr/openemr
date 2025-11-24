@@ -51,7 +51,7 @@ function hs_lo_title(string $listId, ?string $value): string
 /** Clip a string to N chars (UI-friendly), preserving plain text. */
 function hs_clip(?string $s, int $len = 80): string
 {
-    $s = $s ?? '';
+    $s ??= '';
     if (mb_strlen($s) <= $len) {
         return $s;
     }
@@ -114,17 +114,7 @@ $interventions_text = HistorySdohService::interventionsToText($interventions_arr
 ]);
 
 // Domain → list_id mapping (keep in sync with form)
-$map = [
-    'food_insecurity'           => 'sdoh_food_insecurity_risk',
-    'housing_instability'       => 'sdoh_housing_worry',
-    'transportation_insecurity' => 'sdoh_transportation_barrier',
-    'utilities_insecurity'      => 'sdoh_utilities_shutoff',
-    'interpersonal_safety'      => 'sdoh_ipv_yesno',
-    'financial_strain'          => 'sdoh_financial_strain',
-    'social_isolation'          => 'sdoh_social_isolation_freq',
-    'childcare_needs'           => 'sdoh_childcare_needs',
-    'digital_access'            => 'sdoh_digital_access',
-];
+$map = HistorySdohService::getListMapForDomains();
 
 // Convenience values for header meta
 $assessment_date = $info['assessment_date'] ?? $info['sdoh_assessment_date'] ?? '';

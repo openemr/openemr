@@ -29,7 +29,7 @@ $patient = json_decode($_POST['upload_pid'] ?? '');
 $template_content = null;
 
 if (($_POST['mode'] ?? null) === 'save_profiles') {
-    $profiles = json_decode($_POST['profiles'], true);
+    $profiles = json_decode((string) $_POST['profiles'], true);
     $rtn = $templateService->saveAllProfileTemplates($profiles);
     if ($rtn) {
         echo xlt("Profiles successfully saved.");
@@ -47,7 +47,7 @@ if (($_REQUEST['mode'] ?? null) === 'render_profile') {
 if (($_REQUEST['mode'] ?? null) === 'getPdf') {
     if ($_REQUEST['docid']) {
         $template = $templateService->fetchTemplate($_REQUEST['docid']);
-        echo "data:application/pdf;base64," . base64_encode($template['template_content']);
+        echo "data:application/pdf;base64," . base64_encode((string) $template['template_content']);
         exit();
     }
     die(xlt('Invalid File'));
@@ -64,7 +64,7 @@ if (($_POST['mode'] ?? null) === 'get') {
 
 if (($_POST['mode'] ?? null) === 'send_profiles') {
     if (!empty($_POST['checked'])) {
-        $profiles = json_decode($_POST['checked']) ?: [];
+        $profiles = json_decode((string) $_POST['checked']) ?: [];
         $last_id = $templateService->setProfileActiveStatus($profiles);
         if ($last_id) {
             echo xlt('Profile Templates Successfully set to Active in portal.');
@@ -78,9 +78,9 @@ if (($_POST['mode'] ?? null) === 'send_profiles') {
 
 if (($_POST['mode'] ?? null) === 'send') {
     if (!empty($_POST['docid'])) {
-        $pids_array = json_decode($_POST['docid']) ?: ['0'];
+        $pids_array = json_decode((string) $_POST['docid']) ?: ['0'];
         // profiles are in an array with flag to indicate a group of template id's
-        $ids = json_decode($_POST['checked']) ?: [];
+        $ids = json_decode((string) $_POST['checked']) ?: [];
         $master_ids = [];
         foreach ($ids as $id) {
             if (is_array($id)) {
@@ -89,7 +89,7 @@ if (($_POST['mode'] ?? null) === 'send') {
                 }
                 $profile = $id[0];
                 // get all template ids for this profile
-                $rtn_ids = sqlStatement('SELECT `template_id` as id FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > "0"', array($profile));
+                $rtn_ids = sqlStatement('SELECT `template_id` as id FROM `document_template_profiles` WHERE `profile` = ? AND `template_id` > "0"', [$profile]);
                 while ($rtn_id = sqlFetchArray($rtn_ids)) {
                     $master_ids[$rtn_id['id']] = $profile;
                 }
@@ -116,7 +116,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Not authorized to edit template'));
     }
     if ($_POST['docid']) {
-        if (stripos($_POST['content'], "<?php") === false) {
+        if (stripos((string) $_POST['content'], "<?php") === false) {
             $template = $templateService->updateTemplateContent($_POST['docid'], $_POST['content']);
             if ($_POST['service'] === 'window') {
                 echo "<script>if (typeof parent.dlgopen === 'undefined') window.close(); else parent.dlgclose();</script>";
@@ -161,7 +161,7 @@ if (isset($_POST['blank-nav-button'])) {
     $category = $_POST['template_category'] ?? '';
     $patient = '-1';
     if (!empty($upload_name)) {
-        $name = preg_replace("/[^A-Z0-9.]/i", " ", $upload_name);
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string) $upload_name);
         try {
             $content = "{ParseAsHTML}";
             $success = $templateService->insertTemplate($patient, $category, $upload_name, $content, 'application/text');
@@ -233,11 +233,11 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
             exit;
         }
         // parse out what we need
-        $name = preg_replace("/[^A-Z0-9.]/i", " ", $_FILES['template_files']['name'][$i]);
-        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", $name) !== 0) {
+        $name = preg_replace("/[^A-Z0-9.]/i", " ", (string) $_FILES['template_files']['name'][$i]);
+        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string) $name) !== 0) {
             die(xlt('Invalid file type.'));
         }
-        $parts = pathinfo($name);
+        $parts = pathinfo((string) $name);
         $name = ucwords(strtolower($parts["filename"]));
         if (empty($patient)) {
             $patient = ['-1'];
@@ -305,7 +305,7 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
         $template_content = $content['template_content'];
         if ($content['mime'] === 'application/pdf') {
             $content = "<iframe width='100%' height='100%' src='data:application/pdf;base64, " .
-                attr(base64_encode($template_content)) . "'></iframe>";
+                attr(base64_encode((string) $template_content)) . "'></iframe>";
             echo $content;
             exit;
         }

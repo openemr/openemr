@@ -23,11 +23,11 @@ function smarty_core_rm_auto($params, &$smarty)
       return false;
 
     if(!isset($params['auto_id']) && !isset($params['auto_source'])) {
-        $_params = array(
+        $_params = [
             'dirname' => $params['auto_base'],
             'level' => 0,
             'exp_time' => $params['exp_time']
-        );
+        ];
         require_once(SMARTY_CORE_DIR . 'core.rmdir.php');
         $_res = smarty_core_rmdir($_params, $smarty);
     } else {
@@ -42,11 +42,11 @@ function smarty_core_rm_auto($params, &$smarty)
                 $_res = $smarty->_unlink($_tname, $params['exp_time']);
             }
         } elseif ($smarty->use_sub_dirs) {
-            $_params = array(
+            $_params = [
                 'dirname' => $_tname,
                 'level' => 1,
                 'exp_time' => $params['exp_time']
-            );
+            ];
             require_once(SMARTY_CORE_DIR . 'core.rmdir.php');
             $_res = smarty_core_rmdir($_params, $smarty);
         } else {
@@ -56,7 +56,7 @@ function smarty_core_rm_auto($params, &$smarty)
             while (false !== ($_filename = readdir($_handle))) {
                 if($_filename == '.' || $_filename == '..') {
                     continue;
-                } elseif (substr($params['auto_base'] . DIRECTORY_SEPARATOR . $_filename, 0, strlen($_tname)) == $_tname) {
+                } elseif (str_starts_with($params['auto_base'] . DIRECTORY_SEPARATOR . $_filename, (string) $_tname)) {
                     $_res &= (bool)$smarty->_unlink($params['auto_base'] . DIRECTORY_SEPARATOR . $_filename, $params['exp_time']);
                 }
             }

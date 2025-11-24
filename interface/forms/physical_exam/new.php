@@ -29,7 +29,7 @@ $returnurl = 'encounter_top.php';
 function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
 {
     $dres = sqlStatement("SELECT * FROM form_physical_exam_diagnoses " .
-    "WHERE line_id = ? ORDER BY ordering, diagnosis", array($line_id));
+    "WHERE line_id = ? ORDER BY ordering, diagnosis", [$line_id]);
 
     echo " <tr>\n";
     echo "  <td align='center'><input type='checkbox' name='form_obs[" . attr($line_id) . "][wnl]' " .
@@ -97,26 +97,26 @@ if ($_POST['bn_save']) {
 
     if ($formid) {
         $query = "DELETE FROM form_physical_exam WHERE forms_id = ?";
-        sqlStatement($query, array($formid));
+        sqlStatement($query, [$formid]);
     } else {
         $formid = addForm($encounter, "Physical Exam", 0, "physical_exam", $pid, $userauthorized);
         $query = "UPDATE forms SET form_id = id WHERE id = ? AND form_id = 0";
-        sqlStatement($query, array($formid));
+        sqlStatement($query, [$formid]);
     }
 
     $form_obs = $_POST['form_obs'];
     foreach ($form_obs as $line_id => $line_array) {
         $wnl = $line_array['wnl'] ? '1' : '0';
         $abn = $line_array['abn'] ? '1' : '0';
-        $diagnosis = $line_array['diagnosis'] ? $line_array['diagnosis'] : '';
-        $comments  = $line_array['comments']  ? $line_array['comments'] : '';
+        $diagnosis = $line_array['diagnosis'] ?: '';
+        $comments  = $line_array['comments'] ?: '';
         if ($wnl || $abn || $diagnosis || $comments) {
             $query = "INSERT INTO form_physical_exam (
              forms_id, line_id, wnl, abn, diagnosis, comments
              ) VALUES (
              ?, ?, ?, ?, ?, ?
              )";
-            sqlStatement($query, array($formid, $line_id, $wnl, $abn, $diagnosis, $comments));
+            sqlStatement($query, [$formid, $line_id, $wnl, $abn, $diagnosis, $comments]);
         }
     }
 
@@ -130,9 +130,9 @@ if ($_POST['bn_save']) {
 
 // Load all existing rows for this form as a hash keyed on line_id.
 //
-$rows = array();
+$rows = [];
 if ($formid) {
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", array($formid));
+    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", [$formid]);
     while ($row = sqlFetchArray($res)) {
         $rows[$row['line_id']] = $row;
     }

@@ -70,35 +70,113 @@ initialize_openemr() {
     echo 'Initializing OpenEMR'
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-        repo_root="$(git rev-parse --show-toplevel)" || exit 1
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    composer_install
+    npm_build
+    ccda_build
+    cd -
+    dockers_env_start
+    install_configure
+    "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+    "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+
+    # Configure coverage after containers are running and OpenEMR is initialized
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        # Set COMPOSE_FILE so docker compose commands work from any directory
+        local compose_file="${repo_root}/ci/inferno/compose.yml"
+        export COMPOSE_FILE="${compose_file}"
+
         cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        main_build
-        ccda_build
-        cd -
-        dockers_env_start
-        install_configure
-        "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-        "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
-        # configure_coverage
-        echo 'OpenEMR initialized'
-    )
+        configure_coverage
+        setup_e2e_bookends apache
+        # Stay in repo root - we have write permissions here
+        echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP:-/tmp}/coverage-inferno-raw"
+    fi
+
+    echo 'OpenEMR initialized'
 }
 run_testsuite() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
-    (
-    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
-        cd -P "${repo_root}"
-        # shellcheck source-path=../..
-        . ci/ciLibrary.source
-        cd -
-        phpunit --testsuite certification -c "${OPENEMR_DIR}/phpunit.xml"
-        # merge_coverage
-        echo 'Certification Tests Executed'
-    )
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+
+    # Set COMPOSE_FILE so docker compose commands work from any directory
+    local compose_file="${repo_root}/ci/inferno/compose.yml"
+    export COMPOSE_FILE="${compose_file}"
+
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
+
+    # Run PHPUnit tests with coverage if enabled
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        phpunit --testsuite certification \
+                --coverage-php coverage/coverage.inferno-phpunit.cov \
+                --log-junit junit-inferno.xml \
+                -c "${OPENEMR_DIR}/phpunit.xml"
+    else
+        phpunit --testsuite certification \
+                --log-junit junit-inferno.xml \
+                -c "${OPENEMR_DIR}/phpunit.xml"
+    fi
+
+    echo 'Certification Tests Executed'
+}
+
+collect_inferno_coverage() {
+    local -x DOCKER_DIR=inferno
+    local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+
+    # Set COMPOSE_FILE so docker compose commands work from any directory
+    local compose_file="${repo_root}/ci/inferno/compose.yml"
+    export COMPOSE_FILE="${compose_file}"
+
+    cd -P "${repo_root}"
+    # shellcheck source-path=../..
+    . ci/ciLibrary.source
+    # Stay in repo root - we have write permissions here and COMPOSE_FILE is set
+
+    echo 'Collecting Inferno coverage...'
+
+    # Copy HTTP request coverage from container
+    local coverage_raw_tmpdir="${RUNNER_TEMP:-/tmp}/coverage-inferno-raw"
+    mkdir -p "${coverage_raw_tmpdir}"
+    # shellcheck disable=SC2310
+    if dc cp openemr:/tmp/openemr-coverage/inferno "${coverage_raw_tmpdir}"; then
+        echo "Successfully copied coverage files from container"
+    else
+        echo "Warning: Failed to copy coverage files (may not exist yet)"
+    fi
+
+    # Count raw coverage files
+    find "${coverage_raw_tmpdir}" -type f -name '*.php' | wc -l | xargs echo 'Found raw Inferno coverage files:'
+
+    # Convert HTTP request coverage to .cov format
+    if [[ -d "${coverage_raw_tmpdir}/inferno" ]]; then
+        mkdir -p coverage
+        sudo chmod -R 777 coverage
+        ./ci/convert-coverage "${coverage_raw_tmpdir}/inferno" \
+                              coverage/coverage.inferno-http.cov \
+                              --clover=coverage.inferno-http.clover.xml
+        ls -lah coverage.inferno-http.clover.xml coverage/coverage.inferno-http.cov || true
+    else
+        echo "Warning: No Inferno HTTP coverage files found"
+    fi
+
+    # Merge all Inferno coverage (PHPUnit + HTTP requests)
+    cd -P "${repo_root}"
+    . ci/ciLibrary.source
+    merge_coverage
+
+    echo 'Inferno coverage collection completed'
 }
 
 fix_redis_permissions() {
@@ -157,8 +235,18 @@ main() {
     if ! run_testsuite; then
         local exit_code=$?
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
+        # Still try to collect coverage even on failure
+        if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+            collect_inferno_coverage || echo "Warning: Coverage collection failed"
+        fi
         exit "${exit_code}"
     fi
+
+    # Collect coverage if enabled
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        collect_inferno_coverage
+    fi
+
     echo 'SUCCESS: All Inferno certification tests completed successfully!'
 }
 

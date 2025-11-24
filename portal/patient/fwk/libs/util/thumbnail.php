@@ -25,11 +25,11 @@
  */
 class thumbnail
 {
-    var $allowableTypes = array (
+    public $allowableTypes =  [
             IMAGETYPE_GIF,
             IMAGETYPE_JPEG,
             IMAGETYPE_PNG
-    );
+    ];
     public function imageCreateFromFile($filename, $imageType)
     {
         return match ($imageType) {

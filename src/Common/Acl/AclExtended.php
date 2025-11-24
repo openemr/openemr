@@ -74,7 +74,7 @@ class AclExtended
     {
         $gacl = self::collectGaclApiObject();
         $arr1 = $gacl->get_objects($section, 1, 'ACO');
-        $arr = array();
+        $arr = [];
         if (!empty($arr1[$section])) {
             foreach ($arr1[$section] as $value) {
                 $odata = $gacl->get_object_data($gacl->get_object_id($section, $value, 'ACO'), 'ACO');
@@ -120,7 +120,7 @@ class AclExtended
         $gacl = self::collectGaclApiObject();
         $parent_id = $gacl->get_root_group_id();
         $arr_group_ids = $gacl->get_group_children($parent_id, 'ARO', 'RECURSE');
-        $arr_group_titles = array();
+        $arr_group_titles = [];
         foreach ($arr_group_ids as $value) {
             $arr_group_data = $gacl->get_group_data($value, 'ARO');
             // add if $include_superusers is true or group not include admin|super rule.
@@ -164,7 +164,7 @@ class AclExtended
     {
         $current_user_groups = self::aclGetGroupTitles($username);
         if (!$current_user_groups) {
-            $current_user_groups = array();
+            $current_user_groups = [];
         }
         if (is_array($group)) {
             foreach ($group as $value) {
@@ -177,7 +177,7 @@ class AclExtended
                 array_push($current_user_groups, $group);
             }
         }
-        $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", array($username)));
+        $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", [$username]));
         self::setUserAro(
             $current_user_groups,
             $username,
@@ -197,7 +197,7 @@ class AclExtended
     public static function removeUserAros($username, $group)
     {
         $current_user_groups = self::aclGetGroupTitles($username);
-        $new_user_groups = array();
+        $new_user_groups = [];
         if (is_array($group)) {
             foreach ($current_user_groups as $value) {
                 if (!in_array($value, $group)) {
@@ -211,7 +211,7 @@ class AclExtended
                 }
             }
         }
-        $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", array($username)));
+        $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", [$username]));
         self::setUserAro(
             $new_user_groups,
             $username,
@@ -242,11 +242,7 @@ class AclExtended
 
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
-        if (checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin") {
-            $gacl_protect = true;
-        } else {
-            $gacl_protect = false;
-        }
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin" ? true : false;
 
         //get array of all available group ID numbers
         $parent_id = $gacl->get_root_group_id();
@@ -270,11 +266,7 @@ class AclExtended
                 if ($middle_name) {
                     $full_name = $first_name . " " . $middle_name . " " . $last_name;
                 } else {
-                    if ($last_name) {
-                        $full_name = $first_name . " " . $last_name;
-                    } else {
-                        $full_name = $first_name;
-                    }
+                    $full_name = $last_name ? $first_name . " " . $last_name : $first_name;
                 }
 
                 //If this is not the first group to be added, then will skip below
@@ -313,7 +305,7 @@ class AclExtended
                     if (!empty($arr_admin)) {
                         foreach ($arr_admin as $value3) {
                             $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
-                            if (strcmp($arr_admin_data[2], 'admin') == 0) {
+                            if (strcmp((string) $arr_admin_data[2], 'admin') == 0) {
                                 $boolean_admin = 1;
                             }
                         }
@@ -387,9 +379,9 @@ class AclExtended
         if ($group_id) {
             //group already exist, so just create acl
             $gacl->add_acl(
-                array("placeholder" => array("filler")),
+                ["placeholder" => ["filler"]],
                 null,
-                array($group_id),
+                [$group_id],
                 null,
                 null,
                 1,
@@ -402,9 +394,9 @@ class AclExtended
             $parent_id = $gacl->get_root_group_id();
             $aro_id = $gacl->add_group($acl_name, $acl_title, $parent_id, 'ARO');
             $gacl->add_acl(
-                array("placeholder" => array("filler")),
+                ["placeholder" => ["filler"]],
                 null,
-                array($aro_id),
+                [$aro_id],
                 null,
                 null,
                 1,
@@ -453,7 +445,7 @@ class AclExtended
             $aco_data = $gacl->get_object_data($value, 'ACO');
             $aco_section = $aco_data[0][0];
             $aco_name = $aco_data[0][1];
-            $gacl->append_acl($acl_id[0], null, null, null, null, array($aco_section => array($aco_name)));
+            $gacl->append_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
         return;
     }
@@ -478,7 +470,7 @@ class AclExtended
             //1-get the filler-placeholder aco id
             $filler_aco_id = $gacl->get_object_id('placeholder', 'filler', 'ACO');
             //2-add filler-placeholder aco
-            self::aclAddAcos($acl_title, $return_value, array($filler_aco_id));
+            self::aclAddAcos($acl_title, $return_value, [$filler_aco_id]);
             //3-ensure filler-placeholder aco is not to be deleted
             $safeListaco = self::removeElement($_POST["selection"], $filler_aco_id);
             //4-prepare to safely delete the acos
@@ -489,7 +481,7 @@ class AclExtended
             $aco_data = $gacl->get_object_data($value, 'ACO');
             $aco_section = $aco_data[0][0];
             $aco_name = $aco_data[0][1];
-            $gacl->shift_acl($acl_id[0], null, null, null, null, array($aco_section => array($aco_name)));
+            $gacl->shift_acl($acl_id[0], null, null, null, null, [$aco_section => [$aco_name]]);
         }
         return;
     }
@@ -517,7 +509,7 @@ class AclExtended
     //
     private static function removeElement($arr, $val)
     {
-        $arr2 = array();
+        $arr2 = [];
         foreach ($arr as $value) {
             if ($value != $val) {
                 array_push($arr2, $value);
@@ -551,7 +543,7 @@ class AclExtended
     // Returns array of all ACOs
     public static function genAcoArray()
     {
-        $acoArray = array();
+        $acoArray = [];
         $gacl = self::collectGaclApiObject();
         // collect and sort all aco objects
         $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
@@ -723,7 +715,7 @@ class AclExtended
     public static function returnValuesXml($err)
     {
         $gacl = self::collectGaclApiObject();
-        $returns = array();
+        $returns = [];
 
         $message = "<?xml version=\"1.0\"?>\n" .
             "<response>\n";
@@ -827,11 +819,11 @@ class AclExtended
                 $group_id = $gacl->get_group_id($name, $title, 'ARO');
                 if ($group_id) {
                     //group already exist, so just create acl
-                    $temp_acl_id = $gacl->add_acl(array("placeholder" => array("filler")), null, array($group_id), null, null, 1, 1, $return_value, $note);
+                    $temp_acl_id = $gacl->add_acl(["placeholder" => ["filler"]], null, [$group_id], null, null, 1, 1, $return_value, $note);
                     if ($temp_acl_id) {
                         echo "The '$title' group already exist.</BR>";
                         echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
-                        $temp_acl_id_array = array($temp_acl_id);
+                        $temp_acl_id_array = [$temp_acl_id];
                     } else {
                         echo "The '$title' group already exist.</BR>";
                         echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
@@ -840,7 +832,7 @@ class AclExtended
                     //create group, then create acl
                     $parent_id = $gacl->get_root_group_id();
                     $aro_id = $gacl->add_group($name, $title, $parent_id, 'ARO');
-                    $temp_acl_id = $gacl->add_acl(array("placeholder" => array("filler")), null, array($aro_id), null, null, 1, 1, $return_value, $note);
+                    $temp_acl_id = $gacl->add_acl(["placeholder" => ["filler"]], null, [$aro_id], null, null, 1, 1, $return_value, $note);
                     if ($aro_id) {
                         echo "The '$title' group has been successfully added.</BR>";
                     } else {
@@ -849,7 +841,7 @@ class AclExtended
 
                     if ($temp_acl_id) {
                         echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
-                        $temp_acl_id_array = array($temp_acl_id);
+                        $temp_acl_id_array = [$temp_acl_id];
                     } else {
                         echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
                     }
@@ -1001,7 +993,7 @@ class AclExtended
         $tmp_array = $gacl->search_acl($section_name, $object_name, false, false, $group_title, false, false, false, $return_value);
         switch (count($tmp_array)) {
             case 0:
-                $tmp_boolean = @$gacl->append_acl($array_acl_id_number[0], null, null, null, null, array($section_name => array($object_name)));
+                $tmp_boolean = @$gacl->append_acl($array_acl_id_number[0], null, null, null, null, [$section_name => [$object_name]]);
                 if ($tmp_boolean) {
                     echo "Successfully placed the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
                 } else {
@@ -1041,7 +1033,7 @@ class AclExtended
                 echo "The '$object_title' object of the '$section_title' section is not found in the '$group_title' group '$return_value' ACL.</BR>";
                 break;
             case 1:
-                $tmp_boolean = @$gacl->shift_acl($array_acl_id_number[0], null, null, null, null, array($section_name => array($object_name)));
+                $tmp_boolean = @$gacl->shift_acl($array_acl_id_number[0], null, null, null, null, [$section_name => [$object_name]]);
                 if ($tmp_boolean) {
                     echo "Successfully removed the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
                 } else {
@@ -1095,7 +1087,7 @@ class AclExtended
             $username = $_SESSION['authUser'];
         }
         $gacl = self::collectGaclApiObject();
-        $perms = array();
+        $perms = [];
         $username_acl_groups = self::aclGetGroupTitles($username); // array of roles for the user
         if ($username_acl_groups) {
             foreach ($username_acl_groups as $group_name) {
@@ -1138,7 +1130,7 @@ class AclExtended
      */
     public static function iHaveGroupPermissions($group_name)
     {
-        $perms = array();
+        $perms = [];
         self::getGroupPermissions($group_name, $perms);
         $myperms = self::getUserPermissions();
         foreach ($perms as $sectionid => $acos) {

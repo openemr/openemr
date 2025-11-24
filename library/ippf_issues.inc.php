@@ -18,7 +18,7 @@ require_once("$srcdir/patient.inc.php");
 
 $CPR = 4; // cells per row
 
-$pprow = array();
+$pprow = [];
 
 function end_cell(): void
 {
@@ -46,7 +46,7 @@ function end_row(): void
 function end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
+    if (strlen((string) $last_group) > 0) {
         end_row();
         echo " </table>\n";
         echo "</div>\n";
@@ -81,16 +81,12 @@ function issue_ippf_gcac_form($issue, $thispid): void
 
     $shrow = getHistoryData($thispid);
 
-    if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", array($issue));
-    } else {
-        $pprow = array();
-    }
+    $pprow = $issue ? sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$issue]) : [];
 
     echo "<div id='ippf_gcac' style='display:none'>\n";
 
     // Load array of properties for this layout and its groups.
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties('GCA', $grparr);
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -123,9 +119,9 @@ function issue_ippf_gcac_form($issue, $thispid): void
         }
 
         // Handle a data category (group) change.
-        if (strcmp($this_group, $last_group) != 0) {
+        if (strcmp((string) $this_group, (string) $last_group) != 0) {
             end_group();
-            $group_seq  = 'gca' . substr($this_group, 0, 1);
+            $group_seq  = 'gca' . substr((string) $this_group, 0, 1);
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
@@ -227,16 +223,12 @@ function issue_ippf_con_form($issue, $thispid): void
 
     $shrow = getHistoryData($thispid);
 
-    if ($issue) {
-        $pprow = sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", array($issue));
-    } else {
-        $pprow = array();
-    }
+    $pprow = $issue ? sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$issue]) : [];
 
     echo "<div id='ippf_con' style='display:none'>\n";
 
     // Load array of properties for this layout and its groups.
-    $grparr = array();
+    $grparr = [];
     getLayoutProperties('CON', $grparr);
 
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -269,9 +261,9 @@ function issue_ippf_con_form($issue, $thispid): void
         }
 
         // Handle a data category (group) change.
-        if (strcmp($this_group, $last_group) != 0) {
+        if (strcmp((string) $this_group, (string) $last_group) != 0) {
             end_group();
-            $group_seq  = 'con' . substr($this_group, 0, 1);
+            $group_seq  = 'con' . substr((string) $this_group, 0, 1);
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .

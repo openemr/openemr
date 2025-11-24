@@ -36,19 +36,19 @@
  // Add a string to output with some basic sanitizing.
 function custom_labworks_Add($field)
 {
-    return "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
+    return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
 
  // Remove all non-digits from a string.
 function Digits($field)
 {
-    return preg_replace("/\D/", "", $field);
+    return preg_replace("/\D/", "", (string) $field);
 }
 
  // Translate sex.
 function Sex($field)
 {
-    $sex = strtoupper(substr(trim($field), 0, 1));
+    $sex = strtoupper(substr(trim((string) $field), 0, 1));
     if ($sex != "M" && $sex != "F") {
         $sex = "U";
     }
@@ -60,7 +60,7 @@ function Sex($field)
 function LWDate($field)
 {
     $tmp = fixDate($field);
-    return substr($tmp, 5, 2) . substr($tmp, 8, 2) . substr($tmp, 0, 4);
+    return substr((string) $tmp, 5, 2) . substr((string) $tmp, 8, 2) . substr((string) $tmp, 0, 4);
 }
 
  // Translate insurance type.
@@ -93,11 +93,11 @@ function mydie($msg): void
 
  // This mess gets all the info for the patient.
  //
- $insrow = array();
+ $insrow = [];
  global $pid; // defined in globals.php
-foreach (array('primary','secondary') as $value) {
+foreach (['primary','secondary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);
 }
 
  $query = "SELECT " .
@@ -128,13 +128,13 @@ foreach (array('primary','secondary') as $value) {
   "LEFT OUTER JOIN addresses AS a2 ON a2.foreign_id = c2.id " .
   "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query, array($insrow[0]['id'], $insrow[1]['id'], $pid)));
+ $row = sqlFetchArray(sqlStatement($query, [$insrow[0]['id'], $insrow[1]['id'], $pid]));
 
  // Get primary care doc info.  If none was selected in the patient
  // demographics then pick the #1 doctor in the clinic.
  //
  $query = "select id, fname, mname, lname from users where authorized = 1";
- $sqlBindArray = array();
+ $sqlBindArray = [];
 if ($row['providerID']) {
     $query .= " AND id = ?";
     array_push($sqlBindArray, $row['providerID']);
@@ -150,7 +150,7 @@ if ($row['providerID']) {
  $out .= custom_labworks_Add($row['pubpid']);              // chart number
  $out .= custom_labworks_Add($row['lname']);               // last name
  $out .= custom_labworks_Add($row['fname']);               // first name
- $out .= custom_labworks_Add(substr($row['mname'], 0, 1)); // middle initial
+ $out .= custom_labworks_Add(substr((string) $row['mname'], 0, 1)); // middle initial
  $out .= custom_labworks_Add("");                          // alias
  $out .= custom_labworks_Add(Digits($row['ss']));          // ssn
  $out .= custom_labworks_Add(LWDate($row['DOB']));         // dob
@@ -166,10 +166,10 @@ if ($row['providerID']) {
  // Guarantor Section.  OpenEMR does not have guarantors so we use the primary
  // insurance subscriber if there is one, otherwise the patient.
  //
-if (trim($row['lname1'])) {
+if (trim((string) $row['lname1'])) {
     $out .= custom_labworks_Add($row['lname1']);
     $out .= custom_labworks_Add($row['fname1']);
-    $out .= custom_labworks_Add(substr($row['mname1'], 0, 1));
+    $out .= custom_labworks_Add(substr((string) $row['mname1'], 0, 1));
     $out .= custom_labworks_Add($row['sstreet1']);
     $out .= custom_labworks_Add("");
     $out .= custom_labworks_Add($row['scity1']);
@@ -178,7 +178,7 @@ if (trim($row['lname1'])) {
 } else {
     $out .= custom_labworks_Add($row['lname']);
     $out .= custom_labworks_Add($row['fname']);
-    $out .= custom_labworks_Add(substr($row['mname'], 0, 1));
+    $out .= custom_labworks_Add(substr((string) $row['mname'], 0, 1));
     $out .= custom_labworks_Add($row['street']);
     $out .= custom_labworks_Add("");
     $out .= custom_labworks_Add($row['city']);
@@ -198,7 +198,7 @@ if (trim($row['lname1'])) {
  $out .= custom_labworks_Add("");
  $out .= custom_labworks_Add(InsType($row['instype1']));
  $out .= custom_labworks_Add($row['fname1'] . " " . $row['lname1']);
- $out .= custom_labworks_Add(ucfirst($row['relationship1']));
+ $out .= custom_labworks_Add(ucfirst((string) $row['relationship1']));
  $out .= custom_labworks_Add($row['group1']);
  $out .= custom_labworks_Add($row['policy1']);
 
@@ -214,7 +214,7 @@ if (trim($row['lname1'])) {
  $out .= custom_labworks_Add("");
  $out .= custom_labworks_Add(InsType($row['instype2']));
  $out .= custom_labworks_Add($row['fname2'] . " " . $row['lname2']);
- $out .= custom_labworks_Add(ucfirst($row['relationship2']));
+ $out .= custom_labworks_Add(ucfirst((string) $row['relationship2']));
  $out .= custom_labworks_Add($row['group2']);
  $out .= custom_labworks_Add($row['policy2']);
 
@@ -223,7 +223,7 @@ if (trim($row['lname1'])) {
  $out .= custom_labworks_Add($prow['id']);
  $out .= custom_labworks_Add($prow['lname']);
  $out .= custom_labworks_Add($prow['fname']);
- $out .= custom_labworks_Add(substr($prow['mname'], 0, 1));
+ $out .= custom_labworks_Add(substr((string) $prow['mname'], 0, 1));
  $out .= custom_labworks_Add(""); // UPIN not available
 
  // All done.

@@ -50,8 +50,8 @@ function parseArgs($argv): array
 {
     $args = [];
     foreach ($argv as $arg) {
-        if (str_starts_with($arg, '--')) {
-            list($key, $value) = explode('=', substr($arg, 2), 2) + [1 => null];
+        if (str_starts_with((string) $arg, '--')) {
+            [$key, $value] = explode('=', substr((string) $arg, 2), 2) + [1 => null];
             if ($key === 'help') {
                 showHelp();
             }
@@ -109,15 +109,15 @@ foreach ($requiredArgs as $req) {
     }
 }
 
-$dir = rtrim($args['sourcePath'], '/') . '/*';
+$dir = rtrim((string) $args['sourcePath'], '/') . '/*';
 $_GET['site'] = $args['site'] ?? 'default';
 $openemrPath = $args['openemrPath'] ?? '';
 $seriousOptimizeFlag = filter_var($args['isDev'] ?? true, FILTER_VALIDATE_BOOLEAN); // default to true/on
 $enableMoves = filter_var($args['enableMoves'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
 $dedup = filter_var($args['dedup'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
 $authName = $args['authName'] ?? '';
-$processedDir = rtrim($args['sourcePath'], '/') . "/processed";
-$duplicateDir = rtrim($args['sourcePath'], '/') . "/duplicates";
+$processedDir = rtrim((string) $args['sourcePath'], '/') . "/processed";
+$duplicateDir = rtrim((string) $args['sourcePath'], '/') . "/duplicates";
 $seriousOptimize = false;
 if ($seriousOptimizeFlag == "true") {
     $seriousOptimize = true;

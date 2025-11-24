@@ -24,7 +24,6 @@ coverage_args=(
     --coverage-filter src
     --coverage-filter tests
     --coverage-text
-    --path-coverage
 )
 
 composer_github_auth() {
@@ -60,7 +59,7 @@ _exec() {
 }
 
 dockers_env_start() {
-    dc up --detach --wait --wait-timeout 300
+    dc up --detach --quiet-pull --wait --wait-timeout 300
 }
 
 selenium_video_start() {
@@ -71,8 +70,6 @@ selenium_video_start() {
 
 selenium_video_stop() {
     dc stop selenium video
-    dc logs selenium
-    dc logs video
 }
 
 actions_chmod() {
@@ -84,13 +81,18 @@ actions_chmod() {
     sudo chmod "$@"
 }
 
-main_build() {
-    actions_chmod -R 0777 .
-    local composer_home
-    composer_home=$(composer --no-interaction config --global --absolute home) 2> /dev/null
+composer_install() {
     composer install --prefer-dist --no-progress
+}
+
+npm_build() {
     npm ci
     npm run build
+}
+
+post_build_cleanup() {
+    local composer_home
+    composer_home=$(composer --no-interaction config --global --absolute home) 2> /dev/null
     composer global require phing/phing
     "${composer_home}/vendor/bin/phing" vendor-clean
     "${composer_home}/vendor/bin/phing" assets-clean
@@ -135,11 +137,95 @@ install_configure() {
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
 }
 
+##
+# Add a php auto prepend file we can use for telemetry
+# and measuring code coverage for both E2E and API tests.
+# Arguments:
+#   $1 - webserver type (apache or nginx)
+setup_e2e_bookends() {
+    local webserver="${1:-apache}"
+    local php_scan_dir
+    local prepend_file='ci/auto_prepend.php'
+    local prepend_marker='openemr-autoprepend-PREPEND_EXECUTED'
+    local shutdown_marker='openemr-autoprepend-SHUTDOWN_EXECUTED'
+    local webserver_host
+
+    # Map webserver types to their hostnames
+    declare -A webserver_hosts=(
+        [apache]='localhost'
+        [nginx]='nginx'
+    )
+
+    webserver_host="${webserver_hosts[${webserver}]}"
+    if [[ -z "${webserver_host}" ]]; then
+        echo "Error: Unknown webserver type '${webserver}'"
+        return 1
+    fi
+
+    php_scan_dir=$(_exec php -r "echo ini_get('scan.directory') ?: (dirname(php_ini_loaded_file()) . '/conf.d');" 2>/dev/null)
+    if [[ -z "${php_scan_dir}" ]]; then
+        echo "Error: Could not detect PHP configuration scan directory"
+        return 1
+    fi
+    echo "Detected PHP config scan directory: ${php_scan_dir}"
+
+    echo 'Confirming prepend file is present'
+    _exec sh -xc "
+        if [[ ! -f ${OPENEMR_DIR}/${prepend_file} ]]; then
+            echo '${OPENEMR_DIR}/${prepend_file} is missing'
+            exit 1
+        fi
+    "
+
+    echo 'Configuring PHP to use auto_prepend'
+    local prepend_ini_file="${RUNNER_TEMP:-/tmp}/php_prepend.ini"
+    {
+        echo "auto_prepend_file=${OPENEMR_DIR}/${prepend_file}"
+    } > "${prepend_ini_file}"
+    dc cp "${prepend_ini_file}" "openemr:${php_scan_dir}/php_prepend.ini"
+
+    echo 'Restarting services to pick up the new PHP configuration'
+    dc restart openemr
+    dockers_env_start
+
+    echo 'Testing prepend/shutdown behavior…'
+    _exec rm -f "${prepend_marker}" "${shutdown_marker}"
+
+    echo "Verifying auto prepend configuration via web server (${webserver} at ${webserver_host})…"
+    _exec sh -c "curl -fsSL http://${webserver_host}/ci/phpinfo.php | grep -E auto_prepend_file"
+
+    sleep 1  # Give filesystem time to flush
+
+    _exec sh -c 'ls /tmp/openemr-autoprepend-*_EXECUTED'
+
+    echo 'Checking prepend marker file after web request:'
+    _exec sh -c "cat '/tmp/${prepend_marker}'"
+
+    echo 'Checking shutdown marker file after web request:'
+    _exec sh -c "cat '/tmp/${shutdown_marker}'"
+}
+
+##
+# Coverage is mainly enabled for E2E and API tests through ci/auto_prepend.php
+# However, E2E tests still need longer timeouts.
+enable_e2e_coverage() {
+    # Increase Selenium timeouts when coverage is enabled (coverage slows down page loads)
+    export SELENIUM_IMPLICIT_WAIT=90
+    export SELENIUM_PAGE_LOAD_TIMEOUT=180
+    echo "Selenium timeouts increased: implicit_wait=${SELENIUM_IMPLICIT_WAIT}s, page_load_timeout=${SELENIUM_PAGE_LOAD_TIMEOUT}s"
+}
+
 build_test_e2e() {
     echo 'Creating selenium-videos directory…'
     mkdir -p selenium-videos
     # Fix permissions for video recording
     actions_chmod 777 selenium-videos
+
+    # Enable E2E coverage collection if coverage is enabled
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        echo 'Enabling E2E coverage collection…'
+        enable_e2e_coverage
+    fi
 
     selenium_video_start
     echo 'Checking if selenium container is running…'
@@ -169,7 +255,7 @@ build_test_e2e() {
 
     echo 'Running E2E tests…'
     set +e
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit.xml --testsuite e2e --testdox
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit-e2e.xml --testsuite e2e --testdox
     status=$?
     set -e
 
@@ -197,19 +283,60 @@ build_test_e2e() {
     return "${status}"
 }
 
+##
+# Print the webserver error log
+dump_error_log() {
+    case "$1" in
+        apache)
+            _exec sh -c 'test -r /var/log/apache2/error.log && cat /var/log/apache2/error.log'
+            ;;
+        nginx)
+            echo 'php-fpm logs are in the container logs'
+            ;;
+        *)
+            echo "Webserver '$1' not known."
+            exit 255
+            ;;
+    esac
+}
+
+##
+# Use the testsuite to figure out which junit filename to use.
+# This could get ugly if there's a long comma-delimited list of testsuites,
+# but we usually have only one.
 phpunit() {
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --log-junit junit.xml --testdox "$@"
+    local testsuite_arg
+    local args=( "${@}" )
+    while [[ -n ${1} ]]; do
+        case "${1}" in
+            --testsuite)
+                shift
+                testsuite_arg="${1}"
+                break
+                ;;
+            --testsuite=*)
+                testsuite_arg="${1#--testsuite=}"
+                break
+                ;;
+            *) :;;
+        esac
+        shift
+    done
+    [[ -n "${testsuite_arg}" ]] && args+=( --log-junit "junit-${testsuite_arg}.xml" )
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testdox "${args[@]}"
 }
 
 ##
 # Run the tests, enabling coverage if set.
-# Coverage is not handled for api or e2e tests.
+# API and E2E tests use ci/auto_prepend.php for coverage collection.
+# Other tests use PHPUnit's native coverage collection.
 build_test() {
     local testsuite=$1
     local -a args=( --testsuite "${testsuite}" )
     shift
     case "${testsuite}" in
-        api) phpunit "${args[@]}" "$@"
+        api) # API tests collect coverage via auto_prepend.php
+             phpunit "${args[@]}" "$@"
              return
              ;;
         e2e) build_test_e2e "$@"
@@ -219,6 +346,7 @@ build_test() {
     esac
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
+            --coverage-clover "coverage.${testsuite}.clover.xml"
             --coverage-php "./coverage/coverage.${testsuite}.cov"
             "${coverage_args[@]}"
         )

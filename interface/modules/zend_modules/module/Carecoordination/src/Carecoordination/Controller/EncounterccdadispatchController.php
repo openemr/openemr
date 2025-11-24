@@ -102,8 +102,8 @@ class EncounterccdadispatchController extends AbstractActionController
         $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
         // Date Range format.
-        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
-        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime((string) $this->getRequest()->getPost('form_date_from'))) : null;
+        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime((string) $this->getRequest()->getPost('form_date_to'))) : null;
         $filter_content = !empty($this->getRequest()->getPost('form_filter_content') ?? null);
         $this->date_options = [
             'date_start' => $date_start,
@@ -143,7 +143,7 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($downloadqrda === 'download_qrda') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $pids = explode('|', $combination);
+            $pids = explode('|', (string) $combination);
             $measures = $_REQUEST['report_measures'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -160,7 +160,7 @@ class EncounterccdadispatchController extends AbstractActionController
         if ($downloadqrda3 === 'download_qrda3') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $pids = explode('|', $combination);
+            $pids = explode('|', (string) $combination);
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
             if (is_array($measures)) {
                 if (empty($measures[0])) {
@@ -198,7 +198,7 @@ class EncounterccdadispatchController extends AbstractActionController
         try {
             $ccdaGenerator = new CcdaGenerator($this->getEncounterccdadispatchTable());
             if (!empty($combination)) {
-                $arr = explode('|', $combination);
+                $arr = explode('|', (string) $combination);
                 foreach ($arr as $row) {
                     $arr = explode('_', $row);
                     $this->patient_id = $arr[0];
@@ -268,7 +268,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $pids = $this->params('pids') ?? $combination;
                     // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
                     // no sense in having this forward piece at all...
-                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type));
+                    $this->forward()->dispatch(EncountermanagerController::class, ['action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type]);
                 } else {
                     die;
                 }
@@ -335,7 +335,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // Get parameters using your existing pattern
             $combination = $this->params('pids');
-            $pids = !empty($combination) ? explode('|', $combination) : null;
+            $pids = !empty($combination) ? explode('|', (string) $combination) : null;
 
             // Get measures from request (same as your QRDA III logic)
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
@@ -466,12 +466,12 @@ class EncounterccdadispatchController extends AbstractActionController
             return;
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,
-        ));
+        ]);
         $view->setTerminal(true);
-        return $this->forward()->dispatch('encounterccdadispatch', array('action' => 'index'));
+        return $this->forward()->dispatch('encounterccdadispatch', ['action' => 'index']);
     }
 
     /*
@@ -495,7 +495,7 @@ class EncounterccdadispatchController extends AbstractActionController
         }
 
         $view = new ViewModel(
-            array('encounter' => $result, 'listenerObject' => $this->listenerObject)
+            ['encounter' => $result, 'listenerObject' => $this->listenerObject]
         );
         $view->setTerminal(true);
         return $view;
