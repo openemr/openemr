@@ -2036,7 +2036,7 @@ VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options
 (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','mobile','Mobile',10,0,1),    
+    ('telecom_uses','mobile','Mobile',10,0,1),
     ('telecom_uses','home','Home',20,0,1),
     ('telecom_uses','work','Work',30,0,1),
     ('telecom_uses','temp','Temp',40,0,1),
@@ -2626,4 +2626,15 @@ INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_di
 -- --------------------------------------------------------- sjp 11/20/2025 ----------------------------------------------------------------------------------------------------
 #IfColumn form_history_sdoh pregnancy_gravida
 ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `pregnancy_para`;
+#EndIf
+
+#IfCareTeamsV1MigrationNeeded
+#EndIf
+
+-- we don't want to destroy any patient data entered in these deprecated fields but we do want to stop them from appearing on the DEM form
+#IfNotRow2D layout_options form_id DEM field_id care_team_facility uor 0
+UPDATE layout_options SET uor=0 WHERE form_id='DEM' AND field_id IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND uor=1;
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';
+ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text COMMENT 'Deprecated field, use care_team_member table instead';
 #EndIf
