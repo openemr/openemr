@@ -109,7 +109,7 @@
 
                             <div class="col-2;">
                                 {% if relatedPerson.birth_date %}
-                                <small class="text-muted">{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}</small>
+                                <small class="text-muted" style="vertical-align: 0.1rem;">{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}</small>
                                 {% endif %}
                             </div>
                         </div>
@@ -278,14 +278,46 @@
             {{ DateToYYYYMMDD_js()|raw }}
 
             disableHTML5Validation();
-            initRelations(tableId);
+            initEventListeners(tableId);
 
-            function initRelations(tableId) {
+            function initEventListeners(tableId) {
                 console.log('Initializing relations table:', tableId);
 
                 // Event listeners for form changes
                 table.addEventListener('input', relationUpdated);
                 table.addEventListener('change', relationUpdated);
+
+                // ===== DATEPICKER-AGNOSTIC LISTENER =====
+                // Catches any datepicker change, regardless of library
+                if (typeof $ !== 'undefined') {
+                    // Listen for ANY event that contains 'change' or 'date' in its name
+                    // This works with: changedatetime.xdsoft, changeDate, dp.change, etc.
+                    $(table).on('change.datetimepicker changedatetime.xdsoft changeDate dp.change', 
+                        'input[class*="date"], input.datepicker', 
+                        function(e) {
+                            console.log('Datepicker changed (generic listener)');
+                            // Ensure standard change event fires
+                            if (e.type !== 'change') {
+                                $(this).trigger('change');
+                            }
+                        }
+                    );
+                }
+                
+                // ===== FALLBACK: Blur detection for manual typing in DatePicker =====
+                table.addEventListener('blur', function(event) {
+                    if (event.target.matches('input[class*="date"], input.datepicker')) {
+                        if (!event.target.dataset.lastValue) {
+                            event.target.dataset.lastValue = '';
+                        }
+                        if (event.target.dataset.lastValue !== event.target.value) {
+                            event.target.dataset.lastValue = event.target.value;
+                            console.log('Date changed via blur/typing');
+                            relationUpdated(event);
+                        }
+                    }
+                }, true);
+
 
                 // Setup show inactive checkbox
                 var showInactiveCheckbox = document.getElementById("show_inactive_relations_" + tableId);
@@ -341,7 +373,7 @@
             function toggleRelationEdit(event) {
                 const card = event.target.closest('.relation-card');
                 const formDiv = card.querySelector('.form_relations');
-                const icon = event.target.querySelector('.btn-edit-relation');
+                const icon = card.querySelector('.btn-edit-relation');
 
                 if (formDiv.classList.contains('d-none')) {
                     formDiv.classList.remove('d-none');
@@ -388,6 +420,7 @@
             }
 
             function relationUpdated(event) {
+                console.log('Relation updated event');
                 const formTelecoms = event.target.closest('.form_telecoms');
                 if (formTelecoms !== null) return;
 

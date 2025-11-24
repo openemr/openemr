@@ -314,7 +314,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
 
     public function set_start_date($start_date): self
     {
-       if ($start_date !== null) {
+        if ($start_date !== null) {
             if (is_string($start_date)) {
                 // Try DateFormatterUtils first
                 $date = DateFormatterUtils::dateStringToDateTime($start_date);
@@ -359,7 +359,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                 
                 $this->end_date = $date;
             } elseif ($end_date instanceof DateTime) {
-                $this->end_date = $date;
+                $this->end_date = $end_date;
             } else {
                 throw new \InvalidArgumentException("Invalid end_date type - must be string or DateTime");
             }
