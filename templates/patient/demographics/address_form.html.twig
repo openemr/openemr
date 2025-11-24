@@ -240,9 +240,9 @@
                 'UPDATE': 'UPDATE'
             };
 
-            let datePickerSettings = {};
-
+            let addressDatePickerSettings = {};
             {{ DateToYYYYMMDD_js()|raw }}
+            addressDatePickerSettings.timepicker = false;
 
             init(tableId);
 
@@ -263,10 +263,12 @@
                     setupAddressesRowButtonEventListeners(row);
                 });
 
+                /*
                 table.querySelectorAll('.form_addresses').forEach(function(row) {
                     setupContainerDatePickers(row);
                     setupContainerListAddButtons(row);
                 });
+                */
 
                 // Setup show inactive checkbox
                 var showInactiveCheckbox = document.getElementById('show_inactive_addresses_' + tableId);
@@ -570,7 +572,7 @@
 
             function setupContainerDatePickers(container) {
                 let datepickers = container.querySelectorAll(".datepicker");
-                $(datepickers).datetimepicker(datePickerSettings);
+                $(datepickers).datetimepicker(addressDatePickerSettings);
             }
 
             function setupContainerListAddButtons(container) {

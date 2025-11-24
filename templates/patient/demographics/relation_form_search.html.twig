@@ -289,15 +289,18 @@
 
     const tableId = {{ table_id|js_escape|raw }};
     const webroot = {{ webroot|js_escape|raw }};
-    let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
     let searchTimeout = null;
     let lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
 
-    console.log('csrfToken '+csrfToken)
-
+    let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
+    console.log('csrfToken '+csrfToken);
     if (!csrfToken) {
         console.error('CSRF token not found!');
     }
+
+    relationDatePickerSettings = {};
+    {{ DateToYYYYMMDD_js()|raw }}
+    relationDatePickerSettings.timepicker = false;
 
     // Setup add button
     var addButton = document.getElementById("btn_add_relation_" + tableId);
@@ -680,9 +683,10 @@
 
         // Add Clone
         relation_container.appendChild(relation_clone);
+        const newRelation = relation_container.querySelector('.relations_group:last-child');
+        setupContainerDatePickers(newRelation);
 
         // Expand the new relation for editing
-        const newRelation = relation_container.querySelector('.relations_group:last-child');
         if (newRelation) {
             const formDiv = newRelation.querySelector('.form_relations');
             if (formDiv) {
@@ -830,5 +834,10 @@
             alertDiv.classList.remove('show');
             setTimeout(() => alertDiv.remove(), 150);
         }, 3000);
+    }
+
+    function setupContainerDatePickers(container) {
+        let datepickers = container.querySelectorAll(".datepicker");
+        $(datepickers).datetimepicker(relationDatePickerSettings);
     }
 </script>
