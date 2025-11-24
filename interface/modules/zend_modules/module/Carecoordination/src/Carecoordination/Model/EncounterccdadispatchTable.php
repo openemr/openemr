@@ -3012,7 +3012,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return "<vitals_list></vitals_list>";
         }
 
-        $vitalIds = QueryUtils::fetchRecords("SELECT `form_id` FROM `forms` WHERE `form_name` = 'Vitals' AND `pid` = ?", [$pid]);
+        $vitalIds = QueryUtils::fetchRecords("SELECT `form_id` FROM `forms` WHERE `form_name` = 'Vitals' AND `deleted` = 0 AND `pid` = ?", [$pid]);
         $form_ids = array_column($vitalIds, 'form_id');
         $bpMean = null;
         $avg_systolic = null;
