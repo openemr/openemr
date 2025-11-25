@@ -108,16 +108,16 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempFile = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
-            !file_exists($purifyTempFile) &&
-            !is_dir($purifyTempFile)
+            !file_exists($purifyTempDir) &&
+            !is_dir($purifyTempDir)
         ) {
-            if (!mkdir($purifyTempFile)) {
-                (new SystemLogger())->error("Could not create directory ", [$purifyTempFile]);
+            if (!mkdir($purifyTempDir)) {
+                (new SystemLogger())->error("Could not create directory ", [$purifyTempDir]);
             }
         }
-        $config->set('Cache.SerializerPath', $purifyTempFile);
+        $config->set('Cache.SerializerPath', $purifyTempDir);
         $config->set('Core.Encoding', 'UTF-8');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
