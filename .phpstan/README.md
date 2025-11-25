@@ -22,16 +22,12 @@ This directory contains custom PHPStan rules to enforce modern coding patterns i
 - **Testability** - `OEGlobalsBag` can be mocked in unit tests
 - **Type safety** - Proper return types instead of mixed
 - **Dependency injection** - Can be injected into constructors
-- **Secrets management** - Handles encryption/decryption internally and enables future integration with external secrets providers (Vault, AWS Secrets Manager, etc.)
+- **Consistency** - Centralized access pattern for globals
 - **Gradual deprecation** - Path to eventually removing `$GLOBALS` superglobal dependency
 
 **Before (❌ Forbidden):**
 ```php
 $value = $GLOBALS['some_setting'];
-
-// Or for encrypted values:
-$cryptoGen = new CryptoGen();
-$apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
 ```
 
 **After (✅ Recommended):**
@@ -40,7 +36,12 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $globals = OEGlobalsBag::getInstance();
 $value = $globals->get('some_setting');
-$apiKey = $globals->get('gateway_api_key');  // handles decryption internally
+
+// Note: For encrypted values, you still need CryptoGen:
+use OpenEMR\Common\Crypto\CryptoGen;
+
+$cryptoGen = new CryptoGen();
+$apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
 ```
 
 ### ForbiddenFunctionsRule

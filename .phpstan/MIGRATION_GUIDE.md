@@ -7,8 +7,8 @@ This guide helps developers migrate from direct `$GLOBALS` access to using `OEGl
 - **Testability**: OEGlobalsBag can be mocked in unit tests
 - **Type Safety**: Returns proper types instead of `mixed`
 - **Dependency Injection**: Can be injected into constructors
-- **Automatic Decryption**: Handles encrypted values transparently
-- **Future-Ready**: Prepares for integration with external secrets providers
+- **Consistency**: Centralized access pattern for globals
+- **Gradual Deprecation**: Path to eventually removing `$GLOBALS` superglobal dependency
 
 ## Basic Usage
 
@@ -43,11 +43,13 @@ $password = $cryptoGen->decryptStandard($GLOBALS['database_password']);
 ### After (✅ New Pattern)
 ```php
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 $globals = OEGlobalsBag::getInstance();
-// OEGlobalsBag handles decryption automatically
-$apiKey = $globals->get('gateway_api_key');
-$password = $globals->get('database_password');
+$cryptoGen = new CryptoGen();
+// Note: You still need CryptoGen to decrypt encrypted values
+$apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
+$password = $cryptoGen->decryptStandard($globals->get('database_password'));
 ```
 
 ## Setting Values
@@ -229,7 +231,7 @@ The new `ForbiddenGlobalsAccessRule` will catch direct `$GLOBALS` access in your
 ```
 ------ ERROR -------------------------------------------------------
  Direct access to $GLOBALS is forbidden. Use OEGlobalsBag::getInstance()->get() instead.
- 💡 For encrypted values, OEGlobalsBag handles decryption automatically. See src/Core/OEGlobalsBag.php
+ 💡 See .phpstan/README.md and .phpstan/MIGRATION_GUIDE.md for migration patterns.
 ```
 
 ## Questions?
