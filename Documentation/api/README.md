@@ -18,6 +18,7 @@ Complete documentation for OpenEMR's REST API, FHIR API, and SMART on FHIR integ
 ### Prerequisites
 1. SSL/TLS configured (required)
 2. Base URL set: **Administration → Config → Connectors → Site Address**
+   - Example: `https://your-openemr-install` or `https://your-openemr-install/openemr` (note this should be the root of your openemr installation without a trailing slash)
 3. APIs enabled:
     - **Standard API**: Administration → Config → Connectors → Enable OpenEMR Standard REST API
     - **FHIR API**: Administration → Config → Connectors → Enable OpenEMR Standard FHIR REST API
@@ -65,7 +66,7 @@ https://localhost:9300/apis/default/portal
 - **OpenID Connect** - Authentication layer
 - **ONC Cures Update** - Information blocking compliance
 
-## Authentication Flow
+## Authentication Flow (Authorization Code Grant)
 ```mermaid
 sequenceDiagram
     participant App
@@ -90,7 +91,7 @@ sequenceDiagram
 ### Scopes
 Define what data your application can access. [Learn more →](AUTHORIZATION.md)
 ```
-patient/Patient.read
+patient/Patient.rs
 user/Observation.rs
 system/Patient.$export
 ```
@@ -115,7 +116,8 @@ Include site name in endpoint:
 ## What's New
 
 ### SMART on FHIR v2.2.0
-- ✨ **Granular Scopes** - Fine-grained permissions with `.read`, `.write`, `.rs`, `.cruds`
+- ✨ **New Scope Syntax** - `.cruds` syntax with backwards compatibility for `.read`/`.write`
+- ✨ **Granular Scopes** - Fine-grained restrictions permissions with `?category=` and `?type=`
 - ✨ **POST-Based Authorization** - More secure authorization flow
 - ✨ **EHR Launch** - Context-aware app launches with encounter context
 - ✨ **Asymmetric Authentication** - JWKS support for authorization_code grant
@@ -127,6 +129,7 @@ Include site name in endpoint:
 - **Specimen** - Laboratory specimens
 - **MedicationDispense** - Pharmacy dispensing
 - **RelatedPerson** - Patient relationships
+- **Resource updates for US Core 8.0 IG** - New profiles and extensions
 
 ## Support & Resources
 
@@ -144,11 +147,13 @@ Include site name in endpoint:
 - Implement proper token storage
 - Validate tokens before use
 
-[Security Best Practices →](DEVELOPER_GUIDE.md#security)
+[Security Best Practices →](DEVELOPER_GUIDE.md#security-best-practices)
 
 ## Compliance
 
 API integrations must comply with your jurisdiction's applicable healthcare regulations such as HIPAA in the USA. Ensure proper handling of Protected Health Information (PHI) and follow best practices for data security and patient privacy.
+
+For US healthcare providers see [ONC EHR Certification Requiremens](https://www.open-emr.org/wiki/index.php/OpenEMR_7.0.4_ONC_Ambulatory_EHR_Certification_Requirements)
 
 ---
 ## Documentation Attribution
