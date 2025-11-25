@@ -63,6 +63,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $this->globals = $globals->getGlobalsMetadata();
         $this->kernel = $kernel;
+
+        // AI-generated globals validation - Start
+        // Validate required globals are set - missing globals indicate a critical configuration error
+        $requiredGlobals = ['assets_static_relative', 'srcdir', 'rootdir', 'webroot', 'v_js_includes'];
+        $missingGlobals = array_filter($requiredGlobals, fn($key) => !array_key_exists($key, $this->globals));
+        if (!empty($missingGlobals)) {
+            throw new \RuntimeException(
+                'TwigExtension requires the following globals to be set: ' . implode(', ', $missingGlobals)
+            );
+        }
+        // AI-generated globals validation - End
     }
 
     public function getGlobals(): array
