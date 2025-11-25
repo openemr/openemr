@@ -13,6 +13,8 @@
  */
 
 // Control access
+use OpenEMR\Core\ModulesApplication;
+
 if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
     echo xlt('Not Authorized');
     exit;
