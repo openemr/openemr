@@ -351,10 +351,9 @@ class OnsiteDocumentController extends AppBasePortalController
                     $config->set('URI.AllowedSchemes', ['data' => true]);
                     $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
                     if (
-                        !file_exists($purifyTempDir) &&
                         !is_dir($purifyTempDir)
                     ) {
-                        if (!mkdir($purifyTempDir)) {
+                        if (!mkdir($purifyTempDir, 0700, true)) {
                             (new SystemLogger())->error("Could not create directory ", [$purifyTempDir]);
                         }
                     }
