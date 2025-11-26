@@ -176,26 +176,22 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
 
-
 #IfNotTable care_team_member
-RENAME TABLE `care_teams` TO `care_teams_old`;
-#EndIf
-
-#IfNotTable care_teams
-CREATE TABLE `care_teams` (
-    `id`           int(11) NOT NULL AUTO_INCREMENT,
-    `uuid`         binary(16)   DEFAULT NULL,
-    `pid`          int(11) NOT NULL COMMENT 'fk to patient_data.pid',
-    `status`       varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
-    `team_name`    varchar(255) DEFAULT NULL,
-    `note`         text,
-    `date_created` datetime     DEFAULT current_timestamp(),
-    `date_updated` datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `created_by`   BIGINT(20) COMMENT 'fk to users.id for user who created this record',
-    `updated_by`   BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uuid` (`uuid`)
-) ENGINE = InnoDB;
+DROP TABLE IF EXISTS care_teams_v1;
+-- save old care teams
+SET @table_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.tables
+    WHERE table_schema = DATABASE()
+      AND table_name = 'care_teams'
+);
+SET @sql = IF(@table_exists > 0,
+  'RENAME TABLE `care_teams` TO `care_teams_v1`',
+  'SELECT "Table care_teams does not exist" AS message'
+);
+PREPARE task FROM @sql;
+EXECUTE task;
+DEALLOCATE PREPARE task;
 
 CREATE TABLE `care_team_member` (
     `id`             int(11)     NOT NULL AUTO_INCREMENT,
@@ -214,8 +210,27 @@ CREATE TABLE `care_team_member` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
 ) ENGINE = InnoDB COMMENT ='Stores members of a care team for a patient';
+#EndIf
 
--- Migrate existing care teams. Thank you, Claude.ai for the help.
+#IfNotTable care_teams
+CREATE TABLE `care_teams` (
+    `id`           int(11) NOT NULL AUTO_INCREMENT,
+    `uuid`         binary(16)   DEFAULT NULL,
+    `pid`          int(11) NOT NULL COMMENT 'fk to patient_data.pid',
+    `status`       varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `team_name`    varchar(255) DEFAULT NULL,
+    `note`         text,
+    `date_created` datetime     DEFAULT current_timestamp(),
+    `date_updated` datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`   BIGINT(20) COMMENT 'fk to users.id for user who created this record',
+    `updated_by`   BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
+) ENGINE = InnoDB;
+#EndIf
+
+-- Migrate existing care teams if any.
+#IfTable care_teams_v1
 INSERT INTO `care_teams` (`uuid`, `pid`, `status`, `team_name`, `date_created`, `date_updated`)
 SELECT
     `uuid`,
@@ -224,10 +239,9 @@ SELECT
     `team_name`,
     MIN(`date_created`) AS `date_created`,
     MAX(`date_updated`) AS `date_updated`
-FROM `care_teams_old`
+FROM `care_teams_v1`
 GROUP BY `pid`, `team_name`, `status`;
-
--- Step 5: Migrate all members to care_team_member table
+--  Migrate all members to care_team_member table
 INSERT INTO `care_team_member` (
     `care_team_id`,
     `user_id`,
@@ -249,13 +263,12 @@ SELECT
     ct_old.`date_created`,
     ct_old.`date_updated`,
     ct_old.`note`
-FROM `care_teams_old` ct_old
-         INNER JOIN `care_teams` ct_new
-                    ON ct_old.`pid` = ct_new.`pid`
-                        AND (ct_old.`team_name` = ct_new.`team_name` OR (ct_old.`team_name` IS NULL AND ct_new.`team_name` IS NULL))
-                        AND ct_old.`status` = ct_new.`status`;
+FROM `care_teams_v1` ct_old
+    INNER JOIN `care_teams` ct_new ON ct_old.`pid` = ct_new.`pid`
+    AND (ct_old.`team_name` = ct_new.`team_name` OR (ct_old.`team_name` IS NULL AND ct_new.`team_name` IS NULL))
+    AND ct_old.`status` = ct_new.`status`;
 
--- DROP TABLE `care_teams_old`;
+DROP TABLE `care_teams_v1`;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id care_team_roles
@@ -1882,7 +1895,7 @@ INSERT INTO `preference_value_sets`
     ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
 #EndIf
 
--- ---------------------------------------------------------------- psoas s.n sjp---- related person implementation 11-06-2025----------------------------------------
+-- ---------------------------------------------------------------- psoas sn sjp---- related person implementation 11-06-2025----------------------------------------
 -- relatedperson
 -- https://build.fhir.org/relatedperson.html
 
@@ -2002,7 +2015,7 @@ CREATE TABLE `person_patient_link` (
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id additional_telecoms
-    #IfRow2D layout_options form_id DEM field_id additional_addresses
+    -- additional_addresses has been in since v6.1.0 so let's not test for it here
     SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='additional_addresses' AND form_id='DEM');
     SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
     UPDATE layout_options SET seq = @max_seq+19 WHERE form_id = 'DEM' AND field_id = 'additional_addresses';
@@ -2010,7 +2023,6 @@ CREATE TABLE `person_patient_link` (
         (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
     VALUES
         ('DEM','additional_telecoms',@group_id,'',@max_seq+9,55,0,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Telecoms',0);
-    #EndIf
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id telecom_systems
@@ -2627,12 +2639,9 @@ INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_di
 #IfColumn form_history_sdoh pregnancy_gravida
 ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `pregnancy_para`;
 #EndIf
-
+-- --------------------------------------------------------- sn 11/23/2025 sjp 11/25/2025 ------------------------------------------------------------------------------------
 #IfCareTeamsV1MigrationNeeded
-#EndIf
-
 -- we don't want to destroy any patient data entered in these deprecated fields but we do want to stop them from appearing on the DEM form
-#IfNotRow2D layout_options form_id DEM field_id care_team_facility uor 0
 UPDATE layout_options SET uor=0 WHERE form_id='DEM' AND field_id IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND uor=1;
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Deprecated field, use care_team_member table instead';
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';

@@ -27,10 +27,11 @@ use OpenEMR\Services\VersionService;
 
 class SQLUpgradeService implements ISQLUpgradeService
 {
-    const CARE_TEAMS_V1_MIGRATION_VERSION = 527;
+    const CARE_TEAMS_V1_MIGRATION_VERSION = 529;
     private $renderOutputToScreen = true;
     private $throwExceptionOnError = false;
     private $outputBuffer = [];
+    private $failureCount = 0;
 
     public function __construct()
     {
@@ -748,11 +749,17 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } else if (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
-                // go off db version to determine if migration is needed
-                if ($this->shouldExecuteVersionUpdate(self::CARE_TEAMS_V1_MIGRATION_VERSION)) {
+                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated 
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";
+                $is_migrated = QueryUtils::querySingleRow($sql)['is_migrated'];
+                $is_version = $this->shouldExecuteVersionUpdate(self::CARE_TEAMS_V1_MIGRATION_VERSION);
+                if (empty($is_migrated && $is_version)) {
                     $skipping = false;
                     $this->migrateCareTeamsV1ToV2();
                 } else {
+                    $skipping = true;
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#EndIf/', $line)) {
@@ -798,6 +805,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                         }
                     }
                 } catch (SqlQueryException $exception) {
+                    $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
                         getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
@@ -1438,6 +1446,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 }
             }
         } catch (SqlQueryException $e) {
+            $this->failureCount++;
             $this->echo("<p class='text-danger'>The above statement failed: " .
                 text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
@@ -1504,6 +1513,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             $commited = true;
         }
         catch (\Throwable $exception) {
+            $this->failureCount++;
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
@@ -1584,7 +1594,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         // first insert the care team
         $sql = "INSERT INTO care_teams (uuid, pid, status, team_name, note, date_created, created_by, updated_by)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        $this->echo("<p>Inserting eye module laser categories.</p>\n");
+        $this->echo("<p>Inserting a Care Team.</p>\n");
         $careTeamId = QueryUtils::sqlInsert($sql, [
             $careTeamRecord['uuid'],
             $careTeamRecord['pid'],
