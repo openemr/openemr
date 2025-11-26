@@ -287,8 +287,8 @@
 <script type="text/javascript">
     // ============= UNIFIED PERSON SEARCH AND CREATE =============
 
-    const tableId = {{ table_id|js_escape|raw }};
-    const webroot = {{ webroot|js_escape|raw }};
+    const tableId = {{ table_id|js_escape }};
+    const webroot = {{ webroot|js_escape }};
     let searchTimeout = null;
     let lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
 
@@ -298,7 +298,7 @@
         console.error('CSRF token not found!');
     }
 
-    {{ DateToYYYYMMDD_js()|raw }}
+    {{ DateToYYYYMMDD_js() }}
 
     // Setup add button
     var addButton = document.getElementById("btn_add_relation_" + tableId);
@@ -431,8 +431,8 @@
                 last_name: last_name,
                 birth_date: dob,
                 phone: phone,
-                foreign_table: {{ foreignTable|js_escape|raw }},
-                foreign_id: {{ foreignId|js_escape|raw }}
+                foreign_table: {{ foreignTable|js_escape }},
+                foreign_id: {{ foreignId|js_escape }}
             })
         })
         .then(response => {
@@ -838,7 +838,7 @@
         let datepickers = container.querySelectorAll(".datepicker");
         $(datepickers).each(function() {
             if (!$(this).data('xdsoft_datetimepicker')) {
-                {{ jqueryDateTimePicker('this', false, false, true)|raw }};
+                {{ jqueryDateTimePicker('this', false, false, true) }};
             }
         });
     }

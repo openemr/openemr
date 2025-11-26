@@ -206,7 +206,7 @@
 
     // IIFE Wrapper For Telecom Form Functions
     (function() {
-        const tableId = {{ table_id|js_escape|raw }}
+        const tableId = {{ table_id|js_escape }}
 
          // Initialize on page load
         if (document.readyState === 'loading') {
@@ -240,7 +240,7 @@
                 'UPDATE': 'UPDATE'
             };
 
-            {{ DateToYYYYMMDD_js()|raw }}
+            {{ DateToYYYYMMDD_js() }}
 
             init(tableId);
 
@@ -572,7 +572,7 @@
                 let datepickers = container.querySelectorAll(".datepicker");
                 $(datepickers).each(function() {
                     if (!$(this).data('xdsoft_datetimepicker')) {
-                        {{ jqueryDateTimePicker('this', false, false, true)|raw }};
+                        {{ jqueryDateTimePicker('this', false, false, true) }};
                     }
                 });
             }
