@@ -60,7 +60,7 @@ https://localhost:9300/apis/default/portal
 ## Standards & Compliance
 
 - **FHIR R4** - HL7 FHIR Release 4
-- **US Core 3.1 & US Core 8.0 IG** - US Core Implementation Guide
+- **US Core 8.0 IG** - US Core Implementation Guide
 - **SMART on FHIR v2.2.0** - App launch framework
 - **OAuth 2.0** - Authorization framework
 - **OpenID Connect** - Authentication layer

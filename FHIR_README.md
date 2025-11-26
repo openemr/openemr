@@ -2,7 +2,7 @@
 
 > **📚 Complete FHIR documentation has moved to [Documentation/api/FHIR_API.md](Documentation/api/FHIR_API.md)**
 
-OpenEMR provides a comprehensive **FHIR R4** implementation compliant with US Core 3.1 and SMART on FHIR v2.2.0.
+OpenEMR provides a comprehensive **FHIR R4** implementation compliant with US Core 8.0 and SMART on FHIR v2.2.0.
 
 ## 🚀 Quick Start
 
@@ -11,6 +11,7 @@ OpenEMR provides a comprehensive **FHIR R4** implementation compliant with US Co
 - ☑ Enable OpenEMR Standard FHIR REST API
 
 ### 2. FHIR Base URL
+Replace `default` with your multi-site tenant if applicable see ([Multi-Tenancy Guide](Documentation/api/DEVELOPER_GUIDE.md#multisite-support)):
 ```
 https://localhost:9300/apis/default/fhir
 ```
@@ -43,13 +44,13 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Patient' \
 
 ## ✨ FHIR Standards Compliance
 
-| Standard | Version | Status |
-|----------|---------|--------|
+| Standard | Version    | Status |
+|----------|------------|--------|
 | **FHIR** | R4 (4.0.1) | ✅ Full Support |
-| **US Core** | 3.1 | ✅ Compliant |
-| **SMART on FHIR** | v2.2.0 | ✅ Certified |
-| **Bulk Data** | v1.0 | ✅ Implemented |
-| **USCDI** | v1 | ✅ Supported |
+| **US Core** | 8.0        | ✅ Compliant |
+| **SMART on FHIR** | v2.2.0     | ✅ Certified |
+| **Bulk Data** | v1.0       | ✅ Implemented |
+| **USCDI** | v1         | ✅ Supported |
 
 ## 🎯 Common FHIR Tasks
 
@@ -342,7 +343,7 @@ curl https://localhost:9300/apis/default/fhir/.well-known/smart-configuration
 
 ### Standards
 - **[FHIR R4 Spec](https://hl7.org/fhir/R4/)** - Official specification
-- **[US Core IG](https://www.hl7.org/fhir/us/core/)** - US Core guide
+- **[US Core 8.0 IG](https://hl7.org/fhir/us/core/STU8/)** - US Core guide
 - **[SMART Spec](http://hl7.org/fhir/smart-app-launch/)** - SMART on FHIR
 
 ## 📊 FHIR API Coverage
@@ -380,7 +381,7 @@ curl https://localhost:9300/apis/default/fhir/.well-known/smart-configuration
 ### Compliance
 ✅ HIPAA - Protected health information
 ✅ ONC Cures - Information blocking prevention
-✅ US Core 3.1 - US healthcare requirements
+✅ US Core 8.0 - US healthcare requirements
 ✅ FHIR R4 - HL7 standard compliance
 
 **[→ Security Guide](Documentation/api/DEVELOPER_GUIDE.md#security)**

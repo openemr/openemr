@@ -4,7 +4,7 @@
 
 This project provides comprehensive REST and FHIR APIs for OpenEMR, supporting:
 - **FHIR R4** - Full FHIR Release 4 implementation
-- **US Core 3.1** - US healthcare compliance
+- **US Core 8.0** - US healthcare compliance
 - **SMART on FHIR v2.2.0** - Advanced app integration
 - **OAuth 2.0 / OpenID Connect** - Secure authentication
 - **Bulk Data Export** - Population health analytics
@@ -137,7 +137,7 @@ https://localhost:9300/apis/default/portal
 - ✅ **HIPAA** - Protected health information safeguards
 - ✅ **ONC Cures Update** - Information blocking compliance
 - ✅ **FHIR R4** - HL7 FHIR Release 4
-- ✅ **US Core 3.1** - US healthcare requirements
+- ✅ **US Core 8.0** - US healthcare requirements
 - ✅ **SMART v2.2.0** - App launch framework
 
 **[→ Security Best Practices](Documentation/api/DEVELOPER_GUIDE.md#security)**
@@ -225,7 +225,7 @@ system/Binary.read
 
 ### Standards & Specifications
 - **[FHIR R4 Spec](https://hl7.org/fhir/R4/)** - HL7 FHIR specification
-- **[US Core IG](https://www.hl7.org/fhir/us/core/)** - US Core Implementation Guide
+- **[US Core 8.0 IG](https://hl7.org/fhir/us/core/STU8/)** - US Core Implementation Guide
 - **[SMART App Launch](http://hl7.org/fhir/smart-app-launch/)** - SMART on FHIR specification
 - **[OAuth 2.0](https://oauth.net/2/)** - OAuth 2.0 framework
 
@@ -317,7 +317,7 @@ Response ← JSON Formatting ← Validation ← Processing
 
 ## 📊 API Coverage
 
-### FHIR Resources (50+)
+### FHIR Resources (30+)
 ✅ Patient, Practitioner, Organization, Location
 ✅ Observation, Condition, Procedure, AllergyIntolerance
 ✅ MedicationRequest, MedicationDispense, Immunization

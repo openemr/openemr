@@ -9,15 +9,14 @@ Complete guide to OpenEMR's FHIR R4 API implementation.
 - [Authentication](#authentication)
 - [Capability Statement](#capability-statement)
 - [Supported Resources](#supported-resources)
-    - [Patient Resources](#patient-resources)
+    - [Administrative Resources](#administration-resources)
     - [Clinical Resources](#clinical-resources)
-    - [Medications](#medications)
     - [Diagnostic Resources](#diagnostic-resources)
-    - [Care Coordination](#care-coordination)
-    - [Administrative Resources](#administrative-resources)
-    - [New Resources (SMART v2.2.0)](#new-resources-smart-v220)
-- [Search Parameters](#search-parameters)
-- [Provenance](#provenance)
+    - [Medication Resources](#medication-resources)
+    - [Document Resources](#document-resources)
+    - [Financial Resources](#financial-resources)
+    - [Security and Privacy](#security-and-privacy)
+    - [Terminology](#terminology)
 - [Bulk FHIR Exports](#bulk-fhir-exports)
     - [System Export](#system-export)
     - [Patient Export](#patient-export)
@@ -28,33 +27,33 @@ Complete guide to OpenEMR's FHIR R4 API implementation.
 - [SMART Configuration](#smart-configuration)
 - [Error Handling](#error-handling)
 - [Examples](#examples)
-- [For Developers](#for-developers)
+- [Backwards Compatibility](#backwards-compatibility)
 
 ## Overview
 
 OpenEMR provides a comprehensive **FHIR R4** implementation compliant with:
 - ✅ **FHIR R4 Specification** - HL7 FHIR Release 4
-- ✅ **US Core 3.1 Implementation Guide** - US healthcare requirements
+- ✅ **US Core 8.0 Implementation Guide** - US healthcare requirements
 - ✅ **SMART on FHIR v2.2.0** - App launch and authorization
 - ✅ **Bulk Data IG** - ONC-required bulk export operations
 
 ### Key Features
-- **50+ FHIR Resources** supported
+- **30+ FHIR Resources** supported
 - **Granular scopes** for fine-grained access control
 - **Bulk exports** for population health and analytics
-- **CCD generation** via DocumentReference $docref
+- **CCD-A generation** via DocumentReference $docref
 - **Provenance tracking** for data transparency
 - **SMART app integration** with EHR and standalone launch
 
 ### Standards Compliance
 
-| Standard | Version | Status |
-|----------|---------|--------|
-| FHIR | R4 (4.0.1) | ✅ Full Support |
-| US Core | 3.1 | ✅ Compliant |
-| SMART on FHIR | v2.2.0 | ✅ Certified |
-| Bulk Data | v1.0 | ✅ Implemented |
-| USCDI | v1 | ✅ Supported |
+| Standard | Version    | Status             |
+|----------|------------|--------------------|
+| FHIR | R4 (4.0.1) | ✅ Baseline Support |
+| US Core | 8.0        | ✅ Compliant        |
+| SMART on FHIR | v2.2.0     | ✅ Certified        |
+| Bulk Data | v1.0       | ✅ Implemented      |
+| USCDI | v5         | ✅ Supported        |
 
 ## Prerequisites
 
@@ -70,7 +69,9 @@ Enable: **☑ Enable OpenEMR Standard FHIR REST API**
 
 Set base URL: **Administration → Config → Connectors → Site Address (required for OAuth2 and FHIR)**
 
-Example: `https://your-openemr.example.com`
+Example: `https://your-openemr.example.com` or `https://localhost:9300` for local testing.  If installed in a subdirectory, include it (e.g. `https://your-openemr.example.com/openemr`).
+
+Note that several curl examples are given in this guide.  If your OpenEMR instance is using a self-signed certificate you will need to pass -k to curl to disable certificate verification for testing purposes.
 
 ### 3. Register API Client
 
@@ -106,14 +107,14 @@ https://localhost:9300/apis/alternate/fhir
 ```
 {base}/[resource-type]/[id]
 {base}/[resource-type]?[search-parameters]
-{base}/[resource-type]/[id]/[operation]
+{base}/[resource-type]/[operation]
 ```
 
 **Examples:**
 ```
 GET https://localhost:9300/apis/default/fhir/Patient/123
 GET https://localhost:9300/apis/default/fhir/Observation?patient=123
-POST https://localhost:9300/apis/default/fhir/Patient/123/$docref
+POST https://localhost:9300/apis/default/fhir/Patient/$docref
 ```
 
 ## Authentication
@@ -130,9 +131,9 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Patient' \
 ### Obtaining Access Token
 
 See [Authentication Guide](AUTHENTICATION.md) for complete OAuth2 flows:
-- [Authorization Code Grant](AUTHENTICATION.md#authorization-code-grant) (recommended)
-- [Client Credentials Grant](AUTHENTICATION.md#client-credentials-grant) (bulk exports)
-- [EHR Launch Flow](AUTHENTICATION.md#ehr-launch-flow) (SMART apps)
+- [Authorization Code Grant](AUTHENTICATION.md#authorization-code-grant) (Frontend apps with user interaction)
+- [Client Credentials Grant](AUTHENTICATION.md#client-credentials-grant) (Backend or Frontend services - client apps that can manage and sign assertions with asymmetric keys)
+- [EHR Launch Flow](AUTHENTICATION.md#ehr-launch-flow) (SMART apps launched from within OpenEMR)
 
 ### Token in Request Header
 ```http
@@ -174,61 +175,199 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/metadata' \
 ### Response (Excerpt)
 ```json
 {
-  "resourceType": "CapabilityStatement",
-  "status": "active",
-  "date": "2024-01-01",
-  "publisher": "OpenEMR",
-  "kind": "instance",
-  "software": {
-    "name": "OpenEMR",
-    "version": "7.0.0"
-  },
-  "implementation": {
-    "description": "OpenEMR FHIR R4 Server",
-    "url": "https://localhost:9300/apis/default/fhir"
-  },
-  "fhirVersion": "4.0.1",
-  "format": ["application/fhir+json", "application/fhir+xml"],
-  "rest": [
-    {
-      "mode": "server",
-      "security": {
-        "extension": [{
-          "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
-          "extension": [
-            {
-              "url": "authorize",
-              "valueUri": "https://localhost:9300/oauth2/default/authorize"
-            },
-            {
-              "url": "token",
-              "valueUri": "https://localhost:9300/oauth2/default/token"
-            }
-          ]
-        }],
-        "service": [{
-          "coding": [{
-            "system": "http://terminology.hl7.org/CodeSystem/restful-security-service",
-            "code": "SMART-on-FHIR"
-          }]
-        }]
-      },
-      "resource": [
+    "resourceType": "CapabilityStatement",
+    "status": "active",
+    "date": "2025-11-25",
+    "kind": "instance",
+    "instantiates": [
+        "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server",
+        "http://hl7.org/fhir/uv/bulkdata/CapabilityStatement/bulk-data"
+    ],
+    "software": {
+        "name": "OpenEMR",
+        "version": "7.0.4"
+    },
+    "implementation": {
+        "description": "OpenEMR FHIR API",
+        "url": "https://localhost:9300/apis/default/fhir"
+    },
+    "fhirVersion": "4.0.1",
+    "format": [
+        "application/json"
+    ],
+    "rest": [
         {
-          "type": "Patient",
-          "interaction": [
-            {"code": "read"},
-            {"code": "search-type"}
-          ],
-          "searchParam": [
-            {"name": "_id", "type": "token"},
-            {"name": "birthdate", "type": "date"},
-            {"name": "name", "type": "string"}
-          ]
+            "mode": "server",
+            "security": {
+                "extension": [
+                    {
+                        "valueCode": "launch-ehr",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "context-passthrough-banner",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "context-ehr-patient",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "context-passthrough-style",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "sso-openid-connect",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "client-confidential-symmetric",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "permission-user",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "context-standalone-patient",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "launch-standalone",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "permission-patient",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "permission-offline",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    },
+                    {
+                        "valueCode": "client-public",
+                        "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities"
+                    }
+                ],
+                "service": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/restful-security-service",
+                                "code": "SMART-on-FHIR",
+                                "display": "SMART-on-FHIR"
+                            }
+                        ],
+                        "text": "OAuth2 using SMART-on-FHIR profile (see http://docs.smarthealthit.org)"
+                    }
+                ]
+            },
+            "resource": [
+                {
+                    "type": "Patient",
+                    "profile": "http://hl7.org/fhir/StructureDefinition/Patient",
+                    "supportedProfile": [
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|3.1.1",
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|8.0.0"
+                    ],
+                    "interaction": [
+                        {
+                            "code": "create"
+                        },
+                        {
+                            "code": "update"
+                        },
+                        {
+                            "code": "search-type"
+                        },
+                        {
+                            "code": "read"
+                        }
+                    ],
+                    "updateCreate": false,
+                    "searchInclude": [
+                        "*"
+                    ],
+                    "searchRevInclude": [
+                        "Provenance:target"
+                    ],
+                    "searchParam": [
+                        {
+                            "name": "_id",
+                            "type": "token"
+                        },
+                        {
+                            "name": "identifier",
+                            "type": "token"
+                        },
+                        {
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "name": "birthdate",
+                            "type": "date"
+                        },
+                        {
+                            "name": "gender",
+                            "type": "token"
+                        },
+                        {
+                            "name": "address",
+                            "type": "string"
+                        },
+                        {
+                            "name": "address-city",
+                            "type": "string"
+                        },
+                        {
+                            "name": "address-postalcode",
+                            "type": "string"
+                        },
+                        {
+                            "name": "address-state",
+                            "type": "string"
+                        },
+                        {
+                            "name": "email",
+                            "type": "token"
+                        },
+                        {
+                            "name": "family",
+                            "type": "string"
+                        },
+                        {
+                            "name": "given",
+                            "type": "string"
+                        },
+                        {
+                            "name": "phone",
+                            "type": "token"
+                        },
+                        {
+                            "name": "telecom",
+                            "type": "token"
+                        },
+                        {
+                            "name": "_lastUpdated",
+                            "type": "date"
+                        },
+                        {
+                            "name": "generalPractitioner",
+                            "type": "reference"
+                        }
+                    ],
+                    "operation": [
+                        {
+                            "name": "export",
+                            "definition": "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/patient-export"
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
 ```
 
@@ -249,893 +388,79 @@ The capability statement reveals:
 
 ## Supported Resources
 
-OpenEMR supports **50+ FHIR R4 resources** across all contexts (patient, user, system).
+OpenEMR supports **30 FHIR R4 resources** across all contexts (patient, user, system).
 
-### Patient Resources
+The resources that OpenEMR supports is documented via Swagger. You can see this documentation (and can test it) by going to the swagger directory in your OpenEMR installation. The FHIR API is documented there in the fhir section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the API (Swagger) User Interface link for the demo will take you there).
 
-#### Patient
-**Description:** Patient demographics and administrative information.
+### Administration Resources
+- Patient ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Patient))
+- Practitioner ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Practitioner))
+- PractitionerRole ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_PractitionerRole))
+- CareTeam ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_CareTeam))
+- Device ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Device))
+- Organization ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Organization))
+- Location ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Location))
+- Person ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Person))
+- RelatedPerson ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_RelatedPerson))
+- Group ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Group))
+- Encounter ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Encounter))
+- Appointment ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Appointment))
 
-**Scopes:**
-```
-patient/Patient.cruds
-user/Patient.cruds
-system/Patient.rs
-```
-
-**Search Parameters:**
-- `_id` - Patient ID
-- `identifier` - Patient identifier (MRN, SSN)
-- `name` - Patient name (family, given)
-- `birthdate` - Date of birth
-- `gender` - Administrative gender
-- `address` - Address (city, state, postal code)
-- `telecom` - Contact information
-
-**Example Request:**
-```bash
-# Get patient by ID
-curl -X GET 'https://localhost:9300/apis/default/fhir/Patient/123' \
-  -H 'Authorization: Bearer TOKEN'
-
-# Search by name
-curl -X GET 'https://localhost:9300/apis/default/fhir/Patient?name=Smith' \
-  -H 'Authorization: Bearer TOKEN'
-
-# Search by birthdate
-curl -X GET 'https://localhost:9300/apis/default/fhir/Patient?birthdate=1980-01-01' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-**Example Response:**
-```json
-{
-  "resourceType": "Patient",
-  "id": "123",
-  "identifier": [{
-    "system": "http://example.org/mrn",
-    "value": "12345"
-  }],
-  "name": [{
-    "use": "official",
-    "family": "Smith",
-    "given": ["John", "Q"]
-  }],
-  "gender": "male",
-  "birthDate": "1980-01-01",
-  "address": [{
-    "line": ["123 Main St"],
-    "city": "Boston",
-    "state": "MA",
-    "postalCode": "02134"
-  }]
-}
-```
-
-#### Person
-**Description:** Person resource for linking multiple patient records.
-
-**Scopes:**
-```
-patient/Person.rs
-user/Person.rs
-system/Person.rs
-```
-
-#### RelatedPerson ✨ NEW
-**Description:** Persons with relationships to patients (family, emergency contacts, caregivers).
-
-**Scopes:**
-```
-patient/RelatedPerson.cruds
-user/RelatedPerson.cruds
-system/RelatedPerson.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `name` - Related person's name
-- `telecom` - Contact information
-
-**Example Request:**
-```bash
-# Get emergency contacts for patient
-curl -X GET 'https://localhost:9300/apis/default/fhir/RelatedPerson?patient=123' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-**Example Response:**
-```json
-{
-  "resourceType": "RelatedPerson",
-  "id": "456",
-  "patient": {
-    "reference": "Patient/123"
-  },
-  "relationship": [{
-    "coding": [{
-      "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
-      "code": "WIFE",
-      "display": "Wife"
-    }]
-  }],
-  "name": [{
-    "family": "Smith",
-    "given": ["Jane"]
-  }],
-  "telecom": [{
-    "system": "phone",
-    "value": "555-1234",
-    "use": "home"
-  }]
-}
-```
 
 ### Clinical Resources
-
-#### AllergyIntolerance
-**Description:** Patient allergies and adverse reactions.
-
-**Scopes:**
-```
-patient/AllergyIntolerance.cruds
-user/AllergyIntolerance.cruds
-system/AllergyIntolerance.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `clinical-status` - active | inactive | resolved
-
-**Example:**
-```bash
-curl -X GET 'https://localhost:9300/apis/default/fhir/AllergyIntolerance?patient=123' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-#### Condition
-**Description:** Patient problems, diagnoses, and health concerns.
-
-**Scopes:**
-```
-patient/Condition.cruds
-user/Condition.cruds
-system/Condition.rs
-```
-
-**Granular Scopes:** ✨
-```
-patient/Condition.rs?category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern
-patient/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
-patient/Condition.rs?category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `category` - problem-list-item | encounter-diagnosis | health-concern
-- `clinical-status` - active | inactive | resolved
-- `onset-date` - Date condition began
-
-**Example:**
-```bash
-# Get active problems
-curl -X GET 'https://localhost:9300/apis/default/fhir/Condition?patient=123&clinical-status=active' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-#### Procedure
-**Description:** Procedures performed on patient.
-
-**Scopes:**
-```
-patient/Procedure.cruds
-user/Procedure.cruds
-system/Procedure.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `date` - When procedure performed
-- `code` - Procedure code (CPT, SNOMED)
-
-#### Goal
-**Description:** Patient health goals.
-
-**Scopes:**
-```
-patient/Goal.cruds
-user/Goal.cruds
-system/Goal.rs
-```
-
-#### CarePlan
-**Description:** Care plans for patient treatment.
-
-**Scopes:**
-```
-patient/CarePlan.cruds
-user/CarePlan.cruds
-system/CarePlan.rs
-```
-
-#### CareTeam
-**Description:** Care team members and roles.
-
-**Scopes:**
-```
-patient/CareTeam.cruds
-user/CareTeam.cruds
-system/CareTeam.rs
-```
-
-### Medications
-
-#### MedicationRequest
-**Description:** Medication prescriptions and orders.
-
-**Scopes:**
-```
-patient/MedicationRequest.cruds
-user/MedicationRequest.cruds
-system/MedicationRequest.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `status` - active | on-hold | cancelled | completed
-- `intent` - order | plan | proposal
-- `authoredon` - When prescribed
-
-**Example:**
-```bash
-curl -X GET 'https://localhost:9300/apis/default/fhir/MedicationRequest?patient=123&status=active' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-#### Medication
-**Description:** Medication definitions.
-
-**Scopes:**
-```
-patient/Medication.rs
-user/Medication.cruds
-system/Medication.rs
-```
-
-#### MedicationDispense ✨ NEW
-**Description:** Pharmacy medication dispensing records.
-
-**Scopes:**
-```
-patient/MedicationDispense.cruds
-user/MedicationDispense.cruds
-system/MedicationDispense.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `status` - preparation | in-progress | completed
-- `whenhandedover` - When medication given to patient
-- `prescription` - Reference to MedicationRequest
-
-**Example Request:**
-```bash
-# Get dispensing records for patient
-curl -X GET 'https://localhost:9300/apis/default/fhir/MedicationDispense?patient=123' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-**Example Response:**
-```json
-{
-  "resourceType": "MedicationDispense",
-  "id": "789",
-  "status": "completed",
-  "medicationReference": {
-    "reference": "Medication/456"
-  },
-  "subject": {
-    "reference": "Patient/123"
-  },
-  "authorizingPrescription": [{
-    "reference": "MedicationRequest/234"
-  }],
-  "quantity": {
-    "value": 30,
-    "unit": "tablets"
-  },
-  "whenHandedOver": "2024-01-15T10:30:00Z",
-  "dosageInstruction": [{
-    "text": "Take 1 tablet daily"
-  }]
-}
-```
-
-**Use Cases:**
-- Pharmacy integration
-- Medication adherence tracking
-- Dispensing history review
-
-#### Immunization
-**Description:** Vaccination records.
-
-**Scopes:**
-```
-patient/Immunization.cruds
-user/Immunization.cruds
-system/Immunization.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `date` - Vaccination date
-- `status` - completed | entered-in-error
+- AllergyIntolerance ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_AllergyIntolerance))
+- Condition ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Condition))
+- - Problem List
+- - Health Concerns
+- - Diagnoses
+- Procedure ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Procedure))
+- CarePlan ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_CarePlan))
+- Goal ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Goal))
+- CareTeam ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_CareTeam))
+- DiagnosticReport for Clinical Notes ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_DiagnosticReport))
 
 ### Diagnostic Resources
-
-#### Observation
-**Description:** Clinical observations and lab results.
-
-**Scopes:**
-```
-patient/Observation.cruds
-user/Observation.cruds
-system/Observation.rs
-```
-
-**Granular Scopes:** ✨
-```
-patient/Observation.rs?category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh
-patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|social-history
-patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory
-patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|survey
-patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `category` - vital-signs | laboratory | social-history | survey | sdoh
-- `code` - Observation type (LOINC)
-- `date` - Observation date
-
-**Example:**
-```bash
-# Get vital signs
-curl -X GET 'https://localhost:9300/apis/default/fhir/Observation?patient=123&category=vital-signs' \
-  -H 'Authorization: Bearer TOKEN'
-
-# Get lab results
-curl -X GET 'https://localhost:9300/apis/default/fhir/Observation?patient=123&category=laboratory' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-#### DiagnosticReport
-**Description:** Diagnostic study reports (labs, radiology).
-
-**Scopes:**
-```
-patient/DiagnosticReport.cruds
-user/DiagnosticReport.cruds
-system/DiagnosticReport.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `category` - LAB | RAD | etc.
-- `code` - Report type
-- `date` - Report date
-
-#### ServiceRequest ✨ NEW
-**Description:** Diagnostic and procedure service requests (lab orders, imaging orders, consults).
-
-**Scopes:**
-```
-patient/ServiceRequest.cruds
-user/ServiceRequest.cruds
-system/ServiceRequest.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `status` - draft | active | completed | cancelled
-- `intent` - order | plan | proposal
-- `category` - Laboratory | Imaging | Consultation
-- `code` - Service being requested
-- `authored` - When request created
-
-**Example Request:**
-```bash
-# Get lab orders for patient
-curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=123&category=Laboratory' \
-  -H 'Authorization: Bearer TOKEN'
-
-# Get all active orders
-curl -X GET 'https://localhost:9300/apis/default/fhir/ServiceRequest?patient=123&status=active' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-**Example Response:**
-```json
-{
-  "resourceType": "ServiceRequest",
-  "id": "567",
-  "status": "active",
-  "intent": "order",
-  "category": [{
-    "coding": [{
-      "system": "http://snomed.info/sct",
-      "code": "108252007",
-      "display": "Laboratory procedure"
-    }]
-  }],
-  "code": {
-    "coding": [{
-      "system": "http://loinc.org",
-      "code": "2093-3",
-      "display": "Cholesterol [Mass/volume] in Serum or Plasma"
-    }]
-  },
-  "subject": {
-    "reference": "Patient/123"
-  },
-  "authoredOn": "2024-01-15T09:00:00Z",
-  "requester": {
-    "reference": "Practitioner/789"
-  }
-}
-```
-
-**Use Cases:**
-- Order management systems
-- Lab information systems integration
-- Referral tracking
-- Care coordination
-
-#### Specimen ✨ NEW
-**Description:** Laboratory specimen information.
-
-**Scopes:**
-```
-patient/Specimen.cruds
-user/Specimen.cruds
-system/Specimen.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `type` - Specimen type (blood, urine, etc.)
-- `collected` - Collection date/time
-- `status` - available | unavailable
-
-**Example Request:**
-```bash
-# Get specimens for patient
-curl -X GET 'https://localhost:9300/apis/default/fhir/Specimen?patient=123' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-**Example Response:**
-```json
-{
-  "resourceType": "Specimen",
-  "id": "890",
-  "status": "available",
-  "type": {
-    "coding": [{
-      "system": "http://snomed.info/sct",
-      "code": "119297000",
-      "display": "Blood specimen"
-    }]
-  },
-  "subject": {
-    "reference": "Patient/123"
-  },
-  "collection": {
-    "collectedDateTime": "2024-01-15T08:00:00Z",
-    "quantity": {
-      "value": 10,
-      "unit": "mL"
-    }
-  },
-  "request": [{
-    "reference": "ServiceRequest/567"
-  }]
-}
-```
-
-**Use Cases:**
-- Laboratory information systems
-- Specimen tracking
-- Chain of custody
-- Test result correlation
-
-### Care Coordination
-
-#### Encounter
-**Description:** Patient encounters (visits, admissions).
-
-**Scopes:**
-```
-patient/Encounter.cruds
-user/Encounter.cruds
-system/Encounter.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `date` - Encounter date
-- `status` - planned | in-progress | finished
-- `class` - ambulatory | emergency | inpatient
-
-**Example:**
-```bash
-curl -X GET 'https://localhost:9300/apis/default/fhir/Encounter?patient=123&status=finished' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-#### Appointment
-**Description:** Scheduled patient appointments.
-
-**Scopes:**
-```
-patient/Appointment.cruds
-user/Appointment.cruds
-system/Appointment.rs
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `date` - Appointment date
-- `status` - proposed | pending | booked | arrived | fulfilled | cancelled
-
-#### DocumentReference
-**Description:** Clinical documents and attachments.
-
-**Scopes:**
-```
-patient/DocumentReference.cruds
-user/DocumentReference.cruds
-system/DocumentReference.rs
-```
-
-**Granular Scopes:** ✨
-```
-patient/DocumentReference.rs?category=http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note
-```
-
-**Search Parameters:**
-- `patient` - Reference to patient
-- `category` - clinical-note | imaging | laboratory
-- `type` - Document type
-- `date` - Document date
-
-**Special Operation:** `$docref` - See [DocumentReference $docref](#documentreference-docref-operation)
-
-#### Coverage
-**Description:** Insurance coverage information.
-
-**Scopes:**
-```
-patient/Coverage.cruds
-user/Coverage.cruds
-system/Coverage.rs
-```
-
-### Administrative Resources
-
-#### Practitioner
-**Description:** Healthcare provider information.
-
-**Scopes:**
-```
-patient/Practitioner.rs
-user/Practitioner.cruds
-system/Practitioner.rs
-```
-
-**Search Parameters:**
-- `name` - Provider name
-- `identifier` - NPI or other identifier
-
-#### PractitionerRole
-**Description:** Provider roles and specialties.
-
-**Scopes:**
-```
-patient/PractitionerRole.rs
-user/PractitionerRole.cruds
-system/PractitionerRole.rs
-```
-
-#### Organization
-**Description:** Healthcare organizations and facilities.
-
-**Scopes:**
-```
-patient/Organization.rs
-user/Organization.cruds
-system/Organization.rs
-```
-
-**Search Parameters:**
-- `name` - Organization name
-- `address` - Organization address
-
-#### Location
-**Description:** Physical locations and facilities.
-
-**Scopes:**
-```
-patient/Location.rs
-user/Location.cruds
-system/Location.rs
-```
-
-#### Device
-**Description:** Medical devices and implants.
-
-**Scopes:**
-```
-patient/Device.cruds
-user/Device.cruds
-system/Device.rs
-```
-
-#### Group
-**Description:** Groups of patients (for bulk operations).
-
-**Scopes:**
-```
-system/Group.rs
-system/Group.$export
-```
-
-**Note:** Group resource is system-level only.
-
-#### Binary
-**Description:** Binary data (documents, images, exports).
-
-**Scopes:**
-```
-patient/Binary.rs
-user/Binary.rs
-system/Binary.rs
-```
-
-**Note:** Binary resources are read-only.
-
-### Provenance
-**Description:** Data provenance and attribution.
-
-**Scopes:**
-```
-patient/Provenance.rs
-user/Provenance.rs
-system/Provenance.rs
-```
-
-**Note:** Provenance is read-only. See [Provenance section](#provenance).
-
-### New Resources (SMART v2.2.0)
-
-Summary of newly supported resources:
-
-| Resource | Description | Primary Use Case |
-|----------|-------------|------------------|
-| **ServiceRequest** | Diagnostic/procedure orders | Lab orders, imaging requests, referrals |
-| **Specimen** | Laboratory specimens | Lab tracking, chain of custody |
-| **MedicationDispense** | Pharmacy dispensing | Medication adherence, pharmacy integration |
-| **RelatedPerson** | Patient relationships | Emergency contacts, care coordination |
-
-All new resources support full CRUDS operations in patient and user contexts, and read/search in system context.
-
-## Search Parameters
-
-### Common Search Parameters
-
-All resources support common search parameters:
-
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| `_id` | token | Resource ID | `?_id=123` |
-| `_lastUpdated` | date | Last modified date | `?_lastUpdated=gt2024-01-01` |
-| `_count` | number | Results per page | `?_count=50` |
-| `_offset` | number | Result offset (deprecated) | `?_offset=100` |
-
-### Patient Search Parameter
-
-Most clinical resources support patient search:
-```
-?patient=123
-?patient=Patient/123
-?subject=Patient/123
-```
-
-**Examples:**
-```bash
-# All observations for patient
-GET /fhir/Observation?patient=123
-
-# All medications for patient
-GET /fhir/MedicationRequest?patient=123
-
-# All conditions for patient
-GET /fhir/Condition?patient=123
-```
-
-### Date Range Searches
-
-Use prefixes for date comparisons:
-
-| Prefix | Meaning | Example |
-|--------|---------|---------|
-| `eq` | Equal | `?date=eq2024-01-15` |
-| `ne` | Not equal | `?date=ne2024-01-15` |
-| `lt` | Less than | `?date=lt2024-01-15` |
-| `le` | Less than or equal | `?date=le2024-01-15` |
-| `gt` | Greater than | `?date=gt2024-01-01` |
-| `ge` | Greater than or equal | `?date=ge2024-01-01` |
-
-**Examples:**
-```bash
-# Encounters since January 1, 2024
-GET /fhir/Encounter?patient=123&date=ge2024-01-01
-
-# Lab results in January 2024
-GET /fhir/Observation?patient=123&category=laboratory&date=ge2024-01-01&date=le2024-01-31
-```
-
-### Category Searches
-
-Filter resources by category:
-
-**Observations:**
-```bash
-GET /fhir/Observation?patient=123&category=vital-signs
-GET /fhir/Observation?patient=123&category=laboratory
-GET /fhir/Observation?patient=123&category=social-history
-```
-
-**Conditions:**
-```bash
-GET /fhir/Condition?patient=123&category=problem-list-item
-GET /fhir/Condition?patient=123&category=encounter-diagnosis
-```
-
-### Code Searches
-
-Search by clinical codes (LOINC, SNOMED, CPT):
-```bash
-# Specific observation by LOINC code
-GET /fhir/Observation?patient=123&code=http://loinc.org|2093-3
-
-# Procedures by CPT code
-GET /fhir/Procedure?patient=123&code=http://www.ama-assn.org/go/cpt|99213
-```
-
-### Status Searches
-
-Filter by resource status:
-```bash
-# Active medications
-GET /fhir/MedicationRequest?patient=123&status=active
-
-# Completed encounters
-GET /fhir/Encounter?patient=123&status=finished
-
-# Active problems
-GET /fhir/Condition?patient=123&clinical-status=active
-```
-
-### Pagination
-
-Use `_count` to limit results:
-```bash
-# Get 20 results at a time
-GET /fhir/Observation?patient=123&_count=20
-```
-
-**Response includes pagination links:**
-```json
-{
-  "resourceType": "Bundle",
-  "type": "searchset",
-  "total": 150,
-  "link": [
-    {
-      "relation": "self",
-      "url": "https://localhost:9300/apis/default/fhir/Observation?patient=123&_count=20"
-    },
-    {
-      "relation": "next",
-      "url": "https://localhost:9300/apis/default/fhir/Observation?patient=123&_count=20&page=2"
-    }
-  ],
-  "entry": [...]
-}
-```
-
-### Including Related Resources
-
-Use `_include` and `_revinclude` to fetch related resources:
-```bash
-# Include referenced Practitioner in MedicationRequest
-GET /fhir/MedicationRequest?patient=123&_include=MedicationRequest:requester
-
-# Include Provenance for AllergyIntolerance
-GET /fhir/AllergyIntolerance?patient=123&_revinclude=Provenance:target
-```
-
-## Provenance
-
-Provenance resources track data origin, authorship, and modifications for transparency and auditing.
-
-### Requesting Provenance
-
-Include `_revinclude=Provenance:target` in your search:
-```bash
-curl -X GET 'https://localhost:9300/apis/default/fhir/AllergyIntolerance?patient=123&_revinclude=Provenance:target' \
-  -H 'Authorization: Bearer TOKEN'
-```
-
-### Supported Resources
-
-Provenance is available for:
-- AllergyIntolerance
-- (Additional resources to be added)
-
-### Example Response
-```json
-{
-  "resourceType": "Bundle",
-  "type": "searchset",
-  "entry": [
-    {
-      "resource": {
-        "resourceType": "AllergyIntolerance",
-        "id": "456",
-        "patient": {"reference": "Patient/123"},
-        "code": {
-          "coding": [{
-            "system": "http://snomed.info/sct",
-            "code": "387207008",
-            "display": "Penicillin"
-          }]
-        }
-      }
-    },
-    {
-      "resource": {
-        "resourceType": "Provenance",
-        "id": "789",
-        "target": [{"reference": "AllergyIntolerance/456"}],
-        "recorded": "2024-01-15T10:00:00Z",
-        "agent": [{
-          "who": {"reference": "Practitioner/101"}
-        }],
-        "activity": {
-          "coding": [{
-            "system": "http://terminology.hl7.org/CodeSystem/v3-DataOperation",
-            "code": "CREATE"
-          }]
-        }
-      }
-    }
-  ]
-}
-```
-
-### Provenance Information
-
-Provenance reveals:
-- **Who** created or modified the data
-- **When** the action occurred
-- **What** action was performed (CREATE, UPDATE)
-- **Why** the action was taken (if recorded)
+- Observation ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Observation))
+- - Laboratory
+- - Vital Signs
+- - Social History
+- - Social Determinants of Health
+- - Advance Directives
+- - Care Experience Preferences
+- - Occupation
+- - Survey Responses
+- - Treatment Intervention Preferences
+- - Pregnancy Status
+- - Pregnancy Intent
+- - Sexual Orientation
+- - Uncategorized Observations
+- DiagnosticReport for Laboratory Results ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_DiagnosticReport))
+- ServiceRequest([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_ServiceCategory))
+- Media ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Media))
+- Specimen ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Specimen))
+
+### Medication Resources
+- MedicationRequest ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_MedicationRequest))
+- Medication ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Medication))
+- MedicationDispense ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_MedicationDispense))
+- Immunization ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Immunization))
+
+### Document Resources
+- DocumentReference ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_DocumentReference))
+- Binary ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Binary))
+
+### Financial Resources
+- Coverage ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Coverage))
+
+### Security and Privacy
+- Provenance ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_Provenance))
+
+### Terminology
+- ValueSet ([swagger](https://demo.openemr.io/openemr/swagger/#/fhir/get_fhir_ValueSet))
 
 ## Bulk FHIR Exports
 
-OpenEMR implements the **FHIR Bulk Data Export specification** for large-scale data access.
+OpenEMR implements the **[FHIR Bulk Data Export specification](https://hl7.org/fhir/uv/bulkdata/)** for large-scale data access.
 
 ### Overview
 
@@ -1174,6 +499,7 @@ system/Binary.read
 ```
 
 #### Request
+Replace `TOKEN` with your access token.
 ```bash
 curl -X GET 'https://localhost:9300/apis/default/fhir/$export' \
   -H 'Authorization: Bearer TOKEN' \
@@ -1201,6 +527,7 @@ system/Binary.read
 ```
 
 #### Request
+Replace `TOKEN` with your access token.
 ```bash
 curl -X GET 'https://localhost:9300/apis/default/fhir/Patient/$export' \
   -H 'Authorization: Bearer TOKEN' \
@@ -1222,7 +549,7 @@ Includes all resources in the [Patient Compartment](https://www.hl7.org/fhir/com
 
 ### Group Export
 
-Export data for **a specific group** of patients.
+Export data for **a specific group** of patients.  In OpenEMR a Group is automatically created for every practitioner containing their assigned patients.  Patients are included based on their primary care provider
 
 #### Required Scopes
 ```
@@ -1242,8 +569,8 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Group/1/$export' \
 #### Group Definition
 
 OpenEMR automatically creates groups:
-- **By Practitioner:** Patients with practitioner as primary care provider
-- Group ID corresponds to practitioner ID
+- **By Practitioner:** Patients with practitioner as primary care provider as specified in the `patient_data.providerID` field in the OpenEMR system.
+- Group ID is the `uuid` column from the `uuid_mapping` table where the `resource_type` is `Group` and the `target_uuid` is the practitioner's ID converted to binary.
 
 **Example:** Group 5 contains all patients with Practitioner 5 as PCP.
 
@@ -1265,8 +592,6 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/$bulkdata-status?job=92a94
 #### Response (In Progress)
 ```http
 HTTP/1.1 202 Accepted
-X-Progress: 50% complete
-Retry-After: 120
 ```
 
 #### Response (Complete)
@@ -1327,7 +652,7 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Binary/97552' \
 {"resourceType":"Patient","id":"3",...}
 ```
 
-Each line is a complete JSON FHIR resource.
+Each line is a complete JSON FHIR resource for that resource type.
 
 ### Complete Export Workflow
 ```bash
@@ -1561,86 +886,6 @@ Upload XML to patient documents under "CCDA" category for human-readable view.
 Complete tutorial with screenshots:
 https://github.com/openemr/openemr/issues/5284#issuecomment-1155678620
 
-## SMART Configuration
-
-**New in SMART v2.2.0:** Discover SMART capabilities via dedicated endpoint.
-
-### Endpoint
-```
-GET /fhir/.well-known/smart-configuration
-```
-
-**No authentication required.**
-
-### Request
-```bash
-curl -X GET 'https://localhost:9300/apis/default/fhir/.well-known/smart-configuration'
-```
-
-### Response
-```json
-{
-  "issuer": "https://localhost:9300/oauth2/default",
-  "authorization_endpoint": "https://localhost:9300/oauth2/default/authorize",
-  "token_endpoint": "https://localhost:9300/oauth2/default/token",
-  "introspection_endpoint": "https://localhost:9300/oauth2/default/introspect",
-  "revocation_endpoint": "https://localhost:9300/oauth2/default/revoke",
-  "token_endpoint_auth_methods_supported": [
-    "client_secret_basic",
-    "client_secret_post",
-    "private_key_jwt"
-  ],
-  "registration_endpoint": "https://localhost:9300/oauth2/default/registration",
-  "scopes_supported": [
-    "openid",
-    "fhirUser",
-    "launch",
-    "launch/patient",
-    "launch/encounter",
-    "offline_access",
-    "online_access",
-    "patient/*.cruds",
-    "user/*.cruds",
-    "system/*.rs"
-  ],
-  "response_types_supported": ["code"],
-  "capabilities": [
-    "launch-ehr",
-    "launch-standalone",
-    "client-public",
-    "client-confidential-symmetric",
-    "client-confidential-asymmetric",
-    "context-banner",
-    "context-style",
-    "context-ehr-patient",
-    "context-ehr-encounter",
-    "sso-openid-connect",
-    "permission-offline",
-    "permission-patient",
-    "permission-user"
-  ],
-  "code_challenge_methods_supported": ["S256"]
-}
-```
-
-### SMART Capabilities
-
-| Capability | Description |
-|------------|-------------|
-| `launch-ehr` | Supports EHR launch flow |
-| `launch-standalone` | Supports standalone launch flow |
-| `client-public` | Supports public clients |
-| `client-confidential-symmetric` | Supports client secrets |
-| `client-confidential-asymmetric` | Supports JWKS authentication |
-| `context-ehr-patient` | Provides patient context in EHR launch |
-| `context-ehr-encounter` | Provides encounter context in EHR launch |
-| `sso-openid-connect` | OpenID Connect single sign-on |
-| `permission-offline` | Offline access (refresh tokens) |
-| `permission-patient` | Patient-level scopes |
-| `permission-user` | User-level scopes |
-
-See [SMART on FHIR Documentation](SMART_ON_FHIR.md) for details.
-
 ## Error Handling
 
 ### HTTP Status Codes
@@ -1793,72 +1038,17 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Specimen?patient=123' \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1Qi...'
 ```
 
-## For Developers
-
-### Internal API Usage
-
-OpenEMR supports internal API calls from within authenticated sessions.
-
-**Example:** See `tests/api/InternalApiTest.php`
-
-### Request Processing Flow
-```
-JSON Request
-  ↓
-FHIR Controller
-  ↓
-FHIR Validation
-  ↓
-Parse FHIR Resource
-  ↓
-Service Component
-  ↓
-Validation
-  ↓
-Database
-```
-
-### Response Processing Flow
-```
-Database Result
-  ↓
-Service Component
-  ↓
-FHIR Service Component
-  ↓
-Parse OpenEMR Record
-  ↓
-FHIR Controller
-  ↓
-RequestControllerHelper
-  ↓
-JSON Response
-```
-
-### Adding FHIR Resources
-
-1. **Create FHIR Service:** `src/Services/FHIR/Fhir[Resource]Service.php`
-2. **Create Controller:** `src/RestControllers/FHIR/Fhir[Resource]RestController.php`
-3. **Add Route:** `_rest_routes.inc.php`
-4. **Add to Capability Statement**
-5. **Update Documentation**
-
-### Route Definition Example
-```php
-"GET /fhir/Patient/:id" => function ($id) {
-    RestConfig::request_authorization_check($request, "patients", "demo");
-    $return = (new FhirPatientRestController())->getOne($id);
-    return $return;
-}
-```
-
 ### Testing
 
 **Swagger UI:** Interactive API testing at `/swagger/`
 
 **Online Demos:** https://www.open-emr.org/wiki/index.php/Development_Demo
 
-**Unit Tests:** `tests/api/`
+## Backwards Compatibility
+
+The FHIR API is designed to maintain backwards compatibility for existing integrations. New resources and operations are added in a way that does not break existing functionality.
+
+US Core 3.1, 7.0, and 8.0 has profiles that in some resources conflict with each other.  If your specific OpenEMR implementation requires strict adherence to a specific US Core IG version, you can set the Maximum US Core IG version you support in the OpenEMR Admin->Config->Connectors->Maximum supported version for US Core FHIR Implementation Guide to be 3.1, 7.0, or 8.0.  This will ensure that the FHIR API only advertises and supports profiles up to that version.
 
 ---
 
@@ -1871,7 +1061,7 @@ JSON Response
 **Support:**
 - Community Forum: https://community.open-emr.org/
 - FHIR Specification: https://hl7.org/fhir/R4/
-- US Core IG: https://www.hl7.org/fhir/us/core/
+- US Core 8.0 IG: https://hl7.org/fhir/us/core/STU8/
 
 **Swagger Documentation:**
 - Production: `https://your-openemr-install/swagger/`

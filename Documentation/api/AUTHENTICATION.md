@@ -514,12 +514,13 @@ See [SMART on FHIR documentation](SMART_ON_FHIR.md#ehr-launch-flow) for complete
 
 ### Client Credentials Grant
 
-**For system-to-system access** (e.g., bulk exports, backend services). Requires asymmetric authentication.
+** Intended for SMART clients that can manage and sign assertions with asymmetric keys, commonly used for backend services and bulk data operations.**
+
+**Only option allowed for system/* level scopes ** (e.g., bulk exports, backend services).
 
 #### Requirements
 - ✅ Confidential client with `private_key_jwt` authentication
 - ✅ JWKS registered (URI or inline)
-- ✅ `system/*` scopes
 - ✅ RS384 signing algorithm
 
 #### Use Cases
@@ -527,6 +528,7 @@ See [SMART on FHIR documentation](SMART_ON_FHIR.md#ehr-launch-flow) for complete
 - Automated data synchronization
 - Analytics and reporting systems
 - Backend services without user context
+- More secure authorization than symmetric shared secrets
 
 #### Token Request
 
