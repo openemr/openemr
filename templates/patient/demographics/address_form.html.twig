@@ -240,9 +240,7 @@
                 'UPDATE': 'UPDATE'
             };
 
-            let addressDatePickerSettings = {};
             {{ DateToYYYYMMDD_js()|raw }}
-            addressDatePickerSettings.timepicker = false;
 
             init(tableId);
 
@@ -572,7 +570,11 @@
 
             function setupContainerDatePickers(container) {
                 let datepickers = container.querySelectorAll(".datepicker");
-                $(datepickers).datetimepicker(addressDatePickerSettings);
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        {{ jqueryDateTimePicker('this', false, false, true)|raw }};
+                    }
+                });
             }
 
             function setupContainerListAddButtons(container) {

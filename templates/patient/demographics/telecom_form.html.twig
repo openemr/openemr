@@ -212,8 +212,6 @@
                 'UPDATE': 'UPDATE'
             };
 
-            let telecomDatePickerSettings = {};
-
             {{ DateToYYYYMMDD_js()|raw }}
 
             init(tableId);
@@ -597,9 +595,13 @@
                 }
             }
 
-            function setupContainerDatePickers(table) {
-                let datepickers = table.querySelectorAll(".datepicker");
-                $(datepickers).datetimepicker(telecomDatePickerSettings);
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        {{ jqueryDateTimePicker('this', false, false, true)|raw }};
+                    }
+                });
             }
 
             function setupContainerListAddButtons(table) {

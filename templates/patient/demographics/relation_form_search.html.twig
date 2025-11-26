@@ -298,9 +298,7 @@
         console.error('CSRF token not found!');
     }
 
-    relationDatePickerSettings = {};
     {{ DateToYYYYMMDD_js()|raw }}
-    relationDatePickerSettings.timepicker = false;
 
     // Setup add button
     var addButton = document.getElementById("btn_add_relation_" + tableId);
@@ -838,6 +836,10 @@
 
     function setupContainerDatePickers(container) {
         let datepickers = container.querySelectorAll(".datepicker");
-        $(datepickers).datetimepicker(relationDatePickerSettings);
+        $(datepickers).each(function() {
+            if (!$(this).data('xdsoft_datetimepicker')) {
+                {{ jqueryDateTimePicker('this', false, false, true)|raw }};
+            }
+        });
     }
 </script>
