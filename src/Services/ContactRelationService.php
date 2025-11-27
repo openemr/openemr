@@ -864,7 +864,27 @@ class ContactRelationService extends BaseService
                     $targetTable = 'person';
                 }
 
-                $metadata = [
+                $person_metadata = [
+                    'first_name' => $relatedPerson['first_name'] ?? '',
+                    'middle_name' => $relatedPerson['middle_name'] ?? '',              
+                    'last_name' => $relatedPerson['last_name'] ?? '',    
+                    'gender' => $relatedPerson['gender'] ?? '',
+                    'birth_date' => $relatedPerson['birth_date'] ?? ''
+                ];
+
+                if ($action == 'UPDATE') {
+                    if (empty($targetId)) {
+                        $this->getLogger()->warning("Missing person_id for UPDATE", [
+                            'index' => $index
+                        ]);
+                        continue;
+                    } else {  // UPDATE
+                        $personService = new PersonService();
+                        $personService->update($targetId, $person_metadata);
+                    }
+                }
+
+                $contact_relation_metadata = [
                     'relationship' => $relatedPerson['relationship'] ?? '',
                     'role' => $relatedPerson['role'] ?? '',
                     'contact_priority' => $relatedPerson['contact_priority'] ?? 1,
@@ -881,7 +901,7 @@ class ContactRelationService extends BaseService
                 if ($action == 'ADD') {
                     // For ADD, we need to create relationship to target person
                     // createRelationship expects: contactId, targetTable, targetId
-                    $result = $this->createRelationship($ownerContactId, $targetTable, $targetId, $metadata);
+                    $result = $this->createRelationship($ownerContactId, $targetTable, $targetId, $contact_relation_metadata);
                 } else { // UPDATE
                     if (empty($owner_contact_relation_id)) {
                         $this->getLogger()->warning("Missing relation_id for UPDATE", [
@@ -889,7 +909,7 @@ class ContactRelationService extends BaseService
                         ]);
                         continue;
                     }
-                    $result = $this->updateRelationship($owner_contact_relation_id, $metadata);
+                    $result = $this->updateRelationship($owner_contact_relation_id, $contact_relation_metadata);
                 }
 
                 if ($result->hasData()) {
