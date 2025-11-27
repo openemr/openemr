@@ -12,6 +12,7 @@
 
 /** import supporting libraries */
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\Utils\TranslationService;
 
@@ -348,6 +349,15 @@ class OnsiteDocumentController extends AppBasePortalController
                     // Thus Enter Comment: <input name="element" value="This is my comment I don't like purifier" />
                     // renders to Enter Comment: 'This is my comment I don't like purifier in document.'
                     $config->set('URI.AllowedSchemes', ['data' => true]);
+                    $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+                    if (
+                        !is_dir($purifyTempDir)
+                    ) {
+                        if (!mkdir($purifyTempDir, 0700, true)) {
+                            (new SystemLogger())->error("Could not create directory ", [$purifyTempDir]);
+                        }
+                    }
+                    $config->set('Cache.SerializerPath', $purifyTempDir);
                     $purify = new HTMLPurifier($config);
                     $existing_template = $purify->purify($existing);
                     // since this is a flatten document won't need to track legacy or not.
