@@ -1,0 +1,11 @@
+<tr class="detail-row">
+    <td>{{ item.category | xlt }}</td>
+    <td>{{ item.description | xlt }}</td>
+    {% if show_details %}
+        <td>{{ item.transactionDate }}</td>
+    {% endif %}
+    <td class="text-right">{{ item.quantity }}</td>
+    <td class="text-right currency">
+        ${{ "%.2f" | format(item.amount) }}
+    </td>
+</tr>
