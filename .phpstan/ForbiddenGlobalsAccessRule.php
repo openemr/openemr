@@ -38,6 +38,11 @@ class ForbiddenGlobalsAccessRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        // Skip tests
+        if (str_contains($scope->getFile(), DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR)) {
+            return [];
+        }
+
         // Allow $GLOBALS access in the OEGlobalsBag class itself
         if ($scope->isInClass() && $scope->getClassReflection()->getName() === 'OpenEMR\\Core\\OEGlobalsBag') {
             return [];
