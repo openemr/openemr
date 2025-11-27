@@ -1,51 +1,45 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ *
+ * @link      http://www.open-emr.org
+ *
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Core;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Traversable;
 
-class OEGlobalsBag extends ParameterBag implements \IteratorAggregate, \Countable
+class OEGlobalsBag extends ParameterBag
 {
-    private static $instance = null;
+    private static ?OEGlobalsBag $instance = null;
 
-    public static function getInstance()
+    public static function getInstance(): OEGlobalsBag
     {
-        if (self::$instance === null) {
+        if (null === self::$instance) {
             self::$instance = new OEGlobalsBag();
         }
+
         return self::$instance;
     }
 
-    public function __construct(array $parameters = [], private readonly bool $compatabilityMode = false)
-    {
+    public function __construct(
+        array $parameters = [],
+        private readonly bool $compatabilityMode = false,
+    ) {
         parent::__construct($parameters);
     }
 
     public function set(string $key, mixed $value): void
     {
-        $this->parameters[$key] = $value;
+        parent::set($key, $value);
+
         if ($this->compatabilityMode) {
             // In compatibility mode, also set the value in the global $_GLOBALS array
             $GLOBALS[$key] = $value;
         }
-    }
-
-    /**
-     * Returns an iterator for parameters.
-     *
-     * @return \ArrayIterator<string, mixed>
-     */
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->parameters);
-    }
-
-    /**
-     * Returns the number of parameters.
-     */
-    public function count(): int
-    {
-        return \count($this->parameters);
     }
 }
