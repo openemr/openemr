@@ -1,0 +1,42 @@
+{# Collections Report - Patient Total Row #}
+{#
+    Expected Variables:
+    - totals: Patient totals from GroupingService
+    - initial_colspan: Number of columns to span for left padding
+    - final_colspan: Number of columns before financial data
+    - show_aging_cols: Whether aging columns are enabled
+    - form_cb_idays: Whether to show aging days column
+    - form_cb_err: Whether to show error column
+#}
+
+<tr class="patient-total-row">
+    <td class="detotal" colspan="{{ initial_colspan + final_colspan }}">
+        &nbsp;{{ 'Total Patient Balance'|xlt }}:
+    </td>
+
+    {# Aging Columns #}
+    {% if show_aging_cols %}
+        {% for bucket_amount in totals.aging_buckets %}
+            <td class="detotal text-end">
+                &nbsp;{{ bucket_amount|number_format(2, '.', ',') }}&nbsp;
+            </td>
+        {% endfor %}
+    {% else %}
+        <td class="detotal text-end">
+            &nbsp;{{ totals.balance|number_format(2, '.', ',') }}&nbsp;
+        </td>
+    {% endif %}
+
+    {# Aging Days Column (if enabled) #}
+    {% if form_cb_idays %}
+        <td class="detail">&nbsp;</td>
+    {% endif %}
+
+    {# Provider and Select columns (2 cols) #}
+    <td class="detail" colspan="2">&nbsp;</td>
+
+    {# Error Column (if enabled) #}
+    {% if form_cb_err %}
+        <td class="detail">&nbsp;</td>
+    {% endif %}
+</tr>
