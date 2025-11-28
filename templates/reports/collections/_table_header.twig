@@ -1,0 +1,16 @@
+{# Collections Report - Table Header #}
+{#
+    Expected Variables:
+    - headers: Array of header column definitions from HeaderService
+        Each header contains: label, align, css_classes
+#}
+
+<thead class="thead-light">
+    <tr>
+        {% for header in headers %}
+            <th class="{{ header.css_classes|join(' ') }}" scope="col">
+                {{ header.label|xlt }}
+            </th>
+        {% endfor %}
+    </tr>
+</thead>

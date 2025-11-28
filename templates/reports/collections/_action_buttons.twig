@@ -1,0 +1,43 @@
+{# Collections Report - Action Buttons and Export Options #}
+{# Corresponds to lines 1447-1473 of original collections_report.php #}
+
+<div class="mt-4 mb-4">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary" onclick="checkAll(true)">
+            {{ 'Select All'|xlt }}
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="checkAll(false)">
+            {{ 'Clear All'|xlt }}
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="$('#form_csvexport').val('true'); $('#theform').submit();">
+            {{ 'Export Selected as CSV'|xlt }}
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="$('#form_export').val('true'); $('#theform').submit();">
+            {{ 'Export Selected to Collections'|xlt }}
+        </button>
+        <button type="button" class="btn btn-warning" onclick="$('#form_clear_ins_debt').val('true'); $('#form_csvexport').val('true'); $('#theform').submit();">
+            {{ 'Clear Insurance Debt'|xlt }}
+        </button>
+    </div>
+
+    <div class="mt-3">
+        <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" name="form_zero_balances" id="form_zero_balances" value="1">
+            <label class="form-check-label" for="form_zero_balances">
+                {{ 'Export Zero Balances'|xlt }}
+            </label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" name="form_individual" id="form_individual" value="1">
+            <label class="form-check-label" for="form_individual">
+                {{ 'Export Individual Invoices'|xlt }}
+            </label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" name="form_without" id="form_without" value="1">
+            <label class="form-check-label" for="form_without">
+                {{ 'Without Update'|xlt }}
+            </label>
+        </div>
+    </div>
+</div>

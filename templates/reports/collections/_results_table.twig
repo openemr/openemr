@@ -1,0 +1,182 @@
+{# Collections Report - Complete Results Table #}
+{#
+    Expected Variables:
+    - patient_groups: Array of grouped patient data from GroupingService
+    - grand_totals: Grand totals from TotalsService
+    - headers: Header configuration from HeaderService
+    - config: Report configuration settings
+    - is_insurance_summary: Whether in insurance summary mode
+#}
+
+<div id="report_results" class="mt-4">
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm" id="mymaintable">
+            {# Table Header #}
+            {% include 'reports/collections/_table_header.twig' with {
+                'headers': headers
+            } %}
+
+            <tbody>
+                {% if patient_groups is empty %}
+                    {# No Results Message #}
+                    <tr>
+                        <td colspan="{{ headers|length }}" class="text-center text-muted py-4">
+                            {{ 'No invoices found matching the selected criteria.'|xlt }}
+                        </td>
+                    </tr>
+                {% else %}
+                    {% if is_insurance_summary %}
+                        {# Insurance Summary Mode #}
+                        {% for insurance_group in patient_groups %}
+                            {% include 'reports/collections/_insurance_summary_row.twig' with {
+                                'insurance_name': insurance_group.insurance_name,
+                                'totals': insurance_group.totals,
+                                'show_aging_cols': config.show_aging_cols
+                            } %}
+                        {% endfor %}
+                    {% else %}
+                        {# Regular Patient Mode #}
+                        {% for patient_group in patient_groups %}
+                            {# Set zebra stripe class based on row index #}
+                            {% set bg_class = (patient_group.row_index % 2 == 0) ? 'patient-group-even' : 'patient-group-odd' %}
+
+                            {# Render each invoice for this patient #}
+                            {% for invoice in patient_group.invoices %}
+                                <tr class="{{ bg_class }}">
+                                    {# Include invoice row content inline to apply tr class #}
+                                    {% if invoice.show_insurance %}
+                                        <td class="text-nowrap">{{ invoice.primary_insurance }}</td>
+                                    {% endif %}
+
+                                    {% if invoice.is_first_row %}
+                                        <td class="text-nowrap patient-name" rowspan="{{ patient_group.rowspan }}">
+                                            {{ invoice.patient_name }}
+                                        </td>
+                                    {% endif %}
+
+                                    {% if invoice.show_ssn %}
+                                        <td>{{ invoice.ssn }}</td>
+                                    {% endif %}
+                                    {% if invoice.show_dob %}
+                                        <td>{{ invoice.dob }}</td>
+                                    {% endif %}
+                                    {% if invoice.show_pubpid %}
+                                        <td>{{ invoice.pubpid }}</td>
+                                    {% endif %}
+                                    <!--policy should go here-->
+                                    {% if invoice.show_policy %}
+                                        <td>{{ invoice.policy }}</td>
+                                    {% endif %}
+                                    <!--policy should go here-->
+                                    {% if invoice.show_city %}
+                                        <td>{{ invoice.city }}</td>
+                                    {% endif %}
+                                    <!--phone should go here-->
+                                    {% if invoice.show_phone %}
+                                        <td>{{ invoice.phone }}</td>
+                                    {% endif %}
+                                    <!--phone should go here-->
+                                    <!--insurance should go here-->
+                                    {% if invoice.show_primary_insurance %}
+                                        <td>{{ invoice.primary_insurance }}</td>
+                                    {% endif %}
+                                    <!--insurance should go here-->
+                                    {% if invoice.show_group_number %}
+                                        <td>{{ invoice.group_number }}</td>
+                                    {% endif %}
+                                    {% if invoice.show_provider %}
+                                        <td>{{ invoice.provider }}</td>
+                                    {% endif %}
+                                    {% if invoice.show_referrer %}
+                                        <td>{{ invoice.referrer }}</td>
+                                    {% endif %}
+
+                                    {# Invoice and Service Date with Links #}
+                                    <td>
+                                        <a href="#"
+                                           title="{{ 'Open invoice (will refresh page)'|xla }}"
+                                           onclick="editInvoice(event, {{ invoice.id|default(invoice.encounter) }})">
+                                            {{ invoice.invoice_number|default(invoice.invnumber) }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <input type="button"
+                                               class="btn btn-sm btn-secondary"
+                                               title="{{ 'To encounter'|xla }}"
+                                               value="{{ invoice.service_date|default(invoice.dos) }}"
+                                               onclick="toEncounter({{ invoice.pid }}, {{ invoice.encounter }})" />
+                                    </td>
+
+                                    {% if invoice.show_activity_date %}
+                                        <td>{{ invoice.activity_date }}</td>
+                                    {% endif %}
+
+                                    <td class="text-end">{{ invoice.charges_formatted }}</td>
+                                    <td class="text-end">{% if invoice.adjustments != 0 %}{{ invoice.adjustments_formatted }}{% endif %}</td>
+                                    <td class="text-end">{% if invoice.paid != 0 %}{{ invoice.paid_formatted }}{% endif %}</td>
+
+                                    {% if config.form_age_cols > 0 %}
+                                        {# Aging columns #}
+                                        {% for bucket_amount in invoice.aging_buckets %}
+                                            <td class="text-end{% if bucket_amount != 0 %} aging-highlight{% endif %}">
+                                                {% if bucket_amount != 0 %}
+                                                    {{ bucket_amount|number_format(2, '.', ',') }}
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    {% else %}
+                                        {# Single balance column if no aging columns #}
+                                        <td class="text-end font-weight-bold">{{ invoice.balance_formatted }}</td>
+                                    {% endif %}
+
+                                    {% if invoice.show_aging_days %}
+                                        <td class="text-end">{{ invoice.aging_days }}</td>
+                                    {% endif %}
+
+                                    <td class="text-center">{{ invoice.statement_count }}</td>
+
+                                    <td class="text-center">
+                                        {% if invoice.is_in_collections %}
+                                            <span class="font-weight-bold text-danger">IC</span>
+                                        {% else %}
+                                            <input type="checkbox" name="form_cb[{{ invoice.invnumber|default(invoice.pid ~ '.' ~ invoice.encounter) }}]" />
+                                        {% endif %}
+                                    </td>
+
+                                    {% if invoice.show_error %}
+                                        <td class="text-danger small">{{ invoice.billing_error }}</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+
+                            {# Patient Total Row (if multiple invoices) #}
+                            {% if patient_group.show_total_row %}
+                                {% include 'reports/collections/_patient_total_row.twig' with {
+                                    'totals': patient_group.totals,
+                                    'initial_colspan': config.initial_colspan,
+                                    'final_colspan': config.final_colspan,
+                                    'show_aging_cols': config.show_aging_cols,
+                                    'form_cb_idays': config.form_cb_idays,
+                                    'form_cb_err': config.form_cb_err
+                                } %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+
+                {# Grand Totals Row - only show if there are results #}
+                {% if patient_groups is not empty %}
+                    {% include 'reports/collections/_grand_totals_row.twig' with {
+                        'totals': grand_totals,
+                        'initial_colspan': config.initial_colspan,
+                        'final_colspan': config.final_colspan,
+                        'is_insurance_summary': is_insurance_summary,
+                        'show_aging_cols': config.show_aging_cols,
+                        'form_cb_idays': config.form_cb_idays,
+                        'form_cb_err': config.form_cb_err
+                    } %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>

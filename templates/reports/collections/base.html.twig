@@ -1,0 +1,78 @@
+{% extends "core/base.html.twig" %}
+
+{% block title %}{{ 'Collections Report'|xlt }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {{ setupHeader(['datetime-picker', 'report-helper']) }}
+    <link rel="stylesheet" href="{{ webroot }}/public/assets/css/reports/collections_report.css">
+{% endblock %}
+
+{% block body_class %}body_top{% endblock %}
+
+{% block content %}
+    {# Content will be provided by child templates #}
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ webroot }}/public/assets/js/reports/collections_report.js"></script>
+    <script>
+        // Open dialog to edit an invoice without opening encounter
+        function editInvoice(e, id) {
+            e.stopPropagation();
+            e.preventDefault();
+            $("#form_page_y").val(e.pageY);
+            $("#form_offset_y").val(e.offsetY);
+            $("#form_y").val(e.y);
+            let url = '{{ webroot|e('js') }}/interface/billing/sl_eob_invoice.php?id=' + encodeURIComponent(id);
+            dlgopen(url, '', 'modal-lg', 750, false, '', {
+                onClosed: 'reSubmit'
+            });
+        }
+
+        // Navigate to encounter in patient file
+        function toEncounter(newpid, enc) {
+            top.restoreSession();
+            top.RTop.location = "{{ webroot|e('js') }}/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+        }
+
+        // Resubmit form after invoice dialog closes
+        function reSubmit() {
+            $("#form_refresh").attr("value", "true");
+            $("#form_export").val("");
+            $("#form_csvexport").val("");
+            $("#form_clear_ins_debt").val("");
+            $("#theform").submit();
+        }
+
+        // Check or uncheck all invoice checkboxes
+        function checkAll(checked) {
+            var f = document.forms[0];
+            for (var i = 0; i < f.elements.length; ++i) {
+                var ename = f.elements[i].name;
+                if (ename.indexOf('form_cb[') == 0) {
+                    f.elements[i].checked = checked;
+                }
+            }
+        }
+
+        $(function() {
+            // Initialize datepicker on all .datepicker elements
+            {{ jqueryDateTimePicker('.datepicker', true, true, true) }}
+            
+            // Restore scroll position after form submission
+            let Y = parseFloat($("#form_page_y").val()) - parseFloat($("#form_offset_y").val()) - parseFloat($("#form_y").val());
+            if (Y && !isNaN(Y)) {
+                $("html, body").animate({scrollTop: Y}, 800);
+            }
+            
+            // Initialize CollectionsReport module
+            if (window.CollectionsReport) {
+                CollectionsReport.init({
+                    webroot: '{{ webroot|e('js') }}'
+                });
+            }
+        });
+    </script>
+{% endblock %}

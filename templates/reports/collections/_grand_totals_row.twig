@@ -1,0 +1,51 @@
+{# Collections Report - Grand Totals Row #}
+{#
+    Expected Variables:
+    - totals: Grand totals from TotalsService
+    - initial_colspan: Number of columns before "Report Totals" label
+    - final_colspan: Number of columns in label cell for non-insurance mode
+    - is_insurance_summary: Whether in insurance summary mode
+    - show_aging_cols: Whether aging columns are enabled
+    - form_cb_idays: Whether to show aging days column
+    - form_cb_err: Whether to show error column
+#}
+
+<tr class="grand-totals-row bg-white">
+    {% if is_insurance_summary %}
+        {# Insurance summary mode - simple layout #}
+        <td class="dehead">&nbsp;{{ 'Report Totals'|xlt }}:</td>
+    {% else %}
+        {# Regular mode - matches original algorithm from collections_report.backup-phase1.php lines 1401-1404 #}
+        <td class="detail" colspan="{{ initial_colspan }}">&nbsp;</td>
+        <td class="dehead" colspan="{{ final_colspan - 3 }}">&nbsp;{{ 'Report Totals'|xlt }}:</td>
+    {% endif %}
+
+    {# Financial Columns #}
+    <td class="dehead text-left">&nbsp;{{ totals.charges|number_format(2, '.', ',') }}&nbsp;</td>
+    <td class="dehead text-left">&nbsp;{{ totals.adjustments|number_format(2, '.', ',') }}&nbsp;</td>
+    <td class="dehead text-left">&nbsp;{{ totals.paid|number_format(2, '.', ',') }}&nbsp;</td>
+
+    {# Aging Columns or Single Balance #}
+    {% if show_aging_cols %}
+        {% for bucket_amount in totals.aging_buckets %}
+            <td class="dehead text-left">{{ bucket_amount|number_format(2, '.', ',') }}&nbsp;</td>
+        {% endfor %}
+    {% else %}
+        <td class="dehead text-left">{{ totals.balance|number_format(2, '.', ',') }}&nbsp;</td>
+    {% endif %}
+
+    {# Aging Days Column (if enabled, non-insurance mode) #}
+    {% if form_cb_idays and not is_insurance_summary %}
+        <td class="detail">&nbsp;</td>
+    {% endif %}
+
+    {# Provider and Select columns (2 cols, non-insurance mode) #}
+    {% if not is_insurance_summary %}
+        <td class="detail" colspan="2">&nbsp;</td>
+    {% endif %}
+
+    {# Error Column (if enabled, non-insurance mode) #}
+    {% if form_cb_err and not is_insurance_summary %}
+        <td class="detail">&nbsp;</td>
+    {% endif %}
+</tr>
