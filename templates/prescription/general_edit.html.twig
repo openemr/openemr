@@ -72,6 +72,15 @@
    }
    selchoose(f.refills, d[9]);
    f.per_refill.value = d[10];
+   // Update the dispense_drug_id hidden field when in-house drug is selected
+   if (f.dispense_drug_id) {
+       f.dispense_drug_id.value = f.drug_id.value;
+       // Enable the Save and Dispense button if a drug is selected
+       var dispenseBtn = document.querySelector('.btn-presc-dispense');
+       if (dispenseBtn) {
+           dispenseBtn.disabled = (f.drug_id.value == '' || f.drug_id.value == '0');
+       }
+   }
   }
  }
 
@@ -369,6 +378,9 @@
         <input type="hidden" name="id" value="{{prescription.id|attr}}" />
         <input type="hidden" name="process" value="{{PROCESS|attr}}" />
         <input type="hidden" id="rxnorm_drugcode" name="rxnorm_drugcode" value="{{prescription.rxnorm_drugcode|attr}}" />
+        {% if dispenseEnabled %}
+        <input type="hidden" name="dispense_after_save" value="" />
+        {% endif %}
 
         <script>
             {# TODO: @adunsulag Why in the world do we have just raw injection of javascript here... #}
@@ -381,7 +393,8 @@
 <script>
     {% if dispenseEnabled %}
 
-    // Invoke the popup to dispense a drug.
+    // Invoke the popup to dispense a drug (for existing prescriptions)
+    // or submit form with dispense flag (for new prescriptions)
     function dispense() {
         var f = document.forms[0];
         // do some basic validation
@@ -396,15 +409,30 @@
             return false;
         }
         let drugId = parseInt(f.dispense_drug_id.value || 0);
-        if (isNaN(drugId)) {
-            alert({{ 'System error occurred. Try again later or contact customer support'|xlj }});
-            console.error('Invalid drug id for dispensation: ' + f.dispense_drug_id.value);
+        if (drugId <= 0) {
+            alert({{'Please select an in-house drug to dispense'|xlj}});
+            f.drug_id.focus();
             return false;
         }
+
+        // Check if this is a new prescription (no ID yet)
+        let prescriptionId = f.id.value;
+        if (!prescriptionId || prescriptionId == "" || prescriptionId == "0") {
+            // New prescription - need to save first then dispense
+            // Set the dispense_after_save flag and submit the form
+            f.dispense_after_save.value = "1";
+            top.restoreSession();
+            if (CheckForErrors(f)) {
+                f.submit();
+            }
+            return false;
+        }
+
+        // Existing prescription - use the popup dispense flow
         {# AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams #}
         const params = new URLSearchParams({
             drug_id: drugId,
-            prescription: f.id.value,
+            prescription: prescriptionId,
             quantity: f.disp_quantity.value,
             fee: f.disp_fee.value,
             encounter: f.dispense_encounter_id.value
