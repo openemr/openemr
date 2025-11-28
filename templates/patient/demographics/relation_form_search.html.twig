@@ -698,6 +698,9 @@
         const newRelation = relation_container.querySelector('.relations_group:last-child');
         setupContainerDatePickers(newRelation);
 
+        const row = newRelation.querySelector('.relation-card-header');
+        //setupRelatedPersonsRowButtonEventListeners(row);
+
         // Expand the new relation for editing
         if (newRelation) {
             const formDiv = newRelation.querySelector('.form_relations');
@@ -856,4 +859,29 @@
             }
         });
     }
+
+    /*
+    function setupRelatedPersonsRowButtonEventListeners(row) {
+        let buttonEdit = row.querySelector(".display_related_person");
+        if (buttonEdit) {
+            buttonEdit.addEventListener('click', toggleRelationEdit);
+        }
+
+        let buttonInactivate = row.querySelector(".btn-inactivate-relation");
+        if (buttonInactivate) {
+            buttonInactivate.addEventListener('click', changeRelationStatus);
+        }
+
+        let buttonActivate = row.querySelector(".btn-activate-relation");
+        if (buttonActivate) {
+            buttonActivate.addEventListener('click', changeRelationStatus);
+        }
+    }
+    */
+
+
+
+
+
+
 </script>

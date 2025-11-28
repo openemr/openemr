@@ -177,15 +177,25 @@
         <div class="relation-card">
             <div class="relation-card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="fas fa-caret-down fa-lg text-primary btn-edit-relation mr-2"></i>
-                        <strong class="display_relations_name">{{ 'New Person'|xlt }}</strong>
-                        <br>
-                        <small class="text-muted ml-4 display_relations_relationship"></small>
-                    </div>
+                    <div class="display_related_person form-row">
+
+                            <div class="col-2;">
+                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;"></span>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-mutedml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                            </div>
+                        </div>
+                        
                     <div>
                         <span class="display_relations_badges"></span>
-                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2" onclick="event.stopPropagation(); changeRelationStatus(this, event)">
+                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
                             <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
                         </button>
                     </div>
