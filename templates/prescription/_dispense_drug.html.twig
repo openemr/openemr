@@ -5,7 +5,13 @@
             <h5>{{ "Dispense Options"|xlt }} <input type="button" name="toggle_dispense" class='btn btn-secondary btn-toggle-dispense btn-sm my-0 mr-1 ml-1' style="display: none" value="{{'Hide Dispense Options'|xla}}" /></h5>
         </div>
         <div class="card-body">
-        {% if prescription.get_refills() >= prescription.get_dispensation_count() %}
+        {# For new prescriptions or prescriptions with refills remaining, show dispense options #}
+        {% if isNewPrescription or prescription.get_refills() >= prescription.get_dispensation_count() %}
+            {% if isNewPrescription %}
+            <div class="alert alert-info mb-3">
+                {{ "Select an in-house drug from the dropdown above to enable dispensing."|xlt }}
+            </div>
+            {% endif %}
             {# Render the dispense type dropdown #}
             <div class="form-group row mt-3">
                 <div class="col-4">
@@ -37,7 +43,7 @@
                 </div>
             </div>
             <div class="form-group row mt-3">
-                <input type="submit" name="disp_button" class='btn btn-primary btn-presc-dispense btn-sm my-0 mr-1 ml-1' value="{{'Save and Dispense'|xla}}" />
+                <input type="submit" name="disp_button" class='btn btn-primary btn-presc-dispense btn-sm my-0 mr-1 ml-1' value="{{'Save and Dispense'|xla}}" {% if isNewPrescription %}disabled{% endif %} />
             </div>
         {% else %}&nbsp;
             {{'prescription has reached its limit of'|xlt}} {{prescription.get_refills()|text}} {{'refills'|xlt}}.
