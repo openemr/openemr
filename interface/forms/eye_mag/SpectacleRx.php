@@ -83,7 +83,7 @@ $query = "select  *,form_encounter.date as encounter_date
 
     $visit_date = oeFormatShortDate($data['encounter_date']);
 
-if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispense table
+if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
@@ -107,12 +107,12 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
     }
 
     exit;
-} elseif ($_REQUEST['mode'] ?? '' == "remove") {
+} elseif (($_REQUEST['mode'] ?? '') == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, [$_REQUEST['delete_id']]);
     echo xlt('Prescription successfully removed.');
     exit;
-} elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
+} elseif (($_REQUEST['RXTYPE'] ?? '')) {  //store any changed fields
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
     sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id']]);
     exit;
