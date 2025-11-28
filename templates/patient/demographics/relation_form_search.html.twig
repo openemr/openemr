@@ -583,7 +583,7 @@
         });
         var newIndex = maxIndex + 1;
 
-      
+
         // Clone the template
         var tempDiv = document.createElement('div');
         tempDiv.innerHTML = relation_template.innerHTML;
@@ -593,34 +593,34 @@
         html = html.replace(/__RP-INDEX__/g, newIndex);
 
         // ===== TELECOM TABLE ID REPLACEMENTS =====
-      
+
         // Create unique ID for related person telecom tables
         var newTelecomTableIdSuffix = js_uniqid();
 
         // Find the old telecom table ID
         var telecomMatch  = html.match(/table_edit_telecoms_([a-f0-9]+)/);
-        
+
         if (telecomMatch && telecomMatch[1]) {
             var oldTelecomTableIdSuffix = telecomMatch[1];
             console.log('Replacing telecom suffix:', oldTelecomTableIdSuffix, '→', newTelecomTableIdSuffix);
-            
+
             // Replace ALL occurrences of the old suffix with new suffix
             var telecomRegex = new RegExp(oldTelecomTableIdSuffix, 'g');
             html = html.replace(telecomRegex, newTelecomTableIdSuffix);
         }
-        
+
         // ===== ADDRESS TABLE ID REPLACEMENTS =====
-        
+
         // Create unique ID for related person address table
         var newAddressTableIdSuffix = js_uniqid();
 
         // Find the old address table ID
         var addressMatch = html.match(/table_edit_addresses_([a-f0-9]+)/);
-        
+
         if (addressMatch && addressMatch[1]) {
-            var oldAddressTableIdSuffix = addressMatch[1];      
+            var oldAddressTableIdSuffix = addressMatch[1];
             console.log('Address: Replacing', oldAddressTableIdSuffix, '→', newAddressTableIdSuffix);
-            
+
             // Replace table ID everywhere it appears
             var addressRegex = new RegExp(oldAddressTableIdSuffix, 'g');
             html = html.replace(addressRegex, newAddressTableIdSuffix);
@@ -654,27 +654,41 @@
             }
         }
 
+        // Populate the form fields with person data
+        const firstNameInput = relation_clone.querySelector('.form_relations_first_name');
+        const middleNameInput = relation_clone.querySelector('.form_relations_middle_name');
+        const lastNameInput = relation_clone.querySelector('.form_relations_last_name');
+        const genderInput = relation_clone.querySelector('.form_relations_gender');
+        const birthDateInput = relation_clone.querySelector('.form_relations_birth_date');
+
+        if (firstNameInput) firstNameInput.value = person.first_name || '';
+        if (middleNameInput) middleNameInput.value = person.middle_name || '';
+        if (lastNameInput) lastNameInput.value = person.last_name || '';
+        if (genderInput) genderInput.value = person.gender || '';
+        if (birthDateInput) birthDateInput.value = person.birth_date || '';
+
+
         // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
         // Scripts inserted via innerHTML don't execute, so we need to replace them
         var oldScripts = relation_clone.querySelectorAll('script');
         oldScripts.forEach(function(oldScript) {
             var newScript = document.createElement('script');
             newScript.type = 'text/javascript';
-            
+
             // Copy the script content
             if (oldScript.src) {
                 newScript.src = oldScript.src;
             } else {
                 newScript.textContent = oldScript.textContent;
             }
-            
+
             // Copy any other attributes
             Array.from(oldScript.attributes).forEach(function(attr) {
                 if (attr.name !== 'type') {
                     newScript.setAttribute(attr.name, attr.value);
                 }
             });
-            
+
             // Replace the old script with the new one
             oldScript.parentNode.replaceChild(newScript, oldScript);
         });
