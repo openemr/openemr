@@ -755,7 +755,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";
                 $is_migrated = QueryUtils::querySingleRow($sql)['is_migrated'];
                 $is_version = $this->shouldExecuteVersionUpdate(self::CARE_TEAMS_V1_MIGRATION_VERSION);
-                if (empty($is_migrated && $is_version)) {
+                if (empty($is_migrated) && !empty($is_version)) {
                     $skipping = false;
                     $this->migrateCareTeamsV1ToV2();
                 } else {
