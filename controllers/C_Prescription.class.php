@@ -26,6 +26,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\PatientIssuesService;
 
 class C_Prescription extends Controller
@@ -161,10 +162,9 @@ class C_Prescription extends Controller
         $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $_SESSION['encounter'] ?? '';
         $this->assign("defaultEncounterId", $defaultEncounterId);
 
-        // if we are no a prescription with a drug id, disable the dispense button
-        if (empty($this->prescriptions[0]->get_drug_id())) {
-            $this->assign("dispenseEnabled", false);
-        }
+        // Track whether this is a new prescription (no ID yet) - affects dispense behavior
+        $isNewPrescription = empty($this->prescriptions[0]->id);
+        $this->assign("isNewPrescription", $isNewPrescription);
 
         $this->default_action();
     }
@@ -353,7 +353,67 @@ class C_Prescription extends Controller
               processAmcCall('e_prescribe_cont_subst_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
         }
 
+        // Handle dispense after save if requested (Save and Dispense workflow)
+        if (!empty($_POST['dispense_after_save']) && $_POST['dispense_after_save'] === '1') {
+            $this->dispenseAfterSave();
+            return;
+        }
+
         $this->list_action($this->prescriptions[0]->get_patient_id());
+        exit;
+    }
+
+    /**
+     * Dispense drug immediately after saving a new prescription.
+     * Uses DrugSalesService for proper inventory management.
+     */
+    private function dispenseAfterSave(): void
+    {
+        $prescription = $this->prescriptions[0];
+        $drugId = (int)($_POST['dispense_drug_id'] ?? $_POST['drug_id'] ?? 0);
+        $quantity = (float)($_POST['disp_quantity'] ?? 0);
+        $fee = (float)($_POST['disp_fee'] ?? 0);
+        $encounterId = (int)($_POST['dispense_encounter_id'] ?? 0);
+        $patientId = $prescription->get_patient_id();
+        $prescriptionId = $prescription->id;
+
+        $dispenseError = null;
+
+        if ($drugId <= 0) {
+            $dispenseError = xl('No in-house drug selected for dispensing');
+        } elseif ($quantity <= 0) {
+            $dispenseError = xl('Invalid dispense quantity');
+        } elseif ($encounterId <= 0) {
+            $dispenseError = xl('No encounter selected for dispensing');
+        } else {
+            try {
+                $drugSalesService = new DrugSalesService();
+                $saleId = $drugSalesService->sellDrug(
+                    $drugId,
+                    $quantity,
+                    $fee,
+                    $patientId,
+                    $encounterId,
+                    $prescriptionId
+                );
+
+                if (!$saleId) {
+                    $dispenseError = xl('Inventory is not available for this order');
+                }
+            } catch (\Exception $e) {
+                $dispenseError = $e->getMessage();
+            }
+        }
+
+        if ($dispenseError) {
+            // Show error and return to prescription list
+            echo "<script>alert(" . js_escape($dispenseError) . "); ";
+            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url($patientId) . "';</script>";
+            exit;
+        }
+
+        // Success - redirect to prescription list
+        $this->list_action($patientId);
         exit;
     }
 

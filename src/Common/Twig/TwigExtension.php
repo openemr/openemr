@@ -142,7 +142,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                         'edit_options' => '',
                         'empty_name' => $opts['empty_name'] ?? ''
                     ];
-                    return $encounterOptionType->buildDisplayView($frow, $selectedValue);
+                    return $encounterOptionType->buildFormView($frow, $selectedValue);
                 }
             ),
 
