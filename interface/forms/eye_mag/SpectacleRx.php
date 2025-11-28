@@ -112,7 +112,7 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
     sqlStatement($query, [$_REQUEST['delete_id']]);
     echo xlt('Prescription successfully removed.');
     exit;
-} elseif (($_REQUEST['RXTYPE'] ?? '')) {  //store any changed fields
+} elseif ($_REQUEST['RXTYPE'] ?? '') {  //store any changed fields
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
     sqlStatement($query, [$_REQUEST['RXTYPE'], $_REQUEST['id']]);
     exit;
