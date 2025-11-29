@@ -1,490 +1,398 @@
 # OpenEMR REST API Documentation
 
-## REST API Table of Contents
-- [Overview](API_README.md#overview)
-- [Prerequisite](API_README.md#prerequisite)
-- [Using API Internally](API_README.md#using-api-internally)
-- [Multisite Support](API_README.md#multisite-support)
-- [Authorization](API_README.md#authorization)
-    - [Scopes](API_README.md#scopes)
-    - [Registration](API_README.md#registration)
-        - [SMART on FHIR Registration](API_README.md#smart-on-fhir-registration)
-    - [Authorization Code Grant](API_README.md#authorization-code-grant)
-    - [Refresh Token Grant](API_README.md#refresh-token-grant)
-    - [Password Grant](API_README.md#password-grant)
-    - [Client Credentials Grant](API_README.md#client-credentials-grant)
-    - [Logout](API_README.md#logout)
-    - [OpenID Connect](API_README.md#openid-connect)
-    - [More Details](API_README.md#more-details)
-- [Standard API Documentation](API_README.md#standard-api-documentation)
-- [Patient Portal API Documentation](API_README.md#patient-portal-api-documentation)
-- [FHIR API Documentation (in FHIR_README.md)](FHIR_README.md#fhir-api-documentation)
-    - [Capability Statement (in FHIR_README.md)](FHIR_README.md#capability-statement)
-    - [Provenance (in FHIR_README.md)](FHIR_README.md#Provenance-resources)
-    - [BULK FHIR Exports (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
-        - [System Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
-        - [Patient Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
-        - [Group Export (in FHIR_README.md)](FHIR_README.md#bulk-fhir-exports)
-    - [3rd Party SMART Apps (in FHIR_README.md)](FHIR_README.md#3rd-party-smart-apps)
-    - [Native Applications (in FHIR_README.md)](FHIR_README.md#native-applications)
-    - [Carecoordination Summary of Care (CCD) Generation (in FHIR_README.md)](FHIR_README.md#carecoordination-summary-of-care-docref-operation)
-        - [Overview Docref (in FHIR_README.md)](FHIR_README.md#overview-docref)
-        - [Generate CCDA (in FHIR_README.md)](FHIR_README.md#generate-ccda)
-        - [Details Docref (in FHIR_README.md)](FHIR_README.md#details-docref)
-- [Security Settings](API_README.md#security)
-- [For Developers](API_README.md#for-developers)
+> **📚 Complete documentation has moved to [Documentation/api/](Documentation/api/README.md)**
 
-## Overview
+This project provides comprehensive REST and FHIR APIs for OpenEMR, supporting:
+- **FHIR R4** - Full FHIR Release 4 implementation
+- **US Core 8.0** - US healthcare compliance
+- **SMART on FHIR v2.2.0** - Advanced app integration
+- **OAuth 2.0 / OpenID Connect** - Secure authentication
+- **Bulk Data Export** - Population health analytics
 
-Easy-to-use JSON-based REST API for OpenEMR. FHIR is also supported, see FHIR API documentation [here](FHIR_README.md),
+## 🚀 Quick Start
 
-## Prerequisite
+### 1. Enable the API
+**Administration → Config → Connectors**
+- ☑ Enable OpenEMR Standard REST API
+- ☑ Enable OpenEMR Standard FHIR REST API
 
-Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Config->Connectors->"Enable OpenEMR Standard REST API"
+### 2. Configure SSL
+Set your base URL at:
+**Administration → Config → Connectors → Site Address (required for OAuth2 and FHIR)**
 
-## Using API Internally
-
-There are several ways to make API calls from an authorized session and maintain security:
-
--   See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
-
-## Multisite Support
-
-Multisite is supported by including the site in the endpoint. When not using multisite or using the `default` multisite site, then a typical path would look like `apis/default/api/patient`. If you are using multisite and using a site called `alternate`, then the path would look like `apis/alternate/api/patient`.
-
-## Authorization
-
-OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Config->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. The listing of scopes can be found in below Scopes section.
-
-### Scopes
-
-This is a listing of scopes:
-- `openid` (Generic mandatory scope)
-- `fhirUser`
-- `online_access`
-- `offline_access` (Will signal server to provide a refresh token)
-- `launch`
-- `launch/patient`
-- `api:fhir` (fhir which are the /fhir/ endpoints)
-  - `patient/AllergyIntolerance.read`
-  - `patient/Appointment.read`
-  - `patient/Binary.read`
-  - `patient/CarePlan.read`
-  - `patient/CareTeam.read`
-  - `patient/Condition.read`
-  - `patient/Coverage.read`
-  - `patient/Device.read`
-  - `patient/DiagnosticReport.read`
-  - `patient/DocumentReference.read`
-  - `patient/DocumentReference.$docref`
-  - `patient/Encounter.read`
-  - `patient/Goal.read`
-  - `patient/Immunization.read`
-  - `patient/Location.read`
-  - `patient/MedicationRequest.read`
-  - `patient/Medication.read`
-  - `patient/Observation.read`
-  - `patient/Organization.read`
-  - `patient/Patient.read`
-  - `patient/Person.read`
-  - `patient/Practitioner.read`
-  - `patient/Procedure.read`
-  - `patient/Provenance.read`
-  - `system/AllergyIntolerance.read`
-  - `system/Binary.read`
-  - `system/CarePlan.read`
-  - `system/CareTeam.read`
-  - `system/Condition.read`
-  - `system/Coverage.read`
-  - `system/Device.read`
-  - `system/DiagnosticReport.read`
-  - `system/DocumentReference.read`
-  - `system/DocumentReference.$docref`
-  - `system/Encounter.read`
-  - `system/Goal.read`
-  - `system/Group.read`
-  - `system/Group.$export`
-  - `system/Immunization.read`
-  - `system/Location.read`
-  - `system/MedicationRequest.read`
-  - `system/Medication.read`
-  - `system/Observation.read`
-  - `system/Organization.read`
-  - `system/Patient.read`
-  - `system/Patient.$export`
-  - `system/Person.read`
-  - `system/Practitioner.read`
-  - `system/PractitionerRole.read`
-  - `system/Procedure.read`
-  - `system/Provenance.read`
-  - `system/*.$bulkdata-status`
-  - `system/*.$export`
-  - `user/AllergyIntolerance.read`
-  - `user/Binary.read`
-  - `user/CarePlan.read`
-  - `user/CareTeam.read`
-  - `user/Condition.read`
-  - `user/Coverage.read`
-  - `user/Device.read`
-  - `user/DiagnosticReport.read`
-  - `user/DocumentReference.read`
-  - `user/DocumentReference.$docref`
-  - `user/Encounter.read`
-  - `user/Goal.read`
-  - `user/Immunization.read`
-  - `user/Location.read`
-  - `user/MedicationRequest.read`
-  - `user/Medication.read`
-  - `user/Observation.read`
-  - `user/Organization.read`
-  - `user/Organization.write`
-  - `user/Patient.read`
-  - `user/Patient.write`
-  - `user/Person.read`
-  - `user/Practitioner.read`
-  - `user/Practitioner.write`
-  - `user/PractitionerRole.read`
-  - `user/Procedure.read`
-  - `user/Provenance.read`
-- `api:oemr` (user api which are the /api/ endpoints)
-  - `user/allergy.read`
-  - `user/allergy.write`
-  - `user/appointment.read`
-  - `user/appointment.write`
-  - `user/dental_issue.read`
-  - `user/dental_issue.write`
-  - `user/document.read`
-  - `user/document.write`
-  - `user/drug.read`
-  - `user/employer.read`
-  - `user/encounter.read`
-  - `user/encounter.write`
-  - `user/facility.read`
-  - `user/facility.write`
-  - `user/immunization.read`
-  - `user/insurance.read`
-  - `user/insurance.write`
-  - `user/insurance_company.read`
-  - `user/insurance_company.write`
-  - `user/insurance_type.read`
-  - `user/list.read`
-  - `user/medical_problem.read`
-  - `user/medical_problem.write`
-  - `user/medication.read`
-  - `user/medication.write`
-  - `user/message.write`
-  - `user/patient.read`
-  - `user/patient.write`
-  - `user/practitioner.read`
-  - `user/practitioner.write`
-  - `user/prescription.read`
-  - `user/procedure.read`
-  - `user/product.read`
-  - `user/soap_note.read`
-  - `user/soap_note.write`
-  - `user/surgery.read`
-  - `user/surgery.write`
-  - `user/transaction.read`
-  - `user/transaction.write`
-  - `user/vital.read`
-  - `user/vital.write`
-- `api:port` (patient api which are the /portal/ endpoints) (EXPERIMENTAL)
-  - `patient/encounter.read`
-  - `patient/patient.read`
-  - `patient/appointment.read`
-
-### Registration
-
-Here is an example for registering a client. A client needs to be registered before applying for grant to obtain access/refresh tokens. Note: "post_logout_redirect_uris" is optional and only used if client wants a redirect to its own confirmation workflow.
-
-Note that all scopes are included in this example for demonstration purposes. For production purposes, should only include the necessary scopes.
-
-```sh
-curl -X POST -k -H 'Content-Type: application/json' -i https://localhost:9300/oauth2/default/registration --data '{
-   "application_type": "private",
-   "redirect_uris":
-     ["https://client.example.org/callback"],
-   "post_logout_redirect_uris":
-     ["https://client.example.org/logout/callback"],
-   "client_name": "A Private App",
-   "token_endpoint_auth_method": "client_secret_post",
-   "contacts": ["me@example.org", "them@example.org"],
-   "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write user/transaction.read user/transaction.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Coverage.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
+### 3. Register Your Application
+```bash
+curl -X POST https://localhost:9300/oauth2/default/registration \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "client_name": "My App",
+    "redirect_uris": ["https://myapp.example.com/callback"],
+    "scope": "openid api:fhir patient/Patient.rs patient/Observation.rs"
   }'
 ```
 
-Response:
-```sh
-{
-    "client_id": "LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA",
-    "client_secret": "j21ecvLmFi9HPc_Hv0t7Ptmf1pVcZQLtHjIdU7U9tkS9WAjFJwVMav0G8ogTJ62q4BATovC7BQ19Qagc4x9BBg",
-    "registration_access_token": "uiDSXx2GNSvYy5n8eW50aGrJz0HjaGpUdrGf07Agv_Q",
-    "registration_client_uri": "https:\/\/localhost:9300\/oauth2\/default\/client\/6eUVG0-qK2dYiwfYdECKIw",
-    "client_id_issued_at": 1604767861,
-    "client_secret_expires_at": 0,
-    "contacts": ["me@example.org", "them@example.org"],
-    "application_type": "private",
-    "client_name": "A Private App",
-    "redirect_uris": ["https:\/\/client.example.org\/callback"],
-    "token_endpoint_auth_method": "client_secret_post",
-    "scope": "openid offline_access api:oemr api:fhir api:port user/allergy.read user/allergy.write user/appointment.read user/appointment.write user/dental_issue.read user/dental_issue.write user/document.read user/document.write user/drug.read user/encounter.read user/encounter.write user/facility.read user/facility.write user/immunization.read user/insurance.read user/insurance.write user/insurance_company.read user/insurance_company.write user/insurance_type.read user/list.read user/medical_problem.read user/medical_problem.write user/medication.read user/medication.write user/message.write user/patient.read user/patient.write user/practitioner.read user/practitioner.write user/prescription.read user/procedure.read user/soap_note.read user/soap_note.write user/surgery.read user/surgery.write  user/transaction.read user/transaction.write user/vital.read user/vital.write user/AllergyIntolerance.read user/CareTeam.read user/Condition.read user/Coverage.read user/Encounter.read user/Immunization.read user/Location.read user/Medication.read user/MedicationRequest.read user/Observation.read user/Organization.read user/Organization.write user/Patient.read user/Patient.write user/Practitioner.read user/Practitioner.write user/PractitionerRole.read user/Procedure.read patient/encounter.read patient/patient.read patient/AllergyIntolerance.read patient/CareTeam.read patient/Condition.read patient/Coverage.read patient/Encounter.read patient/Immunization.read patient/MedicationRequest.read patient/Observation.read patient/Patient.read patient/Procedure.read"
-}
+### 4. Make Your First Request
+```bash
+curl -X GET 'https://localhost:9300/apis/default/fhir/Patient' \
+  -H 'Authorization: Bearer YOUR_ACCESS_TOKEN'
 ```
 
-#### SMART on FHIR Registration
+## 📖 Documentation
 
-SMART Enabled Apps are supported.
+### Core Documentation
+- **[📘 Complete API Documentation](Documentation/api/README.md)** - Start here for overview
+- **[🔐 Authentication Guide](Documentation/api/AUTHENTICATION.md)** - OAuth2, tokens, and client registration
+- **[🔑 Authorization & Scopes](Documentation/api/AUTHORIZATION.md)** - Permissions and access control
+- **[🏥 FHIR API Reference](Documentation/api/FHIR_API.md)** - FHIR R4 endpoints and resources
+- **[⚡ SMART on FHIR](Documentation/api/SMART_ON_FHIR.md)** - App integration and launch flows
+- **[🛠️ Standard API Reference](Documentation/api/STANDARD_API.md)** - OpenEMR REST endpoints
+- **[👨‍💻 Developer Guide](Documentation/api/DEVELOPER_GUIDE.md)** - Internal usage and development
 
-SMART client can be registered at <website>/interface/smart/register-app.php. For example https://localhost:9300/interface/smart/register-app.php
+## 🎯 Common Tasks
 
-After registering the SMART client, can then Enable it in OpenEMR at Administration->System->API Clients
+### Authenticate Your Application
+→ [Authorization Code Grant](Documentation/api/AUTHENTICATION.md#authorization-code-grant)
 
-After it is enabled, the SMART App will then be available to use in the Patient Summary screen (SMART Enabled Apps widget).
+### Understand Scopes
+→ [Scopes Reference](Documentation/api/AUTHORIZATION.md#scopes)
 
-See this github issue for an example of a Smart App installation: https://github.com/openemr/openemr/issues/4148
+### Access Patient Data
+→ [FHIR Patient Resource](Documentation/api/FHIR_API.md#patient-resources)
 
-### Authorization Code Grant
+### Integrate a SMART App
+→ [SMART Registration](Documentation/api/SMART_ON_FHIR.md#app-registration)
 
-This is the recommended standard mechanism to obtain access/refresh tokens. This is done by using an OAuth2 client with provider url of `oauth2/<site>`; an example full path would be `https://localhost:9300/oauth2/default`.  Standard OAUTH2 clients will retrieve the authorize URL from the FHIR /metadata endpoint, but if you are building your own client you can access the metadata or go directly to the https://localhost:9300/oauth2/default/authorize endpoint.
+### Launch Apps from EHR
+→ [EHR Launch Flow](Documentation/api/SMART_ON_FHIR.md#ehr-launch)
 
-Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting authorization grant.
+### Export Bulk Data
+→ [Bulk FHIR Exports](Documentation/api/FHIR_API.md#bulk-fhir-exports)
 
-You will need to pass the scopes you are requesting, the redirect_uri (must be one that was registered at the time of your client registration), and a state parameter which can be any value.  Once authorization has finished the browser will be redirected to the URL specified in redirect_uri with an encrypted code value and the state value sent in the initial authorize request.
+### Generate Care Documents (CCD)
+→ [DocumentReference $docref](Documentation/api/FHIR_API.md#documentreference-docref-operation)
 
-Example GET (this must be done in a browser):
+## ✨ What's New in SMART v2.2.0
+
+### Enhanced Security & Permissions
+- ✨ **[Granular Scopes](Documentation/api/AUTHORIZATION.md#granular-scopes)** - Fine-grained permissions (`.cruds` syntax)
+- ✨ **[POST-Based Authorization](Documentation/api/AUTHENTICATION.md#post-based-authorization)** - More secure auth requests
+- ✨ **[Asymmetric Authentication](Documentation/api/AUTHENTICATION.md#asymmetric-client-authentication)** - JWKS support
+- ✨ **[Token Introspection](Documentation/api/AUTHENTICATION.md#token-introspection)** - Validate token status
+
+### Enhanced Context & Discovery
+- ✨ **[EHR Launch with Encounter Context](Documentation/api/SMART_ON_FHIR.md#encounter-context)** - Context-aware apps
+- ✨ **[SMART Configuration Endpoint](Documentation/api/SMART_ON_FHIR.md#smart-configuration)** - Dynamic capability discovery
+
+### New FHIR Resources
+- ✨ **[ServiceRequest](Documentation/api/FHIR_API.md#servicerequest-)** - Lab orders, imaging requests, referrals
+- ✨ **[Specimen](Documentation/api/FHIR_API.md#specimen-)** - Laboratory specimen tracking
+- ✨ **[MedicationDispense](Documentation/api/FHIR_API.md#medicationdispense-)** - Pharmacy dispensing records
+- ✨ **[RelatedPerson](Documentation/api/FHIR_API.md#relatedperson-)** - Patient relationships and contacts
+
+See complete resource list in [FHIR API Documentation](Documentation/api/FHIR_API.md#supported-resources)
+
+## 📚 API Endpoints
+
+### FHIR API (FHIR R4)
 ```
-GET /oauth2/default/authorize?client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4&response_type=code&scope=launch%2Fpatient%20openid%20fhirUser%20offline_access%20patient%2FAllergyIntolerance.read%20patient%2FCarePlan.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FDevice.read%20patient%2FDiagnosticReport.read%20patient%2FDocumentReference.read%20patient%2FEncounter.read%20patient%2FGoal.read%20patient%2FImmunization.read%20patient%2FLocation.read%20patient%2FMedication.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FOrganization.read%20patient%2FPatient.read%20patient%2FPractitioner.read%20patient%2FProcedure.read%20patient%2FProvenance.read&redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&state=9512151b-e5ca-cb4b-1ddc-aaf4cd8c6ecc
+https://localhost:9300/apis/default/fhir
 ```
+**[→ Full FHIR Documentation](Documentation/api/FHIR_API.md)**
 
-The client application must then make a request for an access token by hitting the /token endpoint.  Note the redirect_uri MUST match what what was sent in /authorize endpoint.  If your application is registered as a public application you must include the client_id in the POST request.  If you are registered as a confidential app you must use HTTP Basic Authentication where the client_id is your username and the password is your client_secret.  HTTP Basic Authentication follows the algorithm of base64_encode(username:client_secret).  In PHP this would be base64_encode($client_id . ':' . $client_secret);  Note that this mechanism should ONLY be used over an encrypted protocol such as TLS to prevent leaking your client_secret.
+**Key Endpoints:**
+- `GET /fhir/metadata` - Capability statement (no auth required)
+- `GET /fhir/Patient` - Patient search
+- `GET /fhir/Observation?patient=123` - Patient observations
+- `POST /fhir/DocumentReference/$docref` - Generate CCD
+- `GET /fhir/$export` - Bulk data export
 
-Example Public Application POST
+### Standard API (OpenEMR REST)
 ```
-curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
-'https://localhost:9300/oauth2/default/token'
---data 'grant_type=authorization_code&client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&code=def50...'
+https://localhost:9300/apis/default/api
 ```
+**[→ Full Standard API Documentation](Documentation/api/STANDARD_API.md)**
 
-Example Private Application POST
+**Key Endpoints:**
+- `GET /api/patient` - List patients
+- `GET /api/patient/123` - Get patient details
+- `GET /api/patient/123/encounter` - Patient encounters
+- `POST /api/patient` - Create patient
+
+### Patient Portal API (Experimental)
 ```
-curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded' \
-    -H 'Authorization: Basic c3Z2TThFX1hISEhYUmtoZzUyeWoyNjdIOEYwQnpmT09pRmE4aUZBT290WTptbzZpZEFPaEU0UVYxb0lacUR5YTFHR1JHVGU5VDQzNWpzeTlRbWYxV2NiVFQ4NXhuZW5VdUpaUFR0bUZGT1QxVkhmYjZiclVvWWZ2Znd2NTFQejFldw==' \
-    'https://localhost:9300/oauth2/default/token' \
-    --data 'grant_type=authorization_code&client_id=yi4mnmVadpnqnJiOigkcGshuG-Kayiq6kmLqCJsYrk4redirect_uri=https%3A%2F%2Fclient.example.org%2Fcallback&code=def50...'
+https://localhost:9300/apis/default/portal
 ```
-### Refresh Token Grant
+**[→ Portal API Documentation](Documentation/api/STANDARD_API.md#patient-portal-api)**
 
-Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting authorization or password grant.
+## 🔒 Security & Compliance
 
-Example:
+### Required Security Measures
+- ✅ **HTTPS/TLS Required** - All API communication must be encrypted
+- ✅ **OAuth 2.0** - Industry-standard authorization
+- ✅ **Granular Scopes** - Principle of least privilege
+- ✅ **PKCE for Public Apps** - Enhanced security for native/browser apps
+- ✅ **Token Validation** - Introspection support
 
-```sh
-curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
--i 'https://localhost:9300/oauth2/default/token'
---data 'grant_type=refresh_token
-&client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&refresh_token=def5020089a766d16...'
+### Standards Compliance
+- ✅ **HIPAA** - Protected health information safeguards
+- ✅ **ONC Cures Update** - Information blocking compliance
+- ✅ **FHIR R4** - HL7 FHIR Release 4
+- ✅ **US Core 8.0** - US healthcare requirements
+- ✅ **SMART v2.2.0** - App launch framework
+
+**[→ Security Best Practices](Documentation/api/DEVELOPER_GUIDE.md#security)**
+
+## 🧪 Testing & Development
+
+### Interactive Testing
+Test endpoints interactively with Swagger UI:
 ```
-
-Response:
-
-```json
-{
-  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYn...",
-  "token_type": "Bearer",
-  "expires_in": 3599,
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYnl1RkRp...",
-  "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
-}
-```
-
-### Password Grant
-
-Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Config->Connectors->'Enable OAuth2 Password Grant (Not considered secure)'.
-
-Note that all scopes are included in these examples for demonstration purposes. For production purposes, should only include the necessary scopes.
-
-Note that a refresh token is only supplied if the `offline_access` scope is provided when requesting password grant.
-
-Example for `users` role:
-```sh
-curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
--i 'https://localhost:9300/oauth2/default/token'
---data 'grant_type=password
-&client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid%20offline_access%20api%3Aoemr%20api%3Afhir%20user%2Fallergy.read%20user%2Fallergy.write%20user%2Fappointment.read%20user%2Fappointment.write%20user%2Fdental_issue.read%20user%2Fdental_issue.write%20user%2Fdocument.read%20user%2Fdocument.write%20user%2Fdrug.read%20user%2Fencounter.read%20user%2Fencounter.write%20user%2Ffacility.read%20user%2Ffacility.write%20user%2Fimmunization.read%20user%2Finsurance.read%20user%2Finsurance.write%20user%2Finsurance_company.read%20user%2Finsurance_company.write%20user%2Finsurance_type.read%20user%2Flist.read%20user%2Fmedical_problem.read%20user%2Fmedical_problem.write%20user%2Fmedication.read%20user%2Fmedication.write%20user%2Fmessage.write%20user%2Fpatient.read%20user%2Fpatient.write%20user%2Fpractitioner.read%20user%2Fpractitioner.write%20user%2Fprescription.read%20user%2Fprocedure.read%20user%2Fsoap_note.read%20user%2Fsoap_note.write%20user%2Fsurgery.read%20user%2Fsurgery.write%20user%2Ftransaction.read%20user%2Ftransaction.write%20user%2Fvital.read%20user%2Fvital.write%20user%2FAllergyIntolerance.read%20user%2FCareTeam.read%20user%2FCondition.read%20user%2FCoverage.read%20user%2FEncounter.read%20user%2FImmunization.read%20user%2FLocation.read%20user%2FMedication.read%20user%2FMedicationRequest.read%20user%2FObservation.read%20user%2FOrganization.read%20user%2FOrganization.write%20user%2FPatient.read%20user%2FPatient.write%20user%2FPractitioner.read%20user%2FPractitioner.write%20user%2FPractitionerRole.read%20user%2FProcedure.read
-&user_role=users
-&username=admin
-&password=pass'
-```
-
-Example for `patient` role:
-```sh
-curl -X POST -k -H 'Content-Type: application/x-www-form-urlencoded'
--i 'https://localhost:9300/oauth2/default/token'
---data 'grant_type=password
-&client_id=LnjqojEEjFYe5j2Jp9m9UnmuxOnMg4VodEJj3yE8_OA
-&scope=openid%20offline_access%20api%3Aport%20api%3Afhir%20patient%2Fencounter.read%20patient%2Fpatient.read%20patient%2FAllergyIntolerance.read%20patient%2FCareTeam.read%20patient%2FCondition.read%20patient%2FCoverage.read%20patient%2FEncounter.read%20patient%2FImmunization.read%20patient%2FMedication.read%20patient%2FMedicationRequest.read%20patient%2FObservation.read%20patient%2FPatient.read%20patient%2FProcedure.read
-&user_role=patient
-&username=Phil1
-&password=phil
-&email=heya@invalid.email.com'
-```
-
-Response:
-
-```json
-{
-  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYn...",
-  "token_type": "Bearer",
-  "expires_in": 3599,
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJrYnl1RkRp...",
-  "refresh_token": "def5020017b484b0add020bf3491a8a537fa04eda12..."
-}
-```
-
-### Client Credentials Grant
-
-This is an advanced grant that uses JSON Web Key Sets(JWKS) to authenticate and identify the client.  This credential grant is
-required to be used for access to any **system/\*.$export** scopes.  API clients must register either web accessible JWKS URI that hosts
-a RSA384 compatible key, or provide their JWKS as part of the registration. Client Credentials Grant access tokens are short
-lived and valid for only 1 minute and no refresh token is issued.  Tokens are requested at `/oauth2/default/token`
-To walk you through how to do this process you can follow [this guide created by HL7](https://hl7.org/fhir/uv/bulkdata/STU1/authorization/index.html).
-
-### Logout
-
-A grant (both Authorization Code and Password grants) can be logged out (ie. removed) by url of `oauth2/<site>/logout?id_token_hint=<id_token>`; an example full path would be `https://localhost:9300/oauth2/default/logout?id_token_hint=<id_token>`. Optional: `post_logout_redirect_uri` and `state` parameters can also be sent; note that `post_logout_redirect_uris` also needs to be set during registration for it to work.
-
-## OpenID Connect
-- The OpenEMR OpenID Connect discover endpoint is `https://{openmr_host}/oauth2/{site}/.well-known/openid-configuration` as the base URI. An example on the OpenEMR easy-dev docker with the 'default' site installation would be: https://localhost:9300/oauth2/default/.well-known/openid-configuration
-- A sample response is the following:
-    ```json
-    {
-       "issuer": "https://localhost:9300/oauth2/default",
-       "authorization_endpoint": "https://localhost:9300/oauth2/default/authorize",
-       "token_endpoint": "https://localhost:9300/oauth2/default/token",
-       "jwks_uri": "https://localhost:9300/oauth2/default/jwk",
-       "userinfo_endpoint": "https://localhost:9300/oauth2/default/userinfo",
-       "registration_endpoint": "https://localhost:9300/oauth2/default/registration",
-       "end_session_endpoint": "https://localhost:9300/oauth2/default/logout",
-       "introspection_endpoint": "https://localhost:9300/oauth2/default/introspect",
-       "scopes_supported": [
-         "openid",
-         "fhirUser",
-         "online_access",
-         "offline_access",
-         "launch",
-         "launch\/patient",
-         "api:oemr",
-         "api:fhir",
-         "api:port"
-       ]
-    }
-   ```
-- The standard site used is **default**
-- OpenEMR supports token revocation.  It is recommended that clients use the OpenID Connect **introspection_endpoint** retrieved from the discovery endpoint to verify a token is active before assuming the token is active.
-
-### More Details
-
-The forum thread that detailed development of Authorization and where questions and issues are addressed is here: https://community.open-emr.org/t/v6-authorization-and-api-changes-afoot/15450
-
-More specific development api topics are discussed and described on the above forum thread (such as introspection).
-
-## Standard API Documentation
-
-The Standard API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Standard API is documented there in the `standard` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there).  Make sure to set your client api registration's redirect_uris to be `<OpenEMR base URI>/swagger/oauth2-redirect.html`.
-
-OpenEMR standard endpoints Use `https://localhost:9300/apis/default/api as base URI.`
-
-Note that the `default` component can be changed to the name of the site when using OpenEMR's multisite feature.
-
-_Example:_ `https://localhost:9300/apis/default/api/patient` returns a resource of all Patients.
-
-The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header. Note that the Bearer token is the access_token that is obtained in the above [Authorization](API_README.md#authorization) section.
-
-Request:
-
-```sh
-curl -X GET 'https://localhost:9300/apis/default/api/patient/1/medical_problem' \
-  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
+https://your-openemr-install/swagger/
 ```
 
-## Patient Portal API Documentation
+### Online Demos
+Try the API on live demo instances:
+- **Demo URL:** https://www.open-emr.org/wiki/index.php/Development_Demo
+- **Click:** "API (Swagger) User Interface" link
 
-The Patient Portal API is documented via Swagger. Can see this documentation (and can test it) by going to the `swagger` directory in your OpenEMR installation. The Patient Portal API is documented there in the `standard-patient` section. Can also see (and test) this in the online demos at https://www.open-emr.org/wiki/index.php/Development_Demo#Daily_Build_Development_Demos (clicking on the `API (Swagger) User Interface` link for the demo will take you there). Make sure to set your client api registration's redirect_uris to be `<OpenEMR base URI>/swagger/oauth2-redirect.html`.
-
-This is under development and is considered EXPERIMENTAL.
-
-Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Config->Connectors->"Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)"
-
-OpenEMR patient portal endpoints Use `https://localhost:9300/apis/default/portal as base URI.`
-
-Note that the `default` component can be changed to the name of the site when using OpenEMR's multisite feature.
-
-_Example:_ `https://localhost:9300/apis/default/portal/patient` returns a resource of the patient.
-
-The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header. Note that the Bearer token is the access_token that is obtained in the above [Authorization](API_README.md#authorization) section.
-
-Request:
-
-```sh
-curl -X GET 'https://localhost:9300/apis/default/portal/patient' \
-  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
+### Configure Swagger OAuth
+When testing with Swagger, set your client's redirect URI to:
+```
+<OpenEMR base URI>/swagger/oauth2-redirect.html
 ```
 
-## Security
-- OpenEMR adminstrators / installers should ensure that the API is protected using an end to end encryption protocol such as TLS
-- Password Grant SHOULD be turned off for any kind of production use as it has a number of security problems
-- Setting the Admin -> Config -> OAuth2 App Manual Approval Settings to be 'Manual Approval' prevents any OAuth2 application from accessing the API without manual approval from an administrator.  This is the most secure setting.  However, in the USA jurisdiction that must comply with CEHRT rules for ONC Cures Update, patient standalone apps must be approved within 48 hours of a patient requesting access in order to avoid pentalities under the Information Blocking Provisions from ONC.  EHR administrators are not allowed to vet a patient's choice of an app as long as the app complies with OpenEMR's OAuth2 security requirements.  If an app requests user/* or system/* scopes, administrators can vet an application and request additional information / security on an app by app basis.  Leaving the setting at the default will auto-approve any patient standalone app.
-- Public apps (ones that can't securely store a secret) MUST implement the PKCE standard specified in [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636).  Confidential apps are still highly encouraged to implement PKCE to mitigate forms of MITM attacks such as multiple native app devices registering for the same custom url scheme used as the OAUTH2 redirect_uri in the authorization_code grant.
+## 🌐 Multisite Support
 
-## For Developers
+OpenEMR supports multiple sites with site-specific endpoints:
 
--   For business logic, make or use the services [here](src/Services)
--   For controller logic, make or use the classes [here](src/RestControllers)
--   For routing declarations, use the class [here](_rest_routes.inc.php).
-
-REST API endpoints are defined in the [primary routes file](_rest_routes.inc.php). The routes file maps an external, addressable
-endpoint to the OpenEMR controller which handles the request, and also handles the JSON data conversions.
-
-```php
-"POST /api/patient" => function (HttpRestRequest $request) {
-    RestConfig::request_authorization_check($request, "patients", "demo");
-    $data = (array) (json_decode(file_get_contents("php://input")));
-    $return = (new PatientRestController())->post($data);
-    return $return;
-}
+**Default site:**
+```
+https://localhost:9300/apis/default/fhir
+https://localhost:9300/apis/default/api
 ```
 
-At a high level, the request processing flow consists of the following steps:
-
+**Alternate site:**
 ```
-JSON Request -> Controller Component -> Validation -> Service Component -> Database
-```
-
-The logical response flow begins with the database result:
-
-```
-Database Result -> Service Component -> Controller Component -> RequestControllerHelper -> JSON Response
+https://localhost:9300/apis/alternate/fhir
+https://localhost:9300/apis/alternate/api
 ```
 
-The [RequestControllerHelper class](./src/RestControllers/RestControllerHelper.php) evaluates the Service Component's
-result and maps it to a http response code and response payload. Existing APIs should be updated to utilize the
-`handleProcessingResult` method as it supports the [Validator](./src/Validators/BaseValidator.php) components.
+**[→ Multisite Documentation](Documentation/api/DEVELOPER_GUIDE.md#multisite-support)**
 
-The [PatientRestController](./src/RestControllers/PatientRestController.php) may be used as a reference to see how APIs are
-integrated with `RequestControllerHelper::handleProcessingResult` and the `Validator` components.
+## 📋 Scope Examples
 
-Finally, APIs which are integrated with the new `handleProcessingResult` method utilize a common response format.
-
-```json
-{
-    "validationErrors": [],
-    "internalErrors": [],
-    "data": < data payload >
-}
+### Patient-Facing App (Vital Signs Tracker)
+```
+openid
+offline_access
+patient/Patient.rs
+patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
 ```
 
--   `validationErrors` contain "client based" data validation errors
--   `internalErrors` contain server related errors
--   `data` is the response payload, represented as an object/`{}` for single results or an array/`[]` for multiple results
+### Provider App (Clinical Documentation)
+```
+openid
+fhirUser
+launch
+launch/patient
+launch/encounter
+user/Patient.rs
+user/Encounter.cruds
+user/Observation.crs
+user/DocumentReference.crs
+```
+
+### Backend Service (Analytics)
+```
+system/Patient.$export
+system/*.$bulkdata-status
+system/Binary.read
+```
+
+**[→ Complete Scope Reference](Documentation/api/AUTHORIZATION.md#fhir-api-scopes-apifhir)**
+
+## 🆘 Support & Resources
+
+### Documentation
+- **[Complete API Docs](Documentation/api/README.md)** - All documentation
+- **[Quick Start Guide](Documentation/api/README.md#quick-start)** - Get started fast
+- **[FAQ & Troubleshooting](Documentation/api/SMART_ON_FHIR.md#troubleshooting)** - Common issues
+
+### Community
+- **[Community Forum](https://community.open-emr.org/)** - Ask questions, share knowledge
+- **[Development Thread](https://community.open-emr.org/t/v6-authorization-and-api-changes-afoot/15450)** - API development discussion
+- **[GitHub Issues](https://github.com/openemr/openemr/issues)** - Report bugs, request features
+
+### Standards & Specifications
+- **[FHIR R4 Spec](https://hl7.org/fhir/R4/)** - HL7 FHIR specification
+- **[US Core 8.0 IG](https://hl7.org/fhir/us/core/STU8/)** - US Core Implementation Guide
+- **[SMART App Launch](http://hl7.org/fhir/smart-app-launch/)** - SMART on FHIR specification
+- **[OAuth 2.0](https://oauth.net/2/)** - OAuth 2.0 framework
+
+## 🔄 Migration from Previous Versions
+
+### V1 to V2 Scope Migration
+
+**V1 Scopes (Deprecated but supported):**
+```
+patient/Patient.read
+patient/Observation.read
+```
+
+**V2 Scopes (Recommended):**
+```
+patient/Patient.rs
+patient/Observation.rs
+```
+
+**Mapping:**
+- `.read` → `.rs` (read + search)
+- `.write` → `.cud` (create + update + delete)
+
+**[→ V1 Compatibility Guide](Documentation/api/AUTHORIZATION.md#v1-scope-compatibility)**
+
+## 📝 Example Code
+
+### JavaScript/Node.js
+```javascript
+// Fetch patient data
+const response = await fetch('https://localhost:9300/apis/default/fhir/Patient/123', {
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Accept': 'application/fhir+json'
+  }
+});
+
+const patient = await response.json();
+console.log(`Patient: ${patient.name[0].given[0]} ${patient.name[0].family}`);
+```
+
+### Python
+```python
+import requests
+
+# Fetch observations
+response = requests.get(
+    'https://localhost:9300/apis/default/fhir/Observation',
+    headers={
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/fhir+json'
+    },
+    params={'patient': '123', 'category': 'vital-signs'}
+)
+
+observations = response.json()
+```
+
+### cURL
+```bash
+# Get patient medications
+curl -X GET 'https://localhost:9300/apis/default/fhir/MedicationRequest?patient=123' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -H 'Accept: application/fhir+json'
+```
+
+**[→ More Examples](Documentation/api/FHIR_API.md#examples)**
+
+## 🏗️ For Developers
+
+### Internal API Usage
+- **[Internal API Guide](Documentation/api/DEVELOPER_GUIDE.md#internal-api-usage)** - Using APIs from within OpenEMR
+- **[Example Code](tests/api/InternalApiTest.php)** - Internal API examples
+
+### Extending the API
+- **[Adding Endpoints](Documentation/api/DEVELOPER_GUIDE.md#adding-endpoints)** - Create new API endpoints
+- **[Controllers](Documentation/api/DEVELOPER_GUIDE.md#controllers)** - Controller architecture
+- **[Services](Documentation/api/DEVELOPER_GUIDE.md#services)** - Business logic layer
+- **[Routing](Documentation/api/DEVELOPER_GUIDE.md#routing)** - Route definitions
+
+### Architecture
+```
+Request → Authentication → Authorization → Controller → Service → Database
+                                              ↓
+Response ← JSON Formatting ← Validation ← Processing
+```
+
+**[→ Developer Guide](Documentation/api/DEVELOPER_GUIDE.md)**
+
+## 📊 API Coverage
+
+### FHIR Resources (30+)
+✅ Patient, Practitioner, Organization, Location
+✅ Observation, Condition, Procedure, AllergyIntolerance
+✅ MedicationRequest, MedicationDispense, Immunization
+✅ Encounter, Appointment, CarePlan, CareTeam
+✅ DiagnosticReport, ServiceRequest, Specimen
+✅ DocumentReference, Binary, Provenance
+✅ Goal, Device, Coverage, RelatedPerson
+
+**[→ Complete Resource List](Documentation/api/FHIR_API.md#supported-resources)**
+
+### Operations
+✅ Read, Search, Create, Update, Delete (per resource)
+✅ Bulk Export ($export)
+✅ CCD Generation ($docref)
+✅ Token Introspection
+✅ Capability Statement
+
+## 🎓 Tutorials
+
+### Getting Started
+1. **[Register Your First App](Documentation/api/AUTHENTICATION.md#client-registration)**
+2. **[Obtain an Access Token](Documentation/api/AUTHENTICATION.md#authorization-code-grant)**
+3. **[Make Your First API Call](Documentation/api/FHIR_API.md#examples)**
+4. **[Handle Token Refresh](Documentation/api/AUTHENTICATION.md#refresh-token-grant)**
+
+### Advanced Topics
+1. **[Implement EHR Launch](Documentation/api/SMART_ON_FHIR.md#ehr-launch)**
+2. **[Use Granular Scopes](Documentation/api/AUTHORIZATION.md#granular-scopes)**
+3. **[Export Bulk Data](Documentation/api/FHIR_API.md#bulk-fhir-exports)**
+4. **[Generate Clinical Documents](Documentation/api/FHIR_API.md#documentreference-docref-operation)**
+
+## 📜 License
+
+OpenEMR is licensed under [GPL v3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+API integrations must comply with:
+- HIPAA requirements
+- State/federal healthcare regulations
+- OpenEMR license terms
+
+## 🔗 Quick Links
+
+| Topic | Documentation |
+|-------|---------------|
+| Authentication | [AUTHENTICATION.md](Documentation/api/AUTHENTICATION.md) |
+| Scopes & Permissions | [AUTHORIZATION.md](Documentation/api/AUTHORIZATION.md) |
+| FHIR Endpoints | [FHIR_API.md](Documentation/api/FHIR_API.md) |
+| SMART Apps | [SMART_ON_FHIR.md](Documentation/api/SMART_ON_FHIR.md) |
+| Standard API | [STANDARD_API.md](Documentation/api/STANDARD_API.md) |
+| Development | [DEVELOPER_GUIDE.md](Documentation/api/DEVELOPER_GUIDE.md) |
+
+---
+## Documentation Attribution
+
+### Authorship
+This documentation represents the collective knowledge and contributions of the OpenEMR open-source community. The content is based on:
+- Original documentation by OpenEMR developers and contributors
+- Technical specifications from the OpenEMR codebase
+- Community feedback and real-world implementation experience
+
+### AI Assistance
+The organization, structure, and presentation of this documentation was enhanced using Claude AI (Anthropic) to:
+- Reorganize content into a more accessible modular structure
+- Add comprehensive examples and use cases
+- Improve navigation and cross-referencing
+- Enhance clarity and consistency across documents
+
+All technical accuracy is maintained from the original community-authored documentation.
+
+### Contributing
+OpenEMR is an open-source project. To contribute to this documentation:
+- **Report Issues:** [GitHub Issues](https://github.com/openemr/openemr/issues)
+- **Discuss:** [Community Forum](https://community.open-emr.org/)
+- **Submit Changes:** [Pull Requests](https://github.com/openemr/openemr/pulls)
+
+**Last Updated:** November 2025
+**License:** GPL v3
+

@@ -3444,7 +3444,8 @@ return [
     /**
      *  @OA\Get(
      *      path="/fhir/Observation",
-     *      description="Returns a list of Observation resources.",
+     *      summary="Returns a list of Observation resources.",
+     *      description="Returns a list of Observation resources. Returns the following types of Observation resources, Advance Directives, Care Experience Preferences, Occupation, Social Determinants of Health, Laboratory, Simple Observations, Social History, Questionnaire Responses, Treatment Intervention Preferences, Vital Signs.",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="_id",
@@ -3485,7 +3486,7 @@ return [
      *      @OA\Parameter(
      *          name="category",
      *          in="query",
-     *          description="The category of the Observation resource.",
+     *          description="The category of the Observation resource. Taken from one of these valid category codes http://terminology.hl7.org/CodeSystem/observation-category",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
