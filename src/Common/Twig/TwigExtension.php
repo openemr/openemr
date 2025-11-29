@@ -142,7 +142,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                         'edit_options' => '',
                         'empty_name' => $opts['empty_name'] ?? ''
                     ];
-                    return $encounterOptionType->buildDisplayView($frow, $selectedValue);
+                    return $encounterOptionType->buildFormView($frow, $selectedValue);
                 }
             ),
 
@@ -266,7 +266,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 CacheUtils::getAssetCacheParamRaw(...)
             ),
             new TwigFunction(
-                'uniqid', 
+                'uniqid',
                 fn(string $prefix = "", bool $more_entropy = false): string => uniqid($prefix, $more_entropy)
             )
         ];
