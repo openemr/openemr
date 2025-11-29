@@ -377,7 +377,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMRGenderAndBirthSex(FHIRPatient $patientResource, $sex)
     {
-        $genderValue = strtolower($sex) ?? 'unknown';
+        $genderValue = strtolower((string) $sex) ?? 'unknown';
         // @see https://www.hl7.org/fhir/us/core/ValueSet-birthsex.html
         // 3.1.1 birthSex -> M | F | UNK
         // 7.0.0 birthSex -> https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1021.24/expansion
