@@ -108,9 +108,7 @@
                             </div>
 
                             <div class="col-2;">
-                                {% if relatedPerson.birth_date %}
-                                <small class="text-muted" style="vertical-align: 0.1rem;">{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}</small>
-                                {% endif %}
+                                <small class="text-muted display_relations_dob" style="vertical-align: 0.1rem;">{% if relatedPerson.birth_date %}{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}{% endif %}</small>
                             </div>
                         </div>
                         <div>
@@ -189,7 +187,7 @@
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-mutedml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-muted ml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
                             </div>
                         </div>
 
@@ -472,12 +470,49 @@
             function updateRelationDisplayOnChange(relationsGroup) {
                 const displayName = relationsGroup.querySelector('.display_relations_name');
                 const displayRelationship = relationsGroup.querySelector('.display_relations_relationship');
+                const displayDob = relationsGroup.querySelector('.display_relations_dob');
                 const displayBadges = relationsGroup.querySelector('.display_relations_badges');
+
+                const firstNameInput = relationsGroup.querySelector('.form_relations_first_name');
+                const middleNameInput = relationsGroup.querySelector('.form_relations_middle_name');
+                const lastNameInput = relationsGroup.querySelector('.form_relations_last_name');
+                const birthDateInput = relationsGroup.querySelector('.form_relations_birth_date');
 
                 const relationshipSelect = relationsGroup.querySelector('.form_relations_relationship');
                 const roleSelect = relationsGroup.querySelector('.form_relations_role');
                 const emergencyCheckbox = relationsGroup.querySelector('.form_relations_emergency');
                 const primaryCheckbox = relationsGroup.querySelector('.form_relations_primary');
+
+                // Update display name from first, middle, last name inputs
+                if (displayName && (firstNameInput || lastNameInput)) {
+                    let nameParts = [];
+                    if (firstNameInput && firstNameInput.value.trim()) {
+                        nameParts.push(firstNameInput.value.trim());
+                    }
+                    if (middleNameInput && middleNameInput.value.trim()) {
+                        nameParts.push(middleNameInput.value.trim());
+                    }
+                    if (lastNameInput && lastNameInput.value.trim()) {
+                        nameParts.push(lastNameInput.value.trim());
+                    }
+                    
+                    // Check if this relation is inactive
+                    const isInactive = relationsGroup.getAttribute('data-active') === '0';
+                    let nameHtml = nameParts.join(' ');
+                    if (isInactive) {
+                        nameHtml += ' <span class="badge text-white ml-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
+                    }
+                    displayName.innerHTML = nameHtml;
+                }
+
+                // Update DOB display
+                if (displayDob && birthDateInput) {
+                    if (birthDateInput.value.trim()) {
+                        displayDob.textContent = window.xl('DOB') + ': ' + birthDateInput.value.trim();
+                    } else {
+                        displayDob.textContent = '';
+                    }
+                }
 
                 if (relationshipSelect && displayRelationship) {
                     let displayText = relationshipSelect.options[relationshipSelect.selectedIndex]?.text || '';
