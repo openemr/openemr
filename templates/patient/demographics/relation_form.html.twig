@@ -269,13 +269,7 @@
             }
         });
 
-        // Listen for "add relation" requests from search component
-        document.addEventListener('addRelationForPerson', function(e) {
-            if (e.detail && e.detail.tableId === tableId && e.detail.person) {
-                console.log('Received addRelationForPerson event for table:', tableId);
-                addRelationForPerson(e.detail.person);
-            }
-        });
+
 
         function relationFormHandler() {
             console.debug("Running relationFormHandler for table id:", tableId);
@@ -305,6 +299,14 @@
                 // Event listeners for form changes
                 table.addEventListener('input', relationUpdated);
                 table.addEventListener('change', relationUpdated);
+
+                // Listen for "add relation" requests from search component
+                document.addEventListener('addRelationForPerson', function(e) {
+                    if (e.detail && e.detail.tableId === tableId && e.detail.person) {
+                        console.log('Received addRelationForPerson event for table:', tableId);
+                        addRelationForPerson(e.detail.person);
+                    }
+                });
 
                 // ===== DATEPICKER-AGNOSTIC LISTENER =====
                 // Catches any datepicker change, regardless of library
