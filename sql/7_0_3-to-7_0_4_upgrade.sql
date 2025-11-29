@@ -2539,3 +2539,7 @@ ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Depr
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text COMMENT 'Deprecated field, use care_team_member table instead';
 #EndIf
+
+-- This meta turned out handy
+#IfUpdateEditOptionsNeeded add HIS EP dc_father,dc_mother,dc_siblings,dc_spouse,dc_offspring
+#EndIf
