@@ -105,18 +105,18 @@
 
     {# Person Information Row #}
     <div class="form-row">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="form-group">
                 <label class="label_custom mr-1">
                     {{ 'Gender:'|xlt }}
                 </label>
                 {{ generateFormField({
-                    'data_type': widget_constants.textbox,
+                    'data_type': widget_constants.listWithAddButton,
                     'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][gender]',
                     'smallform': smallform ~ ' form_relations_gender',
-                    'fld_length': 14,
-                    'max_length': 14,
-                    'description': 'Gender'
+                    'list_id': 'administrative_sex',
+                    'edit_options': edit_options,                   
+                    'description': 'Select Gender'
                 }, relatedPerson.gender|default('')) }}
             </div>
         </div>
@@ -126,9 +126,9 @@
                     {{ 'Birth Date:'|xlt }}
                 </label>
                 {{ generateFormField({
-                    'data_type': widget_constants.textbox,
+                    'data_type': widget_constants.textDate,
                     'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][birth_date]',
-                    'smallform': smallform ~ ' form_relations_birth_date',
+                    'smallform': smallform ~ ' form_relations_birth_date datepicker',
                     'fld_length': 10,
                     'max_length': 10,
                     'description': 'Birth Date'
@@ -147,7 +147,6 @@
                     'field_id': field_id_esc ~ '[' ~ relatedPerson_index ~ '][relationship]',
                     'smallform': smallform ~ ' form_relations_relationship',
                     'list_id': 'related_person_relationship',
-                    'description': 'Select Relationship',
                     'edit_options': edit_options,
                     'description': 'How this person is related (e.g., spouse, parent, sibling)'
                 }, relatedPerson.relationship|default('')) }}
