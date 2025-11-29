@@ -1,9 +1,17 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ *
+ * @link      http://www.open-emr.org
+ *
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Validators;
 
 use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
 
 /**
  * Supports Encounter Record Validation.
@@ -15,46 +23,45 @@ class EncounterValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than pid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidatorContext(Validator $validator, string $contextName): void
     {
-        parent::configureValidator();
+        // Insert & update
+        $validator
+            ->optional('pc_catid')
+            ->required(BaseValidator::DATABASE_INSERT_CONTEXT === $contextName)
+        ;
 
-        // insert validations
-        $this->validator->context(
-            self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context): void {
-                $context->required('pc_catid');
-                $context->required('class_code')->callback(
-                    fn($value) => $this->validateCode($value, "list_options", "_ActEncounterCode")
-                );
-                $context->required("puuid", "Patient UUID")->callback(
-                    fn($value) => $this->validateId('uuid', "patient_data", $value, true)
-                )->uuid();
-            }
-        );
+        $validator
+            ->optional('class_code')
+            ->required(BaseValidator::DATABASE_INSERT_CONTEXT === $contextName)
+            ->callback(fn($value) => $this->validateCode($value, 'list_options', '_ActEncounterCode'))
+        ;
 
-        // update validations copied from insert
-        $this->validator->context(
-            self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context): void {
-                $context->copyContext(
-                    self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
-                        foreach ($rules as $chain) {
-                            $chain->required(false);
-                        }
-                    }
-                );
-                // additional euuid validation
-                $context->required("euuid", "Encounter UUID")->callback(fn($value) => $this->validateId("uuid", "form_encounter", $value, true))->uuid();
-                // additional puuid validation
-                $context->required("puuid", "Patient UUID")->callback(fn($value) => $this->validateId('uuid', "patient_data", $value, true))->uuid();
-                $context->required("user", "Encounter Author")->callback(fn($value) => $this->validateId('username', "users", $value))->string();
-                $context->required("group", "Encounter Provider Group")->string();
-                $context->optional('class_code')->callback(
-                    fn($value) => $this->validateCode($value, "list_options", "_ActEncounterCode")
-                );
-            }
-        );
+        $validator
+            ->required('puuid', 'Patient UUID')
+            ->callback(fn($value) => $this->validateId('uuid', 'patient_data', $value, true))
+            ->uuid()
+        ;
+
+        // Update only
+        $validator
+            ->optional('euuid', 'Encounter UUID')
+            ->required(BaseValidator::DATABASE_UPDATE_CONTEXT === $contextName)
+            ->callback(fn($value) => $this->validateId('uuid', 'form_encounter', $value, true))
+            ->uuid()
+        ;
+
+        $validator
+            ->optional('user', 'Encounter Author')
+            ->required(BaseValidator::DATABASE_UPDATE_CONTEXT === $contextName)
+            ->callback(fn($value) => $this->validateId('username', 'users', $value))
+            ->string()
+        ;
+
+        $validator
+            ->optional('group', 'Encounter Provider Group')
+            ->required(BaseValidator::DATABASE_UPDATE_CONTEXT === $contextName)
+            ->string()
+        ;
     }
 }
