@@ -9,7 +9,7 @@
     #addPersonSection {
         border: 2px solid #007bff;
         border-radius: 0.5rem;
-        background-color: #f8f9fa;
+        background-color: var(—light);
         margin-bottom: 1.5rem;
         box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
         animation: slideDown 0.3s ease-out;
@@ -34,7 +34,6 @@
     }
 
     #addPersonSection .card-header {
-        background-color: #007bff;
         border-bottom: 1px solid #0056b3;
         padding: 0rem 1rem;
         font-size: 0.8rem;
@@ -111,7 +110,7 @@
 
 
     .person-form-section {
-        background-color: #fff;
+        background-color: var(--white);
         padding: 0rem;
         margin: 0rem;
     }
@@ -144,11 +143,11 @@
         cursor: pointer;
         border-radius: 0.25rem;
         transition: all 0.2s;
-        background-color: #fff;
+        background-color: var(--white);
     }
 
     .person-search-result:hover {
-        background-color: #e9ecef;
+        background-color: var(--info);
         border-color: #007bff;
         transform: translateX(2px);
     }
@@ -159,7 +158,7 @@
         font-size: 0.85rem;
         margin-top: 0.5rem;
         padding: 0.5rem;
-        background-color: #e7f3ff;
+        background-color: var(--info);
         border-radius: 0.25rem;
     }
 
@@ -198,7 +197,7 @@
 {# Inline Person Search and Create Section #}
 <div id="addPersonSection" class="d-none mt-3" data-csrf-token="{{ csrfToken }}">
     <div class="card">
-        <div class="card-header text-white">
+        <div class="card-header text-white bg-primary">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="mb-0">
                     <i class="fas fa-user-plus mr-2"></i>{{ 'Add Related Person'|xlt }}
@@ -509,7 +508,7 @@
             }
 
             if (person.is_linked && person.target_table === 'patient_data') {
-                badges += '<span class="badge badge-secondary ml-2">' +
+                badges += '<span class="badge badge-secondary text-white ml-2">' +
                          '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
             }
 
@@ -566,11 +565,50 @@
         });
         var newIndex = maxIndex + 1;
 
-        // Clone and replace __INDEX__ with actual index
+      
+        // Clone the template
         var tempDiv = document.createElement('div');
         tempDiv.innerHTML = relation_template.innerHTML;
         var html = tempDiv.innerHTML;
-        html = html.replace(/__INDEX__/g, newIndex);
+
+        // Replace __RP-INDEX__ with actual index
+        html = html.replace(/__RP-INDEX__/g, newIndex);
+
+        // ===== TELECOM TABLE ID REPLACEMENTS =====
+      
+        // Create unique ID for related person telecom tables
+        var newTelecomTableIdSuffix = js_uniqid();
+
+        // Find the old telecom table ID
+        var telecomMatch  = html.match(/table_edit_telecoms_([a-f0-9]+)/);
+        
+        if (telecomMatch && telecomMatch[1]) {
+            var oldTelecomTableIdSuffix = telecomMatch[1];
+            console.log('Replacing telecom suffix:', oldTelecomTableIdSuffix, '→', newTelecomTableIdSuffix);
+            
+            // Replace ALL occurrences of the old suffix with new suffix
+            var telecomRegex = new RegExp(oldTelecomTableIdSuffix, 'g');
+            html = html.replace(telecomRegex, newTelecomTableIdSuffix);
+        }
+        
+        // ===== ADDRESS TABLE ID REPLACEMENTS =====
+        
+        // Create unique ID for related person address table
+        var newAddressTableIdSuffix = js_uniqid();
+
+        // Find the old address table ID
+        var addressMatch = html.match(/table_edit_addresses_([a-f0-9]+)/);
+        
+        if (addressMatch && addressMatch[1]) {
+            var oldAddressTableIdSuffix = addressMatch[1];      
+            console.log('Address: Replacing', oldAddressTableIdSuffix, '→', newAddressTableIdSuffix);
+            
+            // Replace table ID everywhere it appears
+            var addressRegex = new RegExp(oldAddressTableIdSuffix, 'g');
+            html = html.replace(addressRegex, newAddressTableIdSuffix);
+        }
+
+        // Update the HTML in the temp div
         tempDiv.innerHTML = html;
         var relation_clone = tempDiv.firstElementChild;
 
@@ -598,6 +636,32 @@
             }
         }
 
+        // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
+        // Scripts inserted via innerHTML don't execute, so we need to replace them
+        var oldScripts = relation_clone.querySelectorAll('script');
+        oldScripts.forEach(function(oldScript) {
+            var newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            
+            // Copy the script content
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            
+            // Copy any other attributes
+            Array.from(oldScript.attributes).forEach(function(attr) {
+                if (attr.name !== 'type') {
+                    newScript.setAttribute(attr.name, attr.value);
+                }
+            });
+            
+            // Replace the old script with the new one
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+
+        // Add Clone
         relation_container.appendChild(relation_clone);
 
         // Expand the new relation for editing
@@ -627,6 +691,8 @@
         if (typeof relationUpdated === 'function') {
             relationUpdated();
         }
+
+        console.log('=== Relation #' + newIndex + ' created successfully ===\n');
     }
 
     function createNewPerson() {

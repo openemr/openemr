@@ -5836,6 +5836,122 @@ paths:
       security:
         -
           openemr_auth: {  }
+  /fhir/Media:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a search bundle of Media resource.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the Media resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+        -
+          name: content-type
+          in: query
+          description: 'The Content-Type of the Media resource.'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  meta:
+                    lastUpdated: '2021-09-14T09:13:51'
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link:
+                    -
+                      relation: self
+                      url: 'https://localhost:9300/apis/default/fhir/Media'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/fhir/Media/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single Media resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Media resource.'
+          required: true
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the Patient resource to filter Media references by patient.'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  id: a037abc5-7ebb-43a1-9e0f-b57586dc6d25
+                  meta:
+                    versionId: '1'
+                    lastUpdated: '2025-10-27T20:00:54-04:00'
+                  resourceType: Media
+                  status: completed
+                  subject:
+                    reference: Patient/96506861-511f-4f6d-bc97-b65a78cf1995
+                    type: Patient
+                  content:
+                    contentType: application/dicom
+                    url: /fhir/Binary/a037abc5-7ebb-43a1-9e0f-b57586dc6d25
+                    title: MR000021.dcm
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/Medication:
     get:
       tags:
@@ -5923,6 +6039,141 @@ paths:
                   batch:
                     lotNumber: '132'
                     expirationDate: '0000-00-00'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+  /fhir/MedicationDispense:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of MedicationDispense resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the MedicationDispense resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+        -
+          name: status
+          in: query
+          description: 'The status of the MedicationDispense resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: type
+          in: query
+          description: 'The type of the MedicationDispense resource.'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  meta:
+                    lastUpdated: '2021-09-14T09:13:51'
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link:
+                    -
+                      relation: self
+                      url: 'https://localhost:9300/apis/default/fhir/MedicationDispense'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/fhir/MedicationDispense/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single MedicationDispense resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the MedicationDispense resource.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  id: 946da61d-9cff-4416-8d27-805f19f9d7d8
+                  meta:
+                    versionId: '1'
+                    lastUpdated: '2021-09-20T04:03:14+00:00'
+                  resourceType: MedicationDispense
+                  status: completed
+                  medicationCodeableConcept:
+                    coding:
+                      -
+                        system: 'http://www.nlm.nih.gov/research/umls/rxnorm'
+                        code: '1738139'
+                        display: 'Acetaminophen 325 MG Oral Tablet'
+                  subject:
+                    reference: Patient/946da617-1a4a-4b2c-ae66-93b84377cb1e
+                    type: Patient
+                  context:
+                    reference: Encounter/946da61d-ac5f-4fdc-b3f2-7b58dc49976b
+                    type: Encounter
+                  authorizingPrescription:
+                    -
+                      reference: MedicationRequest/946da61d-ac5f-4fdc-b3f2-7b58dc49976b
+                      type: MedicationRequest
+                  type:
+                    coding:
+                      -
+                        system: 'http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType'
+                        code: FF
+                        display: 'Final Fill'
+                  quantity:
+                    value: 30
+                    unit: tablet
+                  whenHandedOver: '2021-09-18T00:00:00+00:00'
         400:
           $ref: '#/components/responses/badrequest'
         401:
@@ -8028,6 +8279,61 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/QuestionnaireResponse'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /fhir/RelatedPerson:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of RelatedPerson resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the RelatedPerson resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  meta:
+                    lastUpdated: '2025-09-30T09:13:51'
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link:
+                    -
+                      relation: self
+                      url: 'https://localhost:9300/apis/default/fhir/RelatedPerson'
         400:
           $ref: '#/components/responses/badrequest'
         401:

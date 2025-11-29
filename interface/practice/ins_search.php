@@ -248,9 +248,10 @@ if (
     echo "</script></body></html>\n";
     exit();
 } else {
-    $ins_co = (new InsuranceCompanyService())->getOneById($_GET['ins']) ?? null;
-    $ins_co_address = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
-    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($_GET['ins']) ?? null;
+    $ins_id = $_GET['ins'] ?? null;
+    $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
+    $ins_co_address = (new AddressService())->getOneByForeignId($ins_id) ?? null;
+    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;
 }
 
  // Query x12_partners.

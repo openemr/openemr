@@ -67,6 +67,7 @@
         changeIds('btn-add-documents');
         changeIds('btn-add-results');
 
+        $newRow.find('.hide-author').addClass('d-none')
         removeVal(newRow.id);
         updateDefaults(newRow.id);
         clearLinkingData(newRow.id);
