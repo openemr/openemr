@@ -61,7 +61,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
+        if (!empty($bootstrapPid)) {
             $pid = (int)$GLOBALS['bootstrap_pid'];
         }
 
@@ -214,7 +214,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
+        if (!empty($bootstrapPid)) {
             $pid = $GLOBALS['bootstrap_pid'];
         }
 
