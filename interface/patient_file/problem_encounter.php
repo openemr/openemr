@@ -21,8 +21,11 @@ require_once("$srcdir/lists.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientIssuesService;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 /**
  * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here
@@ -48,7 +51,7 @@ $endjs = "";    // holds javascript to write at the end
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -69,7 +72,7 @@ if (!empty($_POST['form_save'])) {
         }
         $encountersByListId[$list_id][] = $encounter;
     }
-    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $_SESSION['authUserID']);
+    $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $session->get('authUserID'));
 
 
     echo "<html><body>"
@@ -265,7 +268,7 @@ function doclick(pfx, id) {
 <body>
     <div class="container">
         <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <?php
             echo "<input type='hidden' name='form_pid' value='" . attr($pid) . "' />\n";
             // pelist looks like /problem,encounter/problem,encounter/[...].

@@ -1,6 +1,7 @@
 <?php
 
 /** @package verysimple::DB::DataDriver */
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once("IDataDriver.php");
 require_once("verysimple/DB/ISqlFunction.php");
@@ -63,13 +64,13 @@ class DataDriverMySQLi implements IDataDriver
         if (! function_exists("mysqli_connect")) {
             throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         }
-
+        $session = SessionWrapperFactory::instance()->getWrapper();
             // if the port is provided in the connection string then strip it out and provide it as a separate param
         $hostAndPort = explode(":", $connectionstring);
         $host = $hostAndPort [0];
         $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
 
-        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+        if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
             $host = "p:" . $host;
         }
 

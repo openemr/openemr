@@ -16,6 +16,7 @@ namespace Carecoordination\Model;
 use Carecoordination\Controller\EncountermanagerController;
 use DOMDocument;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use XSLTProcessor;
 
 class CcdaGenerator
@@ -73,6 +74,7 @@ class CcdaGenerator
         $date_options = []
     ): GeneratedCcdaResult {
 
+        $session = SessionWrapperFactory::instance()->getWrapper();
         // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
         (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
@@ -82,7 +84,7 @@ class CcdaGenerator
                 , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
                 , 'date_options' => $date_options]);
         if ($sent_by != '') {
-            $_SESSION['authUserID'] = $sent_by;
+            $session->set('authUserID', $sent_by);
         }
 
         if (!$sections) {
@@ -143,7 +145,7 @@ class CcdaGenerator
                 base64_encode($unstructured),
                 $this->createdtime,
                 0,
-                $_SESSION['authUserID'] ?? null,
+                $session->get('authUserID') ?? null,
                 'unstructured',
                 $view,
                 $send,
@@ -156,7 +158,7 @@ class CcdaGenerator
             base64_encode($content),
             $this->createdtime,
             0,
-            $_SESSION['authUserID'] ?? null,
+            $session->get('authUserID') ?? null,
             $document_type,
             $view,
             $send,
