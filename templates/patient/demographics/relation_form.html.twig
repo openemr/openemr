@@ -33,8 +33,8 @@
 
 <div id="{{ table_id|attr }}" class="row mt-3">
     <div class="table_edit_relations col-12">
-        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem;">
-            <div style="display: flex; align-items: center; background: var(--gray300)">
+        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
+            <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">{{ 'Related Persons'|xlt }}</div>
                 <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_{{ table_id|attr }}" 
                     style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
@@ -192,7 +192,7 @@
                                 <small class="text-mutedml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
                             </div>
                         </div>
-                        
+
                     <div>
                         <span class="display_relations_badges"></span>
                         <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
@@ -250,6 +250,7 @@
     (function() {
 
         const tableId = {{ table_id|js_escape }}
+        const ownerContactId = {{ owner_contact_id|js_escape }};
         console.log("Running relation script for table id:", tableId);
 
         // Initialize on page load
@@ -265,6 +266,14 @@
             if (e.detail && e.detail.tableId === tableId) {
                 console.log('Received init event for relation table:', tableId);
                 relationFormHandler();
+            }
+        });
+
+        // Listen for "add relation" requests from search component
+        document.addEventListener('addRelationForPerson', function(e) {
+            if (e.detail && e.detail.tableId === tableId && e.detail.person) {
+                console.log('Received addRelationForPerson event for table:', tableId);
+                addRelationForPerson(e.detail.person);
             }
         });
 
@@ -373,9 +382,9 @@
 
                 inactiveRelations.forEach(function(relation) {
                     if (checkbox.checked) {
-                        relatedPerson.classList.remove('d-none');
+                        relation.classList.remove('d-none');
                     } else {
-                        relatedPerson.classList.add('d-none');
+                        relation.classList.add('d-none');
                     }
                 });
             }
@@ -486,6 +495,182 @@
                     }
                     displayBadges.innerHTML = badgesHtml;
                 }
+            }
+
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        {{ jqueryDateTimePicker('this', false, false, true) }};
+                    }
+                });
+            }
+
+            // ===== ADD RELATION FOR PERSON, AFTER PERSON CREATED BY relation_form_search.html.twig =====
+            function addRelationForPerson(person) {
+                console.log('addRelationForPerson called with:', person);
+
+                // Hide "no relations" message
+                let noRelationsElement = container.querySelector(".no_relations");
+                if (noRelationsElement && !noRelationsElement.classList.contains('d-none')) {
+                    noRelationsElement.classList.add('d-none');
+                }
+
+                const relation_template = document.querySelector(".template_add_relation");
+
+                // Find the highest existing index
+                var allGroups = container.querySelectorAll('.relations_group[data-index]');
+                var maxIndex = -1;
+                allGroups.forEach(function(group) {
+                    var idx = parseInt(group.getAttribute('data-index'));
+                    if (!isNaN(idx) && idx > maxIndex) {
+                        maxIndex = idx;
+                    }
+                });
+                var newIndex = maxIndex + 1;
+
+                // Clone the template
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = relation_template.innerHTML;
+                var html = tempDiv.innerHTML;
+
+                // Replace __RP-INDEX__ with actual index
+                html = html.replace(/__RP-INDEX__/g, newIndex);
+
+                // ===== TELECOM TABLE ID REPLACEMENTS =====
+                // Create unique ID for related person telecom tables
+                var newTelecomTableIdSuffix = js_uniqid();
+
+                // Find the old telecom table ID
+                var telecomMatch = html.match(/table_edit_telecoms_([a-f0-9]+)/);
+
+                if (telecomMatch && telecomMatch[1]) {
+                    var oldTelecomTableIdSuffix = telecomMatch[1];
+                    console.log('Replacing telecom suffix:', oldTelecomTableIdSuffix, '→', newTelecomTableIdSuffix);
+
+                    // Replace ALL occurrences of the old suffix with new suffix
+                    var telecomRegex = new RegExp(oldTelecomTableIdSuffix, 'g');
+                    html = html.replace(telecomRegex, newTelecomTableIdSuffix);
+                }
+
+                // ===== ADDRESS TABLE ID REPLACEMENTS =====
+                // Create unique ID for related person address table
+                var newAddressTableIdSuffix = js_uniqid();
+
+                // Find the old address table ID
+                var addressMatch = html.match(/table_edit_addresses_([a-f0-9]+)/);
+
+                if (addressMatch && addressMatch[1]) {
+                    var oldAddressTableIdSuffix = addressMatch[1];
+                    console.log('Address: Replacing', oldAddressTableIdSuffix, '→', newAddressTableIdSuffix);
+
+                    // Replace table ID everywhere it appears
+                    var addressRegex = new RegExp(oldAddressTableIdSuffix, 'g');
+                    html = html.replace(addressRegex, newAddressTableIdSuffix);
+                }
+
+                // Update the HTML in the temp div
+                tempDiv.innerHTML = html;
+                var relation_clone = tempDiv.firstElementChild;
+
+                // Set person data in hidden fields
+                const ownerContactIdInput = relation_clone.querySelector('.form_relations_owner_contact_id');
+                const targetTableInput = relation_clone.querySelector('.form_relations_target_table');
+                const targetIdInput = relation_clone.querySelector('.form_relations_target_id');
+                const nameDisplay = relation_clone.querySelector('.display_relations_name');
+
+                if (ownerContactIdInput) ownerContactIdInput.value = ownerContactId || '';
+                if (targetIdInput) targetIdInput.value = person.id;
+                if (targetTableInput) targetTableInput.value = person.target_table || 'person';
+
+                if (nameDisplay) {
+                    let displayName = person.first_name;
+                    if (person.middle_name) displayName += ' ' + person.middle_name;
+                    displayName += ' ' + person.last_name;
+                    nameDisplay.textContent = displayName;
+
+                    if (person.birth_date) {
+                        const dobSpan = document.createElement('small');
+                        dobSpan.className = 'text-muted';
+                        dobSpan.textContent = ' (' + window.xl('DOB') + ': ' + person.birth_date + ')';
+                        nameDisplay.appendChild(dobSpan);
+                    }
+                }
+
+                // Populate the form fields with person data
+                const firstNameInput = relation_clone.querySelector('.form_relations_first_name');
+                const middleNameInput = relation_clone.querySelector('.form_relations_middle_name');
+                const lastNameInput = relation_clone.querySelector('.form_relations_last_name');
+                const genderInput = relation_clone.querySelector('.form_relations_gender');
+                const birthDateInput = relation_clone.querySelector('.form_relations_birth_date');
+
+                if (firstNameInput) firstNameInput.value = person.first_name || '';
+                if (middleNameInput) middleNameInput.value = person.middle_name || '';
+                if (lastNameInput) lastNameInput.value = person.last_name || '';
+                if (genderInput) genderInput.value = person.gender || '';
+                if (birthDateInput) birthDateInput.value = person.birth_date || '';
+
+                // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
+                // Scripts inserted via innerHTML don't execute, so we need to replace them
+                var oldScripts = relation_clone.querySelectorAll('script');
+                oldScripts.forEach(function(oldScript) {
+                    var newScript = document.createElement('script');
+                    newScript.type = 'text/javascript';
+
+                    // Copy the script content
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+
+                    // Copy any other attributes
+                    Array.from(oldScript.attributes).forEach(function(attr) {
+                        if (attr.name !== 'type') {
+                            newScript.setAttribute(attr.name, attr.value);
+                        }
+                    });
+
+                    // Replace the old script with the new one
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+                // Add Clone to container
+                container.appendChild(relation_clone);
+                const newRelation = container.querySelector('.relations_group:last-child');
+                setupContainerDatePickers(newRelation);
+
+                // Setup event listeners for the new relation row buttons
+                const row = newRelation.querySelector('.relation-card-header');
+                if (row) {
+                    setupRelatedPersonsRowButtonEventListeners(row);
+                }
+
+                // Expand the new relation for editing
+                if (newRelation) {
+                    const formDiv = newRelation.querySelector('.form_relations');
+                    if (formDiv) {
+                        formDiv.classList.remove('d-none');
+
+                        const icon = newRelation.querySelector('.btn-edit-relation');
+                        if (icon) {
+                            icon.classList.remove('fa-caret-right');
+                            icon.classList.add('fa-caret-down');
+                        }
+
+                        newRelation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                        setTimeout(() => {
+                            const firstSelect = formDiv.querySelector('select');
+                            if (firstSelect) {
+                                firstSelect.focus();
+                            }
+                        }, 300);
+                    }
+                }
+
+                updateRelationDisplayOnChange(newRelation);
+                console.log('=== Relation #' + newIndex + ' created successfully ===\n');
             }
 
             function disableHTML5Validation() {
