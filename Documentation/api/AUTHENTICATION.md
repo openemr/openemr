@@ -160,7 +160,7 @@ See [SMART on FHIR documentation](SMART_ON_FHIR.md) for more details.
 #### Benefits
 - ✅ More secure than shared secrets
 - ✅ Required for bulk FHIR exports (`system/*.$export`)
-- ✅ Supports key rotation
+- ✅ Supports key rotation (when using JWKS URI)
 - ✅ No secret transmission
 
 #### Registration with JWKS
@@ -173,7 +173,7 @@ See [SMART on FHIR documentation](SMART_ON_FHIR.md) for more details.
   "client_name": "Secure Healthcare App",
   "token_endpoint_auth_method": "private_key_jwt",
   "jwks_uri": "https://client.example.org/.well-known/jwks.json",
-  "scope": "openid api:fhir system/Patient.$export"
+  "scope": "openid api:fhir system/Group.$export"
 }
 ```
 
@@ -196,7 +196,7 @@ See [SMART on FHIR documentation](SMART_ON_FHIR.md) for more details.
       }
     ]
   },
-  "scope": "openid api:fhir system/Patient.$export"
+  "scope": "openid api:fhir system/Group.$export"
 }
 ```
 
@@ -225,8 +225,8 @@ sequenceDiagram
 
     Client->>Browser: 1. Redirect to /authorize
     Browser->>OpenEMR: 2. Authorization Request
-    OpenEMR->>User: 3. Login Prompt
-    User->>OpenEMR: 4. Enter Credentials
+    OpenEMR->>User: 3. Login Prompt*
+    User->>OpenEMR: 4. Enter Credentials*
     OpenEMR->>User: 5. Consent Screen
     User->>OpenEMR: 6. Approve Scopes
     OpenEMR->>Browser: 7. Redirect with Code
@@ -234,7 +234,7 @@ sequenceDiagram
     Client->>OpenEMR: 9. Exchange Code for Token
     OpenEMR->>Client: 10. Access + Refresh Tokens
 ```
-
+\* Steps 3,4 are skipped in EHR Launch context if the `OAuth2 EHR-Launch Authorization Flow Skip Enable App Setting` is set to true
 #### Step 1: Authorization Request (GET)
 
 Redirect the user's browser to the authorization endpoint:
@@ -271,7 +271,7 @@ https://localhost:9300/oauth2/default/authorize?response_type=code&client_id=Lnj
 OpenEMR will:
 1. Prompt user to log in (if not already authenticated)
 2. Display consent screen showing requested scopes
-3. Ask user to approve or deny access
+3. Ask user to approve or deny access to the scope resources.
 
 #### Step 3: Authorization Response
 
@@ -390,8 +390,6 @@ curl -X POST -k \
 
 ### EHR Launch Flow
 
-**New in SMART v2.2.0**: Context-aware app launches initiated from within the EHR.
-
 #### Overview
 EHR Launch allows apps to be launched with pre-established context (patient, encounter, etc.) without requiring the user to select these resources.
 
@@ -405,14 +403,14 @@ sequenceDiagram
     User->>EHR: 1. Click "Launch App"
     EHR->>App: 2. Redirect with launch token
     App->>EHR: 3. Authorization request (with launch)
-    EHR->>User: 4. Login (if needed)
+    EHR->>User: 4. Login (if needed)*
     EHR->>User: 5. Consent screen
     User->>EHR: 6. Approve
     EHR->>App: 7. Redirect with code
     App->>EHR: 8. Exchange code for token
     EHR->>App: 9. Access token + launch context
 ```
-
+\* Step 4 is skipped in EHR Launch context if the `OAuth2 EHR-Launch Authorization Flow Skip Enable App Setting` is set to true
 #### Step 1: EHR Initiates Launch
 
 OpenEMR redirects to your app's launch URL with a `launch` parameter:
@@ -447,7 +445,6 @@ GET /oauth2/default/authorize?
 
 **Optional Context Scopes:**
 - `launch/patient` - Receive patient context
-- `launch/encounter` - Receive encounter context (if available)
 - `fhirUser` - Receive practitioner context
 
 #### Step 3: Token Response with Context
@@ -466,8 +463,8 @@ After code exchange, the token response includes launch context:
 ```
 
 **Context Fields:**
-- `patient`: Patient resource ID (if `launch/patient` scope approved)
-- `encounter`: Encounter resource ID (if encounter context available)
+- `patient`: Patient resource ID (if `launch/patient` scope approved).  If a patient has not been selected in the EHR, the authorization flow will force a patient to be selected.
+- `encounter`: Encounter resource ID (if encounter context available) if an encounter has been selected within the EHR.
 - `fhirUser`: Practitioner/RelatedPerson resource reference
 
 #### Using Launch Context
@@ -493,22 +490,6 @@ if (encounterId) {
   );
 }
 ```
-
-#### Encounter Context (`context-ehr-encounter`)
-
-**New in SMART v2.2.0**: Apps can request encounter context specifically.
-
-**Request encounter context:**
-```
-scope=openid launch launch/encounter patient/Patient.read patient/Encounter.read
-```
-
-**When available**, OpenEMR will include the `encounter` field in the token response.
-
-**Use cases:**
-- Documentation apps (need encounter context for notes)
-- Clinical decision support (encounter-specific recommendations)
-- Order entry (placing orders in current encounter)
 
 See [SMART on FHIR documentation](SMART_ON_FHIR.md#ehr-launch-flow) for complete details.
 
@@ -573,7 +554,7 @@ curl -X POST -k \
   --data-urlencode 'grant_type=client_credentials' \
   --data-urlencode 'client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer' \
   --data-urlencode 'client_assertion=eyJhbGciOiJSUzM4NCIsImtpZCI6Im15LWtleS0xIiwidHlwIjoiSldUIn0...' \
-  --data-urlencode 'scope=system/Patient.read system/Patient.$export'
+  --data-urlencode 'scope=system/Patient.read system/Group.$export'
 ```
 
 **Response:**
@@ -586,7 +567,7 @@ curl -X POST -k \
 }
 ```
 
-**⚠️ Token Lifetime**: Client credentials tokens are short-lived (60 seconds). Request new tokens as needed.
+**⚠️ Token Lifetime**: Client credentials tokens are short-lived (60 seconds). Request new tokens as needed. There is no refresh token with this grant.
 
 #### Example: Bulk Export with Client Credentials
 ```bash
@@ -697,13 +678,11 @@ curl -X POST -k \
 }
 ```
 
-**Note**: A new refresh token is issued. Store it and discard the old one.
+**Note**: A new refresh token is always issued as part of this flow. Store it and discard the old one.
 
 ## Token Management
 
 ### Token Introspection
-
-**New in SMART v2.2.0**: Validate tokens and check their status.
 
 #### Purpose
 - ✅ Verify token is still active (not revoked/expired)
@@ -747,7 +726,7 @@ curl -X POST -k \
 }
 ```
 
-#### Response (Inactive Token)
+#### Response (Inactive or Invalid Token)
 ```json
 {
   "active": false
@@ -940,7 +919,7 @@ curl -X GET \
 
 1. **Use HTTPS/TLS for all API communication**
     - Never use OAuth2 over unencrypted connections
-    - Configure valid SSL certificates (not self-signed in production)
+    - Configure valid SSL certificates
 
 2. **Implement PKCE for public apps**
     - Required for native and single-page applications
@@ -975,10 +954,15 @@ curl -X GET \
 ### ⚠️ Security Anti-Patterns
 
 ❌ **Don't use password grant** in production
+
 ❌ **Don't expose client secrets** in public apps
+
 ❌ **Don't transmit tokens in URLs** (query parameters)
+
 ❌ **Don't skip TLS certificate validation**
+
 ❌ **Don't hardcode credentials** in source code
+
 ❌ **Don't use wildcard redirect URIs**
 
 ### PKCE (Proof Key for Code Exchange)
@@ -1105,232 +1089,6 @@ curl -X POST \
   --data-urlencode 'redirect_uri=https://client.example.org/callback' \
   --data-urlencode 'client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer' \
   --data-urlencode "client_assertion=$token"
-```
-
-## Examples
-
-### Complete Authorization Code Flow (JavaScript)
-```javascript
-class OpenEMRAuth {
-  constructor(config) {
-    this.clientId = config.clientId;
-    this.redirectUri = config.redirectUri;
-    this.baseUrl = config.baseUrl; // https://localhost:9300
-    this.fhirUrl = `${this.baseUrl}/apis/default/fhir`;
-  }
-
-  // 1. Start authorization
-  async authorize(scopes) {
-    const state = this.generateRandomString();
-    const codeVerifier = this.generateCodeVerifier();
-    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
-
-    // Store for later
-    sessionStorage.setItem('oauth_state', state);
-    sessionStorage.setItem('code_verifier', codeVerifier);
-
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: this.clientId,
-      redirect_uri: this.redirectUri,
-      scope: scopes.join(' '),
-      state: state,
-      aud: this.fhirUrl,
-      code_challenge: codeChallenge,
-      code_challenge_method: 'S256'
-    });
-
-    window.location.href =
-      `${this.baseUrl}/oauth2/default/authorize?${params}`;
-  }
-
-  // 2. Handle callback
-  async handleCallback() {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-
-    // Verify state
-    const savedState = sessionStorage.getItem('oauth_state');
-    if (state !== savedState) {
-      throw new Error('State mismatch - possible CSRF attack');
-    }
-
-    // Exchange code for token
-    const codeVerifier = sessionStorage.getItem('code_verifier');
-    const tokens = await this.exchangeCode(code, codeVerifier);
-
-    // Clean up
-    sessionStorage.removeItem('oauth_state');
-    sessionStorage.removeItem('code_verifier');
-
-    return tokens;
-  }
-
-  // 3. Exchange code for tokens
-  async exchangeCode(code, codeVerifier) {
-    const response = await fetch(`${this.baseUrl}/oauth2/default/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: this.redirectUri,
-        client_id: this.clientId,
-        code_verifier: codeVerifier
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Token exchange failed');
-    }
-
-    return await response.json();
-  }
-
-  // 4. Refresh tokens
-  async refreshToken(refreshToken) {
-    const response = await fetch(`${this.baseUrl}/oauth2/default/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        client_id: this.clientId
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Token refresh failed');
-    }
-
-    return await response.json();
-  }
-
-  // Helper: Generate random string
-  generateRandomString() {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-  }
-
-  // Helper: Generate code verifier
-  generateCodeVerifier() {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return this.base64URLEncode(array);
-  }
-
-  // Helper: Generate code challenge
-  async generateCodeChallenge(verifier) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return this.base64URLEncode(new Uint8Array(hash));
-  }
-
-  // Helper: Base64 URL encoding
-  base64URLEncode(buffer) {
-    return btoa(String.fromCharCode(...buffer))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  }
-}
-
-// Usage
-const auth = new OpenEMRAuth({
-  clientId: 'YOUR_CLIENT_ID',
-  redirectUri: 'https://yourapp.com/callback',
-  baseUrl: 'https://localhost:9300'
-});
-
-// Start authorization
-auth.authorize([
-  'openid',
-  'offline_access',
-  'patient/Patient.read',
-  'patient/Observation.read'
-]);
-
-// In callback page
-const tokens = await auth.handleCallback();
-console.log('Access token:', tokens.access_token);
-```
-
-### Refresh Token Management
-```javascript
-class TokenManager {
-  constructor(auth) {
-    this.auth = auth;
-    this.accessToken = null;
-    this.refreshToken = null;
-    this.expiresAt = null;
-  }
-
-  // Store tokens
-  setTokens(tokenResponse) {
-    this.accessToken = tokenResponse.access_token;
-    this.refreshToken = tokenResponse.refresh_token;
-    this.expiresAt = Date.now() + (tokenResponse.expires_in * 1000);
-
-    // Persist securely (example using sessionStorage)
-    sessionStorage.setItem('access_token', this.accessToken);
-    sessionStorage.setItem('refresh_token', this.refreshToken);
-    sessionStorage.setItem('expires_at', this.expiresAt);
-  }
-
-  // Get valid access token (refresh if needed)
-  async getAccessToken() {
-    // Check if current token is still valid
-    if (this.accessToken && Date.now() < this.expiresAt - 60000) {
-      return this.accessToken;
-    }
-
-    // Token expired or about to expire - refresh it
-    if (this.refreshToken) {
-      const newTokens = await this.auth.refreshToken(this.refreshToken);
-      this.setTokens(newTokens);
-      return this.accessToken;
-    }
-
-    throw new Error('No valid tokens available');
-  }
-
-  // Make authenticated API request
-  async fetch(url, options = {}) {
-    const token = await this.getAccessToken();
-
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    // Handle token expiration
-    if (response.status === 401) {
-      // Try refreshing and retry once
-      const newTokens = await this.auth.refreshToken(this.refreshToken);
-      this.setTokens(newTokens);
-
-      return fetch(url, {
-        ...options,
-        headers: {
-          ...options.headers,
-          'Authorization': `Bearer ${this.accessToken}`
-        }
-      });
-    }
-
-    return response;
-  }
-}
 ```
 
 ---

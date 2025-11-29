@@ -39,7 +39,7 @@ OpenEMR implements **SMART on FHIR v2.2.0** scopes with granular permissions, al
 - ✅ **Resource-level scopes** - Specify exact resource types
 - ✅ **Context-aware** - Patient, user, and system contexts
 - ✅ **Query filters** - Restrict access by resource categories
-- ✅ **Backward compatible** - V1 `.read`/`.write` scopes supported
+- ✅ **Backward compatible** - SMART on FHIR V1 `.read`/`.write` scopes supported
 - ✅ **Principle of least privilege** - Request only necessary permissions
 
 ## Scope Syntax
@@ -69,13 +69,13 @@ patient/Condition.rs?category=...   # Granular scope with filter
 
 **SMART v2.2.0** introduces granular permission flags:
 
-| Flag | Permission | Description |
-|------|------------|-------------|
-| `c` | **Create** | Create new resources |
-| `r` | **Read** | Read individual resources by ID |
-| `u` | **Update** | Update existing resources |
-| `d` | **Delete** | Delete resources |
-| `s` | **Search** | Search for resources |
+| Flag | Permission | Description | HTTP REST Operation |
+|------|------------|-------------|---------------------|
+| `c` | **Create** | Create new resources | POST                |
+| `r` | **Read** | Read individual resources by ID | GET                 |
+| `u` | **Update** | Update existing resources | POST,PUT,PATCH      |
+| `d` | **Delete** | Delete resources | DELETE              |
+| `s` | **Search** | Search for resources | GET                 |
 
 #### Combining Permissions
 
@@ -119,7 +119,7 @@ Scopes are contextualized by prefix:
 
 #### `patient/` - Patient Context
 - Access limited to **single patient's data**
-- Used in patient-facing apps
+- Often used in patient-facing apps, or in practitioner applications that operate on a single patient at a time (such as e-prescribe)
 - Patient ID provided in token response
 - Most restrictive context
 
@@ -135,6 +135,7 @@ patient/MedicationRequest.rs
 - Personal health apps
 - Patient standalone apps
 - Mobile health applications
+- E-prescribing applications for single patient prescription flow
 
 #### `user/` - User Context
 - Access to data **user is authorized to see**
@@ -315,7 +316,7 @@ OpenEMR maintains **backward compatibility** with SMART on FHIR v1 scopes.
 
 **For existing applications:**
 - ⚠️ V1 scopes (`read`/`write`) continue to work
-- ✅ Consider migrating to granular scopes for better security
+- ✅ Consider migrating to granular scopes for better security in case v1 scopes become deprecated
 - ✅ Update to request specific permissions (not blanket `read`/`write`)
 
 **Breaking changes:**
@@ -335,11 +336,11 @@ Certain scopes are required or strongly recommended for all applications:
 
 ### Conditional Scopes
 
-| Scope | When Required | Description |
-|-------|---------------|-------------|
+| Scope | When Required | Description                                                   |
+|-------|---------------|---------------------------------------------------------------|
 | `offline_access` | Apps needing refresh tokens | Enables refresh token issuance |
-| `launch` | EHR launch apps | Indicates EHR launch capability |
-| `launch/patient` | Apps needing patient context | Receive patient ID in token |
+| `launch` | EHR launch apps | Indicates EHR launch capability                               |
+| `launch/patient` | Apps needing patient context | Receive patient ID in token                                   |
 
 ### API Type Scopes
 
@@ -366,32 +367,28 @@ Access to a single patient's data. Patient ID provided in token response.
 
 #### Core Clinical Resources
 ```
-patient/AllergyIntolerance.cruds
-patient/Appointment.cruds
-patient/CarePlan.cruds
-patient/CareTeam.cruds
-patient/Condition.cruds
-patient/Coverage.cruds
-patient/Device.cruds
-patient/DiagnosticReport.cruds
-patient/DocumentReference.cruds
-patient/Encounter.cruds
-patient/Goal.cruds
-patient/Immunization.cruds
-patient/MedicationRequest.cruds
-patient/Medication.cruds
-patient/Observation.cruds
-patient/Patient.cruds
-patient/Procedure.cruds
+patient/AllergyIntolerance.rs
+patient/Appointment.rs
+patient/CarePlan.rs
+patient/CareTeam.rs
+patient/Condition.rs
+patient/Coverage.rs
+patient/Device.rs
+patient/DiagnosticReport.rs
+patient/DocumentReference.rs
+patient/Encounter.rs
+patient/Goal.rs
+patient/Immunization.rs
+patient/MedicationRequest.rs
+patient/Medication.rs
+patient/Observation.rs
+patient/Patient.rs
+patient/Procedure.rs
 patient/Provenance.rs          # Read/search only
-```
-
-#### New Resources (SMART v2.2.0)
-```
-patient/MedicationDispense.cruds    # Pharmacy dispensing records
-patient/RelatedPerson.cruds         # Patient relationships
-patient/ServiceRequest.cruds        # Lab/procedure orders
-patient/Specimen.cruds              # Laboratory specimens
+patient/MedicationDispense.rs    # Pharmacy dispensing records
+patient/RelatedPerson.rs         # Patient relationships
+patient/ServiceRequest.rs        # Lab/procedure orders
+patient/Specimen.rs              # Laboratory specimens
 ```
 
 #### Supporting Resources
@@ -415,41 +412,37 @@ Access to data the authenticated user is authorized to see (multiple patients).
 
 #### Core Clinical Resources
 ```
-user/AllergyIntolerance.cruds
-user/CarePlan.cruds
-user/CareTeam.cruds
-user/Condition.cruds
-user/Coverage.cruds
-user/Device.cruds
-user/DiagnosticReport.cruds
-user/DocumentReference.cruds
-user/Encounter.cruds
-user/Goal.cruds
-user/Immunization.cruds
-user/MedicationRequest.cruds
-user/Medication.cruds
-user/Observation.cruds
-user/Patient.cruds                  # Access to multiple patients
-user/Procedure.cruds
+user/AllergyIntolerance.rs
+user/CarePlan.rs
+user/CareTeam.rs
+user/Condition.rs
+user/Coverage.rs
+user/Device.rs
+user/DiagnosticReport.rs
+user/DocumentReference.rs
+user/Encounter.rs
+user/Goal.rs
+user/Immunization.rs
+user/MedicationRequest.rs
+user/Medication.rs
+user/Observation.rs
+user/Patient.rs                  # Access to multiple patients
+user/Procedure.rs
 user/Provenance.rs
-```
-
-#### New Resources (SMART v2.2.0)
-```
-user/MedicationDispense.cruds
-user/RelatedPerson.cruds
-user/ServiceRequest.cruds
-user/Specimen.cruds
+user/MedicationDispense.rs
+user/RelatedPerson.rs
+user/ServiceRequest.rs
+user/Specimen.rs
 ```
 
 #### Supporting Resources
 ```
 user/Binary.rs
-user/Location.cruds
-user/Organization.cruds
-user/Person.cruds
-user/Practitioner.cruds
-user/PractitionerRole.cruds
+user/Location.rs
+user/Organization.rs
+user/Person.rs
+user/Practitioner.rs
+user/PractitionerRole.rs
 ```
 
 #### Special Operations
@@ -480,10 +473,6 @@ system/Observation.rs
 system/Patient.rs
 system/Procedure.rs
 system/Provenance.rs
-```
-
-#### New Resources (SMART v2.2.0)
-```
 system/MedicationDispense.rs
 system/RelatedPerson.rs
 system/ServiceRequest.rs
@@ -514,7 +503,7 @@ system/Binary.read                  # Download export files
 
 **Complete bulk export scope set:**
 ```
-system/Patient.$export system/*.$bulkdata-status system/Binary.read
+system/Group.$export system/*.$bulkdata-status system/Binary.read
 ```
 
 See [FHIR API - Bulk Exports](FHIR_API.md#bulk-fhir-exports) for details.
@@ -535,28 +524,28 @@ Access to OpenEMR REST API (`/api/` endpoints). Requires `api:oemr` base scope p
 user/allergy.cruds
 user/appointment.cruds
 user/dental_issue.cruds
-user/document.cruds
-user/drug.rs                        # Read/search only
-user/encounter.cruds
-user/employer.rs                    # Read only
-user/facility.cruds
-user/immunization.rs                # Read only
-user/insurance.cruds
-user/insurance_company.cruds
-user/insurance_type.rs              # Read only
-user/list.rs                        # Read only
+user/document.crs
+user/drug.rs
+user/encounter.crus
+user/employer.s
+user/facility.crus
+user/immunization.rs
+user/insurance.crus
+user/insurance_company.crus
+user/insurance_type.s
+user/list.r
 user/medical_problem.cruds
 user/medication.cruds
-user/message.c                      # Create only
-user/patient.cruds
-user/practitioner.cruds
-user/prescription.rs                # Read only
-user/procedure.rs                   # Read only
-user/product.rs                     # Read only
-user/soap_note.cruds
+user/message.cud
+user/patient.crus
+user/practitioner.crus
+user/prescription.rs
+user/procedure.rs
+user/product.s
+user/soap_note.crus
 user/surgery.cruds
-user/transaction.cruds
-user/vital.cruds
+user/transaction.cuds
+user/vital.crus
 ```
 
 **Note:** Standard API uses different permission syntax than FHIR but follows the same `.cruds` pattern.
@@ -568,7 +557,7 @@ user/vital.cruds
 ### Patient Context Scopes
 ```
 patient/encounter.rs
-patient/patient.rs
+patient/patient.s
 patient/appointment.rs
 ```
 
@@ -582,7 +571,7 @@ Administration → Config → Connectors → "Enable OpenEMR Patient Portal REST
 Used with EHR Launch to receive context information:
 ```
 launch                              # EHR launch capability
-launch/patient                      # Receive patient context
+launch/patient                      # When launching outside EHR, ask for a patient to be selected at launch time
 ```
 
 See [AUTHENTICATION.md - EHR Launch](AUTHENTICATION.md#ehr-launch-flow) for details.
@@ -727,15 +716,6 @@ patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observatio
 patient/Observation.rs
 ```
 
-✅ **Separate read and write scopes**
-```
-# Good - explicit about capabilities
-user/Patient.rs user/Observation.crs
-
-# Less clear - bundled permissions
-user/Patient.cruds user/Observation.cruds
-```
-
 ✅ **Use appropriate context**
 ```
 # Good - patient app uses patient context
@@ -859,7 +839,6 @@ openid
 fhirUser
 launch
 launch/patient
-launch/encounter
 user/Patient.rs
 user/Encounter.cruds
 user/Condition.crs
@@ -868,7 +847,7 @@ user/DocumentReference.crs
 ```
 
 **Scope Justification:**
-- `launch` + `launch/patient` + `launch/encounter`: EHR launch with context
+- `launch` + `launch/patient`: EHR launch with context
 - `fhirUser`: Identify the provider
 - `user/Patient.rs`: Read patient demographics
 - `user/Encounter.cruds`: Full encounter management
@@ -985,35 +964,13 @@ patient/Goal.rs
 openid
 patient/Patient.rs
 patient/Observation.crs?category=http://terminology.hl7.org/CodeSystem/observation-category|survey
-patient/Consent.rs
 ```
 
 **Scope Justification:**
 - Granular Observation: Survey responses only
 - Create permission: Record survey answers
-- `Consent.rs`: Verify research consent
 
-### Example 9: Referral Management
-
-**App Description:** Care coordination app managing specialist referrals.
-
-**Required Scopes:**
-```
-openid
-fhirUser
-user/Patient.rs
-user/ServiceRequest.cruds
-user/Practitioner.rs
-user/Organization.rs
-user/RelatedPerson.rs
-```
-
-**Scope Justification:**
-- New `ServiceRequest` resource: Create/manage referrals
-- `RelatedPerson.rs`: Emergency contacts for coordination
-- Full CRUDS on ServiceRequest: Create orders, track status, update
-
-### Example 10: Backward Compatible App
+### Example 9 Backward Compatible App
 
 **App Description:** Existing app using V1 scopes.
 

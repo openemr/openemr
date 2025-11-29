@@ -74,19 +74,8 @@ user/Patient.crus         # Create, read, update, search
 ```
 See [Authorization Guide](AUTHORIZATION.md#granular-scopes) for details.
 
-#### 2. Encounter Context
-**New context scope:** `launch/encounter`
 
-Apps can receive current encounter context in EHR launches:
-```json
-{
-  "access_token": "...",
-  "patient": "123",
-  "encounter": "456"
-}
-```
-
-#### 3. POST-Based Authorization
+#### 2. POST-Based Authorization
 More secure authorization requests via POST:
 ```http
 POST /oauth2/default/authorize
@@ -96,7 +85,7 @@ response_type=code&client_id=...
 ```
 See [Authentication Guide](AUTHENTICATION.md#post-based-authorization) for details.
 
-#### 4. Asymmetric Client Authentication
+#### 3. Asymmetric Client Authentication
 JWKS-based authentication for confidential clients:
 ```json
 {
@@ -106,14 +95,14 @@ JWKS-based authentication for confidential clients:
 ```
 See [Authentication Guide](AUTHENTICATION.md#asymmetric-client-authentication) for details.
 
-#### 5. SMART Configuration Endpoint
+#### 4. SMART Configuration Endpoint
 Discovery endpoint for SMART capabilities:
 ```
 GET /fhir/.well-known/smart-configuration
 ```
 See [SMART Configuration](#smart-configuration) section below.
 
-#### 6. Token Introspection
+#### 5. Token Introspection
 Validate token status:
 ```
 POST /oauth2/default/introspect
@@ -218,7 +207,7 @@ After registration, apps require approval based on configuration.
     - ⚠️ All apps require administrator approval
     - ✅ Most secure option
     - ✅ Full control over app access
-    - **Use when:** Maximum security needed
+    - **Use when:** Maximum security needed but requires monitoring to comply with ONC Cure Act for patient apps to be approved within 48 hours.
 
 #### Patient Standalone Apps
 
@@ -282,7 +271,7 @@ sequenceDiagram
 
 #### Required Scopes
 
-Standalone launch does NOT use `launch` scope:
+Standalone launch does NOT use `launch` scope (it may choose to use the `launch/patient` scope):
 
 **Patient standalone:**
 ```
@@ -402,18 +391,6 @@ user/Patient.rs
 user/Observation.rs
 ```
 
-**With encounter context:** ✨ NEW
-```
-openid
-fhirUser
-launch
-launch/patient
-launch/encounter
-user/Patient.rs
-user/Encounter.rs
-user/Observation.rs
-```
-
 #### Implementation
 
 **Step 1: OpenEMR redirects to launch URL**
@@ -446,7 +423,7 @@ const authUrl = new URL('https://localhost:9300/oauth2/default/authorize');
 authUrl.searchParams.set('response_type', 'code');
 authUrl.searchParams.set('client_id', 'YOUR_CLIENT_ID');
 authUrl.searchParams.set('redirect_uri', 'https://app.example.com/callback');
-authUrl.searchParams.set('scope', 'openid fhirUser launch launch/patient launch/encounter user/Patient.rs user/Observation.rs');
+authUrl.searchParams.set('scope', 'openid fhirUser launch launch/patient user/Patient.rs user/Observation.rs');
 authUrl.searchParams.set('state', generateRandomState());
 authUrl.searchParams.set('aud', iss);
 authUrl.searchParams.set('launch', launchToken); // CRITICAL
@@ -470,7 +447,7 @@ Exchange code as normal. Response includes context:
   "access_token": "eyJ0eXAiOiJKV1QiLCJhbGci...",
   "token_type": "Bearer",
   "expires_in": 3600,
-  "scope": "openid fhirUser launch launch/patient launch/encounter user/Patient.rs",
+  "scope": "openid fhirUser launch launch/patient user/Patient.rs",
   "id_token": "eyJ0eXAiOiJKV1QiLCJhbGci...",
   "patient": "123",
   "encounter": "456",
@@ -594,29 +571,7 @@ if (patientId) {
 }
 ```
 
-### Encounter Context
-
-**New in SMART v2.2.0** ✨
-
-**Scope:** `launch/encounter`
-
-**Provides:** Encounter ID in token response
-
-#### When Available
-- ✅ EHR launch from active encounter
-- ❌ Standalone launch (no encounter context)
-- ❌ EHR launch outside encounter
-
-#### Requesting Encounter Context
-
-Include `launch/encounter` in scopes:
-```
-openid fhirUser launch launch/patient launch/encounter user/Patient.rs user/Encounter.rs
-```
-
-**Note:** Typically used with `launch/patient` as encounters are patient-specific.
-
-#### Receiving Encounter Context
+### Receiving Encounter Context
 
 **Token response (when encounter available):**
 ```json
@@ -771,6 +726,14 @@ openid fhirUser launch user/Patient.rs
 }
 ```
 
+**Or for staff that are not Practitioners:**
+```json
+{
+  "access_token": "...",
+  "fhirUser": "Person/123"
+}
+```
+
 #### Using fhirUser
 ```javascript
 const fhirUser = tokenResponse.fhirUser;
@@ -796,6 +759,14 @@ if (resourceType === 'Practitioner') {
   );
 
   displayPatientInfo(patient);
+} else if (resourceType === 'Person') {
+    // Person user
+    const person = await fetch(
+        `${fhirBaseUrl}/Person/${userId}`,
+        { headers: { 'Authorization': `Bearer ${accessToken}` }}
+    );
+
+    displayPersonInfo(person);
 }
 ```
 
@@ -811,7 +782,6 @@ if (resourceType === 'Practitioner') {
 | Context | Scope | Field | Example Value | When Available |
 |---------|-------|-------|---------------|----------------|
 | **Patient** | `launch/patient` | `patient` | `"123"` | EHR launch, patient apps |
-| **Encounter** | `launch/encounter` | `encounter` | `"456"` | EHR launch with active encounter |
 | **User** | `fhirUser` | `fhirUser` | `"Practitioner/789"` | All authenticated launches |
 
 **Example token response with all contexts:**
@@ -828,8 +798,6 @@ if (resourceType === 'Practitioner') {
 ```
 
 ## SMART Configuration
-
-**New in SMART v2.2.0:** Discovery endpoint for SMART capabilities.
 
 ### Endpoint
 ```
@@ -877,9 +845,9 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/.well-known/smart-configur
     "launch/encounter",
     "offline_access",
     "online_access",
-    "patient/*.cruds",
-    "user/*.cruds",
-    "system/*.rs"
+    "patient/Patient.rs",
+    "user/Patient.rs",
+    "system/Patient.rs"
   ],
   "response_types_supported": ["code"],
   "capabilities": [
@@ -896,6 +864,7 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/.well-known/smart-configur
     "permission-offline",
     "permission-patient",
     "permission-user",
+    "permission-v1",
     "permission-v2"
   ],
   "code_challenge_methods_supported": ["S256"],
@@ -906,20 +875,22 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/.well-known/smart-configur
 
 ### SMART Capabilities
 
-| Capability | Description |
-|------------|-------------|
-| `launch-ehr` | Supports EHR launch flow |
-| `launch-standalone` | Supports standalone launch flow |
-| `client-public` | Supports public clients (PKCE required) |
-| `client-confidential-symmetric` | Supports client secrets |
-| `client-confidential-asymmetric` | Supports JWKS authentication |
-| `context-ehr-patient` | Provides patient context in EHR launch |
-| `context-ehr-encounter` | Provides encounter context in EHR launch ✨ NEW |
-| `sso-openid-connect` | OpenID Connect single sign-on |
-| `permission-offline` | Offline access (refresh tokens) |
-| `permission-patient` | Patient-level scopes supported |
-| `permission-user` | User-level scopes supported |
-| `permission-v2` | SMART v2 scopes (granular permissions) ✨ NEW |
+| Capability                       | Description                                                                    |
+|----------------------------------|--------------------------------------------------------------------------------|
+| `launch-ehr`                     | Supports EHR launch flow                                                       |
+| `launch-standalone`              | Supports standalone launch flow                                                |
+| `client-public`                  | Supports public clients (PKCE required)                                        |
+| `client-confidential-symmetric`  | Supports client secrets                                                        |
+| `client-confidential-asymmetric` | Supports JWKS authentication                                                   |
+| `context-ehr-patient`            | Provides patient context in EHR launch                                         |
+| `context-ehr-encounter`          | Provides encounter context in EHR launch ✨ NEW                                 |
+| `sso-openid-connect`             | OpenID Connect single sign-on                                                  |
+| `permission-offline`             | Offline access (refresh tokens)                                                |
+| `permission-patient`             | Patient-level scopes supported                                                 |
+| `permission-user`                | User-level scopes supported                                                    |
+| `authorize-post` | Pass data via POST directly to authorization endpoint instead of via GET ✨ NEW |
+| `permission-v1`                  | SMART v1 scopes (Backwards compatability) ✨ NEW                                |
+| `permission-v2`                  | SMART v2 scopes (granular permissions) ✨ NEW                                   |
 
 ### Using SMART Configuration
 
@@ -1317,7 +1288,7 @@ See [Authorization Guide - Revoking Access](AUTHORIZATION.md#revoking-access) fo
 ### Security Best Practices
 
 **Authentication:**
-- Use asymmetric authentication when possible
+- Use asymmetric authentication when possible with a JWKS URI
 - Rotate client secrets regularly
 - Implement token introspection
 
@@ -1336,132 +1307,6 @@ See [Authorization Guide - Revoking Access](AUTHORIZATION.md#revoking-access) fo
 - Monitor for suspicious activity
 - Document security events
 
-## Examples
-
-### Example 1: Patient Standalone App
-
-**App:** Personal health tracker for patients
-
-**Registration:**
-```json
-{
-  "application_type": "public",
-  "client_name": "My Health Tracker",
-  "redirect_uris": ["https://healthtracker.example.com/callback"],
-  "scope": "openid offline_access patient/Patient.rs patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs"
-}
-```
-
-**Launch flow:**
-```javascript
-// Standalone launch (no launch parameter)
-const authUrl = new URL('https://openemr.example.com/oauth2/default/authorize');
-authUrl.searchParams.set('response_type', 'code');
-authUrl.searchParams.set('client_id', clientId);
-authUrl.searchParams.set('redirect_uri', 'https://healthtracker.example.com/callback');
-authUrl.searchParams.set('scope', 'openid offline_access patient/Patient.rs patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs');
-authUrl.searchParams.set('state', state);
-authUrl.searchParams.set('aud', 'https://openemr.example.com/apis/default/fhir');
-authUrl.searchParams.set('code_challenge', codeChallenge);
-authUrl.searchParams.set('code_challenge_method', 'S256');
-
-window.location.href = authUrl.toString();
-```
-
-### Example 2: EHR-Launched Clinical Decision Support
-
-**App:** Risk calculator launched from patient chart
-
-**Registration:**
-```json
-{
-  "application_type": "confidential",
-  "client_name": "Cardiac Risk Calculator",
-  "launch_uris": ["https://riskcalc.example.com/launch"],
-  "redirect_uris": ["https://riskcalc.example.com/callback"],
-  "token_endpoint_auth_method": "client_secret_post",
-  "scope": "openid fhirUser launch launch/patient launch/encounter user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs"
-}
-```
-
-**Launch flow:**
-```javascript
-// 1. Receive launch from OpenEMR
-// GET /launch?iss=https://openemr.example.com/apis/default/fhir&launch=TOKEN
-
-const params = new URLSearchParams(window.location.search);
-const iss = params.get('iss');
-const launchToken = params.get('launch');
-
-// 2. Initiate authorization with launch token
-const authUrl = new URL('https://openemr.example.com/oauth2/default/authorize');
-authUrl.searchParams.set('response_type', 'code');
-authUrl.searchParams.set('client_id', clientId);
-authUrl.searchParams.set('redirect_uri', 'https://riskcalc.example.com/callback');
-authUrl.searchParams.set('scope', 'openid fhirUser launch launch/patient launch/encounter user/Patient.rs user/Observation.rs user/Condition.rs');
-authUrl.searchParams.set('state', state);
-authUrl.searchParams.set('aud', iss);
-authUrl.searchParams.set('launch', launchToken);
-
-window.location.href = authUrl.toString();
-
-// 3. Receive token with context
-// {
-//   "patient": "123",
-//   "encounter": "456",
-//   "fhirUser": "Practitioner/789"
-// }
-```
-
-### Example 3: Native Mobile App (iOS)
-
-**App:** Patient medication tracker
-
-**Setup:**
-```swift
-import AppAuth
-
-class SMARTAuthManager {
-    func login() {
-        // Discover configuration
-        let issuer = URL(string: "https://openemr.example.com/oauth2/default")!
-
-        OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) { configuration, error in
-            guard let config = configuration else {
-                print("Error: \(error!)")
-                return
-            }
-
-            // Build authorization request
-            let request = OIDAuthorizationRequest(
-                configuration: config,
-                clientId: "YOUR_CLIENT_ID",
-                scopes: ["openid", "offline_access", "patient/Patient.rs", "patient/MedicationRequest.rs"],
-                redirectURL: URL(string: "com.example.medtracker://callback")!,
-                responseType: OIDResponseTypeCode,
-                additionalParameters: [
-                    "aud": "https://openemr.example.com/apis/default/fhir",
-                    "code_challenge_method": "S256"
-                ]
-            )
-
-            // Present authorization UI
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.currentAuthorizationFlow = OIDAuthState.authState(
-                byPresenting: request,
-                presenting: self
-            ) { authState, error in
-                if let authState = authState {
-                    self.setAuthState(authState)
-                    print("Authorized! Patient: \(authState.lastTokenResponse?.additionalParameters?["patient"] ?? "")")
-                } else {
-                    print("Authorization error: \(error!)")
-                }
-            }
-        }
-    }
-}
-```
 
 ## Troubleshooting
 
@@ -1494,21 +1339,6 @@ class SMARTAuthManager {
 - ✅ Request `launch/patient` scope
 - ✅ Launch from patient chart
 - ✅ Handle missing patient context gracefully
-
-#### Issue: "No encounter context"
-
-**Symptoms:** Token response missing `encounter` field
-
-**Causes:**
-- `launch/encounter` scope not requested
-- No active encounter
-- EHR launch outside encounter
-
-**Solutions:**
-- ✅ Request `launch/encounter` scope
-- ✅ Check if encounter field present
-- ✅ Handle missing encounter gracefully
-- ✅ Fall back to patient-level view
 
 #### Issue: "Insufficient scope"
 

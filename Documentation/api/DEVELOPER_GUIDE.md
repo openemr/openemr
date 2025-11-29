@@ -7,7 +7,6 @@ Complete guide for developers working with or extending the OpenEMR API.
 - [Internal API Usage](#internal-api-usage)
     - [Making Internal API Calls](#making-internal-api-calls)
     - [Authentication in Internal Calls](#authentication-in-internal-calls)
-    - [Example Use Cases](#example-use-cases)
 - [Multisite Support](#multisite-support)
     - [Multisite Architecture](#multisite-architecture)
     - [Site-Specific Endpoints](#site-specific-endpoints)
@@ -42,13 +41,10 @@ Complete guide for developers working with or extending the OpenEMR API.
     - [Custom Validators](#custom-validators)
 - [Testing](#testing)
     - [Unit Tests](#unit-tests)
-    - [API Tests](#api-tests)
-    - [Testing OAuth Flow](#testing-oauth-flow)
 - [Deployment](#deployment)
     - [Production Checklist](#production-checklist)
     - [Performance Optimization](#performance-optimization)
     - [Monitoring](#monitoring)
-- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 
 ## Overview
@@ -62,7 +58,7 @@ This guide is for developers who are:
 ### Prerequisites
 
 **Knowledge Requirements:**
-- PHP 7.4+ (preferably 8.1+)
+- PHP 8.2+
 - RESTful API design
 - OAuth 2.0 / OpenID Connect
 - FHIR R4 (for FHIR development)
@@ -163,117 +159,6 @@ $userId = $_SESSION['authUserID'] ?? null;
 $userData = sqlQuery("SELECT * FROM users WHERE id = ?", [$userId]);
 ```
 
-### Example Use Cases
-
-#### Use Case 1: Custom Patient Report
-```php
-<?php
-namespace OpenEMR\Custom\Reports;
-
-use OpenEMR\Services\PatientService;
-use OpenEMR\Services\EncounterService;
-
-class PatientReportGenerator
-{
-    private $patientService;
-    private $encounterService;
-
-    public function __construct()
-    {
-        $this->patientService = new PatientService();
-        $this->encounterService = new EncounterService();
-    }
-
-    public function generateReport($puuid, $startDate, $endDate)
-    {
-        // Get patient data
-        $patientResult = $this->patientService->getOne($puuid);
-        $patient = $patientResult->getData();
-
-        // Get encounters in date range
-        $encountersResult = $this->encounterService->getEncountersForPatient(
-            $patient['pid'],
-            $startDate,
-            $endDate
-        );
-        $encounters = $encountersResult->getData();
-
-        // Generate report
-        return [
-            'patient' => $patient,
-            'encounters' => $encounters,
-            'summary' => $this->calculateSummary($encounters)
-        ];
-    }
-
-    private function calculateSummary($encounters)
-    {
-        return [
-            'total_encounters' => count($encounters),
-            'date_range' => [
-                'start' => min(array_column($encounters, 'date')),
-                'end' => max(array_column($encounters, 'date'))
-            ]
-        ];
-    }
-}
-```
-
-#### Use Case 2: Bulk Data Update
-```php
-<?php
-namespace OpenEMR\Custom\DataMigration;
-
-use OpenEMR\Services\PatientService;
-
-class BulkPatientUpdate
-{
-    private $patientService;
-
-    public function __construct()
-    {
-        $this->patientService = new PatientService();
-    }
-
-    public function updatePatientAddresses($updates)
-    {
-        $results = [];
-
-        foreach ($updates as $update) {
-            try {
-                // Prepare update data
-                $data = [
-                    'street' => $update['street'],
-                    'city' => $update['city'],
-                    'state' => $update['state'],
-                    'postal_code' => $update['postal_code']
-                ];
-
-                // Update patient
-                $result = $this->patientService->update(
-                    $update['puuid'],
-                    $data
-                );
-
-                $results[] = [
-                    'puuid' => $update['puuid'],
-                    'success' => true
-                ];
-
-            } catch (\Exception $e) {
-                $results[] = [
-                    'puuid' => $update['puuid'],
-                    'success' => false,
-                    'error' => $e->getMessage()
-                ];
-            }
-        }
-
-        return $results;
-    }
-}
-```
-
 ## Multisite Support
 
 OpenEMR supports multiple independent sites within a single installation.
@@ -366,70 +251,10 @@ $sqlConf = $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
 
 ✅ **Use valid SSL certificates**
 ```
-# DO NOT use self-signed certificates in production
+# Self-signed certifications are not recommended unless all client and server communiations have the certificate in their trust store
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
 ```
-
 ✅ **Configure Apache/Nginx for HTTPS**
-
-**Apache:**
-```apache
-<VirtualHost *:443>
-    ServerName openemr.example.com
-
-    SSLEngine on
-    SSLCertificateFile /path/to/cert.pem
-    SSLCertificateKeyFile /path/to/key.pem
-
-    # Modern SSL configuration
-    SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
-    SSLCipherSuite HIGH:!aNULL:!MD5
-    SSLHonorCipherOrder on
-
-    DocumentRoot /var/www/openemr
-    <Directory /var/www/openemr>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-```
-
-**Nginx:**
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name openemr.example.com;
-
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-
-    # Modern SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-
-    root /var/www/openemr;
-    index index.php;
-
-    location / {
-        try_files $uri $uri/ /index.php?$args;
-    }
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
-        fastcgi_index index.php;
-        include fastcgi_params;
-    }
-}
-```
-
-✅ **Redirect HTTP to HTTPS**
-```apache
-<VirtualHost *:80>
-    ServerName openemr.example.com
-    Redirect permanent / https://openemr.example.com/
-</VirtualHost>
-```
 
 ### Token Security
 
@@ -446,30 +271,6 @@ server {
 - HttpOnly, Secure cookies (web apps)
 - Platform secure storage (mobile)
 - Encrypted databases (server-side)
-
-**JavaScript Example:**
-```javascript
-// BAD - XSS vulnerable
-localStorage.setItem('access_token', token);
-
-// GOOD - Use HttpOnly cookie (set by server)
-// Or use in-memory storage for SPA
-class TokenManager {
-    constructor() {
-        this.token = null;
-    }
-
-    setToken(token) {
-        this.token = token;
-        // Token only in memory, lost on page refresh
-        // Requires refresh token to restore
-    }
-
-    getToken() {
-        return this.token;
-    }
-}
-```
 
 **Token Transmission:**
 
@@ -547,36 +348,9 @@ if (!checkScope($token, 'patient/Patient.rs')) {
 
 **Protected Health Information (PHI):**
 
-✅ **Encryption at rest**
-```sql
--- Encrypt sensitive fields
-ALTER TABLE patient_data
-ADD COLUMN ssn_encrypted VARBINARY(255);
+✅ **Encryption at rest** - use the CryptoGen class for encrypting sensitive fields
 
--- Use AES encryption
-UPDATE patient_data
-SET ssn_encrypted = AES_ENCRYPT(ss, 'encryption-key');
-```
-
-✅ **Audit logging**
-```php
-<?php
-function logApiAccess($userId, $resource, $action) {
-    $log = [
-        'timestamp' => date('Y-m-d H:i:s'),
-        'user_id' => $userId,
-        'resource' => $resource,
-        'action' => $action,
-        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-    ];
-
-    // Write to audit log
-    sqlInsert("INSERT INTO api_audit_log SET " .
-        "timestamp = ?, user_id = ?, resource = ?, action = ?, ip_address = ?",
-        array_values($log)
-    );
-}
-```
+✅ **Audit logging** - happens automatically with every REST call
 
 ✅ **Access controls**
 ```php
@@ -612,25 +386,6 @@ $patient = [
 $patient = $row;  // May include SSN, etc.
 ```
 
-**Breach Notification:**
-
-Implement breach detection:
-```php
-<?php
-function detectPotentialBreach($userId, $accessCount, $timeWindow) {
-    // Alert if excessive access
-    if ($accessCount > 100 && $timeWindow < 3600) {
-        // Send alert to security team
-        notifySecurityTeam([
-            'user_id' => $userId,
-            'access_count' => $accessCount,
-            'time_window' => $timeWindow,
-            'severity' => 'high'
-        ]);
-    }
-}
-```
-
 ## Architecture
 
 ### Request Flow
@@ -639,15 +394,23 @@ HTTP Request
     ↓
 Web Server (Apache/Nginx)
     ↓
-index.php / _rest_routes.inc.php
+apis/dispatch.php
     ↓
-Route Matching
+ApiApplication
+    ↓
+SiteSetupListener
+    ↓
+Authorization Check (OAuth2, BearerToken)
+    ↓
+Route Matching (RouteExtensionListener)
     ↓
 Authorization Check (OAuth2)
     ↓
-Controller
+Controller (RestController class)
     ↓
 Validator (if POST/PUT/PATCH)
+    ↓
+FHIR Service Component (if FHIR endpoint)
     ↓
 Service Component
     ↓
@@ -883,7 +646,8 @@ class MyResourceRestController
 
 **Step 3: Add Routes**
 
-`_rest_routes.inc.php`:
+Standard routes are added to _rest_routes_standard.inc.php
+Portal Routes are added to _rest_routes_portal.inc.php
 ```php
 <?php
 use OpenEMR\RestControllers\MyResourceRestController;
@@ -1057,7 +821,8 @@ class FhirMyResourceRestController
 
 **Step 3: Add FHIR Routes**
 
-`_rest_routes.inc.php`:
+FHIR Routes are added to the appropriate FHIR version _rest_routes_fhir_r4_us_core_3_1_0.inc.php (for example R4 with endpoint compatible with all US Core eversions)
+`apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php`:
 ```php
 <?php
 use OpenEMR\RestControllers\FHIR\FhirMyResourceRestController;
@@ -1336,17 +1101,17 @@ public function getOne($id)
 ```php
 public function updateWithRelated($id, $data, $related)
 {
-    sqlBeginTrans();
+    QueryUtils::beginTransaction();
 
     try {
         $this->update($id, $data);
         $this->updateRelated($id, $related);
 
-        sqlCommitTrans();
+        QueryUtils::commitTransaction();
         return new ProcessingResult();
 
     } catch (\Exception $e) {
-        sqlRollbackTrans();
+        QueryUtils::rollbackTransaction();
 
         $result = new ProcessingResult();
         $result->addInternalError($e->getMessage());
@@ -1578,87 +1343,6 @@ class PatientServiceTest extends TestCase
 ./vendor/bin/phpunit tests/Tests/Unit/
 ```
 
-### API Tests
-
-**Location:** `tests/api/`
-
-**Example:** `tests/api/PatientApiTest.php`
-```php
-<?php
-namespace OpenEMR\Tests\Api;
-
-use PHPUnit\Framework\TestCase;
-
-class PatientApiTest extends TestCase
-{
-    private $client;
-    private $accessToken;
-
-    protected function setUp(): void
-    {
-        // Get access token
-        $this->accessToken = $this->getAccessToken();
-
-        // Create HTTP client
-        $this->client = new \GuzzleHttp\Client([
-            'base_uri' => 'https://localhost:9300/apis/default/',
-            'verify' => false
-        ]);
-    }
-
-    public function testGetPatientList()
-    {
-        $response = $this->client->get('api/patient', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->accessToken
-            ]
-        ]);
-
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $data = json_decode($response->getBody(), true);
-        $this->assertIsArray($data['data']);
-    }
-
-    private function getAccessToken()
-    {
-        // Implement OAuth flow to get token
-        // ...
-    }
-}
-```
-
-### Testing OAuth Flow
-
-**Integration test:**
-```php
-<?php
-public function testOAuthFlow()
-{
-    // Step 1: Registration
-    $registration = $this->registerClient([
-        'client_name' => 'Test Client',
-        'redirect_uris' => ['http://localhost/callback']
-    ]);
-
-    $clientId = $registration['client_id'];
-    $clientSecret = $registration['client_secret'];
-
-    // Step 2: Authorization
-    $authCode = $this->authorizeClient($clientId);
-
-    // Step 3: Token exchange
-    $tokens = $this->exchangeCodeForToken($authCode, $clientId, $clientSecret);
-
-    $this->assertArrayHasKey('access_token', $tokens);
-    $this->assertArrayHasKey('refresh_token', $tokens);
-
-    // Step 4: Make API call
-    $response = $this->makeApiCall($tokens['access_token']);
-    $this->assertEquals(200, $response->getStatusCode());
-}
-```
-
 ## Deployment
 
 ### Production Checklist
@@ -1690,147 +1374,6 @@ public function testOAuthFlow()
 - [ ] Performance monitoring in place
 - [ ] Alerting configured
 - [ ] Backup procedures tested
-
-### Performance Optimization
-
-**Database:**
-```sql
--- Add indexes for common queries
-CREATE INDEX idx_patient_uuid ON patient_data(uuid);
-CREATE INDEX idx_encounter_patient ON form_encounter(pid);
-CREATE INDEX idx_encounter_date ON form_encounter(date);
-
--- Optimize queries
-EXPLAIN SELECT * FROM patient_data WHERE uuid = ?;
-```
-
-**Caching:**
-```php
-<?php
-// Cache frequently accessed data
-use OpenEMR\Common\Cache\CacheService;
-
-$cache = new CacheService();
-
-$patientData = $cache->get('patient_' . $uuid);
-
-if ($patientData === null) {
-    $patientData = $this->fetchPatientFromDb($uuid);
-    $cache->set('patient_' . $uuid, $patientData, 3600); // 1 hour
-}
-```
-
-**Rate Limiting:**
-```php
-<?php
-// Implement rate limiting
-function checkRateLimit($clientId, $limit = 100, $window = 3600) {
-    $key = 'rate_limit_' . $clientId;
-    $count = apcu_fetch($key) ?: 0;
-
-    if ($count >= $limit) {
-        http_response_code(429);
-        echo json_encode(['error' => 'Rate limit exceeded']);
-        exit;
-    }
-
-    apcu_store($key, $count + 1, $window);
-}
-```
-
-### Monitoring
-
-**Logging:**
-```php
-<?php
-// Log API calls
-function logApiCall($endpoint, $method, $userId, $responseCode) {
-    $log = [
-        'timestamp' => date('Y-m-d H:i:s'),
-        'endpoint' => $endpoint,
-        'method' => $method,
-        'user_id' => $userId,
-        'response_code' => $responseCode,
-        'ip_address' => $_SERVER['REMOTE_ADDR']
-    ];
-
-    error_log(json_encode($log));
-}
-```
-
-**Metrics:**
-
-Track key metrics:
-- API requests per minute
-- Response times
-- Error rates
-- Token issuance rate
-- Failed authentication attempts
-
-**Alerts:**
-
-Configure alerts for:
-- High error rates (>5%)
-- Slow response times (>2s)
-- Failed auth attempts (>10/min)
-- Disk space low
-- Database connection errors
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue: CORS Errors**
-```php
-// Add CORS headers in .htaccess or PHP
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Authorization, Content-Type');
-```
-
-**Issue: Token Validation Failures**
-```php
-// Check token format
-var_dump(json_decode(base64_decode(explode('.', $token)[1])));
-
-// Verify signature
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebToken;
-$jwt = new JsonWebToken($token);
-$jwt->validate();
-```
-
-**Issue: Database Connection Errors**
-```php
-// Check connection
-$conn = \OpenEMR\Common\Database\Connector::Instance();
-if (!$conn) {
-    error_log("Database connection failed");
-}
-```
-
-### Debug Mode
-
-**Enable debug logging:**
-```php
-// In globals.php or config
-$GLOBALS['debug_mode'] = 1;
-
-// In code
-if ($GLOBALS['debug_mode']) {
-    error_log("Debug: Processing request for patient " . $puuid);
-}
-```
-
-**API Request/Response Logging:**
-```php
-// Log full request
-error_log("API Request: " . print_r([
-    'method' => $_SERVER['REQUEST_METHOD'],
-    'uri' => $_SERVER['REQUEST_URI'],
-    'headers' => getallheaders(),
-    'body' => file_get_contents('php://input')
-], true));
-```
 
 ## Contributing
 
