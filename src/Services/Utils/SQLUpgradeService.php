@@ -81,8 +81,6 @@ class SQLUpgradeService implements ISQLUpgradeService
     }
 
 
-
-
     private function flush()
     {
         if ($this->isRenderOutputToScreen()) {
@@ -662,7 +660,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfMBOEncounterNeeded/', $line)) {
-                    $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
+                $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
                 if (sqlNumRows($emptyMBOEncounters) > 0) {
                     $this->echo("<p class='text-info'>Linking encounters to misc billing options forms.</p>\n");
                     $this->flush_echo();
@@ -684,7 +682,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                                 `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
                                 `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", [$row['encounter']]);
                                 if (!empty($mboquery['id'])) {
-                                    $formid = (int) $mboquery['id'];
+                                    $formid = (int)$mboquery['id'];
                                     QueryUtils::sqlStatementThrowException("UPDATE `form_misc_billing_options` SET `encounter` = ? WHERE `id` = ? AND `encounter` IS NULL", [$row['encounter'], $formid], true);
                                 }
                             }
@@ -748,7 +746,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } else if (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
+            } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
                 $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated 
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
@@ -857,7 +855,6 @@ class SQLUpgradeService implements ISQLUpgradeService
     }
 
 
-
     /**
      * Check if a Sql table exists.
      *
@@ -908,7 +905,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return true;
         }
 
-        return (strcasecmp((string) $row['Type'], $coltype) == 0);
+        return (strcasecmp((string)$row['Type'], $coltype) == 0);
     }
 
 
@@ -929,7 +926,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
 
         // Check if the type matches
-        if (strcasecmp((string) $row['Type'], $coltype) != 0) {
+        if (strcasecmp((string)$row['Type'], $coltype) != 0) {
             return false;
         }
 
@@ -944,7 +941,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             return (!empty($row));
         } else {
             // Standard case when checking if default is neither NULL or ""(blank)
-            return (strcasecmp((string) $row['Default'], $coldefault) == 0);
+            return (strcasecmp((string)$row['Default'], $coldefault) == 0);
         }
     }
 
@@ -1254,9 +1251,10 @@ class SQLUpgradeService implements ISQLUpgradeService
 
     /**
      * Convert table engine.
+     *
      * @param string $table
-     * @param string $engine  has to be set to InnoDB 8-7-24
-     * ADODB will fail if there was an error during conversion
+     * @param string $engine has to be set to InnoDB 8-7-24
+     *                       ADODB will fail if there was an error during conversion
      */
     private function MigrateTableEngine($table, $engine)
     {
@@ -1282,7 +1280,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (str_starts_with((string) $form_id, 'LBF')) {
+            if (str_starts_with((string)$form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1293,7 +1291,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (str_starts_with((string) $form_id, 'LBT')) {
+            } elseif (str_starts_with((string)$form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]
@@ -1327,7 +1325,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 "grp_repeats = ?";
             $sqlvars = [$form_id, $props['title'], $props['mapping'], $props['activity'], $props['option_value']];
             if ($props['notes']) {
-                $jobj = json_decode((string) $props['notes'], true);
+                $jobj = json_decode((string)$props['notes'], true);
                 if (isset($jobj['columns'])) {
                     $query .= ", grp_columns = ?";
                     $sqlvars[] = $jobj['columns'];
@@ -1372,7 +1370,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 $group_name = $grow['group_name'];
                 $group_id = '';
                 $title = '';
-                $a = explode('|', (string) $group_name);
+                $a = explode('|', (string)$group_name);
                 foreach ($a as $tmp) {
                     $group_id .= substr($tmp, 0, 1);
                     $title = substr($tmp, 1);
@@ -1425,10 +1423,10 @@ class SQLUpgradeService implements ISQLUpgradeService
         try {
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
-                    $options = (json_decode((string) $row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos((string) $mode, 'add') !== false) {
+                    $options = (json_decode((string)$row['edit_options'], true)) ?? [];
+                    if (!in_array($add_option, $options) && stripos((string)$mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos((string) $mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos((string)$mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {
@@ -1439,9 +1437,9 @@ class SQLUpgradeService implements ISQLUpgradeService
                         $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
                     }
                     $new_options = json_encode($options);
-                    $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = 'DEM' AND `field_id` = ? AND `seq` = ? ";
+                    $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = ? AND `field_id` = ? AND `seq` = ? ";
                     $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
-                    sqlStatementNoLog($update_sql, [$new_options, $row['field_id'], $row['seq']]);
+                    sqlStatementNoLog($update_sql, [$new_options, $form_id, $row['field_id'], $row['seq']]);
                     $flag = false;
                 }
             }
@@ -1471,7 +1469,8 @@ class SQLUpgradeService implements ISQLUpgradeService
         return $currentDbVersion <= $versionToCheck;
     }
 
-    protected function getCurrentDBVersion(): int {
+    protected function getCurrentDBVersion(): int
+    {
         $versionService = new VersionService();
         $versionRecord = $versionService->fetch();
         return intval($versionRecord['v_database'] ?? 0);
@@ -1511,17 +1510,14 @@ class SQLUpgradeService implements ISQLUpgradeService
             $this->cleanupCareTeamUUidMappings($fromClause);
             QueryUtils::commitTransaction();
             $commited = true;
-        }
-        catch (\Throwable $exception) {
-            $this->failureCount++;
+        } catch (\Throwable $exception) {
             $this->echo("<p class='text-danger'>Care Teams v1 to v2 migration failed: " .
                 text($exception->getMessage()) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $exception;
             }
-        }
-        // we let errors percolate up
+        } // we let errors percolate up
         finally {
             if (!$commited) {
                 QueryUtils::rollbackTransaction();
@@ -1534,13 +1530,13 @@ class SQLUpgradeService implements ISQLUpgradeService
         $uuid = $record['care_team_uuid'] ?? UuidRegistry::getRegistryForTable('care_teams')->createUuid();
         $careTeam = [
             'uuid' => $uuid
-            ,'pid' => $record['pid']
-            ,'status' => $record['care_team_status'] ?? 'active'
-            ,'team_name' => xl("Care Team")
-            ,'note' => xl("Migrated from Care Teams v1 data.")
-            ,'date_created' => $record['last_updated']
-            ,'created_by' => $record['created_by']
-            ,'updated_by' => $record['updated_by']
+            , 'pid' => $record['pid']
+            , 'status' => $record['care_team_status'] ?? 'active'
+            , 'team_name' => xl("Care Team")
+            , 'note' => xl("Migrated from Care Teams v1 data.")
+            , 'date_created' => $record['last_updated']
+            , 'created_by' => $record['created_by']
+            , 'updated_by' => $record['updated_by']
         ];
         $providers = explode("|", $record['care_team_provider'] ?? '');
         $facilities = explode("|", $record['care_team_facility'] ?? '');
