@@ -177,7 +177,7 @@
     // IIFE Wrapper For Telecom Form Functions
     (function() {
 
-        const tableId = {{ table_id|js_escape|raw }}
+        const tableId = {{ table_id|js_escape }}
         console.log("Running telecom script for table id:", tableId);
 
         // Initialize on page load
@@ -212,9 +212,7 @@
                 'UPDATE': 'UPDATE'
             };
 
-            let telecomDatePickerSettings = {};
-
-            {{ DateToYYYYMMDD_js()|raw }}
+            {{ DateToYYYYMMDD_js() }}
 
             init(tableId);
 
@@ -597,9 +595,13 @@
                 }
             }
 
-            function setupContainerDatePickers(table) {
-                let datepickers = table.querySelectorAll(".datepicker");
-                $(datepickers).datetimepicker(telecomDatePickerSettings);
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        {{ jqueryDateTimePicker('this', false, false, true) }};
+                    }
+                });
             }
 
             function setupContainerListAddButtons(table) {
@@ -622,19 +624,13 @@
 
             function telecomUpdated(event) {
                 const formTelecoms = event.target.closest('.form_telecoms');
-                if (!formTelecoms) {
-                    return;
-                }
+                if (!formTelecoms) return;
 
                 const telecomsGroup = formTelecoms.closest('.telecoms_group');
-                if (!telecomsGroup) {
-                    return;
-                }
+                if (!telecomsGroup) return;
 
                 const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
-                if (!actionInput) {
-                    return;
-                }
+                if (!actionInput) return;
 
                 const currentAction = actionInput.value;
                 if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
