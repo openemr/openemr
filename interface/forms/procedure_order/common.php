@@ -696,33 +696,6 @@ if (!empty($row['lab_id'])) {
             }
         });
 
-        // Save form before adding specimen if procedure is new
-        $(document).on('click', '.add-specimen-row', function (e) {
-            const procIndex = this.getAttribute('data-specimen-line');
-            const $procTable = $(this).closest('.proc-table');
-            const orderSeqInput = $procTable.find("input[name='form_proc_order_seq[" + procIndex + "]']");
-            // Check if this is an unsaved new procedure
-            if (!orderSeqInput.length || !orderSeqInput.val()) {
-                const procName = $procTable.find("input[name='form_proc_type_desc[" + procIndex + "]']").val();
-                if (!procName) {
-                    e.preventDefault();
-                    alert(<?php echo xlj('Please select a procedure first.'); ?>);
-                    return;
-                }
-                // Check if form has been saved
-                const formId = $("input[name='id']").val();
-                if (!formId || formId === '0') {
-                    e.preventDefault();
-                    // Auto-save the form
-                    $("#bn_save").click();
-                    return;
-                }
-                // Form exists but procedure is new - need to save to get sequence number
-                e.preventDefault();
-                $("#bn_save").click();
-            }
-        });
-
         // Add hidden order_seq field to track saved procedures
         function addProcedureOrderSeqField(lineCount, orderSeq) {
             let input = document.createElement('input');

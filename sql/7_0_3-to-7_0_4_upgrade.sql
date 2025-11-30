@@ -176,26 +176,22 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
 
-
 #IfNotTable care_team_member
-RENAME TABLE `care_teams` TO `care_teams_old`;
-#EndIf
-
-#IfNotTable care_teams
-CREATE TABLE `care_teams` (
-    `id`           int(11) NOT NULL AUTO_INCREMENT,
-    `uuid`         binary(16)   DEFAULT NULL,
-    `pid`          int(11) NOT NULL COMMENT 'fk to patient_data.pid',
-    `status`       varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
-    `team_name`    varchar(255) DEFAULT NULL,
-    `note`         text,
-    `date_created` datetime     DEFAULT current_timestamp(),
-    `date_updated` datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `created_by`   BIGINT(20) COMMENT 'fk to users.id for user who created this record',
-    `updated_by`   BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uuid` (`uuid`)
-) ENGINE = InnoDB;
+DROP TABLE IF EXISTS care_teams_v1;
+-- save old care teams
+SET @table_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.tables
+    WHERE table_schema = DATABASE()
+      AND table_name = 'care_teams'
+);
+SET @sql = IF(@table_exists > 0,
+  'RENAME TABLE `care_teams` TO `care_teams_v1`',
+  'SELECT "Table care_teams does not exist" AS message'
+);
+PREPARE task FROM @sql;
+EXECUTE task;
+DEALLOCATE PREPARE task;
 
 CREATE TABLE `care_team_member` (
     `id`             int(11)     NOT NULL AUTO_INCREMENT,
@@ -214,8 +210,27 @@ CREATE TABLE `care_team_member` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `care_team_member_unique` (`care_team_id`, `user_id`, `facility_id`, `contact_id`)
 ) ENGINE = InnoDB COMMENT ='Stores members of a care team for a patient';
+#EndIf
 
--- Migrate existing care teams. Thank you, Claude.ai for the help.
+#IfNotTable care_teams
+CREATE TABLE `care_teams` (
+    `id`           int(11) NOT NULL AUTO_INCREMENT,
+    `uuid`         binary(16)   DEFAULT NULL,
+    `pid`          int(11) NOT NULL COMMENT 'fk to patient_data.pid',
+    `status`       varchar(100) DEFAULT 'active' COMMENT 'fk to list_options.option_id where list_id=Care_Team_Status',
+    `team_name`    varchar(255) DEFAULT NULL,
+    `note`         text,
+    `date_created` datetime     DEFAULT current_timestamp(),
+    `date_updated` datetime     DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `created_by`   BIGINT(20) COMMENT 'fk to users.id for user who created this record',
+    `updated_by`   BIGINT(20) COMMENT 'fk to users.id for user who last updated this record',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`)
+) ENGINE = InnoDB;
+#EndIf
+
+-- Migrate existing care teams if any.
+#IfTable care_teams_v1
 INSERT INTO `care_teams` (`uuid`, `pid`, `status`, `team_name`, `date_created`, `date_updated`)
 SELECT
     `uuid`,
@@ -224,10 +239,9 @@ SELECT
     `team_name`,
     MIN(`date_created`) AS `date_created`,
     MAX(`date_updated`) AS `date_updated`
-FROM `care_teams_old`
+FROM `care_teams_v1`
 GROUP BY `pid`, `team_name`, `status`;
-
--- Step 5: Migrate all members to care_team_member table
+--  Migrate all members to care_team_member table
 INSERT INTO `care_team_member` (
     `care_team_id`,
     `user_id`,
@@ -249,13 +263,12 @@ SELECT
     ct_old.`date_created`,
     ct_old.`date_updated`,
     ct_old.`note`
-FROM `care_teams_old` ct_old
-         INNER JOIN `care_teams` ct_new
-                    ON ct_old.`pid` = ct_new.`pid`
-                        AND (ct_old.`team_name` = ct_new.`team_name` OR (ct_old.`team_name` IS NULL AND ct_new.`team_name` IS NULL))
-                        AND ct_old.`status` = ct_new.`status`;
+FROM `care_teams_v1` ct_old
+    INNER JOIN `care_teams` ct_new ON ct_old.`pid` = ct_new.`pid`
+    AND (ct_old.`team_name` = ct_new.`team_name` OR (ct_old.`team_name` IS NULL AND ct_new.`team_name` IS NULL))
+    AND ct_old.`status` = ct_new.`status`;
 
--- DROP TABLE `care_teams_old`;
+DROP TABLE `care_teams_v1`;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id care_team_roles
@@ -1882,7 +1895,7 @@ INSERT INTO `preference_value_sets`
     ('81338-6','OTH','http://terminology.hl7.org/CodeSystem/v3-NullFlavor','Other (see free text)',100,1);
 #EndIf
 
--- ---------------------------------------------------------------- psoas s.n sjp---- related person implementation 11-06-2025----------------------------------------
+-- ---------------------------------------------------------------- psoas sn sjp---- related person implementation 11-06-2025----------------------------------------
 -- relatedperson
 -- https://build.fhir.org/relatedperson.html
 
@@ -2002,7 +2015,7 @@ CREATE TABLE `person_patient_link` (
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id additional_telecoms
-    #IfRow2D layout_options form_id DEM field_id additional_addresses
+    -- additional_addresses has been in since v6.1.0 so let's not test for it here
     SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='additional_addresses' AND form_id='DEM');
     SET @max_seq = (SELECT max(seq) FROM layout_options WHERE group_id = @group_id AND form_id='DEM');
     UPDATE layout_options SET seq = @max_seq+19 WHERE form_id = 'DEM' AND field_id = 'additional_addresses';
@@ -2010,7 +2023,6 @@ CREATE TABLE `person_patient_link` (
         (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`)
     VALUES
         ('DEM','additional_telecoms',@group_id,'',@max_seq+9,55,0,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Telecoms',0);
-    #EndIf
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id telecom_systems
@@ -2245,114 +2257,7 @@ VALUES
     ('related_person_role','U','Unknown',200,0,1);
 #EndIf
 
-#IfTable patient_related_persons
-ALTER TABLE `person` ADD COLUMN `pid` BIGINT(20) DEFAULT NULL COMMENT 'Temporary column to hold patient_data.pid during migration';
-ALTER TABLE `person` ADD COLUMN `is_new` TINYINT(1) DEFAULT 1 COMMENT 'Flag to indicate if record is newly created during migration';
--- we need to migrate the data over for the patient_related_persons table
-CREATE TEMPORARY TABLE `person_temp` AS SELECT * FROM patient_related_persons WHERE related_firstname_1 IS NOT NULL AND related_firstname_1 != '';
-
-CREATE TEMPORARY TABLE `person_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `person_seq` (`pid`) SELECT pe.pid FROM person_temp pe;
-INSERT INTO `person` (`first_name`, `last_name`, `gender`,`pid`) SELECT related_firstname_1, related_lastname_1, `related_sex_1`,`pid` FROM person_temp;
-UPDATE `person` JOIN person_seq ON person.pid = person_seq.pid CROSS JOIN sequences ids SET person.id = person_seq.id+ids.id WHERE person.is_new = 1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM person);
-DROP TEMPORARY TABLE `person_seq`;
-
--- add patient_data contacts if needed
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'patient_data', new_pids.pid FROM (SELECT p.pid FROM person p LEFT JOIN contact c ON p.pid = c.foreign_id AND c.foreign_table_name='patient_data' WHERE c.id IS NULL AND p.is_new=1) new_pids;
-INSERT INTO `contact_relation` (`contact_id`, `target_table`, `target_id`, `relationship`) SELECT c.id, 'person', pe.id, p.related_relationship_1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pe.pid  AND pe.is_new=1;
-
--- add person contacts
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'person', pe.id FROM person pe WHERE pe.is_new=1;
-
--- we can only do this because persons are a brand new table
-CREATE TEMPORARY TABLE `addresses_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `addresses_seq` (`pid`) SELECT pe.pid FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND p.pid = pe.pid WHERE pe.is_new=1;
-UPDATE addresses_seq CROSS JOIN sequences s SET addresses_seq.id = addresses_seq.id + s.id;
-INSERT INTO addresses (`id`, `line1`, `city`, `state`, `zip`, `country`, `foreign_id`) SELECT addr.id, p.related_address_1, p.related_city_1, p.related_state_1, p.related_postalcode_1,p.related_country_1, c.id FROM person_temp p JOIN addresses_seq addr ON p.pid=addr.pid JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name='person' AND c.foreign_id=pe.id CROSS JOIN sequences s WHERE p.related_city_1 IS NOT NULL AND p.related_city_1 != '' AND pe.is_new=1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM addresses_seq);
-DROP TEMPORARY TABLE `addresses_seq`;
-
--- address_id = contact -> person
-INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'home', p.related_phone_1, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_1 IS NOT NULL AND p.related_phone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'work', p.related_workphone_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_1 IS NOT NULL AND p.related_workphone_1 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'email', 'home', p.related_email_1, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_1 AND pe.last_name = p.related_lastname_1 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_1 IS NOT NULL AND p.related_email_1 != ''  AND pe.is_new=1;
-
-UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
-DROP TEMPORARY TABLE `person_temp`;
-
--- now handle related person 2
-CREATE TEMPORARY TABLE `person_temp` AS SELECT * FROM patient_related_persons WHERE related_firstname_2 IS NOT NULL AND related_firstname_2 != '';
-
-CREATE TEMPORARY TABLE `person_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `person_seq` (`pid`) SELECT pe.pid FROM person_temp pe;
-INSERT INTO `person` (`first_name`, `last_name`, `gender`,`pid`) SELECT related_firstname_2, related_lastname_2, `related_sex_2`,`pid` FROM person_temp;
-UPDATE `person` JOIN person_seq ON person.pid = person_seq.pid CROSS JOIN sequences ids SET person.id = person_seq.id+ids.id WHERE person.is_new = 1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM person);
-DROP TEMPORARY TABLE `person_seq`;
-
--- add patient_data contacts if needed
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'patient_data', new_pids.pid FROM (SELECT p.pid FROM person p LEFT JOIN contact c ON p.pid = c.foreign_id AND c.foreign_table_name='patient_data' WHERE c.id IS NULL AND p.is_new=1) new_pids;
-INSERT INTO `contact_relation` (`contact_id`, `target_table`, `target_id`, `relationship`) SELECT c.id, 'person', pe.id, p.related_relationship_2 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pe.pid  AND pe.is_new=1;
-
--- add person contacts
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'person', pe.id FROM person pe WHERE pe.is_new=1;
-
--- we can only do this because persons are a brand new table
-CREATE TEMPORARY TABLE `addresses_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `addresses_seq` (`pid`) SELECT pe.pid FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND p.pid = pe.pid WHERE pe.is_new=1;
-UPDATE addresses_seq CROSS JOIN sequences s SET addresses_seq.id = addresses_seq.id + s.id;
-INSERT INTO addresses (`id`, `line1`, `city`, `state`, `zip`, `country`, `foreign_id`) SELECT addr.id, p.related_address_2, p.related_city_2, p.related_state_2, p.related_postalcode_2,p.related_country_2, c.id FROM person_temp p JOIN addresses_seq addr ON p.pid=addr.pid JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name='person' AND c.foreign_id=pe.id CROSS JOIN sequences s WHERE p.related_city_2 IS NOT NULL AND p.related_city_2 != '' AND pe.is_new=1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM addresses_seq);
-DROP TEMPORARY TABLE `addresses_seq`;
-
--- address_id = contact -> person
-INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'home', p.related_phone_2, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_2 IS NOT NULL AND p.related_phone_2 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'PHONE', 'work', p.related_workphone_2, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_2 IS NOT NULL AND p.related_workphone_2 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'EMAIL', 'home', p.related_email_2, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_2 AND pe.last_name = p.related_lastname_2 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_2 IS NOT NULL AND p.related_email_2 != ''  AND pe.is_new=1;
-
-UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
-DROP TEMPORARY TABLE `person_temp`;
-
--- now handle related person 3
-CREATE TEMPORARY TABLE `person_temp` AS SELECT * FROM patient_related_persons WHERE related_firstname_3 IS NOT NULL AND related_firstname_3 != '';
-
-CREATE TEMPORARY TABLE `person_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `person_seq` (`pid`) SELECT pe.pid FROM person_temp pe;
-INSERT INTO `person` (`first_name`, `last_name`, `gender`,`pid`) SELECT related_firstname_3, related_lastname_3, `related_sex_3`,`pid` FROM person_temp;
-UPDATE `person` JOIN person_seq ON person.pid = person_seq.pid CROSS JOIN sequences ids SET person.id = person_seq.id+ids.id WHERE person.is_new = 1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM person);
-DROP TEMPORARY TABLE `person_seq`;
-
--- add patient_data contacts if needed
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'patient_data', new_pids.pid FROM (SELECT p.pid FROM person p LEFT JOIN contact c ON p.pid = c.foreign_id AND c.foreign_table_name='patient_data' WHERE c.id IS NULL AND p.is_new=1) new_pids;
-INSERT INTO `contact_relation` (`contact_id`, `target_table`, `target_id`, `relationship`) SELECT c.id, 'person', pe.id, p.related_relationship_3 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name = 'patient_data' AND c.foreign_id = pe.pid  AND pe.is_new=1;
-
--- add person contacts
-INSERT INTO `contact` (`foreign_table_name`, `foreign_id`) SELECT 'person', pe.id FROM person pe WHERE pe.is_new=1;
-
--- we can only do this because persons are a brand new table
-CREATE TEMPORARY TABLE `addresses_seq` (`id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, `pid` BIGINT(20) NOT NULL) ENGINE=InnoDB;
-INSERT INTO `addresses_seq` (`pid`) SELECT pe.pid FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND p.pid = pe.pid WHERE pe.is_new=1;
-UPDATE addresses_seq CROSS JOIN sequences s SET addresses_seq.id = addresses_seq.id + s.id;
-INSERT INTO addresses (`id`, `line1`, `city`, `state`, `zip`, `country`, `foreign_id`) SELECT addr.id, p.related_address_3, p.related_city_3, p.related_state_3, p.related_postalcode_3,p.related_country_3, c.id FROM person_temp p JOIN addresses_seq addr ON p.pid=addr.pid JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND p.pid = pe.pid JOIN contact c ON c.foreign_table_name='person' AND c.foreign_id=pe.id CROSS JOIN sequences s WHERE p.related_city_3 IS NOT NULL AND p.related_city_3 != '' AND pe.is_new=1;
-UPDATE `sequences` SET `id` = (SELECT MAX(id)+1 FROM addresses_seq);
-DROP TEMPORARY TABLE `addresses_seq`;
-
--- address_id = contact -> person
-INSERT INTO `contact_address` (`contact_id`, `address_id`, `type`, `use`, `is_primary`,`status`) SELECT c.id, a.id, 'home', 'home', 'Y', 'A' FROM person pe JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id JOIN addresses a ON a.foreign_id = c.id WHERE pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'home', p.related_phone_3, 'Y', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_phone_3 IS NOT NULL AND p.related_phone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'phone', 'work', p.related_workphone_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_workphone_3 IS NOT NULL AND p.related_workphone_3 != ''  AND pe.is_new=1;
-INSERT INTO `contact_telecom` (`contact_id`, `system`, `use`, `value`, `is_primary`, `status`, `rank`) SELECT c.id, 'email', 'home', p.related_email_3, 'N', 'A', 1 FROM person_temp p JOIN person pe ON pe.first_name = p.related_firstname_3 AND pe.last_name = p.related_lastname_3 AND pe.pid = p.pid JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = pe.id WHERE p.related_email_3 IS NOT NULL AND p.related_email_3 != ''  AND pe.is_new=1;
-
-UPDATE `person` SET `is_new` = 0 WHERE pid IS NOT NULL;
-DROP TEMPORARY TABLE `person_temp`;
-
-DROP TABLE IF EXISTS patient_related_persons;
-ALTER TABLE `person` DROP COLUMN `pid`, DROP COLUMN `is_new`;
-#EndIf
+ -- Removed Related Person migration. Depending on upgrade state could cause duplicates sjp
 
 #IfRow2D layout_options form_id DEM field_id related_firstname_1
 DELETE FROM layout_options WHERE form_id='DEM' AND field_id IN ('related_firstname_1','related_lastname_1','related_relationship_1','related_sex_1','related_address_1','related_city_1','related_state_1','related_postalcode_1','related_country_1','related_phone_1','related_workphone_1','related_email_1','related_static_1');
@@ -2514,7 +2419,6 @@ INSERT INTO `preference_value_sets`
 ('81364-2','LA14063-6','http://loinc.org','Prefer not to answer',98,1);
 #EndIf
 
-
 #IfMissingColumn immunizations encounter_id
 ALTER TABLE `immunizations` ADD COLUMN `encounter_id` BIGINT(20) DEFAULT NULL COMMENT 'fk to form_encounter.encounter to link immunization to encounter record';
 #EndIf
@@ -2627,14 +2531,15 @@ INSERT INTO preference_value_sets(loinc_code,answer_code,answer_system,answer_di
 #IfColumn form_history_sdoh pregnancy_gravida
 ALTER TABLE form_history_sdoh DROP COLUMN `pregnancy_gravida`, DROP COLUMN `pregnancy_para`;
 #EndIf
-
+-- --------------------------------------------------------- sn 11/23/2025 sjp 11/25/2025 ------------------------------------------------------------------------------------
 #IfCareTeamsV1MigrationNeeded
-#EndIf
-
 -- we don't want to destroy any patient data entered in these deprecated fields but we do want to stop them from appearing on the DEM form
-#IfNotRow2D layout_options form_id DEM field_id care_team_facility uor 0
 UPDATE layout_options SET uor=0 WHERE form_id='DEM' AND field_id IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND uor=1;
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_provider` text COMMENT 'Deprecated field, use care_team_member table instead';
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_facility` text COMMENT 'Deprecated field, use care_team_member table instead';
 ALTER TABLE `patient_data` MODIFY COLUMN `care_team_status` text COMMENT 'Deprecated field, use care_team_member table instead';
+#EndIf
+
+-- This meta turned out handy
+#IfUpdateEditOptionsNeeded add HIS EP dc_father,dc_mother,dc_siblings,dc_spouse,dc_offspring
 #EndIf
