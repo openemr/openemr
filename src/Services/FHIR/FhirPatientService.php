@@ -377,18 +377,42 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMRGenderAndBirthSex(FHIRPatient $patientResource, $sex)
     {
+        $genderValue = strtolower((string) $sex) ?? 'unknown';
         // @see https://www.hl7.org/fhir/us/core/ValueSet-birthsex.html
-        $genderValue = $sex ?? 'Unknown';
-        $birthSex = "UNK";
+        // 3.1.1 birthSex -> M | F | UNK
+        // 7.0.0 birthSex -> https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1021.24/expansion
+        //      F,M,UNK,OTH,UNK,ASKU,asked-declined
+        // 8.0.0 birthSex dropped as mandatory field
+        $birthSex = match($this->getHighestCompatibleUSCoreProfileVersion()) {
+            self::PROFILE_VERSION_3_1_1 => match($genderValue) {
+                'male' => 'M'
+                ,'female' => 'F'
+                ,default => 'UNK'
+            },
+            // self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0, and future
+            default => match($genderValue) {
+                'male' => 'M'
+                ,'female' => 'F'
+                ,'oth' => 'OTH'
+                ,'asku' => 'ASKU'
+                ,'asked-declined' => 'asked-declined'
+                ,default => 'UNK'
+            }
+        };
+
         $gender = new FHIRAdministrativeGender();
         $birthSexExtension = new FHIRExtension();
-        if ($genderValue !== 'Unknown') {
-            if ($genderValue === 'Male') {
-                $birthSex = 'M';
-            } elseif ($genderValue === 'Female') {
-                $birthSex = 'F';
-            }
-        }
+
+        // http://hl7.org/fhir/R4/valueset-administrative-gender.html
+        // 3.1.1,7.0.0 gender -> male | female | other | unknown
+
+        $genderValue = match($genderValue) {
+            'male','female' => $genderValue
+            // unk -> 'unknown' per HL7 spec
+            ,'unk' => 'unknown'
+
+            ,default => 'other'
+        };
         $gender->setValue(strtolower($genderValue));
         $birthSexExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex");
         $birthSexExtension->setValueCode($birthSex);
@@ -1027,7 +1051,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $mapping = [
             'M' => 'Male',
             'F' => 'Female',
-            'U' => 'Unknown',
+            'UNK' => 'Unknown',
         ];
         return $mapping[$value] ?? 'Unknown';
     }

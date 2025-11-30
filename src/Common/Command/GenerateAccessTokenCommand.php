@@ -204,6 +204,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
                 $symfonyStyler->success("Refresh token successfully generated.");
                 $bearerTokenResponse->setRefreshToken($refreshToken);
             }
+            $this->saveTrustedUser($session, $token, $client, $scopeIdentifiers);
             $bearerTokenResponse->setPrivateKey($privateKey);
             $response = $bearerTokenResponse->generateHttpResponse($psrResponse);
             $response->getBody()->rewind();
@@ -241,11 +242,6 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             $refreshToken->setIdentifier($this->generateUniqueIdentifier());
             try {
                 $refreshRepository->persistNewRefreshToken($refreshToken);
-
-                // we will save our trusted user
-                $trustedUserService = new TrustedUserService();
-                $sessionCache = json_encode($session->all());
-                $trustedUserService->saveTrustedUser($client->getIdentifier(), $token->getUserIdentifier(), $scopeIdentifiers, 1, '', $sessionCache, 'password_grant');
                 return $refreshToken;
             } catch (UniqueTokenIdentifierConstraintViolationException $e) {
                 if ($maxGenerationAttempts === 0) {
@@ -312,5 +308,13 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 
         $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
         return $scopes;
+    }
+
+    private function saveTrustedUser(Session $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
+    {
+        // we will save our trusted user
+        $trustedUserService = new TrustedUserService();
+        $sessionCache = json_encode($session->all());
+        $trustedUserService->saveTrustedUser($client->getIdentifier(), $token->getUserIdentifier(), $scopeIdentifiers, 1, '', $sessionCache, 'password_grant');
     }
 }
