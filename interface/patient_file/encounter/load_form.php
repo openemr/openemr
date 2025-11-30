@@ -18,7 +18,8 @@ require_once("../../../library/registry.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Telemetry\TelemetryService;
+use OpenEMR\Services\ServiceLocator;
+use OpenEMR\Telemetry\TelemetryServiceInterface;
 
 /**
  * @gloal $incdir the include directory
@@ -47,7 +48,7 @@ $formLocator = new FormLocator();
 $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
-$telemetryService = new TelemetryService();
+$telemetryService = ServiceLocator::get(TelemetryServiceInterface::class);
 if ($telemetryService->isTelemetryEnabled()) {
     $telemetryService->reportClickEvent([
         'eventType' => 'encounterForm',

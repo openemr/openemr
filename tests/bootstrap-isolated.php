@@ -34,3 +34,11 @@ $GLOBALS['disable_database_connection'] = true;
 $GLOBALS['HTML_CHARSET'] = 'UTF-8';
 ini_set('default_charset', 'utf-8');
 mb_internal_encoding('UTF-8');
+
+// Polyfill for locale_get_default() if intl extension is not available
+if (!function_exists('locale_get_default')) {
+    function locale_get_default(): string
+    {
+        return 'en_US';
+    }
+}

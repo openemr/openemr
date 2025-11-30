@@ -10,10 +10,8 @@
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\VersionService;
-use OpenEMR\Telemetry\TelemetryRepository;
-use OpenEMR\Telemetry\TelemetryService;
+use OpenEMR\Services\ServiceLocator;
+use OpenEMR\Telemetry\TelemetryServiceInterface;
 
 function reportTelemetryTask(): void
 {
@@ -21,10 +19,6 @@ function reportTelemetryTask(): void
     // It will report usage data to the remote endpoint.
     // The telemetry service will handle the actual reporting.
 
-    $telemetryRepo = new TelemetryRepository();
-    $versionService = new VersionService();
-    $logger = new SystemLogger();
-    $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
-
+    $telemetryService = ServiceLocator::get(TelemetryServiceInterface::class);
     $telemetryService->reportUsageData();
 }
