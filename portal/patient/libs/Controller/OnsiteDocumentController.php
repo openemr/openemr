@@ -13,6 +13,7 @@
 /** import supporting libraries */
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\Utils\TranslationService;
 
@@ -56,7 +57,11 @@ class OnsiteDocumentController extends AppBasePortalController
             $pid = (int)$_GET['pid'];
         }
         // only allow patient to see themselves
-        if (!empty($GLOBALS['bootstrap_pid'])) {
+
+
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // only allow patient to delete themselves
+        if (!empty($bootstrapPid)) {
             $pid = (int)$GLOBALS['bootstrap_pid'];
         }
 
@@ -111,7 +116,10 @@ class OnsiteDocumentController extends AppBasePortalController
             $pid = RequestUtil::Get('patientId');
 
             // only allow patient to see themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
+
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // only allow patient to delete themselves
+            if (!empty($bootstrapPid)) {
                 $pid = $GLOBALS['bootstrap_pid'];
             }
 
@@ -203,7 +211,10 @@ class OnsiteDocumentController extends AppBasePortalController
         }
 
         // only allow patient to see themself
-        if (!empty($GLOBALS['bootstrap_pid'])) {
+
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // only allow patient to delete themselves
+        if (!empty($bootstrapPid)) {
             $pid = $GLOBALS['bootstrap_pid'];
         }
 
@@ -232,7 +243,10 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
             // only allow patient to see themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
+
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // only allow patient to delete themselves
+            if (!empty($bootstrapPid)) {
                 if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
@@ -373,14 +387,20 @@ class OnsiteDocumentController extends AppBasePortalController
             }
 
             // only allow patient to update themselves (part 1)
-            if (!empty($GLOBALS['bootstrap_pid'])) {
+
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // only allow patient to delete themselves
+            if (!empty($bootstrapPid)) {
                 if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }
             }
             // only allow patient to update themselves (part 2)
-            if (!empty($GLOBALS['bootstrap_pid'])) {
+
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // only allow patient to delete themselves
+            if (!empty($bootstrapPid)) {
                 $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
             } else {
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
@@ -429,9 +449,10 @@ class OnsiteDocumentController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                if ((int)$GLOBALS['bootstrap_pid'] !== (int)$onsitedocument->Pid) {
+            if (!empty($bootstrapPid)) {
+                if ((int)$bootstrapPid !== (int)$onsitedocument->Pid) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }

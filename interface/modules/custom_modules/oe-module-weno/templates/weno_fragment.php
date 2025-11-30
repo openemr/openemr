@@ -239,13 +239,18 @@ if ($hasErrors) { ?>
     </div>
 <?php } ?>
 <script>
-    $(document).ready(function () {
-        $('[data-toggle="popover"]').popover({
-            trigger: 'hover',
-            placement: 'top'
-        });
+    if ($.fn.popover) {
+        alert('here ...................................')
+    }
+    $(function () {
+        if ($.fn.popover) {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                placement: 'top',
+                container: 'body'
+            });
+        }
     });
-
     function refreshDemographics() {
         top.restoreSession();
         window.location.href = './demographics.php';
