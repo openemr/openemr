@@ -941,7 +941,7 @@ function show_PRIOR_CANVAS_section(section, newValue) {
         document_id: newValue,
         as_file: 'false'
     });
-    var result = base+'/controller.php?' + params.toString();
+    var result = base + '/controller.php?' + params.toString();
     var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
     var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
@@ -1897,7 +1897,7 @@ function openImage() {
         document_id: '10',
         as_file: 'false'
     });
-    dlgopen(base+'/controller.php?' + params.toString(), '_blank', 600, 475);
+    dlgopen(base + '/controller.php?' + params.toString(), '_blank', 600, 475);
 }
 // AI-generated code end
 
