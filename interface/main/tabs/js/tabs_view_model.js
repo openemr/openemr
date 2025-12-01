@@ -266,7 +266,7 @@ function newTherapyGroupEncounter()
         autoloaded: '1',
         calenc: ''
     });
-    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?' + params.toString();
+    const url = webroot_url + '/interface/forms/newGroupEncounter/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
         activateTabByName("enc",true);
     });

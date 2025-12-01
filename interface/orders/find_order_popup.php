@@ -106,9 +106,10 @@ if (isset($_GET['typeid'])) {
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            const params = new URLSearchParams({
-                order: <?php echo js_escape($order); ?>,
-                labid: <?php echo js_escape($labid); ?><?php
+            <?php
+            echo "const params = new URLSearchParams({\n";
+            echo "                order: " . js_escape($order) . ",\n";
+            echo "                labid: " . js_escape($labid);
             if (isset($_GET['addfav'])) {
                 echo ",\n                addfav: " . js_escape($_GET['addfav']);
             }
@@ -118,9 +119,9 @@ if (isset($_GET['typeid'])) {
             if (isset($_GET['formseq'])) {
                 echo ",\n                formseq: " . js_escape($_GET['formseq']);
             }
-            ?>,
-                typeid: typeid
-            });
+            echo ",\n                typeid: typeid\n";
+            echo "            });\n";
+            ?>
             location.href = 'find_order_popup.php?' + params.toString();
             return false;
         }
