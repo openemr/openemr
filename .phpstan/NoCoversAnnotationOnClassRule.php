@@ -45,7 +45,7 @@ class NoCoversAnnotationOnClassRule implements Rule
         if (preg_match('/@covers\b/', $docComment->getText())) {
             return [
                 RuleErrorBuilder::message(
-                    'The @covers annotation should not be used as it excludes transitively used code from coverage reports, ' .
+                    'Please do not use the @covers annotation. It excludes transitively used code from coverage reports, ' .
                     'resulting in incomplete coverage information.'
                 )
                 ->identifier('openemr.noCoversAnnotationOnClass')
