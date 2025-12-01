@@ -280,7 +280,7 @@ function postcalendar_userapi_jsPopup()
 <!--
 function opencal(eid,date) {
     window.name='csCalendar';
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         module: '$module_name',
         type: 'user',
         func: 'view',

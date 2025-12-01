@@ -985,7 +985,7 @@ function myLocalJS(): void
             var to = <?php echo js_escape($to_date ?? ''); ?>;
             var oefrom = <?php echo js_escape(oeFormatShortDate($from_date ?? null)); ?>;
             var oeto = <?php echo js_escape(oeFormatShortDate($to_date ?? null)); ?>;
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 nomenu: '1',
                 go: 'SMS_bot',
                 pid: pid,

@@ -203,7 +203,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete button.
         function deleteme() {
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });

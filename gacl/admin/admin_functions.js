@@ -120,7 +120,7 @@ function select_all(select_box) {
 
 // AI-generated code start (GitHub Copilot)
 function edit_link(link, parent_id) {
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         section_id: parent_id,
         return_page: '{$return_page}'
     });

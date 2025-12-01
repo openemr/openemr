@@ -224,14 +224,15 @@ if ($isNN) {
 
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function sortableCallback(elem){
-            let params = new URLSearchParams();
+            const params = new URLSearchParams({
+                action: "updateRecordsListings"
+            });
             for (let i=0; i< elem.length; i++) {
                 let ele = elem[i];
                 if(ele.tagName == "DIV"){
                     params.append("clorder[]", ele.firstElementChild.id.split("_")[1]);
                 }
             }
-            params.append("action", "updateRecordsListings");
             $.post("updateDB.php", params.toString());
         }
         // AI-generated code end

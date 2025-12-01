@@ -136,7 +136,7 @@ if (!empty($_FILES['form_erafile']['size'])) {
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
          // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
-         var params = new URLSearchParams({
+         const params = new URLSearchParams({
              eraname: <?php echo js_escape($eraname); ?>,
              debug: debug,
              paydate: paydate,

@@ -469,7 +469,7 @@ function printlog_before_print() {
 // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on Delete button.
 function deleteme() {
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         payment: <?php echo js_escape($payment_key); ?>,
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });

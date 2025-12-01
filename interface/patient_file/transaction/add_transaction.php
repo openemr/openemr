@@ -306,7 +306,7 @@ function sel_related(e) {
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- var params = new URLSearchParams({
+ const params = new URLSearchParams({
   transaction: <?php echo js_escape($transid); ?>,
   csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
  });

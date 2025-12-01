@@ -4366,7 +4366,7 @@ if ($refresh and $refresh != 'fullscreen') {
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function dopclick(id) {
             <?php if (($thisauth ?? '') != 'write') : ?>
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 issue: '0',
                 thistype: id
             });
@@ -4376,7 +4376,7 @@ if ($refresh and $refresh != 'fullscreen') {
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {
-             var params = new URLSearchParams({
+             const params = new URLSearchParams({
                  REFTYPE: type,
                  id: id,
                  encounter: encounter,
@@ -4387,7 +4387,7 @@ if ($refresh and $refresh != 'fullscreen') {
         }
 
         function dispensed(pid) {
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 dispensed: '1',
                 pid: pid
             });

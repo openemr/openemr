@@ -106,7 +106,7 @@ if (isset($_GET['typeid'])) {
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 order: <?php echo js_escape($order); ?>,
                 labid: <?php echo js_escape($labid); ?><?php
             if (isset($_GET['addfav'])) {

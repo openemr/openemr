@@ -120,7 +120,7 @@ function deleteSelectedIssues(tableName) {
         }
     }
 
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         issue: ids,
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
@@ -137,7 +137,7 @@ function imdeleted() {
 // Process click on diagnosis for patient education popup.
 function educlick(codetype, codevalue) {
   top.restoreSession();
-  var params = new URLSearchParams({
+  const params = new URLSearchParams({
     type: codetype,
     code: codevalue,
     language: <?php echo js_escape($language); ?>
@@ -150,7 +150,7 @@ function educlick(codetype, codevalue) {
 function newEncounter() {
     var f = document.forms[0];
     top.restoreSession();
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         autoloaded: '1',
         calenc: ''
     });

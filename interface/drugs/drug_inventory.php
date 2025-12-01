@@ -259,13 +259,13 @@ function refreshme() {
 // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on drug title.
 function dodclick(id) {
- var params = new URLSearchParams({ drug: id });
+ const params = new URLSearchParams({ drug: id });
  dlgopen('add_edit_drug.php?' + params.toString(), '_blank', 900, 600);
 }
 
 // Process click on drug QOO or lot.
 function doiclick(id, lot) {
- var params = new URLSearchParams({ drug: id, lot: lot });
+ const params = new URLSearchParams({ drug: id, lot: lot });
  dlgopen('add_edit_lot.php?' + params.toString(), '_blank', 600, 475);
 }
 // AI-generated code end

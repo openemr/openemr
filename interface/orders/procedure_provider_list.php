@@ -57,7 +57,7 @@ function refreshme() {
 function doedclick_add() {
     top.restoreSession();
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         ppid: '0',
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
@@ -69,7 +69,7 @@ function doedclick_add() {
 function doedclick_edit(ppid) {
     top.restoreSession();
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         ppid: ppid,
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });

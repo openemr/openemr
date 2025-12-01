@@ -406,7 +406,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 patient: <?php echo js_escape($pid); ?>,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
@@ -428,7 +428,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 patientid: <?php echo js_escape($pid); ?>
             });
             let url = '../../main/calendar/add_edit_event.php?' + params.toString();

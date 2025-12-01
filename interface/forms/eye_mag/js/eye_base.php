@@ -268,7 +268,7 @@ function check_lock(modify) {
 function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         canvas: zone,
         id: $("#form_id").val()
     });
@@ -934,12 +934,13 @@ function show_PRIORS_section(section,newValue) {
 function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
-    var params = new URLSearchParams();
-    params.append('document', '');
-    params.append('retrieve', '');
-    params.append('patient_id', pid);
-    params.append('document_id', newValue);
-    params.append('as_file', 'false');
+    const params = new URLSearchParams({
+        document: '',
+        retrieve: '',
+        patient_id: pid,
+        document_id: newValue,
+        as_file: 'false'
+    });
     var result = base+'/controller.php?' + params.toString();
     var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
     var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
@@ -1889,12 +1890,13 @@ function goto_url(url) {
 //is this used anywhere?  Looks like it should be deleted...
 // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openImage() {
-    var params = new URLSearchParams();
-    params.append('document', '');
-    params.append('retrieve', '');
-    params.append('patient_id', '3');
-    params.append('document_id', '10');
-    params.append('as_file', 'false');
+    const params = new URLSearchParams({
+        document: '',
+        retrieve: '',
+        patient_id: '3',
+        document_id: '10',
+        as_file: 'false'
+    });
     dlgopen(base+'/controller.php?' + params.toString(), '_blank', 600, 475);
 }
 // AI-generated code end
@@ -1902,7 +1904,7 @@ function openImage() {
 // Called to open a document in another tab for this encounter.
 // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openDocumentNewTab(doc_id) {
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         formname: formdir,
         id: formid
     });

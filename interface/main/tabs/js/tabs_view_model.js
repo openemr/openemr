@@ -246,7 +246,7 @@ function clickNewGroupEncounter(data,evt)
 function newEncounter(data, evt) {
     var url = '';
     if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
-        var params = new URLSearchParams({
+        const params = new URLSearchParams({
             mode: 'followup',
             enc: data.encounterId,
             autoloaded: '1',
@@ -255,7 +255,7 @@ function newEncounter(data, evt) {
         url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
     }
     else {
-        var params = new URLSearchParams({
+        const params = new URLSearchParams({
             autoloaded: '1',
             calenc: ''
         });
@@ -271,7 +271,7 @@ function newEncounter(data, evt) {
 function newTherapyGroupEncounter()
 {
     // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         autoloaded: '1',
         calenc: ''
     });

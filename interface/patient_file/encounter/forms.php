@@ -319,7 +319,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete link.
     function deleteme() {
-        var params = new URLSearchParams({
+        const params = new URLSearchParams({
             encounterid: <?php echo js_escape($encounter); ?>,
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         });

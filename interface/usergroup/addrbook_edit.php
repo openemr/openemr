@@ -177,7 +177,7 @@ function invalue($name)
 
     // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Need to fetch more
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         csrf_token: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
     if (npi) params.append('number', npi);

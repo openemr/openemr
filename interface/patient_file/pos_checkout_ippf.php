@@ -566,7 +566,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete button.
     function deleteme() {
-        var params = new URLSearchParams({
+        const params = new URLSearchParams({
             billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         });
@@ -586,7 +586,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // Submit the form to complete a void operation.
     function voidwrap(form_reason, form_notes) {
         top.restoreSession();
-        var params = new URLSearchParams({
+        const params = new URLSearchParams({
             ptid: <?php echo js_escape($patient_id); ?>,
             form_checksum: <?php echo js_escape($current_checksum); ?>,
             form_reason: form_reason,
