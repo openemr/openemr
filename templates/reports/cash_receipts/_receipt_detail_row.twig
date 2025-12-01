@@ -1,0 +1,34 @@
+<tr>
+    <td>
+        {% if loop.first %}
+            {{ provider.provider_name | text }}
+        {% endif %}
+    </td>
+    <td>{{ receipt.transaction_date | text }}</td>
+    {% if filters.procedures %}
+    <td>{{ receipt.invoice_display | text }}</td>
+    {% endif %}
+    {% if filters.proc_codefull %}
+    <td class="text-right">{{ receipt.invoice_amount | text }}</td>
+    <td>{{ receipt.insurance_name | text }}</td>
+    {% endif %}
+    {% if filters.procedures %}
+    <td>{{ receipt.procedure_code | text }}</td>
+    <td class="text-right">
+        {% if not receipt.is_clinic %}
+            {{ receipt.amount | text }}
+        {% else %}
+            0.00
+        {% endif %}
+    </td>
+    <td class="text-right">
+        {% if receipt.is_clinic %}
+            {{ receipt.amount | text }}
+        {% else %}
+            0.00
+        {% endif %}
+    </td>
+    {% else %}
+    <td class="text-right">{{ receipt.amount | text }}</td>
+    {% endif %}
+</tr>
