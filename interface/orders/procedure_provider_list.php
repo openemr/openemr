@@ -61,7 +61,7 @@ function doedclick_add() {
         ppid: '0',
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
-    let scriptTitle = 'procedure_provider_edit.php?' + params.toString();
+    const scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
 }
 
@@ -73,7 +73,7 @@ function doedclick_edit(ppid) {
         ppid: ppid,
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
-    let scriptTitle = 'procedure_provider_edit.php?' + params.toString();
+    const scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);
 }
 // AI-generated code end

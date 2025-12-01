@@ -402,14 +402,14 @@
             return false;
         }
         {# AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams #}
-        let params = new URLSearchParams({
+        const params = new URLSearchParams({
             drug_id: drugId,
             prescription: f.id.value,
             quantity: f.disp_quantity.value,
             fee: f.disp_fee.value,
             encounter: f.dispense_encounter_id.value
         });
-        let promise = dlgopen('interface/drugs/dispense_drug.php?' + params.toString(),
+        const promise = dlgopen('interface/drugs/dispense_drug.php?' + params.toString(),
             '_blank', 400, 200, false, {{ "Dispense Drug"|xlj }}, {
                 // when the dispense dialog closes, we'll toggle the dispense options off
                 // onClosed: toggleDispense
