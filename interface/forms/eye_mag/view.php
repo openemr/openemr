@@ -4404,7 +4404,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         if (($irow['type'] ?? null) == 'PMH') { //or POH
                             ?>
             // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
-            var searchParams = new URLSearchParams({
+            const searchParams = new URLSearchParams({
                 codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>,
                 search_term: term
             });
@@ -4413,7 +4413,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         } else {
                             ?>
                         // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
-                        var searchParams = new URLSearchParams({
+                        const searchParams = new URLSearchParams({
                             codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>,
                             search_term: term
                         });

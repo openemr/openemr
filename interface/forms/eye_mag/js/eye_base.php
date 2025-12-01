@@ -941,9 +941,9 @@ function show_PRIOR_CANVAS_section(section, newValue) {
         document_id: newValue,
         as_file: 'false'
     });
-    var result = base + '/controller.php?' + params.toString();
-    var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
-    var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
+    const result = base + '/controller.php?' + params.toString();
+    const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
+    const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
     $("#"+zone+"_canvas").addClass('nodisplay');
     $("#"+zone+"_olddrawing").html(filler);
@@ -1908,7 +1908,7 @@ function openDocumentNewTab(doc_id) {
         formname: formdir,
         id: formid
     });
-    var url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
+    const url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
         location.href = url;

@@ -939,7 +939,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
             // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
-            var encParams = new URLSearchParams({
+            const encParams = new URLSearchParams({
                 set_encounter: <?php echo js_escape($encounter); ?>,
                 pid: <?php echo js_escape($pid); ?>
             });
