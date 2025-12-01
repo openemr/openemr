@@ -260,8 +260,10 @@ function postcalendar_userapi_jsPopup()
 
     define('_POSTCALENDAR_JSPOPUPS_LOADED', true);
 
+    // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
     // build the correct link
-    $js_link = "'index.php?module=" . __POSTCALENDAR__ . "&type=user&func=view&viewtype=details&eid='+eid+'&Date='+date+'&popup=1'";
+    $module_name = __POSTCALENDAR__;
+    $js_link_base = "'index.php'";
     $js_window_options = 'toolbar=no,'
                        . 'location=no,'
                        . 'directories=no,'
@@ -278,7 +280,16 @@ function postcalendar_userapi_jsPopup()
 <!--
 function opencal(eid,date) {
     window.name='csCalendar';
-    w = window.open($js_link,'PostCalendarEvents','$js_window_options');
+    var params = new URLSearchParams({
+        module: '$module_name',
+        type: 'user',
+        func: 'view',
+        viewtype: 'details',
+        eid: eid,
+        Date: date,
+        popup: '1'
+    });
+    w = window.open($js_link_base + '?' + params.toString(),'PostCalendarEvents','$js_window_options');
 }
 // -->
 </script>

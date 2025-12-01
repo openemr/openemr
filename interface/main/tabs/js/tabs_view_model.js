@@ -242,23 +242,40 @@ function clickNewGroupEncounter(data,evt)
     newTherapyGroupEncounter();
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function newEncounter(data, evt) {
     var url = '';
     if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
-        url = webroot_url + '/interface/forms/newpatient/new.php?mode=followup&enc=' + data.encounterId + '&autoloaded=1&calenc=';
+        var params = new URLSearchParams({
+            mode: 'followup',
+            enc: data.encounterId,
+            autoloaded: '1',
+            calenc: ''
+        });
+        url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
     }
     else {
-        url = webroot_url + '/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
+        var params = new URLSearchParams({
+            autoloaded: '1',
+            calenc: ''
+        });
+        url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
     }
     navigateTab(url, "enc", function () {
         activateTabByName("enc", true);
     });
 
 }
+// AI-generated code end
 
 function newTherapyGroupEncounter()
 {
-    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc==';
+    // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+    var params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: '='
+    });
+    var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
         activateTabByName("enc",true);
     });

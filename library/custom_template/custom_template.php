@@ -222,16 +222,19 @@ if ($isNN) {
             $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
         });
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function sortableCallback(elem){
-            let clorder  = [];
+            let params = new URLSearchParams();
             for (let i=0; i< elem.length; i++) {
                 let ele = elem[i];
                 if(ele.tagName == "DIV"){
-                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
+                    params.append("clorder[]", ele.firstElementChild.id.split("_")[1]);
                 }
             }
-            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+            params.append("action", "updateRecordsListings");
+            $.post("updateDB.php", params.toString());
         }
+        // AI-generated code end
         oeSortable(sortableCallback);
 
         // let's popup a warning dialog if we're in a context that is text only templates

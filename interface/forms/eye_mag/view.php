@@ -4363,20 +4363,37 @@ if ($refresh and $refresh != 'fullscreen') {
         }
         <?php require_once("$srcdir/restoreSession.php");
         ?>
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function dopclick(id) {
             <?php if (($thisauth ?? '') != 'write') : ?>
-            dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + encodeURIComponent(id), '_blank', 550, 400,  '', <?php echo xlj('Issues'); ?> );
+            var params = new URLSearchParams({
+                issue: '0',
+                thistype: id
+            });
+            dlgopen('../../patient_file/summary/a_issue.php?' + params.toString(), '_blank', 550, 400,  '', <?php echo xlj('Issues'); ?> );
             <?php else : ?>
             alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {
-             dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + encodeURIComponent(type) + '&id=' + encodeURIComponent(id) + '&encounter=' + encodeURIComponent(encounter) + '&form_id=' + <?php echo js_url($form_id); ?> + '&rx_number=' + encodeURIComponent(rx_number), '_blank', 660, 700,'', <?php echo xlj('Dispense Rx'); ?>);
+             var params = new URLSearchParams({
+                 REFTYPE: type,
+                 id: id,
+                 encounter: encounter,
+                 form_id: <?php echo js_escape($form_id); ?>,
+                 rx_number: rx_number
+             });
+             dlgopen('../../forms/eye_mag/SpectacleRx.php?' + params.toString(), '_blank', 660, 700,'', <?php echo xlj('Dispense Rx'); ?>);
         }
 
         function dispensed(pid) {
-            dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+encodeURIComponent(pid), '_blank', 560, 590, '', <?php echo xlj('Rx History'); ?>);
+            var params = new URLSearchParams({
+                dispensed: '1',
+                pid: pid
+            });
+            dlgopen('../../forms/eye_mag/SpectacleRx.php?' + params.toString(), '_blank', 560, 590, '', <?php echo xlj('Rx History'); ?>);
                     }
+        // AI-generated code end
                     // This invokes the find-code popup.
                     function sel_diagnosis(target,term) {
                         if (target =='') {
@@ -4386,11 +4403,21 @@ if ($refresh and $refresh != 'fullscreen') {
                         <?php
                         if (($irow['type'] ?? null) == 'PMH') { //or POH
                             ?>
-            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
+            // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+            var searchParams = new URLSearchParams({
+                codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>,
+                search_term: term
+            });
+            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
                             <?php
                         } else {
                             ?>
-                        dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
+                        // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+                        var searchParams = new URLSearchParams({
+                            codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>,
+                            search_term: term
+                        });
+                        dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
                             <?php
                         }
                         ?>

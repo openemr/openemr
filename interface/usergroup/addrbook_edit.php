@@ -175,20 +175,23 @@ function invalue($name)
         return;
     }
 
+    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Need to fetch more
-    let queryParams = [];
-    queryParams.push('csrf_token=' + encodeURIComponent(<?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>));
-    if (npi) queryParams.push('number=' + encodeURIComponent(npi));
-    if (firstName) queryParams.push('first_name=' + encodeURIComponent(firstName + '*'));
-    if (lastName) queryParams.push('last_name=' + encodeURIComponent(lastName + '*'));
+    var params = new URLSearchParams({
+        csrf_token: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    if (npi) params.append('number', npi);
+    if (firstName) params.append('first_name', firstName + '*');
+    if (lastName) params.append('last_name', lastName + '*');
     if (organization) {
-        queryParams.push('organization_name=' + encodeURIComponent(organization + '*'));
-        queryParams.push('enumeration_type=NPI-2'); // Filter for organizations only
+        params.append('organization_name', organization + '*');
+        params.append('enumeration_type', 'NPI-2'); // Filter for organizations only
     }
-    queryParams.push('limit=' + limit);
-    queryParams.push('skip=' + currentSkip);
+    params.append('limit', limit);
+    params.append('skip', currentSkip);
 
-    const proxyUrl = 'npi_lookup.php?' + queryParams.join('&');
+    const proxyUrl = 'npi_lookup.php?' + params.toString();
+    // AI-generated code end
     const resultsDiv = $('#npi-lookup-results');
 
     if (loadMore) {

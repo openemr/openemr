@@ -52,11 +52,16 @@ function refreshme() {
     document.forms[0].submit();
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click to pop up the add window.
 function doedclick_add() {
     top.restoreSession();
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
-    let scriptTitle = 'procedure_provider_edit.php?ppid=0&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    var params = new URLSearchParams({
+        ppid: '0',
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    let scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
 }
 
@@ -64,9 +69,14 @@ function doedclick_add() {
 function doedclick_edit(ppid) {
     top.restoreSession();
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
-    let scriptTitle = 'procedure_provider_edit.php?ppid=' + ppid + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    var params = new URLSearchParams({
+        ppid: ppid,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    let scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);
 }
+// AI-generated code end
 </script>
 </head>
 <body>

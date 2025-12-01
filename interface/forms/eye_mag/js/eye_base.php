@@ -264,13 +264,18 @@ function check_lock(modify) {
 /*
  * Function to save a canvas by zone
  */
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
+    var params = new URLSearchParams({
+        canvas: zone,
+        id: $("#form_id").val()
+    });
     top.restoreSession();
     $.ajax({
            type: "POST",
-           url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val(),
+           url: "../../forms/eye_mag/save.php?" + params.toString(),
            data: {
            imgBase64     : dataURL,  //this contains the canvas + new strokes, the sketch.js foreground
            'zone'        : zone,
@@ -282,6 +287,7 @@ function submit_canvas(zone) {
            }).done(function(o) {
                    });
 }
+// AI-generated code end
 /*
  *  Function to update the user's preferences
  */
@@ -924,11 +930,17 @@ function show_PRIORS_section(section,newValue) {
 /**
  *  Function to display a canvas/drawing from a prior visit.
  */
-
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
-    var result = base+'/controller.php?document&retrieve&patient_id='+pid+'&document_id='+newValue+'&as_file=false';
+    var params = new URLSearchParams();
+    params.append('document', '');
+    params.append('retrieve', '');
+    params.append('patient_id', pid);
+    params.append('document_id', newValue);
+    params.append('as_file', 'false');
+    var result = base+'/controller.php?' + params.toString();
     var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
     var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
@@ -936,6 +948,7 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     $("#"+zone+"_olddrawing").html(filler);
     $("#"+zone+"_olddrawing").removeClass('nodisplay');
 }
+// AI-generated code end
 
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
@@ -1874,13 +1887,26 @@ function goto_url(url) {
     location.href = R;
 }
 //is this used anywhere?  Looks like it should be deleted...
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openImage() {
-    dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
+    var params = new URLSearchParams();
+    params.append('document', '');
+    params.append('retrieve', '');
+    params.append('patient_id', '3');
+    params.append('document_id', '10');
+    params.append('as_file', 'false');
+    dlgopen(base+'/controller.php?' + params.toString(), '_blank', 600, 475);
 }
+// AI-generated code end
 
 // Called to open a document in another tab for this encounter.
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openDocumentNewTab(doc_id) {
-    var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
+    var params = new URLSearchParams({
+        formname: formdir,
+        id: formid
+    });
+    var url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
         location.href = url;
@@ -1889,6 +1915,7 @@ function openDocumentNewTab(doc_id) {
     }
     return false;
 }
+// AI-generated code end
 
 function HPI_sync_heights() {
     if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height() ) ||

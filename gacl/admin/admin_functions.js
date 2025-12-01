@@ -118,9 +118,15 @@ function select_all(select_box) {
 	}
 }
 
+// AI-generated code start (GitHub Copilot)
 function edit_link(link, parent_id) {
-    alert('edit_aco.php?section_id=' + parent_id + '&return_page={$return_page}')
+    var params = new URLSearchParams({
+        section_id: parent_id,
+        return_page: '{$return_page}'
+    });
+    alert('edit_aco.php?' + params.toString());
 }
+// AI-generated code end
 
 function toggleObject(objectID) {
 	if(document.getElementById) {

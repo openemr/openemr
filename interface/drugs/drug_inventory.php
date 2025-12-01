@@ -256,15 +256,19 @@ function refreshme() {
  location.href = location.href;
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on drug title.
 function dodclick(id) {
- dlgopen('add_edit_drug.php?drug=' + id, '_blank', 900, 600);
+ var params = new URLSearchParams({ drug: id });
+ dlgopen('add_edit_drug.php?' + params.toString(), '_blank', 900, 600);
 }
 
 // Process click on drug QOO or lot.
 function doiclick(id, lot) {
- dlgopen('add_edit_lot.php?drug=' + id + '&lot=' + lot, '_blank', 600, 475);
+ var params = new URLSearchParams({ drug: id, lot: lot });
+ dlgopen('add_edit_lot.php?' + params.toString(), '_blank', 600, 475);
 }
+// AI-generated code end
 
 // Enable/disable warehouse options depending on current facility.
 function facchanged() {
