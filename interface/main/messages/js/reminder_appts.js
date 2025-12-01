@@ -263,7 +263,7 @@ function newEvt(pid, pc_eid) {
         patientid: pid,
         eid: pc_eid
     });
-    var url = '../../main/calendar/add_edit_event.php?' + params.toString();
+    const url = '../../main/calendar/add_edit_event.php?' + params.toString();
     top.restoreSession();
     dlgopen(url, '_blank', 800, 480);
     return false;

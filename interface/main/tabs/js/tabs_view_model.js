@@ -252,7 +252,7 @@ function newEncounter(data, evt) {
         params.append('mode', 'followup');
         params.append('enc', data.encounterId);
     }
-    var url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
+    const url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
         activateTabByName("enc", true);
     });
