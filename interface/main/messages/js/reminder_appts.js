@@ -259,7 +259,7 @@ $(function () {
 // Open the add-event dialog.
 function newEvt(pid, pc_eid) {
     var f = document.forms[0];
-    var params = new URLSearchParams({
+    const params = new URLSearchParams({
         patientid: pid,
         eid: pc_eid
     });

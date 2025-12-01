@@ -244,27 +244,18 @@ function clickNewGroupEncounter(data,evt)
 
 // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function newEncounter(data, evt) {
-    var url = '';
+    const params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: ''
+    });
     if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
-        const params = new URLSearchParams({
-            mode: 'followup',
-            enc: data.encounterId,
-            autoloaded: '1',
-            calenc: ''
-        });
-        url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
+        params.append('mode', 'followup');
+        params.append('enc', data.encounterId);
     }
-    else {
-        const params = new URLSearchParams({
-            autoloaded: '1',
-            calenc: ''
-        });
-        url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
-    }
+    var url = webroot_url + '/interface/forms/newpatient/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
         activateTabByName("enc", true);
     });
-
 }
 // AI-generated code end
 
