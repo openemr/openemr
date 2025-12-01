@@ -273,7 +273,7 @@ function newTherapyGroupEncounter()
     // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
     var params = new URLSearchParams({
         autoloaded: '1',
-        calenc: '='
+        calenc: ''
     });
     var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?' + params.toString();
     navigateTab(url, "enc", function () {
