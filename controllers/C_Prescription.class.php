@@ -400,7 +400,7 @@ class C_Prescription extends Controller
                 if (!$saleId) {
                     $dispenseError = xl('Inventory is not available for this order');
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $dispenseError = $e->getMessage();
             }
         }
