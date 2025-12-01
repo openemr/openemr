@@ -26,7 +26,7 @@ jobs:
     name: API Docs Freshness Check
     steps:
     - name: "Checkout Code"
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
