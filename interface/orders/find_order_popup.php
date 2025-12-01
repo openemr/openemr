@@ -107,21 +107,22 @@ if (isset($_GET['typeid'])) {
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
             <?php
-            echo "const params = new URLSearchParams({\n";
-            echo "                order: " . js_escape($order) . ",\n";
-            echo "                labid: " . js_escape($labid);
+            echo "const params = new URLSearchParams({";
+            echo "order: " . js_escape($order) . ", ";
+            echo "labid: " . js_escape($labid);
             if (isset($_GET['addfav'])) {
-                echo ",\n                addfav: " . js_escape($_GET['addfav']);
+                echo ", addfav: " . js_escape($_GET['addfav']);
             }
             if (isset($_GET['formid'])) {
-                echo ",\n                formid: " . js_escape($_GET['formid']);
+                echo ", formid: " . js_escape($_GET['formid']);
             }
             if (isset($_GET['formseq'])) {
-                echo ",\n                formseq: " . js_escape($_GET['formseq']);
+                echo ", formseq: " . js_escape($_GET['formseq']);
             }
-            echo ",\n                typeid: typeid\n";
-            echo "            });\n";
+            echo ", typeid: typeid";
+            echo "});";
             ?>
+
             location.href = 'find_order_popup.php?' + params.toString();
             return false;
         }
