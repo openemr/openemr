@@ -16,7 +16,7 @@ namespace OpenEMR\Validators;
 use Particle\Validator\Validator;
 
 /**
- * Supports AllergyIntolerance Record Validation.
+ * Supports AllergyIntolerance Record Validation
  */
 class AllergyIntoleranceValidator extends BaseValidator
 {
