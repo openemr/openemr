@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Reports\CashReceipts\Services;
 
+use OpenEMR\Reports\CashReceipts\Enums\DateMode;
 use OpenEMR\Reports\CashReceipts\Model\Receipt;
 use OpenEMR\Reports\CashReceipts\Repository\CashReceiptsRepository;
 
@@ -20,12 +21,6 @@ use OpenEMR\Reports\CashReceipts\Repository\CashReceiptsRepository;
  */
 class ArActivityDataService
 {
-    /**
-     * Date mode constants
-     */
-    public const DATE_MODE_PAYMENT = 0;
-    public const DATE_MODE_SERVICE = 1;
-    public const DATE_MODE_ENTRY = 2;
 
     /**
      * @var CashReceiptsRepository
@@ -80,7 +75,8 @@ class ArActivityDataService
             }
 
             // Determine transaction date based on date mode
-            $transDate = $this->getTransactionDate($record, $filters['date_mode'] ?? self::DATE_MODE_PAYMENT);
+            $dateMode = $filters['date_mode'] ?? DateMode::PAYMENT->value;
+            $transDate = $this->getTransactionDate($record, $dateMode);
 
             // Check if date is within range (secondary filter)
             if (!$this->isDateInRange($transDate, $filters['from_date'], $filters['to_date'])) {
@@ -121,13 +117,13 @@ class ArActivityDataService
     private function getTransactionDate(array $record, int $dateMode): string
     {
         switch ($dateMode) {
-            case self::DATE_MODE_SERVICE:
+            case DateMode::SERVICE->value:
                 return substr($record['date'], 0, 10);
             
-            case self::DATE_MODE_ENTRY:
+            case DateMode::ENTRY->value:
                 return substr($record['post_time'], 0, 10);
             
-            case self::DATE_MODE_PAYMENT:
+            case DateMode::PAYMENT->value:
             default:
                 if (!empty($record['deposit_date'])) {
                     return $record['deposit_date'];

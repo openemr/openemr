@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Reports\CashReceipts\Services;
 
+use OpenEMR\Reports\CashReceipts\Config\ChartColorConfig;
 use OpenEMR\Reports\CashReceipts\Model\ProviderSummary;
 
 /**
@@ -19,23 +20,6 @@ use OpenEMR\Reports\CashReceipts\Model\ProviderSummary;
  */
 class ChartDataService
 {
-    /**
-     * Colorblind-friendly palette (Okabe-Ito palette + extensions)
-     */
-    private const COLORS = [
-        '#E69F00', // Orange
-        '#56B4E9', // Sky Blue
-        '#009E73', // Bluish Green
-        '#F0E442', // Yellow
-        '#0072B2', // Blue
-        '#D55E00', // Vermillion
-        '#CC79A7', // Reddish Purple
-        '#999999', // Gray
-        '#44AA99', // Teal
-        '#882255', // Wine
-        '#DDCC77', // Sand
-        '#117733', // Green
-    ];
 
     /**
      * Build provider revenue pie chart data
@@ -49,11 +33,12 @@ class ChartDataService
         $data = [];
         $backgroundColor = [];
         
+        $colors = ChartColorConfig::getPreset('revenue');
         $colorIndex = 0;
         foreach ($providerSummaries as $summary) {
             $labels[] = $summary->getProviderName();
             $data[] = $summary->getGrandTotal();
-            $backgroundColor[] = self::COLORS[$colorIndex % count(self::COLORS)];
+            $backgroundColor[] = $colors[$colorIndex % count($colors)];
             $colorIndex++;
         }
 
@@ -118,16 +103,16 @@ class ChartDataService
                     [
                         'label' => 'Total',
                         'data' => $totalData,
-                        'borderColor' => self::COLORS[0],
-                        'backgroundColor' => $this->addAlpha(self::COLORS[0], 0.1),
+                        'borderColor' => ChartColorConfig::getColor(0),
+                        'backgroundColor' => $this->addAlpha(ChartColorConfig::getColor(0), 0.1),
                         'fill' => true,
                         'tension' => 0.4,
                     ],
                     [
                         'label' => 'Professional',
                         'data' => $professionalData,
-                        'borderColor' => self::COLORS[1],
-                        'backgroundColor' => $this->addAlpha(self::COLORS[1], 0.1),
+                        'borderColor' => ChartColorConfig::getColor(1),
+                        'backgroundColor' => $this->addAlpha(ChartColorConfig::getColor(1), 0.1),
                         'fill' => false,
                         'tension' => 0.4,
                         'borderDash' => [5, 5],
@@ -135,8 +120,8 @@ class ChartDataService
                     [
                         'label' => 'Clinic',
                         'data' => $clinicData,
-                        'borderColor' => self::COLORS[2],
-                        'backgroundColor' => $this->addAlpha(self::COLORS[2], 0.1),
+                        'borderColor' => ChartColorConfig::getColor(2),
+                        'backgroundColor' => $this->addAlpha(ChartColorConfig::getColor(2), 0.1),
                         'fill' => false,
                         'tension' => 0.4,
                         'borderDash' => [5, 5],
@@ -204,8 +189,8 @@ class ChartDataService
                     [
                         'label' => 'Revenue',
                         'data' => $data,
-                        'backgroundColor' => self::COLORS[3],
-                        'borderColor' => self::COLORS[3],
+                        'backgroundColor' => ChartColorConfig::getPreset('procedures')[0],
+                        'borderColor' => ChartColorConfig::getPreset('procedures')[0],
                         'borderWidth' => 1,
                     ]
                 ]
@@ -258,7 +243,7 @@ class ChartDataService
                             $breakdown['copay']['total'],
                             $breakdown['ar_activity']['total']
                         ],
-                        'backgroundColor' => [self::COLORS[4], self::COLORS[5]],
+                        'backgroundColor' => [ChartColorConfig::getColor(4), ChartColorConfig::getColor(5)],
                         'borderWidth' => 1,
                     ]
                 ]
@@ -308,6 +293,6 @@ class ChartDataService
      */
     public function getColorPalette(): array
     {
-        return self::COLORS;
+        return ChartColorConfig::getColors();
     }
 }

@@ -53,14 +53,8 @@ class ProviderGroupingService
 
         foreach ($receipts as $receipt) {
             $providerId = $receipt->getProviderId();
-
-            // Create provider summary if not exists
-            if (!isset($providers[$providerId])) {
-                $providerName = $this->repository->getProviderName($providerId);
-                $providers[$providerId] = new ProviderSummary($providerId, $providerName);
-            }
-
-            // Add receipt to provider
+            $providerName = $this->repository->getProviderName($providerId);
+            $providers[$providerId] ??= new ProviderSummary($providerId, $providerName);
             $providers[$providerId]->addReceipt($receipt);
         }
 

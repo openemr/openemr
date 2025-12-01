@@ -139,11 +139,10 @@ class MetricsService
     public function getWeeklyCashFlow(array $receipts): array
     {
         $weeklyTotals = [];
-
+        
+        // Pre-initialize all weeks from receipts
         foreach ($receipts as $receipt) {
-            $date = $receipt->getTransactionDate();
-            $weekStart = $this->getWeekStartDate($date);
-            
+            $weekStart = $this->getWeekStartDate($receipt->getTransactionDate());
             if (!isset($weeklyTotals[$weekStart])) {
                 $weeklyTotals[$weekStart] = [
                     'week_start' => $weekStart,
@@ -153,7 +152,12 @@ class MetricsService
                     'clinic' => 0.0,
                 ];
             }
-
+        }
+        
+        // Aggregate data
+        foreach ($receipts as $receipt) {
+            $weekStart = $this->getWeekStartDate($receipt->getTransactionDate());
+            
             $weeklyTotals[$weekStart]['total'] += $receipt->getAmount();
             $weeklyTotals[$weekStart]['count']++;
             

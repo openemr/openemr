@@ -37,7 +37,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getCopayReceipts
+     * Test getCopayReceipts with basic filters
      */
     public function testGetCopayReceiptsWithBasicFilters(): void
     {
@@ -61,7 +61,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getCopayReceipts
+     * Test getCopayReceipts with facility filter
      */
     public function testGetCopayReceiptsWithFacilityFilter(): void
     {
@@ -76,7 +76,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getCopayReceipts
+     * Test getCopayReceipts with provider filter
      */
     public function testGetCopayReceiptsWithProviderFilter(): void
     {
@@ -91,7 +91,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getArActivityReceipts
+     * Test getArActivityReceipts with basic filters
      */
     public function testGetArActivityReceiptsWithBasicFilters(): void
     {
@@ -114,7 +114,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getArActivityReceipts
+     * Test getArActivityReceipts with procedure filter
      */
     public function testGetArActivityReceiptsWithProcedureFilter(): void
     {
@@ -130,7 +130,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::hasDiagnosisCode
+     * Test hasDiagnosisCode returns bool
      */
     public function testHasDiagnosisCodeReturnsBool(): void
     {
@@ -139,7 +139,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getInvoiceAmount
+     * Test getInvoiceAmount returns float
      */
     public function testGetInvoiceAmountReturnsFloat(): void
     {
@@ -149,7 +149,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getInsuranceCompanyName
+     * Test getInsuranceCompanyName returns string
      */
     public function testGetInsuranceCompanyNameReturnsString(): void
     {
@@ -158,7 +158,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getInsuranceCompanyName
+     * Test getInsuranceCompanyName returns empty for zero id
      */
     public function testGetInsuranceCompanyNameReturnsEmptyForZeroId(): void
     {
@@ -167,7 +167,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getProviderName
+     * Test getProviderName returns string
      */
     public function testGetProviderNameReturnsString(): void
     {
@@ -176,7 +176,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getProviderName
+     * Test getProviderName returns unknown for invalid id
      */
     public function testGetProviderNameReturnsUnknownForInvalidId(): void
     {
@@ -185,7 +185,7 @@ class CashReceiptsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ::getAuthorizedProviders
+     * Test getAuthorizedProviders returns array
      */
     public function testGetAuthorizedProvidersReturnsArray(): void
     {

@@ -43,7 +43,7 @@ if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep
 /**
  * Determine if a procedure code corresponds to clinic receipts
  */
-function is_clinic($code): bool
+function is_clinic(string $code): bool
 {
     global $bcodes;
     $i = strpos($code, ':');
@@ -153,9 +153,7 @@ if (!empty($_GET['export']) && $_GET['export'] === 'csv') {
     try {
         // Initialize services (same as report generation)
         $repository = new CashReceiptsRepository();
-        $isClinicCallback = function ($code) {
-            return is_clinic($code);
-        };
+        $isClinicCallback = is_clinic(...);
 
         $copayService = new CopayDataService($repository, ($GLOBALS['cash_receipts_report_invoice'] ?? '0') != '0');
         $arService = new ArActivityDataService($repository, ($GLOBALS['cash_receipts_report_invoice'] ?? '0') != '0', $isClinicCallback);
@@ -200,9 +198,7 @@ if ($formRefresh) {
     try {
         // Initialize services
         $repository = new CashReceiptsRepository();
-        $isClinicCallback = function ($code) {
-            return is_clinic($code);
-        };
+        $isClinicCallback = is_clinic(...);
 
         $copayService = new CopayDataService($repository, $templateVars['invoice_display_mode']);
         $arService = new ArActivityDataService($repository, $templateVars['invoice_display_mode'], $isClinicCallback);
