@@ -36,14 +36,13 @@ class NoCoversAnnotationRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        $methodReflection = $node->getMethodReflection();
-        $docComment = $methodReflection->getDocComment();
+        $docComment = $node->getOriginalNode()->getDocComment();
 
         if ($docComment === null) {
             return [];
         }
 
-        if (preg_match('/@covers\b/', $docComment)) {
+        if (preg_match('/@covers\b/', $docComment->getText())) {
             return [
                 RuleErrorBuilder::message(
                     'The @covers annotation should not be used as it excludes transitively used code from coverage reports, ' .
