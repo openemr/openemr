@@ -56,6 +56,56 @@ $apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
 
 **Rationale:** Laminas-DB is deprecated and scheduled for removal.
 
+### NoCoversAnnotationRule
+
+**Purpose:** Prevents use of `@covers` annotations in test method docblocks.
+
+**Rationale:** The `@covers` annotation in PHPUnit tests causes any code that is used transitively or ancillary to the annotated code to be excluded from coverage reports. This results in incomplete coverage information and makes it harder to understand which code paths are actually being exercised by our test suite.
+
+**Before (❌ Forbidden):**
+```php
+/**
+ * @covers \OpenEMR\Services\SomeService
+ */
+public function testSomeMethod(): void
+{
+    // test code
+}
+```
+
+**After (✅ Recommended):**
+```php
+public function testSomeMethod(): void
+{
+    // test code - coverage is tracked automatically for all exercised code
+}
+```
+
+### NoCoversAnnotationOnClassRule
+
+**Purpose:** Prevents use of `@covers` annotations in test class docblocks.
+
+**Rationale:** Same as `NoCoversAnnotationRule` - class-level `@covers` annotations also exclude transitively used code from coverage reports.
+
+**Before (❌ Forbidden):**
+```php
+/**
+ * @covers \OpenEMR\Services\SomeService
+ */
+class SomeServiceTest extends TestCase
+{
+    // tests
+}
+```
+
+**After (✅ Recommended):**
+```php
+class SomeServiceTest extends TestCase
+{
+    // tests - coverage is tracked automatically for all exercised code
+}
+```
+
 ## Baseline
 
 Existing violations of these rules are recorded in `phpstan-database-baseline.neon` so they won't cause errors. However, new code should follow these patterns.

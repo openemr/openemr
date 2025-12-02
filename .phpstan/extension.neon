@@ -4,6 +4,7 @@
 # 1. Forbid laminas-db usage outside zend_modules
 # 2. Forbid legacy sql.inc.php functions in src/ directory
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
+# 4. Forbid @covers annotations on test classes and methods
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -21,5 +22,11 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenGlobalsAccessRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\NoCoversAnnotationRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\NoCoversAnnotationOnClassRule
   tags:
   - phpstan.rules.rule
