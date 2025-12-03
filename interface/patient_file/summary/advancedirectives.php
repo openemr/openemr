@@ -34,7 +34,7 @@ $session = SessionWrapperFactory::instance()->getWrapper();
         $pid = $session->get('pid');
     }
     if ($_POST['form_yesno']) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
             CsrfUtils::csrfNotVerified();
         }
 

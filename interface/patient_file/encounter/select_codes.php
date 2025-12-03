@@ -17,7 +17,10 @@ require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $codetype = empty($_GET['codetype']) ? '' : $_GET['codetype'];
 if (!empty($codetype)) {
@@ -46,7 +49,7 @@ if (!empty($codetype)) {
 
                 // Next 2 lines invoke server side processing
                 "bServerSide": true,
-                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
 
                 // Vertical length options and their default
                 "aLengthMenu": [15, 25, 50, 100],

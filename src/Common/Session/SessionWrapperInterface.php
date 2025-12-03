@@ -16,4 +16,7 @@ interface SessionWrapperInterface
     public function clear(): void;
     public function getSymfonySession(): ?Session;
     public function isSymfonySession(): bool;
+    public function all(): array;
+    public function allFilterForJWT(): array;
+    public function applyDataFromJWT(array $jwtData): void;
 }
