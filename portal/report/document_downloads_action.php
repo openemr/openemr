@@ -15,7 +15,6 @@ require_once("$srcdir/documents.php");
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::instance()->getWrapper();
@@ -38,7 +37,7 @@ $pid = $session->get('pid');
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
     $file = sqlQuery($sql, [$documentId]);
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $session->get('pid')) {
+    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category

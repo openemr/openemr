@@ -37,7 +37,7 @@ $res = sqlQuery("select username from users where username=?", [$session->get("a
 $uname = $res["username"];
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -66,7 +66,7 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
 }
 
 if (isset($_GET['deletelid'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 

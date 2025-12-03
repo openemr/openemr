@@ -16,8 +16,13 @@
  * to the application root now.
  */
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Auth\JWT\JwtService;
+
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../../../vendor/autoload.php");
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
@@ -33,12 +38,22 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
     if (!empty($_REQUEST['me'])) {
         // Will continue a session/cookie.
         //  Need access to classes, so run autoloader now instead of in globals.php.
-        $GLOBALS['already_autoloaded'] = true;
-        require_once(__DIR__ . "/../../../../vendor/autoload.php");
-        session_id($_REQUEST['me']);
-        SessionUtil::sessionStartWrapper();
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        if (!empty($_REQUEST['token'])) {
+            try {
+                $jwt = new JwtService();
+                $token = $jwt->validate(urldecode((string) $_REQUEST['token']));
+                $jwtData = $token->claims()->all();
+                $session->applyDataFromJWT($jwtData);
+            } catch (Throwable $exception) {
+                (new SystemLogger())->debug("Zend_Modules/public/index.php: failed to validate and parse JWT token. Error: {$exception->getMessage()}");
+            }
+        }
+
+    } else {
+        $session = SessionWrapperFactory::instance()->getWrapper();
     }
-    $session = SessionWrapperFactory::instance()->getWrapper();
+
     if ($session->get('pid') && $session->get('sessionUser') === '-patient-' && $session->get('portal_init')) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.
         $ignoreAuth_onsite_portal = true;
@@ -48,10 +63,17 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
 if (!empty($_REQUEST['me']) && isset($_REQUEST['sent_by_app']) && $_REQUEST['sent_by_app'] === 'core_api') {
     // pick up already running session from api's
     //  Need access to classes, so run autoloader now instead of in globals.php.
-    $GLOBALS['already_autoloaded'] = true;
-    require_once(__DIR__ . "/../../../../vendor/autoload.php");
-    session_id($_REQUEST['me']);
-    SessionUtil::sessionStartWrapper();
+    if (!empty($_REQUEST['token'])) {
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        try {
+            $jwt = new JwtService();
+            $token = $jwt->validate(urldecode((string) $_REQUEST['token']));
+            $jwtData = $token->claims()->all();
+            $session->applyDataFromJWT($jwtData);
+        } catch (Throwable) {
+            (new SystemLogger())->debug("Zend_Modules/public/index.php: failed to validate and parse JWT token. Error: {$exception->getMessage()}");
+        }
+    }
 }
 
 require_once(__DIR__ . "/../../../globals.php");
