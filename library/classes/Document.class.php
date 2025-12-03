@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -905,6 +906,7 @@ class Document extends ORDataObject
         ) {
             return xl('Reference table and reference id must both be set');
         }
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $this->set_foreign_reference_id($foreign_reference_id);
         $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.
@@ -1080,7 +1082,7 @@ class Document extends ORDataObject
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
-        $this->owner = $owner ?: $_SESSION['authUserID'] ?? null;
+        $this->owner = $owner ?: $session->get('authUserID');
         $this->date_expires = $date_expires;
         $this->set_foreign_id($patient_id);
         $this->persist();

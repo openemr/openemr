@@ -40,7 +40,7 @@ $session = SessionWrapperFactory::instance()->getWrapper();
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -228,7 +228,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 

@@ -22,6 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -56,13 +57,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getGlobals(): array
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         return [
             'assets_dir' => $this->globals->get('assets_static_relative'),
             'srcdir' => $this->globals->get('srcdir'),
             'rootdir' => $this->globals->get('rootdir'),
             'webroot' => $this->globals->get('webroot'),
             'assetVersion' => $this->globals->get('v_js_includes'),
-            'session' => $_SESSION ?? [],
+            'session' => $session->all(),
         ];
     }
 
@@ -76,6 +78,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getFunctions(): array
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         return [
             new TwigFunction(
                 'setupHeader',
@@ -174,11 +177,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'csrfToken',
-                function ($subject = 'default', $fieldName = "_token") {
+                function ($subject = 'default', $fieldName = "_token") use ($session) {
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject)));
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject, $session->getSymfonySession())));
                 }
             ),
             new TwigFunction(

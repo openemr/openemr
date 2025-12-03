@@ -3,10 +3,13 @@
 namespace OpenEMR\Common\Session;
 
 use OpenEMR\Common\Session\SessionWrapperInterface;
+use OpenEMR\Common\Session\Trait\SessionToJwt;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class SymfonySessionWrapper implements SessionWrapperInterface
 {
+    use SessionToJwt;
+
     public function __construct(private readonly Session $session)
     {
     }
@@ -59,5 +62,10 @@ class SymfonySessionWrapper implements SessionWrapperInterface
     public function clear(): void
     {
         $this->session->clear();
+    }
+
+    public function all(): array
+    {
+        return $this->session->all();
     }
 }

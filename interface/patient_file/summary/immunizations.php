@@ -31,7 +31,7 @@ $session = SessionWrapperFactory::instance()->getWrapper();
 $pid ??= $session->get('pid') ?? null;
 
 if (isset($_GET['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -225,7 +225,7 @@ if (!empty($entered_by_id)) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     $observation_criteria = getImmunizationObservationLists('1');
@@ -234,7 +234,7 @@ if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
     $observation_criteria_value = getImmunizationObservationLists('2');

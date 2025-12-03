@@ -21,7 +21,7 @@ $session = SessionWrapperFactory::instance()->getWrapper();
 
 header('Content-Type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken(($_POST['csrf_token'] ?? ''), $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken(($_POST['csrf_token'] ?? ''), 'default', $session->getSymfonySession())) {
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
 }

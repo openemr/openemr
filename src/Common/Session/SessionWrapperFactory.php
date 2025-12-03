@@ -10,28 +10,32 @@ class SessionWrapperFactory
 
     private ?SessionWrapperInterface $sessionWrapper = null;
 
-    public function getWrapper(): SessionWrapperInterface
+    public function getWrapper(array $initData = []): SessionWrapperInterface
     {
         if (!$this->sessionWrapper) {
-            $this->sessionWrapper = $this->findSessionWrapper();
+            $this->sessionWrapper = $this->findSessionWrapper($initData);
         }
 
         return $this->sessionWrapper;
     }
 
-    private function findSessionWrapper(): SessionWrapperInterface
+    private function findSessionWrapper(array $initData = []): SessionWrapperInterface
     {
         $app = SessionUtil::getAppCookie();
         if ($app !== SessionUtil::PORTAL_SESSION_ID) {
-            return new PHPSessionWrapper();
-        }
-
-        if (SessionUtil::isPredisSession()) {
+            $session = new PHPSessionWrapper();
+        } else if (SessionUtil::isPredisSession()) {
             SessionUtil::portalPredisSessionStart();
-            return new PHPSessionWrapper();
+            $session = new PHPSessionWrapper();
+        } else {
+            $session = new SymfonySessionWrapper(SessionUtil::portalSessionStart());
         }
 
-        return new SymfonySessionWrapper(SessionUtil::portalSessionStart());
+        foreach ($initData as $name => $value) {
+            $session->set($name, $value);
+        }
+
+        return $session;
     }
 
 }

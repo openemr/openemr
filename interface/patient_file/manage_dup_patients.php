@@ -166,7 +166,7 @@ function calculateScores(): int
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }

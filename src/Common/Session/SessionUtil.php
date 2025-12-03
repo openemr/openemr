@@ -175,9 +175,15 @@ class SessionUtil
         self::coreSessionStart($GLOBALS['webroot'], false);
         foreach ($setArray as $key => $value) {
             $_SESSION[$key] = $value;
+            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+                $symfonySessionInstance->set($key, $value);
+            }
         }
         foreach ($unsetArray as $value) {
             unset($_SESSION[$value]);
+            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
+                $symfonySessionInstance->remove($value);
+            }
         }
         session_write_close();
         (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
@@ -323,7 +329,7 @@ class SessionUtil
 
     public static function getAppCookie(): string
     {
-        return $_COOKIE['App'] ??= '';
+        return $_COOKIE['App'] ?? '';
     }
 
     public static function isPredisSession(): bool

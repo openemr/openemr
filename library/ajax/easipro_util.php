@@ -37,7 +37,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Easipro\Easipro;
 
 // verify csrf
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 

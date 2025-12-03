@@ -395,7 +395,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified();
             }
 

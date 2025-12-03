@@ -23,7 +23,7 @@ $session = SessionWrapperFactory::instance()->getWrapper();
 
 $pid = (int)$session->get('pid');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {

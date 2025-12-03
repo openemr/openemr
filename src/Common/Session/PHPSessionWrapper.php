@@ -3,10 +3,21 @@
 namespace OpenEMR\Common\Session;
 
 use OpenEMR\Common\Session\SessionWrapperInterface;
+use OpenEMR\Common\Session\Trait\SessionToJwt;
 use Symfony\Component\HttpFoundation\Session\Session;
+use RuntimeException;
 
 class PHPSessionWrapper implements SessionWrapperInterface
 {
+    use SessionToJwt;
+
+    public function __construct()
+    {
+        if (!empty($GLOBALS['webroot']) && session_status() !== PHP_SESSION_ACTIVE) {
+            SessionUtil::coreSessionStart($GLOBALS['webroot'], false);
+        }
+    }
+
     public function getId(): string
     {
         return session_id();
@@ -70,5 +81,10 @@ class PHPSessionWrapper implements SessionWrapperInterface
     public function clear(): void
     {
         session_unset();
+    }
+
+    public function all(): array
+    {
+        return is_array($_SESSION) ? $_SESSION : [];
     }
 }

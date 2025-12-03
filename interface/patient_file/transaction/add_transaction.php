@@ -45,7 +45,7 @@ $grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
