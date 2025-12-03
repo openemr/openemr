@@ -16,8 +16,13 @@
  * to the application root now.
  */
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Auth\JWT\JwtService;
+
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../../../vendor/autoload.php");
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));

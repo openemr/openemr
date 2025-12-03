@@ -588,7 +588,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     // If the Save button was clicked...
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"]. $session->getSymfonySession())) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
             CsrfUtils::csrfNotVerified();
         }
 

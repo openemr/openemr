@@ -38,7 +38,7 @@ require_once(__DIR__ . "/../documents.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\MessageService;
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 

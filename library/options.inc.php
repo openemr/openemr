@@ -69,6 +69,7 @@ use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -76,6 +77,8 @@ use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 
 $facilityService = new FacilityService();
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 $date_init = "";
 $membership_group_number = 0;
@@ -149,6 +152,7 @@ function generate_select_list(
     $include_inactive = false,
     $tabIndex = false
 ) {
+    global $session;
     $attributes = [];
     $_options = [];
     $_metadata = [];
@@ -207,7 +211,7 @@ function generate_select_list(
     }
 
     $got_selected = false;
-
+    $lang_id = $session->get('language_choice', '1');
     for ($active = 1; $active == 1 || ($active == 0 && $include_inactive); --$active) {
         $_optgroup = ($include_inactive) ? true : false;
 
@@ -218,7 +222,7 @@ function generate_select_list(
         //   list; note these will always be shown at the bottom of the list no matter the
         //   chosen order.)
         // This block should be migrated to the ListService but the service currently does not translate or offer a sort option.
-        $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+
         // sort by title
         $order_by_sql = ($GLOBALS['gb_how_sort_list'] == '0') ? "seq, title" : "title, seq";
         if (!$GLOBALS['translate_lists']) {
@@ -579,7 +583,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 //
 function generate_form_field($frow, $currvalue): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
+    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number, $session;
 
     $currescaped = htmlspecialchars($currvalue ?? '', ENT_QUOTES);
 
@@ -1517,7 +1521,7 @@ function generate_form_field($frow, $currvalue): void
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
                 // If defined this is the filename of the default starting image.
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
+                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
@@ -1534,7 +1538,7 @@ function generate_form_field($frow, $currvalue): void
     } elseif ($data_type == 41 || $data_type == 42) {
         $datatype = 'patient-signature';
         $cpid = $GLOBALS['pid'];
-        $cuser = $_SESSION['authUserID'];
+        $cuser = $session->get('authUserID');
         if ($data_type == 42) {
             $datatype = 'admin-signature';
         }
@@ -1680,7 +1684,7 @@ function generate_form_field($frow, $currvalue): void
 
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES;
+    global $rootdir, $date_init, $ISSUE_TYPES, $session;
 
     $currescaped = htmlspecialchars((string) $currvalue, ENT_QUOTES);
 
@@ -2268,7 +2272,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
+                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2341,7 +2345,7 @@ function generate_list_map($list_id, $translate = false)
 
 function generate_display_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES, $facilityService;
+    global $ISSUE_TYPES, $facilityService, $session;
 
     $data_type  = $frow['data_type'];
     $field_id   = $frow['field_id'] ?? null;
@@ -2762,7 +2766,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
+                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2817,19 +2821,19 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 54) {
-        $pid = $_SESSION['pid'] ?? null;
+        $pid = $session->get('pid') ?? null;
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
         include "templates/address_display.php";
     } elseif ($data_type == 55) {
-        $pid = $_SESSION['pid'] ?? null;
+        $pid = $session->get('pid') ?? null;
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
         include "templates/telecom_display.php";
     } elseif ($data_type == 56) {
-        $pid = $_SESSION['pid'] ?? null;
+        $pid = $session->get('pid') ?? null;
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
@@ -3439,7 +3443,7 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
 
 function display_layout_rows($formtype, $result1, $result2 = ''): void
 {
-    global $item_count, $cell_count, $last_group, $CPR;
+    global $item_count, $cell_count, $last_group, $CPR, $session;
 
     if ('HIS' == $formtype) {
         $formtype .= '%'; // TBD: DEM also?
@@ -3451,6 +3455,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
         "ORDER BY grp_seq, grp_title, grp_form_id",
         ["$formtype"]
     );
+    $patientPortalOnsiteTwo = $session->get("patient_portal_onsite_two");
     while ($prow = sqlFetchArray($pres)) {
         $formtype = $prow['grp_form_id'];
         $last_group = '';
@@ -3476,7 +3481,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             $currvalue  = '';
             $jump_new_row = isOption($frow['edit_options'], 'J');
             $prepend_blank_row = isOption($frow['edit_options'], 'K');
-            $portal_exclude = (!empty($_SESSION["patient_portal_onsite_two"]) && isOption($frow['edit_options'], 'EP')) ?? null;
+            $portal_exclude = (!empty($patientPortalOnsiteTwo) && isOption($frow['edit_options'], 'EP')) ?? null;
             $span_col_row = isOption($frow['edit_options'], 'SP');
 
             if (!empty($portal_exclude)) {
@@ -4545,6 +4550,7 @@ function dropdown_facility(
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false): void
 {
+    global $session;
     if ($fixedWidth) {
         echo "<div class='section-header'>";
     } else {
@@ -4562,7 +4568,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
             echo "<td><a class='" . attr($class_string) . "' href='javascript:;' onclick='" . $buttonLink . "'";
         } else {
             echo "<td><a class='" . attr($class_string) . "' href='" . $buttonLink . "'";
-            if (!isset($_SESSION['patient_portal_onsite_two'])) {
+            if (!$session->get('patient_portal_onsite_two') !== null) {
                 // prevent an error from occuring when calling the function from the patient portal
                 echo " onclick='top.restoreSession()'";
             }
@@ -4583,7 +4589,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         attr_js($label . "_ps_expand") . ")'><span class='text font-weight-bold'>";
     echo text($title) . "</span>";
 
-    if (isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($session->get('patient_portal_onsite_two') !== null) {
         // collapse all entries in the patient portal
         $text = xl('expand');
     } elseif (getUserSetting($label . "_ps_expand")) {
@@ -4599,7 +4605,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
         $styling = "";
-    } elseif (isset($_SESSION['patient_portal_onsite_two'])) {
+    } elseif ($session->get('patient_portal_onsite_two') !== null) {
         // collapse all entries in the patient portal
         $styling = "style='display: none'";
     } elseif (getUserSetting($label . "_ps_expand")) {

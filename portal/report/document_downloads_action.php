@@ -39,7 +39,7 @@ $pid = $session->get('pid');
 foreach ($documentIds as $documentId) {
     $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
     $file = sqlQuery($sql, [$documentId]);
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $session->get('pid')) {
+    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
     // Find the document category
