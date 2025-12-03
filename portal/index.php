@@ -23,12 +23,26 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 //setting the session & other config options
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
+use OpenEMR\Services\LogoService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 //  Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+SessionUtil::setAppCookie(SessionUtil::PORTAL_SESSION_ID);
+// Ensure that the cookie is there when we select session wrapper on first page load of login page
+$_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;
@@ -39,19 +53,8 @@ require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
-use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
-use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\LogoService;
-
 //For redirect if the site on session does not match
-$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode((string) $session->get('site_id', ''));
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
@@ -64,7 +67,7 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
 $auth['portal_pwd'] = '';
 if (isset($_GET['woops'])) {
     unset($_GET['woops']);
-    unset($_SESSION['password_update']);
+    $session->remove('password_update');
 }
 /*
     The below will test and set the where to session variable when redirecting from the login page.
@@ -73,9 +76,9 @@ if (isset($_GET['woops'])) {
 unset($_REQUEST['whereto']);
 unset($_GET['whereto']);
 // set the where to session variable to the page from previous session.
-$whereto = $_SESSION['whereto'] ?? null;
+$whereto = $session->get('whereto', null);
 // set the landOn session variable to the redirect page after successfully login.
-$_SESSION['landOn'] = $_GET['landOn'] ?? null;
+$session->set('landOn', $_GET['landOn'] ?? null);
 // unset the landOn super.
 unset($_REQUEST['landOn']);
 unset($_GET['landOn']);
@@ -102,13 +105,13 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $token = $_GET['service_auth'];
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($session->getSymfonySession());
         $twig = new TwigContainer(null, $GLOBALS['kernel']);
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $GLOBALS['web_root'] . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],
             'target' => $_GET['target'] ?? null,
-            'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session->getSymfonySession()),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $GLOBALS['images_static_relative'] ?? '',
             'pin_required' => $pin_required,
@@ -119,7 +122,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
-            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session->getSymfonySession())) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
             $auth = $oneTime->processOnetime($token, $redirect_token);
@@ -216,19 +219,19 @@ if (!empty($_GET['forward_email_verify'])) {
     if (!empty($sqlVerify['fname']) && !empty($sqlVerify['lname']) && !empty($sqlVerify['dob']) && !empty($sqlVerify['email']) && !empty($sqlVerify['language'])) {
         // token has passed and have all needed data
         $fnameRegistration = $sqlVerify['fname'];
-        $_SESSION['fnameRegistration'] = $fnameRegistration;
+        $session->set('fnameRegistration', $fnameRegistration);
         $mnameRegistration = $sqlVerify['mname'] ?? '';
-        $_SESSION['mnameRegistration'] = $mnameRegistration;
+        $session->set('mnameRegistration', $mnameRegistration);
         $lnameRegistration = $sqlVerify['lname'];
-        $_SESSION['lnameRegistration'] = $lnameRegistration;
+        $session->set('lnameRegistration', $lnameRegistration);
         $dobRegistration = $sqlVerify['dob'];
-        $_SESSION['dobRegistration'] = $dobRegistration;
+        $session->set('dobRegistration', $dobRegistration);
         $emailRegistration = $sqlVerify['email'];
-        $_SESSION['emailRegistration'] = $emailRegistration;
+        $session->set('emailRegistration', $emailRegistration);
         $languageRegistration = $sqlVerify['language'];
-        $_SESSION['language_choice'] = (int)($languageRegistration ?? 1);
+        $session->set('language_choice', (int)($languageRegistration ?? 1));
         $portalRegistrationAuthorization = true;
-        $_SESSION['token_id_holder'] = $sqlVerify['id'];
+        $session->set('token_id_holder', $sqlVerify['id']);
         (new SystemLogger())->debug("token worked for forward_email_verify token, now on to registration");
         EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
         require_once(__DIR__ . "/account/register.php");
@@ -272,23 +275,23 @@ if (!empty($_GET['forward_email_verify'])) {
         SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time());
     }
-    $_SESSION['pin'] = substr($parse, 0, 6);
-    $_SESSION['forward'] = $auth['portal_onetime'];
-    $_SESSION['portal_username'] = $auth['portal_username'];
-    $_SESSION['portal_login_username'] = $auth['portal_login_username'];
-    $_SESSION['password_update'] = 2;
-    $_SESSION['onetime'] = $auth['portal_pwd'];
+    $session->set('pin', substr($parse, 0, 6));
+    $session->set('forward', $auth['portal_onetime']);
+    $session->set('portal_username', $auth['portal_username']);
+    $session->set('portal_login_username', $auth['portal_login_username']);
+    $session->set('password_update', 2);
+    $session->set('onetime', $auth['portal_pwd']);
     unset($auth);
 }
 // security measure -- will check on next page.
-$_SESSION['itsme'] = 1;
+$session->set('itsme', 1);
 //
 
 //
 // Deal with language selection
 //
 // collect default language id (skip this if this is a password update or reset)
-if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])))) {
+if (!($session->has('password_update') || (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])))) {
     $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [$GLOBALS['language_default']]);
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
@@ -304,11 +307,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     }
 
     // set session variable to default so login information appears in default language
-    $_SESSION['language_choice'] = $defaultLangID;
+    $session->set('language_choice', $defaultLangID);
     // collect languages if showing language menu
     if ($GLOBALS['language_menu_login']) {
         // sorting order of language titles depends on language translation options.
-        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+        $languageChoice = $session->get('language_choice');
+        $mainLangID = empty($languageChoice) ? '1' : $languageChoice;
         // Use and sort by the translated language name.
         $sql = "SELECT ll.lang_id, " .
             "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
@@ -442,7 +446,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             }
         </script>
         <?php // add csrf mechanism for the password reset ui
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($session->getSymfonySession());
         ?>
     <?php } ?>
     <style>
@@ -477,8 +481,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 </head>
 <body class="login">
     <div id="wrapper" class="login-wrapper mx-auto">
-        <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
-            $_SESSION['password_update'] = 1;
+        <?php if ($session->has('password_update') || isset($_GET['password_update'])) {
+            $session->set('password_update', 1);
             ?>
             <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
             <form class="form pb-5" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
@@ -488,24 +492,24 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($_SESSION['portal_username']); ?>" />
+                        <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($session->get('portal_username')); ?>" />
                     </div>
                 </div>
                 <div class="form-row my-3">
                     <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
+                        <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($session->get('portal_login_username')); ?>" onblur="checkUserName()" />
                     </div>
                 </div>
                 <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime'] ?? null) ? xlt('Current Password') : ''; ?></label>
+                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($session->get('onetime')) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
-                        <input class="form-control" name="pass" id="pass" <?php echo ($_SESSION['onetime'] ?? null) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
-                        $_SESSION['password_update'] = ($_SESSION['onetime'] ?? null) ? 2 : 1;
-                        unset($_SESSION['onetime']); ?>" required />
+                        <input class="form-control" name="pass" id="pass" <?php echo ($session->get('onetime')) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($session->get('onetime') ?? '');
+                        $session->set('password_update', ($session->get('onetime') ? 2 : 1));
+                        $session->remove('onetime'); ?>" required />
                     </div>
                 </div>
-                <?php if ($_SESSION['pin'] ?? null) { ?>
+                <?php if ($session->get('pin', null)) { ?>
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
                         <div class="col-md">
@@ -533,13 +537,13 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php } ?>
-                <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                     echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session->getSymfonySession())); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
@@ -577,7 +581,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                                 <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
                         </div>
-                        <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                        <input class="btn btn-secondary" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                             echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                         <button id="submitRequest" class="btn btn-primary nextBtn" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
@@ -663,10 +667,10 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="col col-md col-sm">
                     <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
                     <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
-                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
+                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($session->get('site_id')); ?>')"><?php echo xlt('Register'); ?></button>
                     <?php } ?>
                     <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                     <?php } ?>
                 </div>
@@ -701,9 +705,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         $(function () {
             <?php // if something went wrong
             if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) {
-                $_SESSION['register'] = true;
-                $_SESSION['authUser'] = 'portal-user';
-                $_SESSION['pid'] = true;
+                $session->set('register', true);
+                $session->set('authUser', 'portal-user');
+                $session->set('pid', true);
                 ?>
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
@@ -764,7 +768,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 data: data
             }).done(function (rtn) {
                 if (action === "cleanup") {
-                    let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let url = "./index.php?site=" + <?php echo js_url($session->get('site_id')); ?>; // Goto landing page.
                     let redirectUrl = $("#redirect").val();
                     if (redirectUrl) {
                         url += "&redirect=" + encodeURIComponent(redirectUrl);

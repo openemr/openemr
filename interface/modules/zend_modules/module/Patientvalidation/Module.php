@@ -24,6 +24,7 @@ use Patientvalidation\Model\PatientDataTable;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\ModuleManager\ModuleManager;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class Module
 {
@@ -55,15 +56,16 @@ class Module
     {
         $events = $manager->getEventManager();
         $sharedEvents = $events->getSharedManager();
+        $session = SessionWrapperFactory::instance()->getWrapper();
 
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) use ($session): void {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
             $controller->layout('layout/layout.phtml');
 
 
             //global variable of language direction
-            $controller->layout()->setVariable('language_direction', $_SESSION['language_direction']);
+            $controller->layout()->setVariable('language_direction', $session->get('language_direction'));
             $controller->layout()->setVariable('status', null);
             //variable that get object with all js variables from php
         }, 100);

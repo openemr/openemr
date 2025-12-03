@@ -14,7 +14,11 @@ namespace OpenEMR\Services;
 
 use CouchDB;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Auth\JWT\JwtService;
 use Symfony\Component\HttpClient\HttpClient;
 
 /**
@@ -91,7 +95,10 @@ class CDADocumentService extends BaseService
      */
     public function generateCCDHtml($pid): string
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
+        $token = $this->createToken($session);
+
         $httpClient = HttpClient::create([
             "verify_peer" => false,
             "verify_host" => false
@@ -101,9 +108,10 @@ class CDADocumentService extends BaseService
                 'combination' => $pid,
                 'recipient' => 'self',
                 'view' => '1',
-                'site' => $_SESSION ['site_id'],
+                'site' => $session->get('site_id'),
                 'sent_by_app' => 'core_api',
-                'me' => session_id()
+                'me' => $session->getId(),
+                'token' => urlencode($token),
             ]
         ]);
 
@@ -118,7 +126,10 @@ class CDADocumentService extends BaseService
      */
     public function generateCCDXml($pid): string
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
+        $token = $this->createToken($session);
+
         $httpClient = HttpClient::create([
             "verify_peer" => false,
             "verify_host" => false
@@ -130,7 +141,8 @@ class CDADocumentService extends BaseService
                 'view' => '0',
                 'hiehook' => '1',
                 'sent_by_app' => 'core_api',
-                'me' => session_id()
+                'me' => $session->getId(),
+                'token' => urlencode($token),
             ]
         ]);
 
@@ -145,6 +157,9 @@ class CDADocumentService extends BaseService
      */
     public function portalGenerateCCD($pid): string
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        $token = $this->createToken($session);
+
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
         $httpClient = HttpClient::create([
             "verify_peer" => false,
@@ -155,8 +170,9 @@ class CDADocumentService extends BaseService
                 'combination' => $pid,
                 'recipient' => 'patient',
                 'view' => '1',
-                'me' => session_id(),// to authenticate in CCM. Portal only.
-                'site' => $_SESSION ['site_id']
+                'me' => $session->getId(),// to authenticate in CCM. Portal only.
+                'token' => urlencode($token),
+                'site' => $session->get('site_id'),
             ]
         ]);
 
@@ -171,6 +187,9 @@ class CDADocumentService extends BaseService
      */
     public function portalGenerateCCDZip($pid): string
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
+        $token = $this->createToken($session);
+
         $parameterArray = [
             'combination' => $pid,
             'components' => 'allergies|medications|problems|immunizations|procedures|results|plan_of_care|vitals|social_history|encounters|functional_status|referral|instructions|medical_devices|goals',
@@ -181,7 +200,7 @@ class CDADocumentService extends BaseService
             'ccda_pid' => [0 => $pid],
             'view' => 0,
             'recipient' => 'patient',
-            'site' => $_SESSION ['site_id'],
+            'site' => $session->get('site_id'),
         ];
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
         $httpClient = HttpClient::create([
@@ -189,7 +208,7 @@ class CDADocumentService extends BaseService
             "verify_host" => false
         ]);
         $response = $httpClient->request('POST', $url, [
-            'query' => ['me' => session_id()], // to authenticate in CCM. Portal only.
+            'query' => ['me' => $session->getId(), 'token' => urlencode($token),], // to authenticate in CCM. Portal only.
             'body' => $parameterArray
         ]);
 
@@ -207,6 +226,7 @@ class CDADocumentService extends BaseService
      */
     public function generateCCDZip($pid): string
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $parameterArray = [
             'combination' => $pid,
             'components' => 'allergies|medications|problems|immunizations|procedures|results|plan_of_care|vitals|social_history|encounters|functional_status|referral|instructions|medical_devices|goals',
@@ -217,20 +237,35 @@ class CDADocumentService extends BaseService
             'ccda_pid' => [0 => $pid],
             'view' => 0,
             'recipient' => 'self',
-            'site' => $_SESSION['site_id'],
+            'site' => $session->get('site_id'),
         ];
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch"; // add for debug ?XDEBUG_SESSION=PHPSTORM
+        $token = $this->createToken($session);
+
         $httpClient = HttpClient::create([
             "verify_peer" => false,
             "verify_host" => false
         ]);
         $response = $httpClient->request('POST', $url, [
-            'query' => ['me' => session_id()],
+            'query' => ['me' => $session->getId(), 'token' => urlencode($token),],
             'body' => $parameterArray
         ]);
 
         $status = $response->getStatusCode(); // @todo validate
 
         return $response->getContent();
+    }
+
+    private function createToken(SessionWrapperInterface $session): string
+    {
+        $sessionData = $session->allFilterForJWT();
+        $token = '';
+        try {
+            $token = (new JwtService())->createToken($sessionData, 60);
+        } catch (\Throwable $exception) {
+            (new SystemLogger())->debug(self::class . ": failed to create JWT token. Error: {$exception->getMessage()}");
+        }
+
+        return $token;
     }
 }
