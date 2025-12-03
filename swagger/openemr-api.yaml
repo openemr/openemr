@@ -9489,9 +9489,11 @@ components:
         DOB:
           description: 'The DOB of patient.'
           type: string
+          format: date
         sex:
-          description: 'The lname of patient.'
+          description: 'The sex of the patient.'
           type: string
+          minLength: 4
         race:
           description: 'The race of patient.'
           type: string
@@ -9510,7 +9512,7 @@ components:
         state: FL
         country_code: US
         phone_contact: 123-456-7890
-        DOB: '1992-02-02'
+        DOB: '1992-12-31'
         sex: Male
         race: ''
         ethnicity: ''
