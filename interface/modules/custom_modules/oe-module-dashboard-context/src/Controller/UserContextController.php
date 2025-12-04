@@ -19,8 +19,8 @@ use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 
 class UserContextController
 {
-    private DashboardContextService $contextService;
-    private int $userId;
+    private readonly DashboardContextService $contextService;
+    private readonly int $userId;
 
     public function __construct()
     {
@@ -105,7 +105,7 @@ class UserContextController
     {
         $context = $_POST['context'] ?? '';
         $widgetsJson = $_POST['widgets'] ?? '{}';
-        $widgets = json_decode($widgetsJson, true);
+        $widgets = json_decode((string) $widgetsJson, true);
 
         if (empty($context) || !is_array($widgets)) {
             $this->sendError('Invalid context or widgets data');
@@ -157,7 +157,7 @@ class UserContextController
         $contextName = $_POST['context_name'] ?? '';
         $description = $_POST['description'] ?? '';
         $widgetsJson = $_POST['widgets'] ?? '{}';
-        $widgets = json_decode($widgetsJson, true);
+        $widgets = json_decode((string) $widgetsJson, true);
 
         if (empty($contextName)) {
             $this->sendError('Context name is required');

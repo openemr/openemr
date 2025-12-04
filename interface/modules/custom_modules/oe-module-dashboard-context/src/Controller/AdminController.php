@@ -21,9 +21,9 @@ use OpenEMR\Modules\DashboardContext\Services\DashboardContextAdminService;
 
 class AdminController
 {
-    private DashboardContextService $contextService;
-    private DashboardContextAdminService $adminService;
-    private int $adminUserId;
+    private readonly DashboardContextService $contextService;
+    private readonly DashboardContextAdminService $adminService;
+    private readonly int $adminUserId;
 
     public function __construct()
     {
@@ -179,7 +179,7 @@ class AdminController
     private function bulkAssignContext(): void
     {
         $userIdsJson = $_POST['user_ids'] ?? '[]';
-        $userIds = json_decode($userIdsJson, true);
+        $userIds = json_decode((string) $userIdsJson, true);
         $contextKey = $_POST['context_key'] ?? '';
         $lockContext = ($_POST['lock_context'] ?? '0') === '1';
 
@@ -270,7 +270,7 @@ class AdminController
     private function importContexts(): void
     {
         $configJson = $_POST['config'] ?? '[]';
-        $config = json_decode($configJson, true);
+        $config = json_decode((string) $configJson, true);
 
         if (!is_array($config)) {
             $this->sendError('Invalid configuration data');

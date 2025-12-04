@@ -302,7 +302,7 @@ class DashboardContextService
         $result = sqlQuery($sql, [$userId, $context]);
 
         if (!empty($result['widget_config'])) {
-            $config = json_decode($result['widget_config'], true);
+            $config = json_decode((string) $result['widget_config'], true);
             if (is_array($config)) {
                 return $config;
             }
@@ -315,7 +315,7 @@ class DashboardContextService
         );
 
         if (!empty($customContext['widget_config'])) {
-            $config = json_decode($customContext['widget_config'], true);
+            $config = json_decode((string) $customContext['widget_config'], true);
             if (is_array($config)) {
                 return $config;
             }
@@ -446,7 +446,7 @@ class DashboardContextService
         array $widgetConfig,
         bool $isGlobal = false
     ): int|false {
-        $contextKey = 'custom_' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $contextName)) . '_' . time();
+        $contextKey = 'custom_' . strtolower((string) preg_replace('/[^a-zA-Z0-9]/', '_', $contextName)) . '_' . time();
 
         $result = sqlStatement(
             "INSERT INTO {$this->contextTableName} (user_id, context_key, context_name, description, widget_config, is_global, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())",

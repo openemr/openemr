@@ -19,8 +19,8 @@ use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 
 class ContextWidgetController
 {
-    private DashboardContextService $contextService;
-    private int $userId;
+    private readonly DashboardContextService $contextService;
+    private readonly int $userId;
 
     public function __construct()
     {

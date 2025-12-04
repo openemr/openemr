@@ -25,23 +25,20 @@ class Bootstrap
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/oe-module-dashboard-context";
     const MODULE_NAME = "oe-module-dashboard-context";
 
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events
-     */
-    private EventDispatcherInterface $eventDispatcher;
-
-    private string $moduleDirectoryName;
+    private readonly string $moduleDirectoryName;
 
     private $logger;
 
-    private string $modulePath;
+    private readonly string $modulePath;
 
     public string $installPath;
 
-    public function __construct(EventDispatcher $dispatcher)
+    public function __construct(/**
+     * @var EventDispatcherInterface The object responsible for sending and subscribing to events
+     */
+    private readonly EventDispatcherInterface $eventDispatcher)
     {
         $this->installPath = $GLOBALS['web_root'] . self::MODULE_INSTALLATION_PATH;
-        $this->eventDispatcher = $dispatcher;
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
         $this->logger = new SystemLogger();
@@ -61,7 +58,7 @@ class Bootstrap
      */
     public function registerMenuItems(): void
     {
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomMenuItem(...));
     }
 
     /**
@@ -73,7 +70,7 @@ class Bootstrap
     {
         $this->eventDispatcher->addListener(
             RenderEvent::EVENT_SECTION_LIST_RENDER_TOP,
-            [$this, 'renderDashboardWidget'],
+            $this->renderDashboardWidget(...),
             10
         );
     }

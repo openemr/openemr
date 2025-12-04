@@ -266,7 +266,7 @@ class DashboardContextAdminService
         
         while ($row = sqlFetchArray($result)) {
             $configs[$row['context_key']] = [
-                'widget_config' => json_decode($row['widget_config'], true),
+                'widget_config' => json_decode((string) $row['widget_config'], true),
                 'created_at' => $row['created_at'],
                 'updated_at' => $row['updated_at'],
             ];
@@ -633,7 +633,7 @@ class DashboardContextAdminService
                 LEFT JOIN users p ON al.performed_by = p.id
                 WHERE " . implode(' AND ', $where) . "
                 ORDER BY al.created_at DESC
-                LIMIT " . (int)$limit;
+                LIMIT " . $limit;
 
         $result = sqlStatement($sql, $params);
         $logs = [];
@@ -650,9 +650,9 @@ class DashboardContextAdminService
      */
     private function generateContextKey(string $name): string
     {
-        $key = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $name));
+        $key = strtolower((string) preg_replace('/[^a-zA-Z0-9]/', '_', $name));
         $key = preg_replace('/_+/', '_', $key);
-        $key = trim($key, '_');
+        $key = trim((string) $key, '_');
         return 'custom_' . $key;
     }
 
