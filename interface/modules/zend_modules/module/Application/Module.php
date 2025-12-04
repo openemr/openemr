@@ -53,12 +53,12 @@ class Module
     // we need to figure out why that is so we can remove this unnecessary piece.
     public function getAutoloaderConfig()
     {
-        return array(
-        'Laminas\Loader\StandardAutoloader' => array(
-            'namespaces' => array(
+        return [
+        \Laminas\Loader\StandardAutoloader::class => [
+            'namespaces' => [
                 __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-            ),
-        ),
-        );
+            ],
+        ],
+        ];
     }
 }

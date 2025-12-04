@@ -10,8 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-// comment this out when using this script (and then uncomment it again when done using script)
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_LOAD_FEE_SCHEDULE')) {
+    die('Set OPENEMR_ENABLE_LOAD_FEE_SCHEDULE=1 environment variable to enable this script');
+}
 
 if (php_sapi_name() !== 'cli') {
     echo "Only php cli can execute command\n";
@@ -63,7 +65,7 @@ foreach ($records as $record) {
         ) {
             $sql = "INSERT INTO `fee_schedule` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `fee`, `effective_date`)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
-            sqlQuery($sql, array($insurance_company_id, $sched_plan, $sched_code, $sched_mod, $sched_type, $sched_fee, $effective_date));
+            sqlQuery($sql, [$insurance_company_id, $sched_plan, $sched_code, $sched_mod, $sched_type, $sched_fee, $effective_date]);
             if ($codes_sql['fee'] < $sched_fee) {
                 $ceil_fee = number_format(ceil($sched_fee), 2, '.', '');
                 echo "*** existing fee " . sprintf("%7.2f", $our_fee) . " for $our_code:$our_mod " .

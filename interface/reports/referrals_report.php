@@ -36,7 +36,7 @@ if (!empty($_POST)) {
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_facility = $_POST['form_facility'] ?? '';
 ?>
 <html>
 <head>
@@ -202,7 +202,7 @@ if (!empty($_POST['form_refresh'])) {
         "WHERE t.title = 'LBTref' AND " .
         "d1.field_value >= ? AND d1.field_value <= ? " .
         "ORDER BY ut.organization, d1.field_value, t.id";
-        $res = sqlStatement($query, array($form_from_date, $form_to_date));
+        $res = sqlStatement($query, [$form_from_date, $form_to_date]);
 
         while ($row = sqlFetchArray($res)) {
             // If a facility is specified, ignore rows that do not match.

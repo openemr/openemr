@@ -65,7 +65,7 @@ $GLOBALS['oer_config']['prescriptions']['prefix'] = '';
 // Similarly for bottle labels if you are dispensing drugs.  Note that paper
 // size here or for prescriptions may be an array (0, 0, width, height).
 // As above, these measurements are in points.
-$GLOBALS['oer_config']['druglabels']['paper_size'] = array(0, 0, 216, 216);
+$GLOBALS['oer_config']['druglabels']['paper_size'] = [0, 0, 216, 216];
 $GLOBALS['oer_config']['druglabels']['left']   = 18;
 $GLOBALS['oer_config']['druglabels']['right']  = 18;
 $GLOBALS['oer_config']['druglabels']['top']    = 18;
@@ -77,12 +77,12 @@ $GLOBALS['oer_config']['druglabels']['disclaimer'] =
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 
-$GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['prescriptions']['logo'] = __DIR__ .
   "/../../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'];
-$GLOBALS['oer_config']['prescriptions']['signature'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['prescriptions']['signature'] = __DIR__ .
   "/../../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['sig_pic'];
 
-$GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
+$GLOBALS['oer_config']['druglabels']['logo'] = __DIR__ .
   "/../../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 $GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];

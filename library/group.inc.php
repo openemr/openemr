@@ -25,12 +25,12 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php");
-require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/group_statuses_model.php");
-require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php");
-require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/users_model.php");
-require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php");
-require_once(dirname(__FILE__) . "/../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
+require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php");
+require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_models/group_statuses_model.php");
+require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php");
+require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_models/users_model.php");
+require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php");
+require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 
@@ -114,7 +114,7 @@ function getGroupCounselorsNames($gid)
     return $result;
 }
 
-function unsetGroup()
+function unsetGroup(): void
 {
     SessionUtil::unsetSession('therapy_group');
 }

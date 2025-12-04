@@ -75,17 +75,11 @@ class TelehealthGlobalConfig
      */
     private $publicWebPath;
 
-    /**
-     * @var Environment $twig
-     */
-    private $twig;
 
-
-    public function __construct($publicWebPath, $moduleDirectoryName, Environment $twig)
+    public function __construct($publicWebPath, $moduleDirectoryName, private readonly Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
-        $this->twig = $twig;
     }
 
     public function getPortalTimeout()
@@ -115,12 +109,12 @@ class TelehealthGlobalConfig
             return $this->getQualifiedSiteAddress() . '/portal/patient';
         } else {
             $site_addr = $this->getGlobalSetting('portal_onsite_two_address');
-            if (stripos($site_addr, "portal") !== false) {
+            if (stripos((string) $site_addr, "portal") !== false) {
                 $site_addr = strtok($site_addr, '?');
                 if (stripos($site_addr, "index.php") !== false) {
                     $site_addr = dirname($site_addr);
                 }
-                if (substr($site_addr, -1) == '/') {
+                if (str_ends_with($site_addr, '/')) {
                     $site_addr = substr($site_addr, 0, -1);
                 }
             }
@@ -402,7 +396,7 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION
                 ,'default' => ''
                 ,'options' => [
-                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => [$this, 'renderFooterBox']
+                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => $this->renderFooterBox(...)
                 ]
             ]
 //            ,self::VERIFY_SETTINGS_BUTTON => [
@@ -425,8 +419,8 @@ class TelehealthGlobalConfig
         // need to check and make sure the portal site address has the same hostname / address as the site address override
         $qualifiedSiteAddress = $this->getQualifiedSiteAddress();
         $portalAddress = $this->getPortalOnsiteAddress();
-        $qualifiedHost = parse_url($qualifiedSiteAddress, PHP_URL_HOST);
-        $portalHost = parse_url($portalAddress, PHP_URL_HOST);
+        $qualifiedHost = parse_url((string) $qualifiedSiteAddress, PHP_URL_HOST);
+        $portalHost = parse_url((string) $portalAddress, PHP_URL_HOST);
         $hostnamesMatch = $qualifiedHost === $portalHost;
 
         $isValidRegistrationUri = filter_var($this->getRegistrationAPIURI(), FILTER_VALIDATE_URL);
@@ -497,15 +491,7 @@ class TelehealthGlobalConfig
 
     private function isOptionalSetting($key)
     {
-        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER
-            || $key == self::VERIFY_SETTINGS_BUTTON
-            || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
-            || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
-            || $key == self::DEBUG_MODE_FLAG
-            || $key == self::COMLINK_SECTION_FOOTER_BOX
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT
-            || $key == self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID; // we don't require the payment subscription id
+        return in_array($key, [self::COMLINK_AUTO_PROVISION_PROVIDER, self::VERIFY_SETTINGS_BUTTON, self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS, self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT, self::DEBUG_MODE_FLAG, self::COMLINK_SECTION_FOOTER_BOX, self::COMLINK_ONETIME_PASSWORD_LOGIN, self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT, self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID]); // we don't require the payment subscription id
     }
 
     /**

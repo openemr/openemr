@@ -70,15 +70,15 @@ class Date_Calc
         }
 
         // must be digits only
-        if (preg_match("/\D/", $year)) {
+        if (preg_match("/\D/", (string) $year)) {
             return false;
         }
 
-        if (preg_match("/\D/", $month)) {
+        if (preg_match("/\D/", (string) $month)) {
             return false;
         }
 
-        if (preg_match("/\D/", $day)) {
+        if (preg_match("/\D/", (string) $day)) {
             return false;
         }
 
@@ -104,11 +104,11 @@ class Date_Calc
             $year = Date_Calc::dateNow("%Y");
         }
 
-        if (strlen($year) != 4) {
+        if (strlen((string) $year) != 4) {
             return false;
         }
 
-        if (preg_match("/\D/", $year)) {
+        if (preg_match("/\D/", (string) $year)) {
             return false;
         }
 
@@ -290,7 +290,7 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
-        $days = array(0,31,59,90,120,151,181,212,243,273,304,334);
+        $days = [0,31,59,90,120,151,181,212,243,273,304,334];
 
         $julian = ($days[$month - 1] + $day);
 
@@ -780,7 +780,7 @@ class Date_Calc
 
     static function defaultCentury($year)
     {
-        if (strlen($year) == 1) {
+        if (strlen((string) $year) == 1) {
             $year = "0$year";
         }
 
@@ -1147,7 +1147,7 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
-        $week_array = array();
+        $week_array = [];
 
         // date for the column of week
 
@@ -1184,7 +1184,7 @@ class Date_Calc
             $month = Date_Calc::dateNow("%m");
         }
 
-        $month_array = array();
+        $month_array = [];
         // starts on monday
         if (DATE_CALC_BEGIN_WEEKDAY == 1) {
             if (Date_Calc::firstOfMonthWeekday($month, $year) == 0) {
@@ -1238,7 +1238,7 @@ class Date_Calc
             $year = Date_Calc::dateNow("%Y");
         }
 
-        $year_array = array();
+        $year_array = [];
 
         for ($curr_month = 0; $curr_month <= 11; $curr_month++) {
             $year_array[$curr_month] = Date_Calc::getCalendarMonth(sprintf("%02d", $curr_month + 1), $year, $format);
@@ -1263,8 +1263,8 @@ class Date_Calc
     static function dateToDays($day, $month, $year)
     {
 
-        $century = substr($year, 0, 2);
-        $year = substr($year, 2, 2);
+        $century = substr((string) $year, 0, 2);
+        $year = substr((string) $year, 2, 2);
 
         if ($month > 2) {
             $month -= 3;
@@ -1410,62 +1410,29 @@ class Date_Calc
 
         $output = "";
 
-        for ($strpos = 0; $strpos < strlen($format); $strpos++) {
-            $char = substr($format, $strpos, 1);
+        for ($strpos = 0; $strpos < strlen((string) $format); $strpos++) {
+            $char = substr((string) $format, $strpos, 1);
             if ($char == "%") {
-                $nextchar = substr($format, $strpos + 1, 1);
-                switch ($nextchar) {
-                    case "a":
-                        $output .= Date_Calc::getWeekdayAbbrname($day, $month, $year);
-                        break;
-                    case "A":
-                        $output .= Date_Calc::getWeekdayFullname($day, $month, $year);
-                        break;
-                    case "b":
-                        $output .= Date_Calc::getMonthAbbrname($month);
-                        break;
-                    case "B":
-                        $output .= Date_Calc::getMonthFullname($month);
-                        break;
-                    case "d":
-                        $output .= sprintf("%02d", $day);
-                        break;
-                    case "e":
-                        $output .= $day;
-                        break;
-                    case "E":
-                        $output .= Date_Calc::dateToDays($day, $month, $year);
-                        break;
-                    case "j":
-                        $output .= Date_Calc::julianDate($day, $month, $year);
-                        break;
-                    case "m":
-                        $output .= sprintf("%02d", $month);
-                        break;
-                    case "n":
-                        $output .= "\n";
-                        break;
-                    case "t":
-                        $output .= "\t";
-                        break;
-                    case "w":
-                        $output .= Date_Calc::dayOfWeek($day, $month, $year);
-                        break;
-                    case "U":
-                        $output .= Date_Calc::weekOfYear($day, $month, $year);
-                        break;
-                    case "y":
-                        $output .= substr($year, 2, 2);
-                        break;
-                    case "Y":
-                        $output .= $year;
-                        break;
-                    case "%":
-                        $output .= "%";
-                        break;
-                    default:
-                        $output .= $char . $nextchar;
-                }
+                $nextchar = substr((string) $format, $strpos + 1, 1);
+                match ($nextchar) {
+                    "a" => $output .= Date_Calc::getWeekdayAbbrname($day, $month, $year),
+                    "A" => $output .= Date_Calc::getWeekdayFullname($day, $month, $year),
+                    "b" => $output .= Date_Calc::getMonthAbbrname($month),
+                    "B" => $output .= Date_Calc::getMonthFullname($month),
+                    "d" => $output .= sprintf("%02d", $day),
+                    "e" => $output .= $day,
+                    "E" => $output .= Date_Calc::dateToDays($day, $month, $year),
+                    "j" => $output .= Date_Calc::julianDate($day, $month, $year),
+                    "m" => $output .= sprintf("%02d", $month),
+                    "n" => $output .= "\n",
+                    "t" => $output .= "\t",
+                    "w" => $output .= Date_Calc::dayOfWeek($day, $month, $year),
+                    "U" => $output .= Date_Calc::weekOfYear($day, $month, $year),
+                    "y" => $output .= substr((string) $year, 2, 2),
+                    "Y" => $output .= $year,
+                    "%" => $output .= "%",
+                    default => $output .= $char . $nextchar,
+                };
 
                 $strpos++;
             } else {
@@ -1636,10 +1603,10 @@ class Date_Calc
     */
     static function getMonthFromFullName($month)
     {
-        $month = strtolower($month);
+        $month = strtolower((string) $month);
         $months = Date_Calc::getMonthNames();
         foreach ($months as $id => $name) {
-            if (preg_match("/" . addcslashes($month, '/') . "/", strtolower($name))) {
+            if (preg_match("/" . addcslashes($month, '/') . "/", strtolower((string) $name))) {
                 return($id);
             }
         }

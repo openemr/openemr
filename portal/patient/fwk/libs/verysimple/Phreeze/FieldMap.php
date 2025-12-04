@@ -44,17 +44,6 @@ define("FM_CALCULATION", 99); // not to be used during save
  */
 class FieldMap
 {
-    public $PropertyName;
-    public $TableName;
-    public $ColumnName;
-    public $FieldType;
-    public $IsPrimaryKey;
-    public $DefaultValue;
-    public $IsAutoInsert;
-
-    /** @variant either an int or an array to indicate max size or acceptable values */
-    public $FieldSize;
-
     /**
      * Given a MySQL column type, return the Phreeze constant name
      *
@@ -69,33 +58,17 @@ class FieldMap
     /**
      * Initializes the FieldMap
      *
-     * @param string $pn
-     *          Model property name
-     * @param string $tn
-     *          DB table name
-     * @param string $cb
-     *          DB column name
-     * @param bool $pk
-     *          True if column is a primary key (optional default = false)
-     * @param int $ft
-     *          Field type FM_TYPE_VARCHAR | FM_TYPE_INT | etc... (optional default = FM_TYPE_UNKNOWN)
-     * @param variant $fs
-     *          Field size, 0 for unlimited. for enums, an array of acceptable values (default = 0)
-     * @param variant $dv
-     *          Default value (optional default = null)
-     * @param bool $iai
-     *          True if column is auto insert column (optional default = null)
+     * @param string $PropertyName Model property name
+     * @param string $TableName DB table name
+     * @param string $ColumnName DB column name
+     * @param bool $IsPrimaryKey True if column is a primary key (optional default = false)
+     * @param int $FieldType Field type FM_TYPE_VARCHAR | FM_TYPE_INT | etc... (optional default = FM_TYPE_UNKNOWN)
+     * @param mixed $FieldSize Field size, 0 for unlimited. for enums, an array of acceptable values (default = 0)
+     * @param mixed $DefaultValue Default value (optional default = null)
+     * @param bool $IsAutoInsert True if column is auto insert column (optional default = null)
      */
-    public function __construct($pn, $tn, $cn, $pk = false, $ft = FM_TYPE_UNKNOWN, $fs = 0, $dv = null, $iai = null)
+    public function __construct(public $PropertyName, public $TableName, public $ColumnName, public $IsPrimaryKey = false, public $FieldType = FM_TYPE_UNKNOWN, public $FieldSize = 0, public $DefaultValue = null, public $IsAutoInsert = null)
     {
-        $this->PropertyName = $pn;
-        $this->TableName = $tn;
-        $this->ColumnName = $cn;
-        $this->IsPrimaryKey = $pk;
-        $this->FieldType = $ft;
-        $this->FieldSize = $fs;
-        $this->DefaultValue = $dv;
-        $this->IsAutoInsert = $iai;
     }
 
     /**
@@ -115,7 +88,7 @@ class FieldMap
      */
     function GetEnumValues()
     {
-        return $this->IsEnum() ? $this->FieldSize : array ();
+        return $this->IsEnum() ? $this->FieldSize :  [];
     }
 
     /**
@@ -123,6 +96,6 @@ class FieldMap
      */
     public function IsNumeric()
     {
-        return ($this->FieldType == FM_TYPE_DECIMAL || $this->FieldType == FM_TYPE_INT || $this->FieldType == FM_TYPE_SMALLINT || $this->FieldType == FM_TYPE_TINYINT || $this->FieldType == FM_TYPE_MEDIUMINT || $this->FieldType == FM_TYPE_BIGINT || $this->FieldType == FM_TYPE_FLOAT);
+        return (in_array($this->FieldType, [FM_TYPE_DECIMAL, FM_TYPE_INT, FM_TYPE_SMALLINT, FM_TYPE_TINYINT, FM_TYPE_MEDIUMINT, FM_TYPE_BIGINT, FM_TYPE_FLOAT]));
     }
 }

@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Forms\Types;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 
-class LocalProviderListType
+class LocalProviderListType implements IOptionFormType
 {
     const OPTIONS_TYPE_INDEX = 11;
 
@@ -57,13 +57,13 @@ class LocalProviderListType
     {
         $urow = null;
         if ($this->providerList != null) {
-            $index = array_search($this->providerList, fn($item) => $item['id'] == $id);
+            $index = array_search($this->providerList, fn($item): bool => $item['id'] == $id);
             if ($index !== false) {
                 $urow = $this->providerList[$index];
             }
         } else {
             $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-                "WHERE id = ?", array($id));
+                "WHERE id = ?", [$id]);
         }
         return $urow;
     }
@@ -77,11 +77,7 @@ class LocalProviderListType
                 $tmp = "($currvalue)";
             }
         }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
-        } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
 
         echo $tmp;
     }
@@ -123,23 +119,23 @@ class LocalProviderListType
         }
 
         // escaped variables to use in html
-        $field_id_esc = htmlspecialchars($field_id, ENT_QUOTES);
+        $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
 
         $disabled = LayoutsUtils::isOption($edit_options, '0') === false ? '' : 'disabled';
 
         $lbfchange = (
             !empty($form_id) &&
             (
-                strpos($form_id, 'LBF') === 0 ||
-                strpos($form_id, 'LBT') === 0 ||
-                strpos($form_id, 'DEM') === 0 ||
-                strpos($form_id, 'HIS') === 0
+                str_starts_with((string) $form_id, 'LBF') ||
+                str_starts_with((string) $form_id, 'LBT') ||
+                str_starts_with((string) $form_id, 'DEM') ||
+                str_starts_with((string) $form_id, 'HIS')
             )
         ) ? "checkSkipConditions();" : "";
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
         if (!empty($this->providerList)) {
             $urest = $this->providerList;
         } else {

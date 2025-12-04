@@ -37,14 +37,14 @@
 require_once(dirname(__FILE__, 2) . "/library/allow_cronjobs.php");
 
 // Defaults
-$arg = array(
+$arg = [
     'path' => 'scanner_output_directory',
     'pid' => '00',
     'category' => 1,
     'owner' => '',
     'limit' => 10,
     'in_situ' => 0,
-);
+];
 
 foreach ($arg as $key => $def) {
     if ($key == "path") {
@@ -60,13 +60,13 @@ require_once(dirname(__FILE__, 2) . "/interface/globals.php");
 require_once("$srcdir/documents.php");
 
 if ($arg['category'] != 1) {
-    $rec_cat = sqlQuery('SELECT id FROM categories WHERE name=?', array(urldecode($arg['category'])));
+    $rec_cat = sqlQuery('SELECT id FROM categories WHERE name=?', [urldecode((string) $arg['category'])]);
     if (isset($rec_cat['id'])) {
         $arg['category'] = $rec_cat['id'];
     }
 }
 // Defined here as fallback
-$ext2mime = array(
+$ext2mime = [
     "pdf" => "application/pdf",
     "exe" => "application/octet-stream",
     "zip" => "application/zip",
@@ -92,7 +92,7 @@ $ext2mime = array(
     "php" => "text/html",
     "htm" => "text/html",
     "html" => "text/html"
-);
+];
 
 printf('%s %s %s (%s)%s', xlt('Import'), text($arg['limit']), xlt('documents'), text($arg['path']), "\n");
 
@@ -116,7 +116,7 @@ foreach ($docs as $doc) {
     if ($arg['in_situ']) {
         // Skip prior documents
         // mdsupport - Check both formats since there is no consistent code for managing urls.
-        $rec_doc = sqlQuery('SELECT id FROM documents WHERE url=? or url=?', array($doc_pathname, $doc_url));
+        $rec_doc = sqlQuery('SELECT id FROM documents WHERE url=? or url=?', [$doc_pathname, $doc_url]);
         if (isset($rec_doc['id'])) {
             continue;
         }
@@ -135,12 +135,12 @@ foreach ($docs as $doc) {
         $objDoc->populate();
         // mdsupport - Need set_category method for the Document
         if (is_numeric($objDoc->get_id())) {
-            sqlStatement("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)", array($arg['category'], $objDoc->get_id()));
+            sqlStatement("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)", [$arg['category'], $objDoc->get_id()]);
         }
         printf('%s - %s%s', text($doc_pathname), (is_numeric($objDoc->get_id()) ? text($objDoc->get_url()) : xlt('Documents setup error')), "\n");
     } else {
         // Too many parameters for the function make the following setup necessary for readability.
-        $doc_params = array(
+        $doc_params = [
             'name' => $doc->getFilename(),
             'mime_type' => $str_mime,
             'full_path' => $doc_pathname,
@@ -152,7 +152,7 @@ foreach ($docs as $doc) {
             'higher_level_path' => '',
             'path_depth' => '1',
             'skip_acl_check' => true
-        );
+        ];
         $new_doc = call_user_func_array('addNewDocument', $doc_params);
         printf('%s - %s%s', text($doc_pathname), (isset($new_doc) ? text($new_doc->get_url()) : xlt('Documents setup error')), "\n");
         if (!$new_doc) {

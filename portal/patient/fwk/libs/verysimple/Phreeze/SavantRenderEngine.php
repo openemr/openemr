@@ -31,12 +31,12 @@ class SavantRenderEngine implements IRenderEngine
      */
     function __construct($templatePath = '', $compilePath = '')
     {
-        $this->savant = new Savant3(array (
+        $this->savant = new Savant3([
                 'exceptions' => true
-        ));
+        ]);
 
         // normalize the path
-        if (substr($templatePath, - 1) != '/' && substr($templatePath, - 1) != '\\') {
+        if (!str_ends_with($templatePath, '/') && !str_ends_with($templatePath, '\\')) {
             $templatePath .= "/";
         }
 
@@ -59,7 +59,7 @@ class SavantRenderEngine implements IRenderEngine
     public function display($template)
     {
         // strip off .tpl from the end for backwards compatibility with older apps
-        if (substr($template, - 4) == '.tpl') {
+        if (str_ends_with($template, '.tpl')) {
             $template = substr($template, 0, - 4);
         }
 
@@ -96,7 +96,7 @@ class SavantRenderEngine implements IRenderEngine
      */
     function clear($key)
     {
-        if (array_key_exists($key, $this->savant)) {
+        if (property_exists($this->savant, $key)) {
             unset($this->savant [$key]);
         }
     }
@@ -105,7 +105,7 @@ class SavantRenderEngine implements IRenderEngine
      *
      * @see IRenderEngine::clearAll()
      */
-    function clearAll()
+    function clearAll(): never
     {
         throw new Exception('clearAll not implemented for SavantRenderEngine');
     }

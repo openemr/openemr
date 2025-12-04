@@ -39,7 +39,7 @@ class SendtoController extends AbstractActionController
         $required_butons = $this->params()->fromQuery('required_butons');
         $selected_cform = $this->params()->fromQuery('selected_form');
         $default_send_via = $this->params()->fromQuery('default_send_via');
-        $default_send_via = $default_send_via ? $default_send_via : 'printer';
+        $default_send_via = $default_send_via ?: 'printer';
         $encounter = $GLOBALS['encounter'];
         $faxRecievers = $this->getSendtoTable()->getFaxRecievers();
         $ccda_sections = $this->getSendtoTable()->getCCDAComponents(0);
@@ -48,7 +48,7 @@ class SendtoController extends AbstractActionController
         $measures = $reportController->reportMeasures;
 
         $this->layout('layout/sendto');
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'send_via' => $default_send_via,
             'faxRecievers' => $faxRecievers,
             'ccda_sections' => $ccda_sections,
@@ -58,7 +58,7 @@ class SendtoController extends AbstractActionController
             'ccda_components' => $ccda_components,
             'current_measures' => $measures,
             'download_format' => [] // empty array, can be populated by SendToHieHelper...
-        ));
+        ]);
         if ($button_only == 1) {
             $this->layout('layout/embedded_button');
         }

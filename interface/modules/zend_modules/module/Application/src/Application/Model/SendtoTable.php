@@ -42,7 +42,7 @@ class SendtoTable extends AbstractTableGateway
     {
         $appTable   = new ApplicationTable();
         $sql        = "SELECT * FROM users WHERE abook_type = ?";
-        $result     = $appTable->zQuery($sql, array($type));
+        $result     = $appTable->zQuery($sql, [$type]);
         return $result;
     }
 
@@ -68,15 +68,43 @@ class SendtoTable extends AbstractTableGateway
     **/
     public function getCCDAComponents($type)
     {
-        $components = array();
-        $query      = "select * from ccda_components where ccda_type = ?";
-        $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, array($type));
-
-        foreach ($result as $row) {
-            $components[$row['ccda_components_field']] = $row['ccda_components_name'];
+        $components = [];
+        // removed dependency on the ccda_table_mapping table sjp 07/25/25
+        if ($type == 0) {
+            // sections
+            $components = [
+                'progress_note' => 'Progress Notes',
+                'consultation_note' => 'Consultation Note',
+                'continuity_care_document' => 'Continuity Care Document',
+                'diagnostic_image_reporting' => 'Diagnostic Image Reporting',
+                'discharge_summary' => 'Discharge Summary',
+                'history_physical_note' => 'History and Physical Note',
+                'operative_note' => 'Operative Note',
+                'procedure_note' => 'Procedure Note',
+                'unstructured_document' => 'Unstructured Document',
+            ];
+        } elseif ($type == 1) {
+            // entry components
+            $components = [
+                'allergies' => 'Allergies',
+                'medications' => 'Medications',
+                'problems' => 'Problems',
+                'immunizations' => 'Immunizations',
+                'procedures' => 'Procedures',
+                'results' => 'Results',
+                'plan_of_care' => 'Plan Of Care',
+                'vitals' => 'Vitals',
+                'social_history' => 'Social History',
+                'encounters' => 'Encounters',
+                'functional_status' => 'Functional Status',
+                'referral' => 'Reason for Referral',
+                'instructions' => 'Instructions',
+                'medical_devices' => 'Medical Devices',
+                'goals' => 'Goals',
+                'payers' => 'Health Insurance Providers',
+                'advance_directives' => 'Advance Directives',
+            ];
         }
-
         return $components;
     }
 }

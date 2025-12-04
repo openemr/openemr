@@ -20,198 +20,198 @@ class Configuration extends Form implements InputFilterAwareInterface
     /*
     * Automatic SignOff settings
     */
-        $this->add(array(
+        $this->add([
             'name'      => 'hie_auto_sign_off_id',
-            'attributes'    => array(
+            'attributes'    => [
                     'type'      => 'text',
                     'id'        => 'hie_auto_sign_off_id'
-                ),
-            'options' => array(
+                ],
+            'options' => [
                     'label'     => \Application\Listener\Listener::z_xlt('Auto Sign-Off [days]'),
-                ),
-        ));
+                ],
+        ]);
 
     /*
     * Automatic Tranfer settings
     */
-        $this->add(array(
-        'type' => 'Laminas\Form\Element\Checkbox',
+        $this->add([
+        'type' => \Laminas\Form\Element\Checkbox::class,
             'name' => 'hie_auto_send_id',
-            'attributes'    => array(
+            'attributes'    => [
                     'id'        => 'hie_auto_send_id'
-                ),
-            'options' => array(
+                ],
+            'options' => [
                     'label'         => \Application\Listener\Listener::z_xlt('Auto Send'),
             'checked_value'     => 'yes',
                     'unchecked_value'   => 'no'
-                ),
-        ));
+                ],
+        ]);
 
     /*
     * Author settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_author_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_author_fname'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Author'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Data Enterer settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_data_enterer_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_data_enterer_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Data Enterer'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Informant settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_informant_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_informant_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Informant'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Personal Informant settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_personal_informant_id',
-            'attributes' => array(
+            'attributes' => [
                     'type'  => 'text',
                     'id'    => 'hie_personal_informant_id'
-                ),
-            'options' => array(
+                ],
+            'options' => [
                     'label' => \Application\Listener\Listener::z_xlt('Informant'),
-                ),
-        ));
+                ],
+        ]);
 
     /*
     * Custodian settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_custodian_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_custodian_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Custodian'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Recipient settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_recipient_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_recipient_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Recipient'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Legal Authenticator settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_legal_authenticator_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_legal_authenticator_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Legal Authenticator'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Authenticator settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_authenticator_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_authenticator_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Authenticator'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
 
     /*
     * Primary Care Provider settings
     */
-        $this->add(array(
+        $this->add([
             'name'  => 'hie_primary_care_provider_id',
-        'type'      => 'Laminas\Form\Element\Select',
-            'attributes' => array(
+        'type'      => \Laminas\Form\Element\Select::class,
+            'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
         'required'  => 'required',
         'id'        => 'hie_primary_care_provider_id'
-            ),
-            'options' => array(
+            ],
+            'options' => [
                 'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
             'value_options' => $this->getUsers(),
-            ),
-        ));
+            ],
+        ]);
     }
 
     public function exchangeArray($data)
@@ -243,20 +243,20 @@ class Configuration extends Form implements InputFilterAwareInterface
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
     //SHOULD SPECIFY THE CONTROLLER AND ITS ACTION IN THE PATH, INCLUDING INDEX ACTION
-        $hooks  =  array(
-                '0' => array(
+        $hooks  =  [
+                '0' => [
                         'name'  => "send_to_hie",
                         'title' => "Send To HIE",
                         'path'  => "encountermanager",
-                    ),
-               );
+                    ],
+               ];
 
         return $hooks;
     }
 
     public function getUsers()
     {
-        $users = array('0' => '');
+        $users = ['0' => ''];
         $res = sqlStatement("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'");
         while ($row = sqlFetchArray($res)) {
             $users[$row['id']] = $row['fname'] . " " . $row['lname'];
@@ -271,13 +271,13 @@ class Configuration extends Form implements InputFilterAwareInterface
 
     public function getAclConfig()
     {
-        $acl = array(
-        array(
+        $acl = [
+        [
         'section_id' => 'send_to_hie',
         'section_name' => 'Send To HIE',
         'parent_section' => 'carecoordination',
-        ),
-        );
+        ],
+        ];
         return $acl;
     }
 }

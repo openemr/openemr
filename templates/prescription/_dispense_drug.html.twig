@@ -1,0 +1,47 @@
+<div class="form-group">
+    <input type="hidden" name="dispense_drug_id" value="{{prescription.get_drug_id()|attr}}" />
+    <div class="card mt-3 dispense_option" style="display: none;" class="mt-5">
+        <div class="card-header">
+            <h5>{{ "Dispense Options"|xlt }} <input type="button" name="toggle_dispense" class='btn btn-secondary btn-toggle-dispense btn-sm my-0 mr-1 ml-1' style="display: none" value="{{'Hide Dispense Options'|xla}}" /></h5>
+        </div>
+        <div class="card-body">
+        {% if prescription.get_refills() >= prescription.get_dispensation_count() %}
+            {# Render the dispense type dropdown #}
+            <div class="form-group row mt-3">
+                <div class="col-4">
+                    <label>{{'Dispense Quantity'|xlt}}</label>
+                </div>
+                <div class="col-3">
+                    <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{{DISP_QUANTITY|attr}}" />
+                    {{ "units"|xlt }}
+                </div>
+                <div class="col-5">
+                    <label>{{'Fee'|xlt}}</label>
+                    {{GBL_CURRENCY_SYMBOL|text}}<input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{{DISP_FEE|attr}}" />
+                </div>
+            </div>
+            <div class="form-group row mt-3">
+                <div class="col-12">
+                    <label>{{'Supply Type'|xlt}}</label>
+                </div>
+                <div class="col-12">
+                    {{ selectList('pharmacy_supply_type', 'act_pharmacy_supply_type', defaultPharmacySupplyType, 'Supply Type'|xl) }}
+                </div>
+            </div>
+            <div class="form-group row mt-3">
+                <div class="col-12">
+                    <label>{{'Encounter'|xlt}}</label>
+                </div>
+                <div class="col-12">
+                    {{ encounterSelectList('dispense_encounter_id', prescription.patient.id, defaultEncounterId, 'Encounter for which the drug is being dispended'|xl, {empty_name:'Select Encounter'|xl}) }}
+                </div>
+            </div>
+            <div class="form-group row mt-3">
+                <input type="submit" name="disp_button" class='btn btn-primary btn-presc-dispense btn-sm my-0 mr-1 ml-1' value="{{'Save and Dispense'|xla}}" />
+            </div>
+        {% else %}&nbsp;
+            {{'prescription has reached its limit of'|xlt}} {{prescription.get_refills()|text}} {{'refills'|xlt}}.
+        {% endif %}
+        </div>
+    </div>
+</div>

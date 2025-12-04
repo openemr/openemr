@@ -24,23 +24,23 @@ if ($GLOBALS['full_new_patient_form']) {
 function getLayoutUOR($form_id, $field_id)
 {
     $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-    "form_id = ? AND field_id = ? LIMIT 1", array($form_id, $field_id));
+    "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
     return 0 + $crow['uor'];
 }
 
 // Determine if the registration date should be requested.
 $regstyle = getLayoutUOR('DEM', 'regdate') ? "" : " style='display:none'";
 
-$form_pubpid    = $_POST['pubpid'   ] ? trim($_POST['pubpid'   ]) : '';
-$form_title     = $_POST['title'    ] ? trim($_POST['title'    ]) : '';
-$form_fname     = $_POST['fname'    ] ? trim($_POST['fname'    ]) : '';
-$form_mname     = $_POST['mname'    ] ? trim($_POST['mname'    ]) : '';
-$form_lname     = $_POST['lname'    ] ? trim($_POST['lname'    ]) : '';
-$form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
-$form_sex       = $_POST['sex'      ] ? trim($_POST['sex'      ]) : '';
-$form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
-$form_dob       = $_POST['DOB'      ] ? trim($_POST['DOB'      ]) : '';
-$form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d');
+$form_pubpid    = $_POST['pubpid'   ] ? trim((string) $_POST['pubpid'   ]) : '';
+$form_title     = $_POST['title'    ] ? trim((string) $_POST['title'    ]) : '';
+$form_fname     = $_POST['fname'    ] ? trim((string) $_POST['fname'    ]) : '';
+$form_mname     = $_POST['mname'    ] ? trim((string) $_POST['mname'    ]) : '';
+$form_lname     = $_POST['lname'    ] ? trim((string) $_POST['lname'    ]) : '';
+$form_refsource = $_POST['refsource'] ? trim((string) $_POST['refsource']) : '';
+$form_sex       = $_POST['sex'      ] ? trim((string) $_POST['sex'      ]) : '';
+$form_refsource = $_POST['refsource'] ? trim((string) $_POST['refsource']) : '';
+$form_dob       = $_POST['DOB'      ] ? trim((string) $_POST['DOB'      ]) : '';
+$form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : date('Y-m-d');
 ?>
 <html>
 

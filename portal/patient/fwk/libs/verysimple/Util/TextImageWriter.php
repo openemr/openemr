@@ -35,19 +35,19 @@ class TextImageWriter
     static function Write($message, $width = 250, $height = 150, $backgroundColor = null, $fontColor = null, $fontId = 1)
     {
         if ($backgroundColor == null) {
-            $backgroundColor = array (
+            $backgroundColor =  [
                     255,
                     255,
                     255
-            );
+            ];
         }
 
         if ($backgroundColor == null) {
-            $backgroundColor = array (
+            $backgroundColor =  [
                     0,
                     0,
                     0
-            );
+            ];
         }
 
         $im = self::GetErrorImage($message, $width, $height, $backgroundColor, $fontColor, $fontId);
@@ -73,19 +73,19 @@ class TextImageWriter
     static function GetErrorImage($message, $width = 250, $height = 150, $backgroundColor = null, $fontColor = null, $fontId = 1)
     {
         if ($backgroundColor == null) {
-            $backgroundColor = array (
+            $backgroundColor =  [
                     255,
                     255,
                     255
-            );
+            ];
         }
 
         if ($backgroundColor == null) {
-            $backgroundColor = array (
+            $backgroundColor =  [
                     0,
                     0,
                     0
-            );
+            ];
         }
 
         $msg = str_replace("\n", "", $message);

@@ -1,10 +1,8 @@
 <?php
 
 /**
- *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,10 +17,10 @@ foreach ($benefits as $benefit) {
 <div class="card">
     <div class="card-body">
         <h5 class="card-title"> <?php echo xlt("Benefit"); ?> - <?php echo text($benefit->benefitInformationDesc); ?> </h5>
-        
-        <div class="row"> 
+
+        <div class="row">
             <div class="col">
-                <strong> <?php echo xlt("Service Type");?></strong>                
+                <strong> <?php echo xlt("Service Type");?></strong>
             </div>
             <div class="col">
                 <ul>
@@ -33,9 +31,9 @@ foreach ($benefits as $benefit) {
                         <?php
                     }
                     ?>
-                </ul>                
+                </ul>
             </div>
-            
+
         </div>
     <?php
             PrintProperty::displayProperty("Coverage Level", $benefit->coverageLevel);
@@ -63,13 +61,7 @@ foreach ($benefits as $benefit) {
             include 'related_entity.php';
             include 'messages.php';
     ?>
-
-     
-
     </div>
 </div>
     <?php
 }
-?>
-
-

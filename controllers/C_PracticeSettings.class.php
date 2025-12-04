@@ -5,14 +5,11 @@ use OpenEMR\Common\Twig\TwigContainer;
 
 class C_PracticeSettings extends Controller
 {
-    var $template_mod;
+    public $direction;
 
-    var $direction;
-
-    function __construct($template_mod = "general")
+    function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
@@ -42,7 +39,7 @@ class C_PracticeSettings extends Controller
         $fga = func_get_args();
 
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("pharmacy" => "", $arg => ""), $fga);
+        $args = array_merge(["pharmacy" => "", $arg => ""], $fga);
         $this->assign("direction", $this->direction);
         $display = $c->act($args);
         $this->assign("ACTION_NAME", xl("Pharmacies"));
@@ -60,7 +57,7 @@ class C_PracticeSettings extends Controller
         $fga = func_get_args();
 
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("insurance_company" => "", $arg => ""), $fga);
+        $args = array_merge(["insurance_company" => "", $arg => ""], $fga);
 
         $display = $c->act($args);
         $this->assign("direction", $this->direction);
@@ -79,7 +76,7 @@ class C_PracticeSettings extends Controller
         $fga = func_get_args();
 
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("insurance_numbers" => "", $arg => ""), $fga);
+        $args = array_merge(["insurance_numbers" => "", $arg => ""], $fga);
 
         $display = $c->act($args);
 
@@ -99,7 +96,7 @@ class C_PracticeSettings extends Controller
         $fga = func_get_args();
 
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("document" => "", $arg => ""), $fga);
+        $args = array_merge(["document" => "", $arg => ""], $fga);
 
         $display = $c->act($args);
 
@@ -119,7 +116,7 @@ class C_PracticeSettings extends Controller
         $fga = func_get_args();
 
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("document_category" => "", $arg => ""), $fga);
+        $args = array_merge(["document_category" => "", $arg => ""], $fga);
 
         $display = $c->act($args);
 
@@ -139,7 +136,7 @@ class C_PracticeSettings extends Controller
         $fga = func_get_args();
 
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("x12_partner" => "", $arg => ""), $fga);
+        $args = array_merge(["x12_partner" => "", $arg => ""], $fga);
 
         $display = $c->act($args);
 
@@ -159,7 +156,7 @@ class C_PracticeSettings extends Controller
 
         $fga = func_get_args();
         $fga = array_slice($fga, 1);
-        $args = array_merge(array("hl7" => "", $arg => ""), $fga);
+        $args = array_merge(["hl7" => "", $arg => ""], $fga);
         $display = $c->act($args);
         $this->assign("ACTION_NAME", xl("HL7 Viewer"));
         $this->assign("direction", $this->direction);

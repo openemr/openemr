@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "bluebird": "3.5.1",
+    "compression": "1.8.1",
+    "cqm-execution": "4.4.0",
+    "cqm-models": "4.3.0",
+    "express": "4.21.2",
+    "logform": "1.10.0",
+    "luxon": "1.28.1",
+    "mocha": "11.7.1",
+    "oe-cqm-parsers": "openemr/oe-cqm-parsers#ecqm-v7.0.4",
+    "regexp-clone": "1.0.0",
+    "sliced": "1.0.1",
+    "winston": "3.0.0"
+  },
+  "deprecated": false,
+  "license": "MIT",
+  "main": "server.js",
+  "name": "oe-cqm-service",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "version": "7.0.4"
+}

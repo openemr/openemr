@@ -21,11 +21,6 @@ use XSLTProcessor;
 class CcdaGenerator
 {
     /**
-     * @var EncounterccdadispatchTable
-     */
-    private $dispatchTable;
-
-    /**
      * @var int
      */
     private $createdtime;
@@ -35,9 +30,8 @@ class CcdaGenerator
      */
     private $data;
 
-    public function __construct(EncounterccdadispatchTable $table)
+    public function __construct(private readonly EncounterccdadispatchTable $dispatchTable)
     {
-        $this->dispatchTable = $table;
     }
 
     public function getEncounterccdadispatchTable(): EncounterccdadispatchTable
@@ -79,7 +73,7 @@ class CcdaGenerator
         $date_options = []
     ): GeneratedCcdaResult {
 
-        // we need to make sure we don't accidently stuff in the debug logs any PHI so we'll only report on the presence of certain variables
+        // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
         (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
                 , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
@@ -131,7 +125,7 @@ class CcdaGenerator
             $date_options
         );
         $content = $this->socket_get($data);
-        $content = trim($content);
+        $content = trim((string) $content);
         // split content if unstructured is included from service.
         // service will send back a CDA and an auto created unstructured document
         // if CCM sends the documents(patient_files object) with data array.
@@ -149,7 +143,7 @@ class CcdaGenerator
                 base64_encode($unstructured),
                 $this->createdtime,
                 0,
-                $_SESSION['authUserID'],
+                $_SESSION['authUserID'] ?? null,
                 'unstructured',
                 $view,
                 $send,
@@ -162,7 +156,7 @@ class CcdaGenerator
             base64_encode($content),
             $this->createdtime,
             0,
-            $_SESSION['authUserID'],
+            $_SESSION['authUserID'] ?? null,
             $document_type,
             $view,
             $send,

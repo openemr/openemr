@@ -12,32 +12,32 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/api.inc.php');
-require_once(dirname(__FILE__) . '/forms.inc.php');
-require_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
+require_once(__DIR__ . '/api.inc.php');
+require_once(__DIR__ . '/forms.inc.php');
+require_once(__DIR__ . '/../interface/forms/fee_sheet/codes.php');
 
 use OpenEMR\Core\Header;
 
-$celltypes = array(
+$celltypes = [
  '0' => 'Unused',
  '1' => 'Static',
  '2' => 'Checkbox',
  '3' => 'Text',
  '4' => 'Longtext',
 // '5' => 'Function',
-);
+];
 
 // encode a string from a form field for database writing.
 function form2db($fldval)
 {
-    $fldval = trim($fldval);
+    $fldval = trim((string) $fldval);
     return $fldval;
 }
 
 // Get the actual string from a form field.
 function form2real($fldval)
 {
-    $fldval = trim($fldval);
+    $fldval = trim((string) $fldval);
     return $fldval;
 }
 
@@ -80,12 +80,12 @@ if (!$popup && !$encounter) { // $encounter comes from globals.php
 $template_name = '';
 if ($tempid) {
     $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
-    " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($tempid));
+    " WHERE id = ? AND rownbr = -1 AND colnbr = -1", [$tempid]);
     $template_name = $trow['value'];
 } elseif ($formid) {
     $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
-    " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($formid));
-    list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
+    " WHERE id = ? AND rownbr = -1 AND colnbr = -1", [$formid]);
+    [$form_completed, $start_date, $template_name] = explode('|', (string) $trow['value'], 3);
 }
 
 if (!$start_date) {
@@ -104,7 +104,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
     for ($i = 0; $i < count($cells); ++$i) {
         $row = $cells[$i];
         for ($j = 0; $j < count($row); ++$j) {
-            if (substr($row[$j], 0, 1)) {
+            if (substr((string) $row[$j], 0, 1)) {
                 if ($i >= $num_used_rows) {
                     $num_used_rows = $i + 1;
                 }
@@ -124,20 +124,20 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             sqlStatement(
                 "UPDATE " . escape_table_name('form_' . $spreadsheet_form_name) .
                 " SET value = ? WHERE id = ? AND rownbr = -1 AND colnbr = -1",
-                array(
+                [
                     $form_completed . '|' . $start_date . '|' . $template_name,
                     $formid
-                )
+                ]
             );
             sqlStatement(
                 "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
                 " WHERE id = ? AND rownbr >= 0 AND colnbr >= 0",
-                array($formid)
+                [$formid]
             );
         } else { // If adding a new form...
             $tmprow = sqlQuery(
                 "SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
-                array($thisenc)
+                [$thisenc]
             );
             $thispid = $tmprow['pid'];
             sqlStatement(
@@ -155,10 +155,10 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
                 "id, rownbr, colnbr, datatype, value " .
                 ") VALUES ( ?, -1, -1, 0, ? )",
-                array(
+                [
                     $formid,
                     $form_completed . '|' . $start_date . '|' . $template_name
-                )
+                ]
             );
             sqlStatement("UNLOCK TABLES");
             addForm(
@@ -180,7 +180,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             $trow = sqlQuery(
                 "SELECT id FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
                 " WHERE id < 0 AND rownbr = -1 AND colnbr = -1 AND value = ?",
-                array($new_template_name)
+                [$new_template_name]
             );
             if ($trow['id']) {
                   $alertmsg = "Template \"" . real2form($new_template_name) .
@@ -197,7 +197,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 sqlStatement(
                     "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
                     " WHERE id = ? AND rownbr >= 0 AND colnbr >= 0",
-                    array($tempid)
+                    [$tempid]
                 );
             } else { // If adding a new template...
                 sqlStatement(
@@ -215,10 +215,10 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                     "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
                     "id, rownbr, colnbr, datatype, value " .
                     ") VALUES ( ?, -1, -1, 0, ? )",
-                    array(
+                    [
                         $tempid,
                         $template_name
-                    )
+                    ]
                 );
                 sqlStatement("UNLOCK TABLES");
             }
@@ -232,14 +232,14 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         for ($i = 0; $i < $num_used_rows; ++$i) {
             for ($j = 0; $j < $num_used_cols; ++$j) {
                 $tmp = $cells[$i][$j];
-                $celltype = substr($tmp, 0, 1) + 0;
-                $cellvalue = form2db(substr($tmp, 1));
+                $celltype = substr((string) $tmp, 0, 1) + 0;
+                $cellvalue = form2db(substr((string) $tmp, 1));
                 if ($celltype) {
                     sqlStatement(
                         "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) .
                         " ( id, rownbr, colnbr, datatype, value ) " .
                         "VALUES ( ?, ?, ?, ?, ? )",
-                        array($saveid, $i, $j, $celltype, $cellvalue)
+                        [$saveid, $i, $j, $celltype, $cellvalue]
                     );
                 }
             }
@@ -249,7 +249,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
     sqlStatement(
         "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
         " WHERE id = ?",
-        array($tempid)
+        [$tempid]
     );
     $tempid = 0;
     $template_name = '';
@@ -274,11 +274,11 @@ $dres = false;
 # If we are reloading a form, get it.
 if ($formid) {
     $dres = sqlStatement("SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
-    " WHERE id = ? ORDER BY rownbr, colnbr", array($formid));
+    " WHERE id = ? ORDER BY rownbr, colnbr", [$formid]);
     $tmprow = sqlQuery(
         "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
         "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
-        array($formid)
+        [$formid]
     );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
@@ -286,12 +286,12 @@ if ($formid) {
     $dres = sqlStatement(
         "SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
         " WHERE id = ? ORDER BY rownbr, colnbr",
-        array($tempid)
+        [$tempid]
     );
     $tmprow = sqlQuery(
         "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
         "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
-        array($tempid)
+        [$tempid]
     );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
@@ -341,7 +341,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 <script>
 
  var ssChanged = false; // if they have changed anything in the spreadsheet
- var startDate = <?php echo js_escape(($start_date ? $start_date : date('Y-m-d'))); ?>;
+ var startDate = <?php echo js_escape(($start_date ?: date('Y-m-d'))); ?>;
 
  // In case we are a popup (top level) window, handle top.restoreSession() calls.
  function restoreSession() {
@@ -658,7 +658,7 @@ if ($dres) {
     $drow = sqlFetchArray($dres);
 }
 
-$typeprompts = array('unused','static','checkbox','text');
+$typeprompts = ['unused','static','checkbox','text'];
 
 for ($i = 0; $i < $num_virtual_rows; ++$i) {
     echo " <tr>\n";
@@ -678,11 +678,11 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
             if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
                 $celltype = $drow['datatype'];
                 $cellvalue = $drow['value'];
-                $cellstatic = addslashes($drow['value']);
+                $cellstatic = addslashes((string) $drow['value']);
             }
         }
 
-        echo "  <td id='td_${i}_${j}' valign='top'";
+        echo "  <td id='td_{$i}_{$j}' valign='top'";
         if ($i >= $num_used_rows || $j >= $num_used_cols) {
             echo " style='display:none'";
         }
@@ -690,14 +690,14 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         echo ">";
 
         /*****************************************************************
-      echo "<span id='div_${i}_${j}' ";
+      echo "<span id='div_{$i}_{$j}' ";
       echo "style='float:right;cursor:pointer;display:none' ";
       echo "onclick='newType($i,$j)'>[";
       echo $typeprompts[$celltype];
       echo "]</span>";
         *****************************************************************/
         echo "<div class='seldiv'>";
-        echo "<select id='sel_${i}_${j}' class='seltype' style='display:none' " .
+        echo "<select id='sel_{$i}_{$j}' class='seltype' style='display:none' " .
         "onchange='newType($i,$j)'>";
         foreach ($celltypes as $key => $value) {
             echo "<option value='" . attr($key) . "'";
@@ -712,7 +712,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         echo "</div>";
         /****************************************************************/
 
-        echo "<span id='vis_${i}_${j}'>"; // new //
+        echo "<span id='vis_{$i}_{$j}'>"; // new //
 
         echo "<input type='hidden' name='cell[$i][$j]' value='" . attr($celltype) . attr($cellvalue) . "' />";
         if ($celltype == '1') {

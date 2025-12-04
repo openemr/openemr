@@ -79,7 +79,7 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
 
         if ($record['dosage']) {
             $qdmModel->dosage = new Quantity([
-                'value' => (int)$record['dosage'] ?? null,
+                'value' => (int)$record['dosage'],
                 'unit' => $record['drug_unit'] ?? null,
             ]);
         }

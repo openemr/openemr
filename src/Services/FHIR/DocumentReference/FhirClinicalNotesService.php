@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceCont
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\FHIR\a;
+use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
@@ -50,6 +51,7 @@ class FhirClinicalNotesService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use FhirDocumentReferenceTrait;
 
     /**
      * @var ClinicalNotesService
@@ -95,17 +97,10 @@ class FhirClinicalNotesService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $docReference = new FHIRDocumentReference();
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
-        } else {
-            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        }
-        $docReference->setMeta($fhirMeta);
+        $this->populateMetaData($docReference, $dataRecord);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
@@ -139,7 +134,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType("text/plain");
-            $attachment->setData(base64_encode($dataRecord['description']));
+            $attachment->setData(base64_encode((string) $dataRecord['description']));
             $content->setAttachment($attachment);
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
             $contentCoding = UtilsService::createCoding(
@@ -200,9 +195,8 @@ class FhirClinicalNotesService extends FhirServiceBase
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {

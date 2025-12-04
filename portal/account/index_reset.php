@@ -12,22 +12,26 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 $landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id'] ?? '');
 // kick out if patient not authenticated
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $ignoreAuth_onsite_portal = true;
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
 }
-require_once(dirname(__FILE__) . '/../../interface/globals.php');
-require_once(dirname(__FILE__) . "/../lib/appsql.class.php");
+require_once(__DIR__ . '/../../interface/globals.php');
+require_once(__DIR__ . "/../lib/appsql.class.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -57,9 +61,9 @@ DEFINE("COL_POR_USER", "portal_username");
 DEFINE("COL_POR_LOGINUSER", "portal_login_username");
 DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
-$sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) .
+$sql = "SELECT " . implode(",", [COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) .
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
-$auth = privQuery($sql, array($_SESSION['pid']));
+$auth = privQuery($sql, [$_SESSION['pid']]);
 $password = trim($_POST['pass_current'] ?? '');
 unset($_POST['pass_current']);
 
@@ -70,7 +74,7 @@ $isSaved = false;
 $valid = ((!empty(trim($_POST['uname'] ?? ''))) &&
     (!empty(trim($_POST['login_uname'] ?? ''))) &&
     (!empty($password)) &&
-    (trim($_POST['uname']) == $auth[COL_POR_USER]) &&
+    (trim((string) $_POST['uname']) == $auth[COL_POR_USER]) &&
     (AuthHash::passwordVerify($password, $auth[COL_POR_PWD])));
 if (isset($_POST['submit'])) {
     if (!$valid) {

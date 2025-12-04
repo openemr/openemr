@@ -13,12 +13,14 @@
 namespace OpenEMR\ZendModules\FHIR;
 
 use Laminas\ServiceManager\Factory\InvokableFactory;
+use OpenEMR\ZendModules\FHIR\Listener\CalculatedObservationEventsSubscriber;
 use OpenEMR\ZendModules\FHIR\Listener\UuidMappingEventsSubscriber;
 
-return array(
-    'service_manager' => array(
-        'factories' => array(
-            UuidMappingEventsSubscriber::class => InvokableFactory::class
-        )
-    )
-);
+return [
+    'service_manager' => [
+        'factories' => [
+            UuidMappingEventsSubscriber::class => InvokableFactory::class,
+            CalculatedObservationEventsSubscriber::class => InvokableFactory::class
+        ]
+    ]
+];

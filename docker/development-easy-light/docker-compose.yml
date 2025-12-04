@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
+    image: mariadb:11.8
     command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - 8320:3306
@@ -40,6 +40,7 @@ services:
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - logvolume:/var/log
+    - couchdbvolume:/couchdb/data
     environment:
       DEBUG_COLORS: "true"
       TERM: xterm-256color
@@ -105,3 +106,4 @@ volumes:
   vendordir: {}
   ccdanodemodules: {}
   logvolume: {}
+  couchdbvolume: {}

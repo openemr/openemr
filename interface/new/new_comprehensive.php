@@ -26,7 +26,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
     exit;
 }
@@ -37,9 +37,9 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
   'var(--yellow)' : $GLOBALS['layout_search_color'];
 
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = (in_array($GLOBALS['full_new_patient_form'], ['2', '3', '4']));
 
-$grparr = array();
+$grparr = [];
 getLayoutProperties('DEM', $grparr, '*');
 
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
@@ -60,23 +60,13 @@ function getLayoutRes()
 //
 function getSearchClass($data_type)
 {
-    switch ($data_type) {
-        case 1: // single-selection list
-        case 10: // local provider list
-        case 11: // provider list
-        case 12: // pharmacy list
-        case 13: // squads
-        case 14: // address book list
-        case 26: // single-selection list with add
-        case 35: // facilities
-            return 2;
-        case 2: // text field
-        case 3: // textarea
-        case 4: // date
-            return 1;
-    }
-
-    return 0;
+    return match ($data_type) {
+        // facilities
+        1, 10, 11, 12, 13, 14, 26, 35 => 2,
+        // date
+        2, 3, 4 => 1,
+        default => 0,
+    };
 }
 
 $fres = getLayoutRes();
@@ -345,7 +335,7 @@ $lres = getLayoutRes();
 
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with((string) $field_id, 'em_')) {
         continue;
     }
 
@@ -410,7 +400,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     } ?>
                     <?php
 
-                    function end_cell()
+                    function end_cell(): void
                     {
                         global $item_count;
                         if ($item_count > 0) {
@@ -419,7 +409,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
                     }
 
-                    function end_row()
+                    function end_row(): void
                     {
                         global $cell_count, $CPR, $BS_COL_CLASS;
                         end_cell();
@@ -435,10 +425,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $cell_count = 0;
                     }
 
-                    function end_group()
+                    function end_group(): void
                     {
                         global $last_group, $SHORT_FORM;
-                        if (strlen($last_group) > 0) {
+                        if (strlen((string) $last_group) > 0) {
                             end_row();
                             echo "</div>\n"; // end BS container
                             if (!$SHORT_FORM) {
@@ -467,8 +457,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // Accumulate action conditions into a JSON expression for the browser side.
                         accumActionConditions($frow, $condition_str);
 
-                        if (strpos($field_id, 'em_') === 0) {
-                            $tmp = substr($field_id, 3);
+                        if (str_starts_with((string) $field_id, 'em_')) {
+                            $tmp = substr((string) $field_id, 3);
                             if (isset($result2[$tmp])) {
                                 $currvalue = $result2[$tmp];
                             }
@@ -479,7 +469,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
 
                         // Handle a data category (group) change.
-                        if (strcmp($this_group, $last_group) != 0) {
+                        if (strcmp((string) $this_group, (string) $last_group) != 0) {
                             if (!$SHORT_FORM) {
                                 end_group();
                                 $group_seq++;    // ID for DIV tags
@@ -504,7 +494,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         <div class="container-xl card-body">
                                 HTML;
                                 $display_style = 'none';
-                            } elseif (strlen($last_group) == 0) {
+                            } elseif (strlen((string) $last_group) == 0) {
                                 echo " <div class='container-xl'>\n";
                             }
                             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -571,9 +561,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // set flag so we don't bring in session pid data for a new pt form
                         $frow['blank_form'] = false;
                         if (
-                            $frow['data_type'] == "52"
-                            || $frow['data_type'] == "53"
-                            || $frow['data_type'] == "54"
+                            in_array($frow['data_type'], ["52", "53", "54"])
                         ) {
                             $frow['blank_form'] = true;
                         }
@@ -593,12 +581,12 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $insurancei = getInsuranceProviders();
                         $pid = 0;
                         if ($GLOBALS['insurance_only_one']) {
-                            $insurance_headings = array(xl("Primary Insurance Provider"));
-                            $insurance_info = array();
+                            $insurance_headings = [xl("Primary Insurance Provider")];
+                            $insurance_info = [];
                             $insurance_info[1] = getInsuranceData($pid, "primary");
                         } else {
-                            $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-                            $insurance_info = array();
+                            $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
+                            $insurance_info = [];
                             $insurance_info[1] = getInsuranceData($pid, "primary");
                             $insurance_info[2] = getInsuranceData($pid, "secondary");
                             $insurance_info[3] = getInsuranceData($pid, "tertiary");
@@ -627,7 +615,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                   <?php
                                     foreach ($insurancei as $iid => $iname) {
                                         echo "<option value='" . attr($iid) . "'";
-                                        if (!empty($result3["provider"]) && (strtolower($iid) == strtolower($result3["provider"]))) {
+                                        if (!empty($result3["provider"]) && (strtolower((string) $iid) == strtolower((string) $result3["provider"]))) {
                                             echo " selected";
                                         }
                                         echo ">" . text($iname) . "</option>\n";
@@ -656,7 +644,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Relationship'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_relationship'),'list_id' => 'sub_relation','empty_title' => ' ', 'smallform' => 'true'), ($result3['subscriber_relationship'] ?? ''));
+                            generate_form_field(['data_type' => 1,'field_id' => ('i' . $i . 'subscriber_relationship'),'list_id' => 'sub_relation','empty_title' => ' ', 'smallform' => 'true'], ($result3['subscriber_relationship'] ?? ''));
                             ?>
                             <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo attr_url($i); ?>')" class='text'>(<?php echo xlt('Browse'); ?>)</a>
                           </div>
@@ -688,7 +676,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Sex'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex', 'smallform' => 'true'), $result3['subscriber_sex'] ?? '');
+                            generate_form_field(['data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex', 'smallform' => 'true'], $result3['subscriber_sex'] ?? '');
                             ?>
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
@@ -719,14 +707,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_employer_state'] ?? ''));
+                            generate_form_field(['data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['state_data_type'], 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_state'] ?? ''));
+                            generate_form_field(['data_type' => $GLOBALS['state_data_type'], 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "<div class='d-none'>" : ""; ?>
@@ -743,13 +731,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_employer_country'] ?? ''));
+                            generate_form_field(['data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_country'] ?? ''));
                             ?>
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'), ($result3['subscriber_country'] ?? ''));
+                            generate_form_field(['data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
                             ?>
                           </div>
                             <?php echo ($GLOBALS['omit_employers']) ? "</div>" : ""; ?>
@@ -878,7 +866,7 @@ $(function () {
             "ORDER BY group_id, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
-            if (strpos($field_id, 'em_') === 0) {
+            if (str_starts_with((string) $field_id, 'em_')) {
                 continue;
             }
 
@@ -921,7 +909,7 @@ $(function () {
 $lres = getLayoutRes();
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) {
+    if (str_starts_with((string) $field_id, 'em_')) {
         continue;
     }
 

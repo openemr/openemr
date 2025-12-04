@@ -41,10 +41,10 @@
 
 // Build the $ISSUE_TYPE_CATEGORIES array
 // First, set the hard-coded options
-$ISSUE_TYPE_CATEGORIES = array(
+$ISSUE_TYPE_CATEGORIES = [
   'default' => xl('Default'),             // Normal OpenEMR use
   'ippf_specific' => xl('IPPF')           // For IPPF use
-);
+];
 // Second, collect the non hard-coded options and add to the array
 $res = sqlStatement("SELECT DISTINCT `category` FROM `issue_types`");
 while ($row = sqlFetchArray($res)) {
@@ -55,13 +55,13 @@ while ($row = sqlFetchArray($res)) {
     $ISSUE_TYPE_CATEGORIES[$row['category']] = $row['category'];
 }
 
-$ISSUE_TYPE_STYLES = array(
+$ISSUE_TYPE_STYLES = [
   0 => xl('Standard'),                    // Standard
   1 => xl('Simplified'),                  // Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.
   2 => xl('Football Injury'),             // Football Injury
   3 => xl('IPPF Abortion'),               // IPPF specific (abortions issues)
   4 => xl('IPPF Contraception')           // IPPF specific (contraceptions issues)
-);
+];
 
 /**
  * Will return the current issue type category that is being used.
@@ -79,50 +79,50 @@ function collect_issue_type_category()
 // Build the $ISSUE_TYPES array (see script header for description)
 $res = sqlStatement(
     "SELECT * FROM `issue_types` WHERE active = 1 AND `category`=? ORDER BY `ordering`",
-    array(collect_issue_type_category())
+    [collect_issue_type_category()]
 );
 while ($row = sqlFetchArray($res)) {
-    $ISSUE_TYPES[$row['type']] = array(
+    $ISSUE_TYPES[$row['type']] = [
     xl($row['plural']),
     xl($row['singular']),
     xl($row['abbreviation']),
     $row['style'],
     $row['force_show'],
-    $row['aco_spec']);
+    $row['aco_spec']];
 }
 
-$ISSUE_CLASSIFICATIONS = array(
+$ISSUE_CLASSIFICATIONS = [
   0   => xl('Unknown or N/A'),
   1   => xl('Trauma'),
   2   => xl('Overuse')
-);
+];
 
 function getListById($id, $cols = "*")
 {
-    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), array('lists')) . " from lists where id=? order by date DESC limit 0,1", array($id));
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), ['lists']) . " from lists where id=? order by date DESC limit 0,1", [$id]);
 }
 
 
 function addList($pid, $type, $title, $comments, $activity = "1")
 {
-    return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", array($pid, $type, $title, $activity, $comments, $_SESSION['authUser'], $_SESSION['authProvider']));
+    return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", [$pid, $type, $title, $activity, $comments, $_SESSION['authUser'], $_SESSION['authProvider']]);
 }
 
 function disappearList($id)
 {
-    sqlStatement("update lists set activity = '0' where id=?", array($id));
+    sqlStatement("update lists set activity = '0' where id=?", [$id]);
     return true;
 }
 
 function reappearList($id)
 {
-    sqlStatement("update lists set activity = '1' where id=?", array($id));
+    sqlStatement("update lists set activity = '1' where id=?", [$id]);
     return true;
 }
 
 function getListTouch($patient_id, $type)
 {
-    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type));
+    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", [$patient_id,$type]);
 
     if (!empty($ret)) {
         return $ret['date'];
@@ -131,14 +131,14 @@ function getListTouch($patient_id, $type)
     }
 }
 
-function setListTouch($patient_id, $type)
+function setListTouch($patient_id, $type): void
 {
-    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type));
+    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", [$patient_id,$type]);
 
     if (!empty($ret)) {
                 // Already touched, so can exit
         return;
     } else {
-        sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type));
+        sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", [$patient_id,$type]);
     }
 }

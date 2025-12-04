@@ -86,14 +86,10 @@ class LogProperties
     {
         $wenoLog = new WenoLogService();
         $workday = date("l");
-        if ($workday == 'Monday') {
-            $from = date("Y-m-d", strtotime("-2 days"));
-        } else {
-            $from = date("Y-m-d", strtotime("yesterday"));
-        }
+        $from = $workday == 'Monday' ? date("Y-m-d", strtotime("-2 days")) : date("Y-m-d", strtotime("yesterday"));
         // Retrieve the last sync date
         $lastSync = sqlQuery("SELECT * FROM `weno_download_log` WHERE value='Sync Report' AND status = 'Success' ORDER BY `id` DESC LIMIT 1;")['created_at'];
-        $lastSync = date("Y-m-d", strtotime($lastSync));
+        $lastSync = date("Y-m-d", strtotime((string) $lastSync));
         // Ensure `to` is today and `from` defaults to yesterday or earlier
         $to = date("Y-m-d", strtotime("tomorrow"));
         // Ensure `from` and `to` are within a 7-day range
@@ -150,7 +146,7 @@ class LogProperties
     {
         $email = $this->getProviderEmail();
         $prov_pass = $this->getProviderPassword();
-        $md5 = md5($prov_pass);                       // hash the current password
+        $md5 = md5((string) $prov_pass);                       // hash the current password
 
         $p = [
             "UserEmail" => $email['email'],

@@ -12,24 +12,28 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['pid'])) {
         if ($_POST['pid'] != $_SESSION['pid']) {
             echo "illegal Action";
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
     $ignoreAuth_onsite_portal = true;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (empty($_SESSION['portal_username'])) {
         echo xlt("illegal Action");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         exit;
     }
     // owner is the patient portal_username
@@ -39,13 +43,13 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     //   $_POST['sender_name'], if applicable
     if (empty($_POST['sender_id']) && !empty($_POST['sender_name'])) {
         echo xlt("illegal Action");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         exit;
     }
     if (!empty($_POST['sender_id'])) {
         if ($_POST['sender_id'] != $owner) {
             echo xlt("illegal Action");
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
@@ -53,14 +57,14 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$_SESSION['pid']]);
         if (empty($nameCheck) || ($_POST['sender_name'] != ($nameCheck['fname'] . " " . $nameCheck['lname']))) {
             echo xlt("illegal Action");
-            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID']) || empty($_SESSION['authUser'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -70,7 +74,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $owner = $_SESSION['authUser'];
 }
 
-require_once(dirname(__FILE__) . "/../lib/portal_mail.inc.php");
+require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -95,7 +99,7 @@ if (! $task) {
 }
 
 $noteid = ($_POST['noteid'] ?? null) ?: 0;
-$notejson = ($_POST['notejson'] ?? null) ? json_decode($_POST['notejson'], true) : 0;
+$notejson = ($_POST['notejson'] ?? null) ? json_decode((string) $_POST['notejson'], true) : 0;
 $reply_noteid = $_POST['replyid'] ?? null ?: 0;
 $note = $_POST['inputBody'] ?? null;
 $title = $_POST['title'] ?? null;
@@ -107,7 +111,7 @@ $header = '';
 
 switch ($task) {
     case "forward":
-        $pid = isset($_POST['pid']) ? $_POST['pid'] : 0;
+        $pid = $_POST['pid'] ?? 0;
         addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {

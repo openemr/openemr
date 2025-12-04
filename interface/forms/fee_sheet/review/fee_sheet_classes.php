@@ -20,28 +20,20 @@ require_once("$srcdir/../custom/code_types.inc.php");
 
 class code_info
 {
-    function __construct($c, $ct, $desc, $selected = true)
+    function __construct(public $code, public $code_type, public $description, public $selected = true)
     {
-        $this->code = $c;
-        $this->code_type = $ct;
-        $this->description = $desc;
-        $this->selected = $selected;
         // check if the code type is active and allowed to create medical problems from diagnosis elements
         $this->allowed_to_create_problem_from_diagnosis = "FALSE";
-        if (check_code_set_filters($ct, array("active","problem"))) {
+        if (check_code_set_filters($this->code_type, ["active","problem"])) {
             $this->allowed_to_create_problem_from_diagnosis = "TRUE";
         }
 
         // check if the code type is active and allowed to create diagnosis elements from medical problems
         $this->allowed_to_create_diagnosis_from_problem = "FALSE";
-        if (check_code_set_filters($ct, array("active","diag"))) {
+        if (check_code_set_filters($this->code_type, ["active","diag"])) {
             $this->allowed_to_create_diagnosis_from_problem = "TRUE";
         }
     }
-    public $code;
-    public $code_type;
-    public $description;
-    public $selected;
     public $db_id;
     public $allowed_to_create_problem_from_diagnosis;
     public $allowed_to_create_diagnosis_from_problem;
@@ -72,20 +64,10 @@ class code_info
  */
 class procedure extends code_info
 {
-    function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $selected = true)
+    function __construct($c, $ct, $desc, public $fee, public $justify, public $modifiers, public $units, public $mod_size, $selected = true)
     {
         parent::__construct($c, $ct, $desc, $selected);
-        $this->fee = $fee;
-        $this->justify = $justify;
-        $this->modifiers = $modifiers;
-        $this->units = $units;
-        $this->mod_size = $mod_size;
     }
-    public $fee;
-    public $justify;
-    public $modifiers;
-    public $units;
-    public $mod_size;
 
     //modifier, units, fee, justify
 
@@ -100,14 +82,9 @@ class procedure extends code_info
  */
 class encounter_info
 {
-    function __construct($id, $date)
+    function __construct(public $id, public $date)
     {
-        $this->id = $id;
-        $this->date = $date;
     }
-
-    public $id;
-    public $date;
 
     function getID()
     {

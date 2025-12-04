@@ -57,9 +57,9 @@ class ProcessingResult
     }
 
     /**
-     * @return true if the instance does not contain validation messages/errors
+     * @return bool if the instance does not contain validation messages/errors
      */
-    public function isValid()
+    public function isValid(): bool
     {
         return count($this->validationMessages) == 0;
     }
@@ -131,9 +131,9 @@ class ProcessingResult
 
     /**
      * Appends a new data item to the current instance.
-     * @param $newData The new data item.
+     * @param mixed $newData The new data item.
      */
-    public function addData($newData)
+    public function addData(mixed $newData)
     {
         $count = count($this->data);
         $limit = max(0, $this->getPagination()->getLimit());
@@ -171,9 +171,9 @@ class ProcessingResult
     }
 
     /**
-     * @return true if the instance has 1 or more internal errors.
+     * @return bool true if the instance has 1 or more internal errors.
      */
-    public function hasInternalErrors()
+    public function hasInternalErrors(): bool
     {
         return count($this->internalErrors) > 0;
     }

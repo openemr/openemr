@@ -1,0 +1,40 @@
+services:
+  selenium:
+    image: selenium/standalone-chromium:4.38.0
+    # Services with profiles don't start by default.
+    profiles:
+    - selenium
+    - video-recording
+    ports:
+    - 4444:4444  # Selenium WebDriver interface
+    environment:
+      SE_SCREEN_WIDTH: 1920
+      SE_SCREEN_HEIGHT: 1080
+      SE_SCREEN_DEPTH: 24
+      SE_START_XVFB: true
+    volumes:
+    - /dev/shm:/dev/shm
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:4444/wd/hub/status
+      start_period: 30s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  video:
+    image: selenium/video:ffmpeg-7.1-20250707
+    # Services with profiles don't start by default.
+    profiles:
+    - video-recording
+    depends_on:
+    - selenium
+    environment:
+      DISPLAY_CONTAINER_NAME: selenium
+  openemr:
+    environment:
+      SELENIUM_USE_GRID: "true"
+      SELENIUM_HOST: selenium
+      SELENIUM_FORCE_HEADLESS: "false"

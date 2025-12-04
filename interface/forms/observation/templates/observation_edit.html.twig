@@ -1,0 +1,465 @@
+{# AI Generated Note: Enhanced observation_edit.html.twig template with QuestionnaireResponse linking functionality #}
+
+{% extends "core/base.html.twig" %}
+
+{% block pagetitle %}{{ "Observation"|xlt }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    {{ setupHeader(['i18next', 'i18formatting', 'datetime-picker', 'datetime-picker-translated', 'reason-code-widget']) }}
+    <link rel="stylesheet" href="{{ webroot }}/interface/forms/observation/observation.css?v={{ assetVersion|attr_url }}" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="observation-form-container p-3">
+            <form id="observation_form" method="post" name="observation_form" action="{{ webroot }}/interface/forms/observation/save.php?id={{ formId|attr_url }}">
+                <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}" />
+                <input type="hidden" name="observation_id" value="{{ observation.id|attr }}" />
+                <input type="hidden" name="form_id" value="{{ formId|attr }}" />
+
+                {# AI Generated: Hidden field for QuestionnaireResponse FHIR ID #}
+                <input type="hidden" name="questionnaire_response_fhir_id" id="questionnaire_response_fhir_id" value="{{ observation.questionnaire_response_id|attr }}" />
+
+                {# Return to List Button #}
+                {% if isEdit %}
+                <div class="mb-3">
+                    <a href="{{ webroot }}/interface/forms/observation/new.php?id={{ formId|attr_url }}"
+                       class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> {{ "Return to List"|xlt }}
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="observation-cards-container">
+
+                    {# Basic Information Card #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>
+                            <strong>{{ "Basic Information"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Code"|xlt }}:</label>
+                                        <input type="text" name="code" class="form-control code"
+                                               value="{{ observation.code|default('')|attr }}"
+                                               placeholder="{{ 'Enter observation code'|xla }}"
+                                               data-description-target="#observation-description">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Description"|xlt }}:</label>
+                                        <input id='observation-description' type="text" name="description" class="form-control description"
+                                               value="{{ observation.description|default('')|attr }}"
+                                               placeholder="{{ 'Enter observation description'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Date"|xlt }}:</label>
+                                        <input type="text" name="date" class="form-control datepicker"
+                                               value="{{ observation.date|default('now')|oeFormatDateTime|attr }}"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Value"|xlt }}:</label>
+                                        <input type="text" name="ob_value" class="form-control"
+                                               value="{{ observation.ob_value|default('')|attr }}"
+                                               placeholder="{{ 'Enter value'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Unit"|xlt }}:</label>
+                                        <input type="text" name="ob_unit" class="form-control"
+                                               value="{{ observation.ob_unit|default('')|attr }}"
+                                               placeholder="{{ 'Unit'|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Status"|xlt }}: </label>
+                                        {{ selectList('ob_status', 'observation-status', observation.ob_status, '') }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ "Type"|xlt }}:</label>
+                                        {{ selectList('ob_type', 'Observation_Types', observation.ob_type, 'Select Type'|xla, {empty_name: 'Select Type'|xlt}) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# AI Generated: QuestionnaireResponse Linking Card #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-file-text-o text-info mr-2"></i>
+                            <strong>{{ "Linked Questionnaire"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div id="questionnaire-section">
+                                {% if linkedQuestionnaireResponse %}
+                                    {# Linked State #}
+                                    <div id="questionnaire-linked" class="questionnaire-linked bg-light border border-success rounded p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="text-success mb-2">
+                                                    <i class="fa fa-link mr-1"></i>{{ "Linked"|xlt }}:
+                                                    <span class="questionnaire-name">{{ linkedQuestionnaireResponse.name|text }}</span>
+                                                </h6>
+                                                <p class="text-muted mb-1">
+                                                    <strong>{{ "Response ID"|xlt }}:</strong>
+                                                    <span class="response-id">{{ linkedQuestionnaireResponse.response_id|text }}</span>
+                                                </p>
+                                                <p class="text-muted mb-3">
+                                                    <strong>{{ "Date"|xlt }}:</strong> {{ linkedQuestionnaireResponse.date|oeFormatDateTime|attr }}
+                                                    <span class="ml-3"><strong>{{ "Status"|xlt }}:</strong> {{ linkedQuestionnaireResponse.status|text }}</span>
+                                                </p>
+                                            </div>
+                                            <div class="btn-group-vertical">
+                                                <button type="button" class="btn btn-sm btn-outline-primary mb-1 questionnaire-change">
+                                                    <i class="fa fa-exchange"></i> {{ "Change"|xlt }}
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger questionnaire-remove">
+                                                    <i class="fa fa-unlink"></i> {{ "Remove"|xlt }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    {# Unlinked State #}
+                                    <div id="questionnaire-unlinked" class="questionnaire-unlinked bg-light border-2 border-dashed rounded p-4 text-center">
+                                        <i class="fa fa-file-text-o fa-3x text-muted mb-3"></i>
+                                        <h6 class="text-muted mb-2">{{ "No Questionnaire Linked"|xlt }}</h6>
+                                        <p class="text-muted mb-3">{{ "Link a questionnaire response to provide additional context for this observation"|xlt }}</p>
+                                        <button type="button" class="btn btn-primary questionnaire-link">
+                                            <i class="fa fa-link"></i> {{ "Link Questionnaire"|xlt }}
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Sub-observations Card - existing content remains the same #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-list text-secondary mr-2"></i>
+                                <strong>{{ "Sub-observations"|xlt }}</strong>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-add-sub-observation">
+                                <i class="fa fa-plus"></i> {{ "Add Sub-observation"|xlt }}
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="sub-observations-container">
+                                {# Sub-observation Template - existing content #}
+                                {% if observation.sub_observations is not empty %}
+                                    {% for index,subObservation in observation.sub_observations %}
+                                        {% include "forms/observation/templates/partials/_sub-observation.html.twig" with {
+                                            nodeId: "sub-observation-" ~ (index + 1),
+                                            observation: subObservation
+                                        } %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Comments Card - existing content remains the same #}
+                    <div class="card mb-4">
+                        <div class="card-header bg-light d-flex align-items-center">
+                            <i class="fa fa-comment text-warning mr-2"></i>
+                            <strong>{{ "Comments"|xlt }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <textarea name="observation" class="form-control" rows="3"
+                                          placeholder="{{ 'Additional comments or notes about this observation'|xla }}">{{ observation.observation|default('')|text }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {# Reason Code Card - Hidden by default #}
+                <div class="card mb-4 reasonCodeContainer {% if observation.ob_reason_code is empty %}d-none{% endif %}" id="reason_code_1">
+                    <div class="card-header bg-light d-flex align-items-center">
+                        <i class="fa fa-asterisk text-secondary mr-2"></i>
+                        <strong>{{ "Reason for Observation"|xlt }}</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <p class="text-muted">
+                                    {{ "When recording a reason for the value (or abscence of a value) of an observation both the reason code and status of the reason are required"|xlt }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">{{ "Reason Code"|xlt }}:</label>
+                                    <input type="text" name="ob_reason_code" class="form-control code-selector-popup"
+                                           value="{{ observation.ob_reason_code|default('')|attr }}">
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label class="form-label">{{ "Reason Status"|xlt }}:</label>
+                                    <select name="ob_reason_status" class="form-control">
+                                        {% for code, codeDesc in reasonCodeStatii %}
+                                            <option value="{{ code|attr }}"
+                                                    {% if observation.ob_reason_status|default('') == code %}selected{% endif %}>
+                                                {{ codeDesc.description|text }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <input type="hidden" class="code-selector-text" name="ob_reason_text"
+                                       value="{{ observation.ob_reason_text|default('')|attr }}">
+                                <span class="code-selector-text-display">{{ observation.ob_reason_text|default('')|text }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {# Action Bar #}
+                <div class="action-bar bg-light border-top p-3 d-flex justify-content-between align-items-center">
+                    <div class="status-indicator d-flex align-items-center">
+                        {# if we do any more ajax stuff we can do some auto saving here #}
+{#                        <span class="badge badge-success mr-2">{{ "Form Ready"|xlt }}</span>#}
+                    </div>
+                    <div class="btn-group">
+                        {% if isEdit %}
+                        <a href="{{ webroot }}/interface/forms/observation/new.php?id={{ observation.form_id|attr_url }}"
+                           class="btn btn-secondary">
+                            <i class="fa fa-times"></i> {{ "Cancel"|xlt }}
+                        </a>
+                        {% else %}
+                            <button class="btn btn-secondary btn-cancel">
+                                {{ "Cancel"|xlt }}
+                            </button>
+                        {% endif %}
+                        <button type="button" class="btn btn-secondary reason-code-btn"
+                                title="{{ 'Click here to provide an explanation for the observation value (or lack of value)'|xla }}"
+                                data-toggle-container="reason_code_1">
+                            <i class="fa fa-asterisk"></i> {{ "Add Reason"|xlt }}
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"></i> {{ "Save Observation"|xlt }}
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        {# AI Generated: Hidden Templates for Dialog Content #}
+        <div id="templates" class="d-none">
+            {# Sub-observation Template #}
+            {% include "forms/observation/templates/partials/_sub-observation.html.twig" with {
+                nodeId: 'sub-observation-template'
+                , observation: {id: '', code: '', value: '', units: '', description: '', status: defaultStatusType}
+            } %}
+            {# QuestionnaireResponse Dialog Template #}
+            <template id="questionnaire-dialog-template">
+                <div class="questionnaire-selector">
+                    <div class="search-filters mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="questionnaire-search">{{ "Search by questionnaire name"|xlt }}:</label>
+                                    <input type="text" class="form-control" id="questionnaire-search"
+                                           placeholder="{{ 'Enter questionnaire name...'|xla }}">
+                                </div>
+                            </div>
+                            {# TODO: add in date searching #}
+{#                            <div class="col-md-3">#}
+{#                                <div class="form-group">#}
+{#                                    <label for="date-from">{{ "From date"|xlt }}:</label>#}
+{#                                    <input type="text" class="form-control datepicker" id="date-from">#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="col-md-3">#}
+{#                                <div class="form-group">#}
+{#                                    <label for="date-to">{{ "To date"|xlt }}:</label>#}
+{#                                    <input type="text" class="form-control datepicker" id="date-to">#}
+{#                                </div>#}
+{#                            </div>#}
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-secondary btn-sm" id="search-questionnaires">
+                                    <i class="fa fa-search"></i> {{ "Search"|xlt }}
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ml-2" id="clear-search">
+                                    <i class="fa fa-times"></i> {{ "Clear"|xlt }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div id="questionnaire-results" class="questionnaire-results d-none" style="max-height: 400px; overflow-y: auto;">
+                    </div>
+                    <div id="questionnaire-results-error" class="questionnaire-results d-none">
+                        <div class="alert alert-danger text-center">
+                            <i class="fa fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h6>{{ 'Error Loading Questionnaire Responses'|xlt }}</h6>
+                            <p class="mb-2">{{ "Error loading questionnaire responses. Please try again."|xlt }}</p>
+                            <small class="text-muted">{{ "Technical details"|xlt }}: <span class="questionnaire-error-details"></span></small>
+                            <div class="mt-3">
+                                {# TODO: move this to observation.js #}
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="observationForm.loadQuestionnaireData()">
+                                    <i class="fa fa-refresh"></i> {{ 'Retry'|xlt }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="questionnaire-results-no-results" class="questionnaire-results d-none">
+                        <div class="text-center p-4 text-muted">
+                            <i class="fa fa-search fa-3x mb-3"></i>
+                            <p>{{ 'No questionnaire responses found'|xlt }}</p>
+                            <small>{{ 'Try adjusting your search criteria'|xlt }}</small>
+                        </div>
+                    </div>
+                    <div id="questionnaire-results-loading" class="questionnaire-results">
+                        <div class="loading text-center p-4">
+                            <i class="fa fa-spinner fa-spin fa-2x"></i>
+                            <p class="mt-2">{{ "Loading questionnaire responses..."|xlt }}</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            {# QuestionnaireResponse Result Item Template #}
+            <template id="questionnaire-result-template">
+                <div class="questionnaire-item border rounded p-3 mb-2 cursor-pointer" data-response-id="" data-fhir-id="">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="questionnaire-title mb-1 text-primary"></h6>
+                            <p class="questionnaire-date text-muted mb-1">
+                                <i class="fa fa-calendar mr-1"></i><span class="date-text"></span>
+                            </p>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="questionnaire-status badge mr-2"></span>
+                                <small class="text-muted response-id"></small>
+                            </div>
+                            <div class="questionnaire-summary collapse">
+                                <div class="border-top pt-2 mt-2">
+                                    <h6 class="text-muted">{{ "Response Summary"|xlt }}:</h6>
+                                    <div class="summary-content">
+                                        <div class="response-no-summary d-none">
+                                            {{ "No response items found"|xlt }}
+                                        </div>
+                                        <div class="response-summary d-none">
+                                        </div>
+                                        <div class="response-summary-more d-none">
+                                            <p class="text-muted mt-2"><small>{{ "Has more items"|xlt }}</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-link btn-sm p-0 toggle-summary">
+                                <i class="fa fa-chevron-down"></i> {{ "Show Details"|xlt }}
+                            </button>
+                        </div>
+                        <div class="ml-3">
+                            <button type="button" class="btn btn-primary select-questionnaire">
+                                <i class="fa fa-check"></i> {{ "Select"|xlt }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            {# Linked State Template #}
+            <template id="questionnaire-linked-template">
+                <div class="questionnaire-linked bg-light border border-success rounded p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-success mb-2">
+                                <i class="fa fa-link mr-1"></i>{{ "Linked"|xlt }}:
+                                <span class="questionnaire-name"></span>
+                            </h6>
+                            <p class="text-muted mb-1">
+                                <strong>{{ "Response ID"|xlt }}:</strong>
+                                <span class="response-id"></span>
+                            </p>
+                            <p class="text-muted mb-3">
+                                <strong>{{ "Date"|xlt }}:</strong> <span class="response-date"></span>
+                                <span class="ml-3"><strong>{{ "Status"|xlt }}:</strong> <span class="response-status"></span></span>
+                            </p>
+                        </div>
+                        <div class="btn-group-vertical">
+                            <button type="button" class="btn btn-sm btn-outline-primary mb-1 questionnaire-change">
+                                <i class="fa fa-exchange"></i> {{ "Change"|xlt }}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger questionnaire-remove">
+                                <i class="fa fa-unlink"></i> {{ "Remove"|xlt }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            {# Unlinked State Template #}
+            <template id="questionnaire-unlinked-template">
+                <div class="questionnaire-unlinked bg-light border-2 border-dashed rounded p-4 text-center">
+                    <i class="fa fa-file-text-o fa-3x text-muted mb-3"></i>
+                    <h6 class="text-muted mb-2">{{ "No Questionnaire Linked"|xlt }}</h6>
+                    <p class="text-muted mb-3">{{ "Link a questionnaire response to provide additional context for this observation"|xlt }}</p>
+                    <button type="button" class="btn btn-primary questionnaire-link">
+                        <i class="fa fa-link"></i> {{ "Link Questionnaire"|xlt }}
+                    </button>
+                </div>
+            </template>
+
+            {# Empty Sub-observations State Template #}
+            <template id="empty-sub-observations-template" class="empty-sub-observations text-center py-4">
+                {% include "forms/observation/templates/partials/_sub-observation-empty.html.twig" %}
+            </template>
+            <template id="response-summary-row">
+                <div class="mb-2">
+                    <strong class="text-primary response-summary-question"></strong>:
+                    <span class="ml-2 response-summary-answer"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ webroot }}/interface/forms/observation/observation.js?v={{ assetVersion|attr_url }}" type="text/javascript"></script>
+    <script>
+        // AI Generated JavaScript: Enhanced from observation.js for QuestionnaireResponse linking
+        window.addEventListener('DOMContentLoaded', function () {
+            if (window.observationForm) {
+                window.observationForm.init(
+                    {{ webroot|js_url }}
+                    ,{{ reasonCodeTypes|js_url }}
+                    ,{{ translations|json_encode }}
+                    ,{{ fhir_config|json_encode }}
+                    ,{{ apiCsrfToken|js_url }}
+                );
+            }
+        });
+    </script>
+{% endblock %}

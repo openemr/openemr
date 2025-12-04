@@ -15,31 +15,34 @@
 namespace OpenEMR\RestControllers\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\Capability;
 
 class SMARTConfigurationController
 {
     /**
-     * @var \OpenEMR\RestControllers\AuthorizationController
+     * @var ServerConfig
      */
-    private $authServer;
+    private readonly ServerConfig $serverConfig;
 
-    public function __construct(\OpenEMR\RestControllers\AuthorizationController $authServer)
+    public function __construct()
     {
-        $this->authServer = $authServer;
+        $this->serverConfig = new ServerConfig();
     }
 
     public function getConfig(): array
     {
-        $authServer = $this->authServer;
         // combine all possible supported scopes(OIDC & SMART on FHIR)
         // and reduce to only scopes supported by existing FHIR api resources.
-        $scopeRepository = new ScopeRepository(\RestConfig::GetInstance());
+        $scopeRepository = new ScopeRepository();
         $scopesSupported = $scopeRepository->getCurrentSmartScopes();
 
         /**
-         * @see http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
-         * authorization_endpoint: REQUIRED, URL to the OAuth2 authorization endpoint.
+         * US Core Version 3.1.0 / SMART ON FHIR 1.0.0 @see https://hl7.org/fhir/smart-app-launch/1.0.0/conformance/index.html#using-well-known
+         * US Core Version 7.0.0 / SMART ON FHIR Version 2.2.0 @see https://hl7.org/fhir/smart-app-launch/STU2/conformance.html
+         *
+         * issuer ()
+         * authorization_endpoint: REQUIRED (3.1.0/7.0.0), URL to the OAuth2 authorization endpoint.
          * token_endpoint: REQUIRED, URL to the OAuth2 token endpoint.
          * token_endpoint_auth_methods: OPTIONAL, array of client authentication methods supported by the token endpoint. The options are “client_secret_post” and “client_secret_basic”.
          * registration_endpoint: OPTIONAL, if available, URL to the OAuth2 dynamic registration endpoint for this FHIR server.
@@ -52,11 +55,25 @@ class SMARTConfigurationController
          */
 
         $config = [
-            "authorization_endpoint" => $authServer->getAuthorizeUrl(),
-            "token_endpoint" => $authServer->getTokenUrl(),
-            "registration_endpoint" => $authServer->getRegistrationUrl(),
+            // required fields for SMART v2
+            "issuer" => $this->serverConfig->getFhirUrl(),
+             "jwks_uri" => $this->serverConfig->getJsonWebKeySetUrl(),
+            "authorization_endpoint" => $this->serverConfig->getAuthorizeUrl(),
+            "grant_types_supported" => ['client_credentials', 'authorization_code'],
+            "token_endpoint" => $this->serverConfig->getTokenUrl(),
+            "capabilities" => Capability::SUPPORTED_CAPABILITIES,
+            // added for PKCE support.
+            "code_challenge_methods_supported" => ['S256'],
             "scopes_supported" => [
                 $scopesSupported
+            ],
+            "introspection_endpoint" => $this->serverConfig->getIntrospectionUrl(),
+            // end required fields for SMART v2
+
+
+            "token_endpoint_auth_methods_supported" => [
+                "client_secret_basic",
+                "private_key_jwt"
             ],
             "response_types_supported" => [
                 "code",
@@ -69,13 +86,10 @@ class SMARTConfigurationController
             ],
             // we don't support a management endpoint right now
             //    "management_endpoint" => "https://ehr.example.com/user/manage",
-            "introspection_endpoint" => $authServer->getIntrospectionUrl(),
-            // we don't revoke tokens right now
+
+            // we don't support API revocation of tokens right now
             //    "revocation_endpoint" => "https://ehr.example.com/user/revoke",
-            "capabilities" => Capability::SUPPORTED_CAPABILITIES,
-            // added for PKCE support.
-            "code_challenge_methods_supported" => ['S256'],
-            "grant_types_supported" => ['client_credentials', 'authorization_code']
+
         ];
 
         return $config;

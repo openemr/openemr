@@ -23,7 +23,7 @@ if ($lookup != "") {
 }
 
 // Falling through for user dialog.
-$users = sqlStatementNoLog("SELECT id,fname,lname,npi,taxonomy FROM users WHERE authorized=? AND active=?", array(1,1));
+$users = sqlStatementNoLog("SELECT id,fname,lname,npi,taxonomy FROM users WHERE authorized=? AND active=?", [1,1]);
 ?>
 <html>
 <head>
@@ -64,10 +64,10 @@ while ($row = sqlFetchArray($users)) {
 </body>
 </html>
 <?php
-function lookup_codes($group, $term)
+function lookup_codes($group, $term): void
 {
     global $ub04_codes;
-    $gotem = array();
+    $gotem = [];
 
     foreach ($ub04_codes as $v) {
         if ($v['code_group'] != $group) {
@@ -76,10 +76,10 @@ function lookup_codes($group, $term)
         $s = "/" . $term . "/i";
         $label = $v['code'] . " : " . $v['desc'] . ($v['desc1'] ? (" :: " . $v['desc1']) : "");
         if (preg_match($s, $label)) {
-            $gotem[] = array(
+            $gotem[] = [
                 'label' => attr($label),
                 'value' => $v['code']
-            );
+            ];
         }
     }
     echo json_encode($gotem);
@@ -89,11 +89,11 @@ function lookup_codes($group, $term)
 * @param lookup group string $group
 * @param search string $term
 */
-function get_codes_list($group, $term)
+function get_codes_list($group, $term): void
 {
     $term = "%" . $term . "%";
     $response = sqlStatement("SELECT CONCAT_WS(': ', isc.code, isc.primary_desc, isc.desc1) as label, isc.code as value, isc.code_group as cg FROM inst_support_codes as isc
-HAVING label LIKE ? And cg = ? ORDER BY code ASC", array($term, $group ));
+HAVING label LIKE ? And cg = ? ORDER BY code ASC", [$term, $group ]);
 
     while ($row = sqlFetchArray($response)) {
         $resultpd[] = $row;

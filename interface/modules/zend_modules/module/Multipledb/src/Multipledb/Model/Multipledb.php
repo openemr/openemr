@@ -36,6 +36,8 @@ class Multipledb implements InputFilterAwareInterface
     public $port;
     public $date;
 
+    private ?InputFilterInterface $inputFilter = null;
+
     public function exchangeArray($data)
     {
 
@@ -51,45 +53,45 @@ class Multipledb implements InputFilterAwareInterface
 
 
 
-    public static $inputsValidations = array(
-        array(
+    public static $inputsValidations = [
+        [
             'name'     => 'id',
             'required' => true,
-            'filters'  => array(
-                array('name' => 'Int'),
-            ),
-        ),
-        array(
+            'filters'  => [
+                ['name' => 'Int'],
+            ],
+        ],
+        [
             'name'     => 'namespace',
             'required' => true,
 
-        ),
-        array(
+        ],
+        [
             'name'     => 'username',
             'required' => true,
-        ),
+        ],
 
-        array(
+        [
             'name'     => 'password',
             'required' => true,
-        ),
-        array(
+        ],
+        [
             'name'     => 'dbname',
             'required' => true,
-        ),
-        array(
+        ],
+        [
             'name'     => 'host',
             'required' => true,
-        ),
-        array(
+        ],
+        [
             'name'     => 'port',
             'required' => true,
-            'filters'  => array(
-                array('name' => 'Int'),
-            ),
-        )
+            'filters'  => [
+                ['name' => 'Int'],
+            ],
+        ]
 
-    );
+    ];
 
 
     public function setInputFilter(InputFilterInterface $inputFilter)
@@ -99,7 +101,7 @@ class Multipledb implements InputFilterAwareInterface
 
     public function getInputFilter()
     {
-        if (!$this->inputFilter) {
+        if (!isset($this->inputFilter)) {
             $inputFilter = new InputFilter();
 
             foreach (self::$inputsValidations as $input) {

@@ -5,8 +5,8 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Practitioner Service Tests
@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(PractitionerService::class)]
 class PractitionerServiceTest extends TestCase
 {
     /**
@@ -27,6 +26,8 @@ class PractitionerServiceTest extends TestCase
     private $practitionerService;
 
     private $fixtureManager;
+
+    private array $practitionerFixture;
 
     protected function setUp(): void
     {
@@ -41,11 +42,13 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertFailure()
+    public function testInsertFailure(): void
     {
         $this->practitionerFixture["fname"] = "A";
         $this->practitionerFixture["npi"] = "12345";
-        unset($this->practitionerFixture["lname"]);
+        if (isset($this->practitionerFixture["lname"])) {
+            unset($this->practitionerFixture["lname"]);
+        }
 
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
 
@@ -58,7 +61,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertSuccess()
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
         $this->assertTrue($actualResult->isValid());
@@ -77,7 +80,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateFailure()
+    public function testUpdateFailure(): void
     {
         $this->practitionerService->insert($this->practitionerFixture);
 
@@ -93,7 +96,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateSuccess()
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
         $this->assertTrue($actualResult->isValid());
@@ -117,7 +120,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testPractitionerQueries()
+    public function testPractitionerQueries(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
 
@@ -146,7 +149,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->practitionerService->getAll(array("npi" => "0123456789"));
+        $actualResult = $this->practitionerService->getAll(["npi" => "0123456789"]);
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 

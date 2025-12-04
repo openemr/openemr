@@ -28,8 +28,8 @@ function smarty_function_fetch($params, &$smarty)
     }
 
     $content = '';
-    if ($smarty->security && !preg_match('!^(http|ftp)://!i', $params['file'])) {
-        $_params = array('resource_type' => 'file', 'resource_name' => $params['file']);
+    if ($smarty->security && !preg_match('!^(http|ftp)://!i', (string) $params['file'])) {
+        $_params = ['resource_type' => 'file', 'resource_name' => $params['file']];
         require_once(SMARTY_CORE_DIR . 'core.is_secure.php');
         if(!smarty_core_is_secure($_params, $smarty)) {
             $smarty->_trigger_fatal_error('[plugin] (secure mode) fetch \'' . $params['file'] . '\' is not allowed');
@@ -48,9 +48,9 @@ function smarty_function_fetch($params, &$smarty)
         }
     } else {
         // not a local file
-        if(preg_match('!^http://!i',$params['file'])) {
+        if(preg_match('!^http://!i',(string) $params['file'])) {
             // http fetch
-            if($uri_parts = parse_url($params['file'])) {
+            if($uri_parts = parse_url((string) $params['file'])) {
                 // set defaults
                 $host = $server_name = $uri_parts['host'];
                 $timeout = 30;
@@ -60,11 +60,7 @@ function smarty_function_fetch($params, &$smarty)
                 $uri = !empty($uri_parts['path']) ? $uri_parts['path'] : '/';
                 $uri .= !empty($uri_parts['query']) ? '?' . $uri_parts['query'] : '';
                 $_is_proxy = false;
-                if(empty($uri_parts['port'])) {
-                    $port = 80;
-                } else {
-                    $port = $uri_parts['port'];
-                }
+                $port = empty($uri_parts['port']) ? 80 : $uri_parts['port'];
                 if(!empty($uri_parts['user'])) {
                     $user = $uri_parts['user'];
                 }
@@ -95,7 +91,7 @@ function smarty_function_fetch($params, &$smarty)
                             break;
                         case "header":
                             if(!empty($param_value)) {
-                                if(!preg_match('![\w\d-]+: .+!',$param_value)) {
+                                if(!preg_match('![\w\d-]+: .+!',(string) $param_value)) {
                                     $smarty->_trigger_fatal_error("[plugin] invalid header format '".$param_value."'");
                                     return;
                                 } else {
@@ -109,7 +105,7 @@ function smarty_function_fetch($params, &$smarty)
                             }
                             break;
                         case "proxy_port":
-                            if(!preg_match('!\D!', $param_value)) {
+                            if(!preg_match('!\D!', (string) $param_value)) {
                                 $proxy_port = (int) $param_value;
                             } else {
                                 $smarty->_trigger_fatal_error("[plugin] invalid value for attribute '".$param_key."'");
@@ -127,7 +123,7 @@ function smarty_function_fetch($params, &$smarty)
                             }
                             break;
                         case "timeout":
-                            if(!preg_match('!\D!', $param_value)) {
+                            if(!preg_match('!\D!', (string) $param_value)) {
                                 $timeout = (int) $param_value;
                             } else {
                                 $smarty->_trigger_fatal_error("[plugin] invalid value for attribute '".$param_key."'");

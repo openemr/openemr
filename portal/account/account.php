@@ -12,9 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 if (
     (!empty($_SESSION['verifyPortalEmail']) && ($_SESSION['verifyPortalEmail'] === true)) ||
@@ -73,22 +77,22 @@ if ($action == 'userIsUnique') {
         ((int)$_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
     ) {
         // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
-        if (empty(trim($_REQUEST['account']))) {
+        if (empty(trim((string) $_REQUEST['account']))) {
             echo "0";
             exit;
         }
-        $tmp = trim($_REQUEST['loginUname']);
+        $tmp = trim((string) $_REQUEST['loginUname']);
         if (empty($tmp)) {
             echo "0";
             exit;
         }
-        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ? Or portal_username = ?", array($tmp, $tmp));
+        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_login_username = ? Or portal_username = ?", [$tmp, $tmp]);
         if ($auth === false) {
             echo "1";
             exit;
         }
 
-        if ($auth['portal_username'] === trim($_REQUEST['account'])) {
+        if ($auth['portal_username'] === trim((string) $_REQUEST['account'])) {
             echo "1";
             exit;
         }

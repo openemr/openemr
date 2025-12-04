@@ -22,6 +22,23 @@ Fax and SMS feature for OpenEMR that currently supports Twilio SMS and etherFAX 
  To add new vendors, just follow and use the existing dispatching flow
  for an existing service type and vendor service.
 
+### RC Account minimums
+Web Phone requires. Under the Security section, add the following "Application scopes:"
+- Call Control
+- Edit Message
+- Edit Presence
+- Internal Messages
+- Read Accounts
+- Read Call Log
+- Read Call Recording (2.x recordings feature)
+- Read Contacts
+- Read Messages
+- Read Presence
+- RingOut
+- SMS
+- VoIP Calling
+- WebSocketSubscription
+- Edit Extensions (2.x SMS templates feature)
 
 ### License
 This module uses the GPL-3 license.

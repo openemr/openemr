@@ -1,0 +1,69 @@
+##
+# OpenEMR has two different kinds of tests:
+# - "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
+# - "Tests": Tests that require a database and initialization before they can run or pass.
+# This workflow runs the kind that requires initialization.
+
+name: Test All Configurations
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+
+    - name: Collect Docker Dirs
+      id: docker-dirs
+      ##
+      # Collect the docker directory names from ci subdirectories
+      # and compute display names for each configuration.
+      run: |
+        shopt -s nullglob
+        shopt -s extglob
+        # Remove compose-shared-* from the list
+        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
+        dirs=( "${dirs[@]%/docker-compose.yml}" )
+        dirs=( "${dirs[@]#ci/}" )
+        ci/parse_docker_dir.sh "${dirs[@]}" |
+          jq -rc 'map({
+            docker_dir: .output.docker_dir,
+            display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
+            save_composer_cache: .output.save_composer_cache,
+            save_node_cache: .output.save_node_cache
+          }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
+    outputs:
+      configs: ${{ steps.docker-dirs.outputs.configs }}
+  build:
+    name: ${{ matrix.config.display_name }}
+    needs: collect
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJson(needs.collect.outputs.configs) }}
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+    with:
+      docker_dir: ${{ matrix.config.docker_dir }}
+      display_name: ${{ matrix.config.display_name }}
+      # Enable coverage for apache_84_114 only
+      enable_coverage: ${{ matrix.config.docker_dir == 'apache_84_114' }}
+      save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
+      save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}

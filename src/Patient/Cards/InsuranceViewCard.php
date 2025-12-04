@@ -28,13 +28,10 @@ class InsuranceViewCard extends CardModel
 
     private const CARD_ID = 'insurance';
 
-    private $pid;
-
     private $policy_types;
 
-    public function __construct($pid, array $opts = [])
+    public function __construct(private $pid, array $opts = [])
     {
-        $this->pid = $pid;
         $this->policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
@@ -83,11 +80,7 @@ class InsuranceViewCard extends CardModel
     private function getInsuranceTypeArray()
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
-        if ($GLOBALS['insurance_only_one']) {
-            $insurance_array = array('primary');
-        } else {
-            $insurance_array = array('primary', 'secondary', 'tertiary');
-        }
+        $insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
         return $insurance_array;
     }
     private function getInsuranceData()
@@ -126,7 +119,7 @@ class InsuranceViewCard extends CardModel
             $icobj = new InsuranceCompany($row['provider']);
             $adobj = $icobj->get_address();
             $row['insco'] = [
-                'name' => trim($icobj->get_name()),
+                'name' => trim((string) $icobj->get_name()),
                 'display_name' => $icobj->get_display_name(),
                 'address' => [
                     'line1' => $adobj->get_line1(),

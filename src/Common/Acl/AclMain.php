@@ -267,10 +267,10 @@ class AclMain
                             ON usr. username =  garo.value
                         WHERE
                           garo.section_value = ? AND usr. id = ?";
-        $res_groups     = sqlStatement($sql_user_group, array('users',$user_id));
+        $res_groups     = sqlStatement($sql_user_group, ['users',$user_id]);
 
         // Prepare the group queries with the placemakers and binding array for the IN part
-        $groups_sql_param = array();
+        $groups_sql_param = [];
         $groupPlacemakers = "";
         $firstFlag = true;
         while ($row = sqlFetchArray($res_groups)) {
@@ -299,7 +299,7 @@ class AclMain
         $count_group_allowed    = 0;
         $count_user_allowed     = 0;
 
-        $res_user_allowed       = sqlQuery($sql_user_acl, array($section_identifier,$user_id,1));
+        $res_user_allowed       = sqlQuery($sql_user_acl, [$section_identifier,$user_id,1]);
         $count_user_allowed     = $res_user_allowed['count'];
 
         $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
@@ -322,9 +322,9 @@ class AclMain
         if (empty($aco_spec)) {
             return true;
         }
-        $tmp = explode('|', $aco_spec);
+        $tmp = explode('|', (string) $aco_spec);
         if (!is_array($return_value)) {
-            $return_value = array($return_value);
+            $return_value = [$return_value];
         }
         foreach ($return_value as $rv) {
             if (self::aclCheckCore($tmp[0], $tmp[1], $user, $rv)) {
@@ -339,7 +339,7 @@ class AclMain
     //
     public static function aclCheckForm($formdir, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/registry.inc.php');
+        require_once(__DIR__ . '/../../../library/registry.inc.php');
         $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
         return self::aclCheckAcoSpec($tmp['aco_spec'], $user, $return_value);
     }
@@ -349,7 +349,7 @@ class AclMain
     //
     public static function aclCheckIssue($type, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/lists.inc.php');
+        require_once(__DIR__ . '/../../../library/lists.inc.php');
         global $ISSUE_TYPES;
         if (empty($ISSUE_TYPES[$type][5])) {
             return true;
@@ -362,7 +362,7 @@ class AclMain
     {
         $aco = sqlQuery(
             "SELECT aco_spec FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1",
-            array($pc_catid)
+            [$pc_catid]
         );
         return $aco['aco_spec'];
     }

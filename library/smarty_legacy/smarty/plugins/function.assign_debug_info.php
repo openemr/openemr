@@ -16,7 +16,7 @@
  *              {@link Smarty::$_tpl_vars} and {@link Smarty::$_smarty_debug_info}
  * @param Smarty
  */
-function smarty_function_assign_debug_info($params, &$smarty)
+function smarty_function_assign_debug_info($params, &$smarty): void
 {
     $assigned_vars = $smarty->_tpl_vars;
     ksort($assigned_vars);

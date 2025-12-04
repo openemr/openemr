@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once(dirname(__FILE__) . "/../../../library/forms.inc.php");
+require_once(__DIR__ . "/../../../library/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -50,7 +50,7 @@ if (!empty($_POST['confirm'])) {
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
         $sql = "update forms set deleted=1 where id=?";
-        sqlStatement($sql, array($_POST['id']));
+        sqlStatement($sql, [$_POST['id']]);
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
             "DELETE FROM shared_attributes WHERE " .
@@ -59,7 +59,7 @@ if (!empty($_POST['confirm'])) {
             "f.pid = ? AND f.encounter = ? AND f.formdir LIKE 'LBF%' AND " .
             "f.deleted = 0 AND " .
             "lo.form_id = f.formdir AND lo.source = 'E' AND lo.uor > 0)",
-            array($pid, $encounter, $pid, $encounter)
+            [$pid, $encounter, $pid, $encounter]
         );
     }
     // log the event
@@ -98,7 +98,7 @@ if (!empty($_POST['confirm'])) {
                     $formdir = $_GET["formname"] ?? '';
                     $form_id = $_GET["id"] ?? 0;
                     if ($formdir == 'questionnaire_assessments') {
-                        $formName = sqlQuery("SELECT form_name FROM forms WHERE id = ? AND deleted = 0", array($form_id));
+                        $formName = sqlQuery("SELECT form_name FROM forms WHERE id = ? AND deleted = 0", [$form_id]);
                     } else {
                         $formName = getFormNameByFormdir($formdir);
                     }

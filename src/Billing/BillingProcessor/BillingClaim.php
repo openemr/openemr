@@ -98,18 +98,20 @@ class BillingClaim implements \JsonSerializable
     protected $is_last;
 
     /**
-     * processing task action
-     * @var string
+     * @param mixed $claimId
+     * @param mixed $partner_and_payor
+     * @param string $action processing task action
      */
-    public $action;
-
-    public function __construct($claimId, $partner_and_payor, $processing_task_action)
-    {
+    public function __construct(
+        $claimId,
+        $partner_and_payor,
+        public $action
+    ) {
         // Assume this is not the last claim in the "loop" unless explicitly set.
         $this->is_last = false;
 
         // The encounter and PID are in the claimId separated by '-' so parse them out
-        $ta = explode("-", $claimId);
+        $ta = explode("-", (string) $claimId);
         $this->id = $claimId;
         $this->pid = $ta[0];
         $this->encounter = $ta[1];
@@ -117,10 +119,10 @@ class BillingClaim implements \JsonSerializable
         $this->partner = $partner_and_payor['partner'];
 
         // The payor ID is in the 'payer' part, the first character is the payer type
-        $this->payor_id = substr($partner_and_payor['payer'], 1);
+        $this->payor_id = substr((string) $partner_and_payor['payer'], 1);
 
         // The payor type comes in on the payor ID part as a single character prefix
-        $payor_type_char = substr(strtoupper($partner_and_payor['payer']), 0, 1);
+        $payor_type_char = substr(strtoupper((string) $partner_and_payor['payer']), 0, 1);
         if ($payor_type_char == 'P') {
             $this->payor_type = self::PRIMARY;
         } elseif ($payor_type_char == 'S') {
@@ -138,9 +140,6 @@ class BillingClaim implements \JsonSerializable
             $target = $result['processing_format'];
         }
         $this->target = $target ?? '';
-
-        // pass in action from processing task so can log generation context in billing report/manager
-        $this->action = $processing_task_action;
     }
 
     /**

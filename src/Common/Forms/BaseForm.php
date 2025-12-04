@@ -37,11 +37,7 @@ abstract class BaseForm
         $this->authorized = 0;
         $this->date = new \DateTime();
 
-        if ($attendant_type == 'pid') {
-            $this->therapy_group_id = null;
-        } else {
-            $this->therapy_group_id = $_SESSION['therapy_group'] ?? null;
-        }
+        $this->therapy_group_id = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'] ?? null;
         $this->user = $_SESSION['authUser'] ?? null;
         $this->groupname = $_SESSION['authProvider'] ?? null;
     }

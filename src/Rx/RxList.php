@@ -75,7 +75,7 @@ class RxList
     public function getList($query)
     {
         $page = $this->getPage($query);
-        $tokens = $this->parseToTokens($page);
+        $tokens = $this->parseToTokens($page ?: '');
         $hash = $this->tokensToHash($tokens);
         if (!empty($hash)) {
             foreach ($hash as $data) {
@@ -86,75 +86,52 @@ class RxList
 
                 $rxcui = '';
 
-                if (trim($my_data['rxcui']) !== '') {
+                if (trim((string) $my_data['rxcui']) !== '') {
                     $rxcui = " (RxCUI:" . trim($my_data['rxcui'] . ")");
                 }
 
                 $synonym = '';
-                if (trim($my_data['synonym']) !== '') {
-                    $synonym = " | (" . trim($my_data['synonym']) . ")";
+                if (trim((string) $my_data['synonym']) !== '') {
+                    $synonym = " | (" . trim((string) $my_data['synonym']) . ")";
                 }
 
                 $list[trim($my_data['name'] . $rxcui) . $synonym] =
-                trim($my_data['name']);
+                trim((string) $my_data['name']);
             }
         }
         return $list;
     }
 
-    /* break the web page into a collection of TAGS
-     * such as <input ..> or <img ... >
+    /**
+     * Parse HTML/XML content into tokens by splitting on tags
+     *
+     * Splits the input string into an array of tokens, where each token is either
+     * a tag (e.g., "<name>", "</name>") or content between tags.
+     *
+     * @param string $page The HTML/XML content to parse
+     * @return array Array of tokens (tags and content)
      */
-    public function parseToTokens($page)
+    protected function parseToTokens(string $page): array
     {
-        $pos = 0;
-        $token = 0;
-        unset($tokens);
-        $in_token = false;
-        while ($pos < strlen($page)) {
-            switch (substr($page, $pos, 1)) {
-                case "<":
-                    if ($in_token) {
-                        $token++;
-                        $in_token = false;
-                    }
-
-                    $tokens[$token] .= substr($page, $pos, 1);
-                    $in_token = true;
-                    break;
-
-                case ">":
-                    $tokens[$token] .= substr($page, $pos, 1);
-                    $in_token = false;
-                    $token++;
-                    break;
-
-                default:
-                    $tokens[$token] .= substr($page, $pos, 1);
-                    $in_token = false;
-                    break;
-            }
-            $pos++;
-        }
-        return $tokens;
+        return array_values(array_filter(
+            preg_split('/(<[^>]*>)/', $page, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)
+        ));
     }
 
     public function tokensToHash($tokens)
     {
         $record = false;
         $current = 0;
-        unset($hash);
         $hash = [];
-        unset($all);
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
-            if ((bool)str_contains($tokens[$pos], "<name>") && $pos !== 3) {
+            if (str_contains((string) $tokens[$pos], "<name>") && $pos !== 3) {
                 // found a brand line 'token'
                 $type = "name";
                 $record = $pos;
                 $ending = "</name>";
             }
 
-            if ((bool)str_contains($tokens[$pos], "<synonym>")) {
+            if (str_contains((string) $tokens[$pos], "<synonym>")) {
                 // found a generic line 'token'
                 $type = "synonym";
                 //print "generic_name record start at $pos<BR>\n";
@@ -162,7 +139,7 @@ class RxList
                 $record = $pos;
             }
 
-            if ((bool)str_contains($tokens[$pos], "<rxcui>")) {
+            if (str_contains((string) $tokens[$pos], "<rxcui>")) {
                 // found a drug-class 'token'
                 $type = "rxcui";
                 $ending = "</rxcui>";
@@ -180,9 +157,9 @@ class RxList
                 $ending = "";
             }
 
-            if ($pos === ($record + 1) and ($ending != "")) {
-                $my_pos = stripos($tokens[$pos], "<");
-                $hash[$type] = substr($tokens[$pos], 0, $my_pos);
+            if ($pos === ($record + 1) && ($ending !== "")) {
+                $my_pos = stripos((string) $tokens[$pos], "<");
+                $hash[$type] = $my_pos !== false ? substr((string) $tokens[$pos], 0, $my_pos) : $tokens[$pos];
                 $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
                 //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
                 $type = "";

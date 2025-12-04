@@ -34,15 +34,6 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     use WritesToBillingLog;
 
     /**
-     * If "Allow Encounter Claims" is enabled, this allows the claims to use
-     * the alternate payor ID on the claim and sets the claims to report,
-     * not chargeable. ie: RP = reporting, CH = chargeable
-     *
-     * @var bool|mixed
-     */
-    protected $encounter_claim = false;
-
-    /**
      * An array of batches, one for each x-12 partner, indexed by partner id
      *
      * @var array
@@ -68,10 +59,15 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected $pat_segment_counts = [];
 
-    public function __construct($action, $encounter_claim = false)
-    {
+    /**
+     * @param mixed $action
+     * @param bool $encounter_claim If "Allow Encounter Claims" is enabled, this allows the claims to use the alternate payor ID on the claim and sets the claims to report, not chargeable. ie: RP = reporting, CH = chargeable
+     */
+    public function __construct(
+        $action,
+        protected $encounter_claim = false
+    ) {
         parent::__construct($action);
-        $this->encounter_claim = $encounter_claim;
     }
 
     /**
@@ -240,7 +236,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         }
 
         //$is_self_of_insured = $claim->isSelfOfInsured();
-        $segs = explode("~\n", X125010837P::genX12837P(
+        $segs = explode("~\n", (string) X125010837P::genX12837P(
             $claim->getPid(),
             $claim->getEncounter(),
             $claim->getPartner(),
@@ -299,7 +295,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
                     '&partner=' . urlencode($x12_partner_id) .
-                    '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken());
+                    '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken());
                 $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>

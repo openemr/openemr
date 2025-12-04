@@ -2,13 +2,15 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Patient Service Query Tests
@@ -21,7 +23,6 @@ use PHPUnit\Framework\TestCase;
  *
  */
 
-#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceQueryTest extends TestCase
 {
     private $fixtureManager;
@@ -38,6 +39,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installPatientFixtures();
         $this->fhirPatientService = new FhirPatientService();
+        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void
@@ -169,7 +171,7 @@ class FhirPatientServiceQueryTest extends TestCase
 
     #[Test]
     #[DataProvider('searchParameter')]
-    public function testGetAll($parameterName, $parameterValue)
+    public function testGetAll($parameterName, $parameterValue): void
     {
         $fhirSearchParameters = [$parameterName => $parameterValue];
         $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
@@ -177,7 +179,7 @@ class FhirPatientServiceQueryTest extends TestCase
     }
 
     #[Test]
-    public function testGetAllWithUuid()
+    public function testGetAllWithUuid(): void
     {
         $select = "SELECT `uuid` FROM `patient_data` WHERE `pubpid`=?";
         $result = sqlStatement($select, ['test-fixture-789456']);
@@ -189,7 +191,7 @@ class FhirPatientServiceQueryTest extends TestCase
 
     #[Test]
     #[DataProvider('searchParameterCompound')]
-    public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value)
+    public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value): void
     {
         $fhirSearchParameters = [$parameter1 => $parameter1Value, $parameter2 => $parameter2Value];
         $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
@@ -197,7 +199,7 @@ class FhirPatientServiceQueryTest extends TestCase
     }
 
     #[Test]
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResult = $this->fhirPatientService->getAll([]);
         $this->assertNotEmpty($actualResult->getData(), "Get All should have returned a result");
@@ -213,7 +215,7 @@ class FhirPatientServiceQueryTest extends TestCase
     }
 
     #[Test]
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->fhirPatientService->getOne('not-a-uuid');
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));

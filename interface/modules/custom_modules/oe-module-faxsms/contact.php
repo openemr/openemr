@@ -59,14 +59,14 @@ if (empty($isSMS)) {
     $form_pid = $clientApp->getRequest('form_pid');
     $isDoc = (int)$clientApp->getRequest('isDocuments');
     $isQueue = $clientApp->getRequest('isQueue');
-    $file_name = pathinfo($the_file, PATHINFO_BASENAME);
-    $details = json_decode($clientApp->getRequest('details', ''), true);
+    $file_name = pathinfo((string) $the_file, PATHINFO_BASENAME);
+    $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $template_name = $clientApp->getRequest('title');
 } else {
 // SMS contact dialog. Passed in phone or select patient from popup.
     $interface_pid = $clientApp->getRequest('pid', '');
     $portal_url = $GLOBALS['portal_onsite_two_address'];
-    $details = json_decode($clientApp->getRequest('details', ''), true);
+    $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
     $pid = $interface_pid;
 }

@@ -38,20 +38,20 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     $screen = 'new_payment';
 //===============================================================================
 // Initialisations
-$mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
+$mode                    = $_POST['mode'] ?? '';
 $payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
 $request_payment_id      = $payment_id ;
-$hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
-$default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
-$hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hidden_type_code'] : '';
+$hidden_patient_code     = $_REQUEST['hidden_patient_code'] ?? '';
+$default_search_patient  = $_POST['default_search_patient'] ?? '';
+$hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 //===============================================================================
 //ar_session addition code
 //===============================================================================
 
 if ($mode == "new_payment" || $mode == "distribute") {
-    if (trim($_POST['type_name']) == 'insurance') {
+    if (trim((string) $_POST['type_name']) == 'insurance') {
         $QueryPart = "payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
-    } elseif (trim($_POST['type_name']) == 'patient') {
+    } elseif (trim((string) $_POST['type_name']) == 'patient') {
         $QueryPart = "payer_id = '0', patient_id = '" . add_escape_custom($hidden_type_code);
     }
       $user_id = $_SESSION['authUserID'];
@@ -97,7 +97,7 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
         }
     }
     if ($_REQUEST['global_amount'] == 'yes') {
-        sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) : ''), $payment_id]);
+        sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim((string) $_POST["HidUnappliedAmount"]) : ''), $payment_id]);
     }
     if ($mode == "FinishPayments") {
         // @todo This is not useful. Gonna let fall through to form init.
@@ -292,17 +292,17 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["new_payment_xpd", "search_payments_xpd", "era_payments_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

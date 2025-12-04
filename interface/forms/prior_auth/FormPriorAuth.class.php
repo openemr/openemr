@@ -16,7 +16,7 @@
  * class PriorAuth
  *
  */
-class FormPriorAuth extends ORDataObject
+class FormPriorAuth extends ORDataObject implements \Stringable
 {
     /**
      *
@@ -30,14 +30,14 @@ class FormPriorAuth extends ORDataObject
      * @access private
      */
 
-    var $id;
-    var $pid;
-    var $activity;
-    var $date;
-    var $prior_auth_number;
-    var $comments;
-    var $date_from;
-    var $date_to;
+    public $id;
+    public $pid;
+    public $activity;
+    public $date;
+    public $prior_auth_number;
+    public $comments;
+    public $date_from;
+    public $date_to;
 
     /**
      * Constructor sets all Form attributes to their default value
@@ -67,7 +67,7 @@ class FormPriorAuth extends ORDataObject
         }
     }
 
-    function __toString()
+    function __toString(): string
     {
         return "ID: " . $this->id . "\n";
     }

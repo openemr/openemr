@@ -37,10 +37,10 @@ class Module implements AutoloaderProviderInterface
                 default:
                     $controller->layout('documents/layout');
             };
-            $controller->getEvent()->getViewModel()->setVariables(array(
+            $controller->getEvent()->getViewModel()->setVariables([
                         'current_controller' => $route->getParam('controller'),
                         'current_action'         => $route->getParam('action'),
-                    ));
+                    ]);
         });
     }
 
@@ -51,12 +51,12 @@ class Module implements AutoloaderProviderInterface
 
     public function getAutoloaderConfig()
     {
-        return array(
-        'Laminas\Loader\StandardAutoloader' => array(
-          'namespaces' => array(
+        return [
+        \Laminas\Loader\StandardAutoloader::class => [
+          'namespaces' => [
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-          ),
-        ),
-        );
+          ],
+        ],
+        ];
     }
 }

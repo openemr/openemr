@@ -1,7 +1,7 @@
 <?php
 /*
 if (!empty($_GET['debug'])) {
-	$debug = $_GET['debug'];
+    $debug = $_GET['debug'];
 }
 */
 //First make sure user has access
@@ -49,53 +49,44 @@ $total_rows = count($rows);
 $total_acl_check_time = 0;
 
 foreach ($rows as $row) {
-    list(	$aco_section_value,
-			$aco_section_name,
-			$aco_value,
-			$aco_name,
+    [$aco_section_value, $aco_section_name, $aco_value, $aco_name, $aro_section_value, $aro_section_name, $aro_value, $aro_name] = $row;
 
-			$aro_section_value,
-			$aro_section_name,
-			$aro_value,
-			$aro_name
-		) = $row;
+    $acl_check_begin_time = $profiler->getMicroTime();
+    $acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value);
+    $acl_check_end_time = $profiler->getMicroTime();
 
-	$acl_check_begin_time = $profiler->getMicroTime();
-	$acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value);
-	$acl_check_end_time = $profiler->getMicroTime();
+    $access = &$acl_result['allow'];
+    $return_value = &$acl_result['return_value'];
 
-	$access = &$acl_result['allow'];
-	$return_value = &$acl_result['return_value'];
+    $acl_check_time = ($acl_check_end_time - $acl_check_begin_time) * 1000;
+    $total_acl_check_time += $acl_check_time;
 
-	$acl_check_time = ($acl_check_end_time - $acl_check_begin_time) * 1000;
-	$total_acl_check_time += $acl_check_time;
+    if (empty($tmp_aco_section_name) OR $aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
+        $display_aco_name = "$aco_section_name > $aco_name";
+    } else {
+        $display_aco_name = "";
+    }
 
-	if (empty($tmp_aco_section_name) OR $aco_section_name != $tmp_aco_section_name OR $aco_name != $tmp_aco_name) {
-		$display_aco_name = "$aco_section_name > $aco_name";
-	} else {
-		$display_aco_name = "";
-	}
+    $acls[] = [
+                        'aco_section_value' => $aco_section_value,
+                        'aco_section_name' => $aco_section_name,
+                        'aco_value' => $aco_value,
+                        'aco_name' => $aco_name,
 
-	$acls[] = array(
-						'aco_section_value' => $aco_section_value,
-						'aco_section_name' => $aco_section_name,
-						'aco_value' => $aco_value,
-						'aco_name' => $aco_name,
+                        'aro_section_value' => $aro_section_value,
+                        'aro_section_name' => $aro_section_name,
+                        'aro_value' => $aro_value,
+                        'aro_name' => $aro_name,
 
-						'aro_section_value' => $aro_section_value,
-						'aro_section_name' => $aro_section_name,
-						'aro_value' => $aro_value,
-						'aro_name' => $aro_name,
+                        'access' => $access,
+                        'return_value' => $return_value,
+                        'acl_check_time' => number_format($acl_check_time, 2),
 
-						'access' => $access,
-						'return_value' => $return_value,
-						'acl_check_time' => number_format($acl_check_time, 2),
+                        'display_aco_name' => $display_aco_name,
+                    ];
 
-						'display_aco_name' => $display_aco_name,
-					);
-
-	$tmp_aco_section_name = $aco_section_name;
-	$tmp_aco_name = $aco_name;
+    $tmp_aco_section_name = $aco_section_name;
+    $tmp_aco_name = $aco_name;
 }
 
 //echo "<br /><br />$x ACL_CHECK()'s<br />\n";
@@ -106,7 +97,7 @@ $smarty->assign("total_acl_checks", $total_rows);
 $smarty->assign("total_acl_check_time", $total_acl_check_time);
 
 if ($total_rows > 0) {
-	$avg_acl_check_time = $total_acl_check_time / $total_rows;
+    $avg_acl_check_time = $total_acl_check_time / $total_rows;
 }
 $smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
 

@@ -21,7 +21,7 @@ class AllPatientsTest extends TestCase
      *
      * Builds JSON QDM models for all patients in the database.
      */
-    public function testAllPatients()
+    public function testAllPatients(): void
     {
         $builder = new QdmBuilder();
         $models = [];

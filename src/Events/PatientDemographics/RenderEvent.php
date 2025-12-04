@@ -43,20 +43,12 @@ class RenderEvent extends Event
     const EVENT_RENDER_POST_PAGELOAD = 'patientDemographics.render.post_page_load';
 
     /**
-     * @var null|integer
-     *
-     * Represents the patient we are viewing in the patient demographics
-     */
-    private $pid = null;
-
-    /**
      * constructor.
      *
      * @param integer $pid Patient Identifier
      */
-    public function __construct($pid)
+    public function __construct(private $pid)
     {
-        $this->pid = $pid;
     }
 
     /**

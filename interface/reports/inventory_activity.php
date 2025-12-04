@@ -67,36 +67,50 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
     "FROM drug_inventory AS di WHERE " .
     "( di.destroy_date IS NULL OR di.destroy_date > ? ) " .
-    "$prodcond $whidcond", array($form_to_date));
+    "$prodcond $whidcond", [$form_to_date]);
 
   // Get sum of sales/adjustments/purchases after the report end date.
     $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.inventory_id " .
-    "$prodcond $whidcond", array($form_to_date));
+    "$prodcond $whidcond", [$form_to_date]);
 
   // Get sum of transfers out after the report end date.
     $xfrow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.xfer_inventory_id " .
-    "$prodcond $whidcond", array($form_to_date));
+    "$prodcond $whidcond", [$form_to_date]);
 
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
 
-function thisLineItem(
-    $product_id,
-    $warehouse_id,
-    $patient_id,
-    $encounter_id,
-    $rowprod,
-    $rowwh,
-    $transdate,
-    $qtys,
-    $irnumber = ''
-) {
+/**
+ * Render a line item for the inventory activity report HTML table.
+ *
+ * @param int $product_id
+ * @param int $warehouse_id
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $rowprod
+ * @param string $rowwh
+ * @param string $transdate
+ * @param array $qtys
+ * @param string $irnumber
+ * @return void
+ */
+function inventoryActivityLineItem(
+    int $product_id,
+    int $warehouse_id,
+    int $patient_id,
+    int $encounter_id,
+    string $rowprod,
+    string $rowwh,
+    string $transdate,
+    array $qtys,
+    string $irnumber = ''
+): void {
 
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
     global $whleft, $prodleft; // left 2 columns, blank where repeated
@@ -197,7 +211,7 @@ function thisLineItem(
             } // End not csv export
         }
 
-        $secqtys = array(0, 0, 0, 0, 0);
+        $secqtys = [0, 0, 0, 0, 0];
         if ($product_first) {
             $whleft = $warehouse = $rowwh;
             $last_warehouse_id = $warehouse_id;
@@ -256,7 +270,7 @@ function thisLineItem(
             } // End not csv export
         }
 
-        $priqtys = array(0, 0, 0, 0, 0);
+        $priqtys = [0, 0, 0, 0, 0];
         if ($product_first) {
             $prodleft = $product = $rowprod;
             $last_product_id = $product_id;
@@ -606,12 +620,12 @@ if ($form_action) { // if submit or export
     $prodleft  = "";
     $warehouse = "";
     $whleft    = "";
-    $grandqtys = array(0, 0, 0, 0, 0);
-    $priqtys   = array(0, 0, 0, 0, 0);
-    $secqtys   = array(0, 0, 0, 0, 0);
+    $grandqtys = [0, 0, 0, 0, 0];
+    $priqtys   = [0, 0, 0, 0, 0];
+    $secqtys   = [0, 0, 0, 0, 0];
     $last_inventory_id = 0;
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.fee, s.pid, s.encounter, " .
     "s.xfer_inventory_id, s.distributor_id, d.name, lo.title, " .
@@ -655,7 +669,7 @@ if ($form_action) { // if submit or export
                 !empty($row['destroy_date']) && $row['on_hand'] != 0
                 && $row['destroy_date'] <= $form_to_date
             ) {
-                thisLineItem(
+                inventoryActivityLineItem(
                     $row['drug_id'],
                     $row['warehouse_id'],
                     0,
@@ -663,21 +677,17 @@ if ($form_action) { // if submit or export
                     $row['name'],
                     $row['title'],
                     $row['destroy_date'],
-                    array(0, 0, 0, 0, 0 - $row['on_hand']),
+                    [0, 0, 0, 0, 0 - $row['on_hand']],
                     xl('Destroyed')
                 );
             }
         }
 
-        $qtys = array(0, 0, 0, 0, 0);
+        $qtys = [0, 0, 0, 0, 0];
         if ($row['sale_id']) {
             if ($row['xfer_inventory_id']) {
                 // A transfer sale item will appear twice, once with each lot.
-                if ($row['inventory_id'] == $row['xfer_inventory_id']) {
-                    $qtys[3] = $row['quantity'];
-                } else {
-                    $qtys[3] = 0 - $row['quantity'];
-                }
+                $qtys[3] = $row['inventory_id'] == $row['xfer_inventory_id'] ? $row['quantity'] : 0 - $row['quantity'];
             } elseif ($row['pid']) {
                 $qtys[0] = 0 - $row['quantity'];
             } elseif ($row['distributor_id']) {
@@ -689,7 +699,7 @@ if ($form_action) { // if submit or export
             }
         }
 
-        thisLineItem(
+        inventoryActivityLineItem(
             $row['drug_id'],
             $row['warehouse_id'],
             $row['pid'] + 0,
@@ -703,7 +713,7 @@ if ($form_action) { // if submit or export
     }
 
     // Generate totals for last product and warehouse.
-    thisLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0, 0, 0));
+    inventoryActivityLineItem(0, '~', 0, 0, '', '', '0000-00-00', [0, 0, 0, 0, 0]);
 
     // Grand totals line.
     if ($form_action != 'export') { // if submit

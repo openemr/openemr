@@ -24,7 +24,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 
 class Encounter_Controller extends Abstract_Controller
 {
-    public function esign_is_encounter_locked()
+    public function esign_is_encounter_locked(): never
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
         $signable = new Encounter_Signable($encounterId);
@@ -57,7 +57,7 @@ class Encounter_Controller extends Abstract_Controller
         $this->render();
     }
 
-    public function esign_log_view()
+    public function esign_log_view(): never
     {
         $encounterId = $this->getRequest()->getParam('encounterId', '');
         $signable = new Encounter_Signable($encounterId); // Contains features that make object signable

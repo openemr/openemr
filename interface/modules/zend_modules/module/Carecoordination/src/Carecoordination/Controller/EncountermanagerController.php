@@ -57,6 +57,9 @@ class EncountermanagerController extends AbstractActionController
         $this->listenerObject = new Listener();
     }
 
+    /**
+     * @return ViewModel
+     */
     public function indexAction()
     {
         $request = $this->getRequest();
@@ -93,6 +96,7 @@ class EncountermanagerController extends AbstractActionController
         $downloadccda = $request->getPost('downloadccda') ?: $request->getQuery()->downloadccda;
         $downloadqrda = $request->getPost('downloadqrda') ?: $request->getQuery()->downloadqrda;
         $downloadqrda3 = $request->getPost('downloadqrda3') ?: $request->getQuery()->downloadqrda3;
+        $downloadqrda3_consolidated = $request->getPost('downloadqrda3_consolidated') ?: $request->getQuery()->downloadqrda3_consolidated;
         $latest_ccda = $request->getPost('latestccda') ?: $this->getRequest()->getQuery('latest_ccda');
         $reportController = new QrdaReportController();
         $reportService = new QrdaReportService();
@@ -101,7 +105,12 @@ class EncountermanagerController extends AbstractActionController
         foreach ($m_resolved as $k => $m) {
             $measures[$k]['measure_path'] = $m;
         }
-        if (($downloadccda == 'download_ccda') || ($downloadqrda == 'download_qrda') || ($downloadqrda3 == 'download_qrda3')) {
+        if (
+            ($downloadccda == 'download_ccda')
+            || ($downloadqrda == 'download_qrda')
+            || ($downloadqrda3 == 'download_qrda3')
+            || ($downloadqrda3_consolidated == 'download_qrda3_consolidated')
+        ) {
             $pids = '';
             if ($request->getQuery('pid_ccda')) {
                 $pid = $request->getQuery('pid_ccda');
@@ -123,8 +132,8 @@ class EncountermanagerController extends AbstractActionController
                     $pids .= $combination[$i] . '|';
                 }
             }
-            $components = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
-            $send_params = array(
+            $components = $request->getPost('components') ?: $request->getQuery()->components;
+            $send_params = [
                 'action' => 'index',
                 'pids' => $pids,
                 'view' => 1,
@@ -133,27 +142,35 @@ class EncountermanagerController extends AbstractActionController
                 'latest_ccda' => $latest_ccda,
                 'form_date_from' => $fromDate,
                 'form_date_to' => $toDate
-            );
+            ];
             if ($downloadqrda == 'download_qrda') {
-                $send_params = array(
+                $send_params = [
                     'action' => 'index',
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda' => $downloadqrda
-                );
+                ];
             }
             if ($downloadqrda3 == 'download_qrda3') {
-                $send_params = array(
+                $send_params = [
                     'action' => 'index',
                     'pids' => $pids,
                     'view' => 1,
                     'downloadqrda3' => $downloadqrda3
-                );
+                ];
+            }
+            if ($downloadqrda3_consolidated == 'download_qrda3_consolidated') {
+                $send_params = [
+                    'action' => 'index',
+                    'pids' => $pids,
+                    'view' => 1,
+                    'downloadqrda3_consolidated' => $downloadqrda3_consolidated
+                ];
             }
             $this->forward()->dispatch(EncounterccdadispatchController::class, $send_params);
         }
         // view
-        $params = array(
+        $params = [
             'from_date' => $fromDate,
             'to_date' => $toDate,
             'pid' => $pid,
@@ -170,7 +187,7 @@ class EncountermanagerController extends AbstractActionController
             'search_type_date' => $form_search_type_date,
             'provider_id' => $form_provider_id,
             "billing_facility_id" => $form_billing_facility_id
-        );
+        ];
         if ($new_search) {
             $count = $this->getEncountermanagerTable()->getEncounters($params, 1);
         } else {
@@ -194,7 +211,7 @@ class EncountermanagerController extends AbstractActionController
         $facilityService = new FacilityService();
         $billingLocations = $facilityService->getAllBillingLocations();
 
-        $index = new ViewModel(array(
+        $index = new ViewModel([
             'details' => $details,
             'form_data' => $params,
             'current_measures' => $measures,
@@ -204,12 +221,13 @@ class EncountermanagerController extends AbstractActionController
             'commonplugin' => $this->CommonPlugin(),
             'providers' => $practitioners,
             'billing_facilities' => $billingLocations
-        ));
+        ]);
         return $index;
     }
 
     /**
      * Action handle for previewing a ccda document.  Given the id of a document in
+     *
      * @return ViewModel
      */
     public function previewDocumentAction()
@@ -246,7 +264,7 @@ class EncountermanagerController extends AbstractActionController
 
             // time to use our stylesheets
             // TODO: @adunsulag we need to put this transformation process into its own class that we can reuse
-            $stylesheet = dirname(__FILE__) . "/../../../../../public/xsl/cda.xsl";
+            $stylesheet = __DIR__ . "/../../../../../public/xsl/cda.xsl";
 
             if (!file_exists($stylesheet)) {
                 throw new \RuntimeException("Could not find stylesheet file at location: " . $stylesheet);
@@ -271,11 +289,18 @@ class EncountermanagerController extends AbstractActionController
         return $view;
     }
 
+    /**
+     * @param $content
+     * @return false|string
+     */
     public function buildCCDAHtml($content)
     {
         return $this->getEncountermanagerTable()->getCcdaAsHTML($content);
     }
 
+    /**
+     * @return ViewModel
+     */
     public function downloadAction()
     {
         $id = $this->getRequest()->getQuery('id');
@@ -327,6 +352,9 @@ class EncountermanagerController extends AbstractActionController
         return $view;
     }
 
+    /**
+     * @return JsonModel|ViewModel
+     */
     public function downloadallAction()
     {
         $pids = $this->params('pids');
@@ -342,7 +370,7 @@ class EncountermanagerController extends AbstractActionController
             }
 
             $dir = $parent_dir . "/";
-            $arr = explode('|', $pids);
+            $arr = explode('|', (string) $pids);
             foreach ($arr as $row) {
                 $pid = $row;
                 $ids = $this->getEncountermanagerTable()->getFileID($pid, 2);
@@ -422,12 +450,16 @@ class EncountermanagerController extends AbstractActionController
     }
 
     // note this gets called from the frontend javascript (see public/js/application/sendTo.js::send()
+
+    /**
+     * @return \Laminas\Stdlib\ResponseInterface
+     */
     public function transmitCCDAction()
     {
         $combination = $this->getRequest()->getQuery('combination');
         $recipients = $this->getRequest()->getQuery('recipients');
         $xml_type = $this->getRequest()->getQuery('xml_type');
-        $result = $this->getEncountermanagerTable()->transmitCcdToRecipients(array("ccda_combination" => $combination, "recipients" => $recipients, "xml_type" => $xml_type));
+        $result = $this->getEncountermanagerTable()->transmitCcdToRecipients(["ccda_combination" => $combination, "recipients" => $recipients, "xml_type" => $xml_type]);
         // need to make sure we escape this since we are escaping this into html
         echo text($result);
         return $this->response;

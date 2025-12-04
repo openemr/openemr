@@ -2,13 +2,15 @@
 
 namespace OpenEMR\Tests\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ServerBag;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FacilityRestControllerTest
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -33,7 +35,7 @@ class FacilityRestControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->facilityData = array(
+        $this->facilityData = [
             'name' => 'test-fixture-Your Clinic Name Here',
             'phone' => '(619) 555-4859',
             'fax' => '(619) 555-7822',
@@ -67,7 +69,7 @@ class FacilityRestControllerTest extends TestCase
             'oid' => '',
             'iban' => '',
             'info' => ''
-        );
+        ];
 
         $this->fixtureManager = new FacilityFixtureManager();
         $this->facilityController = new FacilityRestController();
@@ -78,26 +80,22 @@ class FacilityRestControllerTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
-    public function testPostInvalidData()
+    public function testPostInvalidData(): void
     {
         unset($this->facilityData["name"]);
-        $actualResult = $this->facilityController->post($this->facilityData);
-        $this->assertEquals(400, http_response_code());
+        $response = $this->facilityController->post($this->facilityData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::post with valid data
-     */
-    public function testPost()
+    public function testPost(): void
     {
-        $actualResult = $this->facilityController->post($this->facilityData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->facilityController->post($this->facilityData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(2, count($actualResult["data"]));
@@ -107,39 +105,37 @@ class FacilityRestControllerTest extends TestCase
         $this->assertGreaterThan(0, $facilityPid);
     }
 
-    /**
-     * @cover ::patch with invalid data
-     */
-    public function testPatchInvalidData()
+    public function testPatchInvalidData(): void
     {
-        $actualResult = $this->facilityController->post($this->facilityData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->facilityController->post($this->facilityData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $actualUuid = $actualResult["data"]["uuid"];
         $this->facilityData["uuid"] = $actualUuid;
 
-        $actualResult = $this->facilityController->patch("not-a-id", $this->facilityData);
-        $this->assertEquals(400, http_response_code());
+        $response = $this->facilityController->patch("not-a-id", $this->facilityData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
-    public function testPatch()
+    public function testPatch(): void
     {
-        $actualResult = $this->facilityController->post($this->facilityData);
-        $this->assertEquals(201, http_response_code());
+        $response = $this->facilityController->post($this->facilityData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(2, count($actualResult["data"]));
 
         $facilityUuid = $actualResult["data"]["uuid"];
         $this->facilityData["email"] = "info@pennfirm.com";
-        $actualResult = $this->facilityController->patch($facilityUuid, $this->facilityData);
+        $response = $this->facilityController->patch($facilityUuid, $this->facilityData, $this->createMock(HttpRestRequest::class));
 
-        $this->assertEquals(200, http_response_code());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertNotNull($actualResult["data"]);
@@ -149,41 +145,43 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals($this->facilityData["email"], $updatedFacility["email"]);
     }
 
-    /**
-     * @cover ::getOne with an invalid uuid
-     */
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
-        $actualResult = $this->facilityController->getOne("not-a-uuid");
-        $this->assertEquals(400, http_response_code());
+        $response = $this->facilityController->getOne("not-a-uuid", $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
         $this->assertEquals([], $actualResult["data"]);
     }
 
-    /**
-     * @cover ::getOne with a valid uuid
-     */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         // create a record
-        $postResult = $this->facilityController->post($this->facilityData);
+        $response = $this->facilityController->post($this->facilityData, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $postResult = json_decode($response->getBody(), true);
         $postedUuid = $postResult["data"]["uuid"];
 
         // confirm the id matches what was requested
-        $actualResult = $this->facilityController->getOne($postedUuid);
+        $response = $this->facilityController->getOne($postedUuid, $this->createMock(HttpRestRequest::class));
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $actualResult = json_decode($response->getBody(), true);
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
-    /**
-     * @cover ::getAll
-     */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installFacilityFixtures();
-        $searchResult = $this->facilityController->getAll(array("facility_npi" => "0123456789"));
+        $restRequest = $this->createMock(HttpRestRequest::class);
+        $restRequest->server = $this->createMock(ServerBag::class);
+        $restRequest->server->method('get')->with('REDIRECT_URL')->willReturn('http://localhost/');
+        $restRequest->query = new InputBag();
 
-        $this->assertEquals(200, http_response_code());
+        $response = $this->facilityController->getAll($restRequest, ["facility_npi" => "0123456789"]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $searchResult = json_decode($response->getBody(), true);
+
         $this->assertEquals(0, count($searchResult["validationErrors"]));
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));

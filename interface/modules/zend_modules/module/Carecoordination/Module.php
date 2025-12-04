@@ -29,17 +29,17 @@ class Module
 {
     public function getAutoloaderConfig()
     {
-        return array(
-            'Laminas\Loader\ClassMapAutoloader' => array(
+        return [
+            \Laminas\Loader\ClassMapAutoloader::class => [
                 __DIR__ . '/autoload_classmap.php',
-            ),
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            ],
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()
@@ -54,10 +54,10 @@ class Module
             $controller = $e->getTarget();
             $controller->layout('carecoordination/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();
-                $controller->getEvent()->getViewModel()->setVariables(array(
+                $controller->getEvent()->getViewModel()->setVariables([
                     'current_controller' => $route->getParam('controller'),
                     'current_action' => $route->getParam('action'),
-                ));
+                ]);
         }, 100);
     }
 

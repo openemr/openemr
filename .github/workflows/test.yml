@@ -1,204 +1,884 @@
+##
+# Reusable workflow for running OpenEMR tests
+# Accepts a docker directory name and parses all configuration from it
+
 name: Test
 
+run-name: ${{ inputs.display_name || inputs.docker_dir }}
+
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
+    inputs:
+      docker_dir:
+        required: true
+        type: string
+        description: 'Docker directory name (e.g., apache_84_114)'
+      display_name:
+        required: false
+        type: string
+        description: 'Display name for the workflow run (defaults to docker_dir)'
+        default: ''
+      enable_coverage:
+        required: false
+        type: boolean
+        description: 'Toggle coverage collection and reporting'
+        default: false
+      save_composer_cache:
+        required: false
+        type: boolean
+        description: 'Save composer cache (only first job per PHP version should)'
+        default: false
+      save_node_cache:
+        required: false
+        type: boolean
+        description: 'Save node cache (only first job per Node version should)'
+        default: false
+  workflow_dispatch:
+    inputs:
+      docker_dir:
+        description: 'Docker directory name'
+        required: true
+        type: choice
+        options:
+        - apache_82_118
+        - apache_83_118
+        - apache_84_1011
+        - apache_84_106
+        - apache_84_114
+        - apache_84_118
+        - apache_84_120
+        - apache_84_57
+        - apache_84_80
+        - apache_84_84
+        - apache_84_93
+        - nginx_82
+        - nginx_83
+        - nginx_84
+        - nginx_85
+        - nginx_86
+        default: 'apache_84_114'
+      enable_coverage:
+        description: 'Enable coverage collection and reporting'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
-  collect:
-    runs-on: ubuntu-22.04
+  run:
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - name: Collect Docker Dirs
-      id: docker-dirs
-      ##
-      # Parse out the test parameters from the ci subdirectories that contain
-      # docker-compose.yml files. We'll use that output as a test matrix
-      # in github actions.
+    - name: Checkout Code
+      uses: actions/checkout@v6
+
+    - name: Parse Configuration
+      id: parse
       run: |
-        shopt -s nullglob
-        dirs=( ci/*/docker-compose.yml )
-        if (( "${#dirs[@]}" == 0 )); then
-          echo 'No docker-compose.yml files found in ci subdirectories.' >&2
-          exit 1
-        fi
-        dirs=( "${dirs[@]%/docker-compose.yml}" )
-        dirs=( "${dirs[@]#ci/}" )
-        # Everything inside this for loop that goes to stdout ends up
-        # in the github output, so it must be valid json.
-        for docker_dir in "${dirs[@]}"; do
-            IFS=: read -r database db < <(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
-            IFS=_ read -r webserver php _ <<< "${docker_dir}"
+        # Run the parsing script and save JSON output
+        ci/parse_docker_dir.sh "${{ inputs.docker_dir }}" | tee parsed_config.json
 
-            # collect docker-compose.yml templates that will be used in the docker compose up merge
-            webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
-            database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
+        # Extract outputs and write to GITHUB_OUTPUT
+        jq -r '.[0].output | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_OUTPUT"
 
-            # If docker_dir ends with "_no-e2e", we want to skip the e2e tests for this configuration.
-            [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
+        # Extract env vars and write to GITHUB_ENV
+        jq -r '.[0].env | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_ENV"
 
-            printf -v php '%d.%d' "${php::1}" "${php:1}"
-            case "$webserver" in
-                apache)
-                    openemr_dir=/var/www/localhost/htdocs/openemr
-                    chromium_install='apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver'
-                    ;;
-                nginx)
-                    openemr_dir=/usr/share/nginx/html/openemr
-                    chromium_install='apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver'
-                    ;;
-                *)
-                    echo "Unknown webserver: $webserver" >&2;
-                    exit 1
-                    ;;
-            esac
-            printf '{
-                "chromium_install": "%s",
-                "docker_dir": "%s",
-                "database": "%s",
-                "db": "%s",
-                "e2e_enabled": "%s",
-                "openemr_dir": "%s",
-                "php": "%s",
-                "webserver": "%s",
-                "webserver_template": "%s",
-                "database_template": "%s"
-            }\n' "$chromium_install" "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver" "$webserver_template" "$database_template"
-        done | {
-            printf 'configurations='
-            jq -cs .
-        } >> "$GITHUB_OUTPUT"
-    outputs:
-      configurations: ${{ steps.docker-dirs.outputs.configurations }}
-  build:
-    name: PHP ${{ matrix.configurations.php }} - ${{ matrix.configurations.webserver }} - ${{ matrix.configurations.database }} ${{ matrix.configurations.db }}
-    runs-on: ubuntu-22.04
-    needs: collect
-    strategy:
-      fail-fast: false
-      matrix:
-        configurations: ${{ fromJson(needs.collect.outputs.configurations) }}
-    env:
-      CHROMIUM_INSTALL: ${{ matrix.configurations.chromium_install }}
-      DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
-      ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
-      OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
-      COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
-    steps:
-    - uses: actions/checkout@v4
-    - name: Install PHP
+        # Add ENABLE_COVERAGE to GITHUB_ENV
+        echo "ENABLE_COVERAGE=${{ inputs.enable_coverage }}" >> "$GITHUB_ENV"
+
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.configurations.php }}
+        php-version: ${{ steps.parse.outputs.php }}
+
     - name: Report PHP Version
       run: php -v
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+
     - name: Install npm package
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
-        node-version: '20'
-    - name: Main build
+        node-version: ${{ steps.parse.outputs.node_version }}
+
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+
+    ##
+    # These are reused a bunch so it's neater to collect them here
+    - name: Collect cache keys
+      id: cache-keys
+      run: |
+        {
+          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
+          echo 'ccda-build=${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
+          echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
+        } >> "$GITHUB_OUTPUT"
+
+    ##
+    # Restore everything that composer installed for the given key
+    # We don't need to run composer install at all if we get a hit.
+    - name: Restore vendor artifacts
+      id: vendor-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.vendor }}
+        path: vendor/
+        restore-keys: |
+          ${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-
+          ${{ runner.os }}-vendor-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check vendor artifacts cache
+      id: vendor-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.vendor }}'
+        matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    ##
+    # Restore composer's own cache
+    # This can still save us time if we miss the vendor cache
+    - name: Restore composer downloads
+      id: composer-cache-restore
+      if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.composer }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-
+          ${{ runner.os }}-composer-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check composer cache
+      id: composer-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.composer }}'
+        matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    - name: Composer Install
+      if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
       run: |
         . ci/ciLibrary.source
-        composer_github_auth
-        main_build
+        composer_install
+
+    ##
+    # Restore everything that node built for the given key.
+    # We don't need to run npm ci && npm build at all if we get a hit.
+    # This does not include ccda.
+    - name: Restore npm build artifacts
+      id: npm-build-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.npm-build }}
+        path: |
+          node_modules/
+          public/assets/
+          public/themes/
+        restore-keys: |
+          ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-npm-build-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check npm build cache
+      id: npm-build-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.npm-build }}'
+        matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    ##
+    # Restore everything that node built for CCDA for the given key.
+    # We don't need to run npm ci in ccdaservice at all if we get a hit.
+    - name: Restore CCDA build artifacts
+      id: ccda-build-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ccdaservice/node_modules/
+          ccdaservice/packages/oe-cqm-service/node_modules/
+        key: ${{ steps.cache-keys.outputs.ccda-build }}
+        restore-keys: |
+          ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-ccda-build-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check ccda build cache
+      id: ccda-build-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.ccda-build }}'
+        matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    ##
+    # Restore npm's own cache
+    # This can still save us time if we miss the npm build caches
+    - name: Restore npm cache
+      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
+      id: npm-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.npm }}
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
+          ${{ runner.os }}-node-
+
+    ##
+    # The 'cache-hit' output for actions/cache/restore is always false
+    # if restore-keys can match the cache key. So we have to manually
+    # check if we got a cache hit after all.
+    - name: Check npm cache
+      id: npm-cache-check
+      run: |
+        key='${{ steps.cache-keys.outputs.npm }}'
+        matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
+        if [[ $key = $matched ]]; then
+          echo hit=true
+        else
+          echo hit=false
+        fi >> "$GITHUB_OUTPUT"
+
+    - name: NPM Build
+      if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        npm_build
+
     - name: CCDA build
+      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
       run: |
         . ci/ciLibrary.source
         ccda_build
+
+    - name: Cleanup after Build
+      if: ${{ steps.vendor-cache-check.outputs.hit != 'true' || steps.npm-build-cache-check.outputs.hit != 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        post_build_cleanup
+
+    ##
+    # Save caches: base caches before derived caches
+    # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
+    - name: Save npm cache
+      if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.npm }}
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+
+    - name: Save CCDA build artifacts
+      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.ccda-build }}
+        path: |
+          ccdaservice/node_modules/
+          ccdaservice/packages/oe-cqm-service/node_modules/
+
+    - name: Save NPM build artifacts
+      if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.npm-build }}
+        path: |
+          node_modules/
+          public/assets/
+          public/themes/
+
+    - name: Save composer cache
+      if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.composer }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+
+    - name: Save vendor artifacts
+      if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cache-keys.outputs.vendor }}
+        path: vendor/
+
+    - name: Chmod
+      run: |
+        # HACK Docker runs with a different uid/gid than the host.
+        # See #9233
+        sudo chmod -R 0777 .
+
     - name: Docker Compose Config Output
       run: |
         . ci/ciLibrary.source
         dc config
+
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source
         dockers_env_start
+
     - name: Wait for MySQL to initialize
-      if: ${{ matrix.configurations.database == 'mysql' }}
+      if: ${{ steps.parse.outputs.database == 'mysql' }}
       run: |
         echo "Waiting 60 seconds for MySQL to initialize..."
         sleep 60
+
     - name: Install and configure
       run: |
         . ci/ciLibrary.source
         install_configure
+
+    - name: PHP info
+      run: |
+        curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
+
+    - name: Upload PHP info to GitHub
+      uses: actions/upload-artifact@v5
+      if: ${{ hashFiles('phpinfo.html') != '' }}
+      with:
+        name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
+        path: phpinfo.html
+
     - name: Prepare for coverage reporting
       if: ${{ env.ENABLE_COVERAGE == 'true' }}
       run: |
         . ci/ciLibrary.source
         configure_coverage
+        echo "COVERAGE_RAW_TMPDIR=${RUNNER_TEMP}/coverage-e2e-raw" >> "${GITHUB_ENV}"
+
+    ##
+    # Setup auto_prepend.php for API and E2E test coverage collection
+    - name: Setup auto_prepend for coverage
+      if: ${{ env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        setup_e2e_bookends ${{ steps.parse.outputs.webserver }}
+
     - name: Unit testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test unit
+
+    - name: Upload unit test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-unit.xml
+        flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide unit test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
+      run: mv junit-unit.xml junit-unit.saved-test-data
+
+    - name: Upload unit test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.unit.clover.xml
+        flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
     ##
-    # To skip E2E tests for specific docker directories,
-    # rename the docker directory to end with "_no-e2e".
-    - name: E2e testing
-      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+    # Hide coverage files after uploading to prevent codecov from re-uploading them
+    # in subsequent test steps. We'll unhide them before the combine step.
+    # This solves the issue where disable_search: true was preventing codecov
+    # from properly processing source code.
+    # We rename to .saved-cov-data to fully obscure from codecov's file detection.
+    - name: Hide unit coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
       run: |
-        . ci/ciLibrary.source
-        build_test e2e
+        mv coverage.unit.clover.xml unit.saved-cov-data
+        sudo chmod -R 777 coverage
+        mv coverage/coverage.unit.cov coverage/unit.saved-cov-data
+
     - name: Api testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test api
+        if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+          echo "Checking for API coverage files in container..."
+          dc exec openemr sh -c 'ls -laR /tmp/openemr-coverage/api 2>/dev/null || echo "No API coverage directory found"'
+        fi
+
+    - name: Upload api test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-api.xml
+        flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide api test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
+      run: mv junit-api.xml junit-api.saved-test-data
+
+    - name: Copy API coverage files from container
+      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${RUNNER_TEMP}/coverage-api-raw"
+        dc cp openemr:/tmp/openemr-coverage/api "${RUNNER_TEMP}/coverage-api-raw" || true
+        echo "Listing contents of coverage-api-raw:"
+        ls -laR "${RUNNER_TEMP}/coverage-api-raw" || true
+        find "${RUNNER_TEMP}/coverage-api-raw" -type f -name '*.php' |
+          wc -l |
+          xargs echo 'Found raw API coverage files:'
+
+    - name: Convert API coverage to .cov format
+      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        mkdir -p coverage
+        sudo chmod -R 777 coverage
+        if [[ -d "${RUNNER_TEMP}/coverage-api-raw/api" ]]; then
+          ./ci/convert-coverage "${RUNNER_TEMP}/coverage-api-raw/api" \
+                                 coverage/coverage.api.cov \
+                                 --clover=coverage.api.clover.xml
+          ls -lah coverage.api.clover.xml coverage/coverage.api.cov
+        else
+          echo "Warning: No API coverage files found in ${RUNNER_TEMP}/coverage-api-raw/api"
+          echo "This likely means no API tests were executed or coverage collection failed"
+          exit 0
+        fi
+
+    - name: Upload api test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.api.clover.xml
+        flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide api coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
+      run: |
+        mv coverage.api.clover.xml api.saved-cov-data
+        mv coverage/coverage.api.cov coverage/api.saved-cov-data
+
     - name: Fixtures testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test fixtures
+
+    - name: Upload fixtures test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-fixtures.xml
+        flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide fixtures test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
+      run: mv junit-fixtures.xml junit-fixtures.saved-test-data
+
+    - name: Upload fixtures test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.fixtures.clover.xml
+        flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide fixtures coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
+      run: |
+        mv coverage.fixtures.clover.xml fixtures.saved-cov-data
+        mv coverage/coverage.fixtures.cov coverage/fixtures.saved-cov-data
+
     - name: Services testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test services
+
+    - name: Upload services test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-services.xml
+        flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide services test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
+      run: mv junit-services.xml junit-services.saved-test-data
+
+    - name: Upload services test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.services.clover.xml
+        flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide services coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
+      run: |
+        mv coverage.services.clover.xml services.saved-cov-data
+        mv coverage/coverage.services.cov coverage/services.saved-cov-data
+
     - name: Validators testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test validators
+
+    - name: Upload validators test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-validators.xml
+        flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide validators test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
+      run: mv junit-validators.xml junit-validators.saved-test-data
+
+    - name: Upload validators test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.validators.clover.xml
+        flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide validators coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
+      run: |
+        mv coverage.validators.clover.xml validators.saved-cov-data
+        mv coverage/coverage.validators.cov coverage/validators.saved-cov-data
+
     - name: Controllers testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test controllers
+
+    - name: Upload controllers test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-controllers.xml
+        flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide controllers test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
+      run: mv junit-controllers.xml junit-controllers.saved-test-data
+
+    - name: Upload controllers test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.controllers.clover.xml
+        flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide controllers coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
+      run: |
+        mv coverage.controllers.clover.xml controllers.saved-cov-data
+        mv coverage/coverage.controllers.cov coverage/controllers.saved-cov-data
+
     - name: Common testing
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test common
+
+    - name: Upload common test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-common.xml
+        flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide common test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
+      run: mv junit-common.xml junit-common.saved-test-data
+
+    - name: Upload common test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.common.clover.xml
+        flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide common coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
+      run: |
+        mv coverage.common.clover.xml common.saved-cov-data
+        mv coverage/coverage.common.cov coverage/common.saved-cov-data
+
+    - name: Email testing
+      if: ${{ success() || failure() }}
+      run: |
+        . ci/ciLibrary.source
+        build_test email
+
+    - name: Upload email test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-email.xml
+        flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide email test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
+      run: mv junit-email.xml junit-email.saved-test-data
+
+    - name: Upload email test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.email.clover.xml
+        flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide email coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
+      run: |
+        mv coverage.email.clover.xml email.saved-cov-data
+        mv coverage/coverage.email.cov coverage/email.saved-cov-data
+
+    ##
+    # To skip E2E tests for specific docker directories,
+    # rename the docker directory to end with "_no-e2e".
+    - name: E2e testing
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
+      env:
+        # Change this to just 'selenium' to disable video recording.
+        COMPOSE_PROFILES: video-recording
+      run: |
+        . ci/ciLibrary.source
+        build_test e2e
+
+    - name: Copy E2E coverage files from container
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${COVERAGE_RAW_TMPDIR}"
+        dc cp openemr:/tmp/openemr-coverage/e2e "${COVERAGE_RAW_TMPDIR}" || true
+        find "${COVERAGE_RAW_TMPDIR}" -type f -name '*.php' |
+          wc -l |
+          xargs echo 'Found raw E2E coverage files:'
+
+    - name: Convert E2E coverage to .cov format
+      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
+      run: |
+        mkdir -p coverage
+        sudo chmod -R 777 coverage
+        ./ci/convert-coverage "${COVERAGE_RAW_TMPDIR}/e2e" \
+                              coverage/coverage.e2e.cov \
+                              --clover=coverage.e2e.clover.xml
+        ls -lah coverage.e2e.clover.xml coverage/coverage.e2e.cov
+
+    ##
+    # The logs for the e2e run are directly in the container logs for nginx/php-fpm
+    # but in /var/log/apache2/error.log for apache.
+    - name: E2e container logs
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs openemr
+
+    - name: E2e error logs
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && steps.parse.outputs.webserver == 'apache' }}
+      run: |
+        . ci/ciLibrary.source
+        dump_error_log ${{ steps.parse.outputs.webserver }}
+
+    - name: E2e selenium logs
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs selenium
+
+    - name: E2e video logs
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        dc logs video
+
+    - name: Upload e2e test results to Codecov
+      if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-e2e.xml
+        flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide e2e test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
+      run: mv junit-e2e.xml junit-e2e.saved-test-data
+
+    - name: Upload e2e test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.e2e.clover.xml
+        flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide e2e coverage files from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
+      run: |
+        mv coverage.e2e.clover.xml e2e.saved-cov-data
+        mv coverage/coverage.e2e.cov coverage/e2e.saved-cov-data
+
+    - name: Upload E2E test videos to GitHub
+      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
+      uses: actions/upload-artifact@v5
+      with:
+        name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
+        path: selenium-videos/
+
+    # Unhide junit files before uploading to GitHub
+    - name: Unhide JUnit test results for GitHub upload
+      if: ${{ !cancelled() }}
+      run: |
+        shopt -s nullglob
+        for hidden in junit-*.saved-test-data; do
+          # Convert junit-unit.saved-test-data back to junit-unit.xml
+          file="${hidden%.saved-test-data}.xml"
+          echo "Unhiding: $hidden -> $file"
+          mv "$hidden" "$file"
+        done
+
+    - name: Upload JUnit test results to GitHub
+      if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
+      uses: actions/upload-artifact@v5
+      with:
+        name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
+        path: junit-*.xml
+
+    # Unhide coverage files before combining them
+    - name: Unhide coverage files for merging
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
+      run: |
+        shopt -s nullglob
+        # Unhide .clover.xml files
+        for hidden in *.saved-cov-data; do
+          # Convert unit.saved-cov-data back to coverage.unit.clover.xml
+          base="${hidden%.saved-cov-data}"
+          file="coverage.${base}.clover.xml"
+          echo "Unhiding: $hidden -> $file"
+          mv "$hidden" "$file"
+        done
+        # Unhide .cov files in coverage/ directory
+        for hidden in coverage/*.saved-cov-data; do
+          # Convert coverage/unit.saved-cov-data back to coverage/coverage.unit.cov
+          base="${hidden%.saved-cov-data}"
+          base="${base#coverage/}"
+          file="coverage/coverage.${base}.cov"
+          echo "Unhiding: $hidden -> $file"
+          mv "$hidden" "$file"
+        done
+
     - name: Combine coverage
-      if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
       run: |
         . ci/ciLibrary.source
         merge_coverage
-    - name: Check if coverage files exist
-      if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+
+    - name: Check if combined coverage files exist
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
       id: check-files
       run: |
-        echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
-        echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v4
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        {
+          printf clover_exists=
+          [[ -f coverage.clover.xml ]] && echo true || echo false
+          printf htmlcov_exists=
+          [[ -d ./htmlcov ]] && echo true || echo false
+        } >> $GITHUB_OUTPUT
+
+    - name: Upload clover coverage to GitHub
+      uses: actions/upload-artifact@v5
+      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
-    - uses: actions/upload-artifact@v4
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+
+    - name: Upload html coverage to GitHub
+      uses: actions/upload-artifact@v5
+      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
       with:
         name: htmlcov
         path: ./htmlcov/
-    # - name: Upload coverage reports to Codecov
-    #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
-    #   uses: codecov/codecov-action@v5
-    #   with:
-    #     token: ${{ secrets.CODECOV_TOKEN }}
-    #     files: coverage.clover.xml
+
+    - name: Test Summary
+      if: ${{ always() }}
+      run: |
+        # Determine status emoji
+        case "${{ job.status }}" in
+          success)
+            status_emoji="✅"
+            ;;
+          failure)
+            status_emoji="❌"
+            ;;
+          cancelled)
+            status_emoji="🚫"
+            ;;
+          *)
+            status_emoji="❓"
+            ;;
+        esac
+
+        {
+          echo "| Status | PHP | Webserver | Database | E2E | Coverage | Docker Dir |"
+          echo "| --- | --- | --- | --- | --- | --- | --- |"
+          echo "| ${status_emoji} ${{ job.status }} | ${{ steps.parse.outputs.php }} | ${{ steps.parse.outputs.webserver }} | ${{ steps.parse.outputs.database }} ${{ steps.parse.outputs.db }} | ${{ steps.parse.outputs.e2e_enabled }} | ${{ env.ENABLE_COVERAGE }} | ${{ steps.parse.outputs.docker_dir }} |"
+        } >> $GITHUB_STEP_SUMMARY

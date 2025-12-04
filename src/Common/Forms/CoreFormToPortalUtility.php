@@ -12,12 +12,6 @@
 
 namespace OpenEMR\Common\Forms;
 
-if (!class_exists('OpenEMR\Common\Session\SessionUtil')) {
-    // This CoreFormToPortalUtility class is sometimes used prior to autoloader,
-    //   so need to manually bring in the SessionUtil class if not autoloaded yet.
-    require_once(__DIR__ . "/../Session/SessionUtil.php");
-}
-
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
@@ -171,9 +165,7 @@ class CoreFormToPortalUtility
         $formDirs = scandir($GLOBALS['srcdir'] . "/../interface/forms/");
         foreach ($formDirs as $formDir) {
             if (
-                $formDir != "." &&
-                $formDir != ".." &&
-                $formDir != "LBF" &&
+                !in_array($formDir, [".", "..", "LBF"]) &&
                 file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $formDir . "/patient_portal.php")
             ) {
                 $dirFormNames[] = $formDir;

@@ -26,7 +26,7 @@ class QueryUtils
     public static function listTableFields($table)
     {
         $sql = "SHOW COLUMNS FROM " . \escape_table_name($table);
-        $field_list = array();
+        $field_list = [];
         $records = self::fetchRecords($sql, [], false);
         foreach ($records as $record) {
             $field_list[] = $record["Field"];
@@ -45,7 +45,7 @@ class QueryUtils
         return \escape_sql_column_name($columnName, $tables);
     }
 
-    public static function fetchRecordsNoLog($sqlStatement, $binds)
+    public static function fetchRecordsNoLog($sqlStatement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -72,7 +72,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumn($sqlStatement, $column, $binds = array())
+    public static function fetchTableColumn($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -82,7 +82,7 @@ class QueryUtils
         return $list;
     }
 
-    public static function fetchSingleValue($sqlStatement, $column, $binds = array())
+    public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
         // note if $records[0] is actually the value 0 then the value returned is null...
@@ -93,7 +93,7 @@ class QueryUtils
         return null;
     }
 
-    public static function fetchRecords($sqlStatement, $binds = array(), $noLog = false)
+    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
@@ -111,7 +111,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array
      */
-    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = array())
+    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -154,7 +154,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return recordset
      */
-    public static function sqlStatementThrowException($statement, $binds, $noLog = false)
+    public static function sqlStatementThrowException($statement, $binds = [], $noLog = false)
     {
         if ($noLog) {
             return \sqlStatementNoLog($statement, $binds, true);
@@ -171,7 +171,7 @@ class QueryUtils
     {
 
         try {
-            if (preg_match("/^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$/", $tableName) === false) {
+            if (preg_match("/^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$/", (string) $tableName) === false) {
                 return false; // don't allow invalid table names
             }
             // escape table name just DIES if the table name is not valid so we need to handle that here
@@ -185,7 +185,7 @@ class QueryUtils
                 unset($statement); // free the resource
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // do nothing as we know the table doesn't exist
         }
         return false;
@@ -208,7 +208,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert($statement, $binds = array())
+    public static function sqlInsert($statement, $binds = [])
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -238,10 +238,10 @@ class QueryUtils
      */
     public static function selectHelper($sqlUpToFromStatement, $map)
     {
-        $where = isset($map["where"]) ? $map["where"] : null;
+        $where = $map["where"] ?? null;
         $data  = isset($map["data"]) && is_array($map['data']) ? $map["data"]  : [];
-        $join  = isset($map["join"])  ? $map["join"]  : null;
-        $order = isset($map["order"]) ? $map["order"] : null;
+        $join  = $map["join"] ?? null;
+        $order = $map["order"] ?? null;
         $limit = isset($map["limit"]) ? intval($map["limit"]) : null;
 
         $sql = $sqlUpToFromStatement;
@@ -253,7 +253,7 @@ class QueryUtils
 
         $multipleResults = sqlStatementThrowException($sql, $data);
 
-        $results = array();
+        $results = [];
 
         while ($row = sqlFetchArray($multipleResults)) {
             array_push($results, $row);
@@ -296,7 +296,7 @@ class QueryUtils
         return \sqlGetLastInsertId();
     }
 
-    public static function querySingleRow(string $sql, array $params)
+    public static function querySingleRow(string $sql, array $params = [])
     {
         $result = self::sqlStatementThrowException($sql, $params);
         return \sqlFetchArray($result);

@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/../../interface/globals.php');
+require_once(__DIR__ . '/../../interface/globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -45,11 +45,11 @@ createQuery;
 $search = $_GET['search'];
 $eSearch = "%" . $search . "%";
 $results = [];
-$r = sqlStatementNoLog($cq, array($eSearch));
+$r = sqlStatementNoLog($cq, [$eSearch]);
 
 while ($result = sqlFetchArray($r)) {
     $results[] = array_map('text', $result);
 }
 
-echo json_encode(array('results' => $results));
+echo json_encode(['results' => $results]);
 die();

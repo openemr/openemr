@@ -7,7 +7,7 @@ namespace OpenEMR\Cqm\Qdm;
  *
  * This is a class generated with Laminas\Code\Generator.
  *
- * @QDM Version 5.5
+ * @QDM Version 5.6
  * @author Ken Chapple <ken@mi-squared.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General
  * Public License 3
@@ -65,6 +65,13 @@ class PhysicalExamPerformed extends QDMBaseType
      * @property BaseTypes\Any $performer
      */
     public $performer = null;
+
+    /**
+     * @property array $relatedTo
+     */
+    public $relatedTo = [
+        
+    ];
 
     /**
      * @property string $qdmTitle

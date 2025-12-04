@@ -48,7 +48,7 @@ class CDADocumentService extends BaseService
 		    WHERE cc.pid = ?
 		    ORDER BY cc.id DESC LIMIT 1";
 
-        return sqlQuery($query, array($pid));
+        return sqlQuery($query, [$pid]);
     }
 
     /**
@@ -58,7 +58,7 @@ class CDADocumentService extends BaseService
     public function getFile($id)
     {
         $query = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where uuid=?";
-        $row = sqlQuery($query, array($id));
+        $row = sqlQuery($query, [$id]);
         $content = '';
         if (!empty($row)) {
             if (!empty($row['couch_docid'])) {
@@ -68,7 +68,7 @@ class CDADocumentService extends BaseService
                     $cryptoGen = new CryptoGen();
                     $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
-                    $content = base64_decode($resp->data);
+                    $content = base64_decode((string) $resp->data);
                 }
             } elseif (!empty($row['ccda_data'])) {
                 $fccda = fopen($row['ccda_data'], "r");
@@ -171,7 +171,7 @@ class CDADocumentService extends BaseService
      */
     public function portalGenerateCCDZip($pid): string
     {
-        $parameterArray = array(
+        $parameterArray = [
             'combination' => $pid,
             'components' => 'allergies|medications|problems|immunizations|procedures|results|plan_of_care|vitals|social_history|encounters|functional_status|referral|instructions|medical_devices|goals',
             'downloadccda' => 'download_ccda',
@@ -182,7 +182,7 @@ class CDADocumentService extends BaseService
             'view' => 0,
             'recipient' => 'patient',
             'site' => $_SESSION ['site_id'],
-        );
+        ];
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
         $httpClient = HttpClient::create([
             "verify_peer" => false,
@@ -207,7 +207,7 @@ class CDADocumentService extends BaseService
      */
     public function generateCCDZip($pid): string
     {
-        $parameterArray = array(
+        $parameterArray = [
             'combination' => $pid,
             'components' => 'allergies|medications|problems|immunizations|procedures|results|plan_of_care|vitals|social_history|encounters|functional_status|referral|instructions|medical_devices|goals',
             'downloadccda' => 'download_ccda',
@@ -218,7 +218,7 @@ class CDADocumentService extends BaseService
             'view' => 0,
             'recipient' => 'self',
             'site' => $_SESSION['site_id'],
-        );
+        ];
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch"; // add for debug ?XDEBUG_SESSION=PHPSTORM
         $httpClient = HttpClient::create([
             "verify_peer" => false,

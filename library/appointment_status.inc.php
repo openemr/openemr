@@ -14,9 +14,9 @@
 // See sample code in: interface/patient_tracker/patient_tracker_status.php
 // This updates the patient tracker board as well as the appointment.
 
-require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
+require_once(__DIR__ . '/patient_tracker.inc.php');
 
-function updateAppointmentStatus($pid, $encdate, $newstatus)
+function updateAppointmentStatus($pid, $encdate, $newstatus): void
 {
     if (empty($GLOBALS['gbl_auto_update_appt_status'])) {
         return;
@@ -27,7 +27,7 @@ function updateAppointmentStatus($pid, $encdate, $newstatus)
     "FROM openemr_postcalendar_events WHERE " .
     "pc_pid = ? AND pc_recurrtype = 0 AND pc_eventDate = ? " .
     "ORDER BY pc_startTime DESC, pc_eid DESC LIMIT 1";
-    $tmp = sqlQuery($query, array($pid, $encdate));
+    $tmp = sqlQuery($query, [$pid, $encdate]);
     if (!empty($tmp['pc_eid'])) {
         $appt_eid = $tmp['pc_eid'];
         $appt_status = $tmp['pc_apptstatus'];

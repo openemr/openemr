@@ -29,7 +29,7 @@ class EtherFaxActions extends AppDispatch
     protected $credentials;
     public string $portalUrl;
     protected CryptoGen $crypto;
-    private EtherFaxClient $client;
+    private readonly EtherFaxClient $client;
     private mixed $appSecret;
     private mixed $sid;
     private mixed $appKey;
@@ -60,7 +60,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
 
         $this->sid = $credentials['username'] ?? '';
         $this->appKey = $credentials['appKey'] ?? '';
@@ -141,7 +141,7 @@ class EtherFaxActions extends AppDispatch
             return '';
         }
 
-        $name = basename($_FILES['fax']['name']);
+        $name = basename((string) $_FILES['fax']['name']);
         $tmp_name = $_FILES['fax']['tmp_name'];
         $targetDir = $this->baseDir . '/send';
 
@@ -189,14 +189,14 @@ class EtherFaxActions extends AppDispatch
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $user = $this::getLoggedInUser();
-        $facility = substr($user['facility'], 0, 20);
+        $facility = substr((string) $user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
         $tag = $user['username'];
 
         if (empty($isContent)) {
-            if (str_starts_with($file, 'file://')) {
+            if (str_starts_with((string) $file, 'file://')) {
                 // Remove the "file://" prefix
-                $file = substr($file, 7);
+                $file = substr((string) $file, 7);
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
@@ -215,7 +215,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         try {
-            $fax = $this->client->sendFax($phone, $file, null, $facility, $csid, $tag, $isDocuments, pathinfo($file, PATHINFO_BASENAME));
+            $fax = $this->client->sendFax($phone, $file, null, $facility, $csid, $tag, $isDocuments, pathinfo((string) $file, PATHINFO_BASENAME));
             if (!$fax->FaxResult) {
                 return 'Error: ' . json_encode($fax->Message);
             }
@@ -260,8 +260,8 @@ class EtherFaxActions extends AppDispatch
      */
     public function formatPhone($number): string
     {
-        $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
+        $n = preg_replace('/[^0-9]/', '', (string) $number);
+        if (stripos((string) $n, '1') === 0) {
             $n = '+' . $n;
         } elseif (!empty($n)) {
             $n = '+1' . $n;
@@ -276,7 +276,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function validatePhone($n): bool
     {
-        return preg_match("/^\+[1-9]\d{10,14}$/", $n);
+        return preg_match("/^\+[1-9]\d{10,14}$/", (string) $n);
     }
 
     /**
@@ -291,7 +291,7 @@ class EtherFaxActions extends AppDispatch
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $user = $this::getLoggedInUser();
-        $facility = substr($user['facility'], 0, 20);
+        $facility = substr((string) $user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
         $tag = xlt("Forwarded");
         $statusMsg = xlt("Forwarding Requests") . "<br />";
@@ -314,7 +314,7 @@ class EtherFaxActions extends AppDispatch
             mkdir($this->baseDir . '/send', 0777, true);
         }
 
-        file_put_contents($filepath, base64_decode($content));
+        file_put_contents($filepath, base64_decode((string) $content));
 
         if ($hasEmail && $smtpEnabled) {
             $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filepath, $user) . "<br />";
@@ -535,7 +535,7 @@ class EtherFaxActions extends AppDispatch
             }
 
             $file_name = "{$faxStoreDir}/Fax_{$docId}" . ($c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' ? '.tiff' : '.txt'));
-            file_put_contents($file_name, base64_decode($faxImage));
+            file_put_contents($file_name, base64_decode((string) $faxImage));
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
 
@@ -581,7 +581,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode($content);
+            $decodedContent = base64_decode((string) $content);
             if (file_put_contents($where, $decodedContent) !== false) {
                 $response['success'] = true;
                 $response['url'] = $where;
@@ -681,8 +681,9 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $start
-     * @param $end
+     * @param      $start
+     * @param      $end
+     * @param bool $pollForNew
      * @return array
      */
     public function fetchFaxQueue($start, $end, $pollForNew = false): array
@@ -695,7 +696,7 @@ class EtherFaxActions extends AppDispatch
         $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
         while ($row = sqlFetchArray($result)) {
-            $detail = json_decode($row['details_json']);
+            $detail = json_decode((string) $row['details_json']);
             if (json_last_error()) {
                 continue;
             }
@@ -714,7 +715,7 @@ class EtherFaxActions extends AppDispatch
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
         $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? LIMIT 1", [$id]);
-        $detail = json_decode($row['details_json']);
+        $detail = json_decode((string) $row['details_json']);
         $detail->RecordId = $row['id'];
 
         return $detail;
@@ -762,8 +763,8 @@ class EtherFaxActions extends AppDispatch
         $fax = $this->fetchFaxFromQueue($docId);
         $mime = $fax->DocumentParams->Type;
         $ext = $mime == 'application/pdf' ? '.pdf' : ($mime == 'image/tiff' || $mime == 'image/tif' ? '.tiff' : '.txt');
-        $fileName = $fileName ?? xlt("fax") . '_' . text($docId) . $ext;
-        $content = base64_decode($fax->FaxImage);
+        $fileName ??= xlt("fax") . '_' . text($docId) . $ext;
+        $content = base64_decode((string) $fax->FaxImage);
         $document = new Document();
 
         $result = $document->createDocument($pid, $catid, $fileName, $mime, $content);
@@ -788,10 +789,10 @@ class EtherFaxActions extends AppDispatch
         foreach ($source as $src) {
             foreach ($val as $k => $v) {
                 foreach ($v as $s) {
-                    if (stripos($src->Name, $s) !== false) {
+                    if (stripos((string) $src->Name, $s) !== false) {
                         if ($k == "sex") {
-                            $src->Text = ucfirst($src->Text);
-                            $src->Text = stripos($src->Name, 'Male') !== false ? 'Male' : (stripos($src->Name, 'Female') !== false ? 'Female' : ($src->Text == 'M' ? 'Male' : ($src->Text == 'F' ? 'Female' : $src->Text)));
+                            $src->Text = ucfirst((string) $src->Text);
+                            $src->Text = stripos((string) $src->Name, 'Male') !== false ? 'Male' : (stripos((string) $src->Name, 'Female') !== false ? 'Female' : ($src->Text == 'M' ? 'Male' : ($src->Text == 'F' ? 'Female' : $src->Text)));
                         }
                         $rtn[$k] = $src->Text;
                     }

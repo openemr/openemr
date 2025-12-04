@@ -1,7 +1,5 @@
 <?php
 
-/** @package    verysimple::String */
-
 /**
  * A set of utility functions for working with strings
  *
@@ -32,14 +30,11 @@ class VerySimpleStringUtil
     static $CONTROL_CODE_CHARS;
 
     /**
-     * replace the first occurrance only within a string
+     * replace the first occurrence only within a string
      *
-     * @param
-     *          string needle
-     * @param
-     *          string replacement
-     * @param
-     *          string haystack
+     * @param string $s needle
+     * @param string $r replacement
+     * @param string $str haystack
      */
     static function ReplaceFirst($s, $r, $str)
     {
@@ -55,24 +50,21 @@ class VerySimpleStringUtil
      */
     static function InitStaticVars()
     {
-        self::$HTML_ENTITIES_TABLE = array ();
+        self::$HTML_ENTITIES_TABLE =  [];
         foreach (get_html_translation_table(HTML_ENTITIES, ENT_QUOTES) as $char => $entity) {
             self::$HTML_ENTITIES_TABLE [$entity] = '&#' . ord($char) . ';';
         }
 
-        self::$SMART_QUOTE_CHARS = array (
-                "�" => "'",
-                "�" => "'",
-                "�" => "\"",
+        self::$SMART_QUOTE_CHARS =  [
                 "�" => "\"",
                 chr(145) => "'",
                 chr(146) => "'",
                 chr(147) => "\"",
                 chr(148) => "\"",
                 chr(151) => "-"
-        );
+        ];
 
-        self::$CONTROL_CODE_CHARS = array (
+        self::$CONTROL_CODE_CHARS =  [
                 chr(0) => "&#0;",
                 chr(1) => "&#1;",
                 chr(2) => "&#2;",
@@ -100,9 +92,9 @@ class VerySimpleStringUtil
                 chr(29) => "&#29;",
                 chr(30) => "&#30;",
                 chr(31) => "&#31;"
-        );
+        ];
 
-        self::$INVALID_CODE_CHARS = array (
+        self::$INVALID_CODE_CHARS =  [
                 chr(128) => '&#8364;',
                 chr(130) => '&#8218;',
                 chr(131) => '&#402;',
@@ -130,15 +122,15 @@ class VerySimpleStringUtil
                 chr(156) => '&#339;',
                 chr(158) => '&#382;',
                 chr(159) => '&#376;'
-        );
+        ];
 
-        self::$XML_SPECIAL_CHARS = array (
+        self::$XML_SPECIAL_CHARS =  [
                 "&" => "&amp;",
                 "<" => "&lt;",
                 ">" => "&gt;",
                 "\"" => "&quot;",
                 "'" => "&apos;"
-        );
+        ];
     }
 
     /**
@@ -146,8 +138,7 @@ class VerySimpleStringUtil
      * returning HTML content.
      *
      * @param string $text
-     * @param
-     *          bool true to sanitize the text before parsing for display security
+     * @param bool true to sanitize the text before parsing for display security
      * @return string HTML
      */
     static function ConvertEmailToMailTo($text, $sanitize = false)
@@ -165,8 +156,7 @@ class VerySimpleStringUtil
      * returning HTML content.
      *
      * @param string $text
-     * @param
-     *          bool true to sanitize the text before parsing for display security
+     * @param bool true to sanitize the text before parsing for display security
      * @return string HTML
      */
     static function ConvertUrlToLink($text, $sanitize = false)
@@ -175,7 +165,8 @@ class VerySimpleStringUtil
             $text = VerySimpleStringUtil::Sanitize($text);
         }
 
-        $regex = "/[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]/i";
+        // use `;` for the delimiter so we can use forward slashes in the expression.
+        $regex = ";[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/];i";
         return preg_replace($regex, '<a href=\"\\0\">\\0</a>', $text);
     }
 
@@ -192,7 +183,6 @@ class VerySimpleStringUtil
     }
 
     /**
-     *
      * @param string $string
      * @param bool $numericEncodingOnly
      *          set to true to only use numeric html encoding. warning, setting to false may be slower performance (default true)
@@ -217,8 +207,7 @@ class VerySimpleStringUtil
      * @TODO: warning, this function is BETA!
      *
      * @param string $string
-     * @param
-     *          destination character set (default = $DEFAULT_CHARACTER_SET (UTF-8))
+     * @param string $charset destination character set (default = $DEFAULT_CHARACTER_SET (UTF-8))
      */
     static function DecodeFromHTML($string, $charset = null)
     {
@@ -244,14 +233,10 @@ class VerySimpleStringUtil
      * This function extends EncodeToHTML to additionally strip
      * out characters that may be disruptive when used in HTML or XML data
      *
-     * @param
-     *          string value to parse
-     * @param bool $escapeQuotes
-     *          true to additionally escape ENT_QUOTE characters <>&"' (default = true)
-     * @param bool $numericEncodingOnly
-     *          set to true to only use numeric html encoding. warning, setting to false may be slower performance (default true)
-     * @param bool $replaceSmartQuotes
-     *          true to replace "smart quotes" with standard ascii ones, can be useful for stripping out windows-only codes (default = false)
+     * @param string $string value to parse
+     * @param bool $escapeQuotes true to additionally escape ENT_QUOTE characters <>&"' (default = true)
+     * @param bool $numericEncodingOnly set to true to only use numeric html encoding. warning, setting to false may be slower performance (default true)
+     * @param bool $replaceSmartQuotes true to replace "smart quotes" with standard ascii ones, can be useful for stripping out windows-only codes (default = false)
      * @return string
      */
     static function EncodeSpecialCharacters($string, $escapeQuotes = true, $numericEncodingOnly = true, $replaceSmartQuotes = false)
@@ -267,13 +252,13 @@ class VerySimpleStringUtil
             $result = self::ReplaceSmartQuotes($result);
         }
 
-            // this method does not double-encode, but replaces single-quote with a numeric entity
+        // this method does not double-encode, but replaces single-quote with a numeric entity
         if ($escapeQuotes) {
             $result = htmlspecialchars($result, ENT_QUOTES, null, false);
         }
 
-            // this method double-encodes values but uses the special character entity for single quotes
-            // if ($escapeQuotes) $result = self::ReplaceXMLSpecialChars($result);
+        // this method double-encodes values but uses the special character entity for single quotes
+        // if ($escapeQuotes) $result = self::ReplaceXMLSpecialChars($result);
 
         // for special chars we don't need to insist on numeric encoding only
         return self::EncodeToHTML($result, $numericEncodingOnly);
@@ -352,8 +337,7 @@ class VerySimpleStringUtil
      * UTFToHTML instead unless you absolutely have to have named entities
      *
      * @param string $string
-     * @param bool $encodeControlCharacters
-     *          false = wipe control chars. true = encode control characters (default false)
+     * @param bool $encodeControlCharacters false = wipe control chars. true = encode control characters (default false)
      * @return string
      */
     static function UTFToNamedHTML($string, $encodeControlCharacters = false)
@@ -374,7 +358,7 @@ class VerySimpleStringUtil
                 $encoded = htmlentities(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
 
                 // @hack if htmlentities didn't encode it, then we need to do a charset conversion
-                if ($encoded != '' && substr($encoded, 0, 1) != '&') {
+                if ($encoded != '' && !str_starts_with($encoded, '&')) {
                     $encoded = mb_convert_encoding($encoded, 'HTML-ENTITIES', self::$DEFAULT_CHARACTER_SET);
                 }
 
@@ -431,7 +415,7 @@ class VerySimpleStringUtil
      */
     static function unicode_string_to_array($string)
     {
-        $array = array ();
+        $array =  [];
         $strlen = mb_strlen($string);
         while ($strlen) {
             $array [] = mb_substr($string, 0, 1, "UTF-8");
@@ -479,8 +463,7 @@ class VerySimpleStringUtil
      * converts a character that is likely non ascii into the correct UTF-8 char value
      *
      * @link http://www.php.net/manual/en/function.html-entity-decode.php#68491
-     * @param
-     *          $code
+     * @param int $code
      */
     function chr_utf8($code)
     {
@@ -570,13 +553,12 @@ class VerySimpleStringUtil
      * used internally by decode
      *
      * @link http://www.php.net/manual/en/function.html-entity-decode.php#68491
-     * @param
-     *          array
+     * @param array $matches
      */
     function html_entity_replace($matches)
     {
         if ($matches [2]) {
-            return self::chr_utf8(hexdec($matches [3]));
+            return self::chr_utf8(hexdec((string) $matches [3]));
         } elseif ($matches [1]) {
             return self::chr_utf8($matches [3]);
         } elseif ($matches [3]) {

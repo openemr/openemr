@@ -2,12 +2,14 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Patient Service Crud Tests
@@ -20,7 +22,6 @@ use PHPUnit\Framework\TestCase;
  *
  */
 
-#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceCrudTest extends TestCase
 {
     private $fixtureManager;
@@ -43,6 +44,7 @@ class FhirPatientServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
         $this->fhirPatientFixture = FhirPatientSerializer::deserialize($fixture);
         $this->fhirPatientService = new FhirPatientService();
+        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void
@@ -51,7 +53,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->fhirPatientFixture->setId(null);
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
@@ -64,7 +66,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsertWithErrors()
+    public function testInsertWithErrors(): void
     {
         $this->fhirPatientFixture->name = [];
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
@@ -73,7 +75,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->fhirPatientFixture->setId(null);
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
@@ -96,7 +98,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateWithErrors()
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirPatientService->update('bad-uuid', $this->fhirPatientFixture);
         $this->assertFalse($actualResult->isValid());

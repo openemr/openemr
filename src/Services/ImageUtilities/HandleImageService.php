@@ -28,7 +28,7 @@ class HandleImageService
     public function convertImageToPdfUseGD($imageData, $pdfPath): false|string
     {
         try {
-            $imageRaw = base64_decode($imageData); // Decode base64 image data (if needed)
+            $imageRaw = base64_decode((string) $imageData); // Decode base64 image data (if needed)
             $image = imagecreatefromstring($imageRaw); // Load image using GD
             if ($image === false) {
                 throw new Exception('Failed to create image from data');
@@ -63,7 +63,7 @@ class HandleImageService
     {
         try {
             $imagick = new Imagick();
-            $imageRaw = base64_decode($imageContent); // Decode base64 image data (if needed)
+            $imageRaw = base64_decode((string) $imageContent); // Decode base64 image data (if needed)
             $imagick->readImageBlob($imageRaw); // Load image using Imagick from binary data
             $imagick->setFirstIterator(); // Set iterator to first page
             $imagick->setImageFormat('pdf');
@@ -214,17 +214,14 @@ class HandleImageService
      */
     private function saveImageToFile($sourceImage, $targetImage, $imageType): string
     {
-        $base = pathinfo($sourceImage, PATHINFO_FILENAME);
+        $base = pathinfo((string) $sourceImage, PATHINFO_FILENAME);
         $outputImage = $base . '_resized' . ($imageType == IMAGETYPE_PNG ? '.png' : '.jpg');
 
-        switch ($imageType) {
-            case IMAGETYPE_JPEG:
-                imagejpeg($targetImage, $outputImage, 90); // 90 is the quality level
-                break;
-            case IMAGETYPE_PNG:
-                imagepng($targetImage, $outputImage);
-                break;
-        }
+        match ($imageType) {
+            IMAGETYPE_JPEG => imagejpeg($targetImage, $outputImage, 90),
+            IMAGETYPE_PNG => imagepng($targetImage, $outputImage),
+            default => $outputImage,
+        };
         return $outputImage;
     }
 
@@ -261,11 +258,7 @@ class HandleImageService
     {
         $content = '';
 
-        if (is_file($imageData)) {
-            $imageContent = file_get_contents($imageData);
-        } else {
-            $imageContent = $imageData;
-        }
+        $imageContent = is_file($imageData) ? file_get_contents($imageData) : $imageData;
         // Check for extension availability
         $usingImagick =  $this->isImagickAvailable() && $useExt === 'imagick';
         $usingGd =  $this->isGdAvailable() && $useExt === 'gd' && !$usingImagick;

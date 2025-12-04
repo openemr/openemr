@@ -56,7 +56,7 @@ class ImmunizationTable extends AbstractTableGateway
      */
     public function immunizedPatientDetails($form_data, $getCount = null)
     {
-        $query_data = array();
+        $query_data = [];
         $query_codes = $form_data['query_codes'];
         $from_date = $form_data['form_from_date'];
         $to_date = $form_data['form_to_date'];
@@ -182,7 +182,7 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ?
                           AND option_id = ?
                           AND activity = ?";
-            $result = $this->applicationTable->zQuery($query, array($list_id, $option_id, 1));
+            $result = $this->applicationTable->zQuery($query, [$list_id, $option_id, 1]);
             $res_cur = $result->current();
         }
 
@@ -204,7 +204,7 @@ class ImmunizationTable extends AbstractTableGateway
                        immunization_observation
                      WHERE imo_pid = ?
                        AND imo_im_id = ?";
-        $result = $this->applicationTable->zQuery($sql, array($pid, $id));
+        $result = $this->applicationTable->zQuery($sql, [$pid, $id]);
         foreach ($result as $row) {
             $val[] = $row;
         }
@@ -222,11 +222,11 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ?
                           AND option_id = ?
                           AND activity = ?";
-            $result = $this->applicationTable->zQuery($query, array($list_id, $option_id, 1));
+            $result = $this->applicationTable->zQuery($query, [$list_id, $option_id, 1]);
             $res_cur = $result->current();
         }
 
-        $codes = explode(":", $res_cur['codes']);
+        $codes = explode(":", (string) $res_cur['codes']);
         return $codes[1];
     }
 }

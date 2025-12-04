@@ -1,9 +1,0 @@
-x-includes:
-  webserver-template: "compose-shared-nginx.yml"
-  database-template: "compose-shared-mariadb.yml"
-
-services:
-  mysql:
-    image: mariadb:11.4
-  openemr:
-    image: openemr/dev-php-fpm:8.4

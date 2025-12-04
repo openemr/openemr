@@ -41,11 +41,11 @@ $info_msg = "";
             CsrfUtils::csrfNotVerified();
         }
 
-        $thevalue = trim($_POST['form_note']);
+        $thevalue = trim((string) $_POST['form_note']);
 
         sqlStatement("UPDATE patient_data SET " .
             "billing_note = ? " .
-            "WHERE pid = ? ", array($thevalue, $patient_id));
+            "WHERE pid = ? ", [$thevalue, $patient_id]);
 
         echo "<script>\n";
         if ($info_msg) {
@@ -57,7 +57,7 @@ $info_msg = "";
     }
 
     $row = sqlQuery("select fname, lname, billing_note " .
-        "from patient_data where pid = ? limit 1", array($patient_id));
+        "from patient_data where pid = ? limit 1", [$patient_id]);
     ?>
     <div class="container">
         <div class="row">
