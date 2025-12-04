@@ -1057,6 +1057,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
         ?>
         <div class="main mb-1">
+            <?php
+                $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
+            ?>
             <!-- start main content div -->
             <div class="row">
                 <?php
