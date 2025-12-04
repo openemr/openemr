@@ -5161,53 +5161,6 @@ paths:
       security:
         -
           openemr_auth: {  }
-  /fhir/DocumentReference/$docref:
-    post:
-      tags:
-        - fhir
-      description: "The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details."
-      externalDocs:
-        description: 'Detailed documentation on this operation'
-        url: 'https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'
-      parameters:
-        -
-          name: patient
-          in: query
-          description: 'The uuid for the patient.'
-          required: true
-          schema:
-            type: string
-        -
-          name: start
-          in: query
-          description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no start date is provided then all documents prior to the end date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
-          required: false
-          schema:
-            type: string
-        -
-          name: end
-          in: query
-          description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no end date is provided then all documents subsequent to the start date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
-          required: false
-          schema:
-            type: string
-        -
-          name: type
-          in: query
-          description: "The type refers to the document type.  This is a LOINC code from the valueset of <a href='http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html' target='_blank' rel='noopener'>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node)."
-          required: false
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'A search bundle of DocumentReferences is returned'
-        400:
-          $ref: '#/components/responses/badrequest'
-        401:
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: {  }
   '/fhir/DocumentReference/{uuid}':
     get:
       tags:
@@ -6318,7 +6271,8 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns a list of Observation resources.'
+      summary: 'Returns a list of Observation resources.'
+      description: 'Returns a list of Observation resources. Returns the following types of Observation resources, Advance Directives, Care Experience Preferences, Occupation, Social Determinants of Health, Laboratory, Simple Observations, Social History, Questionnaire Responses, Treatment Intervention Preferences, Vital Signs.'
       parameters:
         -
           name: _id
@@ -6351,7 +6305,7 @@ paths:
         -
           name: category
           in: query
-          description: 'The category of the Observation resource.'
+          description: 'The category of the Observation resource. Taken from one of these valid category codes http://terminology.hl7.org/CodeSystem/observation-category'
           required: false
           schema:
             type: string
@@ -8862,7 +8816,41 @@ components:
       required: false
       schema:
         type: string
+    end:
+      name: end
+      in: query
+      description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no end date is provided then all documents subsequent to the start date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
+      required: false
+      schema:
+        type: string
+    patient:
+      name: patient
+      in: query
+      description: 'The uuid for the patient.'
+      required: true
+      schema:
+        type: string
+    start:
+      name: start
+      in: query
+      description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no start date is provided then all documents prior to the end date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
+      required: false
+      schema:
+        type: string
+    type:
+      name: type
+      in: query
+      description: "The type refers to the document type.  This is a LOINC code from the valueset of <a href='http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html' target='_blank' rel='noopener'>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node)."
+      required: false
+      schema:
+        type: string
   responses:
+    200:
+      description: 'A search bundle of DocumentReferences is returned'
+    400:
+      $ref: '#/components/responses/badrequest'
+    401:
+      $ref: '#/components/responses/unauthorized'
     badrequest:
       description: 'Bad Request'
       content:
@@ -9950,3 +9938,6 @@ tags:
   -
     name: standard-patient
     description: 'Standard Patient Portal OpenEMR API'
+externalDocs:
+  description: 'Detailed documentation on this operation'
+  url: 'https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'
