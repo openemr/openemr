@@ -455,7 +455,7 @@ class ContactRelationService extends BaseService
 
             // Merge relationship data with entity details
             if ($entityDetails) {
-                unset($entityDetails['active'])
+                unset($entityDetails['active']);
                 $results[] = array_merge($relationship, $entityDetails);
             } else {
                 $results[] = $relationship; // Include without entity details if entity not found
