@@ -359,6 +359,12 @@ class C_Prescription extends Controller
             return;
         }
 
+        // Handle print after save if requested (Save and Print workflow)
+        if (!empty($_POST['print_after_save']) && $_POST['print_after_save'] === '1') {
+            $this->printAfterSave();
+            return;
+        }
+
         $this->list_action($this->prescriptions[0]->get_patient_id());
         exit;
     }
@@ -415,6 +421,17 @@ class C_Prescription extends Controller
         // Success - redirect to prescription list
         $this->list_action($patientId);
         exit;
+    }
+
+    /**
+     * Print/download PDF immediately after saving a prescription.
+     * Directly calls multiprint_action with the newly saved prescription ID.
+     */
+    private function printAfterSave(): void
+    {
+        $prescriptionId = $this->prescriptions[0]->id;
+        // Format expected by multiprint_action: :id:
+        $this->multiprint_action(':' . $prescriptionId . ':');
     }
 
     function multiprintfax_header(&$pdf, $p)
