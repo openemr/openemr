@@ -119,7 +119,7 @@
             const widgets = this.config.widgets;
 
             for (const widgetId in widgets) {
-                if (widgets.hasOwnProperty(widgetId)) {
+                if (Object.prototype.hasOwnProperty.call(widgets, widgetId)) {
                     const visible = widgets[widgetId];
                     const $widget = $('#' + widgetId).closest('.card');
 
@@ -207,7 +207,7 @@
             const currentSettings = this.config.widgets;
 
             for (const widgetId in widgets) {
-                if (widgets.hasOwnProperty(widgetId)) {
+                if (Object.prototype.hasOwnProperty.call(widgets, widgetId)) {
                     const label = widgets[widgetId];
                     const isVisible = currentSettings[widgetId] !== false;
 
