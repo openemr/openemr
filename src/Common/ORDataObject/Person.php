@@ -241,9 +241,9 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         return $this->middle_name ?? "";
     }
 
-    public function set_middle_name(string $middlename): self
+    public function set_middle_name(string $middle_name): self
     {
-        $this->middle_name = $middlename;
+        $this->middle_name = $middle_name;
         $this->setIsObjectModified(true);
         return $this;
     }
