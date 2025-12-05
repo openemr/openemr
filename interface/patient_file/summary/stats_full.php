@@ -105,6 +105,7 @@ function headerSelectionChanged(groupBox, issueType) {
     rowSelectionChanged(issueType);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function deleteSelectedIssues(tableName) {
     var selBoxes = getSelectionCheckBoxes(tableName);
     var ids = ""
@@ -119,20 +120,29 @@ function deleteSelectedIssues(tableName) {
         }
     }
 
-    dlgopen('../deleter.php?issue=' + ids + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+    const params = new URLSearchParams({
+        issue: ids,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
+// AI-generated code end
 
 // Called by the deleter.php window on a successful delete.
 function imdeleted() {
     refreshIssue('', '')
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on diagnosis for patient education popup.
 function educlick(codetype, codevalue) {
   top.restoreSession();
-  dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
-    '&code=' + encodeURIComponent(codevalue) +
-    '&language=' + <?php echo js_url($language); ?>,
+  const params = new URLSearchParams({
+    type: codetype,
+    code: codevalue,
+    language: <?php echo js_escape($language); ?>
+  });
+  dlgopen('../education.php?' + params.toString(),
     '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
 }
 
@@ -140,8 +150,13 @@ function educlick(codetype, codevalue) {
 function newEncounter() {
     var f = document.forms[0];
     top.restoreSession();
-    location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
+    const params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: ''
+    });
+    location.href='../../forms/newpatient/new.php?' + params.toString();
 }
+// AI-generated code end
 
 </script>
 <script>

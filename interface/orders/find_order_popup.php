@@ -103,21 +103,30 @@ if (isset($_GET['typeid'])) {
     <title><?php echo xlt('Procedure Picker'); ?></title>
 
     <script>
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            location.href = 'find_order_popup.php?order=' + <?php echo js_url($order); ?> + '&labid=' + <?php echo js_url($labid);
+            <?php
+            echo "const params = new URLSearchParams({";
+            echo "order: " . js_escape($order) . ", ";
+            echo "labid: " . js_escape($labid);
             if (isset($_GET['addfav'])) {
-                echo " + '&addfav=' + " . js_url($_GET['addfav']);
+                echo ", addfav: " . js_escape($_GET['addfav']);
             }
             if (isset($_GET['formid'])) {
-                echo " + '&formid=' + " . js_url($_GET['formid']);
+                echo ", formid: " . js_escape($_GET['formid']);
             }
             if (isset($_GET['formseq'])) {
-                echo " + '&formseq=' + " . js_url($_GET['formseq']);
+                echo ", formseq: " . js_escape($_GET['formseq']);
             }
-            ?> + '&typeid=' + encodeURIComponent(typeid);
+            echo ", typeid: typeid";
+            echo "});";
+            ?>
+
+            location.href = 'find_order_popup.php?' + params.toString();
             return false;
         }
+        // AI-generated code end
     </script>
 </head>
 <body>

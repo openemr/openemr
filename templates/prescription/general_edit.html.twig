@@ -401,12 +401,15 @@
             console.error('Invalid drug id for dispensation: ' + f.dispense_drug_id.value);
             return false;
         }
-        let promise = dlgopen('interface/drugs/dispense_drug.php' +
-            '?drug_id=' + encodeURIComponent(drugId) +
-            '&prescription=' + encodeURIComponent(f.id.value) +
-            '&quantity=' + encodeURIComponent(f.disp_quantity.value) +
-            '&fee=' + encodeURIComponent(f.disp_fee.value) +
-            '&encounter=' + encodeURIComponent(f.dispense_encounter_id.value),
+        {# AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams #}
+        const params = new URLSearchParams({
+            drug_id: drugId,
+            prescription: f.id.value,
+            quantity: f.disp_quantity.value,
+            fee: f.disp_fee.value,
+            encounter: f.dispense_encounter_id.value
+        });
+        const promise = dlgopen('interface/drugs/dispense_drug.php?' + params.toString(),
             '_blank', 400, 200, false, {{ "Dispense Drug"|xlj }}, {
                 // when the dispense dialog closes, we'll toggle the dispense options off
                 // onClosed: toggleDispense
