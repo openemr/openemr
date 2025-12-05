@@ -15,6 +15,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check admin privileges
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('admin', 'users')) {
@@ -23,7 +24,7 @@ if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('admin', 
 }
 
 $csrfToken = CsrfUtils::collectCsrfToken();
-$moduleUrl = $GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-module-dashboard-context';
+$moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/custom_modules/oe-module-dashboard-context';
 ?>
 <!DOCTYPE html>
 <html>

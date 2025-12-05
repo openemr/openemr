@@ -10,17 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/**
- * @global OpenEMR\Core\ModulesClassLoader $classLoader
- */
-
+use OpenEMR\Core\ModulesClassLoader;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\DashboardContext\Bootstrap;
 
+$file = OEGlobalsBag::getInstance()->get('fileroot');
+$classLoader = new ModulesClassLoader($file);
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\DashboardContext\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
-/**
- * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
- */
-
+$eventDispatcher = OEGlobalsBag::getInstance()->get('kernel')->getEventDispatcher();
 $bootstrap = new Bootstrap($eventDispatcher);
 $bootstrap->subscribeToEvents();

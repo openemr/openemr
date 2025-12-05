@@ -16,6 +16,8 @@
 
 namespace OpenEMR\Modules\DashboardContext\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class DashboardContextService
 {
     /**
@@ -249,7 +251,7 @@ class DashboardContextService
     public function getActiveContext(int $userId): string
     {
         $sql = "SELECT active_context FROM {$this->tableName} WHERE user_id = ? LIMIT 1";
-        $result = sqlQuery($sql, [$userId]);
+        $result = QueryUtils::querySingleRow($sql, [$userId]);
 
         return $result['active_context'] ?? self::CONTEXT_PRIMARY_CARE;
     }
@@ -264,19 +266,19 @@ class DashboardContextService
             return false;
         }
 
-        $existing = sqlQuery(
+        $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->tableName} WHERE user_id = ?",
             [$userId]
         );
 
         if ($existing) {
-            return sqlStatement(
+            return QueryUtils::sqlStatementThrowException(
                 "UPDATE {$this->tableName} SET active_context = ?, updated_at = NOW() WHERE user_id = ?",
                 [$context, $userId]
             ) !== false;
         }
 
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
             "INSERT INTO {$this->tableName} (user_id, active_context, created_at, updated_at) VALUES (?, ?, NOW(), NOW())",
             [$userId, $context]
         ) !== false;
@@ -299,7 +301,7 @@ class DashboardContextService
         // First check for user-customized settings for THIS SPECIFIC context
         // This is stored in a separate table keyed by user_id AND context_key
         $sql = "SELECT widget_config FROM {$this->configTableName} WHERE user_id = ? AND context_key = ?";
-        $result = sqlQuery($sql, [$userId, $context]);
+        $result = QueryUtils::querySingleRow($sql, [$userId, $context]);
 
         if (!empty($result['widget_config'])) {
             $config = json_decode((string) $result['widget_config'], true);
@@ -309,7 +311,7 @@ class DashboardContextService
         }
 
         // Check for custom context definition (for user-created or global custom contexts)
-        $customContext = sqlQuery(
+        $customContext = QueryUtils::querySingleRow(
             "SELECT widget_config FROM {$this->contextTableName} WHERE context_key = ? AND (user_id = ? OR is_global = 1)",
             [$context, $userId]
         );
@@ -334,21 +336,21 @@ class DashboardContextService
         $jsonConfig = json_encode($widgetConfig);
 
         // Check if user already has a config for this specific context
-        $existing = sqlQuery(
+        $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->configTableName} WHERE user_id = ? AND context_key = ?",
             [$userId, $context]
         );
 
         if ($existing) {
             // Update existing config for this context
-            return sqlStatement(
+            return QueryUtils::sqlStatementThrowException(
                 "UPDATE {$this->configTableName} SET widget_config = ?, updated_at = NOW() WHERE user_id = ? AND context_key = ?",
                 [$jsonConfig, $userId, $context]
             ) !== false;
         }
 
         // Insert new config for this context
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
             "INSERT INTO {$this->configTableName} (user_id, context_key, widget_config, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())",
             [$userId, $context, $jsonConfig]
         ) !== false;
@@ -407,7 +409,7 @@ class DashboardContextService
     public function resetToDefaults(int $userId, string $context): bool
     {
         // Delete the user's custom config for this specific context
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
             "DELETE FROM {$this->configTableName} WHERE user_id = ? AND context_key = ?",
             [$userId, $context]
         ) !== false;
@@ -419,10 +421,10 @@ class DashboardContextService
     public function getUserCustomContexts(int $userId): array
     {
         $sql = "SELECT * FROM {$this->contextTableName} WHERE user_id = ? OR is_global = 1 ORDER BY context_name";
-        $results = sqlStatement($sql, [$userId]);
+        $results = QueryUtils::sqlStatementThrowException($sql, [$userId]);
 
         $contexts = [];
-        while ($row = sqlFetchArray($results)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($results)) {
             $contexts[] = [
                 'id' => $row['id'],
                 'context_key' => $row['context_key'],
@@ -448,13 +450,13 @@ class DashboardContextService
     ): int|false {
         $contextKey = 'custom_' . strtolower((string) preg_replace('/[^a-zA-Z0-9]/', '_', $contextName)) . '_' . time();
 
-        $result = sqlStatement(
+        $result = QueryUtils::sqlStatementThrowException(
             "INSERT INTO {$this->contextTableName} (user_id, context_key, context_name, description, widget_config, is_global, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())",
             [$userId, $contextKey, $contextName, $description, json_encode($widgetConfig), $isGlobal ? 1 : 0]
         );
 
         if ($result !== false) {
-            return sqlInsertId();
+            return QueryUtils::getLastInsertId();
         }
 
         return false;
@@ -465,7 +467,7 @@ class DashboardContextService
      */
     public function deleteCustomContext(int $contextId, int $userId): bool
     {
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
             "DELETE FROM {$this->contextTableName} WHERE id = ? AND user_id = ? AND is_global = 0",
             [$contextId, $userId]
         ) !== false;
@@ -476,7 +478,7 @@ class DashboardContextService
      */
     public function isUserContextLocked(int $userId): bool
     {
-        $result = sqlQuery(
+        $result = QueryUtils::querySingleRow(
             "SELECT is_locked FROM {$this->assignmentTableName} WHERE user_id = ? AND is_active = 1",
             [$userId]
         );

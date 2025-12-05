@@ -9,6 +9,11 @@ class OEGlobalsBag extends ParameterBag implements \IteratorAggregate, \Countabl
 {
     private static $instance = null;
 
+    /**
+     * holds the mutable flag; the property referencing this holder is readonly.
+     */
+    private readonly \stdClass $compatHolder;
+
     public static function getInstance()
     {
         if (self::$instance === null) {
@@ -17,16 +22,29 @@ class OEGlobalsBag extends ParameterBag implements \IteratorAggregate, \Countabl
         return self::$instance;
     }
 
+    /**
+     * Enables or disables compatibility mode for OEGlobalsBag which will populate the $GLOBALS array for backwards
+     * compatibility with legacy code.
+     * @param bool $enabled
+     * @return void
+     */
+    public static function setCompatabilityMode(bool $enabled): void
+    {
+        $instance = self::getInstance();
+        $instance->compatHolder->enabled = $enabled;
+    }
+
     public function __construct(array $parameters = [], private readonly bool $compatabilityMode = false)
     {
         parent::__construct($parameters);
+        $this->compatHolder = (object) ['enabled' => $this->compatabilityMode];
     }
 
     public function set(string $key, mixed $value): void
     {
         $this->parameters[$key] = $value;
-        if ($this->compatabilityMode) {
-            // In compatibility mode, also set the value in the global $_GLOBALS array
+        if ($this->compatHolder->enabled) {
+            // In compatibility mode, also set the value in the global $GLOBALS array
             $GLOBALS[$key] = $value;
         }
     }

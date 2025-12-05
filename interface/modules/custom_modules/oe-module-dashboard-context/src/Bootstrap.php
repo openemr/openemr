@@ -19,6 +19,7 @@ use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
 use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use OpenEMR\Core\OEGlobalsBag;
 
 class Bootstrap
 {
@@ -38,7 +39,7 @@ class Bootstrap
      */
     private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->installPath = $GLOBALS['web_root'] . self::MODULE_INSTALLATION_PATH;
+        $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . self::MODULE_INSTALLATION_PATH;
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
         $this->logger = new SystemLogger();
@@ -89,7 +90,7 @@ class Bootstrap
         }
 
         // Check if widget should be shown
-        if (!($GLOBALS['dashboard_context_show_widget'] ?? true)) {
+        if (!(OEGlobalsBag::getInstance()->get('dashboard_context_show_widget') ?? true)) {
             return;
         }
 

@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextAdminService;
+use OpenEMR\Common\Database\QueryUtils;
 
 class AdminController
 {
@@ -296,9 +297,9 @@ class AdminController
     private function getFacilities(): void
     {
         $sql = "SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name";
-        $result = sqlStatement($sql);
+        $result = QueryUtils::sqlStatementThrowException($sql);
         $facilities = [];
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $facilities[] = $row;
         }
         $this->sendSuccess(['facilities' => $facilities]);
@@ -313,9 +314,9 @@ class AdminController
         $widgets = $this->contextService->getManageableWidgets();
 
         $sql = "SELECT id, name FROM facility WHERE service_location = 1 ORDER BY name";
-        $result = sqlStatement($sql);
+        $result = QueryUtils::sqlStatementThrowException($sql);
         $facilities = [];
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $facilities[] = $row;
         }
 

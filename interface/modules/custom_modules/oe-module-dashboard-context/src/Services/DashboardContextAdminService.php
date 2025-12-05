@@ -15,6 +15,8 @@
 
 namespace OpenEMR\Modules\DashboardContext\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class DashboardContextAdminService
 {
     private string $contextTable = 'dashboard_context_definitions';
@@ -56,9 +58,9 @@ class DashboardContextAdminService
                 FROM {$this->contextTable} cd
                 LEFT JOIN users u ON cd.user_id = u.id
                 ORDER BY cd.sort_order, cd.context_name";
-        $result = sqlStatement($sql);
+        $result = QueryUtils::sqlStatementThrowException($sql);
 
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $contexts[] = [
                 'id' => $row['id'],
                 'context_key' => $row['context_key'],
@@ -85,7 +87,7 @@ class DashboardContextAdminService
     {
         $contextKey = $data['context_key'] ?? $this->generateContextKey($data['context_name']);
 
-        $existing = sqlQuery(
+        $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
             [$contextKey]
         );
@@ -93,7 +95,7 @@ class DashboardContextAdminService
             return false;
         }
 
-        $result = sqlStatement(
+        $result = QueryUtils::sqlStatementThrowException(
             "INSERT INTO {$this->contextTable} 
             (user_id, context_key, context_name, description, widget_config, is_global, sort_order, created_at, updated_at) 
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
@@ -108,7 +110,7 @@ class DashboardContextAdminService
             ]
         );
 
-        return $result !== false ? sqlInsertId() : false;
+        return QueryUtils::getLastInsertId();
     }
 
     /**
@@ -147,7 +149,7 @@ class DashboardContextAdminService
         $fields[] = 'updated_at = NOW()';
         $params[] = $contextId;
 
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
                 "UPDATE {$this->contextTable} SET " . implode(', ', $fields) . " WHERE id = ?",
                 $params
             ) !== false;
@@ -158,12 +160,12 @@ class DashboardContextAdminService
      */
     public function deleteContext(int $contextId): bool
     {
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "DELETE FROM {$this->assignmentTable} WHERE context_id = ?",
             [$contextId]
         );
 
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
                 "DELETE FROM {$this->contextTable} WHERE id = ?",
                 [$contextId]
             ) !== false;
@@ -224,10 +226,10 @@ class DashboardContextAdminService
                 WHERE " . implode(' AND ', $where) . "
                 ORDER BY u.lname, u.fname";
 
-        $result = sqlStatement($sql, $params);
+        $result = QueryUtils::sqlStatementThrowException($sql, $params);
         $users = [];
 
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $users[] = [
                 'id' => $row['id'],
                 'username' => $row['username'],
@@ -261,10 +263,10 @@ class DashboardContextAdminService
                 WHERE user_id = ? 
                 ORDER BY context_key";
         
-        $result = sqlStatement($sql, [$userId]);
+        $result = QueryUtils::sqlStatementThrowException($sql, [$userId]);
         $configs = [];
         
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $configs[$row['context_key']] = [
                 'widget_config' => json_decode((string) $row['widget_config'], true),
                 'created_at' => $row['created_at'],
@@ -280,7 +282,7 @@ class DashboardContextAdminService
      */
     public function clearUserContextConfigs(int $userId): bool
     {
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
             "DELETE FROM {$this->userContextConfigTable} WHERE user_id = ?",
             [$userId]
         ) !== false;
@@ -291,18 +293,18 @@ class DashboardContextAdminService
      */
     public function assignContextToUser(int $userId, string $contextKey, int $assignedBy, bool $isLocked = false, ?int $contextId = null): bool
     {
-        $currentContext = sqlQuery(
+        $currentContext = QueryUtils::querySingleRow(
             "SELECT active_context FROM {$this->userContextTable} WHERE user_id = ?",
             [$userId]
         );
         $oldContext = $currentContext['active_context'] ?? null;
 
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "UPDATE {$this->assignmentTable} SET is_active = 0 WHERE user_id = ?",
             [$userId]
         );
 
-        $result = sqlStatement(
+        $result = QueryUtils::sqlStatementThrowException(
             "INSERT INTO {$this->assignmentTable} 
             (user_id, context_id, context_key, assigned_by, is_locked, is_active, assigned_at) 
             VALUES (?, ?, ?, ?, ?, 1, NOW())",
@@ -310,18 +312,18 @@ class DashboardContextAdminService
         );
 
         if ($result !== false) {
-            $existing = sqlQuery(
+            $existing = QueryUtils::querySingleRow(
                 "SELECT id FROM {$this->userContextTable} WHERE user_id = ?",
                 [$userId]
             );
 
             if ($existing) {
-                sqlStatement(
+                QueryUtils::sqlStatementThrowException(
                     "UPDATE {$this->userContextTable} SET active_context = ?, updated_at = NOW() WHERE user_id = ?",
                     [$contextKey, $userId]
                 );
             } else {
-                sqlStatement(
+                QueryUtils::sqlStatementThrowException(
                     "INSERT INTO {$this->userContextTable} (user_id, active_context, created_at, updated_at) VALUES (?, ?, NOW(), NOW())",
                     [$userId, $contextKey]
                 );
@@ -339,7 +341,7 @@ class DashboardContextAdminService
      */
     public function removeContextAssignment(int $userId, int $performedBy): bool
     {
-        $result = sqlStatement(
+        $result = QueryUtils::sqlStatementThrowException(
             "UPDATE {$this->assignmentTable} SET is_active = 0 WHERE user_id = ?",
             [$userId]
         );
@@ -357,7 +359,7 @@ class DashboardContextAdminService
      */
     public function setUserContextLock(int $userId, bool $locked, int $performedBy): bool
     {
-        $existing = sqlQuery(
+        $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->assignmentTable} WHERE user_id = ? AND is_active = 1",
             [$userId]
         );
@@ -366,7 +368,7 @@ class DashboardContextAdminService
             return false;
         }
 
-        $result = sqlStatement(
+        $result = QueryUtils::sqlStatementThrowException(
             "UPDATE {$this->assignmentTable} SET is_locked = ? WHERE user_id = ? AND is_active = 1",
             [$locked ? 1 : 0, $userId]
         );
@@ -402,19 +404,19 @@ class DashboardContextAdminService
      */
     public function setRoleDefaultContext(string $roleType, string $contextKey, int $setBy): bool
     {
-        $existing = sqlQuery(
+        $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->roleDefaultsTable} WHERE role_type = ?",
             [$roleType]
         );
 
         if ($existing) {
-            return sqlStatement(
+            return QueryUtils::sqlStatementThrowException(
                     "UPDATE {$this->roleDefaultsTable} SET context_key = ?, updated_by = ?, updated_at = NOW() WHERE role_type = ?",
                     [$contextKey, $setBy, $roleType]
                 ) !== false;
         }
 
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
                 "INSERT INTO {$this->roleDefaultsTable} (role_type, context_key, created_by, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())",
                 [$roleType, $contextKey, $setBy]
             ) !== false;
@@ -425,7 +427,7 @@ class DashboardContextAdminService
      */
     public function getRoleDefaultContext(string $roleType): ?string
     {
-        $result = sqlQuery(
+        $result = QueryUtils::querySingleRow(
             "SELECT context_key FROM {$this->roleDefaultsTable} WHERE role_type = ?",
             [$roleType]
         );
@@ -442,10 +444,10 @@ class DashboardContextAdminService
                 LEFT JOIN users u ON rd.updated_by = u.id OR rd.created_by = u.id
                 ORDER BY rd.role_type";
 
-        $result = sqlStatement($sql);
+        $result = QueryUtils::sqlStatementThrowException($sql);
         $defaults = [];
 
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $defaults[] = $row;
         }
 
@@ -457,19 +459,19 @@ class DashboardContextAdminService
      */
     public function setFacilityDefaultContext(int $facilityId, string $contextKey, int $setBy): bool
     {
-        $existing = sqlQuery(
+        $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->facilityDefaultsTable} WHERE facility_id = ?",
             [$facilityId]
         );
 
         if ($existing) {
-            return sqlStatement(
+            return QueryUtils::sqlStatementThrowException(
                     "UPDATE {$this->facilityDefaultsTable} SET context_key = ?, updated_by = ?, updated_at = NOW() WHERE facility_id = ?",
                     [$contextKey, $setBy, $facilityId]
                 ) !== false;
         }
 
-        return sqlStatement(
+        return QueryUtils::sqlStatementThrowException(
                 "INSERT INTO {$this->facilityDefaultsTable} (facility_id, context_key, created_by, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())",
                 [$facilityId, $contextKey, $setBy]
             ) !== false;
@@ -480,7 +482,7 @@ class DashboardContextAdminService
      */
     public function isUserContextLocked(int $userId): bool
     {
-        $result = sqlQuery(
+        $result = QueryUtils::querySingleRow(
             "SELECT is_locked FROM {$this->assignmentTable} WHERE user_id = ? AND is_active = 1",
             [$userId]
         );
@@ -501,10 +503,10 @@ class DashboardContextAdminService
                 GROUP BY COALESCE(udc.active_context, 'primary_care')
                 ORDER BY user_count DESC";
 
-        $result = sqlStatement($sql);
+        $result = QueryUtils::sqlStatementThrowException($sql);
         $stats = [];
 
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $stats[] = $row;
         }
 
@@ -523,10 +525,10 @@ class DashboardContextAdminService
                 GROUP BY context_key
                 ORDER BY user_count DESC";
 
-        $result = sqlStatement($sql);
+        $result = QueryUtils::sqlStatementThrowException($sql);
         $stats = [];
 
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $stats[] = $row;
         }
 
@@ -558,7 +560,7 @@ class DashboardContextAdminService
     public function exportContextConfig(?int $contextId = null): array
     {
         if ($contextId !== null) {
-            $context = sqlQuery(
+            $context = QueryUtils::querySingleRow(
                 "SELECT * FROM {$this->contextTable} WHERE id = ?",
                 [$contextId]
             );
@@ -635,10 +637,10 @@ class DashboardContextAdminService
                 ORDER BY al.created_at DESC
                 LIMIT " . $limit;
 
-        $result = sqlStatement($sql, $params);
+        $result = QueryUtils::sqlStatementThrowException($sql, $params);
         $logs = [];
 
-        while ($row = sqlFetchArray($result)) {
+        while ($row = QueryUtils::fetchArrayFromResultSet($result)) {
             $logs[] = $row;
         }
 
@@ -661,7 +663,7 @@ class DashboardContextAdminService
      */
     private function logAction(int $userId, string $action, ?string $oldContext, ?string $newContext, int $performedBy): void
     {
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "INSERT INTO {$this->auditLogTable} (user_id, action, old_context, new_context, performed_by, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())",
             [$userId, $action, $oldContext, $newContext, $performedBy, $_SERVER['REMOTE_ADDR'] ?? null]
         );

@@ -159,7 +159,8 @@ if (empty($restRequest)) {
     $restRequest = HttpRestRequest::createFromGlobals();
 }
 if (empty($globalsBag)) {
-    $globalsBag = new OeGlobalsBag([], true);
+    $globalsBag = OEGlobalsBag::getInstance();
+    OEGlobalsBag::setCompatabilityMode(true);
 }
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
