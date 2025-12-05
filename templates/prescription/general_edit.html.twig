@@ -104,6 +104,7 @@
                 <td>
                     {% if topActionBarDisplay %}
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save">{{'Save'|xlt}}</a>
+                    <a id="save-print" href=# onclick="submitAndPrint();" class="btn btn-secondary btn-sm btn-save-print">{{'Save and Print'|xlt}}</a>
                     {% elseif bottomActionBarDisplay %}
                         {# We want the back button to show up on top if the settings are to show the bottom action bar #}
                         <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
@@ -370,6 +371,7 @@
             <div class="row">
                 <div class="col-12 justify-content-end">
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save mr-3">{{'Save'|xlt}}</a>
+                    <a id="save-print-bottom" href=# onclick="submitAndPrint();" class="btn btn-secondary btn-sm btn-save-print mr-3">{{'Save and Print'|xlt}}</a>
                     <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
                 </div>
             </div>
@@ -381,6 +383,7 @@
         {% if dispenseEnabled %}
         <input type="hidden" name="dispense_after_save" value="" />
         {% endif %}
+        <input type="hidden" name="print_after_save" value="" />
 
         <script>
             {# TODO: @adunsulag Why in the world do we have just raw injection of javascript here... #}
@@ -448,7 +451,7 @@
         });
     }
     function toggleDispense() {
-        $('.dispense_option,.prescription-controls .btn-primary,.amc-card').toggle();
+        $('.dispense_option,.prescription-controls .btn-primary,.prescription-controls .btn-save-print,.amc-card').toggle();
         $('.btn.btn-toggle-dispense').toggle();
     }
     $(document).ready(function(){
@@ -469,6 +472,20 @@ function submitfun() {
         document.forms["prescribe"].submit();
     }
     else {
+        return false;
+    }
+}
+
+// Save prescription and then print/download as PDF
+function submitAndPrint() {
+    var f = document.forms["prescribe"];
+    f.print_after_save.value = "1";
+    top.restoreSession();
+    if (CheckForErrors(f)) {
+        f.submit();
+    }
+    else {
+        f.print_after_save.value = "";
         return false;
     }
 }
