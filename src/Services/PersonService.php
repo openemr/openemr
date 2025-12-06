@@ -579,7 +579,7 @@ class PersonService extends BaseService
             $person->set_last_name($data['last_name']);
         }
 
-        if (isset($data['middlename'])) {
+        if (isset($data['middle_name'])) {
             $person->set_middle_name($data['middle_name']);
         }
 

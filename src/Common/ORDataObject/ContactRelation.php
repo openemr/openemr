@@ -316,15 +316,23 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
     {
         if ($start_date !== null) {
             if (is_string($start_date)) {
+                // Try DateFormatterUtils first
                 $date = DateFormatterUtils::dateStringToDateTime($start_date);
+                
+                // If that fails, try native DateTime
                 if ($date === false) {
-                    throw new \InvalidArgumentException("Invalid start_date format: " . $start_date);
+                    try {
+                        $date = new DateTime($start_date);
+                    } catch (\Exception $e) {
+                        throw new \InvalidArgumentException("Invalid start_date format: " . $start_date . " - " . $e->getMessage());
+                    }
                 }
+                
                 $this->start_date = $date;
             } elseif ($start_date instanceof DateTime) {
                 $this->start_date = $start_date;
             } else {
-                throw new \InvalidArgumentException("Invalid start_date format");
+                throw new \InvalidArgumentException("Invalid start_date type - must be string or DateTime");
             }
         } else {
             $this->start_date = null;
@@ -337,15 +345,23 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
     {
         if ($end_date !== null) {
             if (is_string($end_date)) {
+                // Try DateFormatterUtils first
                 $date = DateFormatterUtils::dateStringToDateTime($end_date);
+                
+                // If that fails, try native DateTime
                 if ($date === false) {
-                    throw new \InvalidArgumentException("Invalid end_date format: " . $end_date);
+                    try {
+                        $date = new DateTime($end_date);
+                    } catch (\Exception $e) {
+                        throw new \InvalidArgumentException("Invalid end_date format: " . $end_date . " - " . $e->getMessage());
+                    }
                 }
+                
                 $this->end_date = $date;
             } elseif ($end_date instanceof DateTime) {
                 $this->end_date = $end_date;
             } else {
-                throw new \InvalidArgumentException("Invalid end_date format");
+                throw new \InvalidArgumentException("Invalid end_date type - must be string or DateTime");
             }
         } else {
             $this->end_date = null;
