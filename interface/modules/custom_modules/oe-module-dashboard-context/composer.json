@@ -1,0 +1,37 @@
+{
+    "name": "openemr/oe-module-dashboard-context",
+    "description": "Dashboard Context Manager module for OpenEMR - Control patient dashboard widget visibility based on care contexts",
+    "type": "openemr-module",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Jerry Padgett",
+            "email": "sjpadgett@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Modules\\DashboardContext\\": "src/"
+        }
+    },
+    "extra": {
+        "openemr": {
+            "type": "custom-module",
+            "directory": "oe-module-dashboard-context"
+        }
+    },
+    "keywords": [
+        "openemr",
+        "module",
+        "dashboard",
+        "context",
+        "widgets",
+        "patient-summary"
+    ],
+    "support": {
+        "issues": "https://github.com/openemr/openemr/issues"
+    }
+}

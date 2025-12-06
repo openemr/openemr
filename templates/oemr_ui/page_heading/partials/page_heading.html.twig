@@ -5,14 +5,19 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
 @subpackage OemrUi
 
 @author Robert Down <robertdown@live.com>
+@author Jerry Padgett <sjpadgett@gmail.com>
 @copyright Copyright (c) 2023 Robert Down
 @copyright Copyright (c) 2023 Providence Healthtech
+@copyright Copyright (c) 2025 Jerry Padgett
 #}
 <nav class="navbar navbar-light navbar-expand-sm bg-light">
     {% block pageHeading %}
         <span class="navbar-brand mb-0 h1">{{ heading|text }}</span>
+        {# Title Nav Content - injected by PageHeadingRenderEvent listeners #}
+        {% if titleNavContent is defined and titleNavContent|length > 0 %}
+            {{ titleNavContent|raw }}
+        {% endif %}
     {% endblock %}
-
     <div class="collapse navbar-collapse">
         {% block primaryButtons %}
             {% import "nav/partials/navbar-nav.html.twig" as navbar %}
