@@ -671,6 +671,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 // order by
+    $odrstmt = "";
     if (!empty($_POST['form_pt_name'])) {
         $odrstmt .= ",patient_name";
     }
@@ -702,7 +703,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 
-    $odrstmt = empty($odrstmt) ? " ORDER BY patient_id" : " ORDER BY " . ltrim((string) $odrstmt, ",");
+    $odrstmt = empty($odrstmt) ? " ORDER BY patient_id" : " ORDER BY " . ltrim($odrstmt, ",");
 
     if ($type == 'Medical History') {
         $sqlstmt = "select * from (" . $sqlstmt . " " . $whr_stmt . " " . $odrstmt . ",history_data_date desc) a group by patient_id";
