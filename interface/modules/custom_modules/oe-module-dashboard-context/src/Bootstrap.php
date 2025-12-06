@@ -14,10 +14,10 @@ namespace OpenEMR\Modules\DashboardContext;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
 use stdClass;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -34,11 +34,12 @@ class Bootstrap
 
     public string $installPath;
 
-    public function __construct(/**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events
-     */
-    private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        /**
+         * @var EventDispatcherInterface The object responsible for sending and subscribing to events
+         */
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . self::MODULE_INSTALLATION_PATH;
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
@@ -51,7 +52,8 @@ class Bootstrap
     public function subscribeToEvents(): void
     {
         $this->registerMenuItems();
-        $this->registerDashboardWidget();
+        $this->registerPageHeadingWidget();
+        // $this->registerDashboardWidget(); // TODO sjp Save if we want to allow user to move the dropdown to top of view.
     }
 
     /**
@@ -63,22 +65,22 @@ class Bootstrap
     }
 
     /**
-     * Register the dashboard widget renderer
+     * Register the page heading widget renderer (navbar dropdown)
      *
      * @return void
      */
-    public function registerDashboardWidget(): void
+    public function registerPageHeadingWidget(): void
     {
         $this->eventDispatcher->addListener(
-            RenderEvent::EVENT_SECTION_LIST_RENDER_TOP,
-            $this->renderDashboardWidget(...),
+            PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER,
+            $this->renderPageHeadingWidget(...),
             10
         );
     }
 
     /**
      * Render the context manager widget on the patient dashboard
-     *
+     * Reserved for future as option of where to locate the widget
      * @param RenderEvent $event
      * @return void
      */
@@ -100,6 +102,48 @@ class Bootstrap
         } catch (\Exception $e) {
             $this->logger->error("DashboardContext: Error rendering widget", ['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Render the context selector in the page heading navbar
+     * This adds a compact dropdown to the title nav area on the demographics page
+     * (between the page title and the action buttons)
+     *
+     * @param PageHeadingRenderEvent $event
+     * @return PageHeadingRenderEvent
+     */
+    public function renderPageHeadingWidget(PageHeadingRenderEvent $event): PageHeadingRenderEvent
+    {
+        // Debug: Log that listener was called
+        $pageId = $event->getPageId();
+        $this->logger->debug("DashboardContext: PageHeadingRenderEvent fired", ['page_id' => $pageId]);
+
+        // Only render on demographics/patient dashboard page
+        if (!in_array($pageId, ['demographics', 'patient_dashboard', 'core.mrd', 'unknown', ''])) {
+            $this->logger->debug("DashboardContext: Skipping - page_id not matched", ['page_id' => $pageId]);
+            return $event;
+        }
+
+        // Check if widget should be shown
+        if (!(OEGlobalsBag::getInstance()->get('dashboard_context_show_widget') ?? true)) {
+            return $event;
+        }
+
+        try {
+            $controller = new ContextWidgetController();
+            $navHtml = $controller->renderNavbarDropdown();
+            
+            $this->logger->debug("DashboardContext: Appending titleNavContent", ['length' => strlen($navHtml)]);
+            
+            // Append HTML content to be injected into the title nav area
+            // This will appear between the page title and the action buttons
+            // Let modules be modules ...
+            $event->appendTitleNavContent($navHtml);
+        } catch (\Exception $e) {
+            $this->logger->error("DashboardContext: Error rendering navbar widget", ['error' => $e->getMessage()]);
+        }
+
+        return $event;
     }
 
     /**

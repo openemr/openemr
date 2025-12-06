@@ -60,7 +60,8 @@ const ContextAdmin = {
     loadAdminConfig: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'get_admin_config', csrf_token_form: this.config.csrfToken },
@@ -170,7 +171,8 @@ const ContextAdmin = {
         if (isEdit) data.context_id = contextId;
         else data.context_key = $('#contextKey').val();
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: data,
@@ -196,7 +198,8 @@ const ContextAdmin = {
         if (!confirm('Are you sure you want to delete this context?')) return;
 
         const self = this;
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'delete_context', context_id: contextId, csrf_token_form: this.config.csrfToken },
@@ -235,7 +238,8 @@ const ContextAdmin = {
     loadUsers: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: {
@@ -294,7 +298,8 @@ const ContextAdmin = {
     assignContext: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: {
@@ -330,7 +335,8 @@ const ContextAdmin = {
         const userIds = [];
         $('.user-select:checked').each(function() { userIds.push($(this).val()); });
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: {
@@ -354,7 +360,8 @@ const ContextAdmin = {
     unlockUser: function(userId) {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'remove_user_assignment', user_id: userId, csrf_token_form: this.config.csrfToken },
@@ -371,7 +378,8 @@ const ContextAdmin = {
     loadRoleDefaults: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'get_role_defaults', csrf_token_form: this.config.csrfToken },
@@ -414,7 +422,8 @@ const ContextAdmin = {
     saveRoleDefault: function(roleType, contextKey) {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'set_role_default', role_type: roleType, context_key: contextKey, csrf_token_form: this.config.csrfToken },
@@ -428,7 +437,8 @@ const ContextAdmin = {
     loadStats: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'get_usage_stats', csrf_token_form: this.config.csrfToken },
@@ -457,7 +467,8 @@ const ContextAdmin = {
     loadAuditLog: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: {
@@ -494,7 +505,8 @@ const ContextAdmin = {
     exportContexts: function() {
         const self = this;
 
-        $.ajax({
+        top.restoreSession();
+                $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: { action: 'export_contexts', csrf_token_form: this.config.csrfToken },
@@ -522,7 +534,8 @@ const ContextAdmin = {
             reader.onload = function(e) {
                 try {
                     const config = JSON.parse(e.target.result);
-                    $.ajax({
+                    top.restoreSession();
+                $.ajax({
                         url: self.config.ajaxUrl,
                         type: 'POST',
                         data: { action: 'import_contexts', config: JSON.stringify(config), csrf_token_form: self.config.csrfToken },

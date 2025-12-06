@@ -64,6 +64,8 @@
         switchContext: function (context) {
             const self = this;
 
+            top.restoreSession();
+
             $.ajax({
                 url: this.config.ajaxUrl,
                 type: 'POST',
@@ -90,6 +92,8 @@
 
         loadContextWidgets: function (context) {
             const self = this;
+
+            top.restoreSession();
 
             $.ajax({
                 url: this.config.ajaxUrl,
@@ -140,11 +144,14 @@
             const self = this;
             const widgets = {};
 
+            top.restoreSession();
+
             $('.widget-visibility-toggle').each(function () {
                 widgets[$(this).data('widget-id')] = $(this).is(':checked');
             });
 
-            $.ajax({
+            top.restoreSession();
+                $.ajax({
                 url: this.config.ajaxUrl,
                 type: 'POST',
                 data: {
@@ -173,6 +180,8 @@
             if (!confirm('Reset this context to default settings?')) {
                 return;
             }
+
+            top.restoreSession();
 
             $.ajax({
                 url: this.config.ajaxUrl,
@@ -258,6 +267,8 @@
             $('.widget-visibility-toggle').each(function () {
                 widgets[$(this).data('widget-id')] = $(this).is(':checked');
             });
+
+            top.restoreSession();
 
             $.ajax({
                 url: this.config.ajaxUrl,

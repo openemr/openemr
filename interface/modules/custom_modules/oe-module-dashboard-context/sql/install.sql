@@ -13,7 +13,7 @@
 -- INSTALL SECTION
 -- ============================================================================
 
--- #IfNotTable user_dashboard_context
+#IfNotTable user_dashboard_context
 -- User's active context tracking (which context is currently selected)
 CREATE TABLE IF NOT EXISTS `user_dashboard_context` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -25,16 +25,16 @@ CREATE TABLE IF NOT EXISTS `user_dashboard_context` (
     UNIQUE KEY `idx_user_id` (`user_id`),
     KEY `idx_active_context` (`active_context`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Tracks active dashboard context per user';
--- #EndIf
+#EndIf
 
--- #IfNotTable user_dashboard_context_config
+#IfNotTable user_dashboard_context_config
 -- Widget configurations stored per user per context
 -- This allows each user to have different widget settings for each context
 CREATE TABLE IF NOT EXISTS `user_dashboard_context_config` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `user_id` INT(11) NOT NULL COMMENT 'Reference to users.id',
     `context_key` VARCHAR(50) NOT NULL COMMENT 'Context key (e.g., primary_care, emergency)',
-    `widget_config` TEXT DEFAULT NULL COMMENT 'JSON encoded widget visibility config',
+    `widget_config` TEXT COMMENT 'JSON encoded widget visibility config',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -42,17 +42,17 @@ CREATE TABLE IF NOT EXISTS `user_dashboard_context_config` (
     KEY `idx_user_id` (`user_id`),
     KEY `idx_context_key` (`context_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Widget configs per user per context';
--- #EndIf
+#EndIf
 
--- #IfNotTable dashboard_context_definitions
+#IfNotTable dashboard_context_definitions
 -- Custom context definitions (user-created or global custom contexts)
 CREATE TABLE IF NOT EXISTS `dashboard_context_definitions` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `user_id` INT(11) DEFAULT NULL COMMENT 'NULL for global contexts, user ID for personal',
     `context_key` VARCHAR(50) NOT NULL COMMENT 'Unique key for the context',
     `context_name` VARCHAR(100) NOT NULL COMMENT 'Display name',
-    `description` TEXT DEFAULT NULL COMMENT 'Description of the context',
-    `widget_config` TEXT DEFAULT NULL COMMENT 'JSON encoded default widget config',
+    `description` TEXT COMMENT 'Description of the context',
+    `widget_config` TEXT COMMENT 'JSON encoded default widget config',
     `is_global` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 if available to all users',
     `sort_order` INT(11) DEFAULT 0 COMMENT 'Display order',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -62,9 +62,9 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_definitions` (
     KEY `idx_user_id` (`user_id`),
     KEY `idx_is_global` (`is_global`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Custom dashboard context definitions';
--- #EndIf
+#EndIf
 
--- #IfNotTable dashboard_context_assignments
+#IfNotTable dashboard_context_assignments
 -- Admin-assigned context assignments to users
 CREATE TABLE IF NOT EXISTS `dashboard_context_assignments` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -75,16 +75,16 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_assignments` (
     `is_locked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 if user cannot change context',
     `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 if this is the active assignment',
     `assigned_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `notes` TEXT DEFAULT NULL COMMENT 'Optional notes about the assignment',
+    `notes` TEXT COMMENT 'Optional notes about the assignment',
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`),
     KEY `idx_context_key` (`context_key`),
     KEY `idx_assigned_by` (`assigned_by`),
     KEY `idx_is_active` (`is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Admin context assignments to users';
--- #EndIf
+#EndIf
 
--- #IfNotTable dashboard_context_role_defaults
+#IfNotTable dashboard_context_role_defaults
 -- Role-based default context settings
 CREATE TABLE IF NOT EXISTS `dashboard_context_role_defaults` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -98,9 +98,9 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_role_defaults` (
     UNIQUE KEY `idx_role_type` (`role_type`),
     KEY `idx_context_key` (`context_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Default contexts per user role';
--- #EndIf
+#EndIf
 
--- #IfNotTable dashboard_context_facility_defaults
+#IfNotTable dashboard_context_facility_defaults
 -- Facility-based default context settings
 CREATE TABLE IF NOT EXISTS `dashboard_context_facility_defaults` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -114,9 +114,9 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_facility_defaults` (
     UNIQUE KEY `idx_facility_id` (`facility_id`),
     KEY `idx_context_key` (`context_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Default contexts per facility';
--- #EndIf
+#EndIf
 
--- #IfNotTable dashboard_widget_order
+#IfNotTable dashboard_widget_order
 -- Optional: Context-specific widget order for drag-drop reordering
 CREATE TABLE IF NOT EXISTS `dashboard_widget_order` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -131,9 +131,9 @@ CREATE TABLE IF NOT EXISTS `dashboard_widget_order` (
     UNIQUE KEY `idx_user_context_widget` (`user_id`, `context_key`, `widget_id`),
     KEY `idx_sort_order` (`sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Widget display order per user context';
--- #EndIf
+#EndIf
 
--- #IfNotTable dashboard_context_audit_log
+#IfNotTable dashboard_context_audit_log
 -- Audit log for context changes
 CREATE TABLE IF NOT EXISTS `dashboard_context_audit_log` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_audit_log` (
     KEY `idx_performed_by` (`performed_by`),
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Audit log for context changes';
--- #EndIf
+#EndIf
 
 -- ============================================================================
 -- UNINSTALL SECTION

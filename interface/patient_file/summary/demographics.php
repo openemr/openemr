@@ -1018,7 +1018,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 <body class="mt-1 patient-demographic bg-light">
-
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
@@ -1035,7 +1034,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-
         if ($thisauth) {
             if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
                 $thisauth = 0;
@@ -1043,6 +1041,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1057,9 +1056,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
         ?>
         <div class="main mb-1">
-            <?php
-                $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
-            ?>
             <!-- start main content div -->
             <div class="row">
                 <?php
