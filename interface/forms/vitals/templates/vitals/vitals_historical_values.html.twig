@@ -6,15 +6,20 @@
                 {% if precision is defined %}
                     {{ attribute(result, vitalsValueMetric)|number_format(precision)|text }}
                 {% else %}
-                    {{ attribute(result, vitalsValueMetric)|text }}
+                    {# Apply |xl if vitalsValueMetric might be a translatable string #}
+                    {{ attribute(result, vitalsValueMetric)|xl|text }}
                 {% endif %}
             {% endif %}
-        {% else %}
+        {% else %} {# Not useMetric - this branch is taken for your BMI status historical values #}
             {% if attribute(result, vitalsValue) != 0 %}
                 {% if precision is defined %}
+                    {# This path assumes vitalsValue is numeric if precision is defined. #}
+                    {# If vitalsValue could be textual here, this logic might need more refinement, #}
+                    {# but typically BMI status ("Overweight") wouldn't have 'precision' defined. #}
                     {{ attribute(result, vitalsValue)|number_format(precision)|text }}
                 {% else %}
-                    {{ attribute(result, vitalsValue)|text }}
+                    {# Apply |xl as vitalsValue is likely a translatable string (e.g., BMI status) #}
+                    {{ attribute(result, vitalsValue)|xl|text }}
                 {% endif %}
             {% endif %}
         {% endif %}
