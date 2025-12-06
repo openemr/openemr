@@ -32,7 +32,7 @@ class SvcCodeFinancialReportService
         bool $importantCodesOnly = false
     ): array {
         $sqlBindArray = [];
-        
+
         $query = "SELECT b.code,
                     SUM(b.units) as units,
                     SUM(b.fee) as billed,
@@ -44,43 +44,43 @@ class SvcCodeFinancialReportService
                 FROM form_encounter as fe
                 JOIN billing as b ON b.pid = fe.pid AND b.encounter = fe.encounter
                 LEFT JOIN (
-                    SELECT pid, encounter, code, 
-                           SUM(pay_amount) as paid, 
+                    SELECT pid, encounter, code,
+                           SUM(pay_amount) as paid,
                            SUM(adj_amount) as adjust
-                    FROM ar_activity 
-                    WHERE deleted IS NULL 
+                    FROM ar_activity
+                    WHERE deleted IS NULL
                     GROUP BY pid, encounter, code
                 ) as ar_act ON ar_act.pid = b.pid AND ar_act.encounter = b.encounter AND ar_act.code = b.code
                 LEFT OUTER JOIN codes AS c ON c.code = b.code
                 INNER JOIN code_types AS ct ON ct.ct_key = b.code_type AND ct.ct_fee = '1'
-                WHERE b.code_type != 'COPAY' 
+                WHERE b.code_type != 'COPAY'
                   AND b.activity = 1
                   AND fe.date >= ?
                   AND fe.date <= ?";
-        
+
         array_push($sqlBindArray, "{$fromDate} 00:00:00", "{$toDate} 23:59:59");
-        
+
         if ($facilityId) {
             $query .= " AND fe.facility_id = ?";
-            array_push($sqlBindArray, $facilityId);
+            $sqlBindArray[] = $facilityId;
         }
-        
+
         if ($providerId) {
             $query .= " AND b.provider_id = ?";
-            array_push($sqlBindArray, $providerId);
+            $sqlBindArray[] = $providerId;
         }
-        
+
         if ($importantCodesOnly) {
             $query .= " AND c.financial_reporting = '1'";
         }
-        
+
         $query .= " GROUP BY b.code ORDER BY SUM(b.units) DESC";
-        
+
         $results = QueryUtils::fetchRecords($query, $sqlBindArray);
-        
+
         return $results ?? [];
     }
-    
+
     /**
      * Calculate summary metrics from procedure codes
      *
@@ -97,7 +97,7 @@ class SvcCodeFinancialReportService
             'total_balance' => 0,
             'total_encounters' => 0,
         ];
-        
+
         foreach ($procedureCodes as $code) {
             $totals['total_units'] += $code['units'] ?? 0;
             $totals['total_billed'] += $code['billed'] ?? 0;
@@ -106,19 +106,19 @@ class SvcCodeFinancialReportService
             $totals['total_balance'] += $code['balance'] ?? 0;
             $totals['total_encounters'] += $code['encounter_count'] ?? 0;
         }
-        
+
         // Calculate metrics
         $totals['collection_rate'] = $totals['total_billed'] > 0
             ? ($totals['total_paid'] / $totals['total_billed']) * 100
             : 0;
-        
+
         $totals['average_per_unit'] = $totals['total_units'] > 0
             ? $totals['total_billed'] / $totals['total_units']
             : 0;
-        
+
         return $totals;
     }
-    
+
     /**
      * Prepare data for chart visualization
      *
@@ -130,8 +130,8 @@ class SvcCodeFinancialReportService
     {
         // Top procedures by volume
         $volumeData = array_slice($procedureCodes, 0, $maxItems);
-        
-        $chartData = [
+
+        return [
             'volume_by_code' => [
                 'labels' => array_map(fn($item) => $item['code'], $volumeData),
                 'datasets' => [
@@ -178,10 +178,8 @@ class SvcCodeFinancialReportService
                 ]
             ]
         ];
-        
-        return $chartData;
     }
-    
+
     /**
      * Generate random colors for chart visualization
      *
@@ -196,14 +194,14 @@ class SvcCodeFinancialReportService
             '#00f2fe', '#43e97b', '#38f9d7', '#fa709a', '#fee140',
             '#30b0fe', '#4099ff', '#73b8ff', '#a8d8ff', '#c2e0ff'
         ];
-        
+
         for ($i = 0; $i < $count; $i++) {
             $colors[] = $baseColors[$i % count($baseColors)];
         }
-        
+
         return $colors;
     }
-    
+
     /**
      * Format procedure code data for display
      *
