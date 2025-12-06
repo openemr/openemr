@@ -31,7 +31,6 @@ class OEGlobalsBag extends ParameterBag
         private readonly bool $compatabilityMode = false,
     ) {
         parent::__construct($parameters);
-        $this->compatHolder = (object) ['enabled' => $this->compatabilityMode];
     }
 
     public function set(string $key, mixed $value): void
