@@ -105,6 +105,19 @@
             <column name="deceased_date" comments="Date of Decease"/>
             <column name="deceased_reason" comments="Reason of Decease"/>
             <column name="soap_import_status" comments="SOAP Import Status (1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import)"/>
+            <column name="tribal_affiliations" comments="Comes from the list_options.list_id='tribal_affiliations'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="sex_identified" comments="Comes from the list_options.list_id='administrative_sex'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="interpreter_needed" comments="Comes from the list_options.list_id='yes_no_unknown' and represents whether an interpreter is needed for this patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="advance_directive_user_authenticator">
+                <foreignKey table="users" column="id" />
+            </column>
+
         </table>
 
         <!-- Allergies Data -->
@@ -180,6 +193,24 @@
             <column name="list_id"  comments="The internal lists identifier">
                 <foreignKey table="lists" column="id" />
             </column>
+            <column name="prescription_id"  comments="The internal prescription identifier that originated this medication issue">
+                <foreignKey table="prescriptions" column="id" />
+            </column>
+            <column name="usage_category" comments="Comes from the list_options.list_id='medication-usage-category'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="request_intent" comments="Comes from the list_options.list_id='medication-request-intent'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="medication_adherence_information_source">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="medication_adherence">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="reporting_source_record_id">
+                <foreignKey table="users" column="id" />
+            </column>
             <column name="created_by"  comments="The user that created this record">
                 <foreignKey table="users" column="id" />
             </column>
@@ -225,7 +256,16 @@
             <column name="drug_id" comments="The id of the drug that was prescribed to the patient. 0 if the drug was manually entered">
                 <foreignKey table="drugs" column="drug_id" />
             </column>
-
+            <column name="route" comments="Comes from the list_options.list_id='drug_route'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="diagnosis" comments="The reason/justification for the prescription.  Format is a text string in the format of 'system:code[;system:code2;system:coden]'" />
+            <column name="usage_category" comments="Comes from the list_options.list_id='medication-usage-category'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="request_intent" comments="Comes from the list_options.list_id='medication-request-intent'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
             <column name="created_by" comments="The id of the user that initially created this record">
                 <foreignKey table="users" column="id" />
             </column>
@@ -274,6 +314,9 @@
             </column>
             <column name="refusal_reason" comments="Comes from the list_options.list_id='immunization_refusal_reason' and represents the reasons the individual refused immunization">
                 <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="encounter_id" comments="The encounter where this immunization was administered">
+                <foreignKey table="form_encounter" column="encounter" />
             </column>
         </table>
         <table name="immunization_observation" comments="Individual observations for a specific immunization">
@@ -446,6 +489,143 @@
                 <foreignKey table="list_options" column="option_id" />
             </column>
             <column name="reason_status" comments="Valid values are 'completed','negated','pending' or '' for none" />
+        </table>
+        <table name="form_vitals_calculation">
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="calculation_id"/>
+        </table>
+        <table name="form_vitals_calculation_components">
+            <column name="fvc_uuid">
+                <foreignKey table="form_vitals_calculation" column="uuid" />
+            </column>
+            <column name="vitals_column"/>
+        </table>
+        <table name="form_vitals_calculation_form_vitals">
+            <column name="fvc_uuid">
+                <foreignKey table="form_vitals_calculation" column="uuid" />
+            </column>
+            <column name="vitals_id">
+                <foreignKey table="form_vitals" column="id" />
+            </column>
+        </table>
+
+        <!-- Patient Social Determinants of Health Assessment Form -->
+        <table name="form_history_sdoh">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="screening_tool"  comments="Comes from the list_options.list_id='sdoh_instruments'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="assessor">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="food_insecurity"  comments="Comes from the list_options.list_id='sdoh_food_insecurity_risk' and represents the food insecurity status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="housing_instability"  comments="Comes from the list_options.list_id='sdoh_housing_worry' and represents the housing stability status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="transportation_insecurity"  comments="Comes from the list_options.list_id='sdoh_transportation_barrier' and represents the transportation insecurity status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="utilities_insecurity"  comments="Comes from the list_options.list_id='sdoh_utilities_shutoff' and represents the utilities insecurity status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="interpersonal_safety"  comments="Comes from the list_options.list_id='sdoh_ipv_yesno' and represents the interpersonal safety status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="financial_strain"  comments="Comes from the list_options.list_id='sdoh_financial_strain' and represents the financial strain status of the patient at the time of assessment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="social_isolation"  comments="Comes from the list_options.list_id='sdoh_social_isolation_freq' and represents the social isolation status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="childcare_needs"  comments="Comes from the list_options.list_id='sdoh_childcare_needs' and represents the childcare needs of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="digital_access"  comments="Comes from the list_options.list_id='sdoh_digital_access' and represents the digital access status of the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="pregnancy_status"  comments="Comes from the list_options.list_id='pregnancy_status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="pregnancy_intent"  comments="Comes from the list_options.list_id='pregnancy_intent'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="postpartum_status"  comments="Comes from the list_options.list_id='postpartum_status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="disability_status"  comments="Comes from the list_options.list_id='disability_status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="hunger_q1"  comments="Comes from the list_options.list_id='vital_signs_answers'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="hunger_q2"  comments="Comes from the list_options.list_id='vital_signs_answers'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+        <table name="form_history_sdoh_health_concerns">
+            <column name="sdoh_history_id">
+                <foreignKey table="form_history_sdoh" column="id" />
+            </column>
+            <column name="health_concern_id">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="created_by">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <!-- Patient Treatment Intervention Preferences -->
+        <table name="patient_treatment_intervention_preferences" comments="Treatment Intervention Preferences for a patient">
+            <column name="patient_id">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="observation_code">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="value_code">
+                <foreignKey table="preference_value_sets" column="answer_code" />
+            </column>
+            <column name="value_code_system">
+                <foreignKey table="preference_value_sets" column="answer_system" />
+            </column>
+            <column name="value_display">
+                <foreignKey table="preference_value_sets" column="answer_display" />
+            </column>
+        </table>
+        <table name="patient_care_experience_preferences">
+            <column name="patient_id">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="observation_code">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="value_code">
+                <foreignKey table="preference_value_sets" column="answer_code" />
+            </column>
+            <column name="value_code_system">
+                <foreignKey table="preference_value_sets" column="answer_system" />
+            </column>
+            <column name="value_display">
+                <foreignKey table="preference_value_sets" column="answer_display" />
+            </column>
         </table>
 <!--        - Patient recalls-->
         <table name="medex_recalls" comments="Tracks Patient Recalls.  Recalls are when a patient should be reached out to or contacted for a healthcare followup.">
@@ -637,6 +817,37 @@
             <column name="foreign_reference_id" comments="DB Unique identifier reference to another table record in the database.  This is not unique in the document. The table that this record points to is in the foreign_reference_table"/>
             <column name="foreign_reference_table" comments="Table associated with the foreign reference_id will be populated if foreign_reference_id is populated"/>
         </table>
+        <table name="categories" comments="Categories that documents can be assigned to" />
+        <table name="categories_to_documents" comments="Mapping table connecting documents to categories">
+            <column name="document_id">
+                <foreignKey table="documents" column="id" />
+            </column>
+            <column name="category_id">
+                <foreignKey table="categories" column="id" />
+            </column>
+        </table>
+        <table name="clinical_notes_documents">
+            <column name="clinical_note_id">
+                <foreignKey table="form_clinical_notes" column="id" />
+            </column>
+            <column name="document_id">
+                <foreignKey table="documents" column="id" />
+            </column>
+            <column name="created_by">
+                <foreignKey table="users" column="username" />
+            </column>
+        </table>
+        <table name="clinical_notes_procedure_results">
+            <column name="clinical_note_id">
+                <foreignKey table="form_clinical_notes" column="id" />
+            </column>
+            <column name="procedure_result_id">
+                <foreignKey table="procedure_result" column="procedure_result_id" />
+            </column>
+            <column name="created_by">
+                <foreignKey table="users" column="username" />
+            </column>
+        </table>
         <table name="notes"  comments="Clinical notes and comments for individual patient documents">
             <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
             <column name="foreign_id"  comments="The documents.id key for the document this note is connected to">
@@ -729,6 +940,12 @@
                 <foreignKey table="lists" column="id" />
             </column>
             <column name="resolved" comments="0=Issue not resolved,1=Issue is resolved" />
+            <column name="created_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by">
+                <foreignKey table="users" column="id" />
+            </column>
         </table>
 
 <!--        - Fee Sheet-->
@@ -737,6 +954,9 @@
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="encounter" comments="References form_encounter.encounter, representing the encounter for this record">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
         </table>
 
 <!--        - Care Plan-->
@@ -744,6 +964,14 @@
             <column name="pid" comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+
+            <column name="care_plan_type" comments="Comes from the list_options.list_id='Plan_of_Care_Type'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="plan_status" comments="Comes from the list_options.list_id='care_plan_status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+
         </table>
 
 <!--        - Clinical Instructions-->
@@ -862,8 +1090,29 @@
         </table>
 <!--        - Observation-->
         <table name="form_observation" comments="Used for recording observations related to patients during medical encounters">
+            <column name="form_id"  comments="fk to forms.id represents the overall form for this observation">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="encounter" comments="References form_encounter.encounter, representing the encounter for this record">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user"  comments="fk to users.username who created this observation">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="parent_observation_id"  comments="fk to form_observation.id and is used to create hierarchical relationships between observations">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="category" comments="Comes from the list_options.list_id='Observation_Types' and represents the category/type of observation being recorded">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="ob_status" comments="Comes from the list_options.list_id='observation-status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="questionnaire_response_id"  comments="fk to questionnaire_repository.questionnaire_response_id and is used link a questionnaire response to this observation">
+                <foreignKey table="questionnaire_repository" column="id" />
             </column>
         </table>
 <!--        - Review of Systems-->
@@ -1004,6 +1253,15 @@
             <column name="procedure_type" comments="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')">
                 <foreignKey table="list_options" column="option_id" />
             </column>
+            <column name="performer_type" comments="Comes from the list_options.list_id='performer_type'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="order_intent" comments="Comes from the list_options.list_id='order_intent'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="location_id" comments="The facility location where the procedure is to be performed">
+                <foreignKey table="facility" column="id" />
+            </column>
         </table>
         <table name="procedure_providers" comments="This table holds both internal and external laboratories as well as other organizations that provide lab testing, results, and other procedures that can be ordered by a provider">
             <column name="ppid" comments="Surrogate ID of the record used as the primary incrementing key"/>
@@ -1121,8 +1379,38 @@
             <column name="transport" comments=""/>
             <column name="procedure_type_name" comments=""/>
         </table>
-
-<!--        - Questionnaire Responses-->
+        <table name="procedure_specimen">
+            <column name="specimen_type_code" comments="Comes from the list_options.list_id='specimen_type' and represents the type of specimen being collected for the procedure">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="collection_method_code" comments="Comes from the list_options.list_id='specimen_collection_method' and represents the type of specimen being collected for the procedure">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="specimen_location_code" comments="Comes from the list_options.list_id='specimen_location' and represents the body location the specimen is collected from for the procedure">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="condition_code" comments="Comes from the list_options.list_id='specimen_condition' and represents the condition / quality of the specimen being collected for the procedure">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_order_seq">
+                <foreignKey table="procedure_order_code" column="procedure_order_seq" />
+            </column>
+            <column name="created_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="procedure_order_relationships">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+        </table>
+        <!--        - Questionnaire Responses-->
         <table name="form_questionnaire_assessments" comments="Holds questionnaires results for a patient entered in by a provider as a patient charted form">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -1132,6 +1420,9 @@
             </column>
             <column name="questionnaire_id"  comments="The foreign uuid key to the questionnaire.questionnaire_id">
                 <foreignKey table="questionnaire_repository" column="questionnaire_id" />
+            </column>
+            <column name="category" comments="Comes from the list_options.list_id='Observation_Types' and represents the grouping category for this questionnaire">
+                <foreignKey table="list_options" column="option_id" />
             </column>
             <column name="user">
                 <foreignKey table="users" column="username" />
@@ -1185,6 +1476,9 @@
             <column name="code_display" comments="Display information for the code associated with the questionnaire"/>
             <column name="questionnaire" comments="JSON serialized version of the questionnaire.  If the type of this record is Questionnaire than the JSON will be a serialized definition of a FHIR Questionnaire resource"/>
             <column name="lform" comments="National Institutes of Health (NIH) Lforms version of text content for the questionnaire (e.g., for long forms)"/>
+            <column name="category" comments="Comes from the list_options.list_id='Observation_Types' and represents the grouping category for this questionnaire response">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
         </table>
 
         <!--        - Aftercare Plan-->
@@ -1730,6 +2024,15 @@
             <column name="fee"  comments="The total price of the sale for the drug that was sold to the patient" />
             <column name="quantity"  comments="The number of items sold of the drug" />
             <column name="distributor_id" comments="UNUSED - will be removed in the future" />
+            <column name="pharmacy_supply_type" comments="fk to list_options.option_id WHERE list_options.list_id='act_pharmacy_supply_type'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
         </table>
 
         <table name="ar_activity" comments="Accounts Receivable item entries in invoice/claim activity">
@@ -2071,5 +2374,142 @@
         </table>
 
         <table name="pharmacies" comments="Contains records of pharmacies that a patient uses, or that providers interact with"></table>
+        <table name="contact" comments="Contains records of contacts in the system">
+            <column name="foreign_table_name" comments="The name of the table this contact belongs to.  Can be patient_data or person" />
+            <column name="foreign_id" comments="The id of the table this contact belongs to.  Can be patient_data.pid or person.id" />
+        </table>
+
+        <table name="address" comments="Contains address records in the system">
+        </table>
+
+        <table name="contact_address" comments="Contains information about a specific contact's address">
+            <column name="contact_id" comments="The id of the contact this record belongs to">
+                <foreignKey table="contact" column="id" />
+            </column>
+            <column name="address_id" comments="The id of the address this contact address belongs to">
+                <foreignKey table="addresses" column="id" />
+            </column>
+            <column name="type" comments="fk to list_options.option_id WHERE list_options.list_id='address-types'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="use" comments="fk to list_options.option_id WHERE list_options.list_id='address-uses'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="status" comments="'A' for active, 'I' for inactive" />
+            <column name="is_primary" comments="Is the primary address for the contact '1' for yes, '0' for no" />
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <table name="contact_telecom" comments="Contains information about a specific contact's telecom method">
+            <column name="contact_id" comments="The id of the contact this record belongs to">
+                <foreignKey table="contact" column="id" />
+            </column>
+            <column name="system" comments="fk to list_options.option_id WHERE list_options.list_id='telecom_systems'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="use" comments="fk to list_options.option_id WHERE list_options.list_id='telecom_uses'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="status" comments="'A' for active, 'I' for inactive" />
+            <column name="is_primary" comments="Is the primary address for the contact '1' for yes, '0' for no" />
+        </table>
+
+        <table name="contact_relation" comments="Contains information about the relationship between a contact and another table such as person for relatedpersons">
+            <column name="contact_id" comments="The id of the contact this relationship belongs to">
+                <foreignKey table="contact" column="id" />
+            </column>
+            <column name="active" comments="1 for active, 0 for inactive" />
+            <column name="role" comments="fk to list_options.option_id WHERE list_options.list_id='related_person_role'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="relationship" comments="fk to list_options.option_id WHERE list_options.list_id='related_person_relationship'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="person" comments="Contains records of individuals in the system">
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="person_patient_link" comments="Contains the tracking of person records who are also patients in the system">
+            <column name="linked_by" comments="The id of the user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="person_id" comments="The id of the person record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="patient_id" comments="The id of the patient record">
+                <foreignKey table="patient_data" column="id" />
+            </column>
+        </table>
+
+        <table name="care_team" comments="Contains the care team records for a patient">
+            <column name="status" comments="fk to list_options.option_id WHERE list_options.list_id='Care_Team_Status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="pid" comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="care_team_member" comments="Contains the individual team member of a care team for a patient">
+            <column name="care_team_id" comments="The care team this member belongs to">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user_id" comments="fk to users.id and is populated if the member is a staff member">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="contact_id" comments="fk to contact.id and is populated if the member is a related person or another patient">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="facility_id" comments="fk to facility.id and is populated if the member is an organization or facility">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="role" comments="fk to list_options.option_id WHERE list_options.list_id='care_team_roles'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="status" comments="fk to list_options.option_id WHERE list_options.list_id='Care_Team_Status'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="employer_data" comments="Contains records of employers associated with patients in the system">
+            <column name="occupation">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="industry">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="pid" comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
     </tables>
 </schemaMeta>

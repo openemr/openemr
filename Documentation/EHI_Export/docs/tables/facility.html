@@ -133,6 +133,11 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
+                                                <td title="care_team_member.facility_id references facility.id"><a href='care_team_member.html'>care_team_member</a><span class='relatedKey'>.facility_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="form_groups_encounter.facility_id references facility.id"><a href='form_groups_encounter.html'>form_groups_encounter</a><span class='relatedKey'>.facility_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -163,6 +168,11 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="procedure_order.location_id references facility.id"><a href='procedure_order.html'>procedure_order</a><span class='relatedKey'>.location_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="users.billing_facility_id references facility.id"><a href='users.html'>users</a><span class='relatedKey'>.billing_facility_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -179,6 +189,23 @@
                                         </table>
                                     </td>
                                     <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="name">name</span></td>
@@ -390,7 +417,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>0</td>
+                                    <td>1</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -407,7 +434,7 @@
                                     <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>0</td>
+                                    <td>1</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -504,6 +531,23 @@
                                     <td><p>NPI (National Provider Identifier) for the facility</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="facility_taxonomy">facility_taxonomy</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>15</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Taxonomy code for the facility</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="tax_id_type">tax_id_type</span></td>
                                     <td>VARCHAR</td>
                                     <td>31</td>
@@ -543,7 +587,7 @@
                                     <td>10</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>0</td>
+                                    <td>1</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -587,23 +631,6 @@
                                         </table>
                                     </td>
                                     <td><p>Extra validation indicator (0-No extra validation, 1-Extra validation)</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="facility_taxonomy">facility_taxonomy</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>15</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Taxonomy code for the facility</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="mail_street">mail_street</span></td>
@@ -726,8 +753,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="info">info</span></td>
-                                    <td>MEDIUMTEXT</td>
-                                    <td>16777215</td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
@@ -740,23 +767,6 @@
                                         </table>
                                     </td>
                                     <td><p>Additional information about the facility EMPTY in Export</p></td>
-                                </tr>
-                                <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="weno_id">weno_id</span></td>
