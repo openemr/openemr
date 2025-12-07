@@ -32,6 +32,7 @@
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\DashboardContext\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
@@ -96,6 +97,22 @@ class ModuleManagerListener extends AbstractModuleActionListener
          * this flag is reset by MM.
         */
         self::setModuleState($modId, '0', '1');
+
+        // Create dashboard context globals in the database if they don't exist
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
+                VALUES ('dashboard_context_show_widget', 0, '1') 
+                ON DUPLICATE KEY UPDATE `gl_value` = '1'";
+        QueryUtils::sqlInsert($sql);
+
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
+                VALUES ('dashboard_context_user_can_switch', 0, '1') 
+                ON DUPLICATE KEY UPDATE `gl_value` = '1'";
+        QueryUtils::sqlInsert($sql);
+
+        // Set in the globals bag for immediate use
+        OEGlobalsBag::getInstance()->set('dashboard_context_show_widget', 1);
+        OEGlobalsBag::getInstance()->set('dashboard_context_user_can_switch', 1);
+
         return $currentActionStatus;
     }
 
@@ -132,6 +149,22 @@ class ModuleManagerListener extends AbstractModuleActionListener
     private function enable($modId, $currentActionStatus): mixed
     {
         self::setModuleState($modId, '1', '0');
+
+        // Ensure globals are set in database
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
+                VALUES ('dashboard_context_show_widget', 0, '1') 
+                ON DUPLICATE KEY UPDATE `gl_value` = '1'";
+        QueryUtils::sqlInsert($sql);
+
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
+                VALUES ('dashboard_context_user_can_switch', 0, '1') 
+                ON DUPLICATE KEY UPDATE `gl_value` = '1'";
+        QueryUtils::sqlInsert($sql);
+
+        // Set in the globals bag for immediate use
+        OEGlobalsBag::getInstance()->set('dashboard_context_show_widget', 1);
+        OEGlobalsBag::getInstance()->set('dashboard_context_user_can_switch', 1);
+
         return $currentActionStatus;
     }
 
