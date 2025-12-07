@@ -18,6 +18,7 @@ namespace OpenEMR\USPS;
 
 use LaLit\Array2XML;
 use LaLit\XML2Array;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 
 /**
  * USPS Base class
@@ -101,11 +102,20 @@ class USPSBase
     CURLOPT_RETURNTRANSFER => true,
     ];
   /**
+   * HTTP client
+   */
+    protected ?GuzzleHttpClient $httpClient = null;
+  /**
    * Constructor
    * @param string $username - the usps api username
+   * @param ?GuzzleHttpClient $httpClient - optional HTTP client for dependency injection
    */
-    public function __construct(protected $username = '')
+    public function __construct(protected $username = '', ?GuzzleHttpClient $httpClient = null)
     {
+        $this->httpClient = $httpClient ?? new GuzzleHttpClient([
+            'timeout' => 60,
+            'connect_timeout' => 30,
+        ]);
     }
   /**
    * set the usps api username we are going to user
@@ -152,46 +162,51 @@ class USPSBase
     }
   /**
    * Makes an HTTP request. This method can be overriden by subclasses if
-   * developers want to do fancier things or use something other than curl to
+   * developers want to do fancier things or use something other than Guzzle to
    * make the request.
+   * Code migrated from curl to Guzzle by GitHub Copilot AI
    *
-   * @param CurlHandler optional initialized curl handle
+   * @param CurlHandler optional initialized curl handle (deprecated, kept for compatibility)
    * @return String the response text
    */
     protected function doRequest($ch = null)
     {
-        if (!$ch) {
-            $ch = curl_init();
+        $postData = http_build_query($this->getPostData(), null, '&');
+        $url = $this->getEndpoint();
+
+        // Make the HTTP request using Guzzle
+        $httpResponse = $this->httpClient->post($url, [
+            'body' => $postData,
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'User-Agent' => 'usps-php',
+            ],
+            'allow_redirects' => true,
+        ]);
+
+        // Set response and headers
+        $this->setResponse($httpResponse->getBody());
+        $this->setHeaders([
+            'http_code' => $httpResponse->getStatusCode(),
+        ]);
+
+        // Set error code and message
+        if ($httpResponse->hasError()) {
+            $this->setErrorCode(1);
+            $this->setErrorMessage($httpResponse->getError() ?? 'Unknown error');
+        } else {
+            $this->setErrorCode(0);
+            $this->setErrorMessage('');
         }
 
-        $opts = self::$CURL_OPTS;
-        $opts[CURLOPT_POSTFIELDS] = http_build_query($this->getPostData(), null, '&');
-        $opts[CURLOPT_URL] = $this->getEndpoint();
-
-      // Replace 443 with 80 if it's not secured
-        if (!str_contains((string) $opts[CURLOPT_URL], 'https://')) {
-            $opts[CURLOPT_PORT] = 80;
-        }
-
-      // set options
-        curl_setopt_array($ch, $opts);
-
-      // execute
-        $this->setResponse(curl_exec($ch));
-        $this->setHeaders(curl_getinfo($ch));
-
-      // fetch errors
-        $this->setErrorCode(curl_errno($ch));
-        $this->setErrorMessage(curl_error($ch));
-
-      // Convert response to array
+        // Convert response to array
         $this->convertResponseToArray();
 
-      // If it failed then set error code and message
+        // If it failed then set error code and message
         if ($this->isError()) {
             $arrayResponse = $this->getArrayResponse();
 
-          // Find the error number
+            // Find the error number
             $errorInfo = $this->getValueByKey($arrayResponse, 'Error');
 
             if ($errorInfo) {
@@ -200,11 +215,9 @@ class USPSBase
             }
         }
 
-      // close
-        curl_close($ch);
-
         return $this->getResponse();
     }
+    // End of AI-generated code
 
     public function getEndpoint()
     {
