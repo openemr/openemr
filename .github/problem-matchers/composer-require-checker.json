@@ -5,9 +5,9 @@
       "severity": "error",
       "pattern": [
         {
-          "regexp": "^\\s+(.+?)\\s+is\\s+used\\s+by\\s+(.+?)$",
+          "regexp": "^\\s+(\\S+)\\s*$",
           "message": 1,
-          "file": 2
+          "file": "composer.json"
         }
       ]
     }

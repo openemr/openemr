@@ -6,7 +6,8 @@
       "pattern": [
         {
           "regexp": "^\\s*-\\s+(.+)$",
-          "message": 1
+          "message": 1,
+          "file": "composer.json"
         }
       ]
     }
