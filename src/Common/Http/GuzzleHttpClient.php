@@ -20,9 +20,6 @@ namespace OpenEMR\Common\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * HTTP client wrapper using Guzzle

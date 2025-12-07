@@ -199,6 +199,16 @@ class CdaValidateDocuments
         $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
         file_put_contents($post_file, $xml);
 
+        // Open file handle to be managed by Guzzle
+        $fileHandle = fopen($post_file, 'r');
+        if ($fileHandle === false) {
+            $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
+            $reply['ccdaValidationResults'][] = [
+                'description' => xlt('Failed to open file for upload')
+            ];
+            return $reply;
+        }
+
         $httpResponse = $this->httpClient->post($post_url, [
             'multipart' => [
                 [
@@ -223,7 +233,7 @@ class CdaValidateDocuments
                 ],
                 [
                     'name' => 'ccdaFile',
-                    'contents' => fopen($post_file, 'r'),
+                    'contents' => $fileHandle,
                     'filename' => 'ccda.xml',
                     'headers' => ['Content-Type' => 'application/xhtml+xml']
                 ]
