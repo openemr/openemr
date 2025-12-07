@@ -1,0 +1,113 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'Daily Summary Report' | xlt }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">{{ 'Report' | xlt }} - {{ 'Daily Summary Report' | xlt }}</h1>
+        </div>
+    </div>
+
+    <!-- Filter Parameters Card -->
+    <div id="report_parameters" class="card mb-4">
+        <div class="card-body">
+            <form method="post" action="daily_summary_report.php" id="theform" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="{{ csrf_token }}" />
+                <input type="hidden" name="form_refresh" id="form_refresh" value="" />
+                <input type="hidden" name="form_csvexport" id="form_csvexport" value="" />
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <label class="form-label">{{ 'Facility' | xlt }}:</label>
+                        <select name="form_facility" class="form-select">
+                            <option value="">-- {{ 'All Facilities' | xlt }} --</option>
+                            {% for facility in facilities %}
+                                <option value="{{ facility.id }}" {% if facility.id == form_facility %}selected{% endif %}>
+                                    {{ facility.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">{{ 'Provider' | xlt }}:</label><br>
+                        <select name="form_provider" class="form-select">
+                            <option value="">-- {{ 'All Providers' | xlt }} --</option>
+                            {% for provider in providers %}
+                                <option value="{{ provider.id }}" {% if provider.id == form_provider %}selected{% endif %}>
+                                    {{ provider.lname }}, {{ provider.fname }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">{{ 'From' | xlt }}:</label>
+                        <input type="text" class="datepicker form-control" name="form_from_date" id="form_from_date"
+                               value="{{ form_from_date | shortDate }}" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">{{ 'To{{Range}}' | xlt }}:</label>
+                        <input type="text" class="datepicker form-control" name="form_to_date" id="form_to_date"
+                               value="{{ form_to_date | shortDate }}" />
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-primary" onclick="$(&#x27;#form_refresh&#x27;).val(&#x27;true&#x27;); $(&#x27;#form_csvexport&#x27;).val(&#x27;&#x27;); $(&#x27;#theform&#x27;).submit();">
+                                <i class="fa fa-search"></i> {{ 'Submit' | xlt }}
+                            </button>
+                            {% if report_data %}
+                                <button type="button" class="btn btn-secondary" id="printbutton">
+                                    <i class="fa fa-print"></i> {{ 'Print' | xlt }}
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="$(&#x27;#form_refresh&#x27;).val(&#x27;&#x27;); $(&#x27;#form_csvexport&#x27;).val(&#x27;true&#x27;); $(&#x27;#theform&#x27;).submit();">
+                                    <i class="fa fa-download"></i> {{ 'CSV Export' | xlt }}
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if report_data %}
+        {% block report_content %}{% endblock %}
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            {{ 'No records found for the selected date range.' | xlt }}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    $(function () {
+        $('.datepicker').datetimepicker({
+            format: 'm/d/Y',
+            timepicker: false
+        });
+
+        var win = top.printLogSetup ? top : opener.top;
+        win.printLogSetup(document.getElementById('printbutton'));
+    });
+</script>
+
+<style>
+    @media print {
+        #report_parameters {
+            display: none;
+            visibility: hidden;
+        }
+    }
+
+    @media screen {
+        .datepicker {
+            cursor: pointer;
+        }
+    }
+</style>
+{% endblock %}
