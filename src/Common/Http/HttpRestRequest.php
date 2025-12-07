@@ -604,17 +604,17 @@ class HttpRestRequest extends Request implements Stringable
 
     public function isFhirRequest(): bool
     {
-        return stripos(strtolower($this->getPathInfo()), "/fhir/") !== false;
+        return str_contains($this->getPathInfo(), "/fhir/");
     }
 
     public function isPortalRequest(): bool
     {
-        return stripos(strtolower($this->getPathInfo()), "/portal/") !== false;
+        return str_contains($this->getPathInfo(), "/portal/");
     }
 
     public function isStandardApiRequest(): bool
     {
-        return stripos(strtolower($this->getPathInfo()), "/api/") !== false;
+        return str_contains($this->getPathInfo(), "/api/");
     }
 
     public function isFhir(): bool
