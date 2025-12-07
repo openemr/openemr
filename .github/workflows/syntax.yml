@@ -48,23 +48,23 @@ jobs:
           echo "Checking $total_files files..." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Run syntax check and capture any errors
-          error_count=0
-          while IFS= read -r file; do
-            if ! php -l "$file" 2>&1; then
-              ((error_count++))
-            fi
-          done < <(git ls-files '*.inc' '*.php')
+          # Run syntax check - the problem matcher will capture any errors in the output
+          set +e  # Don't exit on error yet
+          git ls-files -z '*.inc' '*.php' | xargs -0 -n1 php -l 2>&1 | tee /tmp/syntax-check.log
+          syntax_result=${PIPESTATUS[1]}
+          set -e
+          
+          # Count errors
+          error_count=$(grep -c "Errors parsing" /tmp/syntax-check.log || echo "0")
           
           # Report results
-          if [ $error_count -eq 0 ]; then
+          if [ $syntax_result -eq 0 ] && [ $error_count -eq 0 ]; then
             echo "✅ All $total_files files passed syntax check" >> $GITHUB_STEP_SUMMARY
             echo "✅ All $total_files files passed syntax check"
           else
             echo "❌ $error_count file(s) failed syntax check" >> $GITHUB_STEP_SUMMARY
             echo "❌ $error_count file(s) failed syntax check"
-            echo "::remove-matcher owner=php-syntax::"
-            exit 1
           fi
           
           echo "::remove-matcher owner=php-syntax::"
+          exit $syntax_result
