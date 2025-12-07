@@ -20,6 +20,7 @@ use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use mysqli;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use ZipArchive;
 
@@ -163,17 +164,21 @@ class DownloadWenoPharmacies
         if (!is_dir($path_to_extract)) {
             mkdir($path_to_extract, 0775, true);
         }
-        unlink($storelocation);
-        $fp = fopen($storelocation, 'w+');
+        if (file_exists($storelocation)) {
+            unlink($storelocation);
+        }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-        curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
+        // Code migrated from curl to Guzzle by GitHub Copilot AI
+        $httpClient = new GuzzleHttpClient();
+        $httpResponse = $httpClient->get($url, [
+            'timeout' => 1000,
+            'allow_redirects' => true,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0'
+            ],
+            'sink' => $storelocation,
+        ]);
+        // End of AI-generated code
 
         return true;
     }

@@ -6,6 +6,7 @@
 require_once dirname(__DIR__, 4) . "/globals.php";
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
@@ -146,15 +147,15 @@ if ($zip->open($storeLocation) === true) {
 
 function download_zipfile($fileUrl, $zipped_file): void
 {
-    $fp = fopen($zipped_file, 'w+');
-
-    $ch = curl_init($fileUrl);
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-    curl_exec($ch);
-
-    curl_close($ch);
-    fclose($fp);
+    // Code migrated from curl to Guzzle by GitHub Copilot AI
+    $httpClient = new GuzzleHttpClient();
+    $httpClient->get($fileUrl, [
+        'timeout' => 1000,
+        'allow_redirects' => true,
+        'headers' => [
+            'User-Agent' => 'Mozilla/5.0'
+        ],
+        'sink' => $zipped_file,
+    ]);
+    // End of AI-generated code
 }
