@@ -1,0 +1,14 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "composer-validate",
+      "severity": "warning",
+      "pattern": [
+        {
+          "regexp": "^\\s*-\\s+(.+)$",
+          "message": 1
+        }
+      ]
+    }
+  ]
+}
