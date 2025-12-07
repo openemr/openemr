@@ -54,8 +54,8 @@ jobs:
           syntax_result=${PIPESTATUS[1]}
           set -e
           
-          # Count errors
-          error_count=$(grep -c "Errors parsing" /tmp/syntax-check.log || echo "0")
+          # Count errors - count lines that say "Errors parsing"
+          error_count=$(grep -c "^Errors parsing" /tmp/syntax-check.log || echo "0")
           
           # Report results
           if [ $syntax_result -eq 0 ] && [ $error_count -eq 0 ]; then

@@ -5,7 +5,7 @@
       "severity": "error",
       "pattern": [
         {
-          "regexp": "^\\s+(\\S+)\\s*$",
+          "regexp": "^\\s+([a-zA-Z0-9_\\\\-]+(?:\\/[a-zA-Z0-9_\\\\-]+)+)\\s*$",
           "message": 1,
           "file": "composer.json"
         }
