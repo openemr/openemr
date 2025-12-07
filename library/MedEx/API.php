@@ -64,10 +64,11 @@ class CurlRequest
 
         $this->response = $httpResponse->getBody();
 
-        // Extract cookies from response
+        // Extract cookies from the jar after the request
         $this->cookies = [];
-        foreach ($cookieJar as $cookie) {
-            $this->cookies[$cookie->getName()] = $cookie->getValue();
+        $cookieArray = $cookieJar->toArray();
+        foreach ($cookieArray as $cookie) {
+            $this->cookies[$cookie['Name']] = $cookie['Value'];
         }
 
         $this->saveSession();
