@@ -33,6 +33,7 @@ class CreateAPIDocumentationCommand extends Command
             )
         ;
     }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $routesLocation = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "_rest_routes.inc.php";
