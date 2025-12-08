@@ -64,30 +64,30 @@ jobs:
           PR_NUMBER="${{ inputs.pr_number }}"
           echo "Fetching PR #${PR_NUMBER}..."
           
-          # Fetch PR data using GitHub CLI
-          PR_DATA=$(gh pr view "$PR_NUMBER" --json number,title,author,labels,mergeCommit,merged,body)
-          
-          # Output PR data for validation and use in subsequent steps
-          echo "pr_data<<EOF" >> $GITHUB_OUTPUT
-          echo "$PR_DATA" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          
-          # Extract and output key fields for validation
-          echo "is_merged=$(echo "$PR_DATA" | jq -r '.merged')" >> $GITHUB_OUTPUT
-          echo "author=$(echo "$PR_DATA" | jq -r '.author.login')" >> $GITHUB_OUTPUT
+          # Fetch PR data using GitHub CLI and output to GITHUB_OUTPUT
+          {
+            echo 'pr_data<<EOF'
+            gh pr view "$PR_NUMBER" --json number,title,author,labels,mergeCommit,merged,body
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Validate workflow_dispatch PR
         if: github.event_name == 'workflow_dispatch'
         run: |
+          # Parse PR data to validate
+          PR_DATA='${{ steps.fetch-pr.outputs.pr_data }}'
+          IS_MERGED=$(echo "$PR_DATA" | jq -r '.merged')
+          AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
+          
           # Check if PR was merged
-          if [[ "${{ steps.fetch-pr.outputs.is_merged }}" != "true" ]]; then
+          if [[ "$IS_MERGED" != "true" ]]; then
             echo "::error::PR #${{ inputs.pr_number }} is not merged. Only merged PRs can be backported."
             exit 1
           fi
           
           # Check if PR is from dependabot
-          if [[ "${{ steps.fetch-pr.outputs.author }}" != "dependabot[bot]" ]]; then
-            echo "::error::PR #${{ inputs.pr_number }} is not from dependabot (author: ${{ steps.fetch-pr.outputs.author }}). Only dependabot PRs can be backported."
+          if [[ "$AUTHOR" != "dependabot[bot]" ]]; then
+            echo "::error::PR #${{ inputs.pr_number }} is not from dependabot (author: ${AUTHOR}). Only dependabot PRs can be backported."
             exit 1
           fi
 
