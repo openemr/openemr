@@ -84,11 +84,12 @@ class CreateAPIDocumentationCommand extends Command
         if ($resultYaml === false) {
             $output->writeln("No write access to " . $fileDestinationYaml);
             return Command::FAILURE;
-        } else {
-            $output->writeln("API file generated at " . $fileDestinationYaml);
-            $output->writeln("Your API documentation can now be viewed by going to <webroot>/swagger/");
-            $output->writeln("For example on the easy docker installation this would be https://localhost:9300/swagger/");
-            return Command::SUCCESS;
         }
+
+        $output->writeln("API file generated at " . $fileDestinationYaml);
+        $output->writeln("Your API documentation can now be viewed by going to <webroot>/swagger/");
+        $output->writeln("For example on the easy docker installation this would be https://localhost:9300/swagger/");
+
+        return Command::SUCCESS;
     }
 }
