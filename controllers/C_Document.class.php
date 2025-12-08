@@ -1333,8 +1333,7 @@ class C_Document extends Controller
                 $billingFacility = $this->facilityService->getPrimaryBusinessEntity();
                 $billingFacilityID = $billingFacility['id'] ?: $facility_id;
 
-                $conn = $GLOBALS['adodb']['db'];
-                $encounter = $conn->GenID("sequences");
+                $encounter = generate_id();
                 $query = "INSERT INTO form_encounter SET
 						date = ?,
 						reason = ?,

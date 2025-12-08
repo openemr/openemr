@@ -88,8 +88,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$facility_id])['pos_code'];
     $visit_cat = $cat ?: '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = generate_id();
     addForm(
         $encounter,
         "New Patient Encounter",

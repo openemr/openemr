@@ -1492,8 +1492,7 @@ class ReceiveHl7Results
     private function createEncounter($pid, $provider_id, $order_date, $lab_name)
     {
         global $orphanLog;
-        $conn = $GLOBALS['adodb']['db'];
-        $encounter = $conn->GenID("sequences");
+        $encounter = generate_id();
         addForm(
             $encounter,
             "Auto Generated Lab Encounter",
