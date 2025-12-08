@@ -151,12 +151,22 @@ jobs:
           # Detect package ecosystem from labels
           # Note: docker-compose ecosystem uses the "docker" label per dependabot.yml config
           case "$LABEL_NAMES" in
-              *php*) echo 'ecosystem=composer';;
-              *javascript*) echo 'ecosystem=npm';;
-              *github-actions*) echo 'ecosystem=github-actions';;
-              *docker*) echo 'ecosystem=docker';;
-              *) echo 'ecosystem=unknown';;
-          esac >> "$GITHUB_OUTPUT"
+              *php*) 
+                  echo 'ecosystem=composer' >> "$GITHUB_OUTPUT"
+                  ;;
+              *javascript*) 
+                  echo 'ecosystem=npm' >> "$GITHUB_OUTPUT"
+                  ;;
+              *github-actions*) 
+                  echo 'ecosystem=github-actions' >> "$GITHUB_OUTPUT"
+                  ;;
+              *docker*) 
+                  echo 'ecosystem=docker' >> "$GITHUB_OUTPUT"
+                  ;;
+              *) 
+                  echo 'ecosystem=unknown' >> "$GITHUB_OUTPUT"
+                  ;;
+          esac
 
       - name: Create backport branch
         id: create-branch
@@ -320,8 +330,8 @@ jobs:
       - name: Report failure
         if: |
           steps.cherry-pick.outcome == 'failure' && 
-          (steps.pr-info.outputs.ecosystem == 'composer' && steps.composer-update.outcome == 'failure' || 
-           steps.pr-info.outputs.ecosystem == 'npm' && steps.npm-update.outcome == 'failure' ||
+          ((steps.pr-info.outputs.ecosystem == 'composer' && steps.composer-update.outcome == 'failure') || 
+           (steps.pr-info.outputs.ecosystem == 'npm' && steps.npm-update.outcome == 'failure') ||
            steps.pr-info.outputs.ecosystem == 'github-actions' ||
            steps.pr-info.outputs.ecosystem == 'docker' ||
            steps.pr-info.outputs.ecosystem == 'unknown')
