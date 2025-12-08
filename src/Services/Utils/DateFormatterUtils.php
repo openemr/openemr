@@ -92,6 +92,41 @@ class DateFormatterUtils
         }
     }
 
+
+    // 0 - Time format 24 hr
+    // 1 - Time format 12 hr
+    public static function oeFormatTime($time, $format = "global", $seconds = false): string
+    {
+        if (empty($time)) {
+            return "";
+        }
+
+        $formatted = $time;
+
+        if ($format === "global") {
+            $format = $GLOBALS['time_display_format'];
+        }
+
+
+        if ($format == 1) {
+            $formatted = $seconds ? date("g:i:s a", strtotime((string) $time)) : date("g:i a", strtotime((string) $time));
+        } else { // ($format == 0)
+            $formatted = $seconds ? date("H:i:s", strtotime((string) $time)) : date("H:i", strtotime((string) $time));
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * Returns the complete formatted datetime string according the global date and time format
+     * @param $datetime
+     * @return string
+     */
+    public static function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false): string
+    {
+        return self::oeFormatShortDate(substr($datetime ?? '', 0, 10)) . " " . self::oeFormatTime(substr($datetime ?? '', 11), $formatTime, $seconds);
+    }
+
     public static function oeFormatShortDate($date = 'today', $showYear = true)
     {
         if ($date === 'today') {

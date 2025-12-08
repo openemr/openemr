@@ -73,7 +73,7 @@ class xmltoarray_parser_htmlfix
         $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
         $keys = [];
         foreach ($trans_table as $key => $value) {
-            if ($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " ") {
+            if (!in_array($key, ["<", ">", "&", "\"", "'", " "])) {
                 $keys[$key] = $value;
             }
         }

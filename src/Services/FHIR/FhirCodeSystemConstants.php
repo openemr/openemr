@@ -67,6 +67,9 @@ class FhirCodeSystemConstants
 
     const RXNORM = "http://www.nlm.nih.gov/research/umls/rxnorm";
 
+    // TODO: this is referenced a few places in HL7 as the NDC system, but does not appear to be officially documented
+    const NDC = "http://hl7.org/fhir/sid/ndc";
+
     const HL7_MEDICATION_REQUEST_CATEGORY = "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
     public const NCIMETA_NCI_NIH = "http://ncimeta.nci.nih.gov";
 
@@ -98,6 +101,8 @@ class FhirCodeSystemConstants
 
     const HL7_CATEGORY_OBSERVATION = 'http://terminology.hl7.org/CodeSystem/observation-category';
 
+    const HL7_US_CORE_CATEGORY_OBSERVATION = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
+
     const INDUSTRY_NAICS_DETAIL_ODH = 'urn:oid:2.16.840.1.114222.4.11.7900';
 
     const OCCUPATION_ODH = 'urn:oid:2.16.840.1.114222.4.11.7901';
@@ -118,4 +123,16 @@ class FhirCodeSystemConstants
     const SPECIMEN_STATUS = "http://hl7.org/fhir/specimen-status";
 
     const HL7_CONDITION_CATEGORY = 'http://terminology.hl7.org/CodeSystem/condition-category';
+
+    const HL7_CONDITION_CATEGORY_3_1_1 = ' http://hl7.org/fhir/us/core/CodeSystem/condition-category';
+
+    // NCI 2025-04 release of NCI Thesaurus
+    const NCI_THESAURUS = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl';
+
+    const HL7_TIMING_ABBREVIATION = 'http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation';
+
+    const HL7_ROLE_CODE = "http://terminology.hl7.org/CodeSystem/role-code";
+
+    const HSOC = "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html";
+    const CMS_PLACE_OF_SERVICE = " https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set";
 }

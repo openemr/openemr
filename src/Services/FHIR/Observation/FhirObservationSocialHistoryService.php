@@ -43,6 +43,8 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
 
     const SMOKING_CESSATION_CODE = "72166-2";
 
+    const SMOKING_PACKS_PER_DAY = "401201003";
+
     const CATEGORY = "social-history";
 
     const COLUMN_MAPPINGS = [
@@ -54,10 +56,17 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
             ,'description' => 'Tobacco smoking status NHIS'
             // TODO: can we make this more generic? and consolidate it across the observation services?
             ,'column' => 'tobacco' // different than our services but we have to be backwards compatible with the way the underlying service is
-            ,'column_codes' => 'smoking_status_codes'
+            ,'column_codes' => SocialHistoryService::COLUMN_SMOKING_STATUS_CODES
             ,'profiles' => [
                 self::USCGI_PROFILE_URI => self::PROFILE_VERSIONS_ALL
             ]
+        ],
+        self::SMOKING_PACKS_PER_DAY => [
+            'fullcode' => 'SNOMED-CT:' . self::SMOKING_PACKS_PER_DAY
+            ,'code' => self::SMOKING_PACKS_PER_DAY
+            ,'description' => 'Cigarette pack-years (observable entity)'
+            ,'column' => 'tobacco'
+            ,'column_codes' => SocialHistoryService::COLUMN_SMOKING_PACKS_PER_DAY
         ]
     ];
 
@@ -127,9 +136,8 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -209,16 +217,24 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
 
             $value = null;
             $valueDescription = null;
-            $codes = $record[$mapping['column_codes']] ?? [];
-            if (!empty($codes)) {
-                $codes = array_values($codes)[0];
-                $value = $codes['code_type'] . ':' . $codes['code'];
-                $valueDescription = $codes['description'];
+            $columnValue = $record[$mapping['column_codes']] ?? [];
+            if (!empty($columnValue)) {
+                if (is_array($columnValue)) {
+                    $codes = array_values($columnValue)[0];
+                    $value = $codes['code_type'] . ':' . $codes['code'];
+                    $valueDescription = $codes['description'];
+                } else {
+                    $value = $columnValue;
+                }
             } else {
                 $value = $record[$mapping['column']];
             }
             // no value means we skip this observation as value is a required field
             if (empty($value)) {
+                continue;
+            }
+            if (empty($uuidMappings[$code])) {
+                // no uuid mapping means we can't create this observation
                 continue;
             }
 

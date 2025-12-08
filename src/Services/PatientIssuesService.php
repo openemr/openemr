@@ -14,8 +14,12 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -33,7 +37,7 @@ class PatientIssuesService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid'];
+        return ['uuid', 'reporting_source_uuid'];
     }
 
     public function getOneById($issueId)
@@ -79,6 +83,19 @@ class PatientIssuesService extends BaseService
         }
 
         return $whiteListDict;
+    }
+
+    public function getActiveIssues(int $pid): ProcessingResult
+    {
+        $notEnded = new TokenSearchField('enddate', [new TokenSearchValue(null)]);
+        $notEnded->setModifier(SearchModifier::MISSING);
+        $futureEndDate = new DateSearchField('enddate', ['gt' . date(DATE_ATOM)]);
+        $isActive = new CompositeSearchField('active_issues', [], false);
+        $isActive->addChild($notEnded);
+        $isActive->addChild($futureEndDate);
+        // values are string for TokenSearchField
+        $patientByPid = new TokenSearchField('pid', [(string)$pid]);
+        return $this->search(['active_issues' => $isActive, 'pid' => $patientByPid]);
     }
 
     public function updateIssue($issueRecord)
@@ -160,17 +177,32 @@ class PatientIssuesService extends BaseService
                 ,medications.drug_dosage_instructions
                 ,medications.request_intent
                 ,medications.request_intent_title
+                ,medications.medication_adherence_information_source
+                ,medications.medication_adherence
+                ,medications.medication_adherence_date_asserted
+                ,medications.is_primary_record
+                ,medications.reporting_source_record_id
+                ,medications.reporting_source_uuid
+                ,medications.reporting_source_type
                 FROM lists
                 LEFT JOIN (
                     SELECT
-                       id AS lists_medication_id
+                       lists_medication.id AS lists_medication_id
                        ,list_id
                         ,usage_category
                         ,usage_category_title
                         ,drug_dosage_instructions
                         ,request_intent
                         ,request_intent_title
+                        ,medication_adherence_information_source
+                        ,medication_adherence
+                        ,medication_adherence_date_asserted
+                        ,is_primary_record
+                        ,reporting_source_record_id
+                        ,users.uuid AS reporting_source_uuid
+                        ,'user' AS reporting_source_type
                     FROM lists_medication
+                    LEFT JOIN users ON users.id = lists_medication.reporting_source_record_id
                 ) medications ON medications.list_id = lists.id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
@@ -192,7 +224,10 @@ class PatientIssuesService extends BaseService
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
         if (!empty($record['lists_medication_id'])) {
-            $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title', 'drug_dosage_instructions'];
+            $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title'
+                , 'drug_dosage_instructions', 'medication_adherence_information_source', 'medication_adherence'
+                , 'medication_adherence_date_asserted', 'is_primary_record'
+                , 'reporting_source_record_id', 'reporting_source_uuid', 'reporting_source_type'];
             $record['medication'] = [
                 'id' => $row['lists_medication_id']
                 ,'erx_source' => $row['erx_source']

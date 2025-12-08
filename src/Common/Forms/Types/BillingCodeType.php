@@ -15,11 +15,11 @@ namespace OpenEMR\Common\Forms\Types;
 
 use OpenEMR\Common\Layouts\LayoutsUtils;
 
-class BillingCodeType
+class BillingCodeType implements IOptionFormType
 {
     const OPTIONS_TYPE_INDEX = 15;
 
-    public function buildPrintView()
+    public function buildPrintView($frow, $currvalue, $value_allowed = true)
     {
     }
     public function getAccumActionConditions($frow, $condition_str, $action)

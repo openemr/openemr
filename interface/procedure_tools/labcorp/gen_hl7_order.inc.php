@@ -1,25 +1,17 @@
 <?php
 
 /**
- * Functions to support LabCorp HL7 order generation.
- *
- * Copyright (C) 2012-2013 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ * Functions to support LabCorp HL7 order generation
  *
  * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /*
@@ -37,9 +29,11 @@
 * Then export as a CSV file and read it into your favorite spreadsheet app.
 */
 
-use OpenEMR\Common\Logging\EventAuditLogger;
-
 require_once("$webserver_root/custom/code_types.inc.php");
+
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderResult;
 
 function hl7Text($s)
 {
@@ -230,12 +224,11 @@ function loadGuarantorInfo($pid, $date = '')
 /**
  * Generate HL7 for the specified procedure order.
  *
- * @param integer $orderid Procedure order ID.
- * @param string &$out     Container for target HL7 text.
- * @param string &$reqStr
- * @return string            Error text, or empty if no errors.
+ * @param  int   $orderid  Procedure order ID.
+ * @return Hl7OrderResult  Result object containing HL7 text and lab-specific 2D barcode requisition data.
+ * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order($orderid, &$out, &$reqStr)
+function gen_hl7_order(int $orderid): Hl7OrderResult
 {
 
     // Delimiters
@@ -320,7 +313,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
         [$orderid]
     );
     if (empty($porow)) {
-        return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+        throw new Hl7OrderGenerationException("Procedure order, ordering provider or lab is missing for order ID '$orderid'");
     }
 
     $pcres = sqlStatement(
@@ -355,7 +348,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     $P[89] = $vitals['waist_circ'];
     $C[17] = !empty($porow['date_collected']) ? hl7Date(date("Ymd", strtotime((string) $porow['date_collected']))) : '';
     if (empty($porow['account'])) {
-        return "ERROR! Missing this orders facility location account code (Facility Id) in Facility!";
+        throw new Hl7OrderGenerationException("Missing this orders facility location account code (Facility Id) in Facility!");
     }
     // Message Header
     $bill_type = strtoupper(substr((string) $porow['billing_type'], 0, 1));
@@ -522,7 +515,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
             $P[52] = hl7Workman($payer['data']['policy_type']);
         }
         if ($setid === 0) {
-            return "\nInsurance is being billed but patient does not have any payers on record!";
+            throw new Hl7OrderGenerationException("Insurance is being billed but patient does not have any payers on record!");
         }
     } else { // no insurance record
         ++$setid;
@@ -754,7 +747,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     $reqStr .= "L|$l|\x0D";
     $reqStr .= 'E|0|' . "\x0D";
     $reqStr = strtoupper($reqStr);
-    return '';
+    return new Hl7OrderResult($out, $reqStr);
 }
 
 /**

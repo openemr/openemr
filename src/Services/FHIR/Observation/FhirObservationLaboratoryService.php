@@ -14,6 +14,7 @@ namespace OpenEMR\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -26,6 +27,7 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Indicates;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\OpenEMR;
 use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -33,15 +35,19 @@ use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationLaboratoryService extends FhirServiceBase implements IPatientCompartmentResourceService, IResourceUSCIGProfileService
 {
     use FhirServiceBaseEmptyTrait;
     use VersionedProfileTrait;
+    use FhirObservationTrait;
 
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
@@ -127,7 +133,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param openEMRSearchParameters OpenEMR search fields
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
@@ -138,12 +144,30 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             // if we have a category let's remove it as its being passed from our upper layer and we don't want to map
             // it to our procedure codes.
             unset($openEMRSearchParameters['category']);
+
+            if (!empty($openEMRSearchParameters['result_code'])) {
+                if ($openEMRSearchParameters['result_code'] instanceof TokenSearchField) {
+                    /**
+                     * @var TokenSearchField
+                     */
+                    $codeField = $openEMRSearchParameters['result_code'];
+                    // transform the code values into something our procedure service can understand
+                    $codeField->transformValues(function ($tokenValue) {
+                        // we only support LOINC codes here so if we have a system of LOINC we can strip it out
+                        // every other system will just not return a result
+                        if ($tokenValue instanceof TokenSearchValue && $tokenValue->getSystem() == FhirCodeSystemConstants::LOINC) {
+                            return new TokenSearchValue($tokenValue->getCode());
+                        }
+                        return $tokenValue;
+                    });
+                }
+            }
 //            $result = $this->service->search($newSearchParams, true);
             $result = $this->getProcedureService()->search($openEMRSearchParameters, true);
             $data = $result->getData() ?? [];
 
             // need to transform these into something we can consume
-            foreach ($result->getData() as $record) {
+            foreach ($data as $record) {
                 // each vital record becomes a 1 -> many record for our observations
                 $this->parseDataRecordsIntoObservationRecords($processingResult, $record);
             }
@@ -170,6 +194,14 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         if (!empty($report['specimens'])) {
                             $result['specimens'] = $report['specimens'];
                         }
+                        $ranges = array_filter(array_map(fn($item) => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $record['range'] ?? '')));
+                        $result['range_low'] = $ranges[0] ?? null;
+                        $result['range_high'] = $ranges[0] ?? null;
+                        $result['result_abnormal'] = $result['abnormal'] ?? null;
+                        $result['result_abnormal_title'] ??= null;
+                        $result['result_abnormal_codes'] ??= null;
+                        $result['provider'] = $record['provider'] ?? null;
+                        $result['encounter'] = $record['encounter'] ?? null;
 
                         $processingResult->addData($result);
                     }
@@ -211,22 +243,24 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             $observation->setEffectiveDateTime(UtilsService::createDataMissingExtension());
         }
 
-        $obsConcept = new FHIRCodeableConcept();
-        $obsCategoryCoding = new FhirCoding();
-        $obsCategoryCoding->setSystem(FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY);
-        $obsCategoryCoding->setCode(self::CATEGORY);
-        $obsConcept->addCoding($obsCategoryCoding);
-        $observation->addCategory($obsConcept);
+        $obsCategoryCoding = UtilsService::createCodeableConcept([
+            self::CATEGORY => [
+                'code' => self::CATEGORY,
+                'system' => FhirCodeSystemConstants::HL7_OBSERVATION_CATEGORY,
+                'description' => "Laboratory"
+            ]
+        ]);
+        $observation->addCategory($obsCategoryCoding);
 
-        $categoryCoding = new FHIRCoding();
-        $categoryCode = new FHIRCodeableConcept();
         // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
         if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
-            $categoryCoding->setCode($dataRecord['code']);
-            $categoryCoding->setDisplay($dataRecord['text']);
-            $categoryCoding->setSystem(FhirCodeSystemConstants::LOINC);
-            $categoryCode->addCoding($categoryCoding);
-            $observation->setCode($categoryCode);
+            $observation->setCode(UtilsService::createCodeableConcept([
+                $dataRecord['code'] => [
+                    'code' => $dataRecord['code'],
+                    'system' => FhirCodeSystemConstants::LOINC,
+                    'description' => $dataRecord['text']
+                ]
+            ]));
         } else {
             $observation->setCode(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
@@ -234,45 +268,18 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $status = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
         $observation->setStatus($status);
 
-        if (!empty($dataRecord['range_low']) && !empty($dataRecord['range_high'])) {
+        $ranges = array_filter(array_map(fn($item) => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $dataRecord['range'] ?? '')));
+        $low = $ranges[0] ?? null;
+        $high = $ranges[1] ?? null;
+        if (isset($low) && isset($high)) {
+
             $referenceRange = new FHIRObservationReferenceRange();
-            if (isset($dataRecord['range_low'])) {
-                $referenceRange->setLow(UtilsService::createQuantity($dataRecord['range_low'], $dataRecord['units'], $dataRecord['units']));
-            }
-            if (isset($dataRecord['range_high'])) {
-                $referenceRange->setHigh(UtilsService::createQuantity($dataRecord['range_high'], $dataRecord['units'], $dataRecord['units']));
-            }
+            $referenceRange->setLow(UtilsService::createQuantity($low, $dataRecord['units'], $dataRecord['units']));
+            $referenceRange->setHigh(UtilsService::createQuantity($high, $dataRecord['units'], $dataRecord['units']));
             $observation->addReferenceRange($referenceRange);
         }
 
-        if (!empty($dataRecord['result'])) {
-            if (is_numeric($dataRecord['result'])) {
-                $quantity = new FHIRQuantity();
-                $quantityValue = $dataRecord['result'];
-                $unit = $dataRecord['units'] ?? null;
-                if (!empty($unit)) {
-                    if ($unit === 'in') {
-                        $unit = 'in_i';
-                    } elseif ($unit === 'lb') {
-                        $unit = 'lb_av';
-                    }
-                    $quantity->setUnit($unit);
-                    $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
-                }
-
-                if (is_float($quantityValue)) {
-                    $quantity->setValue(floatval($quantityValue));
-                } else {
-                    $quantity->setValue(intval($quantityValue));
-                }
-                $observation->setValueQuantity($quantity);
-            } else {
-                $observation->setValueString($dataRecord['result']);
-            }
-        } else {
-            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
-        }
-
+        $this->setObservationValue($observation, $dataRecord);
 
         if (!empty($dataRecord['provider']['uuid']) && !empty($dataRecord['provider']['npi'])) {
             $observation->addPerformer(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider']['uuid']));
@@ -284,6 +291,10 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         if (!empty($dataRecord['patient'])) {
             $observation->setSubject(UtilsService::createRelativeReference("Patient", $dataRecord['patient']['uuid']));
+        }
+
+        if (!empty($dataRecord['encounter']['uuid'])) {
+            $observation->setEncounter(UtilsService::createRelativeReference("Encounter", $dataRecord['encounter']['uuid']));
         }
 
         // USCDI v5 Specimen - Handle MULTIPLE specimen references
@@ -319,16 +330,33 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
 
         // Interpretation (USCDI v5)
         if (!empty($dataRecord['result_abnormal'])) {
-            $interpretation = UtilsService::createCodeableConcept([
-                $dataRecord['result_abnormal'] => [
-                    'code' => $dataRecord['result_abnormal'],
-                    'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION
-                ]
-            ]);
+            // we will populate the text if we don't have a mapped code
+            if (empty($dataRecord['result_abnormal_codes'])) {
+                $interpretation = new FHIRCodeableConcept();
+                $interpretation->setText($dataRecord['result_abnormal_title'] ?? $dataRecord['result_abnormal'] ?? 'Indeterminate');
+            } else {
+                $interpretation = UtilsService::createCodeableConcept([
+                    $dataRecord['result_abnormal_codes'] => [
+                        'code' => $dataRecord['result_abnormal_codes'],
+                        'system' => FhirCodeSystemConstants::HL7_V3_OBSERVATION_INTERPRETATION,
+                        'description' => $dataRecord['result_abnormal_title'] ?? null
+                    ]
+                ]);
+            }
             $observation->addInterpretation($interpretation);
         }
 
         return $observation;
+    }
+
+    protected function setObservationValue(FHIRObservation $observation, array $dataRecord): void
+    {
+        $value = $dataRecord['result'] ?? null;
+        $valueUnit = $dataRecord['units'] ?? null;
+        $codeDescription = str_contains((string) $value, ':') ? $this->getCodeTypesService()->lookup_code_description($value) : null;
+        // if no sub_observations, or components, we treat as a single value observation
+        $children = $dataRecord['sub_observations'] ?? $dataRecord['components'] ?? [];
+        $this->setObservationValueWithDetails($observation, $value, $valueUnit, $codeDescription, $children);
     }
 
     private function getValidStatus($status)

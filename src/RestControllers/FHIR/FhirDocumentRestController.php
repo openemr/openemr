@@ -14,7 +14,6 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use http\Exception\InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -83,7 +82,7 @@ class FhirDocumentRestController
             }
         }
 
-        if (!$document->can_access()) {
+        if (!$document->can_access($this->session->get('authUser'))) {
             return (new Psr17Factory())->createResponse(StatusCode::UNAUTHORIZED);
         }
 
@@ -130,7 +129,7 @@ class FhirDocumentRestController
     public function addMimeTypeHandler($mimeType, IDocumentDownloader $handler)
     {
         if (!is_string($mimeType)) {
-            throw new InvalidArgumentException("invalid mime type");
+            throw new \InvalidArgumentException("invalid mime type");
         }
         $this->mimeTypeHandlers[$mimeType] = $handler;
     }

@@ -84,7 +84,8 @@ $sets = "pid = ?,
     icn_resubmission_number = ?,
     box_14_date_qual = ?,
     box_15_date_qual = ?,
-    comments = ?";
+    comments = ?,
+    encounter = ?";
 
 if (empty($id)) {
     $newid = sqlInsert(
@@ -119,7 +120,8 @@ if (empty($id)) {
             ($_POST["icn_resubmission_number"] ?? ''),
             ($_POST["box_14_date_qual"] ?? ''),
             ($_POST["box_15_date_qual"] ?? ''),
-            ($_POST["comments"] ?? '')
+            ($_POST["comments"] ?? ''),
+            $encounter
         ]
     );
 
@@ -158,6 +160,7 @@ if (empty($id)) {
             ($_POST["box_14_date_qual"] ?? ''),
             ($_POST["box_15_date_qual"] ?? ''),
             ($_POST["comments"] ?? ''),
+            $encounter,
             $id
         ]
     );

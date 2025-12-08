@@ -62,6 +62,8 @@ use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
+use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 if (!isset($pid)) {
@@ -342,9 +344,6 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
-// Add related persons to result array
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);
 
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData(
@@ -1243,6 +1242,59 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                         echo "</div>";
                     }
+                }
+                // ============================================================================
+                // TREATMENT INTERVENTION PREFERENCES CARD
+                // ============================================================================
+                if (!in_array('card_treatment_preferences', $hiddenCards)) {
+                    $card = new TreatmentPreferenceViewCard($pid);
+                    $viewArgs = [
+                        'title' => xl('Treatment Intervention Preferences'),
+                        'id' => 'card_treatment_preferences',
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'btnClass'   => 'js-card-toggle-edit',
+                        'btnLabel' => 'Add',
+                        'linkMethod' => 'javascript',
+                        'btnLink' => "void(0);",
+                    ];
+                    // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+
+                // ============================================================================
+                // CARE EXPERIENCE PREFERENCES CARD
+                // ============================================================================
+                if (!in_array('card_care_experience', $hiddenCards)) {
+                    $card = new CareExperiencePreferenceViewCard($pid);
+
+                    $viewArgs = [
+                        'title' => xl('Care Experience Preferences'),
+                        'id' => 'card_care_experience',
+                        'initiallyCollapsed' => getUserSetting('card_care_experience') == 0,
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' =>  !$card->canCollapse(),
+                        'btnClass'   => 'js-card-toggle-edit',
+                        'btnLabel' => 'Add',
+                        'linkMethod' => 'javascript',
+                        'btnLink' => "void(0);",
+                    ];
+
+                    // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
                 }
                 ?>
                 <div class="col-md-8 px-2">

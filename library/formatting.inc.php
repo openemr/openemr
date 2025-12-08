@@ -27,38 +27,31 @@ function oeFormatShortDate($date = 'today', $showYear = true)
     return DateFormatterUtils::oeFormatShortDate($date, $showYear);
 }
 
-// 0 - Time format 24 hr
-// 1 - Time format 12 hr
+
+/**
+ * Returns the formatted time string according the global time format
+ * 0 - Time format 24 hr
+ * 1 - Time format 12 hr
+ * @param $time
+ * @param $format
+ * @param $seconds
+ * @return string
+ *@deprecated use DateFormatterUtils::oeFormatTime()
+ */
 function oeFormatTime($time, $format = "global", $seconds = false)
 {
-    if (empty($time)) {
-        return "";
-    }
-
-    $formatted = $time;
-
-    if ($format === "global") {
-        $format = $GLOBALS['time_display_format'];
-    }
-
-
-    if ($format == 1) {
-        $formatted = $seconds ? date("g:i:s a", strtotime((string) $time)) : date("g:i a", strtotime((string) $time));
-    } else { // ($format == 0)
-        $formatted = $seconds ? date("H:i:s", strtotime((string) $time)) : date("H:i", strtotime((string) $time));
-    }
-
-    return $formatted;
+    return DateFormatterUtils::oeFormatTime($time, $format, $seconds);
 }
 
 /**
  * Returns the complete formatted datetime string according the global date and time format
+ * @deprecated use DateFormatterUtils::oeFormatDateTime()
  * @param $datetime
  * @return string
  */
 function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
 {
-    return oeFormatShortDate(substr($datetime ?? '', 0, 10)) . " " . oeFormatTime(substr($datetime ?? '', 11), $formatTime, $seconds);
+    return DateFormatterUtils::oeFormatDateTime($datetime, $formatTime, $seconds);
 }
 
 /**

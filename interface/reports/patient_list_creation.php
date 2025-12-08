@@ -342,7 +342,7 @@ if ($csv) {
                 <?php // Show inputs related to specific search options
                 if (
                     !empty($_POST['srch_option'])
-                    && ($_POST['srch_option'] == "allergs" || $_POST['srch_option'] == "probs" || $_POST['srch_option'] == "meds" || $_POST['srch_option'] == "procs" || $_POST['srch_option'] == "results")
+                    && (in_array($_POST['srch_option'], ["allergs", "probs", "meds", "procs", "results"]))
                 ) { ?>
                     $('#pr_diag').show();
                 <?php }
@@ -655,7 +655,7 @@ if (!empty($_POST['form_refresh'])) {
 
     $sqlstmt .= " from patient_data as pd";
     // JOINs
-    if ($srch_option != "encounts" && $srch_option != "observs" && $srch_option != "prescripts") {
+    if (!in_array($srch_option, ["encounts", "observs", "prescripts"])) {
         $sqlstmt .= " LEFT OUTER JOIN users AS u ON u.id = pd.providerid";
     }
     switch ($srch_option_pointer) {

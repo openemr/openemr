@@ -126,16 +126,19 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param ISearchField $openEMRSearchParameters OpenEMR search fields
-     * @param string|null $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult OpenEMR records
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, ?string $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
         try {
             $observationCodesToReturn = [];
+            $supportedCodes = $this->getSupportedCodes();
+            $supportedCodes = array_combine($supportedCodes, $supportedCodes);
+            $noCodes = !(isset($openEMRSearchParameters['category']) || isset($openEMRSearchParameters['code']));
+            // if we have categories AND codes we need to make sure we only return codes that match both constraints
 
             // once we've reached here (via calls to supportCategory and supportCode) we know that any category or code
             // parameters are supported by this service, so we can just remove them from the search parameters
@@ -154,6 +157,10 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                     }
                 }
                 unset($openEMRSearchParameters['category']);
+                if (empty($observationCodesToReturn)) {
+                    // no supported categories requested so return empty result set
+                    return $processingResult;
+                }
             }
 
             if (isset($openEMRSearchParameters['code'])) {
@@ -167,23 +174,31 @@ class FhirObservationHistorySdohService extends FhirServiceBase implements IPati
                 }
                 foreach ($code->getValues() as $value) {
                     $code = $value->getCode();
-                    $codesToInclude[$code] = $code;
+                    if (isset($supportedCodes[$code])) {
+                        $codesToInclude[$code] = $code;
+                    }
                 }
                 unset($openEMRSearchParameters['code']);
+                if (empty($codesToInclude)) {
+                    // no supported codes requested so return empty result set
+                    return $processingResult;
+                }
                 // codes are a constraint inside the category so we have to find the intersection of the codes and the category
                 if (!empty($observationCodesToReturn)) {
                     $observationCodesToReturn = array_intersect($observationCodesToReturn, $codesToInclude);
+                    if (empty($observationCodesToReturn)) {
+                        // no supported codes requested so return empty result set
+                        return $processingResult;
+                    }
                 } else {
                     // we haven't constrained by category so we can just use the codes
                     $observationCodesToReturn = $codesToInclude;
                 }
             }
 
-
-            if (empty($observationCodesToReturn)) {
+            if ($noCodes) {
                 // grab everything
-                $observationCodesToReturn = $this->getSupportedCodes();
-                $observationCodesToReturn = array_combine($observationCodesToReturn, $observationCodesToReturn);
+                $observationCodesToReturn = $supportedCodes;
             }
             $results = $this->sdohHistoryService->search($openEMRSearchParameters);
             if ($results->hasData()) {

@@ -1005,7 +1005,7 @@ class FeeSheet
                     sqlBeginTrans();
                     $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
                       "pid = ? AND encounter = ?", [$this->pid, $this->encounter]);
-                    SqlStatement(
+                    sqlStatement(
                         "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, " .
                         "payer_type, post_time, post_user, session_id, pay_amount, account_code) " .
                         "VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",

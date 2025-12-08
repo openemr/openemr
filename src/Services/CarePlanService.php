@@ -2,11 +2,14 @@
 
 /**
  * CarePlanService.php
- * @package openemr
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @package    openemr
+ * @link       http://www.open-emr.org
+ * @author     Stephen Nielson <stephen@nielson.org>
+ * @author     Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
@@ -92,11 +95,12 @@ class CarePlanService extends BaseService
 
     /**
      * Returns a list of all care plan resources.  Search array can be a simple key => value array which does an exact
-     * match on passed in value.  For more complicated searching @see CarePlanService::search().
-     * @param $search a key => value array
-     * @param bool $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
-     * @param string $puuidBind- Optional variable to only allow visibility of the patient with this puuid.
+     * match on passed in value.  For more complicated searching @param $search a key => value array
+     *
+     * @param bool   $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
+     * @param string $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
+     * @see CarePlanService::search().
      */
     public function getAll($search, $isAndCondition = true, $puuidBind = null)
     {
@@ -128,11 +132,12 @@ class CarePlanService extends BaseService
         return $this->search($newSearch, $isAndCondition);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
             $this->populateSurrogateSearchFieldsForUUID($search['uuid'], $search);
         }
+
         // this value is defined in code so we don't need to db escape it.
         $carePlanType = $this->carePlanType;
         $planCategory = "assess-plan";
@@ -144,77 +149,109 @@ class CarePlanService extends BaseService
                 ,patients.pid
                 ,encounters.euuid
                 ,encounters.eid
-                ,fcp_forms.form_id
-                ,fcp_forms.creation_date
-                ,UNIX_TIMESTAMP(fcp_forms.creation_date) AS 'creation_timestamp'
+                ,f.id AS forms_record_id
+                ,f.form_id
+                ,f.date AS creation_date
+                ,UNIX_TIMESTAMP(f.date) AS creation_timestamp
+                ,fcp.id AS care_plan_id
                 ,fcp.code
                 ,fcp.codetext
                 ,fcp.description
                 ,fcp.date
-                ,l.`notes` AS moodCode
-                ,category.careplan_category
+                ,fcp.plan_status
+                ,fcp.proposed_date
+                ,fcp.date_end
+                ,fcp.note_related_to AS note_issues
+                ,fcp.reason_code
+                ,fcp.reason_description
+                ,fcp.reason_date_low
+                ,fcp.reason_date_high
+                ,fcp.reason_status
+                ,l.notes AS moodCode
+                ,'$planCategory' AS careplan_category
                 ,provider.provider_uuid
                 ,provider.provider_npi
                 ,provider.provider_username
-                 FROM
-                 (
-                    select
-                        id
-                        ,code
-                        ,codetext
-                        ,description
-                        ,`date`
-                        ,`encounter`
-                        ,`pid`
-                        ,`care_plan_type`
-                        ,`user` AS `care_plan_user`
-                    FROM
-                        form_care_plan
-                    WHERE
-                        `care_plan_type` = '$carePlanType'
-                 ) fcp
-                 CROSS JOIN (
-                    select '$planCategory' AS careplan_category
-                 ) category
-                 JOIN (
-                    select
-                        encounter AS eid
-                        ,uuid AS euuid
-                    FROM
-                        form_encounter
-                 ) encounters ON fcp.encounter = encounters.eid
-                -- we need the form date information
-                 JOIN (
-                      SELECT
-                      id
-                      ,form_id
-                      ,encounter AS form_encounter
-                      ,date AS creation_date
-                      FROM forms
-                      WHERE form_name = 'Care Plan Form'
-                 ) fcp_forms ON fcp.id = fcp_forms.form_id AND encounters.eid = fcp_forms.form_encounter
-                 LEFT JOIN (
-                    select
-                        pid
-                        ,uuid AS puuid
-                    FROM
-                        patient_data
-                 ) patients ON fcp.pid = patients.pid
-                 LEFT JOIN (
-                     select
-                        id AS provider_id
-                        ,uuid AS provider_uuid
-                        ,npi AS provider_npi
-                        ,username AS provider_username
-                     FROM
-                        users
-                 ) provider ON fcp.care_plan_user = provider.provider_username
-                 LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`='Plan_of_Care_Type'";
-        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+                ,provider.provider_id AS provenance_updated_by
+                ,ct.ct_key AS code_type
+                ,c.code_text AS code_description
+                ,goals.goal_care_plan_ids
+             FROM forms AS f
+             INNER JOIN (
+                SELECT
+                    id
+                    ,code
+                    ,codetext
+                    ,description
+                    ,`date` as creation_date
+                    ,`date`
+                    ,plan_status
+                    ,proposed_date
+                    ,date_end
+                    ,note_related_to
+                    ,reason_code
+                    ,reason_description
+                    ,reason_date_low
+                    ,reason_date_high
+                    ,reason_status
+                    ,`encounter`
+                    ,`pid`
+                    ,`care_plan_type`
+                    ,`user` AS `care_plan_user`
+                FROM form_care_plan
+                WHERE `care_plan_type` = '$carePlanType'
+             ) fcp ON fcp.id = f.form_id
+             LEFT JOIN codes AS c ON c.code = fcp.code
+             LEFT JOIN code_types AS ct ON c.code_type = ct.ct_id
+             JOIN (
+                SELECT
+                    encounter AS eid
+                    ,uuid AS euuid
+                FROM form_encounter
+             ) encounters ON fcp.encounter = encounters.eid
+             LEFT JOIN (
+                SELECT
+                    pid
+                    ,uuid AS puuid
+                FROM patient_data
+             ) patients ON f.pid = patients.pid
+             LEFT JOIN (
+                SELECT
+                    id AS provider_id
+                    ,uuid AS provider_uuid
+                    ,npi AS provider_npi
+                    ,username AS provider_username
+                FROM users
+             ) provider ON fcp.care_plan_user = provider.provider_username
+             LEFT JOIN `list_options` l ON l.option_id = fcp.care_plan_type 
+                AND l.list_id = 'Plan_of_Care_Type'
+             LEFT JOIN (
+                SELECT 
+                    fcp_goal.pid,
+                    fcp_goal.encounter,
+                    GROUP_CONCAT(DISTINCT fcp_goal.id SEPARATOR ',') AS goal_care_plan_ids
+                FROM form_care_plan fcp_goal
+                WHERE fcp_goal.care_plan_type = 'goal'
+                GROUP BY fcp_goal.pid, fcp_goal.encounter
+             ) goals ON goals.pid = fcp.pid 
+                AND (goals.encounter = fcp.encounter OR goals.encounter IS NULL)
+             WHERE f.formdir = 'care_plan' AND f.deleted = 0";
 
-        $sql .= $whereClause->getFragment();
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+        $whereFragment = $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        // The builder returns a fragment that may or may not have WHERE
+        // If it has conditions, it will start with " AND " or " WHERE "
+        if (!empty($whereFragment)) {
+            // Replace WHERE with AND since we already have WHERE clause
+            $whereFragment = preg_replace('/^\s*WHERE\s+/i', ' AND ', $whereFragment);
+            $sql .= $whereFragment;
+        }
+
+        $sql .= " ORDER BY fcp.encounter DESC, f.date DESC, fcp.id ASC";
+
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
         // since our query can eventually be sorted we want to keep things in the order that the query processed them.
@@ -225,38 +262,45 @@ class CarePlanService extends BaseService
         // recordsByKey as our hash map to track our individual records. this lets us reach a runtime of O(2n) as we will
         // do one loop to generate our aggregated data and then another loop through our ordered records to populate the
         // processing result.
+        // Aggregate by form_id - this creates ONE CarePlan per form
         $orderedRecords = [];
         $recordsByKey = [];
         $currentIndex = 0;
-        // runtime O(2n) as we create our indexed hash
+
         while ($row = sqlFetchArray($statementResults)) {
-            // grab our key for the row
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+
+            // Key is encounter + form_id (NOT individual activity)
             $key = $resultRecord['uuid'];
+
             if (!isset($recordsByKey[$key])) {
                 $orderedRecords[$currentIndex] = $resultRecord;
                 $recordsByKey[$key] = $currentIndex++;
             } else {
-                // now combine our child array
+                // Add this activity to existing CarePlan's details array
                 $recordIndex = $recordsByKey[$key];
+
+                // DON'T concatenate - just add as new array element
                 array_push($orderedRecords[$recordIndex]['details'], $resultRecord['details'][0]);
             }
         }
         foreach ($orderedRecords as $record) {
             $processingResult->addData($record);
         }
+
         return $processingResult;
     }
 
     /**
      * Take our uuid surrogate key and populate the underlying data elements representing the form_care_plan id column
      * and the connected encounter uuid.
+     *
      * @param TokenSearchField $fieldUUID The uuid search field with the 1..* values to search on
-     * @param $search Hashmap of search operators
+     * @param                  $search    Hashmap of search operators
      */
     private function populateSurrogateSearchFieldsForUUID(TokenSearchField $fieldUUID, &$search)
     {
-        $id = $search['form_id'] ?? new TokenSearchField('form_id', []);
+        $formId = $search['form_id'] ?? new TokenSearchField('form_id', []);
         $encounter = $search['encounter'] ?? new ReferenceSearchField('euuid', [], true);
 
         // need to deparse our uuid into something else we can use
@@ -264,22 +308,19 @@ class CarePlanService extends BaseService
             if ($value instanceof TokenSearchValue) {
                 $code = $value->getCode();
                 $key = $this->splitSurrogateKeyIntoParts($code);
-                if (empty($key['euuid']) && empty($key['form_id'])) {
-                    throw new \InvalidArgumentException("uuid '" . ($code ?? "") . "' was invalid for resource");
-                }
                 if (!empty($key['euuid'])) {
                     $values = $encounter->getValues();
-                    array_push($values, new ReferenceSearchValue($key['euuid'], "Encounter", true));
+                    $values[] = new ReferenceSearchValue($key['euuid'], "Encounter", true);
                     $encounter->setValues($values);
                 }
                 if (!empty($key['form_id'])) {
-                    $values = $id->getValues();
-                    array_push($values, new TokenSearchValue($key['form_id'], null, false));
-                    $id->setValues($values);
+                    $values = $formId->getValues();
+                    $values[] = new TokenSearchValue($key['form_id'], null, false);
+                    $formId->setValues($values);
                 }
             }
         }
-        $search['form_id'] = $id;
+        $search['form_id'] = $formId;
         $search['encounter'] = $encounter;
         unset($search['uuid']);
     }
@@ -287,53 +328,117 @@ class CarePlanService extends BaseService
     /**
      * Given a database record representing a form_care_plan row containing a 'form_id' and 'euuid' column generate the
      * surrogate key.  If either column is empty it uses an empty string as the value.
+     *
      * @param array $record An array containing a 'form_id' and 'euuid' element.
      * @return string The surrogate key.
      */
     public function getSurrogateKeyForRecord(array $record)
     {
-        // note that logical ids are allowed to be 64 characters.  Our UUID is 32 characters so as long as
-        // the form_id + separator never exceeds 64 characters we are good here.
+        // Only form_id + encounter = ONE CarePlan
         $form_id = $record['form_id'] ?? '';
         $encounter = $record['euuid'] ?? '';
+
         $separator = self::SURROGATE_KEY_SEPARATOR_V2;
         if (intval($record['creation_timestamp'] ?? 0) <= self::V2_TIMESTAMP) {
             $separator = self::SURROGATE_KEY_SEPARATOR_V1;
         }
+
         return $encounter . $separator . $form_id;
     }
 
     /**
      * Given the surrogate key representing a Care Plan, split the key into its component parts.
+     *
      * @param $key string the key to parse
      * @return array The broken up key parts.
      */
     public function splitSurrogateKeyIntoParts($key)
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
-        if (str_contains((string) $key, self::SURROGATE_KEY_SEPARATOR_V1)) {
+        if (str_contains((string)$key, self::SURROGATE_KEY_SEPARATOR_V1)) {
             $delimiter = self::SURROGATE_KEY_SEPARATOR_V1;
         }
-        $parts = explode($delimiter, (string) $key);
+        $parts = explode($delimiter, (string)$key);
         $key = [
-            "euuid" => $parts[0] ?? ""
-            ,"form_id" => $parts[1] ?? ""
+            "euuid" => $parts[0] ?? "",
+            "form_id" => $parts[1] ?? ""
         ];
         return $key;
     }
 
-    protected function createResultRecordFromDatabaseResult($row)
+    protected function createResultRecordFromDatabaseResult($row): array
     {
+        $formId = $row['form_id'] ?? null;
+        $creationTimestamp = $row['creation_timestamp'] ?? 0;
+
         $record = parent::createResultRecordFromDatabaseResult($row);
-        // now let's prep our details record
-        $detailKeys = ['code', 'codetext', 'description', 'date', 'moodCode'];
+
+        $record['form_id'] = $formId;
+        $record['creation_timestamp'] = $creationTimestamp;
+
+        // Build goal surrogate keys for related Goal resources
+        // Goals are stored in form_care_plan with care_plan_type='goal'
+        // Each goal (each form_care_plan row) needs a unique surrogate key
+        // Format: euuid-SK-form_id-SK-care_plan_id (3 parts)
+        // Build goal surrogate keys for related Goal resources
+        // Goals are stored in form_care_plan with care_plan_type='goal'
+        // Each goal (each form_care_plan row) needs a unique surrogate key
+        // Format: euuid-SK-care_plan_id (2 parts)
+        // - euuid: encounter UUID (from UuidRegistry, already converted to string by parent)
+        // - care_plan_id: form_care_plan table id (unique per goal row)
+        // Note: forms.form_id = form_care_plan.id, so we only need care_plan_id
+        if (!empty($row['goal_care_plan_ids']) && !empty($record['euuid'])) {
+            $goalIds = explode(',', (string) $row['goal_care_plan_ids']);
+            $goalUuids = [];
+            $separator = self::SURROGATE_KEY_SEPARATOR_V2;
+            if (intval($creationTimestamp) <= self::V2_TIMESTAMP) {
+                $separator = self::SURROGATE_KEY_SEPARATOR_V1;
+            }
+
+            // euuid is already a string (converted by OpenEMR's UuidRegistry in parent method)
+            $euuidString = $record['euuid'];
+
+            foreach ($goalIds as $carePlanId) {
+                $carePlanId = trim($carePlanId);
+                if (!empty($carePlanId)) {
+                    // Build unique 2-part surrogate key: euuid-SK-care_plan_id
+                    // This ensures each goal (each form_care_plan row) gets a unique UUID
+                    $goalUuids[] = $euuidString . $separator . $carePlanId;
+                }
+            }
+            $record['related_goal_uuids'] = implode(',', $goalUuids);
+        }
+
+        // Extract detail for THIS specific activity only
+        $detailKeys = [
+            'code',
+            'codetext',
+            'description',  // ONLY this row's description
+            'date',
+            'moodCode',
+            'note_issues',
+            'proposed_date',
+            'reason_code',
+            'reason_description',
+            'reason_date_low',
+            'reason_date_high',
+            'reason_status'
+        ];
+
         $details = [];
         foreach ($detailKeys as $key) {
-            $details[$key] = $record[$key];
-            unset($record[$key]);
+            if (isset($record[$key])) {
+                $details[$key] = $record[$key];
+                unset($record[$key]);
+            }
         }
+
+        // Single detail in array (will be aggregated by search method)
         $record['details'] = [$details];
+
+        // Generate surrogate key UUID - euuid is already a string from parent processing
         $record['uuid'] = $this->getSurrogateKeyForRecord($record);
+
         return $record;
     }
 }

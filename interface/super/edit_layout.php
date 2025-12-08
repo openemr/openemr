@@ -255,7 +255,9 @@ function isColumnReserved($tablename, $field_id)
             'name_history',
             'care_team_status',
             'patient_groups',
-            'additional_addresses'
+            'additional_addresses',
+            'telecoms',
+            'related_persons'
             ])
         ) {
             return true;
@@ -553,7 +555,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $qstr = "INSERT INTO layout_options SET `form_id` = ?, `field_id` = ?, `group_id` = ?";
         $qarr = [$tlayout, $onefield, $tgroup];
         foreach ($srow as $key => $value) {
-            if ($key == 'form_id' || $key == 'field_id' || $key == 'group_id') {
+            if (in_array($key, ['form_id', 'field_id', 'group_id'])) {
                 continue;
             }
             $qstr .= ", `$key` = ?";
@@ -832,13 +834,7 @@ function writeFieldLine($linedata): void
 
     echo "  <td class='text-center optcell'>";
     if (
-        $linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
-        $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
-        $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
-        $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
-        $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
-        $linedata['data_type'] == 36 || $linedata['data_type'] == 37 ||
-        $linedata['data_type'] == 43 || $linedata['data_type'] == 46
+        in_array($linedata['data_type'], [1, 21, 22, 23, 25, 26, 27, 32, 33, 34, 36, 37, 43, 46])
     ) {
         $type = "";
         $disp = "style='display: none'";
@@ -874,9 +870,7 @@ function writeFieldLine($linedata): void
     //Backup List Begin
     echo "  <td class='text-center optcell'>";
     if (
-        $linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
-        $linedata['data_type'] == 33 || $linedata['data_type'] == 36 ||
-        $linedata['data_type'] == 43 || $linedata['data_type'] == 46
+        in_array($linedata['data_type'], [1, 26, 33, 36, 43, 46])
     ) {
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='" .
             attr($linedata['list_backup_id']) .

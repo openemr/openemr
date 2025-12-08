@@ -2,7 +2,8 @@
 
 /**
  * UtilsService holds helper methods for dealing with fhir objects in the services  layer.
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -23,6 +24,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
@@ -33,6 +36,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -70,9 +74,9 @@ class UtilsService
     {
         $parsed_url = [
             'localResource' => false
-            ,'validUrl' => false
-            ,'resource' => null
-            ,'uuid' => null
+            , 'validUrl' => false
+            , 'resource' => null
+            , 'uuid' => null
         ];
         if (empty($url)) {
             return $parsed_url;
@@ -111,13 +115,21 @@ class UtilsService
         return $uuid;
     }
 
-    public static function createQuantity($value, $unit, $code)
+    public static function createQuantity($value, $unit, $code): FHIRQuantity
     {
         $quantity = new FHIRQuantity();
-        $quantity->setCode($code);
+        // if there is no code provided we should not populate it nor the unit value
+        // that way it becomes a SimpleQuantity variant of Quantity
+        if (!empty($unit)) {
+            $quantity->setUnit($unit);
+            // only set the code if we have a unit as the unit is the textual display of the coded unit
+            if (!empty($code)) {
+                $quantity->setCode($code);
+            }
+            $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+        }
         $quantity->setValue($value);
-        $quantity->setUnit($unit);
-        $quantity->setSystem(FhirCodeSystemConstants::UNITS_OF_MEASURE);
+        return $quantity;
     }
 
     public static function createCoding($code, $display, $system): FHIRCoding
@@ -128,8 +140,12 @@ class UtilsService
         // make sure there are no whitespaces.
         $coding = new FHIRCoding();
         $coding->setCode($code);
-        $coding->setDisplay(trim($display ?? ""));
-        $coding->setSystem(trim($system ?? ""));
+        if (!empty($display)) {
+            $coding->setDisplay(trim((string)$display));
+        }
+        if (!empty(($system))) {
+            $coding->setSystem(trim((string)$system));
+        }
         return $coding;
     }
 
@@ -193,7 +209,9 @@ class UtilsService
         }
 
         if (!empty($dataRecord['period_start'])) {
-            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start'], true);
+            // we don't use dateStringToDateTime as that converts from OpenEMR formatted strings to DateTime objects
+            $format = str_contains((string) $dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
+            $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_start'], new \DateTimeZone(date('P')));
             if ($date === false) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to format date record with date format ",
@@ -201,6 +219,7 @@ class UtilsService
                 );
                 $date = new \DateTime('now', new \DateTimeZone(date('P')));
             }
+            // TODO: look into why we use RFC3339_EXTENDED here instead of DATE_ATOM like other places
             $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
         } else {
             // we should always have a start period, but if we don't, we will go one year before
@@ -302,8 +321,8 @@ class UtilsService
         return self::createCodeableConcept([
             self::UNKNOWNABLE_CODE_NULL_FLAVOR => [
                 'code' => self::UNKNOWNABLE_CODE_NULL_FLAVOR
-                ,'description' => 'unknown'
-                ,'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
+                , 'description' => 'unknown'
+                , 'system' => FhirCodeSystemConstants::HL7_NULL_FLAVOR
             ]]);
     }
 
@@ -329,7 +348,8 @@ class UtilsService
      * Given a FHIRPeriod object return an array containing the timestamp in milliseconds of the start and end points
      * of the period.  If the passed in object is null it will return null values for the 'start' and 'end' properties.
      * If the start has no value or if the end period has no value it will return null values for the properties.
-     * @param FHIRPeriod $period  The object representing the period interval.
+     *
+     * @param FHIRPeriod $period The object representing the period interval.
      * @return array Containing two keys of 'start' and 'end' representing the period.
      */
     public static function getPeriodTimestamps(?FHIRPeriod $period)
@@ -431,8 +451,8 @@ class UtilsService
     {
         $parsed_reference = [
             'localResource' => false
-            ,'uuid' => null
-            ,'type' => null
+            , 'uuid' => null
+            , 'type' => null
         ];
         if (empty($parsed_reference) || empty($reference->getReference())) {
             return $parsed_reference;

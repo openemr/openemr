@@ -271,6 +271,10 @@ class CcdaServiceRequestModelGenerator
             $ccd .= $this->getEncounterccdadispatchTable()->getPayers($pid);
         }
 
+        if (in_array('advance_directives', $components_list)) {
+            $ccd .= $this->getEncounterccdadispatchTable()->getAdvanceDirectives($pid);
+        }
+
         return $ccd;
     }
 

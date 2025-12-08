@@ -2,14 +2,20 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Base class for FHIR Service implementations.
@@ -28,21 +34,35 @@ use OpenEMR\Validators\ProcessingResult;
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
+abstract class FhirServiceBase implements
+    IResourceSearchableService,
+    IResourceReadableService,
+    IResourceCreatableService,
+    IResourceUpdateableService,
+    SessionAwareInterface,
+    IGlobalsAware
 {
     use ResourceServiceSearchTrait;
     use SystemLoggerAwareTrait;
 
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
+     * @var array<string, FhirSearchParameterDefinition> Hashmap of FHIR Resource search parameters to OpenEMR search parameters
      */
-    protected $resourceSearchParameters = [];
+    protected array $resourceSearchParameters = [];
 
     /**
      * Url to the base fhir api location
      * @var string
      */
     private ?string $fhirApiURL;
+
+    private ?SessionInterface $session = null;
+
+    /**
+     * @var ?OEGlobalsBag The globals configuration settings in the database
+     */
+    private ?OEGlobalsBag $globalsBag = null;
 
     public function __construct(?string $fhirApiURL = null)
     {
@@ -51,6 +71,26 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
         $this->setSearchFieldFactory($searchFieldFactory);
         $this->setFhirApiUrl($fhirApiURL);
+    }
+
+    public function getGlobalsBag(): ?OEGlobalsBag
+    {
+        return $this->globalsBag;
+    }
+
+    public function setGlobalsBag(OEGlobalsBag $globalsBag): void
+    {
+        $this->globalsBag = $globalsBag;
+    }
+
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
     }
 
     /**
@@ -79,6 +119,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
+     * @return array<string, FhirSearchParameterDefinition> Hashmap of FHIR Resource search parameters to OpenEMR search parameters
      */
     abstract protected function loadSearchParameters();
 
@@ -286,6 +327,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /*
     * public function to return search params
+    * @return array<string, FhirSearchParameterDefinition> Hashmap of FHIR Resource search parameters to OpenEMR search parameters
     */
     public function getSearchParams()
     {

@@ -16,7 +16,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if ($langModuleFlag !== true) {
+if (!isset($langModuleFlag) || $langModuleFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
@@ -52,7 +52,7 @@ if (!empty($_POST['add'])) {
     } else {
             //insert into the main table
         $sql = "INSERT INTO lang_constants SET constant_name=?";
-        SqlStatement($sql, [$_POST['constant_name']]);
+        sqlStatement($sql, [$_POST['constant_name']]);
 
                 //insert into the log table - to allow persistant customizations
             insert_language_log('', '', $_POST['constant_name'], '');

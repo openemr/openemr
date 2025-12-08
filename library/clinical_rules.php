@@ -558,7 +558,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
   // Set ability to itemize report if this feature is turned on
     if (
         ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
-        ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
+        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && ($GLOBALS['report_itemizing_cqm'])      ) ||
         ( (CertificationReportTypes::isAMCReportType($type)) && ($GLOBALS['report_itemizing_amc'])      )
     ) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;

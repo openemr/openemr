@@ -505,7 +505,7 @@ class parseCSV
                 } elseif ($nch == $this->enclosure) {
                     $current .= $ch;
                     $i++;
-                } elseif ($nch != $this->delimiter && $nch != "\r" && $nch != "\n") {
+                } elseif (!in_array($nch, [$this->delimiter, "\r", "\n"])) {
                     for ($x = ($i + 1); isset($data [$x]) && ltrim($data [$x], $white_spaces) == ''; $x++) {
                     }
 
@@ -537,7 +537,7 @@ class parseCSV
                 }
 
                 // end of field/row
-            } elseif (($ch == $this->delimiter || $ch == "\n" || $ch == "\r") && ! $enclosed) {
+            } elseif ((in_array($ch, [$this->delimiter, "\n", "\r"])) && ! $enclosed) {
                 $key = (! empty($head [$col])) ? $head [$col] : $col;
                 $row [$key] = ($was_enclosed) ? $current : trim($current);
                 $current = '';
@@ -799,7 +799,7 @@ class parseCSV
             }
 
             if (array_key_exists($field, $row)) {
-                if (($op == '=' || $op == 'equals' || $op == 'is') && $row [$field] == $value) {
+                if ((in_array($op, ['=', 'equals', 'is'])) && $row [$field] == $value) {
                     return '1';
                 } elseif (($op == '!=' || $op == 'is not') && $row [$field] != $value) {
                     return '1';

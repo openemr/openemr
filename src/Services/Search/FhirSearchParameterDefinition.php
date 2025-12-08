@@ -19,7 +19,7 @@ class FhirSearchParameterDefinition
     /**
      * @param string $name
      * @param string $type
-     * @param string[] $mappedFields
+     * @param ServiceField[]|string[] $mappedFields
      * @param string[] $options
      */
     public function __construct(

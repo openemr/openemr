@@ -15,7 +15,7 @@ enum FhirConditionCategory: string
 {
     case PROBLEM_LIST_ITEM = 'problem-list-item';
     case ENCOUNTER_DIAGNOSIS = 'encounter-diagnosis';
-    case HEALTH_CONCERNS = 'health-concerns';
+    case HEALTH_CONCERNS = 'health-concern';
 
     public function display(): FhirConditionCategoryDisplay
     {

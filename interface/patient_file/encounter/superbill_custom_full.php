@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -178,7 +179,7 @@ if (isset($mode) && $thisauthwrite) {
     // If codes history is enabled in the billing globals save data to codes history table
     if (
         $GLOBALS['save_codes_history'] && $alertmsg == '' &&
-        ($mode == "add" || $mode == "modify_complete" || $mode == "delete")
+        (in_array($mode, ["add", "modify_complete", "delete"]))
     ) {
         $action_type = empty($_POST['code_id']) ? 'new' : $mode;
         $action_type = ($action_type == 'add') ? 'update' : $action_type;
@@ -421,14 +422,6 @@ if ($fend > ($count ?? null)) {
         function submitModifyComplete() {
             var f = document.forms[0];
             f.mode.value = 'modify_complete';
-            f.submit();
-        }
-
-        function submitList(offset) {
-            var f = document.forms[0];
-            var i = parseInt(f.fstart.value) + offset;
-            if (i < 0) i = 0;
-            f.fstart.value = i;
             f.submit();
         }
 
@@ -704,18 +697,16 @@ if ($fend > ($count ?? null)) {
                             echo ' checked';
                                 } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
-            <div class="col-md text-right">
-                <?php if ($fstart) { ?>
-                    <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
-                        &lt;&lt;
-                    </a>
-                    &nbsp;&nbsp;
-                <?php } ?>
-                <?php echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count ?? ''); ?>
-                <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
-                    &gt;&gt;
-                </a>
-            </div>
+            <div class="col-md text-right"><?php
+                $paginator = new PaginationUtils();
+                echo $paginator->render(
+                    offset: $fstart,
+                    pageSize: $pagesize,
+                    totalCount: $count ?? 0,
+                    filename: basename(__FILE__),
+                    excludeParams: ['mode']
+                );
+                ?></div>
         </div>
     </div>
 </form>

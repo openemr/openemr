@@ -15,6 +15,9 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\UserService;
+
 ?>
 
 <html>
@@ -24,14 +27,19 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(['datetime-picker','opener']); ?>
 
     <?php
+    if (!isset($pid)) {
+        $pid = $_SESSION['pid'];
+    }
     if ($_POST['form_yesno']) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
         }
 
         $form_yesno = filter_input(INPUT_POST, 'form_yesno');
-        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST, 'form_adreviewed'));
-        sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", [$form_yesno,$form_adreviewed,$pid]);
+        $form_adreviewed = DateTimeToYYYYMMDDHHMMSS(filter_input(INPUT_POST, 'form_adreviewed'));
+        QueryUtils::sqlStatementThrowException("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ?"
+        . " ,advance_directive_user_authenticator = ? where pid = ?"
+            , [$form_yesno,$form_adreviewed, $_SESSION['authUserID'], $pid]);
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script>\n";
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -41,6 +49,8 @@ use OpenEMR\Core\Header;
     }
 
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
+    $userService = new UserService();
+    $userRecord = $userService->getUser($_SESSION['authUserID']);
     $myrow = sqlQuery($sql, [$pid]);
     if ($myrow) {
         $form_completedad = $myrow['completed_ad'];
@@ -61,9 +71,9 @@ use OpenEMR\Core\Header;
         $(function () {
             $("#cancel").click(function() { dlgclose(); });
 
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
+            $('.datetimepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
@@ -89,7 +99,7 @@ use OpenEMR\Core\Header;
                     </div>
                     <div class="form-group">
                         <label for="form_adreviewed"><?php echo xlt('Last Reviewed'); ?></label>
-                        <?php generate_form_field(['data_type' => 4,'field_id' => 'adreviewed'], oeFormatShortDate($form_adreviewed)); ?>
+                        <?php generate_form_field(['data_type' => 4,'field_id' => 'adreviewed', 'edit_options' => 'F'], $form_adreviewed); ?>
                     </div>
                     <div class="form-group">
                         <div class="btn-group" role="group">
@@ -145,6 +155,15 @@ use OpenEMR\Core\Header;
                 ?>
             </div>
         </div>
+        <?php if (empty($userRecord['npi'])) : ?>
+        <!-- API will not be able to provide the legal attestation for which user that reviewed this information without a valid medical license number (NPI) -->
+        <div class="row mt-2">
+            <div class="col-12 alert-danger">
+                <p><?php echo xlt("No national provider number is setup for your account."); ?></p>
+                <p><?php echo xlt("The system will not be able to provide legal attestation that you have reviewed this information without a valid national provider number."); ?></p>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </body>
 </html>

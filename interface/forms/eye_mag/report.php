@@ -281,7 +281,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     </style>
     <div>
     <?php
-    if (($cols == 'Fax') || ($cols == 'Report') || ($cols == 'Fax-resend')) {
+    if (in_array($cols, ['Fax', 'Report', 'Fax-resend'])) {
         echo report_header($pid, 'PDF');
     }
 

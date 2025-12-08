@@ -17,6 +17,7 @@ namespace OpenEMR\Services\FHIR\Procedure;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProcedure;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -25,15 +26,20 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProcedure\FHIRProcedurePerformer;
 use OpenEMR\Services\CodeTypesService;
+use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProcedureService;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -46,6 +52,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 {
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
+    use VersionedProfileTrait;
 
 
     /**
@@ -58,6 +65,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
      * @var ProcedureService
      */
     private $service;
+
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure';
 
     public function __construct($fhirApiURL = null)
     {
@@ -94,9 +103,8 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -106,6 +114,25 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             [self::PROCEDURE_ORDER_TEST_TYPE],
             SearchModifier::NOT_EQUALS_EXACT
         );
+
+        // date has to be a compound search
+        if (isset($openEMRSearchParameters['report_date'])) {
+            // need to have a condition of report_date = x OR (report_date is null AND date_ordered = x)
+            $reportDateField = $openEMRSearchParameters['report_date'];
+            unset($openEMRSearchParameters['report_date']);
+
+            $orderedDateOrMissingReportDate = new CompositeSearchField('ordered_date_missing_report_date', [], true);
+            $dateOrderedField = new DateSearchField('date_ordered', $reportDateField->getValues());
+            $reportDateMissingField = new TokenSearchField('report_date', [new TokenSearchValue(true)]);
+            $reportDateMissingField->setModifier(SearchModifier::MISSING);
+            $orderedDateOrMissingReportDate->addChild($reportDateMissingField);
+            $orderedDateOrMissingReportDate->addChild($dateOrderedField);
+
+            $compositeField = new CompositeSearchField('performed_date', [], false);
+            $compositeField->addChild($reportDateField);
+            $compositeField->addChild($orderedDateOrMissingReportDate);
+            $openEMRSearchParameters['performed_date'] = $compositeField;
+        }
 
         // FIXED: Don't require reports - we want to show all procedure orders
         // Remove the report_uuid filter to include orders without reports
@@ -143,7 +170,9 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
-        $meta->addProfile(new FHIRUri(['value' => 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure']));
+        foreach ($this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions()) as $profile) {
+            $meta->addProfile($this->createProfile($profile));
+        }
 
         $procedureResource->setMeta($meta);
 
@@ -223,29 +252,38 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $procedureResource->setCode($fhirCodeableConcept);
 
         // FIXED: Determine status based on whether reports exist
-        $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_COMPLETED;
+        $status = EventStatusEnum::COMPLETED;
         if (empty($report)) {
             // No report yet - procedure has been ordered but not performed
-            $status = 'preparation'; // or 'in-progress' depending on your workflow
+            $status = EventStatusEnum::PREPARATION; // or 'in-progress' depending on your workflow
         } elseif (!empty($report['results'])) {
             foreach ($report['results'] as $result) {
                 if ($result['status'] != 'final') {
-                    $status = FhirProcedureService::FHIR_PROCEDURE_STATUS_IN_PROGRESS;
+                    $status = EventStatusEnum::IN_PROGRESS;
                     break;
                 }
             }
         }
-        $procedureResource->setStatus($status);
-
         // FIXED: Use report date if available, otherwise order date
         if (!empty($report['date'])) {
             $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
         } elseif (!empty($dataRecord['date_ordered'])) {
             // Order placed but not yet performed
-            $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
+            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_ordered']));
         } else {
-            $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
+            if ($status == EventStatusEnum::IN_PROGRESS || $status == EventStatusEnum::COMPLETED) {
+                // we CAN'T by spec have in-progress or completed without a date
+                $status = EventStatusEnum::UNKNOWN;
+            }
+            if ($this->getHighestCompatibleUSCoreProfileVersion() === self::PROFILE_VERSION_3_1_1) {
+                // Profile 3.1.1 says to use data-absent-unknown for performedDateTime if not known
+                // Profile 6.1.0+ says to skip the performedDateTime if not known
+                $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
+            } // else for 6.1.0+ we just skip setting performedDateTime
         }
+
+        $procedureResource->setStatus($status->value);
+
 
         if (!empty($report['notes'])) {
             $annotation = new FHIRAnnotation();
@@ -261,18 +299,18 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             );
         }
 
-        // Add UsedReference for specimen reference support
-        // Both per US Core 8.0
-        if (!empty($report['specimens'])) {
-            foreach ($report['specimens'] as $specimen) {
-                // Only include non-deleted specimens (deleted flag = 0)
-                if (!empty($specimen['uuid']) && ($specimen['deleted'] ?? '0') == '0') {
-                    $procedureResource->addUsedReference(
-                        UtilsService::createRelativeReference('Specimen', $specimen['uuid'])
-                    );
-                }
-            }
-        }
+        // UsedReference for specimen reference support only valid for Device, Medication, Substance
+        // @see https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-procedure-definitions.html#Procedure.usedReference referenced on 11/08/2025
+//        if (!empty($report['specimens'])) {
+//            foreach ($report['specimens'] as $specimen) {
+//                // Only include non-deleted specimens (deleted flag = 0)
+//                if (!empty($specimen['uuid']) && ($specimen['deleted'] ?? '0') == '0') {
+//                    $procedureResource->addUsedReference(
+//                        UtilsService::createRelativeReference('Specimen', $specimen['uuid'])
+//                    );
+//                }
+//            }
+//        }
 
         // Add reasonReference support (in addition to reasonCode)
         // Both per US Core 8.0
@@ -344,5 +382,21 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             return 'http://loinc.org';
         }
         return $hint;
+    }
+    private function createProfile(string $profileUri): FHIRCanonical
+    {
+        $profile = new FHIRCanonical();
+        $profile->setValue($profileUri);
+        return $profile;
+    }
+
+    public function getSupportedVersions()
+    {
+        $highestVersion = $this->getHighestCompatibleUSCoreProfileVersion();
+        // version 3.1.1 is NOT compatible with 7.0.0 and later due to breaking changes in Procedure resource with how performed[x] is handled
+        return match ($highestVersion) {
+            self::PROFILE_VERSION_3_1_1 => self::PROFILE_VERSIONS_V1,
+            default => self::PROFILE_VERSIONS_V2
+        };
     }
 }

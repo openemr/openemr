@@ -26,7 +26,6 @@ assets:
         basePath: '%assets_static_relative%/jquery/dist/'
         script: jquery.min.js
         autoload: true
-        allowNoLoad: true
     bootstrap:
         basePath: '%assets_static_relative%/bootstrap/dist/'
         script: js/bootstrap.bundle.min.js
@@ -35,7 +34,6 @@ assets:
         #  TODO - incorporate this mechanism for rtl when rtl bootrap SASS mechanism is up and running
         link: css/bootstrap.min.css
         autoload: true
-        allowNoLoad: true
         # RTL only for no_main-theme which is rare
         rtl:
             basePath: '%assets_static_relative%/bootstrap-rtl/dist/'
@@ -57,19 +55,14 @@ assets:
         basePath: '%webroot%/library/js/'
         script: utility.js
         autoload: true
-        allowNoLoad: true
     main-theme:
         alreadyBuilt: true
         link: '%css_header%'
         autoload: true
-        allowNoLoad: true
-    # The compact theme asset follows the allowNoLoad setting of the main-theme asset
-    # ie. no-main-theme token will also skip the compact-theme
     compact-theme:
         alreadyBuilt: true
         link: '%compact_header%'
         autoload: true
-        allowNoLoad: true
     tabs-theme:
         basePath: '%webroot%/public/themes/'
         link: '%theme_tabs_layout%'
@@ -164,12 +157,10 @@ assets:
         basePath: '%webroot%/library/'
         script: textformat.js
         autoload: true
-        allowNoLoad: true
     dialog:
         basePath: '%webroot%/library/'
         script: dialog.js
         autoload: true
-        allowNoLoad: true
     select2:
         basePath: '%assets_static_relative%/select2/dist/'
         script: js/select2.full.min.js

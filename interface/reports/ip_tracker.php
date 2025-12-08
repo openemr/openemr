@@ -215,7 +215,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                 <?php
                 $ipLoginFailsSql = AuthUtils::collectIpLoginFailsSql($showOnlyWithCount, $showOnlyManuallyBlocked, $showOnlyAutoBlocked);
 
-                while ($row = SqlFetchArray($ipLoginFailsSql)) {
+                while ($row = sqlFetchArray($ipLoginFailsSql)) {
                     ?>
 
                     <tr valign='top' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>

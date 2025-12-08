@@ -2,17 +2,19 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationAdvanceDirectiveService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationCareExperiencePreferenceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationLaboratoryService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Observation\FhirObservationTreatmentInterventionPreferenceService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -66,6 +68,9 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
         $this->addMappedService(new FhirObservationHistorySdohService());
         $this->addMappedService(new FhirObservationPatientService());
         $this->addMappedService(new FhirObservationEmployerService());
+        $this->addMappedService(new FhirObservationAdvanceDirectiveService());
+        $this->addMappedService(new FhirObservationTreatmentInterventionPreferenceService());
+        $this->addMappedService(new FhirObservationCareExperiencePreferenceService());
     }
 
     /**
@@ -119,7 +124,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
                 $category = $fhirSearchParameters['category'];
 
                 $catServices = $this->getServiceListForCategory(
-                    new TokenSearchField('category', $category)
+                    new TokenSearchField('category', explode(",",$category))
                 );
                 foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;
@@ -207,7 +212,17 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             $this->getSystemLogger()->error("Requested observation with no resource_path category to parse the mapping", ['uuid' => $fhirResourceId, 'resource_path' => $mapping['resource_path']]);
             return $processingResult;
         }
-
+        // if the search params already have code or category we need to check and make sure they match
+        $category = new TokenSearchField('category', explode(",", $query_vars['category']));
+        if (isset($search['category'])) {
+            $searchCategory = new TokenSearchField('category', explode(",", $search['category']));
+            if (!$searchCategory->containsSearchToken($category)) {
+                // category does not match so return an empty result set
+                $this->getSystemLogger()->error("Search categories did not not match the mapping, this could be a scope restriction, or a bad query"
+                    , ['uuid' => $fhirResourceId, 'mappingCategory' => $query_vars['category'], 'searchCategory' => $search['category']]);
+                return $processingResult;
+            }
+        }
         $code = empty($search['code']) ? $query_vars['code'] : $search['code'] . "," . $query_vars['code'];
         $search['code'] = $code;
         $search['category'] = $query_vars['category'];

@@ -11,7 +11,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
-use OpenEMR\Services\FHIR\Condition\FhirConditionProblemsHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
+use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -56,8 +57,17 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     {
         parent::__construct();
         $this->addMappedService(new FhirConditionEncounterDiagnosisService());
-//        $this->addMappedService(new FhirConditionProblemsHealthConcernService());
+        $this->addMappedService(new FhirConditionProblemListItemService());
+        $this->addMappedService(new FhirConditionHealthConcernService());
         $this->conditionService = new ConditionService();
+    }
+
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->systemLogger = $systemLogger;
+        foreach ($this->getMappedServices() as $service) {
+            $service->setSystemLogger($systemLogger);
+        }
     }
 
     /**
@@ -97,7 +107,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
                 $category = $fhirSearchParameters['category'];
 
                 $catServices = $this->getServiceListForCategory(
-                    new TokenSearchField('category', $category)
+                    // TODO: @adunsulag should we put inside TokenSearchValue the exploding of the comma separated values?
+                    new TokenSearchField('category', explode(",", $category))
                 );
                 foreach ($catServices as $service) {
                     $servicesMap[$service::class] = $service;
@@ -128,12 +139,9 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
     public function getProfileURIs(): array
     {
         $profileSets = [];
-        foreach ($this->getMappedServices() as $mappedService) {
-            if ($mappedService instanceof IResourceUSCIGProfileService) {
-                $profileSets[] = $mappedService->getProfileURIs();
-            }
-        }
-
+        $profileSets[] = $this->getProfileForVersions(FhirConditionProblemListItemService::USCGI_PROFILE_URI_3_1_1, ['', '3.1.1']);
+        $profileSets[] = $this->getProfileForVersions(FhirConditionEncounterDiagnosisService::USCGI_PROFILE_ENCOUNTER_DIAGNOSIS_URI, $this->getSupportedVersions());
+        $profileSets[] = $this->getProfileForVersions(FhirConditionProblemListItemService::USCGI_PROFILE_PROBLEMS_HEALTH_CONCERNS_URI, $this->getSupportedVersions());
         $profiles = array_merge(...$profileSets);
         return $profiles;
     }

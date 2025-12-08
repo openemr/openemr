@@ -87,7 +87,7 @@ if ($_POST['form_save_permissions'] ?? null) {
     $primary_user_id = $_POST['primary_user'] ?? null;
 
     // Handle primary user reset (when value is "0" or empty)
-    $reset_primary = ($primary_user_id === '0' || $primary_user_id === '' || $primary_user_id === null);
+    $reset_primary = (in_array($primary_user_id, ['0', '', null], true));
 
     while ($user = sqlFetchArray($users_result)) {
         $user_id = $user['id'];

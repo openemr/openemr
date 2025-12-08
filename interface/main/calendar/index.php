@@ -113,12 +113,7 @@ if ($type == "admin") {
         exit;
     }
     if (
-        ($func != "modifyconfig") &&
-        ($func != "clearCache") &&
-        ($func != "testSystem") &&
-        ($func != "categories") &&
-        ($func != "categoriesConfirm") &&
-        ($func != "categoriesUpdate")
+        !in_array($func, ["modifyconfig", "clearCache", "testSystem", "categories", "categoriesConfirm", "categoriesUpdate"])
     ) {
         // only support certain functions in admin use
         exit;

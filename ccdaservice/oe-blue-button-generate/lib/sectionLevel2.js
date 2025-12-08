@@ -510,7 +510,34 @@ exports.socialHistorySection = function (htmlHeader, na) {
                     existsWhen: function (input) {
                         return input && input.hunger_vital_signs && input.hunger_vital_signs.risk_status.answer_code;
                     }
-                }
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [
+                        entryLevel.sexualOrientationObservation
+                    ],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: {
+                        typeCode: "DRIV"
+                    },
+                    content: [
+                        entryLevel.genderIdentityObservation
+                    ],
+                    dataKey: "social_history"
+                }, {
+                    key: "entry",
+                    attributes: { typeCode: "DRIV" },
+                    content: [entryLevel.sexObservation],
+                    dataKey: "social_history",
+                    existsWhen: function (input) {
+                        return input && (input.gender ||
+                            (input.sex_observation && (input.sex_observation.code || input.sex_observation.gender)));
+                    }
+                },
             ]
         }]
     };
@@ -563,7 +590,8 @@ exports.careTeamSection = function (htmlHeader, na) {
                 },
                 htmlHeader, {
                     key: "entry",
-                    content: entryLevel.careTeamOrganizer
+                    content: entryLevel.careTeamOrganizer,
+                    existsWhen: condition.keyExists("care_team")
                 }
             ]
         }]
@@ -711,7 +739,8 @@ exports.healthConcernSection = function (htmlHeader, na) {
                     existsWhen: condition.keyExists("concern")
                 },
                 {
-                    key: "text", text: htmlHeader.healthConcernSectionHtmlHeaderNA,
+                    key: "text",
+                    text: na,
                     existsWhen: condition.keyDoesntExist("concern")
                 },
                 /*{ key: "text", text: leafLevel.input, dataKey: "text" },*/
@@ -1521,7 +1550,7 @@ exports.advanceDirectivesSection = function (htmlHeader, na) {
                         "typeCode": "DRIV"
                     },
                     content: [
-                        [entryLevel.advanceDirectiveOrganizer, required]
+                        [entryLevel.advanceDirectiveObservation, required]
                     ],
                     dataKey: "advance_directives"
                 }

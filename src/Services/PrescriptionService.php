@@ -99,9 +99,14 @@ class PrescriptionService extends BaseService
                 ,combined_prescriptions.route
                 ,combined_prescriptions.note
                 ,combined_prescriptions.status
+                ,combined_prescriptions.dosage
                 ,combined_prescriptions.drug_dosage_instructions
                 ,combined_prescriptions.date_added
                 ,combined_prescriptions.date_modified
+                ,combined_prescriptions.medication_adherence_date_asserted
+                ,combined_prescriptions.prescription_drug_size
+                ,combined_prescriptions.quantity
+                ,combined_prescriptions.diagnosis
                 ,patient.puuid
                 ,encounter.euuid
                 ,practitioner.pruuid
@@ -118,7 +123,19 @@ class PrescriptionService extends BaseService
                 ,intervals_list.interval_id
                 ,intervals_list.interval_title
                 ,intervals_list.interval_codes
+                ,intervals_list.interval_notes
 
+                ,combined_prescriptions.medication_adherence
+                ,med_adherence.medication_adherence_title
+                ,med_adherence.medication_adherence_codes
+
+                ,combined_prescriptions.medication_adherence_information_source
+                ,med_adherence_source.medication_adherence_information_source_title
+                ,med_adherence_source.medication_adherence_information_source_codes
+                ,combined_prescriptions.reporting_source_record_id
+                ,reporting_source.reporting_source_uuid
+                ,reporting_source.reporting_source_type
+                ,reporting_source.reporting_source_abook_type
                 FROM (
                       SELECT
                              prescriptions.uuid
@@ -126,36 +143,55 @@ class PrescriptionService extends BaseService
                             ,prescriptions.drug
                             ,prescriptions.active
                             ,prescriptions.end_date
-                            ,'order' AS intent
-                            ,'Order' AS intent_title
-                            ,'community' AS category
-                            ,'Home/Community' as category_title
+                            ,COALESCE(prescriptions.request_intent, 'order') AS intent
+                            ,COALESCE(prescriptions.request_intent_title, 'Order') AS intent_title
+                            ,COALESCE(prescriptions.usage_category, 'community') AS category
+                            ,COALESCE(prescriptions.usage_category_title, 'Home/Community') as category_title
                             ,IF(prescriptions.rxnorm_drugcode!=''
                                 ,prescriptions.rxnorm_drugcode
-                                ,IF(drugs.drug_code IS NULL, '', concat('RXCUI:',drugs.drug_code))
+                                ,IF(drugs.drug_code IS NULL, '', drugs.drug_code)
                             ) AS 'rxnorm_drugcode'
                             ,date_added
                             ,date_modified
                             ,COALESCE(prescriptions.unit,drugs.unit) AS unit
                             ,prescriptions.`interval`
                             ,COALESCE(prescriptions.`route`,drugs.`route`) AS 'route'
+                            ,prescriptions.size AS prescription_drug_size
                             ,prescriptions.`note`
                             ,patient_id
                             ,encounter
                             ,provider_id
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
+                            ,prescriptions.quantity
+                            ,meds.medication_adherence_date_asserted
+                            ,meds.medication_adherence
+                            ,meds.medication_adherence_information_source
                             ,CASE
                                 WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
                                 WHEN prescriptions.active = '1' THEN 'active'
                                 ELSE 'stopped'
                             END as 'status'
-
+                            ,prescriptions.dosage
+                            ,diagnosis
+                            ,meds.is_primary_record
+                            ,meds.reporting_source_record_id
                     FROM
                         prescriptions
                     LEFT JOIN
                         -- @brady.miller so drug_id in my databases appears to always be 0 so I'm not sure I can grab anything here.. I know WENO doesn't populate this value...
                         drugs ON prescriptions.drug_id = drugs.drug_id
+                    LEFT JOIN (
+                        SELECT
+                            id AS meds_id,
+                            medication_adherence_information_source,
+                            medication_adherence,
+                            medication_adherence_date_asserted,
+                            prescription_id AS meds_prescription_id,
+                            is_primary_record,
+                            reporting_source_record_id
+                        FROM lists_medication
+                    ) meds ON prescriptions.id = meds.meds_prescription_id
                     UNION
                     SELECT
                         lists.uuid
@@ -163,27 +199,37 @@ class PrescriptionService extends BaseService
                         ,lists.title AS drug
                         ,activity AS active
                         ,lists.enddate AS end_date
-                        ,lists_medication.request_intent AS intent
-                        ,lists_medication.request_intent_title AS intent_title
+                        ,IF(lists_medication.request_intent IS NULL, 'plan', lists_medication.request_intent) AS intent
+                        ,IF(lists_medication.request_intent_title IS NULL, 'Plan', lists_medication.request_intent_title) AS intent_title
                         ,lists_medication.usage_category AS category
                         ,lists_medication.usage_category_title AS category_title
-                        ,lists.diagnosis AS rxnorm_drugcode
+                        -- we don't have rxnorm codes for free text meds
+                        ,NULL AS rxnorm_drugcode
                         ,`date` AS date_added
                         ,`modifydate` AS date_modified
                         ,NULL as unit
                         ,NULL as 'interval'
                         ,NULL as `route`
+                        ,NULL as `prescription_drug_size`
                         ,lists.comments as 'note'
                         ,pid AS patient_id
                         ,issues_encounter.issues_encounter_encounter as encounter
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
                         ,lists_medication.drug_dosage_instructions
+                        ,NULL as quantity
+                        ,lists_medication.medication_adherence_date_asserted
+                        ,lists_medication.medication_adherence
+                        ,lists_medication.medication_adherence_information_source
                         ,CASE
                                 WHEN lists.enddate IS NOT NULL AND lists.activity = 1 THEN 'completed'
                                 WHEN lists.activity = 1 THEN 'active'
                                 ELSE 'stopped'
                         END as 'status'
+                        ,NULL as dosage
+                        ,diagnosis
+                        ,is_primary_record
+                        ,reporting_source_record_id
                     FROM
                         lists
                     LEFT JOIN
@@ -201,6 +247,7 @@ class PrescriptionService extends BaseService
                     ) issues_encounter ON lists.pid = issues_encounter.issues_encounter_pid AND lists.id = issues_encounter.issues_encounter_list_id
                     WHERE
                         type = 'medication'
+                        AND lists_medication.prescription_id IS NULL
                 ) combined_prescriptions
                 LEFT JOIN
                 (
@@ -217,8 +264,9 @@ class PrescriptionService extends BaseService
                     option_id AS interval_id
                     ,title AS interval_title
                     ,codes AS interval_codes
+                    ,notes AS interval_notes
                   FROM list_options
-                  WHERE list_id='drug_route'
+                  WHERE list_id='drug_interval'
                 ) intervals_list ON intervals_list.interval_id = combined_prescriptions.interval
                 LEFT JOIN
                 (
@@ -227,8 +275,26 @@ class PrescriptionService extends BaseService
                     ,title AS unit_title
                     ,codes AS unit_codes
                   FROM list_options
-                  WHERE list_id='drug_route'
+                  WHERE list_id='drug_units'
                 ) units_list ON units_list.unit_id = combined_prescriptions.unit
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS medication_adherence_id
+                    ,title AS medication_adherence_title
+                    ,codes AS medication_adherence_codes
+                  FROM list_options
+                  WHERE list_id='medication_adherence'
+                ) med_adherence ON med_adherence.medication_adherence_id = combined_prescriptions.medication_adherence
+                LEFT JOIN
+                (
+                  SELECT
+                    option_id AS medication_adherence_information_source_id
+                    ,title AS medication_adherence_information_source_title
+                    ,codes AS medication_adherence_information_source_codes
+                  FROM list_options
+                  WHERE list_id='medication_adherence'
+                ) med_adherence_source ON med_adherence_source.medication_adherence_information_source_id = combined_prescriptions.medication_adherence_information_source
                 LEFT JOIN (
                     select uuid AS puuid
                     ,pid
@@ -249,7 +315,16 @@ class PrescriptionService extends BaseService
                     FROM users
                     WHERE users.npi IS NOT NULL AND users.npi != ''
                 ) practitioner
-                ON practitioner.practitioner_id = combined_prescriptions.provider_id";
+                ON practitioner.practitioner_id = combined_prescriptions.provider_id
+                LEFT JOIN (
+                    SELECT
+                    uuid AS reporting_source_uuid
+                    ,'user' AS reporting_source_type
+                    ,id AS reporting_source_user_id
+                    ,abook_type AS reporting_source_abook_type
+                    FROM users
+                    WHERE npi IS NOT NULL AND npi != ''
+                ) reporting_source ON reporting_source.reporting_source_user_id = combined_prescriptions.reporting_source_record_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
@@ -267,7 +342,7 @@ class PrescriptionService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid'];
+        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid', 'reporting_source_uuid'];
     }
 
     protected function createResultRecordFromDatabaseResult($row)
@@ -285,6 +360,15 @@ class PrescriptionService extends BaseService
                 $updatedCodes[$code] = $codeValues;
             }
             $record['drugcode'] = $updatedCodes;
+        }
+        // TODO: @adunsulag should we change the table definitions to be null?
+        // the title columns historical data was set to be empty, so fixing this
+        if (empty($row['request_intent_title']) && $row['source_table'] == 'prescriptions') {
+            $record['request_intent_title'] = 'Order';
+        }
+        if (empty($row['category_title']) && $record['source_table'] == 'prescriptions') {
+            // fix for missing category title in prescriptions table
+            $record['category_title'] = 'Home/Community';
         }
 
         return $record;

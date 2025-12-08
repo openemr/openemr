@@ -145,6 +145,7 @@ docker pull jodogne/orthanc-plugins
 docker pull openemr/dev-ldap:insane
 docker pull redis
 docker pull ibmcom/ibm-fhir-server
+docker pull axllent/mailpit
 
 ```
 

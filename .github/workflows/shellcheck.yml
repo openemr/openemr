@@ -43,12 +43,17 @@ on:
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-enable
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-install
     - docker/library/dockers/dev-php-fpm/data/docker-php-source
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   shellcheck:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup PHP with cs2pr
       uses: shivammathur/setup-php@v2
       with:
@@ -155,7 +160,7 @@ jobs:
         notices-as-warnings: true
     - name: Upload shellcheck results
       if: ${{ failure() && hashFiles('checkstyle-shellcheck.xml') != '' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: shellcheck-results
         path: checkstyle-shellcheck.xml

@@ -140,6 +140,15 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 
                                             <div class="form-row w-100 my-2">
                                                 <div class="forms col-md-3">
+                                                    <label for="proposed_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Target Date'); ?>:</label>
+                                                    <input type='text'
+                                                        id="proposed_date_<?php echo attr($key) + 1; ?>"
+                                                        name='proposed_date[]'
+                                                        class="form-control end_date datepicker"
+                                                        value='<?php echo attr($obj["proposed_date"] ?? ""); ?>'
+                                                        title='<?php echo xla('yyyy-mm-dd HH:MM Target or Achieve-by date'); ?>' />
+                                                </div>
+                                                <div class="forms col-md-3">
                                                     <label for="end_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('End Date'); ?>:</label>
                                                     <input type='text'
                                                         id="end_date_<?php echo attr($key) + 1; ?>"
@@ -205,6 +214,14 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 
                                         <div class="form-row w-100">
                                             <div class="forms col-md-3">
+                                                <label for="proposed_date_1" class="h5"><?php echo xlt('Target Date'); ?>:</label>
+                                                <input type='text'
+                                                    id="proposed_date_1"
+                                                    name='proposed_date[]'
+                                                    class="form-control proposed_date datepicker"
+                                                    value='<?php echo attr($obj["proposed_date"] ?? ""); ?>'
+                                                    title='<?php echo xla('yyyy-mm-dd Target or Achieve-by date'); ?>' />
+                                            </div>
                                                 <label for="end_date_1" class="h5"><?php echo xlt('End Date'); ?>:</label>
                                                 <input type='text'
                                                     id="end_date_1"

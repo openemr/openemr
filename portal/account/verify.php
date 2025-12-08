@@ -69,7 +69,7 @@ if ($GLOBALS['language_menu_login']) {
         "FROM lang_languages AS ll " . "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
         "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " . "ld.lang_id = ? " .
         "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-    $res3 = SqlStatement($sql, [
+    $res3 = sqlStatement($sql, [
         $mainLangID
     ]);
 

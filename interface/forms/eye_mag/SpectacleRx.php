@@ -83,7 +83,7 @@ $query = "select  *,form_encounter.date as encounter_date
 
     $visit_date = oeFormatShortDate($data['encounter_date']);
 
-if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispense table
+if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
     $query = "show columns from " . $table_name;
     $dispense_fields = sqlStatement($query);
@@ -93,13 +93,7 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
             if (
-                $row['Field'] == 'id' ||
-                $row['Field'] == 'pid' ||
-                $row['Field'] == 'user' ||
-                $row['Field'] == 'groupname' ||
-                $row['Field'] == 'authorized' ||
-                $row['Field'] == 'activity' ||
-                $row['Field'] == 'date'
+                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'date'])
             ) {
                 continue;
             }
@@ -113,7 +107,7 @@ if ($_REQUEST['mode'] ?? '' == "update") {  //store any changed fields in dispen
     }
 
     exit;
-} elseif ($_REQUEST['mode'] ?? '' == "remove") {
+} elseif (($_REQUEST['mode'] ?? '') == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, [$_REQUEST['delete_id']]);
     echo xlt('Prescription successfully removed.');
@@ -255,15 +249,7 @@ if ($_REQUEST['REFTYPE']) {
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
             if (
-                $row['Field'] == 'id' ||
-                $row['Field'] == 'pid' ||
-                $row['Field'] == 'user' ||
-                $row['Field'] == 'groupname' ||
-                $row['Field'] == 'authorized' ||
-                $row['Field'] == 'activity' ||
-                $row['Field'] == 'RXTYPE' ||
-                $row['Field'] == 'REFDATE' ||
-                $row['Field'] == 'date'
+                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'RXTYPE', 'REFDATE', 'date'])
             ) {
                 continue;
             }

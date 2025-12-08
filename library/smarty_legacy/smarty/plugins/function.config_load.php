@@ -26,30 +26,28 @@
  */
 function smarty_function_config_load($params, &$smarty): void
 {
-        if ($smarty->debugging) {
-            $_params = [];
-            require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
-            $_debug_start_time = smarty_core_get_microtime($_params, $smarty);
-        }
+    if ($smarty->debugging) {
+        $_params = [];
+        require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
+        $_debug_start_time = smarty_core_get_microtime($_params, $smarty);
+    }
 
         $_file = isset($params['file']) ? $smarty->_dequote($params['file']) : null;
         $_section = isset($params['section']) ? $smarty->_dequote($params['section']) : null;
         $_scope = isset($params['scope']) ? $smarty->_dequote($params['scope']) : 'global';
         $_global = isset($params['global']) ? $smarty->_dequote($params['global']) : false;
 
-        if (!isset($_file) || strlen($_file) == 0) {
-            $smarty->trigger_error("missing 'file' attribute in config_load tag", E_USER_ERROR, __FILE__, __LINE__);
-        }
+    if (!isset($_file) || strlen($_file) == 0) {
+        $smarty->trigger_error("missing 'file' attribute in config_load tag", E_USER_ERROR, __FILE__, __LINE__);
+    }
 
-        if (isset($_scope)) {
-            if ($_scope != 'local' &&
-                $_scope != 'parent' &&
-                $_scope != 'global') {
-                $smarty->trigger_error("invalid 'scope' attribute value", E_USER_ERROR, __FILE__, __LINE__);
-            }
-        } else {
-            $_scope = $_global ? 'parent' : 'local';
+    if (isset($_scope)) {
+        if (!in_array($_scope, ['local', 'parent', 'global'])) {
+            $smarty->trigger_error("invalid 'scope' attribute value", E_USER_ERROR, __FILE__, __LINE__);
         }
+    } else {
+        $_scope = $_global ? 'parent' : 'local';
+    }
 
         $_params = ['resource_name' => $_file,
                          'resource_base_path' => $smarty->config_dir,

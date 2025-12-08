@@ -28,9 +28,13 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ProcedureService;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
@@ -73,6 +77,29 @@ class FhirServiceRequestService extends FhirServiceBase implements
     const CATEGORY_IMAGING = "363679005"; // Imaging procedure
     const CATEGORY_CLINICAL_TEST = "103693007"; // Diagnostic procedure
     const CATEGORY_PROCEDURE = "387713003"; // Surgical procedure
+
+    const CATEGORY_MAP = [
+            self::ORDER_TYPE_LABORATORY => [
+                'code' => self::CATEGORY_LABORATORY,
+                'description' => 'Laboratory procedure',
+                'system' => self::CATEGORY_SYSTEM_SNOMED
+            ],
+            self::ORDER_TYPE_IMAGING => [
+                'code' => self::CATEGORY_IMAGING,
+                'description' => 'Imaging',
+                'system' => self::CATEGORY_SYSTEM_SNOMED
+            ],
+            self::ORDER_TYPE_CLINICAL_TEST => [
+                'code' => self::CATEGORY_CLINICAL_TEST,
+                'description' => 'Diagnostic procedure',
+                'system' => self::CATEGORY_SYSTEM_SNOMED
+            ],
+            self::ORDER_TYPE_PROCEDURE => [
+                'code' => self::CATEGORY_PROCEDURE,
+                'description' => 'Surgical procedure',
+                'system' => self::CATEGORY_SYSTEM_SNOMED
+            ],
+        ];
 
     /**
      * Code Systems
@@ -124,8 +151,8 @@ class FhirServiceRequestService extends FhirServiceBase implements
     {
         $return = [
             'patient' => $this->getPatientContextSearchField(),
-            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['procedure_order_type', 'procedure_type']),
-            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['procedure_code', 'procedure_name']),
+            'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['procedure_order_type']),
+            'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['procedure_code']),
             'authored' => new FhirSearchParameterDefinition('authored', SearchFieldType::DATETIME, ['date_ordered']),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['order_status', 'order_activity']),
             'intent' => new FhirSearchParameterDefinition('intent', SearchFieldType::TOKEN, ['order_intent']),
@@ -142,9 +169,73 @@ class FhirServiceRequestService extends FhirServiceBase implements
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
+        if (isset($openEMRSearchParameters['procedure_order_type']) && $openEMRSearchParameters['procedure_order_type'] instanceof TokenSearchField) {
+            $codes = $openEMRSearchParameters['procedure_order_type']->getValues();
+            $modifier = $openEMRSearchParameters['procedure_order_type']->getModifier();
+            $newCodeValues = [];
+            foreach ($codes as $code) {
+                foreach (self::CATEGORY_MAP as $orderType => $category) {
+                    if ($code instanceof TokenSearchValue) {
+                        if (
+                            $code->getCode() === $category['code'] &&
+                            ($code->getSystem() == null || $code->getSystem() === $category['system'])
+                        ) {
+                            // we don't pass in system as its a local codetype mapping internally
+                            $newCodeValues[] = new TokenSearchValue($orderType);
+                        }
+                    }
+                }
+            }
+            if (!empty($newCodeValues)) {
+                $openEMRSearchParameters['procedure_order_type'] = new TokenSearchField(
+                    'procedure_order_type',
+                    $newCodeValues
+                );
+                $openEMRSearchParameters['procedure_order_type']->setModifier($modifier);
+            } else {
+                // No matching order types found for category codes, return empty result
+                $processingResult = new ProcessingResult();
+                $processingResult->setData([]);
+                return $processingResult;
+            }
+        }
+
+        // until we figure out a better way to do code searches we need to handle code searches across different codetypes
+        // the procedure_code value can be a LOINC code, SNOMED code, or local code depending on the test/procedure ordered.
+        if (isset($openEMRSearchParameters['procedure_code']) && $openEMRSearchParameters['procedure_code'] instanceof TokenSearchField) {
+            $compositeSearch = new CompositeSearchField('procedure_code', [], false);
+            $codeValues = $openEMRSearchParameters['procedure_code']->getValues();
+            $newCodeValues = [];
+            $stringCodeValues = [];
+            $exactStringCodeValues = [];
+            foreach ($codeValues as $codeValue) {
+                if ($codeValue instanceof TokenSearchValue) {
+                    if (!empty($codeValue->getSystem())) {
+                        $newCodeValues[] = $codeValue;
+                    } else {
+                        $stringCodeValues[] = ":" . $codeValue->getCode();
+                        $exactStringCodeValues[] = $codeValue->getCode();
+                    }
+                }
+            }
+            if (!empty($newCodeValues)) {
+                $compositeSearch->addChild(new TokenSearchField('procedure_code', $newCodeValues));
+            }
+            // note this will only work if we have single code usage of codetype:value multiple code usage
+            // of codetype:value1;codetype:value2 won't work here
+            if (!empty($stringCodeValues)) {
+                $compositeSearch->addChild(new StringSearchField('procedure_code', $stringCodeValues, SearchModifier::SUFFIX));
+                // also add exact match for codes without codetype prefix in case someone is
+                $compositeSearch->addChild(new StringSearchField('procedure_code', $exactStringCodeValues, SearchModifier::EXACT));
+            }
+            if (!empty($compositeSearch->getChildren())) {
+                $openEMRSearchParameters['procedure_code'] = $compositeSearch;
+            }
+        }
         // Query procedure_order with joined procedure_order_code data
         return $this->procedureService->search($openEMRSearchParameters);
     }
@@ -304,26 +395,20 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // Track whether we set occurrence[x]
         $hasOccurrence = false;
 
-        // OccurrenceDateTime - when specimen should be collected or service performed
-        // Use date_collected if available, or scheduled_date
-        if (!empty($dataRecord['date_collected'])) {
-            $serviceRequest->setOccurrenceDateTime(
-                new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['date_collected']))
-            );
-            $hasOccurrence = true;
-        } elseif (!empty($dataRecord['scheduled_date'])) {
-            $serviceRequest->setOccurrenceDateTime(
-                new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_date']))
-            );
-            $hasOccurrence = true;
-        }
-
-        // OccurrencePeriod - for procedures with specific start and end times
-        if (!empty($dataRecord['scheduled_start']) && !empty($dataRecord['scheduled_end'])) {
-            $period = new FHIRPeriod();
-            $period->setStart(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_start'])));
-            $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_end'])));
-            $serviceRequest->setOccurrencePeriod($period);
+        // Occurrence[x] - MUST SUPPORT - when service is to be performed
+        // we go off the scheduled start time, then the scheduled date, then date collected of specimen if we have no other option
+        $serviceStartDate = $dataRecord['scheduled_start'] ?? $dataRecord['scheduled_date'] ?? $dataRecord['date_collected'];
+        if (!empty($serviceStartDate)) {
+            // period takes precedence over dateTime if both start and end are present
+            $occurrenceStart = new FHIRDateTime(UtilsService::getLocalDateAsUTC($serviceStartDate));
+            if (!empty($dataRecord['scheduled_end'])) {
+                $period = new FHIRPeriod();
+                $period->setStart($occurrenceStart);
+                $period->setEnd(new FHIRDateTime(UtilsService::getLocalDateAsUTC($dataRecord['scheduled_end'])));
+                $serviceRequest->setOccurrencePeriod($period);
+            } else {
+                $serviceRequest->setOccurrenceDateTime($occurrenceStart);
+            }
             $hasOccurrence = true;
         }
 
@@ -554,41 +639,12 @@ class FhirServiceRequestService extends FhirServiceBase implements
      */
     private function mapOrderTypeToCategory($procedureOrderType)
     {
-        $categoryMap = [
-            self::ORDER_TYPE_LABORATORY => [
-                'code' => self::CATEGORY_LABORATORY,
-                'display' => 'Laboratory procedure',
-                'system' => self::CATEGORY_SYSTEM_SNOMED
-            ],
-            self::ORDER_TYPE_IMAGING => [
-                'code' => self::CATEGORY_IMAGING,
-                'display' => 'Imaging',
-                'system' => self::CATEGORY_SYSTEM_SNOMED
-            ],
-            self::ORDER_TYPE_CLINICAL_TEST => [
-                'code' => self::CATEGORY_CLINICAL_TEST,
-                'display' => 'Diagnostic procedure',
-                'system' => self::CATEGORY_SYSTEM_SNOMED
-            ],
-            self::ORDER_TYPE_PROCEDURE => [
-                'code' => self::CATEGORY_PROCEDURE,
-                'display' => 'Surgical procedure',
-                'system' => self::CATEGORY_SYSTEM_SNOMED
-            ],
-        ];
-
-        if (!isset($categoryMap[$procedureOrderType])) {
+        if (!isset(self::CATEGORY_MAP[$procedureOrderType])) {
             // Default to diagnostic procedure
-            return UtilsService::createCodeableConcept([
-                self::CATEGORY_CLINICAL_TEST => [
-                    'code' => self::CATEGORY_CLINICAL_TEST,
-                    'display' => 'Diagnostic procedure',
-                    'system' => self::CATEGORY_SYSTEM_SNOMED
-                ]
-            ]);
+            $procedureOrderType = self::ORDER_TYPE_CLINICAL_TEST;
         }
 
-        $category = $categoryMap[$procedureOrderType];
+        $category = self::CATEGORY_MAP[$procedureOrderType];
         return UtilsService::createCodeableConcept([
             $category['code'] => $category
         ]);
@@ -621,17 +677,17 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $performerTypeMap = [
             'laboratory' => [
                 'code' => '159001',
-                'display' => 'Laboratory technician',
+                'description' => 'Laboratory technician',
                 'system' => self::CATEGORY_SYSTEM_SNOMED
             ],
             'radiology' => [
                 'code' => '66862007',
-                'display' => 'Radiologist',
+                'description' => 'Radiologist',
                 'system' => self::CATEGORY_SYSTEM_SNOMED
             ],
             'pathology' => [
                 'code' => '61207006',
-                'display' => 'Pathologist',
+                'description' => 'Pathologist',
                 'system' => self::CATEGORY_SYSTEM_SNOMED
             ],
         ];

@@ -491,15 +491,7 @@ class TelehealthGlobalConfig
 
     private function isOptionalSetting($key)
     {
-        return $key == self::COMLINK_AUTO_PROVISION_PROVIDER
-            || $key == self::VERIFY_SETTINGS_BUTTON
-            || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
-            || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
-            || $key == self::DEBUG_MODE_FLAG
-            || $key == self::COMLINK_SECTION_FOOTER_BOX
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT
-            || $key == self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID; // we don't require the payment subscription id
+        return in_array($key, [self::COMLINK_AUTO_PROVISION_PROVIDER, self::VERIFY_SETTINGS_BUTTON, self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS, self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT, self::DEBUG_MODE_FLAG, self::COMLINK_SECTION_FOOTER_BOX, self::COMLINK_ONETIME_PASSWORD_LOGIN, self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT, self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID]); // we don't require the payment subscription id
     }
 
     /**

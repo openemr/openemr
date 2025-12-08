@@ -37,7 +37,7 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
   'var(--yellow)' : $GLOBALS['layout_search_color'];
 
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
+$SHORT_FORM  = (in_array($GLOBALS['full_new_patient_form'], ['2', '3', '4']));
 
 $grparr = [];
 getLayoutProperties('DEM', $grparr, '*');
@@ -561,9 +561,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         // set flag so we don't bring in session pid data for a new pt form
                         $frow['blank_form'] = false;
                         if (
-                            $frow['data_type'] == "52"
-                            || $frow['data_type'] == "53"
-                            || $frow['data_type'] == "54"
+                            in_array($frow['data_type'], ["52", "53", "54"])
                         ) {
                             $frow['blank_form'] = true;
                         }

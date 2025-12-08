@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +27,11 @@ class SinglePatient311APITest extends TestCase
         // for now this uses the admin user to authenticate
         // TODO: @adunsulag need to implement this using a test practitioner user so we can test the inferno single patient API from a regular provider
         self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        self::teardownG10Test();
     }
 
     #[Test]

@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2023 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -746,6 +746,11 @@ class Claim
     public function billingFacilityNPI()
     {
         return $this->x12Clean(trim((string) $this->billing_facility['facility_npi']));
+    }
+
+    public function billingFacilityTaxonomy()
+    {
+        return $this->x12Clean(trim($this->billing_facility['facility_taxonomy'] ?? ''));
     }
 
     public function federalIdType()
