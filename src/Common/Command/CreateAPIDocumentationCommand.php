@@ -1,8 +1,7 @@
 <?php
 
 /**
- * CreateAPIDocumentation.php
- * @package openemr
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
