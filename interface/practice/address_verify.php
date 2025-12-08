@@ -56,7 +56,7 @@ if (!$verify->isConfigured()) {
 
             foreach ($address as $key => $value) {
                 $inputValue = $inputMap[$key] ?? '';
-                if (strcasecmp($inputValue, $value) !== 0) {
+                if (strcasecmp((string) $inputValue, (string) $value) !== 0) {
                     $output .= "<div class='text-danger'>";
                 } else {
                     $output .= "<div class='text-success'>";

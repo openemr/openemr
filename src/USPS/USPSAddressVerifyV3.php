@@ -22,9 +22,9 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class USPSAddressVerifyV3
 {
-    private Client $client;
-    private string $clientId;
-    private string $clientSecret;
+    private readonly Client $client;
+    private readonly string $clientId;
+    private readonly string $clientSecret;
     private static ?string $token = null;
     private static int $expiresAt = 0;
     private ?array $response = null;
