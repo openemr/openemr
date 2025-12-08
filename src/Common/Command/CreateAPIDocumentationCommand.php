@@ -31,7 +31,8 @@ class CreateAPIDocumentationCommand extends Command
                 new InputDefinition([
                     new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
-            );
+            )
+        ;
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
