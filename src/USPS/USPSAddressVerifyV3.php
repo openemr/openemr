@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Core\OEGlobalsBag;
 
 class USPSAddressVerifyV3
 {
