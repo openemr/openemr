@@ -38,7 +38,13 @@ class CreateAPIDocumentationCommand extends Command
             ->addUsage('--site=default')
             ->setDefinition(
                 new InputDefinition([
-                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
+                    new InputOption(
+                        'site',
+                        null,
+                        InputOption::VALUE_REQUIRED,
+                        'Name of site',
+                        'default'
+                    ),
                 ])
             )
         ;
