@@ -10,6 +10,7 @@
 
 namespace OpenEMR\Common\Command;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,6 +21,15 @@ use Symfony\Component\Yaml\Yaml;
 
 class CreateAPIDocumentationCommand extends Command
 {
+    private readonly string $fileroot;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->fileroot = OEGlobalsBag::getInstance()->getString('fileroot');
+    }
+
     protected function configure(): void
     {
         $this
