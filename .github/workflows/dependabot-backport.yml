@@ -139,6 +139,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
           
           # Detect package ecosystem from labels
+          # Note: docker-compose ecosystem uses the "docker" label per dependabot.yml config
           if echo "$LABEL_NAMES" | grep -q "php"; then
             echo "ecosystem=composer" >> $GITHUB_OUTPUT
           elif echo "$LABEL_NAMES" | grep -q "javascript"; then
