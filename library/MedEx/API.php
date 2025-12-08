@@ -28,7 +28,7 @@ class CurlRequest
     private $postData = [];
     private $cookies = [];
     private $response = '';
-    private GuzzleHttpClient $httpClient;
+    private readonly GuzzleHttpClient $httpClient;
 
     public function __construct(private $sessionFile)
     {
@@ -52,7 +52,7 @@ class CurlRequest
                 $cookieJar->setCookie(new SetCookie([
                     'Name' => $name,
                     'Value' => $value,
-                    'Domain' => parse_url($this->url, PHP_URL_HOST),
+                    'Domain' => parse_url((string) $this->url, PHP_URL_HOST),
                 ]));
             }
         }

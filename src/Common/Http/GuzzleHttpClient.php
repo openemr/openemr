@@ -29,8 +29,8 @@ use GuzzleHttp\Exception\RequestException;
  */
 class GuzzleHttpClient
 {
-    private Client $client;
-    private array $defaultOptions;
+    private readonly Client $client;
+    private readonly array $defaultOptions;
 
     /**
      * Constructor
