@@ -12,9 +12,7 @@ namespace OpenEMR\Common\Command;
 
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -35,18 +33,6 @@ class CreateAPIDocumentationCommand extends Command
         $this
             ->setName('openemr:create-api-documentation')
             ->setDescription("Generates an OpenAPI swagger file that documents the OpenEMR API")
-            ->addUsage('--site=default')
-            ->setDefinition(
-                new InputDefinition([
-                    new InputOption(
-                        'site',
-                        null,
-                        InputOption::VALUE_REQUIRED,
-                        'Name of site',
-                        'default'
-                    ),
-                ])
-            )
         ;
     }
 
@@ -55,7 +41,6 @@ class CreateAPIDocumentationCommand extends Command
         $routesLocation = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "_rest_routes.inc.php";
         $fileDestinationFolder = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
-        $site = $input->getOption('site') ?? 'default';
 
         $finder = new Finder();
         $finder->in($GLOBALS['fileroot'] . '/apis/routes')
