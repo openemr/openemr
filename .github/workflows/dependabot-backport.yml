@@ -1,16 +1,18 @@
 # Automatically backports merged dependabot PRs to target branches
 #
 # This workflow:
-# 1. Triggers when a PR is merged to master
-# 2. Only runs for dependabot PRs
-# 3. Attempts to backport via cherry-pick first
-# 4. Falls back to package manager updates if cherry-pick fails
-# 5. Creates backport PRs with same labels plus 'backport'
-# 6. Creates issues for failed backports
+# 1. Triggers when a PR is merged to master (automatic)
+# 2. Can be manually triggered for any closed dependabot PR (manual)
+# 3. Only runs for dependabot PRs
+# 4. Attempts to backport via cherry-pick first
+# 5. Falls back to package manager updates if cherry-pick fails
+# 6. Creates backport PRs with same labels plus 'backport'
+# 7. Creates issues for failed backports
 #
 # Supported ecosystems: composer (PHP), npm (JavaScript)
 #
 # To add more target branches, add them to the matrix.target_branch array below
+# To manually trigger: Go to Actions tab → Dependabot Backport → Run workflow → Enter PR number
 
 name: Dependabot Backport
 
@@ -19,6 +21,12 @@ on:
     types: [closed]
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to backport (must be a merged dependabot PR)'
+        required: true
+        type: number
 
 permissions:
   contents: write
@@ -27,11 +35,6 @@ permissions:
 
 jobs:
   backport:
-    # Only run if PR was merged and was created by dependabot
-    if: |
-      github.event.pull_request.merged == true &&
-      (github.event.pull_request.user.login == 'dependabot[bot]' ||
-       github.actor == 'dependabot[bot]')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -51,18 +54,88 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Fetch PR information (for workflow_dispatch)
+        id: fetch-pr
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ inputs.pr_number }}"
+          echo "Fetching PR #${PR_NUMBER}..."
+          
+          # Fetch PR data using GitHub CLI
+          PR_DATA=$(gh pr view "$PR_NUMBER" --json number,title,author,labels,mergeCommit,merged,body)
+          
+          # Check if PR was merged
+          IS_MERGED=$(echo "$PR_DATA" | jq -r '.merged')
+          if [[ "$IS_MERGED" != "true" ]]; then
+            echo "::error::PR #${PR_NUMBER} is not merged. Only merged PRs can be backported."
+            exit 1
+          fi
+          
+          # Check if PR is from dependabot
+          AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
+          if [[ "$AUTHOR" != "dependabot[bot]" ]]; then
+            echo "::error::PR #${PR_NUMBER} is not from dependabot (author: ${AUTHOR}). Only dependabot PRs can be backported."
+            exit 1
+          fi
+          
+          echo "pr_data<<EOF" >> $GITHUB_OUTPUT
+          echo "$PR_DATA" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Extract PR information
         id: pr-info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Extract labels from the original PR
-          LABELS='${{ toJSON(github.event.pull_request.labels) }}'
-          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name' | tr '\n' ',' | sed 's/,$//')
-          echo "labels=${LABEL_NAMES},backport" >> $GITHUB_OUTPUT
+          # Determine the source of PR data
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Use fetched PR data for manual trigger
+            PR_DATA='${{ steps.fetch-pr.outputs.pr_data }}'
+            
+            PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
+            PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+            PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
+            MERGE_COMMIT=$(echo "$PR_DATA" | jq -r '.mergeCommit.oid')
+            AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
+            
+            # Extract labels
+            LABEL_NAMES=$(echo "$PR_DATA" | jq -r '.labels[].name' | tr '\n' ',' | sed 's/,$//')
+          else
+            # Use event data for automatic trigger
+            # First check if PR was merged and is from dependabot
+            if [[ "${{ github.event.pull_request.merged }}" != "true" ]]; then
+              echo "::notice::PR was closed but not merged, skipping backport"
+              exit 0
+            fi
+            
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            if [[ "$AUTHOR" != "dependabot[bot]" ]] && [[ "${{ github.actor }}" != "dependabot[bot]" ]]; then
+              echo "::notice::PR is not from dependabot, skipping backport"
+              exit 0
+            fi
+            
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_BODY="${{ github.event.pull_request.body }}"
+            MERGE_COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
+            
+            # Extract labels from the original PR
+            LABELS='${{ toJSON(github.event.pull_request.labels) }}'
+            LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name' | tr '\n' ',' | sed 's/,$//')
+          fi
           
-          # Extract PR details
-          echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-          echo "pr_title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
-          echo "merge_commit=${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_OUTPUT
+          echo "labels=${LABEL_NAMES},backport" >> $GITHUB_OUTPUT
+          echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+          echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
+          echo "merge_commit=${MERGE_COMMIT}" >> $GITHUB_OUTPUT
+          echo "pr_author=${AUTHOR}" >> $GITHUB_OUTPUT
+          
+          # Store PR body for later use (escape for multiline)
+          echo "pr_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$PR_BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           
           # Detect package ecosystem from labels
           if echo "$LABEL_NAMES" | grep -q "php"; then
@@ -209,13 +282,14 @@ jobs:
           cat > /tmp/pr_body.md << EOF
           Automated backport of #${{ steps.pr-info.outputs.pr_number }} to \`${{ matrix.target_branch }}\`.
           
-          **Original PR:** ${{ github.event.pull_request.title }}
+          **Original PR:** ${{ steps.pr-info.outputs.pr_title }}
           **Method:** ${METHOD}
-          **Original Author:** @${{ github.event.pull_request.user.login }}
+          **Original Author:** @${{ steps.pr-info.outputs.pr_author }}
+          ${{ github.event_name == 'workflow_dispatch' && '**Trigger:** Manual workflow dispatch' || '' }}
           
           ---
           
-          ${{ github.event.pull_request.body }}
+          ${{ steps.pr-info.outputs.pr_body }}
           EOF
           
           # Create the PR
@@ -234,12 +308,14 @@ jobs:
           echo "::error::Manual backport may be required"
           
           # Create an issue to track the failed backport
+          PR_URL="https://github.com/${{ github.repository }}/pull/${{ steps.pr-info.outputs.pr_number }}"
           cat > /tmp/issue_body.md << EOF
           ## Failed Automatic Backport
           
           **Original PR:** #${{ steps.pr-info.outputs.pr_number }}
           **Target Branch:** \`${{ matrix.target_branch }}\`
           **PR Title:** ${{ steps.pr-info.outputs.pr_title }}
+          ${{ github.event_name == 'workflow_dispatch' && '**Trigger:** Manual workflow dispatch' || '**Trigger:** Automatic on PR merge' }}
           
           The automated backport process failed for both:
           1. Cherry-pick method
@@ -247,7 +323,7 @@ jobs:
           
           This likely requires manual intervention. Please review and manually backport if needed.
           
-          **Original PR Link:** ${{ github.event.pull_request.html_url }}
+          **Original PR Link:** ${PR_URL}
           EOF
           
           if ! gh issue create \
