@@ -13,7 +13,7 @@ use OpenEMR\Common\Http\GuzzleHttpClient;
 
 class MaviqClient
 {
-    private GuzzleHttpClient $httpClient;
+    private readonly GuzzleHttpClient $httpClient;
 
     public function __construct(protected $SiteId, protected $Token, protected $Endpoint)
     {

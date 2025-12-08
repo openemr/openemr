@@ -32,10 +32,10 @@ class HttpResponse
      * @param string|null $error Error message if any
      */
     public function __construct(
-        private int $statusCode,
-        private string $body,
-        private array $headers = [],
-        private ?string $error = null
+        private readonly int $statusCode,
+        private readonly string $body,
+        private readonly array $headers = [],
+        private readonly ?string $error = null
     ) {
     }
 
