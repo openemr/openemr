@@ -197,4 +197,31 @@ function make_insurance() {
     document.getElementById('radio_type_of_payment1').checked = true;
 }
 
+function getFormObj(formId) {
+    let formObj = {};
+    let inputs = $('#' + formId).serializeArray();
+    $.each(inputs, function (i, input) {
+        formObj[input.name] = input.value;
+    });
+    return formObj;
+}
+
+function formRepopulate(jsondata) {
+    let data = $.parseJSON(jsondata);
+    $.each(data, function (name, val) {
+        let $el = $('[name="' + name + '"]'),
+            type = $el.attr('type');
+        switch (type) {
+            case 'checkbox':
+                $el.prop('checked', true);
+                break;
+            case 'radio':
+                $el.filter('[value="' + val + '"]').prop('checked', true);
+                break;
+            default:
+                $el.val(val);
+        }
+    });
+}
+
 
