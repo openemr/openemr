@@ -39,8 +39,8 @@ class USPSAddressVerifyV3
     {
         $cryptoGen = new CryptoGen();
 
-        $encryptedClientId = $GLOBALS['usps_webtools_client_id'] ?? '';
-        $encryptedClientSecret = $GLOBALS['usps_webtools_client_secret'] ?? '';
+        $encryptedClientId = $GLOBALS['usps_apiv3_client_id'] ?? '';
+        $encryptedClientSecret = $GLOBALS['usps_apiv3_client_secret'] ?? '';
 
         $this->clientId = !empty($encryptedClientId)
             ? $cryptoGen->decryptStandard($encryptedClientId)

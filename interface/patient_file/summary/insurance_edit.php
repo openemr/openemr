@@ -98,7 +98,7 @@ echo $twig->render(
         ,'country_list' => $GLOBALS['country_list']
         // policy_types is defined in patient.inc.php
         ,'policy_types' => $GLOBALS['policy_types']
-        ,'uspsVerifyAddress' => $GLOBALS['usps_webtools_enable']
+        ,'uspsVerifyAddress' => $GLOBALS['usps_apiv3_enable']
         ,'languageDirection' => $GLOBALS['language_direction'] ?? ''
         ,'rightJustifyLabels' => $GLOBALS['right_justify_labels_demographics']
     ]
