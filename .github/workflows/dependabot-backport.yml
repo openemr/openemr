@@ -71,19 +71,25 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Validate workflow_dispatch PR
+      - name: Check if PR was merged (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
         run: |
-          # Parse PR data to validate
+          # Parse PR data to check merge status
           PR_DATA='${{ steps.fetch-pr.outputs.pr_data }}'
           IS_MERGED=$(echo "$PR_DATA" | jq -r '.merged')
-          AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
           
           # Check if PR was merged
           if [[ "$IS_MERGED" != "true" ]]; then
             echo "::error::PR #${{ inputs.pr_number }} is not merged. Only merged PRs can be backported."
             exit 1
           fi
+
+      - name: Check if PR is from dependabot (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          # Parse PR data to check author
+          PR_DATA='${{ steps.fetch-pr.outputs.pr_data }}'
+          AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
           
           # Check if PR is from dependabot
           if [[ "$AUTHOR" != "dependabot[bot]" ]]; then
