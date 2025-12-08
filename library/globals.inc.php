@@ -3690,20 +3690,6 @@ $GLOBALS_METADATA = [
             xl('Easipro Server Password')
         ],
 
-        'usps_webtools_enable' => [
-            xl('Enable USPS Web Tools API'),
-            'bool',                           // data type
-            '0',
-            xl('Enable USPS Web Tools API')
-        ],
-
-        'usps_webtools_username' => [
-            xl('USPS Web Tools API Username'),
-            'text',                           // data type
-            '',
-            xl('USPS Web Tools Username (legacy, deprecated)')
-        ],
-
         'usps_webtools_client_id' => [
             xl('USPS API Client ID'),
             'encrypted',

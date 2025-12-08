@@ -261,14 +261,17 @@ $CPR = 4; // cells per row
             top.restoreSession();
             var f = document.demographics_form;
 
-            dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
-                '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
-                '&city=' + encodeURIComponent(f.form_city.value) +
-                '&state=' + encodeURIComponent(f.form_state.value) +
-                '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0, 5)) +
-                '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5, 9))
-                , '_blank', 400, 150, '', xl('Address Verify'));
+            var params = new URLSearchParams({
+                address1: f.form_street.value,
+                address2: f.form_street_line_2.value,
+                city: f.form_city.value,
+                state: f.form_state.value,
+                zip5: f.form_postal_code.value.substring(0, 5),
+                zip4: f.form_postal_code.value.substring(5, 9)
+            });
 
+            dlgopen('../../practice/address_verify.php?' + params.toString(),
+                '_blank', 400, 150, '', xl('Address Verify'));
             return false;
         }
 
