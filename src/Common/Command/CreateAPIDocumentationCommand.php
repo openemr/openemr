@@ -21,7 +21,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class CreateAPIDocumentationCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('openemr:create-api-documentation')
