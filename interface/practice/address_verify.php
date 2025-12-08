@@ -61,8 +61,8 @@ try {
             // v3 format
             $address_data = $response_array['address'];
             $address_array = [
-                'Address1' => $address_data['secondaryAddress'] ?? '',
-                'Address2' => $address_data['streetAddress'] ?? '',
+                'Address1' => $address_data['streetAddress'] ?? '',
+                'Address2' => $address_data['secondaryAddress'] ?? '',
                 'City' => $address_data['city'] ?? '',
                 'State' => $address_data['state'] ?? '',
                 'Zip5' => $address_data['ZIPCode'] ?? '',

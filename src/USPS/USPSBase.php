@@ -20,6 +20,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use LaLit\Array2XML;
 use LaLit\XML2Array;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 /**
  * USPS Base class
@@ -124,6 +125,14 @@ class USPSBase
    */
     public function __construct(protected $username = '', protected $clientId = '', protected $clientSecret = '')
     {
+        $cryptoGen = new CryptoGen();
+        $this->username = $GLOBALS['usps_username'] ?? '';
+        $this->clientId = !empty($clientId)
+            ? $cryptoGen->decryptStandard($clientId)
+            : '';
+        $this->clientSecret = !empty($clientSecret)
+            ? $cryptoGen->decryptStandard($clientSecret)
+            : '';
         // use v3 if we have client credentials, otherwise legacy
         $this->useV3 = !empty($this->clientId) && !empty($this->clientSecret);
     }
@@ -349,9 +358,9 @@ class USPSBase
     public function isError()
     {
         if ($this->errorCode || $this->errorMessage) {
-          return true;
+            return true;
         }
-        
+
         $headers = $this->getHeaders();
         $response = $this->getArrayResponse();
 

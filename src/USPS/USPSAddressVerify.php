@@ -64,8 +64,8 @@ class USPSAddressVerify extends USPSBase
 
         $addressToParamsMapping = [
             'FirmName' => 'firm',
-            'Address1' => 'secondaryAddress',
-            'Address2' => 'streetAddress',
+            'Address1' => 'streetAddress',
+            'Address2' => 'secondaryAddress',
             'City' => 'city',
             'State' => 'state',
             'Zip5' => 'ZIPCode',
@@ -76,7 +76,7 @@ class USPSAddressVerify extends USPSBase
         $params = [];
 
         foreach ($addressToParamsMapping as $addressKey => $paramsKey) {
-            if (isset($address[$addressKey])) {
+            if (!empty($address[$addressKey])) {
                 $params[$paramsKey] = $address[$addressKey];
             }
         }
