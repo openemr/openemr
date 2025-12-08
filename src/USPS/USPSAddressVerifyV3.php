@@ -70,7 +70,7 @@ class USPSAddressVerifyV3
     /**
      * Get OAuth access token, refreshing if needed
      */
-    private function getToken(): string
+    protected function getToken(): string
     {
         if (time() >= (self::$expiresAt - self::TOKEN_BUFFER_SECONDS)) {
             $this->refreshToken();
@@ -81,7 +81,7 @@ class USPSAddressVerifyV3
     /**
      * Fetch new OAuth token from USPS
      */
-    private function refreshToken(): void
+    protected function refreshToken(): void
     {
         try {
             $response = $this->client->post(self::TOKEN_ENDPOINT, [
@@ -148,14 +148,7 @@ class USPSAddressVerifyV3
         }
 
         try {
-            $response = $this->client->get(self::ADDRESS_ENDPOINT, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->getToken()
-                ],
-                'query' => $query
-            ]);
-
-            $this->response = json_decode($response->getBody()->getContents(), true);
+            $this->response = $this->doRequest($query);
             return true;
         } catch (ClientException $e) {
             $errorBody = $e->getResponse()->getBody()->getContents();
@@ -166,6 +159,21 @@ class USPSAddressVerifyV3
             $this->error = $e->getMessage();
             return false;
         }
+    }
+
+    /**
+    * Perform the address verification request
+    */
+    protected function doRequest(array $query): array
+    {
+        $response = $this->client->get(self::ADDRESS_ENDPOINT, [
+        'headers' => [
+            'Authorization' => 'Bearer ' . $this->getToken()
+        ],
+        'query' => $query
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 
     /**
