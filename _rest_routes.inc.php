@@ -20,6 +20,7 @@
  */
 
 use OpenEMR\RestControllers\Config\RestConfig;
+use OpenApi\Annotations as OA;
 
 /**
  *  @OA\Info(title="OpenEMR API", version="8.0.0")
