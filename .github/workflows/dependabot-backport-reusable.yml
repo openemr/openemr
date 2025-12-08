@@ -1,33 +1,41 @@
-# Automatically backports merged dependabot PRs to target branches
+# Reusable workflow for backporting dependabot PRs to target branches
 #
-# This workflow:
-# 1. Triggers when a PR is merged to master (automatic)
-# 2. Can be manually triggered for any closed dependabot PR (manual)
-# 3. Only runs for dependabot PRs
-# 4. Attempts to backport via cherry-pick first
-# 5. Falls back to package manager updates if cherry-pick fails (composer, npm)
-# 6. Creates backport PRs with same labels plus 'backport'
-# 7. Creates issues for failed backports
-#
-# Supported ecosystems: composer (PHP), npm (JavaScript), github-actions, docker
-# Note: github-actions and docker rely on cherry-pick (no package manager fallback)
-#
-# To add more target branches, add them to the matrix.target_branch array below
-# To manually trigger: Go to Actions tab → Dependabot Backport → Run workflow → Enter PR number
+# This workflow contains the core logic for backporting and can be called by other workflows
+# Generated with assistance from GitHub Copilot
 
-name: Dependabot Backport
+name: Dependabot Backport (Reusable)
 
 on:
-  pull_request_target:
-    types: [closed]
-    branches:
-      - master
-  workflow_dispatch:
+  workflow_call:
     inputs:
       pr_number:
-        description: 'PR number to backport (must be a merged dependabot PR)'
+        description: 'PR number to backport'
         required: true
         type: number
+      pr_title:
+        description: 'PR title'
+        required: true
+        type: string
+      pr_body:
+        description: 'PR body'
+        required: true
+        type: string
+      pr_labels:
+        description: 'PR labels (comma-separated)'
+        required: true
+        type: string
+      pr_author:
+        description: 'PR author login'
+        required: true
+        type: string
+      merge_commit:
+        description: 'Merge commit SHA'
+        required: true
+        type: string
+      target_branch:
+        description: 'Target branch for backport'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -37,11 +45,6 @@ permissions:
 jobs:
   backport:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        target_branch:
-          - rel-704
     
     steps:
       - name: Checkout repository
@@ -55,89 +58,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch PR information (for workflow_dispatch)
-        id: fetch-pr
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PR_NUMBER="${{ inputs.pr_number }}"
-          echo "Fetching PR #${PR_NUMBER}..."
-          
-          # Fetch PR data using GitHub CLI and output to GITHUB_OUTPUT
-          {
-            echo 'pr_data<<EOF'
-            gh pr view "$PR_NUMBER" --json number,title,author,labels,mergeCommit,merged,body
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Check if PR was merged (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch' && fromJSON(steps.fetch-pr.outputs.pr_data).merged != true
-        run: |
-          echo "::error::PR #${{ inputs.pr_number }} is not merged. Only merged PRs can be backported."
-          exit 1
-
-      - name: Check if PR is from dependabot (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch' && fromJSON(steps.fetch-pr.outputs.pr_data).author.login != 'dependabot[bot]'
-        run: |
-          echo "::error::PR #${{ inputs.pr_number }} is not from dependabot (author: ${{ fromJSON(steps.fetch-pr.outputs.pr_data).author.login }}). Only dependabot PRs can be backported."
-          exit 1
-
-      - name: Validate pull_request_target event
-        if: github.event_name == 'pull_request_target'
-        run: |
-          # Check if PR was merged
-          if [[ "${{ github.event.pull_request.merged }}" != "true" ]]; then
-            echo "::notice::PR was closed but not merged, skipping backport"
-            exit 0
-          fi
-          
-          # Check if PR is from dependabot
-          if [[ "${{ github.event.pull_request.user.login }}" != "dependabot[bot]" ]]; then
-            echo "::notice::PR is not from dependabot, skipping backport"
-            exit 0
-          fi
-
-      - name: Extract PR information
+      - name: Detect ecosystem from labels
         id: pr-info
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Determine the source of PR data
-          if [[ "${{ github.event_name }}" = "workflow_dispatch" ]]; then
-            # Use fetched PR data for manual trigger
-            PR_DATA='${{ steps.fetch-pr.outputs.pr_data }}'
-            
-            PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
-            PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
-            PR_BODY=$(echo "$PR_DATA" | jq -r '.body // ""')
-            MERGE_COMMIT=$(echo "$PR_DATA" | jq -r '.mergeCommit.oid')
-            AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
-            
-            # Extract labels using jq
-            LABEL_NAMES=$(jq -cr '.labels | map(.name) | join(",")' <<< "$PR_DATA")
-          else
-            # Use event data for automatic trigger
-            PR_NUMBER="${{ github.event.pull_request.number }}"
-            PR_TITLE="${{ github.event.pull_request.title }}"
-            PR_BODY="${{ github.event.pull_request.body }}"
-            MERGE_COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
-            AUTHOR="${{ github.event.pull_request.user.login }}"
-            
-            # Extract labels using GitHub's toJSON function and jq
-            LABELS='${{ toJSON(github.event.pull_request.labels) }}'
-            LABEL_NAMES=$(jq -cr 'map(.name) | join(",")' <<< "$LABELS")
-          fi
+          LABEL_NAMES="${{ inputs.pr_labels }}"
           
           echo "labels=${LABEL_NAMES},backport" >> $GITHUB_OUTPUT
-          echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-          echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
-          echo "merge_commit=${MERGE_COMMIT}" >> $GITHUB_OUTPUT
-          echo "pr_author=${AUTHOR}" >> $GITHUB_OUTPUT
+          echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+          echo "pr_title=${{ inputs.pr_title }}" >> $GITHUB_OUTPUT
+          echo "merge_commit=${{ inputs.merge_commit }}" >> $GITHUB_OUTPUT
+          echo "pr_author=${{ inputs.pr_author }}" >> $GITHUB_OUTPUT
           
-          # Store PR body for later use (escape for multiline)
+          # Store PR body for later use
           echo "pr_body<<EOF" >> $GITHUB_OUTPUT
-          echo "$PR_BODY" >> $GITHUB_OUTPUT
+          echo "${{ inputs.pr_body }}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           
           # Detect package ecosystem from labels
@@ -163,18 +97,18 @@ jobs:
       - name: Create backport branch
         id: create-branch
         run: |
-          BACKPORT_BRANCH="backport/pr-${{ steps.pr-info.outputs.pr_number }}-to-${{ matrix.target_branch }}"
+          BACKPORT_BRANCH="backport/pr-${{ inputs.pr_number }}-to-${{ inputs.target_branch }}"
           echo "branch_name=${BACKPORT_BRANCH}" >> $GITHUB_OUTPUT
           
           # Checkout the target branch and create backport branch
-          git fetch origin ${{ matrix.target_branch }}
-          git checkout -b ${BACKPORT_BRANCH} origin/${{ matrix.target_branch }}
+          git fetch origin ${{ inputs.target_branch }}
+          git checkout -b ${BACKPORT_BRANCH} origin/${{ inputs.target_branch }}
 
       - name: Attempt cherry-pick
         id: cherry-pick
         continue-on-error: true
         run: |
-          git cherry-pick ${{ steps.pr-info.outputs.merge_commit }}
+          git cherry-pick ${{ inputs.merge_commit }}
           echo "success=true" >> $GITHUB_OUTPUT
 
       - name: Setup PHP (for composer fallback)
@@ -193,7 +127,7 @@ jobs:
           git cherry-pick --abort 2>/dev/null || true
           git reset --hard HEAD
           
-          PR_TITLE="${{ steps.pr-info.outputs.pr_title }}"
+          PR_TITLE="${{ inputs.pr_title }}"
           echo "PR Title: $PR_TITLE"
           echo "Attempting composer update..."
           
@@ -207,7 +141,7 @@ jobs:
             echo "Updating $PACKAGE to $VERSION"
             composer require "$PACKAGE:$VERSION" --no-interaction --no-progress || exit 1
             git add composer.json composer.lock
-            git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ steps.pr-info.outputs.pr_number }})" || exit 1
+            git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ inputs.pr_number }})" || exit 1
             echo "success=true" >> $GITHUB_OUTPUT
           else
             echo "Could not extract package information from PR title: $PR_TITLE"
@@ -229,7 +163,7 @@ jobs:
           git cherry-pick --abort 2>/dev/null || true
           git reset --hard HEAD
           
-          PR_TITLE="${{ steps.pr-info.outputs.pr_title }}"
+          PR_TITLE="${{ inputs.pr_title }}"
           echo "PR Title: $PR_TITLE"
           echo "Attempting npm update..."
           
@@ -258,7 +192,7 @@ jobs:
             fi
             
             git add package.json package-lock.json
-            git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ steps.pr-info.outputs.pr_number }})" || exit 1
+            git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ inputs.pr_number }})" || exit 1
             echo "success=true" >> $GITHUB_OUTPUT
           else
             echo "Could not extract package information from PR title: $PR_TITLE"
@@ -299,12 +233,11 @@ jobs:
           
           # Create PR body
           cat > /tmp/pr_body.md << EOF
-          Automated backport of #${{ steps.pr-info.outputs.pr_number }} to \`${{ matrix.target_branch }}\`.
+          Automated backport of #${{ inputs.pr_number }} to \`${{ inputs.target_branch }}\`.
           
-          **Original PR:** ${{ steps.pr-info.outputs.pr_title }}
+          **Original PR:** ${{ inputs.pr_title }}
           **Method:** ${METHOD}
-          **Original Author:** @${{ steps.pr-info.outputs.pr_author }}
-          ${{ github.event_name == 'workflow_dispatch' && '**Trigger:** Manual workflow dispatch' || '' }}
+          **Original Author:** @${{ inputs.pr_author }}
           
           ---
           
@@ -313,9 +246,9 @@ jobs:
           
           # Create the PR
           gh pr create \
-            --base "${{ matrix.target_branch }}" \
+            --base "${{ inputs.target_branch }}" \
             --head "${{ steps.create-branch.outputs.branch_name }}" \
-            --title "[${{ matrix.target_branch }}] ${{ steps.pr-info.outputs.pr_title }}" \
+            --title "[${{ inputs.target_branch }}] ${{ inputs.pr_title }}" \
             --body-file /tmp/pr_body.md \
             --label "${{ steps.pr-info.outputs.labels }}"
 
@@ -328,19 +261,19 @@ jobs:
            steps.pr-info.outputs.ecosystem == 'docker' ||
            steps.pr-info.outputs.ecosystem == 'unknown')
         run: |
-          echo "::error::Failed to backport PR #${{ steps.pr-info.outputs.pr_number }} to ${{ matrix.target_branch }}"
+          echo "::error::Failed to backport PR #${{ inputs.pr_number }} to ${{ inputs.target_branch }}"
           echo "::error::Cherry-pick failed and package manager update fallback also failed"
           echo "::error::Manual backport may be required"
           
           # Create an issue to track the failed backport
-          PR_URL="https://github.com/${{ github.repository }}/pull/${{ steps.pr-info.outputs.pr_number }}"
+          PR_URL="https://github.com/${{ github.repository }}/pull/${{ inputs.pr_number }}"
           cat > /tmp/issue_body.md << EOF
           ## Failed Automatic Backport
           
-          **Original PR:** #${{ steps.pr-info.outputs.pr_number }}
-          **Target Branch:** \`${{ matrix.target_branch }}\`
-          **PR Title:** ${{ steps.pr-info.outputs.pr_title }}
-          ${{ github.event_name == 'workflow_dispatch' && '**Trigger:** Manual workflow dispatch' || '**Trigger:** Automatic on PR merge' }}
+          **Original PR:** #${{ inputs.pr_number }}
+          **Target Branch:** \`${{ inputs.target_branch }}\`
+          **PR Title:** ${{ inputs.pr_title }}
+          **Trigger:** Automated workflow
           
           The automated backport process failed for both:
           1. Cherry-pick method
@@ -352,7 +285,7 @@ jobs:
           EOF
           
           if ! gh issue create \
-            --title "Failed backport: ${{ steps.pr-info.outputs.pr_title }} to ${{ matrix.target_branch }}" \
+            --title "Failed backport: ${{ inputs.pr_title }} to ${{ inputs.target_branch }}" \
             --body-file /tmp/issue_body.md \
             --label "backport,failed-automation"; then
             echo "::warning::Could not create GitHub issue for failed backport tracking. Please check permissions or rate limits."
