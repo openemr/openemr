@@ -1188,23 +1188,43 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         // get the results from the query
         if (isset($tmp)) {
             unset($tmp);
-<<<<<<< HEAD
-        } $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
-=======
-        } $tmp = array();
-        list($tmp['eid'],          $tmp['uname'],         $tmp['catid'],
-         $tmp['title'],        $tmp['time'],          $tmp['hometext'],
-         $tmp['eventDate'],    $tmp['duration'],      $tmp['endDate'],
-         $tmp['startTime'],    $tmp['recurrtype'],    $tmp['recurrfreq'],
-         $tmp['recurrspec'],   $tmp['topic'],         $tmp['alldayevent'],
-         $tmp['location'],     $tmp['conttel'],       $tmp['contname'],
-         $tmp['contemail'],    $tmp['website'],       $tmp['fee'],
-         $tmp['sharing'],      $tmp['prefcatid'],     $tmp['catcolor'],
-         $tmp['catname'],      $tmp['catdesc'],       $tmp['pid'],
-         $tmp['aid'],          $tmp['provider_name'], $tmp['patient_name'],
-         $tmp['owner_name'],   $tmp['patient_dob'],   $tmp['facility'])   = $result->fields;
->>>>>>> 7851c2cb2 (show time!)
+        }
+        $tmp = [];
+        [
+            $tmp['eid'],
+            $tmp['uname'],
+            $tmp['catid'],
+            $tmp['title'],
+            $tmp['time'],
+            $tmp['hometext'],
+            $tmp['eventDate'],
+            $tmp['duration'],
+            $tmp['endDate'],
+            $tmp['startTime'],
+            $tmp['recurrtype'],
+            $tmp['recurrfreq'],
+            $tmp['recurrspec'],
+            $tmp['topic'],
+            $tmp['alldayevent'],
+            $tmp['location'],
+            $tmp['conttel'],
+            $tmp['contname'],
+            $tmp['contemail'],
+            $tmp['website'],
+            $tmp['fee'],
+            $tmp['sharing'],
+            $tmp['prefcatid'],
+            $tmp['catcolor'],
+            $tmp['catname'],
+            $tmp['catdesc'],
+            $tmp['pid'],
+            $tmp['aid'],
+            $tmp['provider_name'],
+            $tmp['patient_name'],
+            $tmp['owner_name'],
+            $tmp['patient_dob'],
+            $tmp['facility']
+        ] = $result->fields;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1254,10 +1274,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['provider_name'] = $tmp['provider_name'];
         $events[$i]['owner_name']  = $tmp['owner_name'];
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
-<<<<<<< HEAD
         $events[$i]['patient_age'] = date("Y") - substr(((string) $tmp['patient_dob']), 0, 4);
-=======
->>>>>>> 7851c2cb2 (show time!)
         $events[$i]['facility']    = getfacility($tmp['facility']);
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
@@ -1521,8 +1538,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // get the results from the query
         if (isset($tmp)) {
             unset($tmp);
-<<<<<<< HEAD
-        } $tmp = [];
+        }
+        $tmp = [];
         [
             $tmp['eid'],
             $tmp['uname'],
@@ -1566,22 +1583,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['group_type'],
             $tmp['group_status'],
         ] = $result->fields;
-=======
-        } $tmp = array();
-        list($tmp['eid'],          $tmp['uname'],       $tmp['catid'],
-         $tmp['title'],        $tmp['time'],        $tmp['hometext'],
-         $tmp['eventDate'],    $tmp['duration'],    $tmp['endDate'],
-         $tmp['startTime'],    $tmp['recurrtype'],  $tmp['recurrfreq'],
-         $tmp['recurrspec'],   $tmp['topic'],       $tmp['alldayevent'],
-         $tmp['location'],     $tmp['conttel'],     $tmp['contname'],
-         $tmp['contemail'],    $tmp['website'],     $tmp['fee'],
-         $tmp['sharing'],      $tmp['prefcatid'],   $tmp['catcolor'],
-         $tmp['catname'],      $tmp['catdesc'],     $tmp['pid'],
-         $tmp['apptstatus'],   $tmp['aid'],         $tmp['provider_name'],
-         $tmp['patient_name'], $tmp['owner_name'],  $tmp['patient_dob'],
-         $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],
-         $tmp['group_name'],   $tmp['group_type'],  $tmp['group_status']) = $result->fields;
->>>>>>> 7851c2cb2 (show time!)
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1625,7 +1626,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['provider_name'] = $tmp['provider_name'];
         $events[$i]['owner_name']  = $tmp['owner_name'];
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
-        $events[$i]['patient_age'] = getPatientAge($tmp['patient_dob']);
+        $events[$i]['patient_age'] = date("Y") - substr(((string) $tmp['patient_dob']), 0, 4);
         $events[$i]['facility']    = getFacility($tmp['facility']);
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
@@ -2033,18 +2034,3 @@ function calculateEvents($days, $events, $viewtype)
     } // <- end of foreach($events as $event)
     return $days;
 }
-<<<<<<< HEAD
-
-function fillBlocks($td, $ar): void
-{
-    if (strlen((string) $td) > 0 && !isset($ar[$td]['blocks'])) {
-            $ar[$td]['blocks'] = [];
-        for ($j = 0; $j < 48; $j++) {
-            $ar[strval($td)]['blocks'][strval($j)] = [];
-        }
-
-            $ar[strval($td)]['blocks']["all_day"] = [];
-    }
-}
-=======
->>>>>>> 7851c2cb2 (show time!)
