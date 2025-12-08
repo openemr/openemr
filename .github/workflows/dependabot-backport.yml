@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   backport:
@@ -140,7 +141,22 @@ jobs:
             
             if [[ -n "$PACKAGE" && -n "$VERSION" ]]; then
               echo "Updating $PACKAGE to $VERSION"
-              npm install "$PACKAGE@$VERSION" --save-exact || exit 1
+              
+              # Detect if it's a dev dependency by checking package.json
+              if grep -q "\"$PACKAGE\":" package.json; then
+                if jq -e ".devDependencies.\"$PACKAGE\"" package.json > /dev/null 2>&1; then
+                  echo "Installing as dev dependency"
+                  npm install "$PACKAGE@$VERSION" --save-dev --save-exact || exit 1
+                else
+                  echo "Installing as regular dependency"
+                  npm install "$PACKAGE@$VERSION" --save-exact || exit 1
+                fi
+              else
+                # If not found in package.json, try both
+                npm install "$PACKAGE@$VERSION" --save-exact 2>/dev/null || \
+                npm install "$PACKAGE@$VERSION" --save-dev --save-exact || exit 1
+              fi
+              
               git add package.json package-lock.json
               git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ steps.pr-info.outputs.pr_number }})" || exit 1
               echo "success=true" >> $GITHUB_OUTPUT
@@ -172,11 +188,11 @@ jobs:
           fi
           
           # Create PR body
-          cat > /tmp/pr_body.md << 'EOF'
-          Automated backport of #${{ steps.pr-info.outputs.pr_number }} to `${{ matrix.target_branch }}`.
+          cat > /tmp/pr_body.md << EOF
+          Automated backport of #${{ steps.pr-info.outputs.pr_number }} to \`${{ matrix.target_branch }}\`.
           
           **Original PR:** ${{ github.event.pull_request.title }}
-          **Method:** $METHOD
+          **Method:** ${METHOD}
           **Original Author:** @${{ github.event.pull_request.user.login }}
           
           ---
@@ -200,11 +216,11 @@ jobs:
           echo "::error::Manual backport may be required"
           
           # Create an issue to track the failed backport
-          cat > /tmp/issue_body.md << 'EOF'
+          cat > /tmp/issue_body.md << EOF
           ## Failed Automatic Backport
           
           **Original PR:** #${{ steps.pr-info.outputs.pr_number }}
-          **Target Branch:** `${{ matrix.target_branch }}`
+          **Target Branch:** \`${{ matrix.target_branch }}\`
           **PR Title:** ${{ steps.pr-info.outputs.pr_title }}
           
           The automated backport process failed for both:
