@@ -93,8 +93,8 @@ class CreateAPIDocumentationCommand extends Command
             'API file generated at %s',
             $fileDestinationYaml,
         ));
-        $output->writeln("Your API documentation can now be viewed by going to <webroot>/swagger/");
-        $output->writeln("For example on the easy docker installation this would be https://localhost:9300/swagger/");
+        $output->writeln('Your API documentation can now be viewed by going to <webroot>/swagger/');
+        $output->writeln('For example on the easy docker installation this would be https://localhost:9300/swagger/');
 
         return Command::SUCCESS;
     }
