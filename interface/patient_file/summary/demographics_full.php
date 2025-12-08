@@ -605,7 +605,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
-            <?php if ($GLOBALS['usps_apiv3_enable']) { ?>
+            <?php if ($GLOBALS['usps_apiv3_client_id']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>
