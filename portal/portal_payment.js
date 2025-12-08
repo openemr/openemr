@@ -119,4 +119,82 @@ function make_visible() {
     document.getElementById('table_display').width = "505px";
 }
 
+function make_it_hide() {
+    document.getElementById('td_head_rep_doc').style.display = "none";
+    document.getElementById('td_head_description').style.display = "none";
+    document.getElementById('td_head_total_charge').style.display = "";
+    document.getElementById('td_head_insurance_payment').style.display = "";
+    document.getElementById('td_head_patient_payment').style.display = "";
+    document.getElementById('td_head_patient_co_pay').style.display = "";
+    document.getElementById('td_head_co_pay').style.display = "";
+    document.getElementById('td_head_insurance_balance').style.display = "";
+    document.getElementById('td_head_patient_balance').style.display = "";
+    for (var i = 1; ; ++i) {
+        var td_charges_elem = document.getElementById('td_charges_' + i)
+        var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
+        var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
+        var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
+        var td_copay_elem = document.getElementById('td_copay_' + i)
+        var balance_elem = document.getElementById('balance_' + i)
+        var duept_elem = document.getElementById('duept_' + i)
+        if (td_charges_elem) {
+            td_charges_elem.style.display = "";
+            td_inspaid_elem.style.display = "";
+            td_ptpaid_elem.style.display = "";
+            td_patient_copay_elem.style.display = "";
+            td_copay_elem.style.display = "";
+            balance_elem.style.display = "";
+            duept_elem.style.display = "";
+        }
+        else {
+            break;
+        }
+    }
+    document.getElementById('td_total_1').style.display = "";
+    document.getElementById('td_total_2').style.display = "";
+    document.getElementById('td_total_3').style.display = "";
+    document.getElementById('td_total_4').style.display = "";
+    document.getElementById('td_total_5').style.display = "";
+    document.getElementById('td_total_6').style.display = "";
+    document.getElementById('td_total_7').style.display = "";
+    document.getElementById('td_total_8').style.display = "";
+
+    document.getElementById('table_display').width = "100%";
+}
+
+function make_visible_radio() {
+    document.getElementById('tr_radio1').style.display = "";
+    document.getElementById('tr_radio2').style.display = "none";
+}
+
+function make_hide_radio() {
+    document.getElementById('tr_radio1').style.display = "none";
+    document.getElementById('tr_radio2').style.display = "";
+}
+
+function make_visible_row() {
+    document.getElementById('table_display').style.display = "";
+    document.getElementById('table_display_prepayment').style.display = "none";
+}
+
+function make_hide_row() {
+    document.getElementById('table_display').style.display = "none";
+    document.getElementById('table_display_prepayment').style.display = "";
+}
+
+function make_self() {
+    make_visible_row();
+    make_it_hide();
+    make_it_hide_enc_pay();
+    document.getElementById('radio_type_of_payment_self1').checked = true;
+    cursor_pointer();
+}
+
+function make_insurance() {
+    make_visible_row();
+    make_it_hide();
+    cursor_pointer();
+    document.getElementById('radio_type_of_payment1').checked = true;
+}
+
 
