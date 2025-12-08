@@ -527,6 +527,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     </style>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="portal_payment.js"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
