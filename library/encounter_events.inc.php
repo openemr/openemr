@@ -147,8 +147,7 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $visit_cat = $cat ?: '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = generate_id();
     addForm(
         $encounter,
         "New Therapy Group Encounter",
@@ -226,8 +225,7 @@ function todaysEncounter($patient_id, $reason = '')
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $tmprow['facility_id'];
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = generate_id();
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     addForm(
         $encounter,
