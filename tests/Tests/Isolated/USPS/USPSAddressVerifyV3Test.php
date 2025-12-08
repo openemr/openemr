@@ -272,13 +272,9 @@ class TestableUSPSAddressVerifyV3 extends USPSAddressVerifyV3
 {
     private array $mockResponse = [];
     private array $lastQuery = [];
-    private string $testClientId;
-    private string $testClientSecret;
 
-    public function __construct(string $clientId, string $clientSecret)
+    public function __construct(private string $testClientId, private string $testClientSecret)
     {
-        $this->testClientId = $clientId;
-        $this->testClientSecret = $clientSecret;
         // Don't call parent constructor to avoid CryptoGen dependency
     }
 
