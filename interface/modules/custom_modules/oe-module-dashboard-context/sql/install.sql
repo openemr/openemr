@@ -100,39 +100,6 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_role_defaults` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Default contexts per user role';
 #EndIf
 
-#IfNotTable dashboard_context_facility_defaults
--- Facility-based default context settings
-CREATE TABLE IF NOT EXISTS `dashboard_context_facility_defaults` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `facility_id` INT(11) NOT NULL COMMENT 'Reference to facility.id',
-    `context_key` VARCHAR(50) NOT NULL COMMENT 'Default context for this facility',
-    `created_by` INT(11) DEFAULT NULL COMMENT 'Admin who created this default',
-    `updated_by` INT(11) DEFAULT NULL COMMENT 'Admin who last updated',
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_facility_id` (`facility_id`),
-    KEY `idx_context_key` (`context_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Default contexts per facility';
-#EndIf
-
-#IfNotTable dashboard_widget_order
--- Optional: Context-specific widget order for drag-drop reordering
-CREATE TABLE IF NOT EXISTS `dashboard_widget_order` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `user_id` INT(11) NOT NULL,
-    `context_key` VARCHAR(50) NOT NULL,
-    `widget_id` VARCHAR(100) NOT NULL,
-    `sort_order` INT(11) NOT NULL DEFAULT 0,
-    `column_position` TINYINT(1) DEFAULT 0 COMMENT '0=left, 1=right column',
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_user_context_widget` (`user_id`, `context_key`, `widget_id`),
-    KEY `idx_sort_order` (`sort_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Widget display order per user context';
-#EndIf
-
 #IfNotTable dashboard_context_audit_log
 -- Audit log for context changes
 CREATE TABLE IF NOT EXISTS `dashboard_context_audit_log` (
@@ -152,6 +119,39 @@ CREATE TABLE IF NOT EXISTS `dashboard_context_audit_log` (
     KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Audit log for context changes';
 #EndIf
+
+-- #IfNotTable dashboard_context_facility_defaults
+-- Facility-based default context settings
+-- CREATE TABLE IF NOT EXISTS `dashboard_context_facility_defaults` (
+--     `id` INT(11) NOT NULL AUTO_INCREMENT,
+--     `facility_id` INT(11) NOT NULL COMMENT 'Reference to facility.id',
+--     `context_key` VARCHAR(50) NOT NULL COMMENT 'Default context for this facility',
+--     `created_by` INT(11) DEFAULT NULL COMMENT 'Admin who created this default',
+--     `updated_by` INT(11) DEFAULT NULL COMMENT 'Admin who last updated',
+--     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     PRIMARY KEY (`id`),
+--     UNIQUE KEY `idx_facility_id` (`facility_id`),
+--     KEY `idx_context_key` (`context_key`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Default contexts per facility';
+-- #EndIf
+
+-- #IfNotTable dashboard_widget_order
+-- -- Optional: Context-specific widget order for drag-drop reordering
+-- CREATE TABLE IF NOT EXISTS `dashboard_widget_order` (
+--     `id` INT(11) NOT NULL AUTO_INCREMENT,
+--     `user_id` INT(11) NOT NULL,
+--     `context_key` VARCHAR(50) NOT NULL,
+--     `widget_id` VARCHAR(100) NOT NULL,
+--     `sort_order` INT(11) NOT NULL DEFAULT 0,
+--     `column_position` TINYINT(1) DEFAULT 0 COMMENT '0=left, 1=right column',
+--     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     PRIMARY KEY (`id`),
+--     UNIQUE KEY `idx_user_context_widget` (`user_id`, `context_key`, `widget_id`),
+--     KEY `idx_sort_order` (`sort_order`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Widget display order per user context';
+-- #EndIf
 
 -- ============================================================================
 -- UNINSTALL SECTION

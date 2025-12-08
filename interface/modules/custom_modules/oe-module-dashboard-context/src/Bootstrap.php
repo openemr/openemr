@@ -119,7 +119,7 @@ class Bootstrap
         $this->logger->debug("DashboardContext: PageHeadingRenderEvent fired", ['page_id' => $pageId]);
 
         // Only render on demographics/patient dashboard page
-        if (!in_array($pageId, ['demographics', 'patient_dashboard', 'core.mrd', 'unknown', ''])) {
+        if (!in_array($pageId, ['core.mrd'])) {
             $this->logger->debug("DashboardContext: Skipping - page_id not matched", ['page_id' => $pageId]);
             return $event;
         }
