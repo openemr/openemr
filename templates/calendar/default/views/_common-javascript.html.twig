@@ -57,6 +57,21 @@
         top.restoreSession();
         theForm.submit();
     }
+    
+    function GoToTodayLink(){
+        var todays_date = new Date();
+        var theYear = todays_date.getFullYear();
+        var theMonth = todays_date.getMonth() + 1;
+        var theDay = todays_date.getDate();
+        
+        // Pad month and day with leading zeros
+        theMonth = (theMonth < 10 ? "0" : "") + theMonth;
+        theDay = (theDay < 10 ? "0" : "") + theDay;
+        
+        var todayDate = theYear + theMonth + theDay;
+        top.restoreSession();
+        document.location.href='index.php?module=PostCalendar&func=view&Date=' + todayDate;
+    }
     function ShowImage(src)
     {
         var img = document.getElementById('popupImage');

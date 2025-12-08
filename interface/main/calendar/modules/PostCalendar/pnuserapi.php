@@ -1056,6 +1056,22 @@ function postcalendar_userapi_month_view_setup_vars($tpl, $eventsByDate, $Date, 
                     $event['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
                     $event['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
                 }
+                
+                // Add display fields for Twig template
+                $starth = (int) substr($event['startTime'], 0, 2);
+                $startm = (int) substr($event['startTime'], 3, 2);
+                $startDateTime = strtotime($date." ".$event['startTime']);
+                
+                // Format the time specially (matching Smarty template logic)
+                $displayTime = date("g", $startDateTime);
+                if (date("i", $startDateTime) == "00") {
+                    $displayTime .= date("a", $startDateTime);
+                } else {
+                    $displayTime .= date(":ia", $startDateTime);
+                }
+                $event['displayTime'] = $displayTime;
+                $event['eventdate'] = $eventdate;
+                
                 $day['events'][] = $event;
             }
             $week[] = $day;
