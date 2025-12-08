@@ -9,8 +9,8 @@
 # 6. Creates backport PRs with same labels plus 'backport'
 # 7. Creates issues for failed backports
 #
-# Supported ecosystems: composer (PHP), npm (JavaScript), github-actions, docker-compose
-# Note: github-actions and docker-compose rely on cherry-pick (no package manager fallback)
+# Supported ecosystems: composer (PHP), npm (JavaScript), github-actions, docker
+# Note: github-actions and docker rely on cherry-pick (no package manager fallback)
 #
 # To add more target branches, add them to the matrix.target_branch array below
 # To manually trigger: Go to Actions tab → Dependabot Backport → Run workflow → Enter PR number
@@ -259,13 +259,14 @@ jobs:
             
           elif [[ "$ECOSYSTEM" == "github-actions" ]] || [[ "$ECOSYSTEM" == "docker" ]]; then
             echo "Ecosystem $ECOSYSTEM does not support package manager fallback"
-            echo "GitHub Actions and Docker updates are typically simple file changes that should cherry-pick cleanly"
+            echo "GitHub Actions and Docker/Docker-compose updates are typically simple file changes that should cherry-pick cleanly"
             echo "If cherry-pick failed, this likely requires manual intervention"
             exit 1
             
           else
             echo "Ecosystem $ECOSYSTEM is not recognized or not supported for automatic fallback"
-            echo "Supported ecosystems: composer, npm, github-actions, docker"
+            echo "Supported ecosystems with fallback: composer, npm"
+            echo "Supported ecosystems (cherry-pick only): github-actions, docker"
             exit 1
           fi
 
