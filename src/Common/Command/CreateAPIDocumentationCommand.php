@@ -82,11 +82,17 @@ class CreateAPIDocumentationCommand extends Command
         );
 
         if ($resultYaml === false) {
-            $output->writeln("No write access to " . $fileDestinationYaml);
+            $output->writeln(sprintf(
+                'No write access to %s',
+                $fileDestinationYaml,
+            ));
             return Command::FAILURE;
         }
 
-        $output->writeln("API file generated at " . $fileDestinationYaml);
+        $output->writeln(sprintf(
+            'API file generated at %s',
+            $fileDestinationYaml,
+        ));
         $output->writeln("Your API documentation can now be viewed by going to <webroot>/swagger/");
         $output->writeln("For example on the easy docker installation this would be https://localhost:9300/swagger/");
 
