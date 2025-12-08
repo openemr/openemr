@@ -6,6 +6,6 @@
     <a href='#' title='{{ "Search Appointment"|xla }}'
        onclick='top.restoreSession();location="index.php?module=PostCalendar&func=search&twig=1"' class='btn btn-primary'><i class='fa fa-search'></i></a>
     {% if IS_TODAY == false %}
-        <a href='#' name='bnsubmit' value='{{ "Today"|xla }}' onClick='GoToToday(theform);' class='btn btn-primary'>{{ 'Today'|xla }}</a>
+        <a href='#' title='{{ "Today"|xla }}' onclick='GoToTodayLink();' class='btn btn-primary'>{{ 'Today'|xlt }}</a>
     {% endif %}
 </div>

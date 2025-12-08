@@ -96,145 +96,99 @@ of the License, or (at your option) any later version.
                         {% set providerName = "All Providers"|xl %}
                     {% endif %}
                 
-                    {# Table with the month calendar #}
-                    <div class="table-responsive">
-                        <table class='table table-sm table-bordered'>
-                            <thead>
-                                <tr>
-                                    {% if displayProviders|default %}
+                {# Table with the month calendar using calendarsByProvider structure #}
+                {% if calendarsByProvider is defined and calendarsByProvider|length > 0 %}
+                    {% for providerCalendar in calendarsByProvider %}
+                        <div class="table-responsive">
+                            <table class='table table-sm table-bordered'>
+                                <thead>
+                                    <tr>
                                         <th colspan="7" class="providerheader">
-                                            {% if providerName|default is not empty %}
-                                                {{ providerName|text }}
-                                            {% else %}
-                                                {{ "All Providers"|xlt }}
-                                            {% endif %}
+                                            {{ providerCalendar.provider.fname|text }} {{ providerCalendar.provider.lname|text }}
                                         </th>
-                                    {% endif %}
-                                </tr>
-                                <tr>
-                                    {% for dow in DOWlist %}
-                                        <td class="tdDOW-small text-center">{{ A_SHORT_DAY_NAMES[dow]|text }}</td>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% set starttime = Month|date('Y-m-01') %}
-                                {% set enddate = Month|date('Y-m-t') %}
-                                {% set endtime = enddate|date('U') %}
-                                
-                                {# Calculate start date for the calendar grid (previous month days) #}
-                                {% set currdate = starttime %}
-                                {% set dow = currdate|date('w')|number_format %}
-                                {% set firstDOW = DOWlist[0]|number_format %}
-                                {% if dow > firstDOW %}
-                                    {% set daysToSubtract = dow - firstDOW %}
-                                {% else %}
-                                    {% set daysToSubtract = 7 - (firstDOW - dow) %}
-                                    {% if daysToSubtract == 7 %}
-                                        {% set daysToSubtract = 0 %}
-                                    {% endif %}
-                                {% endif %}
-                                {% set currdate = currdate - (daysToSubtract * 86400) %}
-                                
-                                {# Calculate end date for the calendar grid (next month days) #}
-                                {% set lastdate = endtime %}
-                                {% set dow = lastdate|date('w')|number_format %}
-                                {% set lastDOW = DOWlist[6]|number_format %}
-                                {% if dow < lastDOW %}
-                                    {% set daysToAdd = lastDOW - dow %}
-                                {% else %}
-                                    {% set daysToAdd = 7 - (dow - lastDOW) %}
-                                    {% if daysToAdd == 7 %}
-                                        {% set daysToAdd = 0 %}
-                                    {% endif %}
-                                {% endif %}
-                                {% set lastdate = lastdate + (daysToAdd * 86400) %}
-                                
-                                {# Create an array of all dates to display #}
-                                {% set allDates = [] %}
-                                {% set tempDate = currdate %}
-                                {% for i in 0..41 %}
-                                    {% if tempDate <= lastdate %}
-                                        {% set allDates = allDates|merge([tempDate]) %}
-                                        {% set tempDate = tempDate + 86400 %}
-                                    {% endif %}
-                                {% endfor %}
-                                
-                                {# Loop through all days in the calendar grid #}
-                                {% for day in allDates %}
-                                    {% if loop.index0 % 7 == 0 %}
+                                    </tr>
+                                    <tr>
+                                        {% for dow in DOWlist %}
+                                            <td class="tdDOW-small text-center">{{ A_SHORT_DAY_NAMES[dow]|text }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for week in providerCalendar.calendar %}
                                         <tr>
-                                    {% endif %}
-                                    
-                                    {% set dayClass = '' %}
-                                    {% if day|date('m') != Month|date('m') %}
-                                        {% set dayClass = 'prev-month' %}
-                                    {% endif %}
-                                    
-                                    {% if is_weekend_day(day|date('w')) %}
-                                        {% set dayClass = dayClass ~ ' weekend-day' %}
-                                    {% else %}
-                                        {% set dayClass = dayClass ~ ' work-day' %}
-                                    {% endif %}
-                                    
-                                    {% if day|date('Ymd') == Date %}
-                                        {% set dayClass = dayClass ~ ' current-day' %}
-                                    {% endif %}
-                                    
-                                    <td class="calendar-day {{ dayClass }}">
-                                        <div class="calendar-day-header">
-                                            <a href="{{ DAILY_VIEW_URL ~ day|date('Ymd') }}" onclick="top.restoreSession()">
-                                                {{ day|date('d')|text }}
-                                            </a>
-                                        </div>
-                                        <div class="calendar-day-events">
-                                            {% set eventdate = day|date('Y-m-d') %}
-                                            {% if A_EVENTS[eventdate] is defined %}
-                                                {% for event in A_EVENTS[eventdate] %}
-                                                    {% set eventClass = 'month_event' %}
-                                                    {% set pccattype = event.catid is defined ? event.catid : 0 %}
-                                                    
-                                                    {% if event.catid == 1 %}
-                                                        {% set eventClass = eventClass ~ ' event-holiday' %}
-                                                    {% elseif event.catid == 2 %}
-                                                        {% set eventClass = eventClass ~ ' event-reserved' %}
-                                                    {% elseif event.catid == 3 %}
-                                                        {% set eventClass = eventClass ~ ' event-appointment' %}
-                                                    {% elseif event.catid == 4 %}
-                                                        {% set eventClass = eventClass ~ ' event-noshow' %}
-                                                    {% elseif event.catid == 5 %}
-                                                        {% set eventClass = eventClass ~ ' event-cancelled' %}
-                                                    {% elseif event.catid == 6 %}
-                                                        {% set eventClass = eventClass ~ ' event-tentative' %}
-                                                    {% elseif event.catid == 8 %}
-                                                        {% set eventClass = eventClass ~ ' event-complete' %}
-                                                    {% elseif event.catid == 9 %}
-                                                        {% set eventClass = eventClass ~ ' event-reminder' %}
-                                                    {% elseif event.catid == 10 %}
-                                                        {% set eventClass = eventClass ~ ' event-noappointment' %}
-                                                    {% endif %}
-                                                    
-                                                    <div data-eid="{{ event.eid|attr }}" 
-                                                         class="{{ eventClass }}" 
-                                                         style="background-color:{{ event.catcolor|attr }};" 
-                                                         title="{{ event.title|attr }}" 
-                                                         id="{{ day|date('Ymd') }}-{{ event.eid|attr }}-{{ pccattype|attr }}">
-                                                        <a href="{{ PC_BASE_URL }}/index.php?module=PostCalendar&func=view&viewtype=details&eid={{ event.eid }}&Date={{ day|date('Ymd') }}" onclick="top.restoreSession()">
-                                                            {{ event.title|text }}
-                                                        </a>
+                                            {% for day in week %}
+                                                <td class="calendar-day schedule {{ day.class }}">
+                                                    <div class="calendar_day">
+                                                        <div class="month_daylink">
+                                                            <a href="{{ day.url }}" title="{{ day.title|attr }}" onclick="top.restoreSession()">
+                                                                {{ day.text|text }}
+                                                            </a>
+                                                        </div>
+                                                        <div class="calendar-day-events">
+                                                            {% if day.events|length > 0 %}
+                                                                {% for event in day.events %}
+                                                                    {% set eventClass = 'month_event' %}
+                                                                    {% set pccattype = event.catid is defined ? event.catid : 0 %}
+                                                                    
+                                                                    {# Determine event class based on category #}
+                                                                    {% if event.catid == 1 %}
+                                                                        {% set eventClass = 'month_event event_noshow' %}
+                                                                    {% elseif event.catid == 2 %}
+                                                                        {% set eventClass = 'month_event event_in' %}
+                                                                    {% elseif event.catid == 3 %}
+                                                                        {% set eventClass = 'month_event event_out' %}
+                                                                    {% elseif event.catid == 4 %}
+                                                                        {% set eventClass = 'month_event event_reserved' %}
+                                                                    {% elseif event.catid == 6 %}
+                                                                        {% set eventClass = 'month_event event_holiday hiddenevent' %}
+                                                                    {% elseif event.catid == 8 %}
+                                                                        {% set eventClass = 'month_event event_reserved' %}
+                                                                    {% elseif event.catid == 11 %}
+                                                                        {% set eventClass = 'month_event event_reserved' %}
+                                                                    {% else %}
+                                                                        {% set eventClass = 'month_event event_appointment' %}
+                                                                    {% endif %}
+                                                                    
+                                                                    {# Allow eventViewClass to override if present #}
+                                                                    {% if event.eventViewClass is defined %}
+                                                                        {% set eventClass = event.eventViewClass %}
+                                                                    {% endif %}
+                                                                    
+                                                                    {% set eventid = event.eid|default('') %}
+                                                                    {% set patientid = event.pid|default('') %}
+                                                                    {% set catid = event.catid|default('') %}
+                                                                    
+                                                                    {# Build event display matching Smarty template style #}
+                                                                    <div data-eid="{{ eventid|attr }}" 
+                                                                         class="{{ eventClass }}" 
+                                                                         style="background-color:{{ event.catcolor|attr }};" 
+                                                                         title="{{ event.title|attr }}" 
+                                                                         id="{{ event.eventdate|default('')|attr }}-{{ eventid|attr }}-{{ pccattype|attr }}">
+                                                                        {{ event.displayTime|default('')|text }}
+                                                                        {% if event.patient_name is defined and event.patient_name %}
+                                                                            {{ event.patient_name|text }}
+                                                                        {% elseif event.group_name is defined and event.group_name %}
+                                                                            {{ event.group_name|text }}
+                                                                        {% else %}
+                                                                            {{ event.catname|default('')|text }}
+                                                                        {% endif %}
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    
-                                    {% if loop.index % 7 == 0 %}
+                                                </td>
+                                            {% endfor %}
                                         </tr>
-                                    {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {# Fallback if calendarsByProvider is not available #}
+                    <div class="alert alert-info">{{ "No calendar data available"|xlt }}</div>
+                {% endif %}
                 </div>
             </div>
         </div>

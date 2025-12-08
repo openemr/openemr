@@ -2,9 +2,9 @@
 {% include 'calendar/default/views/header.html.twig' %}
 
 {# we want to include our stylesheet for this view #}
-<link rel="stylesheet" href="{{ webroot }}{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
-<script src="{{ webroot }}{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script src="{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- main navigation -->
 {# Load the Language Definitions #}
@@ -12,14 +12,14 @@
 
 <div class="container mt-3">
     <div class="row">
+        <div class="col-12 mb-3">
+            <a href='index.php?module=PostCalendar&func=view' class='btn btn-secondary' onclick='top.restoreSession()'>
+            <i class="fa fa-arrow-left mr-1"></i> {{ "Return to Calendar"|xlt }}</a>
+        </div>
         <div class="col-12">
             <h2>{{ "Searching for appointments"|xlt }}</h2>
         </div>
         <div class="col-12">
-            <!-- search parameters -->
-            &nbsp;
-            <a href='{{ webroot }}/interface/main/main_info.php' class='menu text-decoration-none' onclick='top.restoreSession()'>
-            {{ "Return to calendar"|xlt }}</a>
                 <form name="theform" id="theform" action="{{ FORM_ACTION }}" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                     <!-- Keywords -->
                     <div class="form-group">
@@ -162,8 +162,9 @@ $(function () {
     {% set datetimepicker_showseconds = false %}
     {% set datetimepicker_formatInput = false %}
     $('.datepicker').datetimepicker({
-        {{ datetimepickerJsConfig|raw }}
-        ,format: 'm/d/Y'
+        format: 'm/d/Y',
+        timepicker: false,
+        scrollInput: false
     });
 });
 
