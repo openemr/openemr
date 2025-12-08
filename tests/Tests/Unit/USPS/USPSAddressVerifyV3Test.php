@@ -1,0 +1,375 @@
+<?php
+
+/**
+ * USPS API v3 Unit Tests
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    stephen waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2025 stephen waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Tests\Unit\USPS;
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Request;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\USPS\USPSAddressVerifyV3;
+use PHPUnit\Framework\TestCase;
+
+class USPSAddressVerifyV3Test extends TestCase
+{
+    private function createMockVerifier(array $responses): USPSAddressVerifyV3
+    {
+        $mock = new MockHandler($responses);
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        // Create verifier with mocked client via reflection
+        $verifier = $this->getMockBuilder(USPSAddressVerifyV3::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $reflection = new \ReflectionClass($verifier);
+
+        $clientProp = $reflection->getProperty('client');
+        $clientProp->setValue($verifier, $client);
+
+        $clientIdProp = $reflection->getProperty('clientId');
+        $clientIdProp->setValue($verifier, 'test_client_id');
+
+        $clientSecretProp = $reflection->getProperty('clientSecret');
+        $clientSecretProp->setValue($verifier, 'test_client_secret');
+
+        return $verifier;
+    }
+
+    private function createTokenResponse(): Response
+    {
+        return new Response(200, [], json_encode([
+            'access_token' => 'test_token_12345',
+            'token_type' => 'Bearer',
+            'expires_in' => '28800',
+            'status' => 'approved'
+        ]));
+    }
+
+    private function createAddressResponse(): Response
+    {
+        return new Response(200, [], json_encode([
+            'address' => [
+                'streetAddress' => '6406 IVY LN',
+                'secondaryAddress' => '',
+                'city' => 'GREENBELT',
+                'state' => 'MD',
+                'ZIPCode' => '20770',
+                'ZIPPlus4' => '1441'
+            ]
+        ]));
+    }
+
+    public function testIsConfiguredReturnsFalseWhenCredentialsMissing(): void
+    {
+        $verifier = $this->getMockBuilder(USPSAddressVerifyV3::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $reflection = new \ReflectionClass($verifier);
+
+        $clientIdProp = $reflection->getProperty('clientId');
+        $clientIdProp->setValue($verifier, '');
+
+        $clientSecretProp = $reflection->getProperty('clientSecret');
+        $clientSecretProp->setValue($verifier, '');
+
+        $this->assertFalse($verifier->isConfigured());
+    }
+
+    public function testIsConfiguredReturnsTrueWhenCredentialsPresent(): void
+    {
+        $verifier = $this->createMockVerifier([]);
+
+        $this->assertTrue($verifier->isConfigured());
+    }
+
+    public function testVerifyReturnsFalseWhenNotConfigured(): void
+    {
+        $verifier = $this->getMockBuilder(USPSAddressVerifyV3::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $reflection = new \ReflectionClass($verifier);
+
+        $clientIdProp = $reflection->getProperty('clientId');
+        $clientIdProp->setValue($verifier, '');
+
+        $clientSecretProp = $reflection->getProperty('clientSecret');
+        $clientSecretProp->setValue($verifier, '');
+
+        $result = $verifier->verify('123 Main St', '', 'Springfield', 'IL', '62701');
+
+        $this->assertFalse($result);
+        $this->assertTrue($verifier->isError());
+        $this->assertEquals('USPS API v3 credentials not configured', $verifier->getErrorMessage());
+    }
+
+    public function testSuccessfulAddressVerification(): void
+    {
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $this->createAddressResponse()
+        ]);
+
+        $result = $verifier->verify(
+            '6406 Ivy Lane',
+            '',
+            'Greenbelt',
+            'MD',
+            '20770'
+        );
+
+        $this->assertTrue($result);
+        $this->assertTrue($verifier->isSuccess());
+        $this->assertFalse($verifier->isError());
+        $this->assertNull($verifier->getErrorMessage());
+    }
+
+    public function testGetAddressReturnsCorrectFormat(): void
+    {
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $this->createAddressResponse()
+        ]);
+
+        $verifier->verify('6406 Ivy Lane', '', 'Greenbelt', 'MD', '20770');
+        $address = $verifier->getAddress();
+
+        $this->assertIsArray($address);
+        $this->assertEquals('6406 IVY LN', $address['streetAddress']);
+        $this->assertEquals('', $address['secondaryAddress']);
+        $this->assertEquals('GREENBELT', $address['city']);
+        $this->assertEquals('MD', $address['state']);
+        $this->assertEquals('20770', $address['ZIPCode']);
+        $this->assertEquals('1441', $address['ZIPPlus4']);
+    }
+
+    public function testGetAddressReturnsNullOnError(): void
+    {
+        $verifier = $this->getMockBuilder(USPSAddressVerifyV3::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $reflection = new \ReflectionClass($verifier);
+
+        $clientIdProp = $reflection->getProperty('clientId');
+        $clientIdProp->setValue($verifier, '');
+
+        $clientSecretProp = $reflection->getProperty('clientSecret');
+        $clientSecretProp->setValue($verifier, '');
+
+        $verifier->verify('123 Main St', '', 'City', 'ST', '12345');
+
+        $this->assertNull($verifier->getAddress());
+    }
+
+    public function testTokenCaching(): void
+    {
+        // First call gets token, second call reuses it
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $this->createAddressResponse(),
+            $this->createAddressResponse() // No second token request
+        ]);
+
+        // First verify - fetches token
+        $verifier->verify('123 Main St', '', 'City', 'ST', '12345');
+
+        // Second verify - should reuse token (only 3 responses queued, not 4)
+        $result = $verifier->verify('456 Oak Ave', '', 'Town', 'ST', '54321');
+
+        $this->assertTrue($result);
+    }
+
+    public function testHandles400Error(): void
+    {
+        $errorResponse = new Response(400, [], json_encode([
+            'apiVersion' => '/addresses/v3/',
+            'error' => [
+                'code' => '400',
+                'message' => 'Invalid address format',
+                'errors' => []
+            ]
+        ]));
+
+        $mock = new MockHandler([
+            $this->createTokenResponse(),
+            new ClientException(
+                'Bad Request',
+                new Request('GET', 'addresses/v3/address'),
+                $errorResponse
+            )
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $verifier = $this->getMockBuilder(USPSAddressVerifyV3::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $reflection = new \ReflectionClass($verifier);
+
+        $clientProp = $reflection->getProperty('client');
+        $clientProp->setValue($verifier, $client);
+
+        $clientIdProp = $reflection->getProperty('clientId');
+        $clientIdProp->setValue($verifier, 'test_client_id');
+
+        $clientSecretProp = $reflection->getProperty('clientSecret');
+        $clientSecretProp->setValue($verifier, 'test_client_secret');
+
+        $result = $verifier->verify('Bad Address', '', '', '', '');
+
+        $this->assertFalse($result);
+        $this->assertTrue($verifier->isError());
+        $this->assertStringContainsString('Invalid address format', $verifier->getErrorMessage());
+    }
+
+    public function testHandles401TokenError(): void
+    {
+        $errorResponse = new Response(401, [], json_encode([
+            'error' => 'invalid_client',
+            'error_description' => 'Invalid client credentials'
+        ]));
+
+        $mock = new MockHandler([
+            new ClientException(
+                'Unauthorized',
+                new Request('POST', 'oauth2/v3/token'),
+                $errorResponse
+            )
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handlerStack]);
+
+        $verifier = $this->getMockBuilder(USPSAddressVerifyV3::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $reflection = new \ReflectionClass($verifier);
+
+        $clientProp = $reflection->getProperty('client');
+        $clientProp->setValue($verifier, $client);
+
+        $clientIdProp = $reflection->getProperty('clientId');
+        $clientIdProp->setValue($verifier, 'bad_client_id');
+
+        $clientSecretProp = $reflection->getProperty('clientSecret');
+        $clientSecretProp->setValue($verifier, 'bad_client_secret');
+
+        // Reset static token state
+        $tokenProp = $reflection->getProperty('token');
+        $tokenProp->setValue(null, null);
+
+        $expiresProp = $reflection->getProperty('expiresAt');
+        $expiresProp->setValue(null, 0);
+
+        $this->expectException(\GuzzleHttp\Exception\GuzzleException::class);
+        $verifier->verify('123 Main St', '', 'City', 'ST', '12345');
+    }
+
+    public function testZipPlus4ValidationSkipsInvalidFormat(): void
+    {
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $this->createAddressResponse()
+        ]);
+
+        // Invalid zip4 should be stripped, not cause error
+        $result = $verifier->verify(
+            '6406 Ivy Lane',
+            '',
+            'Greenbelt',
+            'MD',
+            '20770',
+            'invalid' // not 4 digits
+        );
+
+        $this->assertTrue($result);
+    }
+
+    public function testZipPlus4AcceptsValidFormat(): void
+    {
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $this->createAddressResponse()
+        ]);
+
+        $result = $verifier->verify(
+            '6406 Ivy Lane',
+            '',
+            'Greenbelt',
+            'MD',
+            '20770',
+            '1441' // valid 4 digits
+        );
+
+        $this->assertTrue($result);
+    }
+
+    public function testGetRawResponse(): void
+    {
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $this->createAddressResponse()
+        ]);
+
+        $verifier->verify('6406 Ivy Lane', '', 'Greenbelt', 'MD', '20770');
+        $raw = $verifier->getRawResponse();
+
+        $this->assertIsArray($raw);
+        $this->assertArrayHasKey('address', $raw);
+    }
+
+    public function testSecondaryAddressMapping(): void
+    {
+        $responseWithSecondary = new Response(200, [], json_encode([
+            'address' => [
+                'streetAddress' => '1600 PENNSYLVANIA AVE NW',
+                'secondaryAddress' => 'APT 1',
+                'city' => 'WASHINGTON',
+                'state' => 'DC',
+                'ZIPCode' => '20500',
+                'ZIPPlus4' => '0005'
+            ]
+        ]));
+
+        $verifier = $this->createMockVerifier([
+            $this->createTokenResponse(),
+            $responseWithSecondary
+        ]);
+
+        $verifier->verify(
+            '1600 Pennsylvania Ave NW',
+            'Apt 1',
+            'Washington',
+            'DC',
+            '20500'
+        );
+
+        $address = $verifier->getAddress();
+        $this->assertEquals('APT 1', $address['secondaryAddress']);
+    }
+}
