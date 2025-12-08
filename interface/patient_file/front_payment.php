@@ -34,16 +34,17 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+$twig = new TwigContainer(null, $GLOBALS['kernel'])->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
+        echo ($twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
         exit;
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        echo ($twig->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
         exit;
     }
 }
