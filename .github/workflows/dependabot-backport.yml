@@ -1,3 +1,17 @@
+# Automatically backports merged dependabot PRs to target branches
+#
+# This workflow:
+# 1. Triggers when a PR is merged to master
+# 2. Only runs for dependabot PRs
+# 3. Attempts to backport via cherry-pick first
+# 4. Falls back to package manager updates if cherry-pick fails
+# 5. Creates backport PRs with same labels plus 'backport'
+# 6. Creates issues for failed backports
+#
+# Supported ecosystems: composer (PHP), npm (JavaScript)
+#
+# To add more target branches, add them to the matrix.target_branch array below
+
 name: Dependabot Backport
 
 on:
