@@ -1,0 +1,226 @@
+name: Dependabot Backport
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  backport:
+    # Only run if PR was merged and was created by dependabot
+    if: |
+      github.event.pull_request.merged == true &&
+      (github.event.pull_request.user.login == 'dependabot[bot]' ||
+       github.actor == 'dependabot[bot]')
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target_branch:
+          - rel-704
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract PR information
+        id: pr-info
+        run: |
+          # Extract labels from the original PR
+          LABELS='${{ toJSON(github.event.pull_request.labels) }}'
+          LABEL_NAMES=$(echo "$LABELS" | jq -r '.[].name' | tr '\n' ',' | sed 's/,$//')
+          echo "labels=${LABEL_NAMES},backport" >> $GITHUB_OUTPUT
+          
+          # Extract PR details
+          echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "pr_title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+          echo "merge_commit=${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_OUTPUT
+          
+          # Detect package ecosystem from labels
+          if echo "$LABEL_NAMES" | grep -q "php"; then
+            echo "ecosystem=composer" >> $GITHUB_OUTPUT
+          elif echo "$LABEL_NAMES" | grep -q "javascript"; then
+            echo "ecosystem=npm" >> $GITHUB_OUTPUT
+          elif echo "$LABEL_NAMES" | grep -q "github-actions"; then
+            echo "ecosystem=github-actions" >> $GITHUB_OUTPUT
+          elif echo "$LABEL_NAMES" | grep -q "docker"; then
+            echo "ecosystem=docker" >> $GITHUB_OUTPUT
+          else
+            echo "ecosystem=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create backport branch
+        id: create-branch
+        run: |
+          BACKPORT_BRANCH="backport/pr-${{ steps.pr-info.outputs.pr_number }}-to-${{ matrix.target_branch }}"
+          echo "branch_name=${BACKPORT_BRANCH}" >> $GITHUB_OUTPUT
+          
+          # Checkout the target branch and create backport branch
+          git fetch origin ${{ matrix.target_branch }}
+          git checkout -b ${BACKPORT_BRANCH} origin/${{ matrix.target_branch }}
+
+      - name: Attempt cherry-pick
+        id: cherry-pick
+        continue-on-error: true
+        run: |
+          git cherry-pick ${{ steps.pr-info.outputs.merge_commit }}
+          echo "success=true" >> $GITHUB_OUTPUT
+
+      - name: Setup PHP (if needed for fallback)
+        if: steps.cherry-pick.outcome == 'failure' && steps.pr-info.outputs.ecosystem == 'composer'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Setup Node.js (if needed for fallback)
+        if: steps.cherry-pick.outcome == 'failure' && steps.pr-info.outputs.ecosystem == 'npm'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Fallback - Apply update via package manager
+        id: package-manager-update
+        if: steps.cherry-pick.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          # Reset the failed cherry-pick
+          git cherry-pick --abort 2>/dev/null || true
+          git reset --hard HEAD
+          
+          # Extract package and version information from the PR title
+          PR_TITLE="${{ steps.pr-info.outputs.pr_title }}"
+          ECOSYSTEM="${{ steps.pr-info.outputs.ecosystem }}"
+          
+          echo "PR Title: $PR_TITLE"
+          echo "Ecosystem: $ECOSYSTEM"
+          
+          # Try to extract package updates from the dependabot PR
+          # Dependabot PR titles follow patterns like:
+          # "chore(deps): bump package-name from x.y.z to a.b.c"
+          # "chore(deps): bump package-name from x.y.z to a.b.c in /directory"
+          
+          if [[ "$ECOSYSTEM" == "composer" ]]; then
+            echo "Attempting composer update..."
+            
+            # Extract package name - handle various patterns
+            PACKAGE=$(echo "$PR_TITLE" | grep -oP 'bump \K[^ ]+(?= from)' || echo "")
+            VERSION=$(echo "$PR_TITLE" | grep -oP 'to \K[0-9]+\.[0-9]+\.[0-9]+[^ ]*' || echo "")
+            
+            if [[ -n "$PACKAGE" && -n "$VERSION" ]]; then
+              echo "Updating $PACKAGE to $VERSION"
+              composer require "$PACKAGE:$VERSION" --no-interaction --no-progress || exit 1
+              git add composer.json composer.lock
+              git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ steps.pr-info.outputs.pr_number }})" || exit 1
+              echo "success=true" >> $GITHUB_OUTPUT
+            else
+              echo "Could not extract package information from PR title"
+              exit 1
+            fi
+            
+          elif [[ "$ECOSYSTEM" == "npm" ]]; then
+            echo "Attempting npm update..."
+            
+            # Extract package name and version
+            PACKAGE=$(echo "$PR_TITLE" | grep -oP 'bump \K[^ ]+(?= from)' || echo "")
+            VERSION=$(echo "$PR_TITLE" | grep -oP 'to \K[0-9]+\.[0-9]+\.[0-9]+[^ ]*' || echo "")
+            
+            if [[ -n "$PACKAGE" && -n "$VERSION" ]]; then
+              echo "Updating $PACKAGE to $VERSION"
+              npm install "$PACKAGE@$VERSION" --save-exact || exit 1
+              git add package.json package-lock.json
+              git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ steps.pr-info.outputs.pr_number }})" || exit 1
+              echo "success=true" >> $GITHUB_OUTPUT
+            else
+              echo "Could not extract package information from PR title"
+              exit 1
+            fi
+            
+          else
+            echo "Ecosystem $ECOSYSTEM not supported for automatic fallback"
+            exit 1
+          fi
+
+      - name: Push backport branch
+        if: steps.cherry-pick.outcome == 'success' || steps.package-manager-update.outcome == 'success'
+        run: |
+          git push origin ${{ steps.create-branch.outputs.branch_name }}
+
+      - name: Create backport PR
+        if: steps.cherry-pick.outcome == 'success' || steps.package-manager-update.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Determine the method used
+          if [[ "${{ steps.cherry-pick.outcome }}" == "success" ]]; then
+            METHOD="cherry-pick"
+          else
+            METHOD="package manager update"
+          fi
+          
+          # Create PR body
+          cat > /tmp/pr_body.md << 'EOF'
+          Automated backport of #${{ steps.pr-info.outputs.pr_number }} to `${{ matrix.target_branch }}`.
+          
+          **Original PR:** ${{ github.event.pull_request.title }}
+          **Method:** $METHOD
+          **Original Author:** @${{ github.event.pull_request.user.login }}
+          
+          ---
+          
+          ${{ github.event.pull_request.body }}
+          EOF
+          
+          # Create the PR
+          gh pr create \
+            --base "${{ matrix.target_branch }}" \
+            --head "${{ steps.create-branch.outputs.branch_name }}" \
+            --title "[${{ matrix.target_branch }}] ${{ steps.pr-info.outputs.pr_title }}" \
+            --body-file /tmp/pr_body.md \
+            --label "${{ steps.pr-info.outputs.labels }}"
+
+      - name: Report failure
+        if: steps.cherry-pick.outcome == 'failure' && steps.package-manager-update.outcome == 'failure'
+        run: |
+          echo "::error::Failed to backport PR #${{ steps.pr-info.outputs.pr_number }} to ${{ matrix.target_branch }}"
+          echo "::error::Cherry-pick failed and package manager update fallback also failed"
+          echo "::error::Manual backport may be required"
+          
+          # Create an issue to track the failed backport
+          cat > /tmp/issue_body.md << 'EOF'
+          ## Failed Automatic Backport
+          
+          **Original PR:** #${{ steps.pr-info.outputs.pr_number }}
+          **Target Branch:** `${{ matrix.target_branch }}`
+          **PR Title:** ${{ steps.pr-info.outputs.pr_title }}
+          
+          The automated backport process failed for both:
+          1. Cherry-pick method
+          2. Package manager update fallback
+          
+          This likely requires manual intervention. Please review and manually backport if needed.
+          
+          **Original PR Link:** ${{ github.event.pull_request.html_url }}
+          EOF
+          
+          gh issue create \
+            --title "Failed backport: ${{ steps.pr-info.outputs.pr_title }} to ${{ matrix.target_branch }}" \
+            --body-file /tmp/issue_body.md \
+            --label "backport,failed-automation" || echo "Failed to create issue"
+          
+          exit 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
