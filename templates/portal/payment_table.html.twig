@@ -57,8 +57,8 @@
         <tr id="tr_{{ loop.index }}">
 
 
-    echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
+    <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>
+    <td class='detail' id='" . attr($date) . "' align='left'> {{ encounter.encounter }}: {{ encounter.reason }}</td>
     <td class='detail' id='td_charges_{{ loop.index }}'>{{ encounter.charges | money }}</td>
     <td class='detail' id='td_inspaid_{{ loop.index }}'>{{ encounter.inspaid | money }}</td>
     <td class='detail' id='td_ptpaid_{{ loop.index }}'>{{ encounter.ptpaid | money }}</td>
@@ -66,15 +66,16 @@
     <td class='detail' id='td_copay_{{ loop.index }}'>{{ encounter.copay | money }}</td>
     <td class='detail' id='balance_{{ loop.index }}'>{{ encounter.balance | money }}</td>
     <td class='detail' id='duept_{{ loop.index }}'>{{ encounter.duept | money }}</td>
-    echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
-        "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
+
+    <td class='detail' align='center'>
+        <input class='form-control' name='" . attr($iname) . "'  id='paying_{{ loop.index }}' value='' onchange='coloring();calctotal()'  autocomplete='off' onkeyup='calctotal()'/>
+    </td>
 
 
 
 
         </tr>
         {% endfor %}
-        <tr><td>TODO: force through data</td></tr>
     </tbody>
 
     <tfoot>
