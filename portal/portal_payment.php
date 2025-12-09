@@ -942,13 +942,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     'date' => '',
                     'encounter' => $enc,
                     'reason' => $reason,
-                    'charges' => 1000.00,
-                    'inspaid' => -1234.56,
-                    'ptpaid' => -123.56,
-                    'patcopay' => 45.23,
-                    'copay' => 10.23,
+                    'charges' => $value['charges'],
+                    'inspaid' => -($dpayment + $dadjustment),
+                    'ptpaid' => -$dpayment_pat,
+                    'patcopay' => $patcopay,
+                    'copay' => $inscopay,
                     'balance' => 1111.23,
-                    'duept' => 950.23,
+                    'duept' => $duept,
                 ];
             }
 
