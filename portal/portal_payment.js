@@ -224,4 +224,6 @@ function formRepopulate(jsondata) {
     });
 }
 
-
+function goHome() {
+    window.location.replace("./patient/onsiteactivityviews");
+}

@@ -423,10 +423,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
     <script>
 
-        function goHome() {
-            window.location.replace("./patient/onsiteactivityviews");
-        }
-
         function notifyPatient() {
             let pid = <?php echo js_escape($pid); ?>;
             let note = $('#pop_receipt').html();
