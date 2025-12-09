@@ -1,5 +1,12 @@
 {# this is a page fragment for the payment form in the client portal #}
 
+<style type"text/css">
+#table_display th {
+    font-weight: bold;
+    text-align: center;
+}
+</style>
+
 <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
     <thead>
         <tr bgcolor="#cccccc" id="tr_head">
@@ -9,57 +16,57 @@
             <th width="120">
                 {{ 'Visit Reason' | xlt }}
             </th>
-            <th align="center" width="70" id="td_head_total_charge">
+            <th width="70" id="td_head_total_charge">
                 {{ 'Total Charge' | xlt }}
             </th>
-            <th align="center" width="70" id="td_head_rep_doc" style='display: none'>
+            <th width="70" id="td_head_rep_doc" style='display: none'>
                 {{ 'Report/ Form' | xlt }}
             </th>
-            <th align="center" width="200" id="td_head_description" style='display: none'>
+            <th width="200" id="td_head_description" style='display: none'>
                 {{ 'Description' | xlt }}
             </th>
-            <th align="center" width="70" id="td_head_insurance_payment">
+            <th width="70" id="td_head_insurance_payment">
                 {{ 'Insurance Payment' | xlt }}
             </th>
-            <th align="center" width="70" id="td_head_patient_payment">
+            <th width="70" id="td_head_patient_payment">
                 {{ 'Patient Payment' | xlt }}
             </th>
-            <th align="center" width="55" id="td_head_patient_co_pay">
+            <th width="55" id="td_head_patient_co_pay">
                 {{ 'Co Pay Paid' | xlt }}
             </th>
-            <th align="center" width="55" id="td_head_co_pay">
+            <th width="55" id="td_head_co_pay">
                 {{ 'Required Co Pay' | xlt }}
             </th>
-            <th align="center" width="70" id="td_head_insurance_balance">
+            <th width="70" id="td_head_insurance_balance">
                 {{ 'Insurance Balance' | xlt }}
             </th>
-            <th align="center" width="70" id="td_head_patient_balance">
+            <th width="70" id="td_head_patient_balance">
                 {{ 'Patient Balance' | xlt }}
             </th>
-            <th align="center" width="50">
+            <th width="50">
                 {{ 'Paying' | xlt }}
             </th>
         </tr>
     </thead>
+
     <tbody>
         <tr><td>TODO: force through data</td></tr>
     </tbody>
 
-
     <tfoot>
         <tr>
-            <td align="center">{{ 'Total' | xlt }}</td>
-            <td class="dehead" id='td_total_1' align="center"></td>
-            <td class="dehead" id='td_total_2' align="center">{{ sum_charges | money }}</td>
-            <td class="dehead" id='td_total_3' align="center">{{ sum_inspaid | money }}</td>
-            <td class="dehead" id='td_total_4' align="center">{{ sum_ptpaid | money }}</td>
-            <td class="dehead" id='td_total_5' align="center">{{ sum_patcopay | money }}</td>
-            <td class="dehead" id='td_total_6' align="center">{{ sum_copay | money }}</td>
-            <td class="dehead" id='td_total_7' align="center">{{ sum_balance | money }}</td>
-            <td class="dehead" id='td_total_8' align="center">{{ sum_duept | money }}</td>
-            <td class="dehead" align="center">
+            <th>{{ 'Total' | xlt }}</th>
+            <th id='td_total_1'></th>
+            <th id='td_total_2'>{{ sum_charges | money }}</th>
+            <th id='td_total_3'>{{ sum_inspaid | money }}</th>
+            <th id='td_total_4'>{{ sum_ptpaid | money }}</th>
+            <th id='td_total_5'>{{ sum_patcopay | money }}</th>
+            <th id='td_total_6'>{{ sum_copay | money }}</th>
+            <th id='td_total_7'>{{ sum_balance | money }}</th>
+            <th id='td_total_8'>{{ sum_duept | money }}</th>
+            <th>
                 <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color: #3b9204;' readonly />
-            </td>
+            </th>
         </tr>
     </tfoot>
 
