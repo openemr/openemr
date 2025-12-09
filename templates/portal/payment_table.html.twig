@@ -48,10 +48,8 @@
 
     <tfoot>
         <tr>
-            <td align="center">
-                {{ 'Total' | xlt }}
-            </td>
-            <td class="dehead" id='td_total_1' align="center">{{ 123.45 | money }}</td>
+            <td align="center">{{ 'Total' | xlt }}</td>
+            <td class="dehead" id='td_total_1' align="center"></td>
             <td class="dehead" id='td_total_2' align="center">{{ sum_charges | money }}</td>
             <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getBucks($sum_inspaid)) ?></td>
             <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getBucks($sum_ptpaid)) ?></td>
