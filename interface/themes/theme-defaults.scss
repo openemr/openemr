@@ -6,7 +6,7 @@
 */
 
 .logout {
-  color: $body-color;
+  color: var(--oe-body-color, $body-color);
   text-align: $right;
   text-decoration: none;
 }
@@ -39,14 +39,25 @@ span.bold {
   @include font-size("1.13rem");
 }
 
+.body_nav td,
+.body_title div.text {
+  @include font-size("0.9rem");
+}
+
+/*
+* New Patient/Client form
+* When adding a new Patient/Client
+* One time in demographic_new.php
+*/
+
 .bgcolor2 {
-  background-color: $white;
+  background-color: var(--oe-surface-bg, $white);
 }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
 
 .body_nav {
-  background-color: $gray-300;
+  background-color: var(--oe-navbar-bg, $gray-300);
 }
 
 /* $nav_bg_line */
@@ -74,16 +85,76 @@ span.bold {
 
 /* styles taken out of templates/documents/general_list.html */
 #documents_list {
-  border-right: dashed 1px;
-  float: $left;
-  height: 95%;
-  overflow: auto;
-  width: 100%;
+  background-color: $gray-200;
+  margin: 0;
 }
 
-#documents_list td,
-#documents_list a {
-  @include font-size("0.8rem");
+#documents_list td {
+  font-weight: normal;
+}
+
+.documents_list_sort_header {
+  padding-right: 5px !important;
+}
+
+#documents_list .title_bar {
+  background-color: $gray-300;
+  border-style: dashed;
+  border-width: 1px;
+}
+
+/* Appointment Sheet Styles */
+.appt_sheet_header {
+  background: $gray-300;
+}
+
+.odd {
+  background: rgba($gray-700, .15);
+}
+
+.odd .textbold {
+  background-color: rgba($gray-700, .1);
+}
+
+/* patient_file/pos_checkout.php */
+.legal {
+  @include font-size("0.63rem");
+}
+
+.rightjustify {
+  text-align: $right;
+}
+
+/* CSS3 Styling */
+img {
+  border: 0;
+}
+
+/*
+ * Viewsby
+ * A grid to toggle
+ */
+
+.viewby td {
+  background-color: $gray-300;
+  white-space: nowrap;
+}
+
+/* CSS3 Styling */
+
+/* Old Frames Tab Top Fixes */
+.body_top {
+  background: $white;
+  vertical-align: top;
+}
+
+.body_title {
+  background: $light;
+}
+
+.body_title table {
+  background: transparent !important;
+  border: 0 !important;
 }
 
 .body_title table tr td {
@@ -117,23 +188,42 @@ span.bold {
   @include font-size("1.4rem");
 }
 
-#addressbook_list {
-  tr.evenrow {
-    background-color: $light;
-  }
-
-  tr.oddrow {
-    background-color: $white;
-  }
+/* Patient Report */
+.ehq-report-patient_data {
+  background: $gray-300;
 }
 
-tr.odd,
-td.even {
-  background-color: $white !important;
+.ehq-report-encounter-details {
+  background: $gray-100;
 }
 
-#logout_link span {
-  display: none;
+.ehq-print-encounter {
+  background: $body-bg !important;
+}
+
+/*
+ * Height and Weight Field fix
+ * seen in forms/vitals
+ */
+.vitals_widget.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.vitals_widget > .col-12 {
+  flex: 1 0 calc(50% - 0.5em);
+}
+
+/*
+ * Date Selector
+ * for the calendar popups
+ */
+#ds_calclass {
+  @include font-size("0.65rem");
+}
+
+#ds_calclass {
+  @include font-size("0.88rem");
 }
 
 /*
@@ -165,127 +255,136 @@ ul.tabNav {
 }
 
 /* Override BS4 dropdown toggle */
-.oe-dropdown-toggle::after {
-  content: none !important;
+/* we need the glyph to be white for consistency */
+/* in the top nav buttons (help) and main datetime picker */
+.dropdown-toggle::after {
+  color: $white;
 }
 
-/**
-* List-table formatting
-**/
-
-.showborder td,
-.showborder_head th,
-.shownoborder td,
-.showborder_long tr td {
-  @include font-size("0.9rem");
-}
-
-/**
-* Drug lookup
-**/
-.drug_lookup {
-  @include font-size("0.8rem");
-}
-
-#sddm li {
-  background: $light;
-}
-
-#sddm li a {
-  color: $primary;
-  padding: 12px;
-}
-
-#sddm li a:hover {
-  background: darken($light, 15%);
-}
-
-#sddm div {
-  background: $light;
-  display: none;
-  margin: 0;
+/* Left column Nav tabs used on numerous pages */
+.tabs {
+  margin-bottom: 1em;
   padding: 0;
 }
 
-#sddm div a {
-  color: darken($primary, 15%);
+/* Practice and User Settings */
+#setting_tabs {
+  float: left;
+  height: 100%;
+  padding: 0 !important;
+  width: 16%;
 }
 
-#sddm div a:hover {
-  background: $primary;
-}
-
-#sddm li.encounter-form-category-li {
-  position: relative;
-  z-index: 1;
-}
-
-.text-area {
-  background-color: $white;
-  border: 1px solid $black;
-  height: 100px;
+#setting_content {
+  border-left: 0 none;
+  float: right;
   overflow: auto;
-  text-align: $left;
+  padding: 1em 0 1em 1em;
+}
+
+/* Encounters uiform module */
+#hist_div .section {
+  border-bottom: 1px solid $gray-800;
+}
+
+/* LBF encounter form */
+.inputs_div .section {
+  border-bottom: 1px solid $gray-600;
+}
+
+#label_fld {
+  display: inline-table;
+  font-weight: bold;
+}
+
+#check_all {
+  cursor: pointer;
+}
+
+.list-box {
+  background: $white;
+  border: 1px solid $gray-400;
+  padding: 0;
   width: 100%;
 }
 
-.example_menu {
-  @include font-size("0.7rem");
-
-  ul a:hover {
-    background: darken($light, 15%);
-    text-decoration: underline;
-  }
+/* showing the contents of the listbox */
+.list-box table {
+  background: $white;
+  border: none;
 }
 
-.error-message {
-  @include font-size("0.8rem");
+.list-box table tr td {
+  border: none;
 }
 
-.attach-input {
-  text-align: $right;
+/* Appointment sheet */
+.agent {
+  background: $gray-200;
 }
 
-.radio-pos {
-  margin-left: 10px;
+/* View Encounters */
+#report_parameters + fieldset {
+  margin-top: -3px !important;
 }
 
-.sidebar {
-  @include font-size("0.95rem");
-  background-color: lighten($light, 10%);
-
-  .submenu {
-    @include font-size("0.9rem");
-  }
+/*Bootstrap tweaks*/
+.modal-content {
+  border-radius: 0.2rem;
 }
 
-.alert-danger-custom {
-  background-color: lighten($danger, 20%) !important;
-  color: $white !important;
+.bgwhite {
+  background-color: $white;
+  color: $body-color;
 }
 
-/* to align feesheet buttons*/
-div.category-display {
-  margin-left: 25px !important;
+/* Attributes for globalsections */
+/*
+    *) borders for header
+    *) background for header
+    *) background and border for box
+*/
+.isssection > legend {
+  border: 1px solid $gray-300;
+  padding: 4px 10px;
 }
 
-.chevron_color {
-  color: $primary;
+.isssection > legend > a,
+.isssection > legend > a:hover,
+.isssection > legend > a:active,
+.isssection > legend > a:focus,
+.isssection > legend > span {
+  color: $black;
+  display: inline-block;
+  text-decoration: none;
 }
 
-#create_patient_btn {
-  float: $right;
-  margin-top: 25px;
+.isssection {
+  border: 1px solid $gray-300;
+  padding: 0 10px 10px;
 }
 
-/*~~openemr5 tabs menu, user and logout icon~~*/
-#menu_icon,
-#logout_icon,
-#user_icon {
-  color: $gray-600 !important;
+.isssection > legend,
+.isssection > .section-header {
+  background-color: $gray-300;
 }
 
-/*~~openemr5 tabs menu , user and logout icon~~*/
+.section-header {
+  border-bottom: 1px solid $gray-300;
+  margin-bottom: 10px;
+  padding: 5px 5px 5px 0;
+}
+
+/* Alternating rows color for that global section */
+.isssection .issue {
+  border-bottom: 1px solid $gray-300;
+}
+
+/* Remove border for last item in the section */
+.isssection .issue:last-child {
+  border-bottom: none;
+}
+
 /*openrmr5.0.2 edit_globals vertical menu*/
 #theform input[type="text"] {
   border: 1px solid $gray-400;
@@ -330,20 +429,21 @@ div.category-display {
 /*openrmr5.0.2 edit_globals vertical menu*/
 /*main.php expandable search*/
 #search_globals {
-  background: lighten($gray-200, 10%) !important;
+  background: var(--oe-search-bg, lighten($gray-200, 10%)) !important;
+  color: var(--oe-navbar-color, $body-color) !important;
 }
 
 /*main.php expandable search*/
 /*bootstrap navbar */
 .navbar-collapse.collapse.in {
-  background-color: lighten($light, 20%) !important;
-  color: $body-color !important;
+  background-color: var(--oe-navbar-bg, lighten($light, 20%)) !important;
+  color: var(--oe-navbar-color, $body-color) !important;
 }
 
 .navbar-light .navbar-nav > li > a:focus,
 .navbar-light .navbar-nav > li > a:hover {
-  background-color: $gray-200 !important;
-  color: $gray-800 !important;
+  background-color: var(--oe-navbar-link-hover-bg, $gray-200) !important;
+  color: var(--oe-navbar-link-hover-color, $gray-800) !important;
 }
 
 /*bootstrap navbar */
@@ -363,37 +463,222 @@ div.category-display {
 }
 
 /*vertical main menu */
-/*search any*/
-*.oe-expandable-search .any-search-legacy {
-  background: $white !important;
+/* Tabs Styles */
+
+#tabsDiv {
+  margin: auto;
+}
+
+.tabIn {
+  border: 1px $gray-400 solid;
+}
+
+.tabSpan {
+  background-color: $gray-300;
+  border-bottom: 0 none;
+  border-right: 1px $gray-400 solid;
+  border-top: 1px $gray-400 solid;
+  margin: 0 0.2em;
+  padding: 0.1em 0.2em;
+}
+
+.tabNotIn {
+  border-bottom: 0.2em $primary solid;
+}
+
+.tabSpacer {
+  border-bottom: 0.2em $gray-400 solid;
+}
+
+/* Tabs Styles */
+
+.gs-menu,
+.gs .gs-menu,
+.gs .text,
+.list {
+  @include font-size("0.75rem");
+}
+
+.fc-today {
+  background-color: lighten($light, 8%);
+}
+
+/*bootstrap tweaks*/
+body .popover {
+  max-width: 600px !important;
+}
+
+/*
+    SlideOut Navigation CSS (Navigation Menu Plugin)
+    Used for main navigation menu and patient history menu
+*/
+
+#sddm {
+  float: left;
+  margin: 0;
+  position: relative;
+}
+
+/* Makes sure if Javascript is off, the menu looks normal */
+#sddm li {
+  float: left;
+  list-style: none;
+  margin: 0;
+  width: 15em;
+}
+
+#sddm li a {
+  background: $primary;
+  border-bottom: 1px solid darken($primary, 15%);
+  color: $white;
+  display: block;
+  padding: 5px 10px;
+  text-decoration: none;
+}
+
+/* This CSS only applies if Javascript is enabled */
+/* All the drop down menus are hidded */
+
+#sddm div {
+  background: $light;
+  display: none;
+  margin: 0;
+  padding: 0;
+}
+
+#sddm div a {
+  color: darken($primary, 15%);
+}
+
+#sddm div a:hover {
+  background: $primary;
+}
+
+#sddm li.encounter_unbilled a {
+  background: $secondary;
+  border-bottom: 1px solid darken($secondary, 15%);
+}
+
+#sddm li.encounter_billed a {
+  background: $danger;
+  border-bottom: 1px solid darken($danger, 15%);
+}
+
+/* Used for /main/main_info.php */
+
+.style1 {
+  @include font-size("1.05rem");
+  color: $body-color;
+}
+
+/* Used for /main/main_info.php */
+/* Used for /main/tabs.php */
+
+.style2 {
+  @include font-size("0.6rem");
+}
+
+.stylesmall {
+  @include font-size("0.63rem");
+}
+
+.xchart svg {
+  max-width: 100%;
+}
+
+/* Used for /main/tabs.php */
+/*
+    This should come AFTER the theme's import!
+*/
+
+#crd {
+  background: $white;
+  border-color: $gray-500;
+  color: $body-color;
+}
+
+#bottom {
+  background: $white;
+  color: $body-color;
+}
+
+/*
+    These establish the default colors for the sidebar menu,
+    but both can be overridden by the header above.
+*/
+
+.appMenu {
+  background: $white;
+
+  .menuCategory,
+  .menuEntries {
+    background: $white;
+    color: $body-color;
+  }
+}
+
+/*
+    CSS below are for the patient finder dialog
+*/
+
+div#dialogDiv .dialogContainer {
+  font-size: 15px;
+}
+
+div#dialogDiv .dialogContainer .table {
+  margin-bottom: 0;
+}
+
+div#dialogDiv .dialogContainer .table tr.header {
+  background-color: $gray-200;
+}
+
+div#dialogDiv .dialogContainer .table tr.header th {
+  font-size: 15px;
+  text-align: center;
+}
+
+.verify-field-group,
+.bundle-of-observations {
+  margin-bottom: 12px;
+}
+
+.copy-from-aliquot-col-btn,
+.bundle-of-observations .col {
+  padding-left: 0;
+}
+
+/* this removes extra padding from nested columns on test results page */
+.bundle-of-observations .col .col {
+  padding-left: 12px;
 }
 
 /* Fieldset Colors */
 legend {
-  background-color: $gray-300 !important;
-  color: $body-color !important;
+  background-color: var(--oe-fieldset-bg, $gray-300) !important;
+  color: var(--oe-fieldset-color, $body-color) !important;
 }
 
 fieldset {
-  background-color: $light !important;
-  color: $body-color !important;
+  background-color: var(--oe-fieldset-bg, $light) !important;
+  color: var(--oe-fieldset-color, $body-color) !important;
 }
 
 /* Select2 Theme Overrides - The BS theme Doesn't cover it all! */
 .select2-close-mask {
-  background-color: $white !important;
+  background-color: var(--oe-surface-bg, $white) !important;
 }
 
 .select2-dropdown {
-  background-color: $white !important;
+  background-color: var(--oe-surface-bg, $white) !important;
 }
 
 .select2-container--bootstrap4 .select2-selection--single {
-  background-color: $white !important;
+  background-color: var(--oe-surface-bg, $white) !important;
 }
 
 .select2-container--bootstrap4 .select2-selection--multiple {
-  background-color: $white !important;
+  background-color: var(--oe-surface-bg, $white) !important;
 }
 
 .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
@@ -401,24 +686,113 @@ fieldset {
 }
 
 .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
-  color: $red;
-  font-size: 1.75rem;
-  line-height: 1rem !important;
+  font-weight: bold;
 }
 
-.login-emr-logo {
-  > #red-color {
-    // Regular color: #a40c04
-    fill: $white;
-  }
-  // Regular color: #2c9cd4
-  > #blue-color {
-    fill: $white;
-  }
-  // Regular color: #5c5c5c
-  > #gray-color {
-    fill: $white;
-  }
+/* Colors for multi-site logo */
+.logo-hide-old-layout {
+  // Width of original logo
+  width: 136px;
+}
+
+.logo-hide-box-shadow {
+  // Required for old multi-site logos
+  box-shadow: none !important;
+}
+
+.multi-logo-new-style {
+  float: left;
+  left: 0;
+  margin-left: 115px;
+  max-width: 160px;
+  position: absolute;
+  top: 5px;
+}
+
+.navbar {
+  background-color: $white;
+  color: $body-color;
+}
+
+.navbar .nav-link,
+.navbar .btn-link {
+  color: $body-color;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .btn-link:hover,
+.navbar .btn-link:focus {
+  color: $primary;
+}
+
+.navbar .navbar-toggler {
+  border: 0;
+}
+
+/* System Debug Mode */
+.text-danger {
+  color: darken($danger, 5%) !important;
+}
+
+.debug-mode-toggle {
+  font-size: 18px;
+  padding: 0 .75rem;
+}
+
+.debug-mode-text {
+  font-size: 14px;
+}
+
+/*home screen background shortcode colors*/
+.blue {
+  background: radial-gradient(circle, #34d9f9 19%, #0178aa 80%, #efefef 100%);
+}
+
+.yellow {
+  background: radial-gradient(circle, #fde870 19%, #f89d21 100%);
+}
+
+.purple {
+  background: #6d2ca2;
+  /* Old browsers */
+  background: -moz-radial-gradient(circle, #b458f3 15%, #3c1f66 100%);
+  background: -webkit-radial-gradient(circle, #b458f3 15%, #3c1f66 100%);
+  background: radial-gradient(circle, #b458f3 15%, #3c1f66 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#8e44ad', endColorstr='#3c1f66', GradientType=1);
+}
+
+.pink {
+  background: #ffbfbf;
+  /* Old browsers */
+  background: -moz-radial-gradient(circle, #ffd3d3 19%, #ff7474 100%);
+  background: -webkit-radial-gradient(circle, #ffd3d3 19%, #ff7474 100%);
+  background: radial-gradient(circle, #ffd3d3 19%, #ff7474 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd3d3', endColorstr='#ff7474', GradientType=1);
+}
+
+/* With Art & Style new OpenEMR 5.0.1 logo colors */
+.about-logo > #white-color {
+  fill: #efefef;
+}
+
+// Regular color: #5c5c5c
+.about-logo > #gray-color {
+  fill: #083c5d;
+}
+
+.about-logo > #color {
+  fill: #2c9cd4;
+}
+
+/* With Art & Style new OpenEMR 5.0.1 logo colors */
+.about-review-image > #white-color {
+  fill: #efefef;
+}
+
+// Regular color: #5c5c5c
+.about-review-image > #gray-color {
+  fill: $white;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,
@@ -428,4 +802,24 @@ fieldset {
 
 .about-review-image > #color {
   fill: #083c5d;
+}
+
+
+/* OpenEMR semantic theme defaults - hook into per-theme CSS variables */
+html,
+body {
+  background-color: var(--oe-body-bg, $body-bg);
+  color: var(--oe-body-color, $body-color);
+}
+
+.navbar {
+  background-color: var(--oe-navbar-bg, $white);
+  color: var(--oe-navbar-color, $body-color);
+}
+
+/* main nav "pill" actives respect theme primary + text color */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  background-color: var(--oe-navbar-link-active-bg, $primary);
+  color: var(--oe-navbar-link-active-color, $white);
 }

@@ -72,12 +72,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     top: 0 !important;
   }
 
-  .menuLabel:hover,
-  .menuEntries li .menuLabel:hover,
-  .menuSection:hover {
-    background-color: lighten(theme-color("primary"), 40%) !important;
-  }
-
   .acck {
     font-size: 0.9em !important;
   }

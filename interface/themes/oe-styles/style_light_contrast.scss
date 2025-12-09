@@ -1,0 +1,256 @@
+/*
+*
+*   High Contrast Light Theme for OpenEMR
+*   Based on original Light Theme
+*   @author Tyler Wrenn
+*   @author Jerry Padgett
+*
+*   This variant is tuned for higher contrast and readability.
+*
+*/
+
+/* Light theme palette overrides */
+$white: #ffffff;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+$black: #111827;
+
+$ovr-dark: $gray-800;
+$ovr-light: $white;
+
+$light: $white;
+$dark: $gray-900;
+$gray: $gray-400;
+
+$link-color: #1d4ed8; // strong blue for links
+
+$body-bg: #f9fafb;
+$body-color: $gray-900;
+
+$btn-link-disabled-color: $gray-400;
+$close-color: $black;
+$close-text-shadow: 0 1px 0 $white;
+$secondary-color: $gray-800;
+$login-text-color: $black;
+
+/* Bring in theme defaults so they use this palette */
+@import "../default-variables";
+
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+/* Core OpenEMR imports (includes Select2 BS4 theme etc.) */
+@import "../core";
+
+/* Core defaults for themes */
+@import "../theme-defaults";
+
+@import "../navigation-slide/future-bootstrap";
+
+/* ------------------------------------------------------------------
+ * High-contrast CSS custom properties
+ * ------------------------------------------------------------------ */
+
+:root {
+  /* Main canvas */
+  --oe-body-bg: #f9fafb;
+  --oe-body-color: #111827;
+
+  /* Surface / cards / modals */
+  --oe-surface-bg: #ffffff;
+
+  /* Top navbar (dark for contrast) */
+  --oe-navbar-bg: #111827;
+  --oe-navbar-color: #f9fafb;
+  --oe-navbar-link-hover-bg: #e5e7eb;
+  --oe-navbar-link-hover-color: #111827;
+  --oe-navbar-link-active-bg: #2563eb;
+  --oe-navbar-link-active-color: #ffffff;
+
+  /* Fieldsets & boxes */
+  --oe-fieldset-bg: #f3f4f6;
+  --oe-fieldset-color: #111827;
+
+  /* Search bar / global search */
+  --oe-search-bg: #e5e7eb;
+
+  /* General surface override for panels, widgets, etc */
+  --oe-panel-bg: #ffffff;
+}
+
+/* ------------------------------------------------------------------
+ * High-contrast overrides
+ * ------------------------------------------------------------------ */
+
+/* Global body/background hardening */
+html,
+body {
+  background-color: $body-bg;
+  color: $body-color;
+}
+
+/* Buttons – ensure text is bright on colored buttons */
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-info,
+.btn-warning {
+  color: #ffffff;
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+  color: $primary;
+}
+
+/* Secondary buttons with solid contrast */
+.btn-secondary,
+.btn-secondary:hover {
+  background-color: $gray-200;
+  border-color: $gray-500;
+  color: $black;
+}
+
+/* Forms and inputs */
+.form-control,
+select,
+textarea,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+.input-group-text {
+  background-color: #ffffff;
+  color: $body-color;
+  border-color: $gray-400;
+}
+
+.form-control:focus,
+select:focus,
+textarea:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  background-color: #ffffff;
+  color: $body-color;
+  border-color: lighten($primary, 10%);
+  box-shadow: 0 0 0 0.1rem rgba(37, 99, 235, 0.5);
+}
+
+/* Tables – high contrast stripes and hover */
+.table {
+  color: $body-color;
+  background-color: #ffffff;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: $gray-100;
+}
+
+.table-hover tbody tr:hover {
+  background-color: $gray-200;
+}
+
+/* App menu hover */
+.appMenu .appMenu > span:hover,
+.appMenu li:hover,
+.appMenu > span:hover {
+  background-color: #e5e7eb !important;
+  color: $black !important;
+}
+
+.menuDisabled {
+  color: $gray-400;
+}
+
+/* LHC question text – keep readable */
+.lhc-item-question-text {
+  color: $black;
+}
+
+/* Select2 – ensure search field is legible */
+.select2-container--bootstrap4 .select2-selection--multiple .select2-search__field {
+  background-color: #ffffff !important;
+  color: $black !important;
+}
+
+/* Tab strip – high contrast tabs */
+ul.tabNav a {
+  color: $black;
+}
+
+/* List group inputs */
+input.list-group-item {
+  color: $black;
+  background-color: #ffffff;
+}
+
+/* Main body wrappers */
+.body_main,
+.body_main_widescreen {
+  background-color: var(--oe-body-bg, $body-bg) !important;
+}
+
+/* Cards, panels, modals */
+.card,
+.panel,
+.modal-content {
+  background-color: var(--oe-surface-bg, #ffffff);
+  color: $body-color;
+}
+
+/* Search bar (top search) */
+#searchBar,
+#searchBar input[type="text"],
+#searchBar input[type="search"] {
+  background-color: var(--oe-search-bg, $gray-100);
+  color: $body-color;
+}
+
+/* Left nav/sidebar elements (when present) */
+#oe-nav-sidebar,
+#oe-nav-sidebar .list-group-item {
+  background-color: #ffffff;
+  color: $body-color;
+}
+
+/* Footer / misc text helpers */
+.text-muted {
+  color: $gray-500 !important;
+}
+
+/* SVG/logo colors to match theme */
+.about-review-image > #color {
+  fill: $black;
+}
+
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
+  fill: $black;
+}
+
+/* Alerts – keep contrast high */
+.alert {
+  color: $black;
+}
+
+/* Last: BS4/OpenEMR helper overrides */
+/* search any */
+@import "../oe-bootstrap";
