@@ -98,7 +98,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ?: '';
-    echo " <tr id='tr_" . attr($var_index) . "' >\n";
+    echo "<!-- <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
     echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
@@ -110,7 +110,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
         "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
-    echo " </tr>\n";
+    echo " </tr>-->\n";
 
     $sum_charges += (float)$charges * 1;
     $sum_ptpaid += (float)$ptpaid * -1;
@@ -814,7 +814,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             </tr>
         </table>
 
-        <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
+        <table id="tble_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
             <tbody>
 
             <?php

@@ -66,9 +66,16 @@
     <td class='detail' id='td_copay_{{ loop.index }}'>{{ encounter.copay | money }}</td>
     <td class='detail' id='balance_{{ loop.index }}'>{{ encounter.balance | money }}</td>
     <td class='detail' id='duept_{{ loop.index }}'>{{ encounter.duept | money }}</td>
-
     <td class='detail' align='center'>
-        <input class='form-control' name='" . attr($iname) . "'  id='paying_{{ loop.index }}' value='' onchange='coloring();calctotal()'  autocomplete='off' onkeyup='calctotal()'/>
+        <input
+            class='form-control'
+            name='form_upay[{{ encounter.encounter }}]'
+            id='paying_{{ loop.index }}'
+            value=''
+            onchange='coloring();calctotal()'
+            autocomplete='off'
+            onkeyup='calctotal()'
+        />
     </td>
 
 
