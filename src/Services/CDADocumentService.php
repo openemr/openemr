@@ -13,13 +13,16 @@
 namespace OpenEMR\Services;
 
 use CouchDB;
+use JsonException;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Auth\JWT\JwtService;
+use Random\RandomException;
 use Symfony\Component\HttpClient\HttpClient;
+use Throwable;
 
 /**
  * Class CDADocumentService
@@ -256,14 +259,19 @@ class CDADocumentService extends BaseService
         return $response->getContent();
     }
 
+    /**
+     * @throws Throwable
+     * @throws RandomException
+     * @throws JsonException
+     */
     private function createToken(SessionWrapperInterface $session): string
     {
         $sessionData = $session->allFilterForJWT();
-        $token = '';
         try {
             $token = (new JwtService())->createToken($sessionData, 60);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             (new SystemLogger())->debug(self::class . ": failed to create JWT token. Error: {$exception->getMessage()}");
+            throw $exception;
         }
 
         return $token;
