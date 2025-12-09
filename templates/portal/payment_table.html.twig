@@ -51,12 +51,12 @@
             <td align="center">{{ 'Total' | xlt }}</td>
             <td class="dehead" id='td_total_1' align="center"></td>
             <td class="dehead" id='td_total_2' align="center">{{ sum_charges | money }}</td>
-            <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getBucks($sum_inspaid)) ?></td>
-            <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getBucks($sum_ptpaid)) ?></td>
-            <td class="dehead" id='td_total_5' align="center"><?php echo text(FormatMoney::getBucks($sum_patcopay)) ?></td>
-            <td class="dehead" id='td_total_6' align="center"><?php echo text(FormatMoney::getBucks($sum_copay)) ?></td>
-            <td class="dehead" id='td_total_7' align="center"><?php echo text(FormatMoney::getBucks($sum_balance)) ?></td>
-            <td class="dehead" id='td_total_8' align="center"><?php echo text(FormatMoney::getBucks($sum_duept)) ?></td>
+            <td class="dehead" id='td_total_3' align="center">{{ sum_inspaid | money }}</td>
+            <td class="dehead" id='td_total_4' align="center">{{ sum_ptpaid | money }}</td>
+            <td class="dehead" id='td_total_5' align="center">{{ sum_patcopay | money }}</td>
+            <td class="dehead" id='td_total_6' align="center">{{ sum_copay | money }}</td>
+            <td class="dehead" id='td_total_7' align="center">{{ sum_balance | money }}</td>
+            <td class="dehead" id='td_total_8' align="center">{{ sum_duept | money }}</td>
             <td class="dehead" align="center">
                 <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color: #3b9204;' readonly />
             </td>

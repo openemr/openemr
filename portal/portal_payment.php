@@ -961,6 +961,12 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <?=$twig->render('portal/payment_table.html.twig', [
         // 'form_post_url' => $GLOBALS['webroot'] . '/portal/portal_payment.php',
             'sum_charges' => $sum_charges,
+            'sum_inspaid' => $sum_inspaid,
+            'sum_ptpaid' => $sum_ptpaid,
+            'sum_patcopay' => $sum_patcopay,
+            'sum_copay' => $sum_copay,
+            'sum_balance' => $sum_balance,
+            'sum_duept' => $sum_duept,
         ])?>
 
 
