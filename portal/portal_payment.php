@@ -90,22 +90,6 @@ if ($edata) {
 //
 $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
-{
-    global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
-    global $var_index;
-    $var_index++;
-    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
-    $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
-
-    // $sum_charges += (float)$charges * 1;
-    // $sum_ptpaid += (float)$ptpaid * -1;
-    // $sum_inspaid += (float)$inspaid * -1;
-    // $sum_duept += (float)$duept * 1;
-    // $sum_patcopay += (float)$patcopay * 1;
-    // $sum_copay += (float)$copay * 1;
-    // $sum_balance += (float)$balance * 1;
-}
 
 // We use this to put dashes, colons, etc. back into a timestamp.
 //
@@ -804,7 +788,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             <tbody>
 
             <?php
-            $encs = $charges = [];
+            $encs = [];
+            $rows = [];
             // Get the unbilled service charges and payments by encounter for this patient.
             //
             $query = "SELECT fe.encounter, fe.reason, b.code_type, b.code, b.modifier, b.fee, " .
@@ -922,13 +907,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 
-                echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
-
-                $charges_made = $value['charges'];
+                $charges = $value['charges'];
                 $inspaid = $dpayment + $dadjustment;
-                $balance = $charges_made - $dpayment_pat - $inspaid;
+                $balance = $charges - $dpayment_pat - $inspaid;
 
-                $sum_charges += $charges_made;
+                $sum_charges += $charges;
                 $sum_ptpaid -= $dpayment_pat;
                 $sum_inspaid -= $inspaid;
                 $sum_duept += $duept;
@@ -936,11 +919,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 $sum_copay += $inscopay;
                 $sum_balance += $balance;
 
-                $charges[] = [
+                $rows[] = [
                     'date' => $dispdate,
                     'encounter' => $enc,
                     'reason' => $reason,
-                    'charges' => $charges_made,
+                    'charges' => $charges,
                     'inspaid' => -$inspaid,
                     'ptpaid' => -$dpayment_pat,
                     'patcopay' => $patcopay,
@@ -956,7 +939,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
 
         <?=$twig->render('portal/payment_table.html.twig', [
-            'encounters' => $charges,
+            'encounters' => $rows,
             'sum_charges' => $sum_charges,
             'sum_inspaid' => $sum_inspaid,
             'sum_ptpaid' => $sum_ptpaid,
