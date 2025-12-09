@@ -237,7 +237,7 @@ function adjustForm()
         var ii = i+1;
         if(typeof(ub04id[ii]) != 'undefined' && ub04id[ii] !== ""){
             var val = ub04id[ii];
-            if( val.length > max && max > 0 ){
+            if(val != null && val.length > max && max > 0 ){
                 val = ub04id[ii].substring(0,max);
             }
             document.getElementById("ub04id"+ ii.toString()).value = val;
@@ -256,7 +256,7 @@ function rewrite(ub04id){
         var ii = i+1;
         if(typeof(ub04id[ii]) != 'undefined'){
             var val = ub04id[ii];
-            if( val.length > max && max > 0 ){
+            if(val != null && val.length > max && max > 0 ){
                 val = ub04id[ii].substring(0,max);
             }
             document.getElementById("ub04id"+ ii.toString()).value = val;
