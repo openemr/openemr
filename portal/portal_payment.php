@@ -98,13 +98,13 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
 
-    $sum_charges += (float)$charges * 1;
-    $sum_ptpaid += (float)$ptpaid * -1;
-    $sum_inspaid += (float)$inspaid * -1;
-    $sum_duept += (float)$duept * 1;
-    $sum_patcopay += (float)$patcopay * 1;
-    $sum_copay += (float)$copay * 1;
-    $sum_balance += (float)$balance * 1;
+    // $sum_charges += (float)$charges * 1;
+    // $sum_ptpaid += (float)$ptpaid * -1;
+    // $sum_inspaid += (float)$inspaid * -1;
+    // $sum_duept += (float)$duept * 1;
+    // $sum_patcopay += (float)$patcopay * 1;
+    // $sum_copay += (float)$copay * 1;
+    // $sum_balance += (float)$balance * 1;
 }
 
 // We use this to put dashes, colons, etc. back into a timestamp.
@@ -923,16 +923,29 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
 
                 echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
+
+                $charges_made = $value['charges'];
+                $inspaid = $dpayment + $dadjustment;
+                $balance = $charges_made - $dpayment_pat - $inspaid;
+
+                $sum_charges += $charges_made;
+                $sum_ptpaid -= $dpayment_pat;
+                $sum_inspaid -= $inspaid;
+                $sum_duept += $duept;
+                $sum_patcopay += $patcopay;
+                $sum_copay += $inscopay;
+                $sum_balance += $balance;
+
                 $charges[] = [
                     'date' => $dispdate,
                     'encounter' => $enc,
                     'reason' => $reason,
-                    'charges' => $value['charges'],
-                    'inspaid' => -($dpayment + $dadjustment),
+                    'charges' => $charges_made,
+                    'inspaid' => -$inspaid,
                     'ptpaid' => -$dpayment_pat,
                     'patcopay' => $patcopay,
                     'copay' => $inscopay,
-                    'balance' => ($value['charges'] - $dpayment_pat - $dpayment - $dadjustment),
+                    'balance' => $balance,
                     'duept' => $duept,
                 ];
             }
