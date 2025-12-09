@@ -4,7 +4,9 @@
  * JwtService.php
  * Simple helper for creating, validating, and parsing JWTs using lcobucci/jwt v4.
  *
+ *
  * @package openemr
+ * @license   There are segments of code in this file that have been generated via PHPStorm Junie AI and are licensed as Public Domain.
  * @link      http://www.open-emr.org
  * @author    OpenEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
