@@ -786,7 +786,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
             <?php
             // This logic was in the middle of HTML rendering; will get
-            // consoldiated further in another PR.
+            // consoldiated further in another PR. See #9705.
             $encs = [];
             $rows = [];
             // Get the unbilled service charges and payments by encounter for this patient.
