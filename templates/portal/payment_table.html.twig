@@ -56,9 +56,8 @@
         {% for encounter in encounters %}
         <tr id="tr_{{ loop.index }}">
 
-
-    <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>
-    <td class='detail' id='" . attr($date) . "' align='left'> {{ encounter.encounter }}: {{ encounter.reason }}</td>
+            <td class='detail'>{{ encounter.date }}</td>
+            <td class='detail' id='{{ encounter.date }}' align='left'>{{ encounter.encounter }}: {{ encounter.reason }}</td>
     <td class='detail' id='td_charges_{{ loop.index }}'>{{ encounter.charges | money }}</td>
     <td class='detail' id='td_inspaid_{{ loop.index }}'>{{ encounter.inspaid | money }}</td>
     <td class='detail' id='td_ptpaid_{{ loop.index }}'>{{ encounter.ptpaid | money }}</td>

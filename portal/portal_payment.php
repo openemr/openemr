@@ -938,8 +938,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
                 echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
                 $charges[] = [
-                    // 'date' => 'a/b/c', // YYYY-MM-DD
-                    'date' => '',
+                    'date' => $dispdate,
                     'encounter' => $enc,
                     'reason' => $reason,
                     'charges' => $value['charges'],
