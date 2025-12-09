@@ -947,7 +947,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     'ptpaid' => -$dpayment_pat,
                     'patcopay' => $patcopay,
                     'copay' => $inscopay,
-                    'balance' => 1111.23,
+                    'balance' => ($value['charges'] - $dpayment_pat - $dpayment - $dadjustment),
                     'duept' => $duept,
                 ];
             }
