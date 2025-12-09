@@ -784,10 +784,9 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             </tr>
         </table>
 
-        <table id="tble_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
-            <tbody>
-
             <?php
+            // This logic was in the middle of HTML rendering; will get
+            // consoldiated further in another PR.
             $encs = [];
             $rows = [];
             // Get the unbilled service charges and payments by encounter for this patient.
@@ -935,8 +934,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
             // Continue with display of the data entry form.
             ?>
-        </table>
-
 
         <?=$twig->render('portal/payment_table.html.twig', [
             'encounters' => $rows,
