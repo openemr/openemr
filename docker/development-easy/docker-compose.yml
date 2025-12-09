@@ -91,7 +91,9 @@ services:
       OPENEMR_SETTING_SMTP_Auth: 'TRUE'
       OPENEMR_SETTING_practice_return_email_path: 'noreply@openemr.local'
       OPENEMR_SETTING_Patient_Reminder_Sender_Name: 'OpenEMR Reminders'
-      OPENEMR_JWT_SECRET: 'some-secret-string-goes-here-make-it-longer-than-32-bytes'
+      OPENEMR_PORTAL_JWT_PRIVATE_KEY_FULL_PATH: '/etc/tls/portal.pem'
+      OPENEMR_PORTAL_JWT_PRIVATE_KEY_PASSPHRASE:
+      OPENEMR_PORTAL_JWT_PUBLIC_KEY_FULL_PATH: '/etc/tls/portal-public.pem'
     depends_on:
       mysql:
         condition: service_healthy
