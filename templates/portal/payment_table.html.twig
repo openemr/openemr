@@ -5,6 +5,9 @@
     font-weight: bold;
     text-align: center;
 }
+#table_display td.detail {
+    text-align: center;
+}
 </style>
 
 <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
@@ -50,9 +53,25 @@
     </thead>
 
     <tbody>
-        {% for row in charges %}
-        <tr id="ASDF">
-            <td>{{ row }}</td>
+        {% for encounter in encounters %}
+        <tr id="tr_{{ loop.index }}">
+
+
+    echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
+    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
+    <td class='detail' id='td_inspaid_{{ loop.index }}'>{{ encounter.inspaid | money }}</td>
+    <td class='detail' id='td_ptpaid_{{ loop.index }}'>{{ encounter.ptpaid | money }}</td>
+    <td class='detail' id='td_patient_copay_{{ loop.index }}'>{{ encounter.patcopay | money }}</td>
+    <td class='detail' id='td_copay_{{ loop.index }}'>{{ encounter.copay | money }}</td>
+    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
+        "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
+
+
+
+
         </tr>
         {% endfor %}
         <tr><td>TODO: force through data</td></tr>

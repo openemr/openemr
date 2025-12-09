@@ -818,7 +818,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             <tbody>
 
             <?php
-            $encs = [];
+            $encs = $charges = [];
             // Get the unbilled service charges and payments by encounter for this patient.
             //
             $query = "SELECT fe.encounter, fe.reason, b.code_type, b.code, b.modifier, b.fee, " .
@@ -937,6 +937,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
 
                 echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
+                $charges[] = [
+                    'date' => 'a/b/c',
+                    'inspaid' => -1234.56,
+                    'ptpaid' => -123.56,
+                    'patcopay' => 45.23,
+                    'copay' => 10.23,
+                ];
             }
 
             // Continue with display of the data entry form.
@@ -961,9 +968,10 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <?=$twig->render('portal/payment_table.html.twig', [
         // 'form_post_url' => $GLOBALS['webroot'] . '/portal/portal_payment.php',
             'charges' => [
-'1' => 'a',
-'2' => 'b',
+                '1' => 'a',
+                '2' => 'b',
             ],
+            'encounters' => $charges,
             'sum_charges' => $sum_charges,
             'sum_inspaid' => $sum_inspaid,
             'sum_ptpaid' => $sum_ptpaid,
