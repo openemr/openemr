@@ -121,6 +121,7 @@ class ServerScopeListEntity
 
             $fhirScopes[] = 'patient/DocumentReference.$docref';
             $fhirScopes[] = 'user/DocumentReference.$docref';
+            $fhirScopes[] = 'system/DocumentReference.$docref';
 
             $this->v1ResourceFhirScopes = $fhirScopes;
         }
@@ -152,6 +153,7 @@ class ServerScopeListEntity
                 'PractitionerRole',
                 'Procedure',
                 'Provenance',
+                'Questionnaire',
                 'QuestionnaireResponse',
                 'RelatedPerson',
                 'ServiceRequest',
