@@ -19,6 +19,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Person extends ORDataObject implements \JsonSerializable, \Stringable
 {
+    /**
+     * @var null
+     */
     private $uuid;
     private $title;
     private $first_name;
