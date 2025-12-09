@@ -682,6 +682,10 @@ class X125010837P
             "*" . "Y" . "*" . "P"; // added patient signature source code CLM10
         if ($claim->isRelatedEmployment()) {
             $out .= "*" . "EM";
+        } elseif ($claim->isRelatedAuto()) {
+            $out .= "*" . "AA";
+        } elseif ($claim->isRelatedOther()) {
+            $out .= "*" . "OA";
         }
         $out .= "~\n";
 

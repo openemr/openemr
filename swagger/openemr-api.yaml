@@ -6318,7 +6318,8 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns a list of Observation resources.'
+      summary: 'Returns a list of Observation resources.'
+      description: 'Returns a list of Observation resources. Returns the following types of Observation resources, Advance Directives, Care Experience Preferences, Occupation, Social Determinants of Health, Laboratory, Simple Observations, Social History, Questionnaire Responses, Treatment Intervention Preferences, Vital Signs.'
       parameters:
         -
           name: _id
@@ -6351,7 +6352,7 @@ paths:
         -
           name: category
           in: query
-          description: 'The category of the Observation resource.'
+          description: 'The category of the Observation resource. Taken from one of these valid category codes http://terminology.hl7.org/CodeSystem/observation-category'
           required: false
           schema:
             type: string
@@ -8279,6 +8280,61 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/QuestionnaireResponse'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /fhir/RelatedPerson:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of RelatedPerson resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the RelatedPerson resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object':
+                    description: 'FHIR Json object.'
+                    type: object
+                type: object
+                example:
+                  meta:
+                    lastUpdated: '2025-09-30T09:13:51'
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link:
+                    -
+                      relation: self
+                      url: 'https://localhost:9300/apis/default/fhir/RelatedPerson'
         400:
           $ref: '#/components/responses/badrequest'
         401:

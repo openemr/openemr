@@ -38,5 +38,6 @@ parameters:
   - version.php
   scanDirectories:
   - ./vendor
+  - ./.phpstan
   scanFiles:
   - library/sql.inc.php
