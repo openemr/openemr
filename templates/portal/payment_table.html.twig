@@ -55,31 +55,28 @@
     <tbody>
         {% for encounter in encounters %}
         <tr id="tr_{{ loop.index }}">
-
             <td class='detail'>{{ encounter.date }}</td>
-            <td class='detail' id='{{ encounter.date }}' align='left'>{{ encounter.encounter }}: {{ encounter.reason }}</td>
-    <td class='detail' id='td_charges_{{ loop.index }}'>{{ encounter.charges | money }}</td>
-    <td class='detail' id='td_inspaid_{{ loop.index }}'>{{ encounter.inspaid | money }}</td>
-    <td class='detail' id='td_ptpaid_{{ loop.index }}'>{{ encounter.ptpaid | money }}</td>
-    <td class='detail' id='td_patient_copay_{{ loop.index }}'>{{ encounter.patcopay | money }}</td>
-    <td class='detail' id='td_copay_{{ loop.index }}'>{{ encounter.copay | money }}</td>
-    <td class='detail' id='balance_{{ loop.index }}'>{{ encounter.balance | money }}</td>
-    <td class='detail' id='duept_{{ loop.index }}'>{{ encounter.duept | money }}</td>
-    <td class='detail' align='center'>
-        <input
-            class='form-control'
-            name='form_upay[{{ encounter.encounter }}]'
-            id='paying_{{ loop.index }}'
-            value=''
-            onchange='coloring();calctotal()'
-            autocomplete='off'
-            onkeyup='calctotal()'
-        />
-    </td>
-
-
-
-
+            <td class='detail' id='{{ encounter.date }}' align='left'>
+                {{ encounter.encounter }}: {{ encounter.reason }}
+            </td>
+            <td class='detail' id='td_charges_{{ loop.index }}'>{{ encounter.charges | money }}</td>
+            <td class='detail' id='td_inspaid_{{ loop.index }}'>{{ encounter.inspaid | money }}</td>
+            <td class='detail' id='td_ptpaid_{{ loop.index }}'>{{ encounter.ptpaid | money }}</td>
+            <td class='detail' id='td_patient_copay_{{ loop.index }}'>{{ encounter.patcopay | money }}</td>
+            <td class='detail' id='td_copay_{{ loop.index }}'>{{ encounter.copay | money }}</td>
+            <td class='detail' id='balance_{{ loop.index }}'>{{ encounter.balance | money }}</td>
+            <td class='detail' id='duept_{{ loop.index }}'>{{ encounter.duept | money }}</td>
+            <td class='detail' align='center'>
+                <input
+                    class='form-control'
+                    name='form_upay[{{ encounter.encounter }}]'
+                    id='paying_{{ loop.index }}'
+                    value=''
+                    onchange='coloring();calctotal()'
+                    autocomplete='off'
+                    onkeyup='calctotal()'
+                />
+            </td>
         </tr>
         {% endfor %}
     </tbody>
