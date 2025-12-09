@@ -48,11 +48,15 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
+
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+
+$twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 
 $cryptoGen = new CryptoGen();
 
@@ -809,48 +813,10 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 <td><input class="form-control" type='text' id= 'form_prepayment' name='form_prepayment' style=''/></td>
             </tr>
         </table>
+
         <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
-            <thead>
-            </thead>
             <tbody>
-            <tr bgcolor="#cccccc" id="tr_head">
-                <td class="dehead" width="60">
-                    <?php echo xlt('DOS') ?>
-                </td>
-                <td class="dehead" width="120">
-                    <?php echo xlt('Visit Reason') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_total_charge">
-                    <?php echo xlt('Total Charge') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_rep_doc" style='display: none'>
-                    <?php echo xlt('Report/ Form') ?>
-                </td>
-                <td class="dehead" align="center" width="200" id="td_head_description" style='display: none'>
-                    <?php echo xlt('Description') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_insurance_payment">
-                    <?php echo xlt('Insurance Payment') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_patient_payment">
-                    <?php echo xlt('Patient Payment') ?>
-                </td>
-                <td class="dehead" align="center" width="55" id="td_head_patient_co_pay">
-                    <?php echo xlt('Co Pay Paid') ?>
-                </td>
-                <td class="dehead" align="center" width="55" id="td_head_co_pay">
-                    <?php echo xlt('Required Co Pay') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_insurance_balance">
-                    <?php echo xlt('Insurance Balance') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_patient_balance">
-                    <?php echo xlt('Patient Balance') ?>
-                </td>
-                <td class="dehead" align="center" width="50">
-                    <?php echo xlt('Paying') ?>
-                </td>
-            </tr>
+
             <?php
             $encs = [];
             // Get the unbilled service charges and payments by encounter for this patient.
@@ -990,6 +956,17 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 </td>
             </tr>
         </table>
+
+
+        <?=$twig->render('portal/payment_table.html.twig', [
+        // 'form_post_url' => $GLOBALS['webroot'] . '/portal/portal_payment.php',
+            'sum_charges' => $sum_charges,
+        ])?>
+
+
+
+
+
         <?php
         if (isset($ccdata["cardHolderName"])) {
             echo '<div class="col-5"><div class="card panel-default height">';

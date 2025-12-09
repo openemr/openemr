@@ -1,0 +1,70 @@
+{# this is a page fragment for the payment form in the client portal #}
+
+<table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
+    <thead>
+        <tr bgcolor="#cccccc" id="tr_head">
+            <th width="60">
+                {{ 'DOS' | xlt }}
+            </th>
+            <th width="120">
+                {{ 'Visit Reason' | xlt }}
+            </th>
+            <th align="center" width="70" id="td_head_total_charge">
+                {{ 'Total Charge' | xlt }}
+            </th>
+            <th align="center" width="70" id="td_head_rep_doc" style='display: none'>
+                {{ 'Report/ Form' | xlt }}
+            </th>
+            <th align="center" width="200" id="td_head_description" style='display: none'>
+                {{ 'Description' | xlt }}
+            </th>
+            <th align="center" width="70" id="td_head_insurance_payment">
+                {{ 'Insurance Payment' | xlt }}
+            </th>
+            <th align="center" width="70" id="td_head_patient_payment">
+                {{ 'Patient Payment' | xlt }}
+            </th>
+            <th align="center" width="55" id="td_head_patient_co_pay">
+                {{ 'Co Pay Paid' | xlt }}
+            </th>
+            <th align="center" width="55" id="td_head_co_pay">
+                {{ 'Required Co Pay' | xlt }}
+            </th>
+            <th align="center" width="70" id="td_head_insurance_balance">
+                {{ 'Insurance Balance' | xlt }}
+            </th>
+            <th align="center" width="70" id="td_head_patient_balance">
+                {{ 'Patient Balance' | xlt }}
+            </th>
+            <th align="center" width="50">
+                {{ 'Paying' | xlt }}
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>TODO: force through data</td></tr>
+    </tbody>
+
+
+    <tfoot>
+        <tr>
+            <td align="center">
+                {{ 'Total' | xlt }}
+            </td>
+            <td class="dehead" id='td_total_1' align="center">{{ 123.45 | money }}</td>
+            <td class="dehead" id='td_total_2' align="center">{{ sum_charges | money }}</td>
+            <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getBucks($sum_inspaid)) ?></td>
+            <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getBucks($sum_ptpaid)) ?></td>
+            <td class="dehead" id='td_total_5' align="center"><?php echo text(FormatMoney::getBucks($sum_patcopay)) ?></td>
+            <td class="dehead" id='td_total_6' align="center"><?php echo text(FormatMoney::getBucks($sum_copay)) ?></td>
+            <td class="dehead" id='td_total_7' align="center"><?php echo text(FormatMoney::getBucks($sum_balance)) ?></td>
+            <td class="dehead" id='td_total_8' align="center"><?php echo text(FormatMoney::getBucks($sum_duept)) ?></td>
+            <td class="dehead" align="center">
+                <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color: #3b9204;' readonly />
+            </td>
+        </tr>
+    </tfoot>
+
+</table>
+
+{# vim: ft=html #}
