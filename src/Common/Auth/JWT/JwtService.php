@@ -14,11 +14,12 @@ namespace OpenEMR\Common\Auth\JWT;
 
 use DateInterval;
 use DateTimeImmutable;
+use RuntimeException;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Hmac\Sha384;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Signer\Rsa\Sha384;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\UnencryptedToken;
@@ -40,9 +41,9 @@ use Random\RandomException;
  *
  * This implementation uses RSA (RS384) by default and the lcobucci/jwt 4.x APIs.
  */
-class JwtService
+readonly class JwtService
 {
-    private readonly Configuration $config;
+    private Configuration $config;
 
     /**
      * @param string|null $issuer Optional default issuer claim (iss)
@@ -51,29 +52,57 @@ class JwtService
      * @param int $clockSkewSeconds Allowed clock skew when validating time-based claims
      */
     public function __construct(
-        private readonly int $defaultTtlSeconds = 3600,
-        private readonly int $clockSkewSeconds = 60,
-        private readonly string $algorithm = 'RS384',
-        private readonly ?string $issuer = null,
-        private readonly ?string $audience = null,
+        private int     $defaultTtlSeconds = 3600,
+        private int     $clockSkewSeconds = 60,
+        private string  $algorithm = 'RS384',
+        private ?string $issuer = null,
+        private ?string $audience = null,
     ) {
         $signer = match (strtoupper($this->algorithm)) {
             'RS256' => new Sha256(),
             default => new Sha384(),
         };
 
-        $secret = getenv('OPENEMR_JWT_SECRET');
-        if (empty($secret)) {
-            (new SystemLogger())->debug(self::class . ": OPENEMR_JWT_SECRET environment variable is not set.");
-            throw new \RuntimeException('JWT secret is not set. Please set OPENEMR_JWT_SECRET environment variable.');
+        ['privateKey' => $privateKey, 'publicKey' => $publicKey, 'passphrase' => $passphrase] = self::getKeysInfo();
+
+        $privateKey = !empty($passphrase)
+            ? InMemory::file($privateKey, $passphrase)
+            : InMemory::file($privateKey);
+        $publicKey = InMemory::file($publicKey);
+
+        $this->config = Configuration::forAsymmetricSigner($signer, $privateKey, $publicKey);
+    }
+
+    public static function getKeysInfo(): array
+    {
+        // NOTE: we were not able to use Auth -> Config (or database in general),
+        // since on `interface/modules/zend_modules/public/index.php` we need first to parse the token
+        // before we load `global.php` and get the database connection working
+        $privateKey = getenv('OPENEMR_PORTAL_JWT_PRIVATE_KEY_FULL_PATH');
+        $publicKey = getenv('OPENEMR_PORTAL_JWT_PUBLIC_KEY_FULL_PATH');
+        $passphrase = getenv('OPENEMR_PORTAL_JWT_PRIVATE_KEY_PASSPHRASE');
+
+        if (empty($privateKey) || empty($publicKey)) {
+            (new SystemLogger())->debug(self::class . ": JWT signing keys information not found in environment.");
+            throw new RuntimeException('Unable to generate token. Missing information.');
         }
 
-        $this->config = Configuration::forSymmetricSigner(
-            $signer,
-            // 32-byte base64 secret placeholder; replace it via RSA keys in production
-            InMemory::plainText($secret)
-        );
+        // Check if files exist and are readable
+        if (!file_exists($privateKey) || !is_readable($privateKey)) {
+            (new SystemLogger())->error(self::class . ": Private key file not found or not readable: " . $privateKey);
+            throw new RuntimeException('Unable to generate token. Wrong configuration.');
+        }
 
+        if (!file_exists($publicKey) || !is_readable($publicKey)) {
+            (new SystemLogger())->error(self::class . ": Public key file not found or not readable: " . $publicKey);
+            throw new RuntimeException('Unable to generate token. Wrong configuration.');
+        }
+
+        return [
+            'privateKey' => $privateKey,
+            'publicKey' => $publicKey,
+            'passphrase' => $passphrase,
+        ];
     }
 
     /**
