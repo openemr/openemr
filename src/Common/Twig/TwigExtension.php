@@ -24,10 +24,9 @@ use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\EncounterService;
-use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
@@ -38,42 +37,32 @@ use Twig\TwigTest;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
-    protected $globals;
+    protected ?OemrUI $oemrUI = null;
 
-    /**
-     * @var Kernel
-     */
-    protected $kernel;
-
-    protected OemrUI $oemrUI;
-
-    protected function getOemrUiInstance($oemrSettings = [])
+    protected function getOemrUiInstance($oemrSettings = []): OemrUI
     {
-        if (!isset($this->oemrUI)) {
+        if (null === $this->oemrUI) {
             $this->oemrUI = new OemrUI($oemrSettings);
         }
+
         return $this->oemrUI;
     }
-    /**
-     * TwigExtension constructor.
-     * @param GlobalsService $globals
-     * @param Kernel|null $kernel
-     */
-    public function __construct(GlobalsService $globals, ?Kernel $kernel)
-    {
-        $this->globals = $globals->getGlobalsMetadata();
-        $this->kernel = $kernel;
+
+    public function __construct(
+        protected OEGlobalsBag $globals,
+        protected ?Kernel $kernel = null,
+    ) {
     }
 
     public function getGlobals(): array
     {
         return [
-            'assets_dir' => $this->globals['assets_static_relative'],
-            'srcdir' => $this->globals['srcdir'],
-            'rootdir' => $this->globals['rootdir'],
-            'webroot' => $this->globals['webroot'],
-            'assetVersion' => $this->globals['v_js_includes'],
-            'session' => $_SESSION,
+            'assets_dir' => $this->globals->get('assets_static_relative'),
+            'srcdir' => $this->globals->get('srcdir'),
+            'rootdir' => $this->globals->get('rootdir'),
+            'webroot' => $this->globals->get('webroot'),
+            'assetVersion' => $this->globals->get('v_js_includes'),
+            'session' => $_SESSION ?? [],
         ];
     }
 
@@ -142,7 +131,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                         'edit_options' => '',
                         'empty_name' => $opts['empty_name'] ?? ''
                     ];
-                    return $encounterOptionType->buildDisplayView($frow, $selectedValue);
+                    return $encounterOptionType->buildFormView($frow, $selectedValue);
                 }
             ),
 
@@ -266,7 +255,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 CacheUtils::getAssetCacheParamRaw(...)
             ),
             new TwigFunction(
-                'uniqid', 
+                'uniqid',
                 fn(string $prefix = "", bool $more_entropy = false): string => uniqid($prefix, $more_entropy)
             )
         ];

@@ -351,6 +351,10 @@ function checkBackgroundServices(): void
           width: 100%;
         }
       }
+
+      .striped .row.form-group:nth-child(even) {
+        background: var(--light);
+      }
     </style>
     <?php
     $heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Configuration");
@@ -431,7 +435,7 @@ function checkBackgroundServices(): void
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
                                         echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
-                                        echo "<div class=''>";
+                                        echo '<div class="striped">';
                                         $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
                                         echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
                                         echo "<div class='clearfix'></div>";

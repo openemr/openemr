@@ -47,6 +47,7 @@ function safeGet(obj, path, defaultValue = "") {
         return (current && current[key] !== undefined) ? current[key] : defaultValue;
     }, obj);
 }
+
 /**
  * Map common route abbreviations to NCI Thesaurus codes
  * @param {string} routeCode - The route code from database (may be abbreviation or NCI code)
@@ -1731,6 +1732,72 @@ function populateVital(pd) {
             "unit": "mm[Hg]",
             "author": populateAuthorFromAuthorContainer(pd),
         }, {
+            // Average Blood Pressure
+            "identifiers": [{
+                "identifier": pd.sha_extension || "",
+                "extension": pd.extension_bp_avg || ""
+            }],
+            "vital": {
+                "name": "Average Blood Pressure",
+                "code": "96607-7",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime) || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": (pd.bp_avg !== undefined && pd.bp_avg !== null && pd.bp_avg !== "") ? parseFloat(pd.bp_avg) : "",
+            "unit": "mm[Hg]",
+            "author": populateAuthorFromAuthorContainer(pd)
+        }, {
+            // Average Systolic Blood Pressure
+            "identifiers": [{
+                "identifier": pd.sha_extension || "",
+                "extension": pd.extension_avg_systolic || ""
+            }],
+            "vital": {
+                "name": "Average Systolic Blood Pressure",
+                "code": "96608-5",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime) || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": (pd.avg_systolic !== undefined && pd.avg_systolic !== null && pd.avg_systolic !== "") ? parseFloat(pd.avg_systolic) : "",
+            "unit": "mm[Hg]",
+            "author": populateAuthorFromAuthorContainer(pd)
+        }, {
+            // Average Diastolic Blood Pressure
+            "identifiers": [{
+                "identifier": pd.sha_extension || "",
+                "extension": pd.extension_avg_diastolic || ""
+            }],
+            "vital": {
+                "name": "Average Diastolic Blood Pressure",
+                "code": "96609-3",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime) || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": (pd.avg_diastolic !== undefined && pd.avg_diastolic !== null && pd.avg_diastolic !== "") ? parseFloat(pd.avg_diastolic) : "",
+            "unit": "mm[Hg]",
+            "author": populateAuthorFromAuthorContainer(pd)
+        }, {
             "identifiers": [{
                 "identifier": pd.sha_extension || "",
                 "extension": pd.extension_height || ""
@@ -1990,7 +2057,7 @@ function populateSocialHistory(pd) {
         "value": pd.description || "",
         "gender": patient.gender || "",
         "sex_observation": {
-            "gender":patient.sex_observation || ""
+            "gender": patient.sex_observation || ""
         },
         "effective_date": {
             "point": {
