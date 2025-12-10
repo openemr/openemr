@@ -9,7 +9,6 @@
  * @license   There are segments of code in this file that have been generated via PHPStorm Junie AI and are licensed as Public Domain.
  * @link      http://www.open-emr.org
  * @author    OpenEMR
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Auth\JWT;
@@ -48,10 +47,11 @@ readonly class JwtService
     private Configuration $config;
 
     /**
-     * @param string|null $issuer Optional default issuer claim (iss)
-     * @param string|null $audience Optional default audience claim (aud)
      * @param int $defaultTtlSeconds Default time-to-live in seconds for tokens you create
      * @param int $clockSkewSeconds Allowed clock skew when validating time-based claims
+     * @param string $algorithm Signing algorithm to use. Default RS384, available RS256.
+     * @param string|null $issuer Optional default issuer claim (iss)
+     * @param string|null $audience Optional default audience claim (aud)
      */
     public function __construct(
         private int     $defaultTtlSeconds = 3600,
