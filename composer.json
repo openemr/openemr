@@ -79,7 +79,7 @@
         "lcobucci/jwt": "^4.2.1",
         "league/csv": "^9.28.0",
         "league/oauth2-server": "^8.4",
-        "league/omnipay": "3.2.1",
+        "league/omnipay": "^3.2.1",
         "mobiledetect/mobiledetectlib": "4.8.09",
         "monolog/monolog": "3.9.0",
         "mpdf/mpdf": "8.2.7",
