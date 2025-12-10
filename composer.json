@@ -120,7 +120,7 @@
         "symfony/http-kernel": "~6.4.27",
         "symfony/psr-http-message-bridge": "~6.4.24",
         "symfony/yaml": "~6.4.26",
-        "twig/twig": "3.22.2",
+        "twig/twig": "^3.22.2",
         "twilio/sdk": "8.10.0",
         "vlucas/phpdotenv": "5.6.3",
         "waryway/php-traits-library": "1.0.4",
