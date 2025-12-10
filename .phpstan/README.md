@@ -106,6 +106,74 @@ class SomeServiceTest extends TestCase
 }
 ```
 
+### ForbiddenCurlFunctionsRule
+
+**Purpose:** Prevents use of raw `curl_*` functions throughout the codebase.
+
+**What it catches:**
+- `curl_init()` - Initialize a cURL session
+- `curl_setopt()` - Set an option for a cURL transfer
+- `curl_exec()` - Execute a cURL session
+- `curl_close()` - Close a cURL session
+- Any other `curl_*` function calls
+
+**Rationale:**
+- **Testability** - GuzzleHttp can be easily mocked in unit tests
+- **PSR-7 Compliance** - Standard HTTP message interfaces
+- **Error Handling** - Better exception handling and error messages
+- **Maintainability** - Consistent HTTP client usage across the codebase
+- **Features** - Built-in middleware, authentication, retries, and more
+
+**Before (❌ Forbidden):**
+```php
+$ch = curl_init('https://api.example.com/data');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer token']);
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($httpCode !== 200) {
+    // handle error
+}
+
+$data = json_decode($response, true);
+```
+
+**After (✅ Recommended):**
+```php
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+
+try {
+    $client = new Client();
+    $response = $client->request('GET', 'https://api.example.com/data', [
+        'headers' => [
+            'Authorization' => 'Bearer token'
+        ]
+    ]);
+    
+    $data = json_decode($response->getBody()->getContents(), true);
+} catch (GuzzleException $e) {
+    // handle error with proper exception
+    error_log('API request failed: ' . $e->getMessage());
+}
+```
+
+**Or using OpenEMR's HttpClient wrapper:**
+```php
+use OpenEMR\Common\Http\HttpClient;
+
+$httpClient = new HttpClient();
+$response = $httpClient->request('GET', 'https://api.example.com/data', [
+    'headers' => [
+        'Authorization' => 'Bearer token'
+    ]
+]);
+
+$data = json_decode($response->getBody()->getContents(), true);
+```
+
 ## Baseline
 
 Existing violations of these rules are recorded in `phpstan-database-baseline.neon` so they won't cause errors. However, new code should follow these patterns.
