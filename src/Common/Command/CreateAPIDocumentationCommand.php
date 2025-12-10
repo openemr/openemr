@@ -10,6 +10,7 @@
 
 namespace OpenEMR\Common\Command;
 
+use OpenApi\Generator as OpenApiGenerator;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,10 +49,10 @@ class CreateAPIDocumentationCommand extends Command
             ->name('*.php')
         ;
 
-        $openapi = \OpenApi\Generator::scan([
-            $routesLocation
-            ,$finder
-        ]);
+        $openapi = OpenApiGenerator::scan(array_merge(
+            [$routesLocation],
+            iterator_to_array($finder->getIterator()),
+        ));
 
         // To have smaller diffs - we force stable order here
         $data = json_decode($openapi->toJson(), true);
