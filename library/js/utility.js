@@ -538,9 +538,14 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                     return;
                 }
 
-                let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                    + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                // AI-generated code start (GitHub Copilot)
+                const params = new URLSearchParams({
+                    intent: intent,
+                    client_id: clientId,
+                    csrf_token: csrfToken
+                });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?' + params;
+                // AI-generated code end (GitHub Copilot)
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
@@ -570,17 +575,27 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                         window.name = event.source.name;
                         dlgclose();
                         window.top.removeEventListener('message', windowMessageHandler);
+                        // AI-generated code start (GitHub Copilot)
                         // loadFrame already handles webroot and /interface/ prefix.
-                        let editUrl = '/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/edit/" + data.dsiId)
-                            + "&csrf_token=" + encodeURIComponent(csrfToken);
+                        const editParams = new URLSearchParams({
+                            action: "external-cdr/edit/" + data.dsiId,
+                            csrf_token: csrfToken
+                        });
+                        let editUrl = '/smart/admin-client.php?' + editParams;
+                        // AI-generated code end (GitHub Copilot)
                         window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                     }
                 };
                 window.top.addEventListener('message', windowMessageHandler);
 
-                let url = webroot + '/interface/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/cdr-info")
-                    + '&serviceId=' + encodeURIComponent(dsi)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                // AI-generated code start (GitHub Copilot)
+                const params = new URLSearchParams({
+                    action: "external-cdr/cdr-info",
+                    serviceId: dsi,
+                    csrf_token: csrfToken
+                });
+                let url = webroot + '/interface/smart/admin-client.php?' + params;
+                // AI-generated code end (GitHub Copilot)
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here

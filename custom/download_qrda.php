@@ -105,7 +105,13 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+                    // AI-generated code start (GitHub Copilot)
+                    const params = new URLSearchParams({
+                        fileName: zipFiles,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    });
+                    window.location = 'ajax_download.php?' + params;
+                    // AI-generated code end (GitHub Copilot)
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {

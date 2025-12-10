@@ -667,7 +667,13 @@ if (
         }
         function editInvoice(e, id) {
             e.preventDefault();
-            let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                isPosting: '1',
+                id: id
+            });
+            const url = './sl_eob_invoice.php?' + params;
+            // AI-generated code end (GitHub Copilot)
             <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
             dlgopen(url,'editInvoiceDlg','modal-full', false, false, '', {
                 sizeHeight: 'full',
@@ -1258,7 +1264,16 @@ if (
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
-        window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&original=original' + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank');
+        // AI-generated code start (GitHub Copilot)
+        const params = new URLSearchParams({
+            eraname: <?php echo js_escape($eraname); ?>,
+            debug: debug,
+            paydate: paydate,
+            original: 'original',
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+        // AI-generated code end (GitHub Copilot)
         return false;
     }
 

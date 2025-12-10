@@ -767,7 +767,10 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
                     let redirectUrl = $("#redirect").val();
                     if (redirectUrl) {
-                        url += "&redirect=" + encodeURIComponent(redirectUrl);
+                        // AI-generated code start (GitHub Copilot)
+                        const params = new URLSearchParams({ redirect: redirectUrl });
+                        url += "&" + params;
+                        // AI-generated code end (GitHub Copilot)
                     }
                     window.location.href = url;
                 } else if (action === "reset_password") {
