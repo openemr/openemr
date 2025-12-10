@@ -48,11 +48,15 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
+
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+
+$twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 
 $cryptoGen = new CryptoGen();
 
@@ -86,36 +90,6 @@ if ($edata) {
 //
 $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
-{
-    global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
-    global $var_index;
-    $var_index++;
-    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
-    $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounter ?: '';
-    echo " <tr id='tr_" . attr($var_index) . "' >\n";
-    echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
-        "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
-    echo " </tr>\n";
-
-    $sum_charges += (float)$charges * 1;
-    $sum_ptpaid += (float)$ptpaid * -1;
-    $sum_inspaid += (float)$inspaid * -1;
-    $sum_duept += (float)$duept * 1;
-    $sum_patcopay += (float)$patcopay * 1;
-    $sum_copay += (float)$copay * 1;
-    $sum_balance += (float)$balance * 1;
-}
 
 // We use this to put dashes, colons, etc. back into a timestamp.
 //
@@ -423,10 +397,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
     <script>
 
-        function goHome() {
-            window.location.replace("./patient/onsiteactivityviews");
-        }
-
         function notifyPatient() {
             let pid = <?php echo js_escape($pid); ?>;
             let note = $('#pop_receipt').html();
@@ -527,6 +497,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     </style>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="portal_payment.js"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -557,43 +528,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             }
             return true;
         }
-
-        function coloring() {
-            for (var i = 1; ; ++i) {
-                if (document.getElementById('paying_' + i)) {
-                    paying = document.getElementById('paying_' + i).value * 1;
-                    patient_balance = document.getElementById('duept_' + i).innerHTML * 1;
-                    if (patient_balance > 0 && paying > 0) {
-                        if (paying > patient_balance) {
-                            document.getElementById('paying_' + i).style.background = '#FF0000';
-                        }
-                        else if (paying < patient_balance) {
-                            document.getElementById('paying_' + i).style.background = '#99CC00';
-                        }
-                        else if (paying == patient_balance) {
-                            document.getElementById('paying_' + i).style.background = '#ffffff';
-                        }
-                    }
-                    else {
-                        document.getElementById('paying_' + i).style.background = '#ffffff';
-                    }
-                }
-                else {
-                    break;
-                }
-            }
-        }
-
-        function CheckVisible(MakeBlank) {//Displays and hides the check number text box.
-            if (document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'check_payment' ||
-                document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'bank_draft') {
-                document.getElementById('check_number').disabled = false;
-            }
-            else {
-                document.getElementById('check_number').disabled = true;
-            }
-        }
-
         function validate() {
             var f = document.forms["invoiceForm"];
             ok = -1;
@@ -639,169 +573,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
             }
         }
-
-        function cursor_pointer() {//Point the cursor to the latest encounter(Today)
-            var f = document.forms["invoiceForm"];
-            var total = 0;
-            for (var i = 0; i < f.elements.length; ++i) {
-                var elem = f.elements[i];
-                var ename = elem.name;
-                if (ename.indexOf('form_upay[') == 0) {
-                    elem.focus();
-                    break;
-                }
-            }
-        }
-
-        function make_it_hide_enc_pay() {
-            document.getElementById('td_head_insurance_payment').style.display = "none";
-            document.getElementById('td_head_patient_co_pay').style.display = "none";
-            document.getElementById('td_head_co_pay').style.display = "none";
-            document.getElementById('td_head_insurance_balance').style.display = "none";
-            for (var i = 1; ; ++i) {
-                var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
-                var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                var td_copay_elem = document.getElementById('td_copay_' + i)
-                var balance_elem = document.getElementById('balance_' + i)
-                if (td_inspaid_elem) {
-                    td_inspaid_elem.style.display = "none";
-                    td_patient_copay_elem.style.display = "none";
-                    td_copay_elem.style.display = "none";
-                    balance_elem.style.display = "none";
-                }
-                else {
-                    break;
-                }
-            }
-            document.getElementById('td_total_4').style.display = "none";
-            document.getElementById('td_total_7').style.display = "none";
-            document.getElementById('td_total_8').style.display = "none";
-            document.getElementById('td_total_6').style.display = "none";
-
-            document.getElementById('table_display').width = "420px";
-        }
-
-        function make_visible() {
-            document.getElementById('td_head_rep_doc').style.display = "";
-            document.getElementById('td_head_description').style.display = "";
-            document.getElementById('td_head_total_charge').style.display = "none";
-            document.getElementById('td_head_insurance_payment').style.display = "none";
-            document.getElementById('td_head_patient_payment').style.display = "none";
-            document.getElementById('td_head_patient_co_pay').style.display = "none";
-            document.getElementById('td_head_co_pay').style.display = "none";
-            document.getElementById('td_head_insurance_balance').style.display = "none";
-            document.getElementById('td_head_patient_balance').style.display = "none";
-            for (var i = 1; ; ++i) {
-                var td_charges_elem = document.getElementById('td_charges_' + i)
-                var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
-                var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
-                var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                var td_copay_elem = document.getElementById('td_copay_' + i)
-                var balance_elem = document.getElementById('balance_' + i)
-                var duept_elem = document.getElementById('duept_' + i)
-                if (td_charges_elem) {
-                    td_charges_elem.style.display = "none";
-                    td_inspaid_elem.style.display = "none";
-                    td_ptpaid_elem.style.display = "none";
-                    td_patient_copay_elem.style.display = "none";
-                    td_copay_elem.style.display = "none";
-                    balance_elem.style.display = "none";
-                    duept_elem.style.display = "none";
-                }
-                else {
-                    break;
-                }
-            }
-            document.getElementById('td_total_7').style.display = "";
-            document.getElementById('td_total_8').style.display = "";
-            document.getElementById('td_total_1').style.display = "none";
-            document.getElementById('td_total_2').style.display = "none";
-            document.getElementById('td_total_3').style.display = "none";
-            document.getElementById('td_total_4').style.display = "none";
-            document.getElementById('td_total_5').style.display = "none";
-            document.getElementById('td_total_6').style.display = "none";
-
-            document.getElementById('table_display').width = "505px";
-        }
-
-        function make_it_hide() {
-            document.getElementById('td_head_rep_doc').style.display = "none";
-            document.getElementById('td_head_description').style.display = "none";
-            document.getElementById('td_head_total_charge').style.display = "";
-            document.getElementById('td_head_insurance_payment').style.display = "";
-            document.getElementById('td_head_patient_payment').style.display = "";
-            document.getElementById('td_head_patient_co_pay').style.display = "";
-            document.getElementById('td_head_co_pay').style.display = "";
-            document.getElementById('td_head_insurance_balance').style.display = "";
-            document.getElementById('td_head_patient_balance').style.display = "";
-            for (var i = 1; ; ++i) {
-                var td_charges_elem = document.getElementById('td_charges_' + i)
-                var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
-                var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
-                var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                var td_copay_elem = document.getElementById('td_copay_' + i)
-                var balance_elem = document.getElementById('balance_' + i)
-                var duept_elem = document.getElementById('duept_' + i)
-                if (td_charges_elem) {
-                    td_charges_elem.style.display = "";
-                    td_inspaid_elem.style.display = "";
-                    td_ptpaid_elem.style.display = "";
-                    td_patient_copay_elem.style.display = "";
-                    td_copay_elem.style.display = "";
-                    balance_elem.style.display = "";
-                    duept_elem.style.display = "";
-                }
-                else {
-                    break;
-                }
-            }
-            document.getElementById('td_total_1').style.display = "";
-            document.getElementById('td_total_2').style.display = "";
-            document.getElementById('td_total_3').style.display = "";
-            document.getElementById('td_total_4').style.display = "";
-            document.getElementById('td_total_5').style.display = "";
-            document.getElementById('td_total_6').style.display = "";
-            document.getElementById('td_total_7').style.display = "";
-            document.getElementById('td_total_8').style.display = "";
-
-            document.getElementById('table_display').width = "100%";
-        }
-
-        function make_visible_radio() {
-            document.getElementById('tr_radio1').style.display = "";
-            document.getElementById('tr_radio2').style.display = "none";
-        }
-
-        function make_hide_radio() {
-            document.getElementById('tr_radio1').style.display = "none";
-            document.getElementById('tr_radio2').style.display = "";
-        }
-
-        function make_visible_row() {
-            document.getElementById('table_display').style.display = "";
-            document.getElementById('table_display_prepayment').style.display = "none";
-        }
-
-        function make_hide_row() {
-            document.getElementById('table_display').style.display = "none";
-            document.getElementById('table_display_prepayment').style.display = "";
-        }
-
-        function make_self() {
-            make_visible_row();
-            make_it_hide();
-            make_it_hide_enc_pay();
-            document.getElementById('radio_type_of_payment_self1').checked = true;
-            cursor_pointer();
-        }
-
-        function make_insurance() {
-            make_visible_row();
-            make_it_hide();
-            cursor_pointer();
-            document.getElementById('radio_type_of_payment1').checked = true;
-        }
-
         $('#paySubmit').click(function (e) {
             e.preventDefault();e.stopPropagation();
             $("#mode").val("portal-save");
@@ -887,33 +658,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
             });
         });
-
-        function getFormObj(formId) {
-            let formObj = {};
-            let inputs = $('#' + formId).serializeArray();
-            $.each(inputs, function (i, input) {
-                formObj[input.name] = input.value;
-            });
-            return formObj;
-        }
-
-        function formRepopulate(jsondata) {
-            let data = $.parseJSON(jsondata);
-            $.each(data, function (name, val) {
-                let $el = $('[name="' + name + '"]'),
-                    type = $el.attr('type');
-                switch (type) {
-                    case 'checkbox':
-                        $el.prop('checked', true);
-                        break;
-                    case 'radio':
-                        $el.filter('[value="' + val + '"]').prop('checked', true);
-                        break;
-                    default:
-                        $el.val(val);
-                }
-            });
-        }
 
         function getAuth() {
             let authnum = document.getElementById("check_number").value;
@@ -1039,50 +783,12 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 <td><input class="form-control" type='text' id= 'form_prepayment' name='form_prepayment' style=''/></td>
             </tr>
         </table>
-        <table id="table_display" style="background: #eee;" class="table table-sm table-striped table-bordered w-100">
-            <thead>
-            </thead>
-            <tbody>
-            <tr bgcolor="#cccccc" id="tr_head">
-                <td class="dehead" width="60">
-                    <?php echo xlt('DOS') ?>
-                </td>
-                <td class="dehead" width="120">
-                    <?php echo xlt('Visit Reason') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_total_charge">
-                    <?php echo xlt('Total Charge') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_rep_doc" style='display: none'>
-                    <?php echo xlt('Report/ Form') ?>
-                </td>
-                <td class="dehead" align="center" width="200" id="td_head_description" style='display: none'>
-                    <?php echo xlt('Description') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_insurance_payment">
-                    <?php echo xlt('Insurance Payment') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_patient_payment">
-                    <?php echo xlt('Patient Payment') ?>
-                </td>
-                <td class="dehead" align="center" width="55" id="td_head_patient_co_pay">
-                    <?php echo xlt('Co Pay Paid') ?>
-                </td>
-                <td class="dehead" align="center" width="55" id="td_head_co_pay">
-                    <?php echo xlt('Required Co Pay') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_insurance_balance">
-                    <?php echo xlt('Insurance Balance') ?>
-                </td>
-                <td class="dehead" align="center" width="70" id="td_head_patient_balance">
-                    <?php echo xlt('Patient Balance') ?>
-                </td>
-                <td class="dehead" align="center" width="50">
-                    <?php echo xlt('Paying') ?>
-                </td>
-            </tr>
+
             <?php
+            // This logic was in the middle of HTML rendering; will get
+            // consoldiated further in another PR. See #9705.
             $encs = [];
+            $rows = [];
             // Get the unbilled service charges and payments by encounter for this patient.
             //
             $query = "SELECT fe.encounter, fe.reason, b.code_type, b.code, b.modifier, b.fee, " .
@@ -1200,26 +906,48 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 
-                echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
+                $charges = $value['charges'];
+                $inspaid = $dpayment + $dadjustment;
+                $balance = $charges - $dpayment_pat - $inspaid;
+
+                $sum_charges += $charges;
+                $sum_ptpaid -= $dpayment_pat;
+                $sum_inspaid -= $inspaid;
+                $sum_duept += $duept;
+                $sum_patcopay += $patcopay;
+                $sum_copay += $inscopay;
+                $sum_balance += $balance;
+
+                $rows[] = [
+                    'date' => $dispdate,
+                    'encounter' => $enc,
+                    'reason' => $reason,
+                    'charges' => $charges,
+                    'inspaid' => -$inspaid,
+                    'ptpaid' => -$dpayment_pat,
+                    'patcopay' => $patcopay,
+                    'copay' => $inscopay,
+                    'balance' => $balance,
+                    'duept' => $duept,
+                ];
             }
 
             // Continue with display of the data entry form.
             ?>
-            <tr>
-                <td class="dehead" align="center"><?php echo xlt('Total'); ?></td>
-                <td class="dehead" id='td_total_1' align="center"></td>
-                <td class="dehead" id='td_total_2' align="center"><?php echo text(FormatMoney::getBucks($sum_charges)) ?></td>
-                <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getBucks($sum_inspaid)) ?></td>
-                <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getBucks($sum_ptpaid)) ?></td>
-                <td class="dehead" id='td_total_5' align="center"><?php echo text(FormatMoney::getBucks($sum_patcopay)) ?></td>
-                <td class="dehead" id='td_total_6' align="center"><?php echo text(FormatMoney::getBucks($sum_copay)) ?></td>
-                <td class="dehead" id='td_total_7' align="center"><?php echo text(FormatMoney::getBucks($sum_balance)) ?></td>
-                <td class="dehead" id='td_total_8' align="center"><?php echo text(FormatMoney::getBucks($sum_duept)) ?></td>
-                <td class="dehead" align="center">
-                    <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color: #3b9204;' readonly />
-                </td>
-            </tr>
-        </table>
+
+        <?=$twig->render('portal/payment_table.html.twig', [
+            'encounters' => $rows,
+            'sum_charges' => $sum_charges,
+            'sum_inspaid' => $sum_inspaid,
+            'sum_ptpaid' => $sum_ptpaid,
+            'sum_patcopay' => $sum_patcopay,
+            'sum_copay' => $sum_copay,
+            'sum_balance' => $sum_balance,
+            'sum_duept' => $sum_duept,
+        ])?>
+
+
+
         <?php
         if (isset($ccdata["cardHolderName"])) {
             echo '<div class="col-5"><div class="card panel-default height">';
@@ -1472,165 +1200,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Will return a token to use for payment request keeping
         // credit info off the server.
         ?>
-        <script>
-            function sendPaymentDataToAnet(e) {
-                e.preventDefault();
-                const authData = {};
-                authData.clientKey = publicKey;
-                authData.apiLoginID = apiKey;
-
-                const cardData = {};
-                cardData.cardNumber = document.getElementById("cardNumber").value;
-                cardData.month = document.getElementById("expMonth").value;
-                cardData.year = document.getElementById("expYear").value;
-                cardData.cardCode = document.getElementById("cardCode").value;
-                cardData.fullName = document.getElementById("cardHolderName").value;
-                cardData.zip = document.getElementById("cczip").value;
-
-                const secureData = {};
-                secureData.authData = authData;
-                secureData.cardData = cardData;
-
-                Accept.dispatchData(secureData, acceptResponseHandler);
-
-                function acceptResponseHandler(response) {
-                    if (response.messages.resultCode === "Error") {
-                        let i = 0;
-                        let errorMsg = '';
-                        while (i < response.messages.message.length) {
-                            errorMsg = errorMsg + response.messages.message[i].code + ": " +response.messages.message[i].text;
-                            console.log(errorMsg);
-                            i = i + 1;
-                        }
-                        alert(errorMsg);
-                    } else {
-                        paymentFormUpdate(response.opaqueData);
-                    }
-                }
-            }
-
-            function paymentFormUpdate(opaqueData) {
-                // this is card tokenized
-                document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-                document.getElementById("dataValue").value = opaqueData.dataValue;
-                let oForm = document.forms['paymentForm'];
-                oForm.elements['mode'].value = "AuthorizeNet";
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-                document.getElementById("invValues").value = inv_values;
-
-                // empty out the fields before submitting to server.
-                document.getElementById("cardNumber").value = "";
-                document.getElementById("expMonth").value = "";
-                document.getElementById("expYear").value = "";
-                document.getElementById("cardCode").value = "";
-
-                // Submit payment to server
-                fetch('./lib/paylib.php', {
-                    method: 'POST',
-                    body: new FormData(oForm)
-                }).then(function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.text();
-                }).then(function(data) {
-                    if(data !== 'ok') {
-                        alert(data);
-                        return;
-                    }
-                    alert(chargeMsg);
-                    window.location.reload(false);
-                }).catch(function(error) {
-                    alert(error)
-                });
-            }
-        </script>
+        <script src="portal_payment.authorizenet.js"></script>
     <?php }  // end authorize.net ?>
 
     <?php if ($GLOBALS['payment_gateway'] == 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
-        <script>
-            const stripe = Stripe(publicKey);
-            const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
-            const style = {
-                base: {
-                    color: '#32325d',
-                    lineHeight: '1.2rem',
-                    fontSmoothing: 'antialiased',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: '#8e8e8e'
-                    }
-                },
-                invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a'
-                }
-
-            };
-            // Create an instance of the card Element.
-            const card = elements.create('card', {style: style});
-            // Add an instance of the card Element into the `card-element` <div>.
-            card.mount('#card-element');
-            // Handle real-time validation errors from the card Element.
-            card.addEventListener('change', function (event) {
-                let displayError = document.getElementById('card-errors');
-                if (event.error) {
-                    displayError.textContent = event.error.message;
-                } else {
-                    displayError.textContent = '';
-                }
-            });
-            // Handle form submission.
-            let form = document.getElementById('stripeSubmit');
-            form.addEventListener('click', function (event) {
-                event.preventDefault();
-                stripe.createToken(card).then(function (result) {
-                    if (result.error) {
-                        // Inform the user if there was an error.
-                        let errorElement = document.getElementById('card-errors');
-                        errorElement.textContent = result.error.message;
-                    } else {
-                        // Send the token to server.
-                        stripeTokenHandler(result.token);
-                    }
-                });
-            });
-            // Submit the form with the token ID.
-            function stripeTokenHandler(token) {
-                // Insert the token ID into the form so it gets submitted to the server
-                let oForm = document.forms['payment-form'];
-                oForm.elements['mode'].value = "Stripe";
-
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-                document.getElementById("invValues").value = inv_values;
-
-                let hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'stripeToken');
-                hiddenInput.setAttribute('value', token.id);
-                oForm.appendChild(hiddenInput);
-
-                // Submit payment to server
-                fetch('./lib/paylib.php', {
-                    method: 'POST',
-                    body: new FormData(oForm)
-                }).then(function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.text();
-                }).then(function(data) {
-                    if(data !== 'ok') {
-                        alert(data);
-                        return;
-                    }
-                    alert(chargeMsg);
-                    window.location.reload(false);
-                }).catch(function(error) {
-                    alert(error)
-                });
-            }
-        </script>
+        <script src="portal_payment.stripe.js"></script>
     <?php } ?>
 
     <?php

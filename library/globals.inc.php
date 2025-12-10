@@ -79,6 +79,7 @@
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
+use OpenEMR\PaymentProcessing\Gateway;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
@@ -3352,12 +3353,12 @@ $GLOBALS_METADATA = [
         'payment_gateway' => [
             xl('Select Credit Card Payment Gateway'),
             [
-                'InHouse' => xl('In House Authorize Payments'),
-                'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
-                'Sphere' => xl('Gateway for Sphere Payments'),
-                'Stripe' => xl('Gateway for Stripe Manual Payments')
+                Gateway::InHouse->value => xl('In House Authorize Payments'),
+                Gateway::AuthorizeNet->value => xl('Gateway for AuthorizeNet Manual Payments'),
+                Gateway::Sphere->value => xl('Gateway for Sphere Payments'),
+                Gateway::Stripe->value => xl('Gateway for Stripe Manual Payments')
             ],
-            'InHouse',
+            Gateway::InHouse->value,
             xl('Enable a Payment Gateway Service for processing credit card transactions')
         ],
 
