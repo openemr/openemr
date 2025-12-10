@@ -34,17 +34,7 @@ class ForbiddenMethodsRule implements Rule
      * targeting globals lacking sufficient type info)
      */
     private const FORBIDDEN_METHODS = [
-        'GenID' => 'Use generate_id() or edi_generate_id() instead of the raw adodb method',
-        // 'sqlQuery' => 'Use QueryUtils::querySingleRow() or QueryUtils::fetchRecords() instead of sqlQuery().',
-        // 'sqlStatement' => 'Use QueryUtils::sqlStatementThrowException() or QueryUtils::fetchRecords() instead of sqlStatement().',
-        // 'sqlInsert' => 'Use QueryUtils::sqlInsert() instead of sqlInsert().',
-        // 'sqlFetchArray' => 'Use QueryUtils::fetchRecords() or QueryUtils::fetchArrayFromResultSet() instead of sqlFetchArray().',
-        // 'sqlBeginTrans' => 'Use QueryUtils::startTransaction() instead of sqlBeginTrans().',
-        // 'sqlCommitTrans' => 'Use QueryUtils::commitTransaction() instead of sqlCommitTrans().',
-        // 'sqlRollbackTrans' => 'Use QueryUtils::rollbackTransaction() instead of sqlRollbackTrans().',
-        // 'sqlStatementNoLog' => 'Use QueryUtils::fetchRecordsNoLog() instead of sqlStatementNoLog().',
-        // 'sqlStatementThrowException' => 'Use QueryUtils::sqlStatementThrowException() instead of global sqlStatementThrowException().',
-        // 'sqlQueryNoLog' => 'Use QueryUtils::querySingleRow() instead of sqlQueryNoLog().',
+        'GenID' => 'Use QueryUtils::generateId() or QueryUtils::ediGenerateId instead.',
     ];
 
     public function getNodeType(): string
@@ -58,10 +48,6 @@ class ForbiddenMethodsRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        var_dump(__METHOD__);
-        // if (!($node->name instanceof Name)) {
-        //     return [];
-        // }
         if (!($node->name instanceof Identifier)) {
             return [];
         }
