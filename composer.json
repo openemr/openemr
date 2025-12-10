@@ -100,7 +100,7 @@
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.1",
         "psr/http-message": "^1.1",
-        "psr/log": "3.0.2",
+        "psr/log": "^3.0.2",
         "ramsey/uuid": "4.9.2",
         "ringcentral/ringcentral-php": "3.0.4",
         "robthree/twofactorauth": "3.0.2",
