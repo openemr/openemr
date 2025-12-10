@@ -124,7 +124,7 @@
         "twilio/sdk": "^8.10.0",
         "vlucas/phpdotenv": "^5.6.3",
         "waryway/php-traits-library": "^1.0.4",
-        "yubico/u2flib-server": "1.0.2",
+        "yubico/u2flib-server": "^1.0.2",
         "zircote/swagger-php": "^3.0"
     },
     "require-dev": {
