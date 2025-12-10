@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\DashboardContext;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
@@ -54,6 +55,11 @@ class Bootstrap
         $this->registerMenuItems();
         $this->registerPageHeadingWidget();
         //$this->registerDashboardWidget(); // TODO sjp Save if we want to allow user to move the dropdown to top of view.
+    }
+
+    public function registerDashboardWidget(): void
+    {
+        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, $this->renderDashboardWidget(...));
     }
 
     /**
