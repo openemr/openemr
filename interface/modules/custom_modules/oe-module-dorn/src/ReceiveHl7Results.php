@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\Dorn;
 
 use Document;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\ReceiveResultsResponseModel;
 
@@ -1492,8 +1493,7 @@ class ReceiveHl7Results
     private function createEncounter($pid, $provider_id, $order_date, $lab_name)
     {
         global $orphanLog;
-        $conn = $GLOBALS['adodb']['db'];
-        $encounter = $conn->GenID("sequences");
+        $encounter = QueryUtils::generateId();
         addForm(
             $encounter,
             "Auto Generated Lab Encounter",

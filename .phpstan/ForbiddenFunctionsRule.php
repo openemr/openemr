@@ -30,6 +30,8 @@ class ForbiddenFunctionsRule implements Rule
      * Map of forbidden functions to their error messages
      */
     private const FORBIDDEN_FUNCTIONS = [
+        'generate_id' => 'Use QueryUtils::generateId() instead.',
+        'edi_generate_id' => 'Use QueryUtils::ediGenerateId() instead.',
         'sqlQuery' => 'Use QueryUtils::querySingleRow() or QueryUtils::fetchRecords() instead of sqlQuery().',
         'sqlStatement' => 'Use QueryUtils::sqlStatementThrowException() or QueryUtils::fetchRecords() instead of sqlStatement().',
         'sqlInsert' => 'Use QueryUtils::sqlInsert() instead of sqlInsert().',
