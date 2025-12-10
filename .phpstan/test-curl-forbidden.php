@@ -23,12 +23,12 @@ class TestCurlForbidden
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Should fail
         $response = curl_exec($ch); // Should fail
         $info = curl_getinfo($ch); // Should fail
+        $errno = curl_errno($ch); // Should fail
+        $error = curl_error($ch); // Should fail
         curl_close($ch); // Should fail
         
         // Additional curl functions that should also be caught
-        curl_errno($ch); // Should fail
-        curl_error($ch); // Should fail
-        curl_multi_init(); // Should fail
+        $mh = curl_multi_init(); // Should fail
         
         return $response;
     }

@@ -20,28 +20,28 @@ The test should produce errors similar to:
 Line   .phpstan/test-curl-forbidden.php
 ------ -----------------------------------------------------------------------------------------
 22     Raw curl_* function curl_init() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
 23     Raw curl_* function curl_setopt() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
 24     Raw curl_* function curl_exec() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
 25     Raw curl_* function curl_getinfo() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
-26     Raw curl_* function curl_close() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+26     Raw curl_* function curl_errno() is forbidden. Use GuzzleHttp\Client or 
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
-29     Raw curl_* function curl_errno() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+27     Raw curl_* function curl_error() is forbidden. Use GuzzleHttp\Client or 
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
-30     Raw curl_* function curl_error() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+28     Raw curl_* function curl_close() is forbidden. Use GuzzleHttp\Client or 
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
 31     Raw curl_* function curl_multi_init() is forbidden. Use GuzzleHttp\Client or 
-       OpenEMR\Common\Http\HttpClient instead.
+       OpenEMR\Common\Http\oeHttp instead.
        💡 Migrate to GuzzleHttp for better testability and PSR-7 compliance
 ------ -----------------------------------------------------------------------------------------
 ```

@@ -160,12 +160,11 @@ try {
 }
 ```
 
-**Or using OpenEMR's HttpClient wrapper:**
+**Or using OpenEMR's oeHttp wrapper:**
 ```php
-use OpenEMR\Common\Http\HttpClient;
+use OpenEMR\Common\Http\oeHttp;
 
-$httpClient = new HttpClient();
-$response = $httpClient->request('GET', 'https://api.example.com/data', [
+$response = oeHttp::get('https://api.example.com/data', [
     'headers' => [
         'Authorization' => 'Bearer token'
     ]
