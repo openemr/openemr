@@ -62,7 +62,7 @@
         "laminas/laminas-config": "^3.10.1",
         "laminas/laminas-db": "^2.20.0",
         "laminas/laminas-escaper": "^2.18.0",
-        "laminas/laminas-eventmanager": "3.15.0",
+        "laminas/laminas-eventmanager": "^3.15.0",
         "laminas/laminas-filter": "2.42.0",
         "laminas/laminas-form": "3.24.0",
         "laminas/laminas-inputfilter": "2.34.0",
