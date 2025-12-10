@@ -39,9 +39,9 @@ class CreateAPIDocumentationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $routesLocation = $this->fileroot . DIRECTORY_SEPARATOR . "_rest_routes.inc.php";
-        $fileDestinationFolder = $this->fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
-        $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
+        $routesLocation = $this->fileroot . DIRECTORY_SEPARATOR . '_rest_routes.inc.php';
+        $fileDestinationFolder = $this->fileroot . DIRECTORY_SEPARATOR . 'swagger' . DIRECTORY_SEPARATOR;
+        $fileDestinationYaml =  $fileDestinationFolder . 'openemr-api.yaml';
 
         $finder = new Finder();
         $finder
