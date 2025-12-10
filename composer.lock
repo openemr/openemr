@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6b74fe7c9eaa916b8ea8f0d90a4c0e4b",
+    "content-hash": "3724737be3999a3d5a7900d555ef6737",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -132,16 +132,16 @@
         },
         {
             "name": "adodb/adodb-php",
-            "version": "v5.22.10",
+            "version": "v5.22.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ADOdb/ADOdb.git",
-                "reference": "38ce257600e67b1e854f2e9054166569cff4bf6b"
+                "reference": "a741375176f48b084ca9a110c112323fc7101b75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/38ce257600e67b1e854f2e9054166569cff4bf6b",
-                "reference": "38ce257600e67b1e854f2e9054166569cff4bf6b",
+                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/a741375176f48b084ca9a110c112323fc7101b75",
+                "reference": "a741375176f48b084ca9a110c112323fc7101b75",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,21 @@
                 "issues": "https://github.com/ADOdb/ADOdb/issues",
                 "source": "https://github.com/ADOdb/ADOdb"
             },
-            "time": "2025-08-03T16:20:39+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/ADOdb",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/dregad",
+                    "type": "github"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/adodb",
+                    "type": "thanks_dev"
+                }
+            ],
+            "time": "2025-11-22T15:37:23+00:00"
         },
         {
             "name": "aranyasen/hl7",
