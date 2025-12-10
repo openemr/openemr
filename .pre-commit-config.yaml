@@ -1,6 +1,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-exclude: ^(composer\.lock|package-lock\.json)$
+exclude: ^(composer\.lock|package-lock\.json|ccdaservice/package-lock\.json|interface/modules/custom_modules/.*/package-lock\.json)$
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0

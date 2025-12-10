@@ -231,6 +231,15 @@
             "composer validate",
             "composer normalize --dry-run"
         ],
+        "code-quality": [
+            "@php-syntax-check",
+            "@phpcbf",
+            "@phpcs",
+            "@phpstan",
+            "@rector-fix",
+            "@require-checker"
+        ],
+        "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 -n1 php -l",
         "phpcbf": "php -d memory_limit=1g ./vendor/bin/phpcbf --standard=ci/phpcs.xml",
         "phpcs": "php -d memory_limit=1g ./vendor/bin/phpcs --standard=ci/phpcs.xml",
         "phpstan": "php -d memory_limit=1g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist",
