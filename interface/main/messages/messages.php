@@ -1062,7 +1062,15 @@ if (!empty($_REQUEST['go'])) { ?>
                 alert(<?php echo xlj("This patient does not allow SMS messaging!"); ?>);
             } else {
                 top.restoreSession();
-                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
+                // AI-generated code start (GitHub Copilot)
+                const params = new URLSearchParams({
+                    nomenu: '1',
+                    go: 'SMS_bot',
+                    pid: pid,
+                    m: m
+                });
+                window.open('messages.php?' + params, 'SMS_bot', 'width=370,height=600,resizable=0');
+                // AI-generated code end (GitHub Copilot)
             }
         }
 

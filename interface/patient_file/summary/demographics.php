@@ -385,13 +385,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Process click on diagnosis for referential cds popup.
         function referentialCdsClick(codetype, codevalue) {
             top.restoreSession();
+            // AI-generated code start (GitHub Copilot)
             // Force a new window instead of iframe to address cross site scripting potential
-            dlgopen('../education.php?type=' + encodeURIComponent(codetype) + '&code=' + encodeURIComponent(codevalue), '_blank', 1024, 750, true);
+            const params = new URLSearchParams({
+                type: codetype,
+                code: codevalue
+            });
+            dlgopen('../education.php?' + params, '_blank', 1024, 750, true);
+            // AI-generated code end (GitHub Copilot)
         }
 
         function oldEvt(apptdate, eventid) {
             let title = <?php echo xlj('Appointments'); ?>;
-            dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                date: apptdate,
+                eid: eventid
+            });
+            dlgopen('../../main/calendar/add_edit_event.php?' + params, '_blank', 800, 500, '', title);
+            // AI-generated code end (GitHub Copilot)
         }
 
         function advdirconfigure() {
@@ -648,8 +660,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     let pid = <?php echo js_escape($pid); ?>;
                     let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
                     let ruleId = $(this).data("ruleId");
-                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?action=review!view&pid="
-                        + encodeURIComponent(pid) + "&rule_id=" + encodeURIComponent(ruleId) + "&csrf_token_form=" + encodeURIComponent(csrfToken);
+                    // AI-generated code start (GitHub Copilot)
+                    const params = new URLSearchParams({
+                        action: 'review!view',
+                        pid: pid,
+                        rule_id: ruleId,
+                        csrf_token_form: csrfToken
+                    });
+                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?" + params;
+                    // AI-generated code end (GitHub Copilot)
                     e.preventDefault();
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
@@ -665,9 +684,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             window.name = event.source.name;
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
+                            // AI-generated code start (GitHub Copilot)
                             // loadFrame already handles webroot and /interface/ prefix.
-                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' + encodeURIComponent(data.ruleId)
-                                + "&csrf_token=" + encodeURIComponent(csrfToken);
+                            const editParams = new URLSearchParams({
+                                action: 'edit!summary',
+                                id: data.ruleId,
+                                csrf_token: csrfToken
+                            });
+                            let editUrl = '/super/rules/index.php?' + editParams;
+                            // AI-generated code end (GitHub Copilot)
                             window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                         }
                     };

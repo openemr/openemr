@@ -1047,11 +1047,26 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = base + "/controller.php?prescription&edit&id=&pid="+encodeURIComponent(pid)
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                prescription: '',
+                edit: '',
+                id: '',
+                pid: pid
+            });
+            iam.location.href = base + "/controller.php?" + params;
+            // AI-generated code end (GitHub Copilot)
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            iam.location.href = base + "/controller.php?prescription&list&id="+encodeURIComponent(pid)
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                prescription: '',
+                list: '',
+                id: pid
+            });
+            iam.location.href = base + "/controller.php?" + params;
+            // AI-generated code end (GitHub Copilot)
         };
 
         let title = 'Prescriptions';

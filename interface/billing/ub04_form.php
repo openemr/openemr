@@ -281,7 +281,12 @@ function selectUser(formid,event) {
         type: 'GET',
         title: title,
         size: 'modal-mlg',
-        url: './ub04_helpers.php?action=user_select&formid=' + encodeURIComponent(formid)
+        // AI-generated code start (GitHub Copilot)
+        url: './ub04_helpers.php?' + new URLSearchParams({
+            action: 'user_select',
+            formid: formid
+        })
+        // AI-generated code end (GitHub Copilot)
     };
     return dialog.ajax(params).then(function () {
     });
