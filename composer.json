@@ -86,7 +86,7 @@
         "nyholm/psr7-server": "1.1.0",
         "omnipay/stripe": "3.2.0",
         "openemr/mustache": "2.15.2",
-        "particle/validator": "2.3.5",
+        "particle/validator": "^2.3.6",
         "pear/archive_tar": "1.6.0",
         "php-http/discovery": "1.20.0",
         "php-http/message": "^1.16",
