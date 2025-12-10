@@ -359,6 +359,12 @@ function sqlInsert($statement, $binds = false)
 */
 function sqlQuery($statement, $binds = false)
 {
+    if ($binds === false) { $binds = []; }
+
+    return \OpenEMR\BC\Database::instance()
+        ->fetchOneRow($statement, $binds);
+
+
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
         $binds = false;
