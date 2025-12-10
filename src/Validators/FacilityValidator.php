@@ -1,20 +1,20 @@
 <?php
 
-namespace OpenEMR\Validators;
+/**
+ * @package   OpenEMR
+ *
+ * @link      http://www.open-emr.org
+ *
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
+namespace OpenEMR\Validators;
 
 /**
  * Supports Facility Record Validation.
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Yash Bothra <yashrajbothra786@gmail.com>
- * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FacilityValidator extends BaseValidator
 {
@@ -23,57 +23,144 @@ class FacilityValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidatorContext(InnerValidator $validator, string $contextName): void
     {
-        parent::configureValidator();
+        // Insert & update
+        $validator
+            ->requiredForInsert('name', null, $contextName)
+            ->lengthBetween(2, 255)
+        ;
 
-        // insert validations
-        $this->validator->context(
-            self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context): void {
-                $context->required('name')->lengthBetween(2, 255);
-                $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
-                $context->optional('domain_identifier')->numeric();
-                $context->optional('phone')->lengthBetween(3, 30);
-                $context->optional('city')->lengthBetween(2, 255);
-                $context->optional('state')->lengthBetween(2, 50);
-                $context->optional('street')->lengthBetween(2, 255);
-                $context->optional('postal_code')->lengthBetween(2, 11);
-                $context->optional('email')->email();
-                $context->optional('fax')->lengthBetween(3, 30);
-                $context->optional('country_code')->lengthBetween(2, 30);
-                $context->optional('federal_ein')->lengthBetween(2, 15);
-                $context->optional('website')->url();
-                $context->optional('color')->lengthBetween(4, 7);
-                $context->optional('service_location')->numeric();
-                $context->optional('billing_location')->numeric();
-                $context->optional('accepts_assignment')->numeric();
-                $context->optional('pos_code')->numeric();
-                $context->optional('domain_identifier')->lengthBetween(2, 60);
-                $context->optional('attn')->lengthBetween(2, 65);
-                $context->optional('tax_id_type')->lengthBetween(2, 31);
-                $context->optional('primary_business_entity')->numeric();
-                $context->optional('facility_code')->lengthBetween(2, 31);
-                $context->optional('facility_taxonomy')->lengthBetween(2, 15);
-                $context->optional('iban')->lengthBetween(2, 34);
-            }
-        );
+        $validator
+            ->requiredForInsert('facility_npi', null, $contextName)
+            ->numeric()
+            ->lengthBetween(10, 15)
+        ;
 
-        // update validations copied from insert
-        $this->validator->context(
-            self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context): void {
-                $context->copyContext(
-                    self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
-                        foreach ($rules as $chain) {
-                            $chain->required(false);
-                        }
-                    }
-                );
-                // additional euuid validation
-                $context->required("uuid", "Facility UUID")->callback(fn($value) => $this->validateId("uuid", "facility", $value, true))->uuid();
-            }
-        );
+        $validator
+            ->optional('domain_identifier')
+            ->numeric()
+        ;
+
+        $validator
+            ->optional('phone')
+            ->lengthBetween(3, 30)
+        ;
+
+        $validator
+            ->optional('city')
+            ->lengthBetween(2, 255)
+        ;
+
+        $validator
+            ->optional('state')
+            ->lengthBetween(2, 50)
+        ;
+
+        $validator
+            ->optional('street')
+            ->lengthBetween(2, 255)
+        ;
+
+        $validator
+            ->optional('postal_code')
+            ->lengthBetween(2, 11)
+        ;
+
+        $validator
+            ->optional('email')
+            ->email()
+        ;
+
+        $validator
+            ->optional('fax')
+            ->lengthBetween(3, 30)
+        ;
+
+        $validator
+            ->optional('country_code')
+            ->lengthBetween(2, 30)
+        ;
+
+        $validator
+            ->optional('federal_ein')
+            ->lengthBetween(2, 15)
+        ;
+
+        $validator
+            ->optional('website')
+            ->url()
+        ;
+
+        $validator
+            ->optional('color')
+            ->lengthBetween(4, 7)
+        ;
+
+        $validator
+            ->optional('service_location')
+            ->numeric()
+        ;
+
+        $validator
+            ->optional('billing_location')
+            ->numeric()
+        ;
+
+        $validator
+            ->optional('accepts_assignment')
+            ->numeric()
+        ;
+
+        $validator
+            ->optional('pos_code')
+            ->numeric()
+        ;
+
+        $validator
+            ->optional('domain_identifier')
+            ->lengthBetween(2, 60)
+        ;
+
+        $validator
+            ->optional('attn')
+            ->lengthBetween(2, 65)
+        ;
+
+        $validator
+            ->optional('tax_id_type')
+            ->lengthBetween(2, 31)
+        ;
+
+        $validator
+            ->optional('primary_business_entity')
+            ->numeric()
+        ;
+
+        $validator
+            ->optional('facility_code')
+            ->lengthBetween(2, 31)
+        ;
+
+        $validator
+            ->optional('facility_taxonomy')
+            ->lengthBetween(2, 15)
+        ;
+
+        $validator
+            ->optional('iban')
+            ->lengthBetween(2, 34)
+        ;
+
+        // Update only
+        if (self::DATABASE_UPDATE_CONTEXT !== $contextName) {
+            return;
+        }
+
+        $validator
+            ->required('uuid', 'Facility UUID')
+            ->callback(fn($value) => $this->validateId('uuid', 'facility', $value, true))
+            ->uuid()
+        ;
     }
 }
