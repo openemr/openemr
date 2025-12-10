@@ -7,7 +7,7 @@
  * to use Guzzle HTTP client for better testability, error handling, and PSR-7 compliance.
  *
  * @package   OpenEMR
- * @author    GitHub Copilot <copilot@github.com>
+ * @link      http://www.open-emr.org
  * @copyright Copyright (c) 2025 OpenEMR Foundation
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -56,7 +56,7 @@ class ForbiddenCurlFunctionsRule implements Rule
         return [
             RuleErrorBuilder::message(
                 sprintf(
-                    'Raw curl_* function %s() is forbidden. Use GuzzleHttp\Client or OpenEMR\Common\Http\HttpClient instead.',
+                    'Raw curl_* function %s() is forbidden. Use GuzzleHttp\Client or OpenEMR\Common\Http\oeHttp instead.',
                     $functionName
                 )
             )

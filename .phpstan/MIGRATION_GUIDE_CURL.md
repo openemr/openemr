@@ -150,17 +150,15 @@ $response = $client->request('POST', 'https://api.example.com/upload', [
 ]);
 ```
 
-### Using OpenEMR's HttpClient Wrapper
+### Using OpenEMR's oeHttp Wrapper
 
 OpenEMR provides a convenient wrapper around Guzzle:
 
 ```php
-use OpenEMR\Common\Http\HttpClient;
-
-$httpClient = new HttpClient();
+use OpenEMR\Common\Http\oeHttp;
 
 try {
-    $response = $httpClient->request('GET', 'https://api.example.com/data', [
+    $response = oeHttp::get('https://api.example.com/data', [
         'headers' => [
             'Authorization' => 'Bearer ' . $token
         ]
@@ -243,12 +241,13 @@ $response = $client->request('GET', 'https://api.example.com/data', [
 
 - [Guzzle Documentation](https://docs.guzzlephp.org/)
 - [PSR-7: HTTP Message Interface](https://www.php-fig.org/psr/psr-7/)
-- OpenEMR's HttpClient: `src/Common/Http/HttpClient.php`
 - OpenEMR's oeHttp: `src/Common/Http/oeHttp.php`
+- OpenEMR's oeOAuth: `src/Common/Http/oeOAuth.php`
 
 ## Getting Help
 
 If you need help migrating a complex curl usage pattern, please:
 1. Check existing Guzzle usage in the OpenEMR codebase for examples
-2. Ask in the OpenEMR development chat
-3. Consult the Guzzle documentation
+2. Look at `src/Common/Http/oeHttp.php` for the convenience wrapper
+3. Ask in the OpenEMR development chat
+4. Consult the Guzzle documentation
