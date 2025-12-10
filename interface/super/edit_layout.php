@@ -1380,11 +1380,15 @@ function setListItemOptions(lino, seq, init) {
   // OK, list item IDs do apply so go get 'em.
   // This happens asynchronously so the generated code needs to stand alone.
   f[target].style.display = '';
-  $.getScript('layout_listitems_ajax.php' +
-    '?listid='  + encodeURIComponent(list_id) +
-    '&target='  + encodeURIComponent(target)  +
-    '&current=' + encodeURIComponent(current) +
-    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+  // AI-generated code start (GitHub Copilot)
+  const params = new URLSearchParams({
+    listid: list_id,
+    target: target,
+    current: current,
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+  });
+  $.getScript('layout_listitems_ajax.php?' + params);
+  // AI-generated code end (GitHub Copilot)
 }
 
 // This is called whenever a condition's field ID selection is changed.
@@ -1396,7 +1400,13 @@ function cidChanged(lino, seq) {
 // This invokes the popup to edit layout properties or add a new layout.
 function edit_layout_props(groupid) {
  var title = <?php echo xlj('Layout Properties');?>;
- dlgopen('edit_layout_props.php?layout_id=' + <?php echo js_url($layout_id); ?> + '&group_id=' + encodeURIComponent(groupid),
+ // AI-generated code start (GitHub Copilot)
+ const params = new URLSearchParams({
+   layout_id: <?php echo js_escape($layout_id); ?>,
+   group_id: groupid
+ });
+ dlgopen('edit_layout_props.php?' + params,
+  // AI-generated code end (GitHub Copilot)
   '_blank', 775, 550, "", title);
 }
 
@@ -2220,7 +2230,14 @@ $(function () {
 function layoutLook(){
     var form = <?php echo js_escape($layout_id);?>;
     var btnName = <?php echo xlj('Back To Editor');?>;
-    var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + encodeURIComponent(form);
+    // AI-generated code start (GitHub Copilot)
+    const params = new URLSearchParams({
+        isShow: '',
+        id: '0',
+        formname: form
+    });
+    var url = "../patient_file/encounter/view_form.php?" + params;
+    // AI-generated code end (GitHub Copilot)
     var title = <?php echo xlj('LBF Encounter Form Preview');?>;
     dlgopen(url, '_blank', 1250, 800, "", title);
     return false;
