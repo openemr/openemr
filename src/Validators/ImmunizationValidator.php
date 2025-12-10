@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Validators;
 
+use Particle\Validator\Validator;
+
 /**
  * Supports PractitionerRole Record Validation.
  *
@@ -21,5 +23,21 @@ class ImmunizationValidator extends BaseValidator
     protected function configureValidator()
     {
         parent::configureValidator();
+
+        // insert validations
+        $this->validator->context(
+            self::DATABASE_INSERT_CONTEXT,
+            function (Validator $context): void {
+                // Currently no specific validations defined - add as needed
+            }
+        );
+
+        // update validations - same as insert but not required
+        $this->validator->context(
+            self::DATABASE_UPDATE_CONTEXT,
+            function (Validator $context): void {
+                // Currently no specific validations defined - add as needed
+            }
+        );
     }
 }

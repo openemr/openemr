@@ -4,7 +4,8 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEHttpKernel;
-use OpenEMR\Telemetry\TelemetryService;
+use OpenEMR\Services\ServiceLocator;
+use OpenEMR\Telemetry\TelemetryServiceInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
@@ -25,7 +26,14 @@ class TelemetryListener implements EventSubscriberInterface
         try {
             $session = $request->getSession();
             $userRole = $request->attributes->get('userRole', 'UNKNOWN');
-            (new TelemetryService())->trackApiRequestEvent([
+
+            // Use ServiceLocator to get TelemetryService, enabling module replacement
+            $telemetryService = ServiceLocator::get(TelemetryServiceInterface::class, [
+                'context' => 'api_request',
+                'request' => $request
+            ]);
+
+            $telemetryService->trackApiRequestEvent([
                 'eventType' => 'API',
                 'eventLabel' => strtoupper((string) $session->get('api', 'UNKNOWN')),
                 'eventUrl' => $request->getRequestMethod() . ' ' . $request->getPathInfo(),

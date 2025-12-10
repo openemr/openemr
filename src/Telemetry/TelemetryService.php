@@ -24,7 +24,7 @@ use OpenEMR\Services\VersionService;
  * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-class TelemetryService
+class TelemetryService implements TelemetryServiceInterface
 {
     use DatabaseQueryTrait;
 
