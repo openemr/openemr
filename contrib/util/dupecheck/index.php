@@ -275,10 +275,22 @@ $(function () {
     $(".onerow").on("click", function() {
         var dupecount = $(this).attr("dupecount");
         var masterid = $(this).attr("oemrid");
-        var newurl = "mergerecords.php?dupecount=" + encodeURIComponent(dupecount) + "&masterid=" + encodeURIComponent(masterid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        $("[dupecount="+dupecount+"]").each(function (i) {
-            if (this.id != masterid) { newurl += "&otherid[]=" + encodeURIComponent(this.id); }
+        // AI-generated code start (GitHub Copilot)
+        const params = new URLSearchParams({
+            dupecount: dupecount,
+            masterid: masterid,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         });
+        var newurl = "mergerecords.php?" + params;
+        // AI-generated code end (GitHub Copilot)
+        $("[dupecount="+dupecount+"]").each(function (i) {
+            // AI-generated code start (GitHub Copilot)
+            if (this.id != masterid) { params.append("otherid[]", this.id); }
+            // AI-generated code end (GitHub Copilot)
+        });
+        // AI-generated code start (GitHub Copilot)
+        newurl = "mergerecords.php?" + params;
+        // AI-generated code end (GitHub Copilot)
         // open a new window and show the merge results
         moreinfoWin = window.open(newurl, "mergewin");
     });
