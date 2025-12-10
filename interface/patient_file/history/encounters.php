@@ -222,7 +222,15 @@ function toencounter(rawdata) {
 }
 
 function todocument(docid) {
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo attr_url($pid); ?>&doc_id=' + encodeURIComponent(docid);
+  // AI-generated code start (GitHub Copilot)
+  const params = new URLSearchParams({
+    document: '',
+    view: '',
+    patient_id: '<?php echo attr_js($pid); ?>',
+    doc_id: docid
+  });
+  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
+  // AI-generated code end (GitHub Copilot)
   top.restoreSession();
   location.href = h;
 }
@@ -238,7 +246,15 @@ function changePageSize() {
     issue = $(this).attr("issue");
     pagesize = $(this).val();
     top.restoreSession();
-    window.location.href = "encounters.php?billing=" + encodeURIComponent(billing) + "&issue=" + encodeURIComponent(issue) + "&pagestart=" + encodeURIComponent(pagestart) + "&pagesize=" + encodeURIComponent(pagesize);
+    // AI-generated code start (GitHub Copilot)
+    const params = new URLSearchParams({
+        billing: billing,
+        issue: issue,
+        pagestart: pagestart,
+        pagesize: pagesize
+    });
+    window.location.href = "encounters.php?" + params;
+    // AI-generated code end (GitHub Copilot)
 }
 
 window.onload = function() {
@@ -895,11 +911,16 @@ $(function () {
             if (typeof el.dataset == 'undefined') {
                 return xl("Report Unavailable");
             }
-            let url = "encounters_ajax.php?ptid=" + encodeURIComponent(el.dataset.formpid) +
-                "&encid=" + encodeURIComponent(el.dataset.formenc) +
-                "&formname=" + encodeURIComponent(el.dataset.formdir) +
-                "&formid=" + encodeURIComponent(el.dataset.formid) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                ptid: el.dataset.formpid,
+                encid: el.dataset.formenc,
+                formname: el.dataset.formdir,
+                formid: el.dataset.formid,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            let url = "encounters_ajax.php?" + params;
+            // AI-generated code end (GitHub Copilot)
             let fetchedReport;
             $.ajax({
                 url: url,

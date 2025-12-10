@@ -218,9 +218,21 @@ $score_calculate = getDupScoreSQL();
             }
             top.restoreSession();
             if (select.value == 'MK') {
-                window.location = 'merge_patients.php?pid1=' + encodeURIComponent(rowpid) + '&pid2=' + encodeURIComponent(toppid);
+                // AI-generated code start (GitHub Copilot)
+                const params = new URLSearchParams({
+                    pid1: rowpid,
+                    pid2: toppid
+                });
+                window.location = 'merge_patients.php?' + params;
+                // AI-generated code end (GitHub Copilot)
             } else if (select.value == 'MD') {
-                window.location = 'merge_patients.php?pid1=' + encodeURIComponent(toppid) + '&pid2=' + encodeURIComponent(rowpid);
+                // AI-generated code start (GitHub Copilot)
+                const params = new URLSearchParams({
+                    pid1: toppid,
+                    pid2: rowpid
+                });
+                window.location = 'merge_patients.php?' + params;
+                // AI-generated code end (GitHub Copilot)
             } else {
                 // Currently 'U' and 'R' actions are supported and rowpid is meaningless.
                 form.form_action.value = select.value;
