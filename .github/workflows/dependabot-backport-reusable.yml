@@ -1,0 +1,296 @@
+# Reusable workflow for backporting dependabot PRs to target branches
+#
+# This workflow contains the core logic for backporting and can be called by other workflows
+# Generated with assistance from GitHub Copilot
+
+name: Dependabot Backport (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        description: 'PR number to backport'
+        required: true
+        type: number
+      pr_title:
+        description: 'PR title'
+        required: true
+        type: string
+      pr_body:
+        description: 'PR body'
+        required: true
+        type: string
+      pr_labels:
+        description: 'PR labels (comma-separated)'
+        required: true
+        type: string
+      pr_author:
+        description: 'PR author login'
+        required: true
+        type: string
+      merge_commit:
+        description: 'Merge commit SHA'
+        required: true
+        type: string
+      target_branch:
+        description: 'Target branch for backport'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  backport:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Detect ecosystem from labels
+        id: pr-info
+        run: |
+          LABEL_NAMES="${{ inputs.pr_labels }}"
+          
+          echo "labels=${LABEL_NAMES},backport" >> $GITHUB_OUTPUT
+          echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+          echo "pr_title=${{ inputs.pr_title }}" >> $GITHUB_OUTPUT
+          echo "merge_commit=${{ inputs.merge_commit }}" >> $GITHUB_OUTPUT
+          echo "pr_author=${{ inputs.pr_author }}" >> $GITHUB_OUTPUT
+          
+          # Store PR body for later use
+          echo "pr_body<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ inputs.pr_body }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Detect package ecosystem from labels
+          # Note: docker-compose ecosystem uses the "docker" label per dependabot.yml config
+          case "$LABEL_NAMES" in
+              *php*) 
+                  echo 'ecosystem=composer' >> "$GITHUB_OUTPUT"
+                  ;;
+              *javascript*) 
+                  echo 'ecosystem=npm' >> "$GITHUB_OUTPUT"
+                  ;;
+              *github-actions*) 
+                  echo 'ecosystem=github-actions' >> "$GITHUB_OUTPUT"
+                  ;;
+              *docker*) 
+                  echo 'ecosystem=docker' >> "$GITHUB_OUTPUT"
+                  ;;
+              *) 
+                  echo 'ecosystem=unknown' >> "$GITHUB_OUTPUT"
+                  ;;
+          esac
+
+      - name: Create backport branch
+        id: create-branch
+        run: |
+          BACKPORT_BRANCH="backport/pr-${{ inputs.pr_number }}-to-${{ inputs.target_branch }}"
+          echo "branch_name=${BACKPORT_BRANCH}" >> $GITHUB_OUTPUT
+          
+          # Checkout the target branch and create backport branch
+          git fetch origin ${{ inputs.target_branch }}
+          git checkout -b ${BACKPORT_BRANCH} origin/${{ inputs.target_branch }}
+
+      - name: Attempt cherry-pick
+        id: cherry-pick
+        continue-on-error: true
+        run: |
+          git cherry-pick ${{ inputs.merge_commit }}
+          echo "success=true" >> $GITHUB_OUTPUT
+
+      - name: Setup PHP (for composer fallback)
+        if: steps.cherry-pick.outcome == 'failure' && steps.pr-info.outputs.ecosystem == 'composer'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Fallback - Composer update
+        id: composer-update
+        if: steps.cherry-pick.outcome == 'failure' && steps.pr-info.outputs.ecosystem == 'composer'
+        continue-on-error: true
+        run: |
+          # Reset the failed cherry-pick
+          git cherry-pick --abort 2>/dev/null || true
+          git reset --hard HEAD
+          
+          PR_TITLE="${{ inputs.pr_title }}"
+          echo "PR Title: $PR_TITLE"
+          echo "Attempting composer update..."
+          
+          # Extract package name and version - handles vendor/package format
+          # Pattern matches: bump <package> from <version> to <version>
+          if [[ "$PR_TITLE" =~ bump\ ([^[:space:]]+)\ from\ ([^[:space:]]+)\ to\ ([^[:space:]]+) ]]; then
+            PACKAGE="${BASH_REMATCH[1]}"
+            VERSION="${BASH_REMATCH[3]}"
+            
+            echo "Extracted: Package=$PACKAGE, Version=$VERSION"
+            echo "Updating $PACKAGE to $VERSION"
+            composer require "$PACKAGE:$VERSION" --no-interaction --no-progress || exit 1
+            git add composer.json composer.lock
+            git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ inputs.pr_number }})" || exit 1
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "Could not extract package information from PR title: $PR_TITLE"
+            exit 1
+          fi
+
+      - name: Setup Node.js (for npm fallback)
+        if: steps.cherry-pick.outcome == 'failure' && steps.pr-info.outputs.ecosystem == 'npm'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Fallback - npm update
+        id: npm-update
+        if: steps.cherry-pick.outcome == 'failure' && steps.pr-info.outputs.ecosystem == 'npm'
+        continue-on-error: true
+        run: |
+          # Reset the failed cherry-pick
+          git cherry-pick --abort 2>/dev/null || true
+          git reset --hard HEAD
+          
+          PR_TITLE="${{ inputs.pr_title }}"
+          echo "PR Title: $PR_TITLE"
+          echo "Attempting npm update..."
+          
+          # Extract package name and version - handles scoped packages like @scope/package
+          # Pattern matches: bump <package> from <version> to <version>
+          if [[ "$PR_TITLE" =~ bump\ ([^[:space:]]+)\ from\ ([^[:space:]]+)\ to\ ([^[:space:]]+) ]]; then
+            PACKAGE="${BASH_REMATCH[1]}"
+            VERSION="${BASH_REMATCH[3]}"
+            
+            echo "Extracted: Package=$PACKAGE, Version=$VERSION"
+            echo "Updating $PACKAGE to $VERSION"
+            
+            # Detect if it's a dev dependency by checking package.json with jq
+            # This handles scoped packages correctly
+            if jq -e --arg pkg "$PACKAGE" '.devDependencies[$pkg]' package.json > /dev/null 2>&1; then
+              echo "Installing as dev dependency"
+              npm install "$PACKAGE@$VERSION" --save-dev --save-exact || exit 1
+            elif jq -e --arg pkg "$PACKAGE" '.dependencies[$pkg]' package.json > /dev/null 2>&1; then
+              echo "Installing as regular dependency"
+              npm install "$PACKAGE@$VERSION" --save-exact || exit 1
+            else
+              # If not found in package.json, try as regular dependency first
+              echo "Package not found in package.json, trying as regular dependency"
+              npm install "$PACKAGE@$VERSION" --save-exact 2>/dev/null || \
+              npm install "$PACKAGE@$VERSION" --save-dev --save-exact || exit 1
+            fi
+            
+            git add package.json package-lock.json
+            git commit -m "chore(deps): bump $PACKAGE to $VERSION (backport #${{ inputs.pr_number }})" || exit 1
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "Could not extract package information from PR title: $PR_TITLE"
+            exit 1
+          fi
+
+      - name: Report unsupported fallback
+        if: |
+          steps.cherry-pick.outcome == 'failure' && 
+          (steps.pr-info.outputs.ecosystem == 'github-actions' || steps.pr-info.outputs.ecosystem == 'docker')
+        run: |
+          echo "::warning::Ecosystem ${{ steps.pr-info.outputs.ecosystem }} does not support package manager fallback"
+          echo "::warning::GitHub Actions and Docker/Docker-compose updates are typically simple file changes that should cherry-pick cleanly"
+          echo "::warning::Cherry-pick failed - manual intervention required"
+
+      - name: Push backport branch
+        if: |
+          steps.cherry-pick.outcome == 'success' || 
+          steps.composer-update.outcome == 'success' || 
+          steps.npm-update.outcome == 'success'
+        run: |
+          git push origin ${{ steps.create-branch.outputs.branch_name }}
+
+      - name: Create backport PR
+        if: |
+          steps.cherry-pick.outcome == 'success' || 
+          steps.composer-update.outcome == 'success' || 
+          steps.npm-update.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Determine the method used
+          if [[ "${{ steps.cherry-pick.outcome }}" = "success" ]]; then
+            METHOD="cherry-pick"
+          else
+            METHOD="package manager update"
+          fi
+          
+          # Create PR body
+          cat > /tmp/pr_body.md << EOF
+          Automated backport of #${{ inputs.pr_number }} to \`${{ inputs.target_branch }}\`.
+          
+          **Original PR:** ${{ inputs.pr_title }}
+          **Method:** ${METHOD}
+          **Original Author:** @${{ inputs.pr_author }}
+          
+          ---
+          
+          ${{ steps.pr-info.outputs.pr_body }}
+          EOF
+          
+          # Create the PR
+          gh pr create \
+            --base "${{ inputs.target_branch }}" \
+            --head "${{ steps.create-branch.outputs.branch_name }}" \
+            --title "[${{ inputs.target_branch }}] ${{ inputs.pr_title }}" \
+            --body-file /tmp/pr_body.md \
+            --label "${{ steps.pr-info.outputs.labels }}"
+
+      - name: Report failure
+        if: |
+          steps.cherry-pick.outcome == 'failure' && 
+          ((steps.pr-info.outputs.ecosystem == 'composer' && steps.composer-update.outcome == 'failure') || 
+           (steps.pr-info.outputs.ecosystem == 'npm' && steps.npm-update.outcome == 'failure') ||
+           steps.pr-info.outputs.ecosystem == 'github-actions' ||
+           steps.pr-info.outputs.ecosystem == 'docker' ||
+           steps.pr-info.outputs.ecosystem == 'unknown')
+        run: |
+          echo "::error::Failed to backport PR #${{ inputs.pr_number }} to ${{ inputs.target_branch }}"
+          echo "::error::Cherry-pick failed and package manager update fallback also failed"
+          echo "::error::Manual backport may be required"
+          
+          # Create an issue to track the failed backport
+          PR_URL="https://github.com/${{ github.repository }}/pull/${{ inputs.pr_number }}"
+          cat > /tmp/issue_body.md << EOF
+          ## Failed Automatic Backport
+          
+          **Original PR:** #${{ inputs.pr_number }}
+          **Target Branch:** \`${{ inputs.target_branch }}\`
+          **PR Title:** ${{ inputs.pr_title }}
+          **Trigger:** Automated workflow
+          
+          The automated backport process failed for both:
+          1. Cherry-pick method
+          2. Package manager update fallback
+          
+          This likely requires manual intervention. Please review and manually backport if needed.
+          
+          **Original PR Link:** ${PR_URL}
+          EOF
+          
+          if ! gh issue create \
+            --title "Failed backport: ${{ inputs.pr_title }} to ${{ inputs.target_branch }}" \
+            --body-file /tmp/issue_body.md \
+            --label "backport,failed-automation"; then
+            echo "::warning::Could not create GitHub issue for failed backport tracking. Please check permissions or rate limits."
+          fi
+          
+          exit 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
