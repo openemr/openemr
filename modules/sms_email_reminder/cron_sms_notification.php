@@ -24,9 +24,9 @@ $ignoreAuth = 1;
 include_once("../../interface/globals.php");
 include_once("cron_functions.php");
 
-// check command line for quite option
+// check command line for option
 $bTestRun = 0;
-if ($argc > 1 && $argv[1] == 'test') {
+if (($argc ?? 0) > 1 && ($argv[1] ?? '') == 'test') {
     $bTestRun = 1;
 }
 

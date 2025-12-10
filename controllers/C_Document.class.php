@@ -18,6 +18,7 @@ require_once(__DIR__ . "/../library/patient.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
@@ -1333,8 +1334,7 @@ class C_Document extends Controller
                 $billingFacility = $this->facilityService->getPrimaryBusinessEntity();
                 $billingFacilityID = $billingFacility['id'] ?: $facility_id;
 
-                $conn = $GLOBALS['adodb']['db'];
-                $encounter = $conn->GenID("sequences");
+                $encounter = QueryUtils::generateId();
                 $query = "INSERT INTO form_encounter SET
 						date = ?,
 						reason = ?,

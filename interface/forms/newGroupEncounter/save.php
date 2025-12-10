@@ -22,6 +22,7 @@ require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -51,7 +52,7 @@ $facility = $facilityresult['name'];
 
 if ($mode == 'new') {
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
-    $encounter = generate_id();
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Therapy Group Encounter",
