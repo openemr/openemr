@@ -278,10 +278,9 @@ $(function () {
         // AI-generated code start (GitHub Copilot)
         const params = new URLSearchParams({
             dupecount: dupecount,
-            masterid: masterid,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            masterid: masterid
         });
-        var newurl = "mergerecords.php?" + params;
+        params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
         // AI-generated code end (GitHub Copilot)
         $("[dupecount="+dupecount+"]").each(function (i) {
             // AI-generated code start (GitHub Copilot)
@@ -289,7 +288,7 @@ $(function () {
             // AI-generated code end (GitHub Copilot)
         });
         // AI-generated code start (GitHub Copilot)
-        newurl = "mergerecords.php?" + params;
+        var newurl = "mergerecords.php?" + params;
         // AI-generated code end (GitHub Copilot)
         // open a new window and show the merge results
         moreinfoWin = window.open(newurl, "mergewin");
