@@ -89,7 +89,7 @@
         "openemr/mustache": "^2.15.2",
         "particle/validator": "^2.3.6",
         "pear/archive_tar": "^1.6.0",
-        "php-http/discovery": "1.20.0",
+        "php-http/discovery": "^1.20.0",
         "php-http/message": "^1.16",
         "php81_bc/strftime": "0.7.6",
         "phpmailer/phpmailer": "6.12.0",
