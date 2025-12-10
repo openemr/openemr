@@ -1384,9 +1384,9 @@ function setListItemOptions(lino, seq, init) {
   const params = new URLSearchParams({
     listid: list_id,
     target: target,
-    current: current,
-    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    current: current
   });
+  params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
   $.getScript('layout_listitems_ajax.php?' + params);
   // AI-generated code end (GitHub Copilot)
 }
