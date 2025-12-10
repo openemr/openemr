@@ -27,6 +27,7 @@ require_once($GLOBALS['srcdir'] . "/forms.inc.php");
 require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use phpseclib3\Net\SFTP;
 
@@ -551,7 +552,7 @@ function lookupTestCode($labid, $procedure_code)
 function create_encounter($pid, $provider_id, $order_date, $lab_name)
 {
     global $orphanLog;
-    $encounter = generate_id();
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "Auto Generated Lab Encounter",
