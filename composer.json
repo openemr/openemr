@@ -51,7 +51,7 @@
         "bacon/bacon-qr-code": "^3.0.3",
         "digitickets/lalit": "^3.4.0",
         "dompdf/dompdf": "^3.1.4",
-        "ezyang/htmlpurifier": "4.19.0",
+        "ezyang/htmlpurifier": "^4.19.0",
         "google/apiclient": "2.18.4",
         "guzzlehttp/guzzle": "7.10.0",
         "guzzlehttp/psr7": "^2.8",
