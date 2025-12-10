@@ -66,6 +66,7 @@ use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
 use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirObservationService;
+use OpenApi\Annotations as OA;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded

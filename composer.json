@@ -49,6 +49,7 @@
         "aranyasen/hl7": "3.2.2",
         "bacon/bacon-qr-code": "3.0.1",
         "digitickets/lalit": "3.4.0",
+        "doctrine/annotations": "^2.0",
         "dompdf/dompdf": "3.1.4",
         "ezyang/htmlpurifier": "4.19.0",
         "google/apiclient": "2.18.4",
@@ -123,7 +124,7 @@
         "vlucas/phpdotenv": "5.6.2",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "zircote/swagger-php": "^3.0"
+        "zircote/swagger-php": "^5.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
