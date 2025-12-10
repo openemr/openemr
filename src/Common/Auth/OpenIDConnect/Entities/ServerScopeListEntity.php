@@ -121,7 +121,9 @@ class ServerScopeListEntity
 
             $fhirScopes[] = 'patient/DocumentReference.$docref';
             $fhirScopes[] = 'user/DocumentReference.$docref';
-            $fhirScopes[] = 'system/DocumentReference.$docref';
+            if ($systemEnabled) {
+                $fhirScopes[] = 'system/DocumentReference.$docref';
+            }
 
             $this->v1ResourceFhirScopes = $fhirScopes;
         }
