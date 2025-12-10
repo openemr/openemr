@@ -47,7 +47,7 @@
         "ext-zlib": "*",
         "academe/omnipay-authorizenetapi": "^3.1.2",
         "adodb/adodb-php": "^5.22.11",
-        "aranyasen/hl7": "3.2.2",
+        "aranyasen/hl7": "^3.2.2",
         "bacon/bacon-qr-code": "3.0.3",
         "digitickets/lalit": "3.4.0",
         "dompdf/dompdf": "3.1.4",
