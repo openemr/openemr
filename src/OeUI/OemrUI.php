@@ -63,20 +63,20 @@ class OemrUI
     private $page_id;
 
     /**
-    * Create the html string that will display the formatted heading with selected icons - expandable,
-    * action and help and generate the html code for the help modal and output all the jQuery needed to make it work.
-    *
-    * @param array $arrOeUiSettings is an associative array that contains 9 elements, string 'heading_title',
-    * int|bool 'include_patient_name', int|bool 'expandable', array 'expandable_files', string 'action', string 'action_title',
-    * string 'action_href', int|bool 'show_help_icon' and string 'help_file_name'.
-    * The int|bool 'current_state' (expanded = 1, centered = 0) value is obtained from function collectAndOrganizeExpandSetting(array("")),
-    * this function needs an indexed array as an argument (array ('expandable_files')) that contains the file name
-    * of the current file as the first element, the name of any other file that needs to open in a similar state
-    * needs to be included in this array,all names must be unique and have a '_xpd' suffix.
-    * It will be used to generate up to 4 values - string $heading, string $expandable_icon, string $action_icon and string $help_icon
-    * that will form the html string used to output the formatted heading of the page.
-    * If a feature is not required set the corresponding element in the array to an empty string
-    */
+     * Create the html string that will display the formatted heading with selected icons - expandable,
+     * action and help and generate the html code for the help modal and output all the jQuery needed to make it work.
+     *
+     * @param array $arrOeUiSettings is an associative array that contains 9 elements, string 'heading_title',
+     *                               int|bool 'include_patient_name', int|bool 'expandable', array 'expandable_files', string 'action', string 'action_title',
+     *                               string 'action_href', int|bool 'show_help_icon' and string 'help_file_name'.
+     *                               The int|bool 'current_state' (expanded = 1, centered = 0) value is obtained from function collectAndOrganizeExpandSetting(array("")),
+     *                               this function needs an indexed array as an argument (array ('expandable_files')) that contains the file name
+     *                               of the current file as the first element, the name of any other file that needs to open in a similar state
+     *                               needs to be included in this array,all names must be unique and have a '_xpd' suffix.
+     *                               It will be used to generate up to 4 values - string $heading, string $expandable_icon, string $action_icon and string $help_icon
+     *                               that will form the html string used to output the formatted heading of the page.
+     *                               If a feature is not required set the corresponding element in the array to an empty string
+     */
     public function __construct($arrOeUiSettings = [])
     {
         global $v_js_includes;
@@ -126,6 +126,7 @@ class OemrUI
 
     /**
      * Returns a default settings array that can be used with the OemrUI class
+     *
      * @param $headingTitle  The page title to use.
      * @return array
      */
@@ -155,20 +156,27 @@ class OemrUI
         /**
          * @var PageHeadingRenderEvent
          */
-        $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
+        $pageHeadingEvent = $this->ed->dispatch(
+            new PageHeadingRenderEvent($this->page_id),
+            PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER
+        );
+
         $vars = [
             "primaryMenu" => $pageHeadingEvent->getPrimaryMenuItems(),
             "buttonList" => $pageHeadingEvent->getActions(),
             "heading" => $this->heading,
+            // Title/Patient ---------- Context Dropdown when enabled --------- Action Buttons
+            "titleNavContent" => $pageHeadingEvent->getTitleNavContent()
         ];
 
         $html = $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $vars);
         return $html;
     }
 
+
     /**
-    * Creates the html string that will display the formatted expandable icon - fa-expand or fa-compress.
-    */
+     * Creates the html string that will display the formatted expandable icon - fa-expand or fa-compress.
+     */
     public function expandIconListener(PageHeadingRenderEvent $e): PageHeadingRenderEvent
     {
         $current_state = $this->current_state;
@@ -199,10 +207,10 @@ class OemrUI
     }
 
     /**
-    * Will return the container class value either 'container' or 'container-fluid'
-    *
-    * @return string $container that will reflect the current state of the page i.e. expanded = 'container-fluid' or centered = 'container'
-    */
+     * Will return the container class value either 'container' or 'container-fluid'
+     *
+     * @return string $container that will reflect the current state of the page i.e. expanded = 'container-fluid' or centered = 'container'
+     */
     public function oeContainer()
     {
         $container = ($this->current_state) ? 'container-fluid' : 'container';
@@ -210,16 +218,16 @@ class OemrUI
     }
 
     /**
-    * Creates the html string that will display the formatted action/re-direction icon - for conceal, reveal, search, reset, link and back.
-    *
-    * Considers the following
-    * * $action (reset/conceal/reveal/search/link/back), what kind of action is being taken
-    * * $action_title, the Tooltip title, optional
-    * * $action_href, the HREF (used only for reset, link, and back)
-    *
-    * @TBD this was narrowly scoped when introduced. These actions should probably be there own separate buttons with custom listeners
-    *
-    */
+     * Creates the html string that will display the formatted action/re-direction icon - for conceal, reveal, search, reset, link and back.
+     *
+     * Considers the following
+     * * $action (reset/conceal/reveal/search/link/back), what kind of action is being taken
+     * * $action_title, the Tooltip title, optional
+     * * $action_href, the HREF (used only for reset, link, and back)
+     *
+     * @TBD this was narrowly scoped when introduced. These actions should probably be there own separate buttons with custom listeners
+     *
+     */
     public function actionIconListener(PageHeadingRenderEvent $e)
     {
         $arrAction = $this->arrAction;
@@ -259,7 +267,7 @@ class OemrUI
                 $action_href = "#";
                 break;
             case "link":
-                $target = (str_contains((string) $action_href, 'http')) ? "_blank" : "_self";
+                $target = (str_contains((string)$action_href, 'http')) ? "_blank" : "_self";
                 $action_title = $action_title ?: xl("Click to go to page");
                 $icon = "fa-external-link-alt";
                 break;
@@ -293,13 +301,13 @@ class OemrUI
     }
 
     /**
-    * Creates the html string that will display the formatted help icon - fa-question-circle.
-    *
-    * @param int|bool  $display_help_icon
-    *
-    * @return string $help_icon that will output the help icon html string
-    *
-    */
+     * Creates the html string that will display the formatted help icon - fa-question-circle.
+     *
+     * @param int|bool $display_help_icon
+     *
+     * @return string $help_icon that will output the help icon html string
+     *
+     */
     public function helpIconListener(PageHeadingRenderEvent $e)
     {
         $title = "";
@@ -332,16 +340,16 @@ class OemrUI
     }
 
     /**
-    * Output the help modal html along with the jQuery to make it work.
-    *
-    * $param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
-    * will echo the entire html string of the help modal and the jQuery, needs to be used as the first line after the container div
-    *
-    * @todo Move this to a twig file, RD 1/12/2023
-    *
-    * @return void
-    *
-    */
+     * Output the help modal html along with the jQuery to make it work.
+     *
+     * $param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
+     * will echo the entire html string of the help modal and the jQuery, needs to be used as the first line after the container div
+     *
+     * @return void
+     *
+     * @todo Move this to a twig file, RD 1/12/2023
+     *
+     */
     private function helpFileModal($help_file = '')
     {
         $help_file = $this->help_file;
@@ -353,7 +361,7 @@ class OemrUI
             $modal_body = "<iframe src=\"$help_file\" id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
                                 allowtransparency='true'></iframe>";
         } else {
-            $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br /><br />" . xlt("Then pass it's name as a value to the element" . " " . text("'help_file_name'") . " "  .  "in the associative array") . " " . text("\$arrOeUiSettings") . ".<br /><br />" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br />" . "</h3>";
+            $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br /><br />" . xlt("Then pass it's name as a value to the element" . " " . text("'help_file_name'") . " " . "in the associative array") . " " . text("\$arrOeUiSettings") . ".<br /><br />" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br />" . "</h3>";
         }
         $help_modal = <<<HELP
         <div class="row">
@@ -396,16 +404,16 @@ class OemrUI
     }
 
     /**
-    * Generates the jQuery for the form to toggle between 'expanded' and 'centered' states.
-    *
-    * @todo Move this to a twig file, RD 1/12/2023
-    *
-    * @param array $arrFiles - that contains the files names that need to be toggled between 'expanded' and 'centered' states
-    * will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
-    *
-    * @return void
-    *
-    */
+     * Generates the jQuery for the form to toggle between 'expanded' and 'centered' states.
+     *
+     * @param array $arrFiles - that contains the files names that need to be toggled between 'expanded' and 'centered' states
+     *                        will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
+     *
+     * @return void
+     *
+     * @todo Move this to a twig file, RD 1/12/2023
+     *
+     */
     private function headerExpandJs($arrFiles = [])
     {
         $expandTitle = xlj("Click to Contract and set to henceforth open in Centered mode");
@@ -478,16 +486,16 @@ class OemrUI
     }
 
     /**
-    * Generates the jQuery to enable an element to toggle between hidden and revealed states.
-    *
-    * @todo Move this to a twig file, RD 1/12/2023
-    *
-    * @param array $arrAction - first element contains the string for type of action - needed only for actions search, reveal and conceal
-    * will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
-    *
-    * @return void
-    *
-    */
+     * Generates the jQuery to enable an element to toggle between hidden and revealed states.
+     *
+     * @param array $arrAction - first element contains the string for type of action - needed only for actions search, reveal and conceal
+     *                         will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
+     *
+     * @return void
+     *
+     * @todo Move this to a twig file, RD 1/12/2023
+     *
+     */
     private function headerActionJs($arrAction = [])
     {
         $arrAction = $this->arrAction;
@@ -496,10 +504,10 @@ class OemrUI
         // Build the labels for when the icon is moused-over
         $labels = "";
         if ($arrAction[0] == 'search') {
-            $labels .= "var showTitle = " .  xlj('Click to show search') . "\r\n;";
+            $labels .= "var showTitle = " . xlj('Click to show search') . "\r\n;";
             $labels .= "var hideTitle = " . xlj('Click to hide search') . "\r\n;";
         } elseif ($arrAction[0] == 'reveal' || $arrAction[0] == 'conceal') {
-            $labels .= "var hideTitle = " .  xlj('Click to Hide') . "\r\n;";
+            $labels .= "var hideTitle = " . xlj('Click to Hide') . "\r\n;";
             $labels .= "var showTitle = " . xlj('Click to Show') . "\r\n;";
         }
 
@@ -528,9 +536,9 @@ class OemrUI
                 let element = document.querySelector('a#show_hide i');
                 let elementIcon = document.querySelector('a#show_hide i');
         SHWTOP;
-            echo $action_top_js . "\r\n";
+        echo $action_top_js . "\r\n";
 
-                $action_bot_js = <<<SHWBOT
+        $action_bot_js = <<<SHWBOT
 
                 elementIcon.classList.toggle(showActionClass);
                 elementIcon.classList.toggle(hideActionClass);
@@ -578,15 +586,15 @@ class OemrUI
     }
 
     /**
-    * Output the help modal html with needed jQuery, jQuery to enable an element to toggle between 'hidden' and 'revealed states'
-    * and/or 'expand' and 'centered' states.
-    *
-    * based on the values in the associative array $arrOeUiSettings the relevant code will be outputted to the page
-    * for consistency always call this function just below the container div on the page
-    *
-    * @return void
-    *
-    */
+     * Output the help modal html with needed jQuery, jQuery to enable an element to toggle between 'hidden' and 'revealed states'
+     * and/or 'expand' and 'centered' states.
+     *
+     * based on the values in the associative array $arrOeUiSettings the relevant code will be outputted to the page
+     * for consistency always call this function just below the container div on the page
+     *
+     * @return void
+     *
+     */
     public function oeBelowContainerDiv()
     {
         $this->display_help_icon ? $this->helpFileModal() : '';

@@ -16,7 +16,6 @@
     "OpenEMR\\Common\\Utils\\Exception",
     "OpenEMR\\Common\\Http\\UploadedFile",
     "OpenEMR\\Gacl\\Hashed_Cache_Lite",
-    "OpenEMR\\Pdf\\MpdfGenericPdfCreator",
     "PHPUnit\\Framework\\Attributes\\Test",
     "SebastianBergmann\\CodeCoverage\\CodeCoverage",
     "SebastianBergmann\\CodeCoverage\\Driver\\Selector",

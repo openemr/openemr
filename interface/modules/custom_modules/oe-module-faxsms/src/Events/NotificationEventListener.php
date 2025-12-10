@@ -451,19 +451,19 @@ class NotificationEventListener implements EventSubscriberInterface
         $queryParams['pid'] = '';
         $url_part = $baseUrl . http_build_query($queryParams);
         $modal = $e['modal_size'] ?? 'modal-md';
-        $modal_height = $e['modal_height'] ?? '775';
+        $modal_height = $e['modal_height'] ?? '675';
         $modal_size_height = $e['modal_size_height'] ?? '';
         ?>
         function sendNotification(pid, docName, docId, details) {
-        let btnClose = <?php echo xlj("Cancel"); ?>;
-        let title = <?php echo xlj("Send Message"); ?>;
-        let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) +
-        '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
-        dlgopen(url, '', '<?php echo attr($modal); ?>', '<?php echo attr($modal_height); ?>', '', title, {
-        buttons: [{text: btnClose, close: true, style: 'secondary'}],
-        sizeHeight: '<?php echo attr($modal_size_height); ?>',
-        allowDrag: true,
-        allowResize: true,
+            let btnClose = <?php echo xlj("Cancel"); ?>;
+            let title = <?php echo xlj("Send Message"); ?>;
+            let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) +
+            '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
+            dlgopen(url, '', '<?php echo attr($modal); ?>', '<?php echo attr($modal_height); ?>', '', title, {
+            buttons: [{text: btnClose, close: true, style: 'secondary'}],
+            sizeHeight: '<?php echo attr($modal_size_height); ?>',
+            allowDrag: true,
+            allowResize: true,
         });
         }
     <?php }
