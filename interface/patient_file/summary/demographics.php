@@ -403,9 +403,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             location.reload();
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
-            dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450, '', '', {
+            const params = new URLSearchParams({
+                patient: <?php echo js_escape($pid); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
                 allowResize: false,
                 allowDrag: false,
                 dialogId: 'patdel',
@@ -413,18 +418,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             return false;
         }
+        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
             top.clearPatient();
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
-            let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
+            const params = new URLSearchParams({
+                patientid: <?php echo js_escape($pid); ?>
+            });
+            const url = '../../main/calendar/add_edit_event.php?' + params.toString();
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
         }
+        // AI-generated code end
 
         function toggleIndicator(target, div) {
             // <i id="show_hide" class="fa fa-lg small fa-eye-slash" title="Click to Hide"></i>
@@ -927,7 +938,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
-            encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter); ?> +'&pid=' + <?php echo js_url($pid); ?>;
+            // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+            const encParams = new URLSearchParams({
+                set_encounter: <?php echo js_escape($encounter); ?>,
+                pid: <?php echo js_escape($pid); ?>
+            });
+            encurl = 'encounter/encounter_top.php?' + encParams.toString();
             parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
             top.restoreSession();
             parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
