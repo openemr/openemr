@@ -467,7 +467,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             ?>
         </nav>
         <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>
-        <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
+        <div class="body_title pt-1" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
         <div class="mainFrames d-flex flex-row" id="mainFrames_div">
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>

@@ -2,9 +2,10 @@
 
 /**
  * @package   OpenEMR
+ *
  * @link      http://www.open-emr.org
+ *
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
- * @copyright Copyright (c) 2025 sjpadgett@gmail.com
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -12,70 +13,69 @@ namespace OpenEMR\Core;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-/**
- * OEGlobalsBag provides a singleton-style global parameter bag that can optionally
- * mirror changes to the legacy $GLOBALS array when compatibility mode is enabled.
- */
 class OEGlobalsBag extends ParameterBag
 {
     private static ?OEGlobalsBag $instance = null;
 
     /**
-     * Readonly state object to toggle compatibility mode dynamically.
-     * We mutate its internal property, not the reference itself (safe for readonly).
+     * Get the singleton instance of OEGlobalsBag
+     *
+     * @param bool $compatibilityMode Enable two-way sync with $GLOBALS array
+     * @return OEGlobalsBag
      */
-    private readonly \stdClass $compatState;
-
-    public static function getInstance(): OEGlobalsBag
+    public static function getInstance(bool $compatibilityMode = false): OEGlobalsBag
     {
         if (null === self::$instance) {
-            self::$instance = new OEGlobalsBag();
+            // In compatibility mode, import existing $GLOBALS into the bag
+            $initialParams = $compatibilityMode ? $GLOBALS : [];
+            self::$instance = new OEGlobalsBag($initialParams, $compatibilityMode);
         }
 
         return self::$instance;
     }
 
     /**
-     * Globally enable or disable compatibility mode.
-     * When enabled, every set() also writes into the global $GLOBALS array.
+     * Reset the singleton instance (useful for testing)
      */
-    public static function setCompatabilityMode(bool $enabled): void
+    public static function resetInstance(): void
     {
-        $instance = self::getInstance();
-        $instance->compatState->enabled = $enabled;
+        self::$instance = null;
     }
 
-    /**
-     * Static getter to check global compatibility mode state.
-     */
-    public static function getCompatMode(): bool
+    public function __construct(array $parameters = [], private readonly bool $compatibilityMode = false)
     {
-        return self::getInstance()->isCompatModeEnabled();
-    }
-
-    public function __construct(
-        array $parameters = [],
-        private readonly bool $compatMode = false
-    ) {
         parent::__construct($parameters);
-        $this->compatState = (object)['enabled' => $this->compatMode];
-    }
-
-    /**
-     * Instance-level getter for current mode.
-     */
-    public function isCompatModeEnabled(): bool
-    {
-        return (bool)($this->compatState->enabled ?? false);
     }
 
     public function set(string $key, mixed $value): void
     {
         parent::set($key, $value);
 
-        if ($this->compatState->enabled) {
-            // Mirror into global space for legacy code
+        if ($this->compatibilityMode) {
+            // In compatibility mode, also set the value in the global $GLOBALS array
             $GLOBALS[$key] = $value;
         }
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        // If in compatibility mode and key not in bag, try $GLOBALS
+        if ($this->compatibilityMode && !parent::has($key) && array_key_exists($key, $GLOBALS)) {
+            return $GLOBALS[$key];
+        }
+
+        return parent::get($key, $default);
+    }
+
+    public function has(string $key): bool
+    {
+        $hasInBag = parent::has($key);
+
+        // In compatibility mode, also check $GLOBALS
+        if ($this->compatibilityMode && !$hasInBag) {
+            return array_key_exists($key, $GLOBALS);
+        }
+
+        return $hasInBag;
     }
 }

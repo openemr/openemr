@@ -20,6 +20,7 @@ use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Database\QueryUtils;
 
 class ApplicationTable extends AbstractTableGateway
 {
@@ -433,6 +434,6 @@ class ApplicationTable extends AbstractTableGateway
     */
     public function generateSequenceID()
     {
-        return generate_id();
+        return QueryUtils::generateId();
     }
 }

@@ -13,6 +13,7 @@
 require_once(__DIR__ . '/../../interface/globals.php');
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable
@@ -360,7 +361,7 @@ class ApplicationTable
      */
     public function generateSequenceID()
     {
-        return generate_id();
+        return QueryUtils::generateId();
     }
 
     public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)

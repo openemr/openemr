@@ -34,7 +34,7 @@ parameters:
       path: ../contrib/util/dupecheck/mergerecords.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 44
+      count: 43
       path: ../controllers/C_Document.class.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -1062,7 +1062,7 @@ parameters:
       path: ../interface/modules/custom_modules/oe-module-dorn/src/ConnectorApi.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 7
+      count: 6
       path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -1394,7 +1394,7 @@ parameters:
       path: ../interface/orders/procedure_stats.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 11
+      count: 10
       path: ../interface/orders/receive_hl7_results.inc.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -1618,7 +1618,7 @@ parameters:
       path: ../interface/patient_file/summary/dashboard_header_simple_return.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 70
+      count: 71
       path: ../interface/patient_file/summary/demographics.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -2260,6 +2260,10 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../library/classes/Tree.class.php
+    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../library/classes/Tree.class.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 11
@@ -2334,7 +2338,7 @@ parameters:
       path: ../library/edihistory/edih_csv_inc.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 11
+      count: 8
       path: ../library/encounter_events.inc.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -2610,7 +2614,7 @@ parameters:
       path: ../portal/patient/index.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 17
+      count: 9
       path: ../portal/patient/libs/Controller/OnsiteDocumentController.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -2988,6 +2992,10 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../src/Gacl/GaclAdminApi.php
+    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 4
+      path: ../src/Gacl/GaclApi.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 3
