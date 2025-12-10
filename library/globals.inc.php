@@ -3470,14 +3470,13 @@ $GLOBALS_METADATA = [
             xl('Enable NewCrop eRx Service'),
             'bool',
             '0',
-            xl('Enable NewCrop eRx Service.') . ' ' .
-            xl('Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.')
+            xl('Enable NewCrop eRx Service.')
         ],
 
         'erx_newcrop_path' => [
             xl('NewCrop eRx Site Address'),
             'text',
-            'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
+            'https://secure.newcropaccounts.com/ux2/InterfaceV7/RxEntry.aspx',
             xl('URL for NewCrop eRx Site Address.')
         ],
 
