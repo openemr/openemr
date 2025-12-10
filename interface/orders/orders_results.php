@@ -190,7 +190,13 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 varname = 'form_proc_type';
             }
             ptvarname = varname;
-            dlgopen('types.php?popup=1&order=' + encodeURIComponent(f[ptvarname].value), '_blank', 800, 500);
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                popup: '1',
+                order: f[ptvarname].value
+            });
+            dlgopen('types.php?' + params, '_blank', 800, 500);
+            // AI-generated code end (GitHub Copilot)
         }
 
         // This is for callback by the find-procedure-type popup.
