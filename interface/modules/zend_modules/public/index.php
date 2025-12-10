@@ -69,7 +69,7 @@ if (!empty($_REQUEST['me']) && isset($_REQUEST['sent_by_app']) && $_REQUEST['sen
             $token = $jwt->validate(urldecode((string) $_REQUEST['token']));
             $jwtData = $token->claims()->all();
             $session->applyDataFromJWT($jwtData);
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
             (new SystemLogger())->debug("Zend_Modules/public/index.php: failed to validate and parse JWT token. Error: {$exception->getMessage()}");
         }
     }
