@@ -65,7 +65,7 @@
         "laminas/laminas-eventmanager": "^3.15.0",
         "laminas/laminas-filter": "^2.42.0",
         "laminas/laminas-form": "^3.24.0",
-        "laminas/laminas-inputfilter": "2.34.0",
+        "laminas/laminas-inputfilter": "^2.34.0",
         "laminas/laminas-json": "3.7.1",
         "laminas/laminas-json-server": "3.9.0",
         "laminas/laminas-loader": "2.11.1",
