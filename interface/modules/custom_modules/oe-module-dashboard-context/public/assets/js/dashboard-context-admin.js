@@ -559,7 +559,7 @@ const ContextAdmin = {
     showAlert: function(message, type) {
         const $alert = $(`
             <div class="alert alert-${type} alert-dismissible fade show" style="position:fixed;top:10px;right:10px;z-index:9999;">
-                ${message}<button type="button" class="close" data-dismiss="alert">&times;</button>
+                ${jsText(message)}<button type="button" class="close" data-dismiss="alert">&times;</button>
             </div>
         `);
         $('body').append($alert);

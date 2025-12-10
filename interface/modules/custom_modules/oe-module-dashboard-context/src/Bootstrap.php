@@ -53,7 +53,7 @@ class Bootstrap
     {
         $this->registerMenuItems();
         $this->registerPageHeadingWidget();
-        // $this->registerDashboardWidget(); // TODO sjp Save if we want to allow user to move the dropdown to top of view.
+        //$this->registerDashboardWidget(); // TODO sjp Save if we want to allow user to move the dropdown to top of view.
     }
 
     /**
