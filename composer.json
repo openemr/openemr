@@ -102,7 +102,7 @@
         "psr/http-message": "^1.1",
         "psr/log": "^3.0.2",
         "ramsey/uuid": "^4.9.2",
-        "ringcentral/ringcentral-php": "3.0.4",
+        "ringcentral/ringcentral-php": "^3.0.4",
         "robthree/twofactorauth": "3.0.2",
         "rospdf/pdf-php": "0.12.67",
         "smarty/smarty": "4.5.6",
