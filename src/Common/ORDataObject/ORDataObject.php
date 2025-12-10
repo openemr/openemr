@@ -70,7 +70,7 @@ class ORDataObject
                 $val = call_user_func([$this, $func]);
 
                 if (in_array($field, $pkeys) && empty($val)) {
-                    $last_id = generate_id();
+                    $last_id = QueryUtils::generateId();
                     call_user_func([&$this, "set_" . $field], $last_id);
                     $val = $last_id;
                 }
