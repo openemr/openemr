@@ -76,7 +76,7 @@
         "laminas/laminas-stdlib": "^3.21.0",
         "laminas/laminas-xmlrpc": "^2.22.0",
         "lcobucci/clock": "^2.3",
-        "lcobucci/jwt": "4.2.1",
+        "lcobucci/jwt": "^4.2.1",
         "league/csv": "9.28.0",
         "league/oauth2-server": "^8.4",
         "league/omnipay": "3.2.1",
