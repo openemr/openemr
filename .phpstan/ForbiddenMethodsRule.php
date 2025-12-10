@@ -34,7 +34,7 @@ class ForbiddenMethodsRule implements Rule
      * targeting globals lacking sufficient type info)
      */
     private const FORBIDDEN_METHODS = [
-        'GenID' => 'Use QueryUtils::generateId() or QueryUtils::ediGenerateId instead.',
+        'GenID' => 'Use QueryUtils::generateId() or QueryUtils::ediGenerateId() instead.',
     ];
 
     public function getNodeType(): string
@@ -59,7 +59,11 @@ class ForbiddenMethodsRule implements Rule
             return [];
         }
 
-        $message = self::FORBIDDEN_METHODS[$functionName];
+        $message = sprintf(
+            '%s is deprecated. %s',
+            $functionName,
+            self::FORBIDDEN_METHODS[$functionName],
+        );
 
         return [
             RuleErrorBuilder::message($message)
