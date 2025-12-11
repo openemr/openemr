@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "917d58845bd25588958edb42fd08c438",
+    "content-hash": "c5038376f91ee57dbc4703a6bbb97572",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -6661,16 +6661,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "5.2.0",
+            "version": "5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "3b8994b3aac4b61018bc04fc8c441f4fd68c18eb"
+                "reference": "4d597c1aacdde1805a33c525b9758113ea0d90df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/3b8994b3aac4b61018bc04fc8c441f4fd68c18eb",
-                "reference": "3b8994b3aac4b61018bc04fc8c441f4fd68c18eb",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/4d597c1aacdde1805a33c525b9758113ea0d90df",
+                "reference": "4d597c1aacdde1805a33c525b9758113ea0d90df",
                 "shasum": ""
             },
             "require": {
@@ -6712,7 +6712,7 @@
             },
             "suggest": {
                 "dompdf/dompdf": "Option for rendering PDF with PDF Writer",
-                "ext-intl": "PHP Internationalization Functions, regquired for NumberFormat Wizard",
+                "ext-intl": "PHP Internationalization Functions, required for NumberFormat Wizard",
                 "mitoteam/jpgraph": "Option for rendering charts, or including charts with PDF or HTML Writers",
                 "mpdf/mpdf": "Option for rendering PDF with PDF Writer",
                 "tecnickcom/tcpdf": "Option for rendering PDF with PDF Writer"
@@ -6761,9 +6761,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.2.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.3.0"
             },
-            "time": "2025-10-26T15:54:22+00:00"
+            "time": "2025-11-24T15:47:10+00:00"
         },
         {
             "name": "phpoption/phpoption",
