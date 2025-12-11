@@ -206,6 +206,18 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             $immunizationResource->addPerformer($performer);
         }
 
+        if (!empty($dataRecord['euuid'])) {
+            $encounterReference = new FHIRReference();
+            $encounterReference->setReference('Encounter/' . $dataRecord['euuid']);
+            $immunizationResource->setEncounter($encounterReference);
+        }
+
+        if (!empty($dataRecord['facility_location_uuid'])) {
+            $locationReference = new FHIRReference();
+            $locationReference->setReference('Location/' . $dataRecord['facility_location_uuid']);
+            $immunizationResource->setLocation($locationReference);
+        }
+
         // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
 //        if (!empty($dataRecord['education_date'])) {
 //            $education = new FHIRImmunizationEducation();

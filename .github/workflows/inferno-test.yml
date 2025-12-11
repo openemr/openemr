@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check_secret:
     runs-on: ubuntu-24.04
@@ -54,7 +58,7 @@ jobs:
         php-version: ['8.4']
         node-version: ['22']
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: 'recursive'
         token: ${{ secrets.INFERNO_PAT }}

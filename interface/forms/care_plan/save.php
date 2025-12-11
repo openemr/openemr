@@ -68,7 +68,7 @@ if (!empty($count)) {
         $codetext_val       = $code_text[$key] ?? '';
         $description_val    = $code_des[$key] ?? '';
         $care_plan_type_val = $care_plan_type[$key] ?? '';
-        $care_user_val      = $care_plan_user[$key] ?? $_SESSION["authUser"];
+        $care_user_val      = $care_plan_user[$key] ?: $_SESSION["authUser"];
 
         // Dates & status normalization
         $start_date_val = trim($code_date[$key] ?? '');

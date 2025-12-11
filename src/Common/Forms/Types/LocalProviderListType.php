@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Forms\Types;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 
-class LocalProviderListType
+class LocalProviderListType implements IOptionFormType
 {
     const OPTIONS_TYPE_INDEX = 11;
 

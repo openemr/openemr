@@ -63,14 +63,29 @@ class VitalsCalculatedService extends BaseService
     {
         $processingResult = new ProcessingResult();
         try {
-            $sql = "SELECT fvc.uuid, fvc.date_start, fvc.date_end, fvc.created_at, fvc.updated_at,
-            fvc.created_by, cu.created_by_uuid,
+            $sql = "SELECT fvc.uuid, fvc.date_start, fvc.date_end, fvc.created_at, fvc.last_updated,
+            fvc.created_by, cu.created_by_uuid, cu.created_by_npi,
             fvc.updated_by, uu.updated_by_uuid,
             fvc.calculation_id, fvc.encounter, e.euuid,
             fvc.pid, p.puuid,
             vitals.vuuid as source_vital_uuid,
             comp.vitals_column, comp.value, comp.value_string, comp.value_unit, comp.component_order
-            FROM form_vitals_calculation fvc
+            FROM (
+                SELECT
+                    uuid
+                    ,date_start
+                    ,date_end
+                    ,created_at
+                     -- alias updated_at to avoid conflict when running search param across VitalsService and this one
+                    ,updated_at AS last_updated
+                    ,updated_by
+                    ,created_by
+                    ,calculation_id
+                    ,encounter
+                    ,pid
+                FROM
+                    form_vitals_calculation
+            ) fvc
             JOIN (
                 select pid AS patient_id,uuid AS puuid
                 FROM patient_data
@@ -80,7 +95,7 @@ class VitalsCalculatedService extends BaseService
                 FROM form_encounter
             ) e ON fvc.encounter = e.eid
             LEFT JOIN (
-                select id AS user_creator_id, uuid AS created_by_uuid
+                select id AS user_creator_id, uuid AS created_by_uuid, npi AS created_by_npi
                 FROM users
             ) cu ON fvc.created_by = cu.user_creator_id
             LEFT JOIN (
@@ -127,7 +142,7 @@ class VitalsCalculatedService extends BaseService
                     'date_start' => $record['date_start'],
                     'date_end' => $record['date_end'],
                     'created_at' => $record['created_at'],
-                    'updated_at' => $record['updated_at'],
+                    'updated_at' => $record['last_updated'],
                     'created_by' => $record['created_by'],
                     'created_by_uuid' => UuidRegistry::uuidToString($record['created_by_uuid']),
                     'updated_by' => $record['updated_by'],

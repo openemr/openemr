@@ -36,6 +36,8 @@ $rows = $specimen_by_seq[$seq];
                     <table class="table table-sm mb-0">
                         <thead class="thead-light">
                         <tr>
+                            <th><?php echo xlt('Identifier'); ?></th>
+                            <th><?php echo xlt('Accession'); ?></th>
                             <th><?php echo xlt('Type'); ?></th>
                             <th><?php echo xlt('Method'); ?></th>
                             <th><?php echo xlt('Site'); ?></th>
@@ -54,6 +56,18 @@ $rows = $specimen_by_seq[$seq];
                                 <input type="hidden"
                                     name="form_proc_specimen_id[<?php echo $i; ?>][]"
                                     value="<?php echo attr($sp['procedure_specimen_id']); ?>">
+                                <td>
+                                    <input type="text" class="form-control"
+                                        name="form_proc_specimen_identifier[<?php echo $i; ?>][]"
+                                        value="<?php echo attr($sp['specimen_identifier']); ?>"
+                                        placeholder="<?php echo xla('Tube barcode / internal id'); ?>">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control"
+                                        name="form_proc_accession_identifier[<?php echo $i; ?>][]"
+                                        value="<?php echo attr($sp['accession_identifier']); ?>"
+                                        placeholder="<?php echo xla('Lab accession'); ?>">
+                                </td>
                                 <td>
                                     <?php
                                     ob_start();
@@ -156,6 +170,16 @@ $rows = $specimen_by_seq[$seq];
                 <input type="hidden"
                     name="form_proc_specimen_id[<?php echo $i; ?>][]"
                     value="">
+                <td>
+                    <input type="text" class="form-control"
+                        name="form_proc_specimen_identifier[<?php echo $i; ?>][]"
+                        placeholder="<?php echo xla('Tube barcode / internal id'); ?>">
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                        name="form_proc_accession_identifier[<?php echo $i; ?>][]"
+                        placeholder="<?php echo xla('Lab accession'); ?>">
+                </td>
 
                 <td>
                     <?php

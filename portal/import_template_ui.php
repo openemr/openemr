@@ -728,8 +728,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <!-- Repository -->
             <div class='row'>
-                <div class='col col-12'>
-                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse' role='button'>
+                    <div class="h5"><i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
                         <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
                             <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
@@ -933,8 +933,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <div class='row'>
                 <div class='col col-12'>
-                    <div class='h5'>
-                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#assigned_collapse' role='button' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
+                    <div class='h5' data-toggle='collapse' data-target='#assigned_collapse' role='button'>
+                        <i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
                     </div>
                 </div>
                 <!-- Assigned table -->

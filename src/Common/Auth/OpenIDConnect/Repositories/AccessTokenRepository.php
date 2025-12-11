@@ -23,6 +23,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
@@ -41,7 +43,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      */
     private $contextForNewTokens;
 
-    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session)
+    public function __construct(private ServerConfig $serverConfig, private SessionInterface $session)
     {
         $this->contextForNewTokens = null;
     }
@@ -116,6 +118,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
     {
         $accessToken = new AccessTokenEntity();
+        // issuer needs to match what is in the 'issuer' tag of the /oauth2/openid-configuration
+        $accessToken->setIssuer($this->serverConfig->getOauthAuthorizationUrl());
         $accessToken->setClient($clientEntity);
         foreach ($scopes as $scope) {
             $accessToken->addScope($scope);
@@ -124,7 +128,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
         $this->getSystemLogger()->debug("AccessTokenRepository->getNewToken() creating new access token", [
             'clientId' => $clientEntity->getIdentifier(),
-            'userIdentifier' => $userIdentifier
+            'userIdentifier' => $userIdentifier,
+            'issuer' => $accessToken->getIssuer()
         ]);
         return $accessToken;
     }
@@ -167,7 +172,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     private function getBuilderForAccessToken(): SMARTSessionTokenContextBuilder
     {
         if (empty($this->builder)) {
-            $this->builder = new SMARTSessionTokenContextBuilder($this->globalsBag, $this->session);
+            $this->builder = new SMARTSessionTokenContextBuilder($this->serverConfig, $this->session);
         }
         return $this->builder;
     }

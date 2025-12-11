@@ -352,22 +352,22 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
 
         if (!empty($dataRecord['phone_home'])) {
-            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_home'], 'home'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['phone_home'], 'phone','home'));
         }
 
         if (!empty($dataRecord['phone_biz'])) {
-            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_biz'], 'work'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['phone_biz'], 'phone', 'work'));
         }
 
         if (!empty($dataRecord['phone_cell'])) {
-            $patientResource->addTelecom($this->createContactPoint('phone', $dataRecord['phone_cell'], 'mobile'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['phone_cell'],'phone',  'mobile'));
         }
 
         if (!empty($dataRecord['email'])) {
-            $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email'], 'home'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['email'],'email',  'home'));
         }
         if (!empty($dataRecord['email_direct'])) {
-            $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email_direct'], 'mobile'));
+            $patientResource->addTelecom(UtilsService::createContactPoint($dataRecord['email_direct'],'email','mobile'));
             // "mobile" per spec:
             //    "A telecommunication device that moves and stays with its owner.
             //    May have characteristics of all other use codes, suitable for urgent matters,
@@ -377,18 +377,42 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMRGenderAndBirthSex(FHIRPatient $patientResource, $sex)
     {
+        $genderValue = strtolower((string) $sex) ?? 'unknown';
         // @see https://www.hl7.org/fhir/us/core/ValueSet-birthsex.html
-        $genderValue = $sex ?? 'Unknown';
-        $birthSex = "UNK";
+        // 3.1.1 birthSex -> M | F | UNK
+        // 7.0.0 birthSex -> https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1021.24/expansion
+        //      F,M,UNK,OTH,UNK,ASKU,asked-declined
+        // 8.0.0 birthSex dropped as mandatory field
+        $birthSex = match($this->getHighestCompatibleUSCoreProfileVersion()) {
+            self::PROFILE_VERSION_3_1_1 => match($genderValue) {
+                'male' => 'M'
+                ,'female' => 'F'
+                ,default => 'UNK'
+            },
+            // self::PROFILE_VERSION_7_0_0, self::PROFILE_VERSION_8_0_0, and future
+            default => match($genderValue) {
+                'male' => 'M'
+                ,'female' => 'F'
+                ,'oth' => 'OTH'
+                ,'asku' => 'ASKU'
+                ,'asked-declined' => 'asked-declined'
+                ,default => 'UNK'
+            }
+        };
+
         $gender = new FHIRAdministrativeGender();
         $birthSexExtension = new FHIRExtension();
-        if ($genderValue !== 'Unknown') {
-            if ($genderValue === 'Male') {
-                $birthSex = 'M';
-            } elseif ($genderValue === 'Female') {
-                $birthSex = 'F';
-            }
-        }
+
+        // http://hl7.org/fhir/R4/valueset-administrative-gender.html
+        // 3.1.1,7.0.0 gender -> male | female | other | unknown
+
+        $genderValue = match($genderValue) {
+            'male','female' => $genderValue
+            // unk -> 'unknown' per HL7 spec
+            ,'unk' => 'unknown'
+
+            ,default => 'other'
+        };
         $gender->setValue(strtolower($genderValue));
         $birthSexExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex");
         $birthSexExtension->setValueCode($birthSex);
@@ -738,15 +762,6 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $identifier;
     }
 
-    private function createContactPoint($system, $value, $use): FHIRContactPoint
-    {
-        $contactPoint = new FHIRContactPoint();
-        $contactPoint->setSystem(new FHIRContactPointSystem(['value' => $system]));
-        $contactPoint->setValue(new FHIRString($value));
-        $contactPoint->setUse(new FHIRContactPointUse(['value' => $use]));
-        return $contactPoint;
-    }
-
     /**
      * Parses a FHIR Patient Resource, returning the equivalent OpenEMR patient record.
      *
@@ -763,7 +778,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
 
         $data = [];
-        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        $data['uuid'] = (string)$fhirResource->getId();
 
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
@@ -773,7 +788,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                     break;
                 }
             }
-            $data['lname'] = (string)$name->getFamily() ?? null;
+            $data['lname'] = (string)$name->getFamily();
 
             $given = $name->getGiven() ?? [];
             // we cast due to the way FHIRString works
@@ -808,18 +823,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
             $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['postal_code'] = (string)$activeAddress->getPostalCode() ?? null;
-            $data['city'] = (string)$activeAddress->getCity() ?? null;
-            $data['state'] = (string)$activeAddress->getState() ?? null;
+            $data['postal_code'] = (string)$activeAddress->getPostalCode();
+            $data['city'] = (string)$activeAddress->getCity();
+            $data['state'] = (string)$activeAddress->getState();
         }
 
         $telecom = $fhirResource->getTelecom();
         if (!empty($telecom)) {
             foreach ($telecom as $contactPoint) {
-                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $systemValue = (string)$contactPoint->getSystem();
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
-                    $use = (string)$contactPoint->getUse() ?? "home";
+                    $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'email_direct'];
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
@@ -827,7 +842,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                         $data[$systemValue] = $contactValue;
                     }
                 } elseif ($systemValue == "phone") {
-                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'phone_cell', 'home' => 'phone_home', 'work' => 'phone_biz'];
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
@@ -1036,7 +1051,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $mapping = [
             'M' => 'Male',
             'F' => 'Female',
-            'U' => 'Unknown',
+            'UNK' => 'Unknown',
         ];
         return $mapping[$value] ?? 'Unknown';
     }

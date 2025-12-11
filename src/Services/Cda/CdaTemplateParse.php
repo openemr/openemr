@@ -621,7 +621,7 @@ class CdaTemplateParse
 
             $this->templateData['field_name_value_array']['lists3'][$i]['route'] = $entry['substanceAdministration']['routeCode']['code'] ?? null;
             $this->templateData['field_name_value_array']['lists3'][$i]['route_display'] = $entry['substanceAdministration']['routeCode']['displayName'] ?? null;
-            $this->templateData['field_name_value_array']['lists3'][$i]['dose'] = number_format((float)$entry['substanceAdministration']['doseQuantity']['value'], 2, '.', '') ?? null;
+            $this->templateData['field_name_value_array']['lists3'][$i]['dose'] = number_format((float)$entry['substanceAdministration']['doseQuantity']['value'], 2, '.', '');
 
             $this->templateData['field_name_value_array']['lists3'][$i]['dose_unit'] = $entry['substanceAdministration']['doseQuantity']['unit'] ?? null;
             $this->templateData['field_name_value_array']['lists3'][$i]['rate'] = $entry['substanceAdministration']['rateQuantity']['value'] ?? null;

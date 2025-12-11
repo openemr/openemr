@@ -62,6 +62,8 @@ use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
+use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 if (!isset($pid)) {
@@ -342,9 +344,6 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
-// Add related persons to result array
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);
 
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData(
@@ -404,9 +403,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             location.reload();
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
-            dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450, '', '', {
+            const params = new URLSearchParams({
+                patient: <?php echo js_escape($pid); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
                 allowResize: false,
                 allowDrag: false,
                 dialogId: 'patdel',
@@ -414,18 +418,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             return false;
         }
+        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
             top.clearPatient();
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
-            let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
+            const params = new URLSearchParams({
+                patientid: <?php echo js_escape($pid); ?>
+            });
+            const url = '../../main/calendar/add_edit_event.php?' + params.toString();
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
         }
+        // AI-generated code end
 
         function toggleIndicator(target, div) {
             // <i id="show_hide" class="fa fa-lg small fa-eye-slash" title="Click to Hide"></i>
@@ -928,7 +938,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
-            encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter); ?> +'&pid=' + <?php echo js_url($pid); ?>;
+            // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+            const encParams = new URLSearchParams({
+                set_encounter: <?php echo js_escape($encounter); ?>,
+                pid: <?php echo js_escape($pid); ?>
+            });
+            encurl = 'encounter/encounter_top.php?' + encParams.toString();
             parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
             top.restoreSession();
             parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
@@ -1019,7 +1034,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 <body class="mt-1 patient-demographic bg-light">
-
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
@@ -1036,7 +1050,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-
         if ($thisauth) {
             if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
                 $thisauth = 0;
@@ -1044,6 +1057,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1243,6 +1257,59 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                         echo "</div>";
                     }
+                }
+                // ============================================================================
+                // TREATMENT INTERVENTION PREFERENCES CARD
+                // ============================================================================
+                if (!in_array('card_treatment_preferences', $hiddenCards)) {
+                    $card = new TreatmentPreferenceViewCard($pid);
+                    $viewArgs = [
+                        'title' => xl('Treatment Intervention Preferences'),
+                        'id' => 'card_treatment_preferences',
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'btnClass'   => 'js-card-toggle-edit',
+                        'btnLabel' => 'Add',
+                        'linkMethod' => 'javascript',
+                        'btnLink' => "void(0);",
+                    ];
+                    // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+
+                // ============================================================================
+                // CARE EXPERIENCE PREFERENCES CARD
+                // ============================================================================
+                if (!in_array('card_care_experience', $hiddenCards)) {
+                    $card = new CareExperiencePreferenceViewCard($pid);
+
+                    $viewArgs = [
+                        'title' => xl('Care Experience Preferences'),
+                        'id' => 'card_care_experience',
+                        'initiallyCollapsed' => getUserSetting('card_care_experience') == 0,
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' =>  !$card->canCollapse(),
+                        'btnClass'   => 'js-card-toggle-edit',
+                        'btnLabel' => 'Add',
+                        'linkMethod' => 'javascript',
+                        'btnLink' => "void(0);",
+                    ];
+
+                    // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
                 }
                 ?>
                 <div class="col-md-8 px-2">

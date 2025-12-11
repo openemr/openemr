@@ -536,8 +536,9 @@ final class CryptoGenTest extends TestCase
         $withoutVersion = substr($encrypted, 3);
         $raw = base64_decode($withoutVersion);
 
-        // Tamper with the HMAC (first 48 bytes)
-        $tamperedRaw = 'X' . substr($raw, 1);
+        // Tamper with the HMAC (first 48 bytes) by flipping bits in the first byte
+        // Use XOR to guarantee the tampered byte is different from the original
+        $tamperedRaw = chr(ord($raw[0]) ^ 0xFF) . substr($raw, 1);
         $tamperedEncrypted = $this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . base64_encode($tamperedRaw);
 
         // This should fail HMAC validation and return false
@@ -557,8 +558,9 @@ final class CryptoGenTest extends TestCase
         $withoutVersion = substr($encrypted, 3);
         $raw = base64_decode($withoutVersion);
 
-        // Skip salt (32 bytes) and tamper with HMAC (next 48 bytes)
-        $tamperedRaw = substr($raw, 0, 32) . 'X' . substr($raw, 33);
+        // Skip salt (32 bytes) and tamper with HMAC (next 48 bytes) by flipping bits
+        // Use XOR to guarantee the tampered byte is different from the original
+        $tamperedRaw = substr($raw, 0, 32) . chr(ord($raw[32]) ^ 0xFF) . substr($raw, 33);
         $tamperedEncrypted = $this->cryptoGen::CURRENT_KEY_VERSION->toPaddedString() . base64_encode($tamperedRaw);
 
         $result = $this->cryptoGen->decryptStandard($tamperedEncrypted, $password);

@@ -352,7 +352,7 @@ try {
         'payment_gateway' => $GLOBALS['payment_gateway'],
         'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
         'portal_two_payments' => $GLOBALS['portal_two_payments'],
-        'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
+        'allow_portal_chat' => $GLOBALS['allow_portal_chat'] ?? false,
         'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
         'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
         'images_static_relative' => $GLOBALS['images_static_relative'],

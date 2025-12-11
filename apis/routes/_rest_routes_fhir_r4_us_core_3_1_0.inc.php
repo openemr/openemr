@@ -25,7 +25,6 @@ use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
-use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
 use OpenEMR\RestControllers\FHIR\FhirCoverageRestController;
 use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
@@ -62,6 +61,11 @@ use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
+use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
+use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
+use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
+use OpenEMR\Services\FHIR\FhirConditionService;
+use OpenEMR\Services\FHIR\FhirObservationService;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -665,14 +669,16 @@ return [
      *      security={{"openemr_auth":{}}}
      * )
      */
-    "GET /fhir/CareTeam" => function (HttpRestRequest $request) {
+    "GET /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $getParams = $request->getQueryParams();
+        $restController = new FhirCareTeamRestController();
+        $restController->setOEGlobals($globalsBag);
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirCareTeamRestController())->getAll($getParams, $request->getPatientUUIDString());
+            $return = $restController->getAll($getParams, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirCareTeamRestController())->getAll($getParams);
+            $return = $restController->getAll($getParams);
         }
 
         return $return;
@@ -866,17 +872,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Condition" => function (HttpRestRequest $request) {
-        $getParams = $request->getQueryParams();
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirConditionRestController())->getAll($getParams, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirConditionRestController())->getAll($getParams);
-        }
-
-        return $return;
+    "GET /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getAll();
     },
 
     /**
@@ -971,16 +970,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirConditionRestController())->getOne($uuid, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirConditionRestController())->getOne($uuid);
-        }
-
-        return $return;
+    "GET /fhir/Condition/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getOne($uuid);
     },
 
     /**
@@ -1419,12 +1412,13 @@ return [
      */
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
+        $controller = new FhirDiagnosticReportRestController($request);
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirDiagnosticReportRestController())->getAll($getParams, $request->getPatientUUIDString());
+            $return = $controller->getAll($getParams, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "admin", "super");
-            $return = (new FhirDiagnosticReportRestController())->getAll($getParams);
+            $return = $controller->getAll($getParams);
         }
 
         return $return;
@@ -1525,13 +1519,14 @@ return [
      *  )
      */
     "GET /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
+        $controller = new FhirDiagnosticReportRestController($request);
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirDiagnosticReportRestController())->getOne($uuid, $request->getPatientUUIDString());
+            $return = $controller->getOne($uuid, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "admin", "super");
-            $return = (new FhirDiagnosticReportRestController())->getOne($uuid);
+            $return = $controller->getOne($uuid);
         }
 
         return $return;
@@ -2658,7 +2653,7 @@ return [
      *  )
      */
     "GET /fhir/Location" => function (HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        $return = (new FhirLocationRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
 
         return $return;
     },
@@ -2727,8 +2722,177 @@ return [
      *  )
      */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
-        $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        $return = (new FhirLocationRestController($request))->getOne($uuid, $request->getPatientUUIDString());
 
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Media",
+     *      description="Returns a search bundle of Media resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Media resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="content-type",
+     *          in="query",
+     *          description="The Content-Type of the Media resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Media"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Media" => function (HttpRestRequest $request) {
+        $getParams = $request->getQueryParams();
+        $controller = new FhirMediaRestController($request);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = $controller->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            $return = $controller->getAll($getParams);
+        }
+
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Media/{uuid}",
+     *      description="Returns a single Media resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Media resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the Patient resource to filter Media references by patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "a037abc5-7ebb-43a1-9e0f-b57586dc6d25",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2025-10-27T20:00:54-04:00"
+     *                      },
+     *                      "resourceType": "Media",
+     *                      "status": "completed",
+     *                      "subject": {
+     *                          "reference": "Patient/96506861-511f-4f6d-bc97-b65a78cf1995",
+     *                          "type": "Patient"
+     *                      },
+     *                      "content": {
+     *                          "contentType": "application/dicom",
+     *                          "url": "/fhir/Binary/a037abc5-7ebb-43a1-9e0f-b57586dc6d25",
+     *                          "title": "MR000021.dcm"
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Media/:uuid" => function ($uuid, HttpRestRequest $request) {
+        $return = (new FhirMediaRestController($request))->getOne($uuid, $request->getPatientUUIDString());
         return $return;
     },
 
@@ -3280,7 +3444,8 @@ return [
     /**
      *  @OA\Get(
      *      path="/fhir/Observation",
-     *      description="Returns a list of Observation resources.",
+     *      summary="Returns a list of Observation resources.",
+     *      description="Returns a list of Observation resources. Returns the following types of Observation resources, Advance Directives, Care Experience Preferences, Occupation, Social Determinants of Health, Laboratory, Simple Observations, Social History, Questionnaire Responses, Treatment Intervention Preferences, Vital Signs.",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="_id",
@@ -3321,7 +3486,7 @@ return [
      *      @OA\Parameter(
      *          name="category",
      *          in="query",
-     *          description="The category of the Observation resource.",
+     *          description="The category of the Observation resource. Taken from one of these valid category codes http://terminology.hl7.org/CodeSystem/observation-category",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -3375,17 +3540,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Observation" => function (HttpRestRequest $request) {
-        $getParams = $request->getQueryParams();
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirObservationRestController())->getAll($getParams, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirObservationRestController())->getAll($getParams);
-        }
-
-        return $return;
+    "GET /fhir/Observation" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getAll();
     },
 
     /**
@@ -3500,16 +3658,10 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirObservationRestController())->getOne($uuid, $request->getPatientUUIDString());
-        } else {
-            RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirObservationRestController())->getOne($uuid);
-        }
-
-        return $return;
+    "GET /fhir/Observation/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        $controller = new FhirGenericRestController($request, new FhirObservationService(), $globalsBag);
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->getOne($uuid);
     },
 
     /**
@@ -4417,10 +4569,12 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "POST /fhir/Patient" => function (HttpRestRequest $request) {
+    "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->post($data);
+        $restController = new FhirPatientRestController();
+        $restController->setOEGlobals($globalsBag);
+        $return = $restController->post($data);
 
         return $return;
     },
@@ -4548,10 +4702,12 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->put($uuid, $data);
+        $restController = new FhirPatientRestController();
+        $restController->setOEGlobals($globalsBag);
+        $return = $restController->put($uuid, $data);
 
         return $return;
     },
@@ -4931,7 +5087,7 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
@@ -4941,7 +5097,9 @@ return [
         } else {
             RestConfig::request_authorization_check($request, "patients", "demo");
         }
-        $return = (new FhirPatientRestController())->getOne($uuid);
+        $controller = new FhirPatientRestController();
+        $controller->setOEGlobals($globalsBag);
+        $return = $controller->getOne($uuid);
 
         return $return;
     },
@@ -5938,6 +6096,209 @@ return [
             $return = (new FhirProcedureRestController())->getAll($request->getQueryParams());
         }
 
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/RelatedPerson",
+     *      description="Returns a list of RelatedPerson resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the RelatedPerson resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2025-09-30T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/RelatedPerson"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/RelatedPerson" => function (HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            $return = (new FhirRelatedPersonRestController())->getAll($request->getQueryParams());
+        }
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/RelatedPerson/{uuid}",
+     *      description="Returns a single RelatedPerson resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the RelatedPerson resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                       "id": "c266a919-6b22-4d7b-b169-b96adc5be3ef",
+     *                       "meta": {
+     *                           "versionId": "1",
+     *                           "lastUpdated": "2025-10-25T21:15:11-04:00",
+     *                           "profile": [
+     *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson",
+     *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|7.0.0",
+     *                               "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|8.0.0"
+     *                           ]
+     *                       },
+     *                       "resourceType": "RelatedPerson",
+     *                       "active": true,
+     *                       "patient": {
+     *                           "reference": "Patient/96506861-511f-4f6d-bc97-b65a78cf1995",
+     *                           "type": "Patient"
+     *                       },
+     *                       "relationship": [
+     *                           {
+     *                               "coding": [
+     *                                   {
+     *                                       "system": "http://terminology.hl7.org/CodeSystem/role-code",
+     *                                       "code": "FAMMEMB",
+     *                                       "display": "Family Member"
+     *                                   }
+     *                               ]
+     *                           }
+     *                       ],
+     *                       "name": [
+     *                           {
+     *                               "use": "official",
+     *                               "family": "Doe",
+     *                               "given": [
+     *                                   "John"
+     *                               ]
+     *                           }
+     *                       ],
+     *                       "telecom": [
+     *                           {
+     *                               "system": "phone",
+     *                               "value": "(555) 555-5555",
+     *                               "use": "work"
+     *                           },
+     *                           {
+     *                               "system": "phone",
+     *                               "value": "(333) 333-3333",
+     *                               "use": "home"
+     *                           },
+     *                           {
+     *                               "system": "email",
+     *                               "value": "example@open-emr.org",
+     *                               "use": "home"
+     *                           }
+     *                       ],
+     *                       "address": [
+     *                           {
+     *                               "line": [
+     *                                   "123 example street"
+     *                               ],
+     *                               "city": "Somewhere",
+     *                               "state": "CA",
+     *                               "period": {
+     *                                   "start": "2024-10-25T21:15:11.737-04:00"
+     *                               }
+     *                           }
+     *                       ]
+     *                   }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // resource is part of the patient compartment so will be bound to patient anyways
+            $return = (new FhirRelatedPersonRestController())->getOne($uuid);
+        } else {
+            RestConfig::request_authorization_check($request, "patients", "demo");
+            $return = (new FhirRelatedPersonRestController())->getOne($uuid);
+        }
         return $return;
     },
 

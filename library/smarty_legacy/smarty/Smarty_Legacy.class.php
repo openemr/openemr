@@ -579,7 +579,7 @@ class Smarty_Legacy
      */
     public function __construct()
     {
-      $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
+        $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
     }
 
     /**
@@ -664,7 +664,7 @@ class Smarty_Legacy
     {
         if ($tpl_var != '' && isset($value)) {
             if(!@is_array($this->_tpl_vars[$tpl_var])) {
-             settype($this->_tpl_vars[$tpl_var],'array');
+                settype($this->_tpl_vars[$tpl_var],'array');
             }
             if ($merge && is_array($value)) {
                 foreach($value as $_key => $_val) {
@@ -1794,11 +1794,11 @@ class Smarty_Legacy
      * @return string|null
      */
     function _get_auto_id($cache_id=null, $compile_id=null) {
-    if (isset($cache_id))
+        if (isset($cache_id))
         return (isset($compile_id)) ? $cache_id . '|' . $compile_id  : $cache_id;
-    elseif(isset($compile_id))
+        elseif(isset($compile_id))
         return $compile_id;
-    else
+        else
         return null;
     }
 
@@ -1945,17 +1945,17 @@ class Smarty_Legacy
      * @param callback $function
      * @return string
      */
-	function _get_filter_name($function)
-	{
-		if (is_array($function)) {
-			$_class_name = (is_object($function[0]) ?
-				$function[0]::class : $function[0]);
-			return $_class_name . '_' . $function[1];
-		}
-		else {
-			return $function;
-		}
-	}
+    function _get_filter_name($function)
+    {
+        if (is_array($function)) {
+            $_class_name = (is_object($function[0]) ?
+                $function[0]::class : $function[0]);
+            return $_class_name . '_' . $function[1];
+        }
+        else {
+            return $function;
+        }
+    }
 
     /**#@-*/
 

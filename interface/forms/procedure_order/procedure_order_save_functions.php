@@ -55,9 +55,7 @@ function saveProcedureOrderCodes($formid, $postData): array
         }
 
         // Check if user provided an existing order_seq (for updates)
-        $existing_seq = !empty($postData['form_proc_order_seq'][$i])
-            ? (int)$postData['form_proc_order_seq'][$i]
-            : 0;
+        $existing_seq = !empty($postData['form_proc_order_seq'][$i]) ? (int)$postData['form_proc_order_seq'][$i] : 0;
 
         // Prepare data for insert/update
         $reason_code = trim($postData['form_proc_reason_code'][$i] ?? '');
@@ -181,7 +179,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
          FROM procedure_specimen 
          WHERE procedure_order_id = ? 
            AND procedure_order_seq = ?
-           AND deleted = 0
+
          ORDER BY procedure_specimen_id",
         [$formid, $order_seq]
     );
@@ -189,6 +187,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
     while ($row = sqlFetchArray($existingQuery)) {
         $existingSpecimens[$row['procedure_specimen_id']] = $row['uuid'];
     }
+
 
     // Get specimen IDs from POST (tracks which specimens to keep)
     $specimenIds = $postData['form_proc_specimen_id'][$index] ?? [];
@@ -233,7 +232,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
 
     $processedSpecimenIds = [];
 
-    for ($s = 0; $s < $rows; $s++) {
+    for ($s = 0; $s <= $rows; $s++) {
         // Skip blank lines
         $any = trim(($ids[$s] ?? '')) . trim(($accs[$s] ?? '')) . trim(($types[$s] ?? '')) .
             trim(($sites[$s] ?? '')) . trim(($lowDates[$s] ?? '')) . trim(($highDates[$s] ?? '')) .
@@ -277,7 +276,7 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
     }
 
     // Soft delete specimens that were removed (not in processedSpecimenIds)
-    softDeleteRemovedSpecimens($formid, $order_seq, $processedSpecimenIds);
+    deleteRemovedSpecimens($formid, $order_seq, $processedSpecimenIds);
 }
 
 /**

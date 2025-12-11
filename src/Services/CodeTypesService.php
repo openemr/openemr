@@ -21,10 +21,14 @@ use InvalidArgumentException;
 class CodeTypesService
 {
     /**
+     * translates to code_types.ct_key WHERE code_types.external_id is 11 @see code_types.inc.php
      * @const string
      */
     const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
+    // translates to code_types.ct_key WHERE code_types.external_id is 10 @see code_types.inc.php
     const CODE_TYPE_SNOMED = "SNOMED";
+    // translates to code_types.ct_key WHERE code_types.external_id is 12 @see code_types.inc.php
+    const CODE_TYPE_SNOMED_PROCEDURE = "SNOMED-PR";
     const CODE_TYPE_CPT4 = "CPT4";
     const CODE_TYPE_LOINC = "LOINC";
     const CODE_TYPE_NUCC = "NUCC";
@@ -244,6 +248,44 @@ class CodeTypesService
     {
         $parsedCode = $this->parseCode($code);
         return $parsedCode['code_type'];
+    }
+    public function systemHasMultipleCodeTypes(?string $system): bool {
+        if (empty($system)) {
+            return false;
+        }
+        $list = $this->getCodeTypeListForSystem($system);
+        // if we have more than one code type for the system, return true
+        return count($list) > 1;
+    }
+
+    /**
+     * Returns the most appropriate code type for a given system URL.
+     * @param string $system
+     * @return string|null
+     */
+    public function getCodeTypeForSystemUrl(string $system): ?string
+    {
+        // only return the first code type for now to keep with system functionality
+        return $this->getCodeTypeListForSystem($system)[0] ?? null;
+    }
+
+    public function getCodeTypeListForSystem(?string $system): array {
+        $codeType = match ($system) {
+            FhirCodeSystemConstants::SNOMED_CT => [self::CODE_TYPE_SNOMED_CT, self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_PROCEDURE],
+            FhirCodeSystemConstants::NUCC_PROVIDER => [self::CODE_TYPE_NUCC],
+            FhirCodeSystemConstants::LOINC => [self::CODE_TYPE_LOINC],
+            FhirCodeSystemConstants::RXNORM => [self::CODE_TYPE_RXCUI],
+            FhirCodeSystemConstants::NDC => [self::CODE_TYPE_NDC],
+            FhirCodeSystemConstants::NCI_THESAURUS => [self::CODE_TYPE_NCI],
+            FhirCodeSystemConstants::AMA_CPT => [self::CODE_TYPE_CPT4],
+            FhirCodeSystemConstants::HL7_ICD10 => [self::CODE_TYPE_ICD10],
+            FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM => [self::CODE_TYPE_DATE_ABSENT_REASON],
+            FHIRCodeSystemConstants::HL7_ROLE_CODE => [self::CODE_TYPE_HL7_ROLE_CODE],
+            FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE => [self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION],
+            FHIRCodeSystemConstants::HSOC => [self::CODE_TYPE_HSOC],
+            default => [],
+        };
+        return $codeType;
     }
 
     /**
@@ -508,5 +550,39 @@ class CodeTypesService
         $return = array_keys(array_filter($code_types, fn($ct_arr): bool => ($ct_arr['active'] ?? false) && ($ct_arr[$cat_code] ?? false)));
 
         return $return_format === 'csv' ? csv_like_join($return) : $return;
+    }
+
+    /**
+     * Given a system URL and code, return the first valid OpenEMR formatted code with type prefix if applicable.
+     * @param string|null $system
+     * @param float|bool|int|string $code
+     * @return string
+     */
+    public function getOpenEMRCodeForSystemAndCode(?string $system, float|bool|int|string $code): string
+    {
+        if (!empty($system)) {
+            $codeType = $this->getCodeTypeForSystemUrl($system);
+            if (!empty($codeType)) {
+                return $this->getCodeWithType($code, $codeType);
+            }
+        }
+        return $code;
+    }
+
+    public function getAllOpenEMRCodesForSystemAndCode(?string $system, float|bool|int|string $code): array
+    {
+        $codes = [];
+        if (!empty($system)) {
+            $codeTypeList = $this->getCodeTypeListForSystem($system);
+            if (!empty($codeTypeList)) {
+                foreach ($codeTypeList as $codeType) {
+                    $codes[] = $this->getCodeWithType($code, $codeType);
+                }
+
+            }
+        } else {
+            $codes[] = $code;
+        }
+        return $codes;
     }
 }

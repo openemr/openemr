@@ -42,10 +42,6 @@ if (!$pid) {
 
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
-
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);      // adds related* keys/values into $result
-
 // Check authorization.
 if ($pid) {
     // Create and fire the patient demographics update event
@@ -73,7 +69,7 @@ $CPR = 4; // cells per row
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common', 'select2', 'erx']);
+    <?php Header::setupHeader(['datetime-picker','datetime-picker-translated', 'common', 'select2', 'erx']);
     ?>
     <title><?php echo xlt('Edit Current Patient'); ?></title>
 
@@ -412,7 +408,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-    <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
+        <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
         onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0; ?>,event,'DEM',constraints)">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type='hidden' name='mode' value='save' />

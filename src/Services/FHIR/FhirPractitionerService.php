@@ -126,7 +126,15 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
             $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
         }
-        $address = UtilsService::createAddressFromRecord($dataRecord);
+        $address = UtilsService::createAddressFromRecord([
+            'street' => $dataRecord['street'] ?? null,
+            'postal_code' => $dataRecord['zip'] ?? null,
+            'city' => $dataRecord['city'] ?? null,
+            'state' => $dataRecord['state'] ?? null,
+            'country_code' => $dataRecord['country_code'] ?? null,
+            // we don't have a period start for our address so we're going for when the record was last updated
+            'period_start' => $dataRecord['last_updated'] ?? null,
+        ]);
         if (isset($address)) {
             $practitionerResource->addAddress($address);
         }
@@ -192,7 +200,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         }
 
         $data = [];
-        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        $data['uuid'] = (string)$fhirResource->getId();
 
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
@@ -202,7 +210,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                     break;
                 }
             }
-            $data['lname'] = (string)$name->getFamily() ?? null;
+            $data['lname'] = (string)$name->getFamily();
 
             $given = $name->getGiven() ?? [];
             // we cast due to the way FHIRString works
@@ -235,20 +243,20 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
             $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['zip'] = (string)$activeAddress->getPostalCode() ?? null;
-            $data['city'] = (string)$activeAddress->getCity() ?? null;
-            $data['state'] = (string)$activeAddress->getState() ?? null;
+            $data['zip'] = (string)$activeAddress->getPostalCode();
+            $data['city'] = (string)$activeAddress->getCity();
+            $data['state'] = (string)$activeAddress->getState();
         }
 
         $telecom = $fhirResource->getTelecom();
         if (!empty($telecom)) {
             foreach ($telecom as $contactPoint) {
-                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $systemValue = (string)$contactPoint->getSystem();
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
                     $data[$systemValue] = $contactValue;
                 } else if ($systemValue == "phone") {
-                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
@@ -259,7 +267,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
         foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
-                $data['npi'] = (string)$identifier->getValue() ?? null;
+                $data['npi'] = (string)$identifier->getValue();
             }
         }
 

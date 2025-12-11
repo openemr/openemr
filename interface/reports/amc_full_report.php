@@ -19,7 +19,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
-    $dataSheet = json_decode((string) $data, true) ?? [];
+    $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
     foreach ($dataSheet as $row) {
@@ -98,7 +98,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
                 if (empty($ruleObjectHash[$ruleId])) {
                     $ruleObjectHash[$ruleId] = getRuleObjectForId($ruleId) ?? new AMC_Unimplemented();
                 }
-                $data = json_decode((string) $row['item_details'], true) ?? null;
+                $data = (json_decode((string) $row['item_details'], true)) ?? null;
                 if (!empty($data)) {
                     $data = $ruleObjectHash[$ruleId]->hydrateItemizedDataFromRecord($data)->getActionData();
 

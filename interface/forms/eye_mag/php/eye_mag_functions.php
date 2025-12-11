@@ -3193,7 +3193,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
             <div class="tools">
                 <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
                     <span id="sketch_tool_<?php echo attr($zone);?>_color"
-                          class="color_indicator jscolor"
+                          class="color_indicator"
                           data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
                                      previewSize:75,
                                      valueElement:'#selColor_<?php echo attr($zone); ?>',
@@ -3984,8 +3984,9 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                             if ($display !== "fullscreen") { ?>
                                     <li class="divider"></li>
                                     <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
+                                        <!-- AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams -->
                                         <a class="nav-link black"
-                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&display=fullscreen&encounter=' + <?php echo attr_js(urlencode((string) $encounter)); ?>);"
+                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
                                            href="JavaScript:void(0);"
                                            ><?php echo xlt('Fullscreen'); ?></a>
                                     </li>

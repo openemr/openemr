@@ -132,7 +132,7 @@ class CarePlanService extends BaseService
         return $this->search($newSearch, $isAndCondition);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true): ProcessingResult
     {
         if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
             $this->populateSurrogateSearchFieldsForUUID($search['uuid'], $search);
@@ -366,7 +366,7 @@ class CarePlanService extends BaseService
         return $key;
     }
 
-    protected function createResultRecordFromDatabaseResult($row)
+    protected function createResultRecordFromDatabaseResult($row): array
     {
         $formId = $row['form_id'] ?? null;
         $creationTimestamp = $row['creation_timestamp'] ?? 0;

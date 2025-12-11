@@ -603,14 +603,14 @@ class Cache_Lite
     function _hash($data, $controlType)
     {
         switch ($controlType) {
-        case 'md5':
+            case 'md5':
             return md5($data);
-        case 'crc32':
+            case 'crc32':
             return sprintf('% 32d', crc32($data));
-        case 'strlen':
+            case 'strlen':
             return sprintf('% 32d', strlen($data));
-        default:
-            $this->raiseError('Unknown controlType ! (available values are only \'md5\', \'crc32\', \'strlen\')', -5);
+            default:
+                $this->raiseError('Unknown controlType ! (available values are only \'md5\', \'crc32\', \'strlen\')', -5);
         }
     }
 

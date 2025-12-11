@@ -299,18 +299,18 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
             );
         }
 
-        // Add UsedReference for specimen reference support
-        // Both per US Core 8.0
-        if (!empty($report['specimens'])) {
-            foreach ($report['specimens'] as $specimen) {
-                // Only include non-deleted specimens (deleted flag = 0)
-                if (!empty($specimen['uuid']) && ($specimen['deleted'] ?? '0') == '0') {
-                    $procedureResource->addUsedReference(
-                        UtilsService::createRelativeReference('Specimen', $specimen['uuid'])
-                    );
-                }
-            }
-        }
+        // UsedReference for specimen reference support only valid for Device, Medication, Substance
+        // @see https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-procedure-definitions.html#Procedure.usedReference referenced on 11/08/2025
+//        if (!empty($report['specimens'])) {
+//            foreach ($report['specimens'] as $specimen) {
+//                // Only include non-deleted specimens (deleted flag = 0)
+//                if (!empty($specimen['uuid']) && ($specimen['deleted'] ?? '0') == '0') {
+//                    $procedureResource->addUsedReference(
+//                        UtilsService::createRelativeReference('Specimen', $specimen['uuid'])
+//                    );
+//                }
+//            }
+//        }
 
         // Add reasonReference support (in addition to reasonCode)
         // Both per US Core 8.0

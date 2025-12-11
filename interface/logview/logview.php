@@ -355,12 +355,8 @@ if (!empty($_GET)) {
                                                             $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                                                         }
                                                     } else { //$encryptVersion == 0
-                                                        // Use old mcrypt method
-                                                        if (extension_loaded('mcrypt')) {
-                                                            $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256Decrypt_mycrypt($iter["comments"]));
-                                                        } else {
-                                                            $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
-                                                        }
+                                                        // The old mcrypt method is no longer supported
+                                                        $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                                                     }
                                                 } else {
                                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding

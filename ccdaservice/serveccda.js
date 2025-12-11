@@ -48,6 +48,55 @@ function safeGet(obj, path, defaultValue = "") {
     }, obj);
 }
 
+/**
+ * Map common route abbreviations to NCI Thesaurus codes
+ * @param {string} routeCode - The route code from database (may be abbreviation or NCI code)
+ * @returns {string} - The proper NCI Thesaurus code
+ */
+function mapRouteCode(routeCode) {
+    if (!routeCode) return "";
+
+    // Clean the code
+    const cleaned = cleanCode(routeCode);
+
+    // If it's already a valid NCI code (starts with C followed by digits), return it
+    if (/^C\d+$/.test(cleaned)) {
+        return cleaned;
+    }
+
+    // Common route abbreviation to NCI Thesaurus code mapping
+    const routeMap = {
+        // Oral routes
+        "PO": "C38288",        // Oral
+        "ORAL": "C38288",      // Oral
+        // Injection routes
+        "IV": "C38276",        // Intravenous
+        "IM": "C28161",        // Intramuscular
+        "SC": "C38299",        // Subcutaneous
+        "SUBCUT": "C38299",    // Subcutaneous
+        "SQ": "C38299",        // Subcutaneous
+        // Topical routes
+        "TOP": "C38304",       // Topical
+        "TOPICAL": "C38304",   // Topical
+        // Other common routes
+        "INH": "C38216",       // Respiratory (inhalation)
+        "NASAL": "C38284",     // Nasal
+        "OPTH": "C38287",      // Ophthalmic
+        "OTIC": "C38192",      // Auricular (Otic)
+        "RECTAL": "C38295",    // Rectal
+        "VAGINAL": "C38313",   // Vaginal
+        "SL": "C38300",        // Sublingual
+        "BUCCAL": "C38193",    // Buccal
+        "TD": "C38305",        // Transdermal
+    };
+
+    // Convert to uppercase for case-insensitive matching
+    const upperCode = cleaned.toUpperCase();
+
+    // Return mapped code or original if no mapping exists
+    return routeMap[upperCode] || cleaned;
+}
+
 function populateProviders(all) {
     if (!all) return {providers: {provider: []}};
 
@@ -385,7 +434,7 @@ function populateMedication(pd) {
         "administration": {
             "route": {
                 "name": pd.route || "",
-                "code": cleanCode(pd.route_code) || "",
+                "code": mapRouteCode(pd.route_code) || "",
                 "code_system_name": "Medication Route FDA"
             },
             "form": {
@@ -1683,6 +1732,72 @@ function populateVital(pd) {
             "unit": "mm[Hg]",
             "author": populateAuthorFromAuthorContainer(pd),
         }, {
+            // Average Blood Pressure
+            "identifiers": [{
+                "identifier": pd.sha_extension || "",
+                "extension": pd.extension_bp_avg || ""
+            }],
+            "vital": {
+                "name": "Average Blood Pressure",
+                "code": "96607-7",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime) || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": (pd.bp_avg !== undefined && pd.bp_avg !== null && pd.bp_avg !== "") ? parseFloat(pd.bp_avg) : "",
+            "unit": "mm[Hg]",
+            "author": populateAuthorFromAuthorContainer(pd)
+        }, {
+            // Average Systolic Blood Pressure
+            "identifiers": [{
+                "identifier": pd.sha_extension || "",
+                "extension": pd.extension_avg_systolic || ""
+            }],
+            "vital": {
+                "name": "Average Systolic Blood Pressure",
+                "code": "96608-5",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime) || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": (pd.avg_systolic !== undefined && pd.avg_systolic !== null && pd.avg_systolic !== "") ? parseFloat(pd.avg_systolic) : "",
+            "unit": "mm[Hg]",
+            "author": populateAuthorFromAuthorContainer(pd)
+        }, {
+            // Average Diastolic Blood Pressure
+            "identifiers": [{
+                "identifier": pd.sha_extension || "",
+                "extension": pd.extension_avg_diastolic || ""
+            }],
+            "vital": {
+                "name": "Average Diastolic Blood Pressure",
+                "code": "96609-3",
+                "code_system_name": "LOINC"
+            },
+            "status": "completed",
+            "date_time": {
+                "point": {
+                    "date": fDate(pd.effectivetime) || fDate(""),
+                    "precision": "day"
+                }
+            },
+            "interpretations": ["Normal"],
+            "value": (pd.avg_diastolic !== undefined && pd.avg_diastolic !== null && pd.avg_diastolic !== "") ? parseFloat(pd.avg_diastolic) : "",
+            "unit": "mm[Hg]",
+            "author": populateAuthorFromAuthorContainer(pd)
+        }, {
             "identifiers": [{
                 "identifier": pd.sha_extension || "",
                 "extension": pd.extension_height || ""
@@ -1941,6 +2056,9 @@ function populateSocialHistory(pd) {
         "element": pd.element || "",
         "value": pd.description || "",
         "gender": patient.gender || "",
+        "sex_observation": {
+            "gender": patient.sex_observation || ""
+        },
         "effective_date": {
             "point": {
                 "date": fDate(pd.date) || fDate(""),
@@ -2104,7 +2222,7 @@ function populateImmunization(pd) {
         "administration": {
             "route": {
                 "name": pd.route_of_administration || "",
-                "code": cleanCode(pd.route_code) || "",
+                "code": mapRouteCode(pd.route_code) || "",
                 "code_system_name": "Medication Route FDA"
             }
         },
@@ -2950,68 +3068,6 @@ function generateCcda(pd) {
         data.procedures = Object.assign(many.procedures);
     }
 
-// Advance Directives - Single organizer with multiple component observations
-    many = [];
-    theone = {};
-    count = 0;
-
-    try {
-        count = countEntities(pd.advance_directives?.directive);
-    } catch (e) {
-        count = 0;
-    }
-    if (count !== 0) {
-        // Create a single organizer object containing all directives as components
-        let organizerData = {
-            "identifiers": [{
-                "identifier": "advance-directives-organizer",
-                "extension": "advance-directives"
-            }],
-            "date_time": {
-                "low": {
-                    "date": fDate("") || fDate(""),
-                    "precision": "day"
-                }
-            },
-            "author": populateAuthorFromAuthorContainer(pd.advance_directives?.directive?.[0] || pd.advance_directives?.directive || {}),
-            "directives": [] // This will hold the component observations
-        };
-
-        // Convert individual directives to component observations
-        if (count > 1) {
-            for (let i in pd.advance_directives.directive) {
-                let directive = pd.advance_directives.directive[i];
-                organizerData.directives.push({
-                    "identifiers": directive.identifiers || [],
-                    "document_reference": directive.document_reference || "",
-                    "location": directive.location || "",
-                    "observation_code": directive.observation?.code || "",
-                    "observation_code_system": directive.observation?.code_system || "",
-                    "observation_display": directive.observation?.display || "",
-                    "observation_value_code": directive.observation?.value_code || "LA33-6",
-                    "observation_value_display": directive.observation?.value_display || "Yes",
-                    "effective_date": directive.observation?.effective_date || directive?.effective_date || ""
-                });
-            }
-        } else {
-            let directive = pd.advance_directives.directive;
-            organizerData.directives.push({
-                "identifiers": directive.identifiers || [],
-                "document_reference": directive.document_reference || "",
-                "location": directive.location || "",
-                "observation_code": directive.observation?.code || "",
-                "observation_code_system": directive.observation?.code_system || "",
-                "observation_display": directive.observation?.display || "",
-                "observation_value_code": directive.observation?.value_code || "LA33-6",
-                "observation_value_display": directive.observation?.value_display || "Yes",
-                "effective_date": directive.observation?.effective_date || directive?.effective_date || ""
-            });
-        }
-
-        // Pass the single organizer object, not an array
-        data.advance_directives = organizerData;
-    }
-
 // Medical Devices
     many = [];
     theone = {};
@@ -3077,7 +3133,7 @@ function generateCcda(pd) {
         data.health_concerns = {concern: many.health_concerns};
     } else {
         // Leave as an empty section that templates can null-flavor
-        data.health_concerns = {type: "act"};
+        data.health_concerns = {};
     }
 
 // Immunizations
@@ -3159,6 +3215,9 @@ function generateCcda(pd) {
         count = countEntities(pd.clinical_notes?.evaluation_note);
     } catch (e) {
         count = 0
+    }
+    if (count === 0) {
+        data.clinicalNoteAssessments = Object.assign({});
     }
     if (count > 1) {
         for (let i in pd.clinical_notes.evaluation_note) {
@@ -3294,6 +3353,12 @@ function generateCcda(pd) {
     if (count !== 0) {
         data.social_history = Object.assign(many.social_history);
     }
+    if (count === 0 && pd.patient?.sex_observation) {
+        theone = populateSocialHistory(pd);
+        many.social_history.push(theone);
+        data.social_history = Object.assign(many.social_history);
+    }
+
 
 // Notes
     for (let currentNote in pd.clinical_notes || {}) {
@@ -3357,7 +3422,7 @@ function generateCcda(pd) {
         data.payers = Array.isArray(payers) && payers.length > 0 ? payers : [];
     }
 
-// Advance Directives - Single organizer with multiple component observations
+// Advance Directives - Separate entries for each directive
     many = [];
     theone = {};
     count = 0;
@@ -3369,27 +3434,24 @@ function generateCcda(pd) {
     }
 
     if (count !== 0) {
-        // Create a single organizer object containing all directives as components
-        let organizerData = {
-            "identifiers": [{
-                "identifier": "advance-directives-organizer",
-                "extension": "advance-directives"
-            }],
-            "date_time": {
-                "low": {
-                    "date": fDate("") || fDate(""),
-                    "precision": "day"
-                }
-            },
-            "author": populateAuthorFromAuthorContainer(pd.advance_directives?.directive?.[0] || pd.advance_directives?.directive || {}),
-            "directives": [] // This will hold the component observations
-        };
-
-        // Convert individual directives to component observations
+        // Create separate observation entries for each directive
         if (count > 1) {
             for (let i in pd.advance_directives.directive) {
                 let directive = pd.advance_directives.directive[i];
-                organizerData.directives.push({
+
+                // Determine code system name based on code system OID
+                let codeSystemName = "LOINC";
+                if (directive.observation?.code_system === "2.16.840.1.113883.6.96") {
+                    codeSystemName = "SNOMED CT";
+                }
+
+                // Determine value code system name
+                let valueCodeSystemName = "SNOMED CT";
+                if (directive.observation?.value_code_system === "2.16.840.1.113883.6.1") {
+                    valueCodeSystemName = "LOINC";
+                }
+
+                many.push({
                     "identifiers": [{
                         "identifier": directive.sha_extension || "",
                         "extension": directive.extension || ""
@@ -3397,19 +3459,36 @@ function generateCcda(pd) {
                     "document_reference": directive.document_reference || directive.uuid || "",
                     "location": directive.location || "",
                     "observation_code": directive.observation?.code || "",
-                    "observation_code_system": directive.observation?.code_system || "",
+                    "observation_code_system": directive.observation?.code_system || "2.16.840.1.113883.6.1",
+                    "observation_code_system_name": codeSystemName,
                     "observation_display": directive.observation?.display || "",
-                    "observation_value_code": directive.observation?.value_code || "LA33-6",
-                    "observation_value_display": directive.observation?.value_display || "Yes",
-                    "effective_date": fDate(directive.observation?.effective_date || directive?.effective_date) || fDate(""),
+                    "observation_value_code": directive.observation?.value_code || "373066001",
+                    "observation_value_code_system": directive.observation?.value_code_system || "2.16.840.1.113883.6.96",
+                    "observation_value_code_system_name": valueCodeSystemName,
+                    "observation_value_display": directive.observation?.value_display || "Yes (qualifier value)",
+                    "effective_date": fDate(directive.observation?.effective_date || directive?.effective_date, true) || fDate(""),
                     "type": directive.type || "",
                     "status": directive.status || "active",
+                    "author": populateAuthorFromAuthorContainer(directive),
                     "author_name": (directive.author?.fname || "") + " " + (directive.author?.lname || "")
                 });
             }
         } else {
             let directive = pd.advance_directives.directive;
-            organizerData.directives.push({
+
+            // Determine code system name based on code system OID
+            let codeSystemName = "LOINC";
+            if (directive.observation?.code_system === "2.16.840.1.113883.6.96") {
+                codeSystemName = "SNOMED CT";
+            }
+
+            // Determine value code system name
+            let valueCodeSystemName = "SNOMED CT";
+            if (directive.observation?.value_code_system === "2.16.840.1.113883.6.1") {
+                valueCodeSystemName = "LOINC";
+            }
+
+            theone = {
                 "identifiers": [{
                     "identifier": directive.sha_extension || "",
                     "extension": directive.extension || ""
@@ -3417,16 +3496,20 @@ function generateCcda(pd) {
                 "document_reference": directive.document_reference || directive.uuid || "",
                 "location": directive.location || "",
                 "observation_code": directive.observation?.code || "",
-                "observation_code_system": directive.observation?.code_system || "",
+                "observation_code_system": directive.observation?.code_system || "2.16.840.1.113883.6.1",
+                "observation_code_system_name": codeSystemName,
                 "observation_display": directive.observation?.display || "",
-                "observation_value_code": directive.observation?.value_code || "LA33-6",
-                "observation_value_display": directive.observation?.value_display || "Yes",
-                "effective_date": fDate(directive.observation?.effective_date || directive?.effective_date) || fDate("")
-            });
+                "observation_value_code": directive.observation?.value_code || "373066001",
+                "observation_value_code_system": directive.observation?.value_code_system || "2.16.840.1.113883.6.96",
+                "observation_value_code_system_name": valueCodeSystemName,
+                "observation_value_display": directive.observation?.value_display || "Yes (qualifier value)",
+                "effective_date": fDate(directive.observation?.effective_date || directive?.effective_date, true) || fDate(""),
+                "author": populateAuthorFromAuthorContainer(directive),
+                "author_name": (directive.author?.fname || "") + " " + (directive.author?.lname || "")
+            };
         }
-
-        // Pass the single organizer object, not an array
-        data.advance_directives = organizerData;
+        // Pass array of directive observations
+        data.advance_directives = count > 1 ? many : theone;
     }
 
     // sections data objects

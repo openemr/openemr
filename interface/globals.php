@@ -159,14 +159,15 @@ if (empty($restRequest)) {
     $restRequest = HttpRestRequest::createFromGlobals();
 }
 if (empty($globalsBag)) {
-    $globalsBag = new OeGlobalsBag([], true);
+    // Initially this was too early. We now reinit at bottom to ensure all values are collected.
+    $globalsBag = OEGlobalsBag::getInstance(true);
 }
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
-$globalsBag->set('vendor_dir', $globalsBag->get('vendor_dir', $GLOBALS['vendor_dir'] ?? null));
+$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
 $globalsBag->set('restRequest', $restRequest);
-$globalsBag->set('OE_SITES_BASE', $globalsBag->get('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? null));
-$globalsBag->set('debug_ssl_mysql_connection', $globalsBag->get('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? null));
+$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
+$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
@@ -517,11 +518,10 @@ if (!empty($glrow)) {
         $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', [$GLOBALS['language_default'] ?? '']);
         $globalsBag->set('default_lang_id', $default_lang_id);
         if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos((string) $GLOBALS['css_header'], 'rtl')) {
-// @todo eliminate 1 SQL query
+            // @todo eliminate 1 SQL query
             $rtl_override = true;
         }
     }
-
 
     // change theme name, if the override file exists.
     if ($rtl_override) {
@@ -779,6 +779,17 @@ if ($globalsBag->getInt('user_debug', 0) > 1) {
     error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING & ~E_USER_DEPRECATED);
     ini_set('display_errors', 1);
 }
+
+// CRITICAL: Reset and reinitialize the singleton to capture ALL $GLOBALS
+OEGlobalsBag::resetInstance();
+$globalsBag = OEGlobalsBag::getInstance(true);
+
+// Re-set the local variables that aren't in $GLOBALS
+$globalsBag->set('webserver_root', $webserver_root);
+$globalsBag->set('web_root', $web_root);
+$globalsBag->set('restRequest', $restRequest);
+$globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
+
 EventAuditLogger::instance()->logHttpRequest();
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

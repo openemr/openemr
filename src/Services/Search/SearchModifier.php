@@ -23,4 +23,7 @@ final class SearchModifier
      * This is used internally in our services API, and does not conform to FHIR search specifiers.
      */
     public const NOT_EQUALS_EXACT = "not-in-exact";
+
+    // this is not in standard FHIR but we use it in some places.
+    public const SUFFIX = "suffix";
 }
