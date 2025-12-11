@@ -7,11 +7,13 @@
  *
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
+
 $session = SessionWrapperFactory::instance()->getWrapper();
 
 //require_once ("./../verify_session.php");
@@ -33,25 +35,25 @@ $gc = GlobalConfig::GetInstance();
 try {
     if (!empty($session->get('register', null))) {
         // Need to bootstrap for registration
-        $GLOBALS['bootstrap_register'] = true;
+        $globalsBag->set('bootstrap_register', true);
     } else {
-        $GLOBALS['bootstrap_register'] = false;
+        $globalsBag->set('bootstrap_register', false);
     }
     if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
         //  and to only allow access to api calls applicable to that pid (or patientId).
         // Also need to collect the id of the patient to verify the correct id is used
         //  in the uri check in GenericRouter.php .
-        $GLOBALS['bootstrap_pid'] = $session->get('pid');
-        $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$GLOBALS['bootstrap_pid']]);
-        $GLOBALS['bootstrap_uri_id'] = $sqlCollectPatientId['id'];
+        $globalsBag->set('bootstrap_pid', $session->get('pid'));
+        $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$globalsBag->get('bootstrap_pid')]);
+        $globalsBag->set('bootstrap_uri_id', $sqlCollectPatientId['id']);
         if (
-            (!empty($_POST['pid']) && ($_POST['pid'] != $GLOBALS['bootstrap_pid'])) ||
-            (!empty($_GET['pid']) && ($_GET['pid'] != $GLOBALS['bootstrap_pid'])) ||
-            (!empty($_REQUEST['pid']) && ($_REQUEST['pid'] != $GLOBALS['bootstrap_pid'])) ||
-            (!empty($_POST['patientId']) && ($_POST['patientId'] != $GLOBALS['bootstrap_pid'])) ||
-            (!empty($_GET['patientId']) && ($_GET['patientId'] != $GLOBALS['bootstrap_pid'])) ||
-            (!empty($_REQUEST['patientId']) && ($_REQUEST['patientId'] != $GLOBALS['bootstrap_pid']))
+            (!empty($_POST['pid']) && ($_POST['pid'] != $globalsBag->get('bootstrap_pid'))) ||
+            (!empty($_GET['pid']) && ($_GET['pid'] != $globalsBag->get('bootstrap_pid'))) ||
+            (!empty($_REQUEST['pid']) && ($_REQUEST['pid'] != $globalsBag->get('bootstrap_pid'))) ||
+            (!empty($_POST['patientId']) && ($_POST['patientId'] != $globalsBag->get('bootstrap_pid'))) ||
+            (!empty($_GET['patientId']) && ($_GET['patientId'] != $globalsBag->get('bootstrap_pid'))) ||
+            (!empty($_REQUEST['patientId']) && ($_REQUEST['patientId'] != $globalsBag->get('bootstrap_pid')))
         ) {
             // Unauthorized use
             $error = 'Unauthorized';
