@@ -3355,7 +3355,8 @@ $GLOBALS_METADATA = [
                 'InHouse' => xl('In House Authorize Payments'),
                 'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
                 'Sphere' => xl('Gateway for Sphere Payments'),
-                'Stripe' => xl('Gateway for Stripe Manual Payments')
+                'Stripe' => xl('Gateway for Stripe Manual Payments'),
+                'Rainforest' => xl('Gateway for Rainforest payments'),
             ],
             'InHouse',
             xl('Enable a Payment Gateway Service for processing credit card transactions')
