@@ -15,17 +15,23 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Services\VersionService;
 
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 
 class ProductRegistrationService
 {
+    private GuzzleHttpClient $httpClient;
+
     /**
      * Default constructor.
      */
-    public function __construct()
+    public function __construct(?GuzzleHttpClient $httpClient = null)
     {
+        $this->httpClient = $httpClient ?? new GuzzleHttpClient([
+            'verify' => false, // SSL verification disabled to match original curl behavior
+        ]);
     }
 
     public function getProductDialogStatus(): array
@@ -116,18 +122,14 @@ class ProductRegistrationService
             $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
         }
 
-        $curl = curl_init('https://reg.open-emr.org/api/registration');
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($info));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-        $responseBodyRaw = curl_exec($curl);
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+        // Code migrated from curl to Guzzle by GitHub Copilot AI
+        $response = $this->httpClient->post('https://reg.open-emr.org/api/registration', [
+            'form_params' => $info,
+        ]);
+        // End of AI-generated code
 
         $currentVersion = (new VersionService())->asString();
-        switch ($responseCode) {
+        switch ($response->getStatusCode()) {
             case 201:
                 $entry = $this->entryExist();
                 if ($entry) {

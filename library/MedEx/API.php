@@ -12,21 +12,28 @@
 
 namespace MedExApi;
 
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Cookie\SetCookie;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Services\VersionService;
 
 error_reporting(0);
 
+/**
+ * Code migrated from curl to Guzzle by GitHub Copilot AI
+ */
 class CurlRequest
 {
     private $url;
     private $postData = [];
     private $cookies = [];
     private $response = '';
-    private $handle;
+    private readonly GuzzleHttpClient $httpClient;
 
     public function __construct(private $sessionFile)
     {
         $this->restoreSession();
+        $this->httpClient = new GuzzleHttpClient();
     }
 
     private function restoreSession()
@@ -38,32 +45,32 @@ class CurlRequest
 
     public function makeRequest()
     {
-        $this->handle = curl_init($this->url);
-
-        curl_setopt($this->handle, CURLOPT_VERBOSE, 0);
-        curl_setopt($this->handle, CURLOPT_HEADER, true);
-        curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->handle, CURLOPT_POST, true);
-        curl_setopt($this->handle, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($this->handle, CURLOPT_POSTFIELDS, http_build_query($this->postData));
+        // Create a CookieJar from stored cookies
+        $cookieJar = new CookieJar();
         if (!empty($this->cookies)) {
-            curl_setopt($this->handle, CURLOPT_COOKIE, $this->getCookies());
+            foreach ($this->cookies as $name => $value) {
+                $cookieJar->setCookie(new SetCookie([
+                    'Name' => $name,
+                    'Value' => $value,
+                    'Domain' => parse_url((string) $this->url, PHP_URL_HOST),
+                ]));
+            }
         }
 
-        $this->response = curl_exec($this->handle);
-        $header_size = curl_getinfo($this->handle, CURLINFO_HEADER_SIZE);
-        $headers = substr($this->response, 0, $header_size);
-        $this->response = substr($this->response, $header_size);
+        $httpResponse = $this->httpClient->post($this->url, [
+            'form_params' => $this->postData,
+            'cookies' => $cookieJar,
+        ]);
 
-        preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $headers, $matches);
-        $cookies = $matches[1];
-        foreach ($cookies as $cookie) {
-            $parts = explode('=', $cookie);
-            $name = array_shift($parts);
-            $value = implode('=', $parts);
-            $this->cookies[$name] = $value;
+        $this->response = $httpResponse->getBody();
+
+        // Extract cookies from the jar after the request
+        $this->cookies = [];
+        $cookieArray = $cookieJar->toArray();
+        foreach ($cookieArray as $cookie) {
+            $this->cookies[$cookie['Name']] = $cookie['Value'];
         }
-        curl_close($this->handle);
+
         $this->saveSession();
     }
 
@@ -104,6 +111,7 @@ class CurlRequest
     {
         return $this->response; }
 }
+// End of AI-generated code
 
 class Base
 {
