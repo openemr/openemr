@@ -20,7 +20,7 @@ require_once("$srcdir/layout.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 
 // Indicates if deactivated layouts are included in the dropdown.
@@ -395,7 +395,7 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
     exit;
 }
 

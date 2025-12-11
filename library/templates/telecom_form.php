@@ -13,7 +13,7 @@
 
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 // Initialize services
 $contactService = new ContactService();
@@ -85,6 +85,4 @@ $templateVars = [
 ];
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
-$twig = $twigContainer->getTwig();
-echo $twig->render('patient/demographics/telecom_form.html.twig', $templateVars);
+echo TwigFactory::createInstance()->render('patient/demographics/telecom_form.html.twig', $templateVars);

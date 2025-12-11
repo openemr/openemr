@@ -18,7 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\FormService;
@@ -50,7 +50,7 @@ class ObservationController
         ?Environment $twig = null,
         private ?PatientService $patientService = new PatientService()
     ) {
-        $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $this->twig = $twig ?? TwigFactory::createInstance();
         $this->codeTypeService = new CodeTypesService();
     }
 

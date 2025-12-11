@@ -18,7 +18,7 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
@@ -27,8 +27,7 @@ use OpenEMR\Services\PatientService;
 function newpatient_report($pid, $encounter, $cols, $id): void
 {
     $res = sqlStatement("select e.*, f.name as facility_name from form_encounter as e join facility as f on f.id = e.facility_id where e.pid=? and e.id=?", [$pid,$id]);
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
-    $t = $twig->getTwig();
+
     $encounters = [];
     $userService = new UserService();
     while ($result = sqlFetchArray($res)) {
@@ -71,5 +70,5 @@ function newpatient_report($pid, $encounter, $cols, $id): void
         $encounters[] = $encounterRecord;
     }
     // TODO: @adunsulag in future EMR version switch this to templates/newpatient/report.html.twig
-    echo $t->render("templates/report.html.twig", ['encounters' => $encounters]);
+    echo TwigFactory::createInstance(__DIR__)->render("templates/report.html.twig", ['encounters' => $encounters]);
 }

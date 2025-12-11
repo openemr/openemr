@@ -20,20 +20,18 @@ use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FormService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 function observation_report($pid, $encounter, $cols, $id): void
 {
     $logger = new SystemLogger();
 
-// Output the response
     try {
-        // Create controller and handle request
-        $service = new ObservationService();
-        $formService = new FormService();
-        // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-        $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
-        $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
+        $controller = new ObservationController(
+            new ObservationService(),
+            new FormService(),
+            TwigFactory::createInstance(__DIR__ . '/../../'),
+        );
         // This approach is consistent with the current design, even though the original report used session values.
         $response = $controller->reportAction($pid, $encounter, $cols, $id);
         $response->send();

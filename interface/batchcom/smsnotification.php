@@ -18,12 +18,12 @@ require_once("batchcom.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 
 // gacl control
 if (!AclMain::aclCheckCore('admin', 'notification')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SMS Notification")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SMS Notification")]);
     exit;
 }
 

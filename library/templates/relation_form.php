@@ -20,7 +20,7 @@ use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\PersonService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -218,6 +218,4 @@ $logger->debug("Sending to TWIG", [
                 ]);
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
-$twig = $twigContainer->getTwig();
-echo $twig->render('patient/demographics/relation_form.html.twig', $templateVars);
+echo TwigFactory::createInstance()->render('patient/demographics/relation_form.html.twig', $templateVars);

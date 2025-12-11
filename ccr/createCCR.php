@@ -47,13 +47,13 @@ require_once(__DIR__ . "/transmitCCD.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use PHPMailer\PHPMailer\PHPMailer;
 
 if ($notPatientPortal) {
     $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
+        echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
         exit;
     }
 }

@@ -41,7 +41,7 @@ if (empty($is_portal)) {
 require_once(__DIR__ . '/../../../interface/globals.php');
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 $aud = "admin-signature";
 $cuser = attr($session->get('authUserID', null) ?? "-patient-");
@@ -54,9 +54,8 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
-    $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
+    $modal = TwigFactory::createInstance()->render("portal/partial/_signer_modal.html.twig", $twigVars);
 } catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     // we want the json to fail

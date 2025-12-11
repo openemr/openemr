@@ -28,18 +28,17 @@ use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FormService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 $logger = new SystemLogger();
 
 try {
-    // Create controller and handle request
     $request = Request::createFromGlobals();
-    $service = new ObservationService();
-    $formService = new FormService();
-    // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-    $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
-    $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
+    $controller = new ObservationController(
+        new ObservationService(),
+        new FormService(),
+        TwigFactory::createInstance(__DIR__ . '/../../'),
+    );
     $response = $controller->deleteAction($request);
     $response->send();
 } catch (\Throwable $e) {

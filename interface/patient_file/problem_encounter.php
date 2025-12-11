@@ -20,7 +20,7 @@ require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientIssuesService;
@@ -42,7 +42,7 @@ if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
 }
 
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
     exit;
 }
 

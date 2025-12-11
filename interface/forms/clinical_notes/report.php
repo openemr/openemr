@@ -17,7 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Services\ClinicalNotesService;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -34,7 +34,5 @@ function clinical_notes_report($pid, $encounter, $cols, $id): void
         'notes' => $data
     ];
 
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
-    $t = $twig->getTwig();
-    echo $t->render('templates/report.html.twig', $viewArgs);
+    echo TwigFactory::createInstance(__DIR__)->render('templates/report.html.twig', $viewArgs);
 }

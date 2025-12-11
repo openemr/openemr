@@ -39,7 +39,7 @@ use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
@@ -77,7 +77,7 @@ if (!isset($pid)) {
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = TwigFactory::createInstance();
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
@@ -1056,7 +1056,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
-        echo $twig->getTwig()->render('core/unauthorized-partial.html.twig', ['pageTitle' => xl("Medical Dashboard")]);
+        echo $twig->render('core/unauthorized-partial.html.twig', ['pageTitle' => xl("Medical Dashboard")]);
         exit();
     }
     ?>
@@ -1078,7 +1078,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
-        $menuPatient = new PatientMenuRole($twig);
+        $menuPatient = new PatientMenuRole();
         $menuPatient->displayHorizNavBarMenu();
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
@@ -1090,8 +1090,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <!-- start main content div -->
             <div class="row">
                 <?php
-                $t = $twig->getTwig();
-
                 $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
                 $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
                 $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
@@ -1131,7 +1129,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                     ];
                     echo "<div class=\"$col\">";
-                    echo $t->render('patient/card/allergies.html.twig', $viewArgs);
+                    echo $twig->render('patient/card/allergies.html.twig', $viewArgs);
                     echo "</div>";
                 }
 
@@ -1155,7 +1153,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                     ];
                     echo "<div class=\"$col\">";
-                    echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                    echo $twig->render('patient/card/medical_problems.html.twig', $viewArgs);
                     echo "</div>";
                 }
 
@@ -1177,7 +1175,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                     ];
                     echo "<div class=\"$col\">";
-                    echo $t->render('patient/card/medication.html.twig', $viewArgs);
+                    echo $twig->render('patient/card/medication.html.twig', $viewArgs);
                     echo "</div>";
                 }
 
@@ -1205,7 +1203,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'rxList' => $rxArr,
                         ];
 
-                        echo $t->render('patient/card/erx.html.twig', $viewArgs);
+                        echo $twig->render('patient/card/erx.html.twig', $viewArgs);
                     }
 
                     $id = "prescriptions_ps_expand";
@@ -1241,7 +1239,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     ob_end_clean();
 
                     echo "<div class='col m-0 p-0 mx-1'>";
-                    echo $t->render('patient/card/rx.html.twig', $viewArgs); // render core prescription card
+                    echo $twig->render('patient/card/rx.html.twig', $viewArgs); // render core prescription card
                     echo "</div>";
                 endif;
                 ?>
@@ -1269,7 +1267,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $_auth = $card->getAcl();
                     if (!empty($_auth) && AclMain::aclCheckCore($_auth[0], $_auth[1])) {
                         echo "<div class='col-12 m-0 p-0 px-2'>";
-                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                        echo $twig->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                         echo "</div>";
                     }
                 }
@@ -1292,7 +1290,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     ];
                     // Merge with ViewCard variables and render CARD template (not form!)
                     echo "<div class='col-12 m-0 p-0 px-2'>";
-                    echo $twig->getTwig()->render(
+                    echo $twig->render(
                         $card->getTemplateFile(),
                         array_merge($viewArgs, $card->getTemplateVariables())
                     );
@@ -1320,7 +1318,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Merge with ViewCard variables and render CARD template (not form!)
                     echo "<div class='col-12 m-0 p-0 px-2'>";
-                    echo $twig->getTwig()->render(
+                    echo $twig->render(
                         $card->getTemplateFile(),
                         array_merge($viewArgs, $card->getTemplateVariables())
                     );
@@ -1330,7 +1328,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-8 px-2">
                     <?php
                     if ($deceased > 0) :
-                        echo $twig->getTwig()->render('patient/partials/deceased.html.twig', [
+                        echo $twig->render('patient/partials/deceased.html.twig', [
                             'deceasedDays' => deceasedDays($deceased),
                         ]);
                     endif;
@@ -1375,7 +1373,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => 'test',
                         ];
 
-                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                        echo $twig->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
                     // Alternative approach: Add it directly in the secondary column section
                     // Around line 1200 in demographics.php, in the secondary column section:
@@ -1396,7 +1394,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end if notes authorized
 
                     if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) :
@@ -1416,7 +1414,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         if (!in_array('card_patientreminders', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                            echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; //end if prw is activated
 
@@ -1439,7 +1437,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         if (!in_array('card_disclosure', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                            echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; // end if disclosures authorized
 
@@ -1469,7 +1467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         if (!in_array('card_amendments', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
+                            echo $twig->render('patient/card/amendments.html.twig', $viewArgs);
                         }
                     endif; // end amendments authorized
 
@@ -1499,7 +1497,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         if (!in_array('card_lab', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                            echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; // end labs authorized
 
@@ -1524,7 +1522,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
                         if (!in_array('card_vitals', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                            echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; // end vitals
 
@@ -1569,7 +1567,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                     endwhile; // end while
                     ?>
                 </div> <!-- end left column div -->
@@ -1591,8 +1589,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
-
-                    $t = $twig->getTwig();
 
                     foreach ($sectionCards as $card) {
                         $_auth = $card->getAcl();
@@ -1622,12 +1618,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
                         ];
 
-                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                        echo $twig->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
 
                     if ($GLOBALS['erx_enable']) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('demographics'), CardRenderEvent::EVENT_HANDLE);
-                        echo $twig->getTwig()->render('patient/partials/erx.html.twig', [
+                        echo $twig->render('patient/partials/erx.html.twig', [
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ]);
@@ -1653,7 +1649,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/photo.html.twig', $viewArgs);
+                        echo $twig->render('patient/card/photo.html.twig', $viewArgs);
                     }
 
                     // Advance Directives
@@ -1715,7 +1711,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 'prependedInjection' => $dispatchResult->getPrependedInjection(),
                                 'appendedInjection' => $dispatchResult->getAppendedInjection(),
                             ];
-                            echo $twig->getTwig()->render('patient/card/adv_dir.html.twig', $viewArgs);
+                            echo $twig->render('patient/card/adv_dir.html.twig', $viewArgs);
                         }
                     }  // close advanced dir block
 
@@ -1738,7 +1734,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        echo $twig->render('patient/card/loader.html.twig', $viewArgs);
                     } // end if crw
 
                     $displayAppts = false;
@@ -1905,7 +1901,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $id = "recall_ps_expand";
                             $dispatchResult = $ed->dispatch(new CardRenderEvent('recall'), CardRenderEvent::EVENT_HANDLE);
-                            echo $twig->getTwig()->render('patient/card/recall.html.twig', [
+                            echo $twig->render('patient/card/recall.html.twig', [
                                 'title' => xl('Recall'),
                                 'id' => $id,
                                 'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
@@ -1993,7 +1989,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // Display the Appt card
                     $id = "appointments_ps_expand";
                     $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
-                    echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
+                    echo $twig->render('patient/card/appointments.html.twig', [
                         'title' => xl("Appointments"),
                         'id' => $id,
                         'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
@@ -2025,7 +2021,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $existTracks = sqlQuery($spruch, [$pid, "track_anything"]);
                         $id = "track_anything_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('track_anything'), CardRenderEvent::EVENT_HANDLE);
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', [
+                        echo $twig->render('patient/card/loader.html.twig', [
                             'title' => xl("Tracks"),
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
@@ -2037,7 +2033,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }  // end track_anything
 
                     if ($thisauth) :
-                        echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
+                        echo $twig->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
                             'csrf' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),

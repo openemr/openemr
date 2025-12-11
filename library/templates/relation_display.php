@@ -17,7 +17,7 @@ use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\PersonService;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 
 $logger = new SystemLogger();
@@ -159,6 +159,4 @@ $logger->debug("Error loading relations for display", [
 ]);
 
 // Render the template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
-$twig = $twigContainer->getTwig();
-echo $twig->render('patient/demographics/relation_display.html.twig', $templateVars);
+echo TwigFactory::createInstance()->render('patient/demographics/relation_display.html.twig', $templateVars);

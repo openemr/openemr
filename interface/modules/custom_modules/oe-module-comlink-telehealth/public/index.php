@@ -16,7 +16,7 @@ require_once "../../../../globals.php";
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 
 $kernel = $GLOBALS['kernel'];
-$bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
+$bootstrap = new Bootstrap($kernel->getEventDispatcher());
 $roomController = $bootstrap->getTeleconferenceRoomController(false);
 
 $action = $_REQUEST['action'] ?? '';

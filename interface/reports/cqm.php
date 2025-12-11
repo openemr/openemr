@@ -24,11 +24,11 @@ require_once "$srcdir/report_database.inc.php";
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Services\PractitionerService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
     exit;
 }
 
@@ -115,9 +115,6 @@ if ($type_report == "standard") {
     $show_help = true;
     $help_file_name = "cqm_amc_help.php";
 }
-
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
-$twig = $twigContainer->getTwig();
 
 $formData = [
     'type_report' => $type_report
@@ -226,5 +223,5 @@ if ($result->hasData()) {
             , 'label' => $practitioner['lname'] . ',' . $practitioner['fname']];
     }
 }
-echo $twig->render('reports/cqm/cqm.html.twig', $formData);
+echo TwigFactory::createInstance()->render('reports/cqm/cqm.html.twig', $formData);
 exit;

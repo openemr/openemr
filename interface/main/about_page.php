@@ -22,15 +22,12 @@
 
 require_once("../globals.php");
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
-
-$twig = new TwigContainer();
-$t = $twig->getTwig();
 
 $versionService = new VersionService();
 
@@ -59,5 +56,4 @@ $viewArgs = [
 
 $templatePageEvent = new TemplatePageEvent('about_page', [], 'core/about.html.twig', $viewArgs);
 $event = OEGlobalsBag::getInstance()->get('kernel')->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
-
-echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());
+echo TwigFactory::createInstance()->render($event->getTwigTemplate(), $event->getTwigVariables());

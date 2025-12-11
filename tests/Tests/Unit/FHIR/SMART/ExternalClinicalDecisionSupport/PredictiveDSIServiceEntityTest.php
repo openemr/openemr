@@ -3,7 +3,7 @@
 namespace OpenEMR\Tests\Unit\FHIR\SMART\ExternalClinicalDecisionSupport;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\DecisionSupportInterventionEntity;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\PredictiveDSIServiceEntity;
@@ -24,8 +24,7 @@ class PredictiveDSIServiceEntityTest extends TestCase
 
     public function testPopulateServiceWithFhirQuestionnaire(): void
     {
-        $twig = (new TwigContainer())->getTwig();
-        $questionnaire = $twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => '/']);
+        $questionnaire = TwigFactory::createInstance()->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => '/']);
         $qr = file_get_contents(__DIR__ . "/../../../../data/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/dsi-service-qr-test.json");
 //        $this->twig->render("api/smart/dsi-service-qr-test.json.twig");
         $this->entity->populateServiceWithFhirQuestionnaire($questionnaire, $qr);

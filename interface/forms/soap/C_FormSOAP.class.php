@@ -14,15 +14,16 @@
 require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
+use Twig\Environment;
 
 class C_FormSOAP extends Controller
 {
-    private readonly TwigContainer $twig;
+    private readonly Environment $twig;
+
     public function __construct()
     {
-        $path = $this->getTemplatePath();
-        $this->twig = new TwigContainer($path);
+        $this->twig = TwigFactory::createInstance($this->getTemplatePath());
     }
 
     /**
@@ -33,7 +34,7 @@ class C_FormSOAP extends Controller
     function default_action()
     {
         $form = new FormSOAP();
-        return $this->twig->getTwig()->render(
+        return $this->twig->render(
             'soap_form.twig',
             [
                 "FORM_ACTION" => $GLOBALS['web_root'],
@@ -47,7 +48,7 @@ class C_FormSOAP extends Controller
     {
         $form = is_numeric($form_id) ? new FormSOAP($form_id) : new FormSOAP();
 
-        return $this->twig->getTwig()->render(
+        return $this->twig->render(
             'soap_form.twig',
             [
                 "FORM_ACTION" => $GLOBALS['web_root'],

@@ -38,7 +38,7 @@ use OpenEMR\Common\{
     Acl\AclMain,
     Csrf\CsrfUtils,
     Logging\SystemLogger,
-    Twig\TwigContainer,
+    Twig\TwigFactory,
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
@@ -51,7 +51,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
     exit;
 }
 

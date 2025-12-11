@@ -56,11 +56,11 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = TwigFactory::createInstance();
 
 $cryptoGen = new CryptoGen();
 

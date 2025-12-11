@@ -31,7 +31,7 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
@@ -639,9 +639,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $encounterMenuEvent = new EncounterMenuEvent();
     $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
-    $t = $twig->getTwig();
-    echo $t->render('encounter/forms/navbar.html.twig', [
+    echo TwigFactory::createInstance()->render('encounter/forms/navbar.html.twig', [
         'encounterDate' => oeFormatShortDate($encounter_date),
         'patientName' => $patientName,
         'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),

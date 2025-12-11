@@ -18,7 +18,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\User\UserEditRenderEvent;
 use OpenEMR\Menu\MainMenuRole;
@@ -29,7 +29,7 @@ use OpenEMR\Services\UserService;
 $facilityService = new FacilityService();
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Add User")]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Add User")]);
     exit;
 }
 

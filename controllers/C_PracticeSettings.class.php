@@ -1,7 +1,7 @@
 <?php
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 
 class C_PracticeSettings extends Controller
 {
@@ -16,7 +16,7 @@ class C_PracticeSettings extends Controller
         $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
 
         if (!AclMain::aclCheckCore('admin', 'practice')) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
+            echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
             exit;
         }
     }

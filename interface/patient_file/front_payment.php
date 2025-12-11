@@ -28,7 +28,7 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -43,7 +43,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $globalsBag = OEGlobalsBag::getInstance();
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = TwigFactory::createInstance();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {

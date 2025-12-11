@@ -1,6 +1,6 @@
 <?php
 
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Services\InsuranceCompanyService;
 
 class C_InsuranceCompany extends Controller
@@ -41,8 +41,6 @@ class C_InsuranceCompany extends Controller
 
     public function list_action()
     {
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
-
         $insuranceCompanyService = new InsuranceCompanyService();
         $results = $insuranceCompanyService->search([]);
         $iCompanies = [];
@@ -71,7 +69,7 @@ class C_InsuranceCompany extends Controller
             ,'icompanies' => $iCompanies
         ];
 
-        return $twig->getTwig()->render('insurance_companies/general_list.html.twig', $templateVars);
+        return TwigFactory::createInstance()->render('insurance_companies/general_list.html.twig', $templateVars);
     }
 
 

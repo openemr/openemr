@@ -26,7 +26,7 @@ require_once __DIR__ . "/../../../../globals.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Core\Header;
 
@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
 $tab = "orders";
 $pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+    echo TwigFactory::createInstance()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     exit;
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');

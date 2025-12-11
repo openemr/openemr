@@ -31,7 +31,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCode
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use Laminas\Form\Element\Tel;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
@@ -112,21 +112,11 @@ class Bootstrap
 
     /**
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
-     * @param ?Kernel $kernel
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
     ) {
-        global $GLOBALS;
-
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
-
+        $this->twig = TwigFactory::createInstance($this->getTemplatePath());
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
         $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->twig);

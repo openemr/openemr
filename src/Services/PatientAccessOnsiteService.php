@@ -27,7 +27,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Twig\TwigFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Kernel;
@@ -61,7 +61,7 @@ class PatientAccessOnsiteService
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
         $this->kernel = $GLOBALS['kernel'];
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = TwigFactory::createInstance();
         $this->logger = new SystemLogger();
     }
 
