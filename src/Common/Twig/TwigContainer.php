@@ -1,15 +1,15 @@
 <?php
 
 /**
- * TwigContainer class.
- *
- * OpenEMR central container interface for twig.
- *
  * @package   OpenEMR
+ *
  * @link      https://www.open-emr.org
+ * @link      https://opencoreemr.com
+ *
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +17,7 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Twig\Environment;
@@ -24,42 +25,43 @@ use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * OpenEMR central container interface for twig
+ *
+ * Usage:
+ *   TwigContainer::getInstance()->getTwig()->render('template.html.twig', ['var' => 'value]);
+ *   TwigContainer::getInstance()->addPath(__DIR__)->getTwig()->render('template.html.twig', ['var' => 'value]);
+ */
 class TwigContainer
 {
-    /**
-     * Paths in /templates
-     */
-    private array $paths = [];
+    use SingletonTrait;
 
-    private ?Kernel $kernel = null;
-
-    /**
-     * Create a new Twig superclass holding a twig environment
-     *
-     * @var string|null $path   Additional path to add to $fileroot/templates string
-     * @var Kernel|null $kernel An instance of Kernel to test if the environment is dev vs prod
-     */
-    public function __construct(?string $path = null, ?Kernel $kernel = null)
+    protected static function createInstance(): static
     {
-        $this->paths[] = $GLOBALS['fileroot'] . '/templates';
-
-        if (!empty($path)) {
-            $this->addPath($path);
-        }
-
-        if (null !== $kernel) {
-            $this->kernel = $kernel;
-        }
+        $globals = OEGlobalsBag::getInstance();
+        return new self(
+            $globals->get('kernel'),
+            [
+                sprintf('%s/templates', $globals->get('fileroot')),
+            ],
+        );
     }
 
-    public function addPath(string $path): void
-    {
-        $this->paths[] = $path;
+    protected function __construct(
+        private readonly Kernel $kernel,
+        private array $paths,
+    ) {
     }
 
-    /**
-     * Get the Twig Environment.
-     */
+    public function addPath(string $path): self
+    {
+        if (!in_array($path, $this->paths, true)) {
+            $this->paths[] = $path;
+        }
+
+        return $this;
+    }
+
     public function getTwig(): Environment
     {
         $twigLoader = new FilesystemLoader($this->paths);
