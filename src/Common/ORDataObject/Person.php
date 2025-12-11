@@ -199,7 +199,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         } elseif (strlen($uuid) === 16) {
             // Already in binary format
             $this->uuid = $uuid;
-        } elseif (strlen($uuid) === 36 && strpos($uuid, '-') !== false) {
+        } elseif (strlen($uuid) === 36 && str_contains($uuid, '-')) {
             // String format with hyphens - convert to binary
             $this->uuid = UuidRegistry::uuidToBytes($uuid);
         } else {
