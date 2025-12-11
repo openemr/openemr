@@ -36,6 +36,7 @@ repos:
     entry: php -l
     language: system
     types:
+    - inc
     - php
 
   - id: composer-validate
@@ -54,39 +55,39 @@ repos:
 
   - id: phpcbf
     name: PHP Code Beautifier and Fixer
-    entry: composer run-script phpcbf
+    entry: php -d memory_limit=1g ./vendor/bin/phpcbf --standard=ci/phpcs.xml
     language: system
     types:
+    - inc
     - php
-    pass_filenames: false
 
   - id: phpcs
     name: PHP_CodeSniffer
-    entry: composer run-script phpcs
+    entry: php -d memory_limit=1g ./vendor/bin/phpcs --standard=ci/phpcs.xml
     language: system
     types:
+    - inc
     - php
-    pass_filenames: false
 
   - id: phpstan
     name: PHPStan Static Analysis
-    entry: composer run-script phpstan
+    entry: php -d memory_limit=1g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist
     language: system
     types:
+    - inc
     - php
-    pass_filenames: false
 
   - id: rector
     name: Rector
-    entry: composer run-script rector-fix
+    entry: php -d memory_limit=1g ./vendor/bin/rector process
     language: system
     types:
+    - inc
     - php
-    pass_filenames: false
 
   - id: composer-require-checker
     name: Composer Require Checker
     entry: composer run-script require-checker
     language: system
-    files: ^(composer\.json|src/.+\.php)$
+    files: ^(composer\.json|.+\.(php|inc))$
     pass_filenames: false
