@@ -10,8 +10,10 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
+
 $session = SessionWrapperFactory::instance()->getWrapper();
 
 //require_once ("./../verify_session.php");
@@ -44,7 +46,7 @@ try {
         //  and to only allow access to api calls applicable to that pid (or patientId).
         // Also need to collect the id of the patient to verify the correct id is used
         //  in the uri check in GenericRouter.php .
-        $globalsBag->set('bootstrap_pid', $_SESSION['pid']);
+        $globalsBag->set('bootstrap_pid', $session->get('pid'));
         $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$globalsBag->get('bootstrap_pid')]);
         $globalsBag->set('bootstrap_uri_id', $sqlCollectPatientId['id']);
         $bootstrap_pid = $globalsBag->get('bootstrap_pid');
