@@ -22,4 +22,4 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-EventAuditLogger::instance()->newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, (new Html2Text($_POST['comments'], ['do_links' => 'none', 'width' => 0]))->getText());
+EventAuditLogger::getInstance()->newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, (new Html2Text($_POST['comments'], ['do_links' => 'none', 'width' => 0]))->getText());
