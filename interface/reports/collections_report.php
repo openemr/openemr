@@ -412,7 +412,13 @@ if (!empty($_POST['form_csvexport'])) {
 
         function toEncounter(newpid, enc) {
             top.restoreSession();
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+            // AI-generated code start (GitHub Copilot)
+            const params = new URLSearchParams({
+                set_pid: newpid,
+                set_encounterid: enc
+            });
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
+            // AI-generated code end (GitHub Copilot)
         }
 
         $(function () {

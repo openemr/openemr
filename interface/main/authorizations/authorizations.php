@@ -262,7 +262,14 @@ var EditNote = function(note) {
     var parts = note.id.split("~");
 <?php if (true) : ?>
     top.restoreSession();
-    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + encodeURIComponent(parts[1]) + "&set_pid=" + encodeURIComponent(parts[0]) + "&active=1";
+    // AI-generated code start (GitHub Copilot)
+    const params = new URLSearchParams({
+        noteid: parts[1],
+        set_pid: parts[0],
+        active: '1'
+    });
+    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?" + params;
+    // AI-generated code end (GitHub Copilot)
 <?php else : ?>
     // no-op
     alert(<?php echo xlj('You do not have access to view/edit this note'); ?>);
