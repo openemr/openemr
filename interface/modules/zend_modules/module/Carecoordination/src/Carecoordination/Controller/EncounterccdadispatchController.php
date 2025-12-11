@@ -124,7 +124,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
-            EventAuditLogger::instance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
             exit;
         }
 
@@ -135,7 +135,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // For HTML view, you could add XSL transformation here if needed
             echo $document;
-            EventAuditLogger::instance()->newEvent("qrda3-consolidated-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 Consolidated view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 Consolidated view");
             exit;
         }
 
@@ -382,7 +382,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $content = $xmlController->getConsolidatedCategoryIIIReport($pids, $measures);
 
             // Log the event (following your existing audit pattern)
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-generation",
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],

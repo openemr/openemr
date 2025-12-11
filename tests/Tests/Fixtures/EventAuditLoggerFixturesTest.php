@@ -58,7 +58,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         $GLOBALS['enable_auditlog'] = true;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
-        $this->eventAuditLogger = EventAuditLogger::instance();
+        $this->eventAuditLogger = EventAuditLogger::getInstance();
 
         // Install patient portal menu fixtures
         $this->installPatientPortalMenuFixtures();

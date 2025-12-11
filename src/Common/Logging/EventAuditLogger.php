@@ -16,11 +16,11 @@ namespace OpenEMR\Common\Logging;
 
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
-use Waryway\PhpTraitsLibrary\Singleton;
+use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger
 {
-    use Singleton;
+    use SingletonTrait;
 
     private CryptoGen $cryptoGen;
     private ?bool $breakglassUser = null;
