@@ -1645,7 +1645,7 @@ return [
     },
 
     /**
-     *  @OA\POST(
+     *  @OA\Post(
      *      path="/fhir/DocumentReference/$docref",
      *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.",
      *      tags={"fhir"},
