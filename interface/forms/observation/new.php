@@ -32,15 +32,15 @@ use OpenEMR\Services\FormService;
 
 $logger = new SystemLogger();
 
-// Output the response
 try {
-    // Create controller and handle request
     $request = Request::createFromGlobals();
-    $service = new ObservationService();
-    $formService = new FormService();
-    // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-    $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
-    $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
+
+    $controller = new ObservationController(
+        new ObservationService(),
+        new FormService(),
+        TwigContainer::getInstance()->addPath(__DIR__ . '/../../')->getTwig()
+    );
+
     // edit screen will start with list view... if
     if ($controller->shouldShowListView($request)) {
         $response = $controller->listAction($request);

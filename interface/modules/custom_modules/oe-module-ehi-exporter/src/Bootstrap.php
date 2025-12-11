@@ -67,33 +67,20 @@ class Bootstrap
 
     /**
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
-     * @param ?Kernel $kernel
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
     ) {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-
-        // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
-        // it here.
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
-
+        $this->twig = TwigContainer::getInstance()->addPath($this->getTemplatePath())->getTwig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-
-        // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
         $this->logger = new SystemLogger();
     }
 
-    public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
+    public static function instantiate(EventDispatcherInterface $eventDispatcher): self
     {
         if (!isset(self::$instance)) {
-            self::$instance = new Bootstrap($eventDispatcher, $kernel);
+            self::$instance = new Bootstrap($eventDispatcher);
             self::$instance->subscribeToEvents();
         }
         return self::$instance;
@@ -123,8 +110,7 @@ class Bootstrap
 
     public function getTwig()
     {
-        $container = new TwigContainer($this->getTemplatePath(), $GLOBALS['kernel']);
-        return $container->getTwig();
+        return $this->twig;
     }
 
     public function subscribeToEvents()

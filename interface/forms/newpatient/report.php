@@ -27,8 +27,7 @@ use OpenEMR\Services\PatientService;
 function newpatient_report($pid, $encounter, $cols, $id): void
 {
     $res = sqlStatement("select e.*, f.name as facility_name from form_encounter as e join facility as f on f.id = e.facility_id where e.pid=? and e.id=?", [$pid,$id]);
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
-    $t = $twig->getTwig();
+
     $encounters = [];
     $userService = new UserService();
     while ($result = sqlFetchArray($res)) {
@@ -71,5 +70,5 @@ function newpatient_report($pid, $encounter, $cols, $id): void
         $encounters[] = $encounterRecord;
     }
     // TODO: @adunsulag in future EMR version switch this to templates/newpatient/report.html.twig
-    echo $t->render("templates/report.html.twig", ['encounters' => $encounters]);
+    echo TwigContainer::getInstance()->addPath(__DIR__)->getTwig()->render("templates/report.html.twig", ['encounters' => $encounters]);
 }
