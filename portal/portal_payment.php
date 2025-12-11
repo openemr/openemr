@@ -1226,23 +1226,21 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
     </script>
 
-    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
+    <?php
+    if ($GLOBALS['payment_gateway'] == 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
-        ?>
-        <script src="portal_payment.authorizenet.js"></script>
-    <?php }  // end authorize.net ?>
-
-    <?php if ($GLOBALS['payment_gateway'] == 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
-        <script src="portal_payment.stripe.js"></script>
-    <?php } ?>
-
-    <?php
-    if ($GLOBALS['payment_gateway'] == 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
+        echo '<script src="portal_payment.authorizenet.js"></script>';
+    } elseif ($GLOBALS['payment_gateway'] == 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) {
+        // Begin Include Stripe
+        echo '<script src="portal_payment.stripe.js"></script>';
+    } elseif ($GLOBALS['payment_gateway'] == 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    } elseif ($GLOBALS['payment_gateway'] == 'Rainforest' && isset($_SESSION['patient_portal_onsite_two'])) {
+        echo '<script src="portal_payment.rainforest.js"></script>';
     }
     ?>
 
     </body>
-    <?php } // end else display ?>
+<?php } // end else display ?>
