@@ -24,7 +24,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Log")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Log")]);
     exit;
 }
 

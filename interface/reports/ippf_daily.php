@@ -30,7 +30,7 @@ if (!empty($_POST)) {
 // Might want something different here.
 //
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Clinic Daily Record")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Clinic Daily Record")]);
     exit;
 }
 

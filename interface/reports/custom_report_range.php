@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Superbill")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Superbill")]);
     exit;
 }
 

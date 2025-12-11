@@ -469,7 +469,7 @@ $templateVars = [
     'rp' => $rp['rp'],
 ];
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = TwigContainer::getInstance();
 $t = $twig->getTwig();
 echo $t->render('patient_finder/finder.html.twig', $templateVars);
 

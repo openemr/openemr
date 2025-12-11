@@ -27,7 +27,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Payment Processing")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Payment Processing")]);
     exit;
 }
 

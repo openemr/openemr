@@ -41,7 +41,7 @@ class C_InsuranceCompany extends Controller
 
     public function list_action()
     {
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = TwigContainer::getInstance();
 
         $insuranceCompanyService = new InsuranceCompanyService();
         $results = $insuranceCompanyService->search([]);

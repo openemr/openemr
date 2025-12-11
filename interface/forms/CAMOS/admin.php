@@ -22,7 +22,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 <?php
 // Check authorization.
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("admin")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("admin")]);
     exit;
 }
 

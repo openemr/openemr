@@ -26,19 +26,19 @@ try {
 } catch (AccessDeniedException | CsrfInvalidException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
+    $contents = TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
     // Send the error response
     $response = new Response($contents, 403);
 } catch (NotFoundHttpException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/404.html.twig');
+    $contents = TwigContainer::getInstance()->getTwig()->render('error/404.html.twig');
     // Send the error response
     $response = new Response($contents, 404);
 } catch (Exception $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
-    $contents =  (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/general_http_error.html.twig');
+    $contents =  TwigContainer::getInstance()->getTwig()->render('error/general_http_error.html.twig');
     // Send the error response
     $response = new Response($contents, 500);
 }

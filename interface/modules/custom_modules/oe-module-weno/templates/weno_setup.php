@@ -22,7 +22,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
     exit;
 }
 

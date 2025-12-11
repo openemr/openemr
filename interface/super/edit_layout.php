@@ -395,7 +395,7 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
     exit;
 }
 

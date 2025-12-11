@@ -31,7 +31,7 @@ use OpenEMR\Core\Header;
 <?php
  // check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
     exit;
 }
 

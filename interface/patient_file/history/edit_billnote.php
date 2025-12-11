@@ -24,7 +24,7 @@ $feid = $_GET['feid'] + 0; // id from form_encounter table
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
     exit;
 }
 ?>

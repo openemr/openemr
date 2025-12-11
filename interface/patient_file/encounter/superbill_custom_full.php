@@ -32,7 +32,7 @@ $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
 $thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
     exit;
 }
 // For revenue codes

@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
     exit;
 }
 
