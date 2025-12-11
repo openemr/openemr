@@ -89,5 +89,5 @@ repos:
     name: Composer Require Checker
     entry: composer run-script require-checker
     language: system
-    files: ^(composer\.json|.+\.(php|inc))$
+    files: ^(composer\.json|.*\.(php|inc))$
     pass_filenames: false
