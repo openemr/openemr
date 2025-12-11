@@ -158,6 +158,6 @@ $logger->debug("Error loading relations for display", [
 ]);
 
 // Render the template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/relation_display.html.twig', $templateVars);

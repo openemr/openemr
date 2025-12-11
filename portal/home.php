@@ -330,7 +330,7 @@ $styleArray = collectStyles();
 $isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
-$twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
+$twig = TwigContainer::getInstance()->getTwig();
 try {
     $healthSnapshot = [
         'immunizationRecords' => $immunRecords,

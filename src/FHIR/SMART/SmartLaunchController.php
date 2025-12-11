@@ -89,7 +89,7 @@ class SmartLaunchController
                         'intent' => SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG
             ];
 
-            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+            $twig = TwigContainer::getInstance()->getTwig();
             echo $twig->render("patient/card/smart_launch.html.twig", $viewArgs);
             $this->renderLaunchScript();
     }

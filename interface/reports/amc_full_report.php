@@ -184,7 +184,7 @@ $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "
 
 // Collect the back variable, if pertinent
 $back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 $report_view = collectReportDatabase($report_id);
 if (!empty($report_view)) {

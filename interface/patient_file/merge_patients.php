@@ -33,7 +33,7 @@ $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 $PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
     exit;
 }
 ?>
@@ -287,7 +287,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],

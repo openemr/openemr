@@ -293,7 +293,7 @@ class FeeSheet
             }
         }
 
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             'fee-sheet',
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -333,7 +333,7 @@ class FeeSheet
         if (CHECKSUM_LOGGING) {
             $comment = "Checksum = '$ret'";
             $comment .= ", Saved = " . ($saved ? "true" : "false");
-            EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
+            EventAuditLogger::getInstance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
         }
         return $ret;
     }

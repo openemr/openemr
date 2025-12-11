@@ -55,7 +55,7 @@ class ObservationController
     ) {
         $this->observationService = $observationService ?? new ObservationService();
         $this->formService = $formService ?? new FormService();
-        $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $this->twig = $twig ?? TwigContainer::getInstance()->getTwig();
         $this->codeTypeService = new CodeTypesService();
         $this->patientService = $patientService ?? new PatientService();
     }

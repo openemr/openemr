@@ -763,7 +763,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         // Falling through to here indicates success.
-        EventAuditLogger::instance()->newEvent("proc_order_xmit", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "ID: $msgid Protocol: $protocol Host: DORN");
+        EventAuditLogger::getInstance()->newEvent("proc_order_xmit", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "ID: $msgid Protocol: $protocol Host: DORN");
         return $responseMessage;
     }
 }

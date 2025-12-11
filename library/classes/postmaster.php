@@ -125,7 +125,7 @@ class MyMailer extends PHPMailer
 
                 if ($emailMethodConfigured) {
                     try {
-                        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+                        $twigContainer = TwigContainer::getInstance();
                         $twig = $twigContainer->getTwig();
                         if (!empty($ret['template_name'])) {
                             $templateData = json_decode((string) $ret['body'], true);

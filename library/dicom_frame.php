@@ -24,7 +24,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'docs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dicom Viewer")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dicom Viewer")]);
     exit;
 }
 
@@ -41,7 +41,7 @@ if ($web_path) {
     $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = TwigContainer::getInstance()->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => $GLOBALS['assets_static_relative']
     ,'web_root' => $web_root

@@ -117,7 +117,7 @@ $vars = [
     ,'isSaved' => $isSaved
 ];
 try {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+    echo TwigContainer::getInstance()->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Exception $exception) {
     (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     die(xlt("Failed to render twig file"));

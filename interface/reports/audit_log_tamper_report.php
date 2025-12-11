@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Audit Log Tamper Report")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Audit Log Tamper Report")]);
     exit;
 }
 
@@ -219,7 +219,7 @@ $check_sum = isset($_GET['check_sum']);
 
     $dispArr = [];
     $icnt = 1;
-    if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent])) {
+    if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent])) {
         // Set up crypto object (object will increase performance since caches used keys)
         $cryptoGen = new CryptoGen();
 

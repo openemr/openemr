@@ -68,7 +68,7 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = TwigContainer::getInstance()->getTwig();
 
 ?>
 <!DOCTYPE html>

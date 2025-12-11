@@ -238,7 +238,7 @@ class EncountermanagerController extends AbstractActionController
 
         $document = new \Document($docId);
         try {
-            $twig = new TwigContainer(null, $GLOBALS['kernel']);
+            $twig = TwigContainer::getInstance();
             // can_access will check session if no params are passed.
             if (!$document->can_access()) {
                 echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);

@@ -49,7 +49,7 @@ class C_DocumentCategory extends Controller
         $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
         $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
 
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = TwigContainer::getInstance();
         return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 

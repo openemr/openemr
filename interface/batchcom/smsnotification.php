@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 // gacl control
 if (!AclMain::aclCheckCore('admin', 'notification')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SMS Notification")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SMS Notification")]);
     exit;
 }
 

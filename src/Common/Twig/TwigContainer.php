@@ -17,6 +17,7 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Twig\Environment;
@@ -24,42 +25,41 @@ use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * Usage:
+ *   TwigContainer::getInstance()->getTwig()->render('template.html.twig', ['var' => 'value]);
+ *   TwigContainer::getInstance()->addPath(__DIR__)->getTwig()->render('template.html.twig', ['var' => 'value]);
+ */
 class TwigContainer
 {
-    /**
-     * Paths in /templates
-     */
-    private array $paths = [];
+    use SingletonTrait;
 
-    private ?Kernel $kernel = null;
-
-    /**
-     * Create a new Twig superclass holding a twig environment
-     *
-     * @var string|null $path   Additional path to add to $fileroot/templates string
-     * @var Kernel|null $kernel An instance of Kernel to test if the environment is dev vs prod
-     */
-    public function __construct(?string $path = null, ?Kernel $kernel = null)
+    protected static function createInstance(): static
     {
-        $this->paths[] = $GLOBALS['fileroot'] . '/templates';
-
-        if (!empty($path)) {
-            $this->addPath($path);
-        }
-
-        if (null !== $kernel) {
-            $this->kernel = $kernel;
-        }
+        $fileroot = OEGlobalsBag::getInstance()->get('fileroot');
+        return new self(
+            OEGlobalsBag::getInstance()->get('kernel'),
+            [
+                sprintf('%s/templates', $fileroot),
+            ],
+        );
     }
 
-    public function addPath(string $path): void
-    {
-        $this->paths[] = $path;
+    protected function __construct(
+        private readonly Kernel $kernel,
+        private array $paths,
+    ) {
     }
 
-    /**
-     * Get the Twig Environment.
-     */
+    public function addPath(string $path): self
+    {
+        if (!in_array($path, $this->paths, true)) {
+            $this->paths[] = $path;
+        }
+
+        return $this;
+    }
+
     public function getTwig(): Environment
     {
         $twigLoader = new FilesystemLoader($this->paths);

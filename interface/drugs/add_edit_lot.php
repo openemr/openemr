@@ -34,7 +34,7 @@ $auth_lots  = $auth_admin               ||
     AclMain::aclCheckCore('inventory', 'consumption') ||
     AclMain::aclCheckCore('inventory', 'destruction');
 if (!$auth_lots) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
     exit;
 }
 

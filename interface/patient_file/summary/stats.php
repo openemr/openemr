@@ -22,8 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$twigContainer = new TwigContainer(null, $kernel);
-$t = $twigContainer->getTwig();
+$t = TwigContainer::getInstance()->getTwig();
 
 /**
  * Return an array of list data for a given issue type and patient
