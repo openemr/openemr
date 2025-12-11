@@ -1296,7 +1296,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere') { ?>
+                    <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere' && $GLOBALS['payment_gateway'] != 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1385,7 +1385,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
-                    <?php } else { ?>
+                    <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
                                 <div class="form-group">
