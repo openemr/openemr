@@ -677,7 +677,8 @@ class EtherFaxActions extends AppDispatch
             }
         }
         $prefix = DIRECTORY_SEPARATOR;
-        if (preg_match('/^[A-Za-z]:\\/', $path) === 1) { // Windows drive
+        $isWindowsDrive = strlen($path) >= 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === DIRECTORY_SEPARATOR);
+        if ($isWindowsDrive) {
             $prefix = '';
         }
         return $prefix . implode(DIRECTORY_SEPARATOR, $parts);
