@@ -53,7 +53,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 if ($notPatientPortal) {
     $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
+        echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
         exit;
     }
 }

@@ -24,7 +24,7 @@ class PredictiveDSIServiceEntityTest extends TestCase
 
     public function testPopulateServiceWithFhirQuestionnaire(): void
     {
-        $twig = (new TwigContainer())->getTwig();
+        $twig = TwigContainer::getInstance()->getTwig();
         $questionnaire = $twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => '/']);
         $qr = file_get_contents(__DIR__ . "/../../../../data/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/dsi-service-qr-test.json");
 //        $this->twig->render("api/smart/dsi-service-qr-test.json.twig");

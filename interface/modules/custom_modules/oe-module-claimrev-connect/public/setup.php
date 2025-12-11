@@ -21,7 +21,7 @@
 
     //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
     exit;
 }
 

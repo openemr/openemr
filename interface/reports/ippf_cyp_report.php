@@ -153,7 +153,7 @@ function cypReportLineItem(int $patient_id, int $encounter_id, string $descripti
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("CYP Report")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("CYP Report")]);
     exit;
 }
 

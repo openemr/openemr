@@ -24,7 +24,7 @@ use OpenEMR\Core\Header;
 $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
 $authAddonly = AclMain::aclCheckCore('patients', 'disclosure', '', 'addonly');
 if (!$authWrite && !$authAddonly) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Record Disclosure")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Record Disclosure")]);
     exit;
 }
 

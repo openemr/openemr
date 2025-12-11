@@ -33,7 +33,7 @@ $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
 $PRODUCTION = true;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Patients")]);
     exit;
 }
 ?>

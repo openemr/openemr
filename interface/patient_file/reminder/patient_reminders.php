@@ -32,7 +32,7 @@ if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder',
     $thisauth = false;
 }
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
     exit;
 }
 

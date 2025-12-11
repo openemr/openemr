@@ -28,7 +28,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\PractitionerService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Report")]);
     exit;
 }
 
@@ -116,7 +116,7 @@ if ($type_report == "standard") {
     $help_file_name = "cqm_amc_help.php";
 }
 
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 
 $formData = [

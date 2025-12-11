@@ -25,8 +25,7 @@ use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 
-$twig = new TwigContainer();
-$t = $twig->getTwig();
+$t = TwigContainer::getInstance()->getTwig();
 
 $versionService = new VersionService();
 
