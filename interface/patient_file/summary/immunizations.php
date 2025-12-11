@@ -107,7 +107,7 @@ if (isset($_GET['mode'])) {
         }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
+        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id " . $_GET['id'] . " deleted from pid " . $pid);
         // delete the immunization
         $sql = "DELETE FROM immunizations WHERE id =? LIMIT 1";
         sqlStatement($sql, [$_GET['id']]);

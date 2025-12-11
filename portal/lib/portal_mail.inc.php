@@ -305,7 +305,7 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
             $log_from = 'patient-portal';
             $puser = $_SESSION['pid'];
         }
-        EventAuditLogger::instance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
+        EventAuditLogger::getInstance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }
 }
 

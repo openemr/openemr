@@ -510,7 +510,7 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
     if (!$success) {
         (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
     }
-    EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
+    EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
 
 /**
