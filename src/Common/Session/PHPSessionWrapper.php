@@ -2,10 +2,9 @@
 
 namespace OpenEMR\Common\Session;
 
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Session\Trait\SessionToJwt;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Session\Session;
-use RuntimeException;
 
 class PHPSessionWrapper implements SessionWrapperInterface
 {
@@ -13,8 +12,10 @@ class PHPSessionWrapper implements SessionWrapperInterface
 
     public function __construct()
     {
-        if (!empty($GLOBALS['webroot']) && session_status() !== PHP_SESSION_ACTIVE) {
-            SessionUtil::coreSessionStart($GLOBALS['webroot'], false);
+        $globalsBag = OEGlobalsBag::getInstance(true);
+        $webroot = $globalsBag->get('webroot');
+        if ($webroot !== null && session_status() !== PHP_SESSION_ACTIVE) {
+            SessionUtil::coreSessionStart($webroot, false);
         }
     }
 
