@@ -790,6 +790,6 @@ $globalsBag->set('web_root', $web_root);
 $globalsBag->set('restRequest', $restRequest);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 
-EventAuditLogger::instance()->logHttpRequest();
+EventAuditLogger::getInstance()->logHttpRequest();
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

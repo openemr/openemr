@@ -1271,7 +1271,7 @@ function row_delete($table, $where): void
             $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
