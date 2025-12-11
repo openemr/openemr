@@ -20,13 +20,10 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
-$twigContainer = new TwigContainer();
-$t = $twigContainer->getTwig();
-
 $viewArgs = [
     'pageHeading' => $oemr_ui->pageHeading(),
     'pid' => $pid,
     'csrf' => CsrfUtils::collectCsrfToken(),
 ];
 
-echo $t->render('patient/dashboard_header.html.twig', $viewArgs);
+echo TwigContainer::getInstance()->getTwig()->render('patient/dashboard_header.html.twig', $viewArgs);

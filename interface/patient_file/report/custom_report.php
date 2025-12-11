@@ -38,7 +38,7 @@ use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
     exit;
 }
 

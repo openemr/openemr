@@ -60,6 +60,6 @@ $templateVars = [
     'has_telecoms' => !empty($telecoms)
 ];
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/telecom_display.html.twig', $templateVars);

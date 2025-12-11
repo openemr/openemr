@@ -56,7 +56,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = TwigContainer::getInstance()->getTwig();
 
 $cryptoGen = new CryptoGen();
 

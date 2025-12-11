@@ -73,7 +73,7 @@ if ($GLOBALS['insurance_only_one']) {
     $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
 }
 
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = TwigContainer::getInstance()->getTwig();
 //$insurance_info[0]['active'] = true;
 //$insuranceTypes = array_map(function($item) { return $item['type'];}, $insurance_info);
 //$insrender(uranceTypes = array_unique($insuranceTypes);

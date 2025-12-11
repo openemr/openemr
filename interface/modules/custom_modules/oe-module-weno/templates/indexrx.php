@@ -29,7 +29,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 //ensure user has proper access permissions.
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
     exit;
 }
 

@@ -133,7 +133,7 @@ class C_Prescription extends Controller
             $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $twig = TwigContainer::getInstance()->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
@@ -247,10 +247,11 @@ class C_Prescription extends Controller
         if (!($this->pconfig['use_signature'] && $this->current_user_has_signature())) {
             $vars['faxSignatureMissing'] = true;
         }
+
         // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
         $vars['printPrescriptionId'] = $printPrescriptionId;
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-        echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
+
+        echo TwigContainer::getInstance()->getTwig()->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
 
     function block_action($id, $sort = "")

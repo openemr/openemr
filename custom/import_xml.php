@@ -55,7 +55,7 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq): void
 
  // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Import Patient Demographics XML")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Import Patient Demographics XML")]);
     exit;
 }
 

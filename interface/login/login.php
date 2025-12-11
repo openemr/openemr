@@ -43,7 +43,7 @@ $ignoreAuth = true;
 $sessionAllowWrite = true;
 require_once("../globals.php");
 
-$twig = new TwigContainer(null, $GLOBALS["kernel"]);
+$twig = TwigContainer::getInstance();
 $t = $twig->getTwig();
 
 $logoService = new LogoService();

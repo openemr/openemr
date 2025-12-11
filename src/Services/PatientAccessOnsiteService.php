@@ -61,7 +61,7 @@ class PatientAccessOnsiteService
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
         $this->kernel = $GLOBALS['kernel'];
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = TwigContainer::getInstance()->getTwig();
         $this->logger = new SystemLogger();
     }
 

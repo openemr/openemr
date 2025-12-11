@@ -64,7 +64,7 @@ $auth_demo = true; //AclMain::aclCheckCore('patients'  , 'demo');
 $ignoreAuth_onsite_portal = true;
 
 $portalPatientReportController = new PortalPatientReportController();
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = TwigContainer::getInstance()->getTwig();
 
 $issues = [];
 $data = [];

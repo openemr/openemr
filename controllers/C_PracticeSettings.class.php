@@ -16,7 +16,7 @@ class C_PracticeSettings extends Controller
         $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
 
         if (!AclMain::aclCheckCore('admin', 'practice')) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
+            echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
             exit;
         }
     }

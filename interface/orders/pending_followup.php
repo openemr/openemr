@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Followup from Results")]);
     exit;
 }
 

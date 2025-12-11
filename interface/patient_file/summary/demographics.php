@@ -74,7 +74,7 @@ if (!isset($pid)) {
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = TwigContainer::getInstance();
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
