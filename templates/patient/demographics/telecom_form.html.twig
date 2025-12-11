@@ -13,7 +13,7 @@
     }
 </style>
 
-<div id="{{ table_id|attr }}" class="row mt-3">
+<div id="{{ table_id|attr }}" class="form-row mt-3">
     <div class="table_edit_telecoms col-12">
         <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
@@ -82,9 +82,9 @@
                 </div>
 
                 {% if is_inactive %}
-                    <div class="fas fa-fw fa-solid fa-phone-circle-check text-success btn-activate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                    <div class="fas fa-fw fa-solid fa-phone text-success btn-activate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; margin-top: 0.3em;"></div>
                 {% else %}
-                    <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+                    <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; margin-top: 0.3em;"></div>
                 {% endif %}
             </div>
 
@@ -177,7 +177,7 @@
     // IIFE Wrapper For Telecom Form Functions
     (function() {
 
-        const tableId = {{ table_id|js_escape|raw }}
+        const tableId = {{ table_id|js_escape }}
         console.log("Running telecom script for table id:", tableId);
 
         // Initialize on page load
@@ -212,9 +212,7 @@
                 'UPDATE': 'UPDATE'
             };
 
-            let telecomDatePickerSettings = {};
-
-            {{ DateToYYYYMMDD_js()|raw }}
+            {{ DateToYYYYMMDD_js() }}
 
             init(tableId);
 
@@ -495,6 +493,8 @@
             }
 
             function changeTelecomStatus(event) {
+                let badge;
+                let systemSpan;
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -522,15 +522,15 @@
                         telecoms_group.classList.remove('telecom-inactive');
                         telecoms_group.setAttribute('data-status', 'A');
 
-                        var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
-                        var badge = systemSpan.querySelector('.badge');
+                        systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                        badge = systemSpan.querySelector('.badge');
                         if (badge) {
                             badge.remove();
                         }
 
-                        inactivateIcon.classList.remove('fa-phone-circle-check', 'text-success', 'btn-activate-telecom');
-                        inactivateIcon.classList.add('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
-                        inactivateIcon.setAttribute('title', window.xl('Inactivate Contact'));
+                        inactivateButton.classList.remove('fa-phone', 'text-success', 'btn-activate-telecom');
+                        inactivateButton.classList.add('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
+                        inactivateButton.setAttribute('title', window.xl('Inactivate Contact'));
 
                         if (actionInput) {
                             actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
@@ -548,18 +548,18 @@
                         telecoms_group.classList.add('telecom-inactive');
                         telecoms_group.setAttribute('data-status', 'I');
 
-                    var systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
                     if (!systemSpan.querySelector('.badge')) {
-                        var badge = document.createElement('span');
+                        badge = document.createElement('span');
                         badge.className = 'badge badge-secondary text-white ml-1';
                         badge.style.fontSize = '0.7em';
                         badge.textContent = window.xl('Inactive');
                         systemSpan.appendChild(badge);
                     }
 
-                        inactivateIcon.classList.remove('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
-                        inactivateIcon.classList.add('fa-phone-circle-check', 'text-success', 'btn-activate-telecom');
-                        inactivateIcon.setAttribute('title', window.xl('Reactivate Contact'));
+                        inactivateButton.classList.remove('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
+                        inactivateButton.classList.add('fa-phone', 'text-success', 'btn-activate-telecom');
+                        inactivateButton.setAttribute('title', window.xl('Reactivate Contact'));
 
                         if (actionInput) {
                             actionInput.value = TELECOM_ACTION_VALUES.INACTIVATE;
@@ -597,9 +597,13 @@
                 }
             }
 
-            function setupContainerDatePickers(table) {
-                let datepickers = table.querySelectorAll(".datepicker");
-                $(datepickers).datetimepicker(telecomDatePickerSettings);
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        {{ jqueryDateTimePicker('this', false, false, true) }};
+                    }
+                });
             }
 
             function setupContainerListAddButtons(table) {
@@ -622,19 +626,13 @@
 
             function telecomUpdated(event) {
                 const formTelecoms = event.target.closest('.form_telecoms');
-                if (!formTelecoms) {
-                    return;
-                }
+                if (!formTelecoms) return;
 
                 const telecomsGroup = formTelecoms.closest('.telecoms_group');
-                if (!telecomsGroup) {
-                    return;
-                }
+                if (!telecomsGroup) return;
 
                 const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
-                if (!actionInput) {
-                    return;
-                }
+                if (!actionInput) return;
 
                 const currentAction = actionInput.value;
                 if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
