@@ -113,21 +113,13 @@ class Bootstrap
 
     /**
      * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
-     * @param ?Kernel $kernel
      */
     public function __construct(
         private readonly EventDispatcher $eventDispatcher,
-        ?Kernel $kernel = null
     ) {
         global $GLOBALS;
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
-
+        $this->twig = TwigContainer::getInstance()->addPath($this->getTemplatePath())->getTwig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
         $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName, $this->twig);

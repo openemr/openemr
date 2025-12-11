@@ -322,5 +322,5 @@ if ($allowSMSButtons) {
 }
 
 if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail || $allowVoice)) {
-    (new NotificationEventListener($eventDispatcher, $GLOBALS['kernel']))->subscribeToEvents();
+    (new NotificationEventListener($eventDispatcher))->subscribeToEvents();
 }

@@ -186,6 +186,7 @@ class AuthorizationController
         // verify and/or setup our key pairs.
         $this->configKeyPairs($this->session);
         $this->trustedUserService = new TrustedUserService();
+        $this->twig = TwigContainer::getInstance()->addPath(__DIR__ . "/../../oauth2/")->getTwig();
     }
 
     private function getSmartAuthController(): SMARTAuthorizationController
@@ -205,16 +206,6 @@ class AuthorizationController
 
     private function getTwig(): Environment
     {
-        if (!isset($this->twig)) {
-            // TODO: @adunsulag look at refactoring this.  I don't like how this kernel has ended up and is incompatible
-            // with our current kernel.
-            $oeKernel = $this->globalsBag->get("kernel");
-            if (!$oeKernel instanceof Kernel) {
-                throw new RuntimeException("OpenEMR Error: Unable to get OpenEMR Kernel from globals bag");
-            }
-            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $oeKernel);
-            $this->twig = $twigContainer->getTwig();
-        }
         return $this->twig;
     }
 

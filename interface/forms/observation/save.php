@@ -31,13 +31,12 @@ use OpenEMR\Common\Twig\TwigContainer;
 $logger = new SystemLogger();
 
 try {
-    // Create controller and handle request
     $request = Request::createFromGlobals();
-    $service = new ObservationService();
-    $formService = new FormService();
-    // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-    $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
-    $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
+    $controller = new ObservationController(
+        new ObservationService(),
+        new FormService(),
+        TwigContainer::getInstance()->addPath(__DIR__ . '/../../')->getTwig()
+    );
     $response = $controller->saveAction($request);
     $response->send();
 } catch (Exception $e) {
