@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023-24 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
  */
 
@@ -380,7 +380,7 @@ class EtherFaxActions extends AppDispatch
             $actionLinks = $this->generateActionLinks($id, $record_id, $pid_assumed);
             $detailLink = $this->generateDetailLink($id, $recognizeResult);
 
-            if ($faxDetails->TransactionType == '0') {
+            if ($faxDetails->TransactionType == '1') {
                 $faxRow = "<tr>
                 <td>" . text($formattedDate) . "</td>
                 <td>" . text($faxDetails->CallingNumber) . "</td>
@@ -405,7 +405,7 @@ class EtherFaxActions extends AppDispatch
                 <td class='text-left'>" . $actionLinks . "</td>
                 <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'></td></tr>";
             }
-            $responseMsg[$faxDetails->TransactionType == '0' ? 0 : 1] .= $faxRow . $form;
+            $responseMsg[$faxDetails->TransactionType == '1' ? 0 : 1] .= $faxRow . $form;
         }
 
         if (empty($responseMsg[0])) {
@@ -419,8 +419,8 @@ class EtherFaxActions extends AppDispatch
     private function getTransactionTypeWord($transactionType)
     {
         $transactionTypes = [
-            '0' => xlt('Received'),
-            '1' => xlt('Sent'),
+            '0' => xlt('Sent'),
+            '1' => xlt('Received'),
             '2' => xlt('Forwarded'),
             '3' => xlt('Failed')
             // Add more as needed
@@ -561,45 +561,157 @@ class EtherFaxActions extends AppDispatch
     /**
      * @return string
      */
+    
     public function disposeDocument(): string
     {
+        if (!$this->authenticate()) {
+            http_response_code(403);
+            return json_encode(['success' => false, 'message' => xlt('Unauthorized')]);
+        }
+
         $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = $this->getRequest('file_path') ?? $this->getSession('where');
+        $where = (string) ($this->getRequest('file_path') ?? $this->getSession('where') ?? '');
 
         if (empty($where)) {
-            die(xlt('Problem with download. Use browser back button'));
+            return json_encode(['success' => false, 'message' => xlt('No file path specified')]);
+        }
+        $allowedRoot = realpath($this->baseDir) ?: $this->baseDir;
+        $targetPath  = $this->normalizePath($where);
+
+        if (!$this->isPathAllowed($targetPath, $allowedRoot)) {
+            error_log("SECURITY: Fax disposeDocument path violation: {$targetPath}");
+            http_response_code(403);
+            return json_encode(['success' => false, 'message' => xlt('Access denied')]);
         }
 
-        $content = $this->getRequest('content', '');
-        $action = $this->getRequest('action');
+        $content = (string) $this->getRequest('content', '');
+        $action  = (string) $this->getRequest('action', '');
 
-        if ($action == 'download') {
-            $this->sendFile($where);
-            sleep(2);
-            unlink($where);
-            exit;
-        }
-
-        if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode((string) $content);
-            if (file_put_contents($where, $decodedContent) !== false) {
-                $response['success'] = true;
-                $response['url'] = $where;
-            } else {
-                $response['message'] = 'Failed to write file';
+        if ($action === 'download') {
+            // Only allow download from allowed root
+            if (!is_file($targetPath)) {
+                return json_encode(['success' => false, 'message' => xlt('File not found')]);
             }
-        } elseif ($action == 'setup') {
-            $response['success'] = true;
-            $response['url'] = $where;
+            $this->sendFile($targetPath);
+            // Best effort cleanup for temp files created by this controller
+            @unlink($targetPath);
+            return json_encode(['success' => true, 'url' => $targetPath]);
         }
 
-        return json_encode($response);
+        if (!empty($content) && $action === 'setup') {
+            // Only allow fax-safe extensions
+            $ext = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+            $allowedExtensions = ['pdf', 'tif', 'tiff', 'txt'];
+            if (!in_array($ext, $allowedExtensions, true)) {
+                error_log("SECURITY: Disallowed file extension in disposeDocument: .{$ext}");
+                return json_encode(['success' => false, 'message' => xlt('Invalid file type')]);
+            }
+
+            $decoded = base64_decode($content, true);
+            if ($decoded === false) {
+                return json_encode(['success' => false, 'message' => xlt('Invalid content encoding')]);
+            }
+
+            // Simple executable content guard (PHP tags, HTML script). This is a defense-in-depth measure.
+            if ($this->containsExecutableCode($decoded)) {
+                error_log("SECURITY: Executable content blocked in disposeDocument");
+                return json_encode(['success' => false, 'message' => xlt('Malicious content detected')]);
+            }
+
+            // Ensure directory exists
+            $dir = dirname($targetPath);
+            if (!is_dir($dir) && !mkdir($dir, 0770, true)) {
+                return json_encode(['success' => false, 'message' => xlt('Failed to create directory')]);
+            }
+
+            // Write atomically
+            $tmp = tempnam($dir, 'fax_');
+            if ($tmp === false) {
+                return json_encode(['success' => false, 'message' => xlt('Failed to create temp file')]);
+            }
+            $bytes = file_put_contents($tmp, $decoded, LOCK_EX);
+            if ($bytes === false) {
+                @unlink($tmp);
+                return json_encode(['success' => false, 'message' => xlt('Failed to write file')]);
+            }
+            // Move to destination
+            if (!@rename($tmp, $targetPath)) {
+                @unlink($tmp);
+                return json_encode(['success' => false, 'message' => xlt('Failed to finalize file')]);
+            }
+            @chmod($targetPath, 0660);
+
+            $response['success'] = true;
+            $response['url'] = $targetPath;
+            return json_encode($response);
+        } elseif ($action === 'setup') {
+            // Setup without content should not create files; just acknowledge if path is allowed
+            $response['success'] = true;
+            $response['url'] = $targetPath;
+            return json_encode($response);
+        }
+
+        // Default: unsupported action
+        return json_encode(['success' => false, 'message' => xlt('Unsupported action')]);
     }
 
     /**
-     * @param string $filePath
-     * @return void
+     * Normalize a filesystem path without resolving symlinks from user input.
      */
+    private function normalizePath(string $path): string
+    {
+        // If the path is relative, anchor it under allowed baseDir
+        if (!str_starts_with($path, DIRECTORY_SEPARATOR)) {
+            $path = rtrim((string) $this->baseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
+        }
+        // Collapse .. and .
+        $parts = [];
+        foreach (explode(DIRECTORY_SEPARATOR, $path) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                array_pop($parts);
+            } else {
+                $parts[] = $segment;
+            }
+        }
+        $prefix = DIRECTORY_SEPARATOR;
+        $isWindowsDrive = strlen($path) >= 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === DIRECTORY_SEPARATOR);
+        if ($isWindowsDrive) {
+            $prefix = '';
+        }
+        return $prefix . implode(DIRECTORY_SEPARATOR, $parts);
+    }
+
+    /**
+     * Enforce that target path is at or below allowed root.
+     */
+    private function isPathAllowed(string $targetPath, string $allowedRoot): bool
+    {
+        $allowed = realpath($allowedRoot) ?: $allowedRoot;
+        $real    = realpath($targetPath);
+        if ($real === false) {
+            // If file does not exist yet, check its directory
+            $real = realpath(dirname($targetPath));
+            if ($real === false) {
+                // Directory might not exist; check against intended dir under allowed
+                $intended = $this->normalizePath(dirname($targetPath));
+                return str_starts_with($intended, $allowed);
+            }
+        }
+        return str_starts_with($real, $allowed);
+    }
+
+    /**
+     * Lightweight detector for executable content we never expect for fax artifacts.
+     */
+    private function containsExecutableCode(string $data): bool
+    {
+        // Check for PHP tags or HTML/JS script tags in first 1MB to be safe.
+        $snippet = substr($data, 0, 1024 * 1024);
+        return (bool) preg_match('/<\?(php|=)|<script\b/i', $snippet);
+    }
     private function sendFile(string $filePath): void
     {
         ob_end_clean();
