@@ -655,7 +655,8 @@ if (
             dlgopen(url,'editInvoiceDlg','modal-full', false, false, '', {
                 sizeHeight: 'full',
                 onClosed: 'reSubmit'
-            }); <?php } else { // keep era page up so can check on other remits ?>
+            });
+            <?php } else { // keep era page up so can check on other remits ?>
             dlgopen(url, 'editInvoiceDlg', 'modal-full', false, false, '', {
                 sizeHeight: 'full',
                 onClosed: ''
