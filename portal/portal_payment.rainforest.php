@@ -10,6 +10,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit(1);
 }
 
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Aped from other AJAX endpoints; this isn't an ideal way to read config.
+SessionUtil::portalSessionStart();
+$ignoreAuth_onsite_portal = true;
+require_once __DIR__ . '/../interface/globals.php';
+
 // Future scope: proper JSON API
 $dollars = $_POST['dollars'] ?? '0.00';
 assert(is_string($dollars));
@@ -18,10 +27,10 @@ $cents = intval(100 * floatval($dollars));
 error_log($dollars);
 error_log((string)$cents);
 
-// TODO: read from config!
-$apiKey = '';
-$pid = '';
-$mid = '';
+$gb = OEGlobalsBag::getInstance();
+$apiKey = (new CryptoGen())->decryptStandard($gb->get('rainforestpay_api_key'));
+$mid = $gb->get('rainforestpay_merchant_id');
+$pid = $gb->get('rainforestpay_platform_id');
 
 $client = new \GuzzleHttp\Client([
     'base_uri' => 'https://api.sandbox.rainforestpay.com',
