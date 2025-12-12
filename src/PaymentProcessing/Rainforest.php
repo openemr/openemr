@@ -68,7 +68,7 @@ class Rainforest
     {
         // TODO: This should leverage Guzzle's abilities to make parallel
         // requests.
-        $payload = [
+        $sessionPayload = [
             'ttl' => 86400,
             'statements' => [
                 [
@@ -81,18 +81,18 @@ class Rainforest
                 ],
             ],
         ];
-        $parsed = $this->post('/v1/sessions', $payload);
-        $sessionKey = $parsed['data']['session_key'];
+        $sessionResponse = $this->post('/v1/sessions', $sessionPayload);
+        $sessionKey = $sessionResponse['data']['session_key'];
 
 
-        $payload = [
+        $payinPayload = [
             'merchant_id' => $this->merchantId,
             'idempotency_key' => Uuid::uuid4()->toString(),
             'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
         ];
-        $parsed = $this->post('/v1/payin_configs', $payload);
-        $payinConfigId = $parsed['data']['payin_config_id'];
+        $payinResponse = $this->post('/v1/payin_configs', $payinPayload);
+        $payinConfigId = $payinResponse['data']['payin_config_id'];
 
         return [
             'payin_config_id' => $payinConfigId,
