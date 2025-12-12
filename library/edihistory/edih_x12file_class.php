@@ -1098,7 +1098,7 @@ class edih_x12_file
 
         // verify we have type
         if ($srch_ar[0]['type'] == 'NA' || !$srch_ar[0]['type']) {
-            $this->edih_message('edih_x12_transaction(): invalid file type ' . text($srch_ar[0]['type']));
+            $this->edih_message();
             return $ret_ar;
         }
 

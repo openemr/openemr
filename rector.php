@@ -49,6 +49,7 @@ use Rector\Php70\Rector\Variable\WrapVariableVariableNameInCurlyBracesRector;
 use Rector\Php71\Rector\Assign\AssignArrayToStringRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 use Rector\Php71\Rector\BooleanOr\IsIterableRector;
+use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
 use Rector\Php71\Rector\List_\ListToArrayDestructRector;
 use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
 use Rector\Php72\Rector\Assign\ListEachRector;
@@ -220,6 +221,7 @@ return RectorConfig::configure()
         ReadOnlyPropertyRector::class, // one of the withPhpSets rules
         ReduceMultipleDefaultSwitchRector::class,
         RegexDashEscapeRector::class,
+        RemoveExtraParametersRector::class, // one of the withPhpSets rules
         RemoveFuncCallArgRector::class,
         RemoveParentCallWithoutParentRector::class, // one of the withPhpSets rules
         RemoveReferenceFromCallRector::class,
