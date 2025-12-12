@@ -34,7 +34,7 @@ class FormReportRenderer
             lbf_report($attendant_id, $encounter, $columns, $formId, $formDir, $noWrap);
         } else {
             if (function_exists($formDir . "_report")) {
-                call_user_func($formDir . "_report", $attendant_id, $encounter, $columns, $formId);
+                ($formDir . "_report")($attendant_id, $encounter, $columns, $formId);
             } else {
                 $this->logger->errorLogCaller("form is missing report function", ['formdir' => $formDir, 'formId' => $formId]);
             }

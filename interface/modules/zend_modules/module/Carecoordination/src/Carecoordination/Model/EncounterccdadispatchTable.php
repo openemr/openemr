@@ -3595,7 +3595,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                             ob_start();
                             if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
                                 include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
-                                call_user_func($formTables_details[2] . "_report", $pid, $encounter, 2, $value);
+                                ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
                             }
 
                             $res[0][$value] = ob_get_clean();

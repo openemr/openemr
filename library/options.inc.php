@@ -4721,7 +4721,7 @@ function lbf_current_value($frow, $formid, $encounter)
         if (empty($sarow) && !$formid) {
             // New form, see if there is a custom default from a plugin.
             if (function_exists($deffname)) {
-                $currvalue = call_user_func($deffname);
+                $currvalue = $deffname();
             }
         }
     } elseif ($source == 'V') {
@@ -4760,7 +4760,7 @@ function lbf_current_value($frow, $formid, $encounter)
     } else {
         // New form, see if there is a custom default from a plugin.
         if (function_exists($deffname)) {
-            $currvalue = call_user_func($deffname);
+            $currvalue = $deffname();
         }
     }
 

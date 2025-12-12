@@ -565,8 +565,7 @@ class Savant3 implements \Stringable
             // no, only a value was passed.
             // loop through the predefined callbacks.
             foreach ($this->__config ['escape'] as $func) {
-                // this if() shaves 0.001sec off of 300 calls.
-                $value = is_string($func) ? $func($value) : call_user_func($func, $value);
+                $value = $func($value);
             }
         } else {
             // yes, use the custom callbacks
@@ -577,8 +576,7 @@ class Savant3 implements \Stringable
 
             // loop through custom callbacks.
             foreach ($callbacks as $func) {
-                // this if() shaves 0.001sec off of 300 calls.
-                $value = is_string($func) ? $func($value) : call_user_func($func, $value);
+                $value = $func($value);
             }
         }
 
@@ -1042,10 +1040,7 @@ class Savant3 implements \Stringable
             // compile the template source and get the path to the
             // compiled script (will be returned instead of the
             // source path)
-            $result = call_user_func([
-                    $this->__config ['compiler'],
-                    'compile'
-            ], $file);
+            $result = ($this->__config['compiler'])::compile($file);
         } else {
             // no compiling requested, use the source path
             $result = $file;
@@ -1132,7 +1127,7 @@ class Savant3 implements \Stringable
             }
 
             // can't pass a third $this param, it chokes the OB system.
-            $buffer = call_user_func($callback, $buffer);
+            $buffer = $callback($buffer);
         }
 
         return $buffer;
