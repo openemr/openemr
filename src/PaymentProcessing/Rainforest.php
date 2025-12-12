@@ -14,37 +14,6 @@ use SensitiveParameter;
 
 class Rainforest
 {
-    public static function makeClient(bool $liveMode): ClientInterface
-    {
-        return new Client([
-            'base_uri' => $liveMode ? self::PRODUCTION_HOST : self::SANDBOX_HOST,
-            'headers' => [
-                'Rainforest-Api-Version' => '2024-10-16',
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
-            ],
-        ]);
-    }
-
-    /**
-     * Non-preferred but easy-to-use path
-     */
-    public static function makeFromGlobals(OEGlobalsBag $bag): Rainforest
-    {
-        $apiKey = (new CryptoGen())->decryptStandard($bag->get('rainforestpay_api_key'));
-        $mid = $bag->get('rainforestpay_merchant_id');
-        $pid = $bag->get('rainforestpay_platform_id');
-
-        $prod = $bag->get('gateway_mode_production') === '1';
-        $client = self::makeClient($prod);
-        return new Rainforest(
-            client: $client,
-            apiKey: $apiKey,
-            merchantId: $mid,
-            platformId: $pid,
-        );
-    }
-
     private const SANDBOX_HOST = 'https://api.sandbox.rainforestpay.com';
     private const PRODUCTION_HOST = 'https://api.rainforestpay.com';
 
@@ -57,6 +26,11 @@ class Rainforest
     }
 
     /**
+     * Use the RainforestPay APIs to create information needed to use the
+     * payment component.
+     *
+     * @link https://docs.rainforestpay.com/docs/process-payins-via-component
+     *
      * TODO: tie this to a specific payment rather than yolo generating a uuid
      *
      * @return array{
@@ -102,7 +76,6 @@ class Rainforest
 
     /**
      * @param array<string, mixed> $payload
-     *
      * @return array<string, mixed>
      */
     private function post(string $path, array $payload): array
@@ -114,6 +87,42 @@ class Rainforest
             ],
         ]);
         return self::parseResponse($response);
+    }
+
+    /**
+     * Creates a client configured for internal use to interact with the
+     * RainforestPay APIs. This is not part of the constructor so that a mock
+     * client can be passed in during testing.
+     */
+    public static function makeClient(bool $liveMode): ClientInterface
+    {
+        return new Client([
+            'base_uri' => $liveMode ? self::PRODUCTION_HOST : self::SANDBOX_HOST,
+            'headers' => [
+                'Rainforest-Api-Version' => '2024-10-16',
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+            ],
+        ]);
+    }
+
+    /**
+     * Non-preferred but easy-to-use path
+     */
+    public static function makeFromGlobals(OEGlobalsBag $bag): Rainforest
+    {
+        $apiKey = (new CryptoGen())->decryptStandard($bag->get('rainforestpay_api_key'));
+        $mid = $bag->get('rainforestpay_merchant_id');
+        $pid = $bag->get('rainforestpay_platform_id');
+
+        $prod = $bag->get('gateway_mode_production') === '1';
+        $client = self::makeClient($prod);
+        return new Rainforest(
+            client: $client,
+            apiKey: $apiKey,
+            merchantId: $mid,
+            platformId: $pid,
+        );
     }
 
     /**
