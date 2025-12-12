@@ -623,7 +623,7 @@ function sortAppointments(array $appointments, $orderBy = 'date')
 {
     global $appointment_sort_order;
     $appointment_sort_order = $orderBy;
-    usort($appointments, "compareAppointments");
+    usort($appointments, compareAppointments(...));
     return $appointments;
 }
 
