@@ -46,9 +46,48 @@ $apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
 
 ### ForbiddenFunctionsRule
 
-**Purpose:** Prevents use of legacy `sql.inc.php` functions in the `src/` directory.
+**Purpose:** Prevents use of legacy functions:
+- Legacy `sql.inc.php` functions in the `src/` directory
+- `call_user_func()` and `call_user_func_array()` functions (use modern PHP syntax instead)
 
-**Rationale:** Contributors should use `QueryUtils` or `DatabaseQueryTrait` instead for modern database patterns.
+**Rationale for SQL functions:** Contributors should use `QueryUtils` or `DatabaseQueryTrait` instead for modern database patterns.
+
+**Rationale for call_user_func:**
+- Modern PHP supports **uniform variable syntax** for dynamic function calls
+- The **argument unpacking operator** (`...`) provides cleaner syntax
+- Variadic functions with `...$args` are more readable than array-based arguments
+- Better static analysis and IDE support with modern syntax
+
+**Before (❌ Forbidden):**
+```php
+// Legacy dynamic function calls
+$result = call_user_func('myFunction', $arg1, $arg2);
+$result = call_user_func_array('myFunction', [$arg1, $arg2]);
+$result = call_user_func([$object, 'method'], $arg1);
+$result = call_user_func_array([$object, 'method'], $args);
+```
+
+**After (✅ Recommended):**
+```php
+// Modern PHP 7+ syntax
+$result = myFunction($arg1, $arg2);
+
+// Dynamic function name
+$functionName = 'myFunction';
+$result = $functionName($arg1, $arg2);
+
+// With argument unpacking
+$args = [$arg1, $arg2];
+$result = $functionName(...$args);
+
+// Object method calls
+$result = $object->method($arg1);
+// or with callable syntax
+$callable = [$object, 'method'];
+$result = $callable($arg1, $arg2);
+// or with argument unpacking
+$result = $callable(...$args);
+```
 
 ### ForbiddenClassesRule
 
