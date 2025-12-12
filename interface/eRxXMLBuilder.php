@@ -369,7 +369,7 @@ class eRxXMLBuilder
         $element = $this->getDocument()->createElement('Account');
         $element->setAttribute('ID', $this->getGlobals()->getAccountId());
         $element->appendChild($this->createElementTextFieldEmpty('accountName', $this->trimData($this->stripSpecialCharacter($facility['name']), 35), xl('Facility Name')));
-        $element->appendChild($this->createElementText('siteID', $facility['federal_ein'], 'Site ID'));
+        $element->appendChild($this->createElementText('siteID', $facility['federal_ein']));
         $element->appendChild($this->getAccountAddress($facility));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryPhoneNumber', preg_replace('/[^0-9]/', '', (string) $facility['phone']), xl('Facility Phone')));
         $element->appendChild($this->createElementTextFieldEmpty('accountPrimaryFaxNumber', preg_replace('/[^0-9]/', '', (string) $facility['fax']), xl('Facility Fax')));

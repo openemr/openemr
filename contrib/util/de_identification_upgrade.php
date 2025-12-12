@@ -201,7 +201,7 @@ if (!empty($_POST['form_submit'])) {
     echo xlt("Please set de_identification_config variable back to zero");
     echo "</font></p>\n";
     echo "</body></html>\n";
-    sqlClose($dbh);
+    sqlClose();
     exit();
 }
 ?>

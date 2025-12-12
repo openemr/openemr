@@ -517,8 +517,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
             $outtype,
             3,
             2,
-            $disabled,
-            $under
+            $disabled
         );
 
         if ($outtype == 2) {
@@ -547,8 +546,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
             $outtype,
             10,
             30,
-            $disabled,
-            $under
+            $disabled
         );
         $s .= genLabResultsTextItem(
             "form_{$field_id_esc}[$option_id_esc][3]",
@@ -556,8 +554,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
             $outtype,
             $fldlength,
             $maxlength,
-            $disabled,
-            $under
+            $disabled
         );
         $s .= "</tr>";
     }
