@@ -142,7 +142,7 @@ if (($_POST['mode'] ?? null) === 'save') {
 } elseif (($_POST['mode'] ?? null) === 'update_category') {
     if ($_POST['docid']) {
         $template = $templateService->updateTemplateCategory($_POST['docid'], $_POST['category']);
-        echo xlt('Template Category successfully changed to new Category') . ' ' . text($_POST['category']);
+        echo xlt('Template Category successfully changed to new Category') . ' ' . attr($_POST['category']);
         exit;
     }
     die(xlt('Invalid Request Parameters'));
