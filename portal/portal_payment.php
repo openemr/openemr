@@ -1046,7 +1046,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 if ($GLOBALS['payment_gateway'] == 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
-                    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+                    echo '<button type="button" id="paynowbutton" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
                 }
             } else {
                 echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
@@ -1238,6 +1238,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     } elseif ($GLOBALS['payment_gateway'] == 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     } elseif ($GLOBALS['payment_gateway'] == 'Rainforest' && isset($_SESSION['patient_portal_onsite_two'])) {
+        if (!!$GLOBALS['gateway_mode_production']) {
+            // todo: prod mode
+        } else {
+            echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+        }
         echo '<script src="portal_payment.rainforest.js"></script>';
     }
     ?>
