@@ -192,10 +192,7 @@ class Savant3 implements \Stringable
             1 => $plugin->$func($args [0]),
             2 => $plugin->$func($args [0], $args [1]),
             3 => $plugin->$func($args [0], $args [1], $args [2]),
-            default => call_user_func_array([
-                    $plugin,
-                    $func
-            ], $args),
+            default => $plugin->$func(...$args),
         };
     }
 
@@ -628,7 +625,7 @@ class Savant3 implements \Stringable
             echo $this->escape($value);
         } else {
             $args = func_get_args();
-            echo call_user_func_array($this->escape(...), $args);
+            echo $this->escape(...$args);
         }
     }
 
