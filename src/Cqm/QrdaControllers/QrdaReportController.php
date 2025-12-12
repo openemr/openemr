@@ -150,7 +150,7 @@ class QrdaReportController
                 // delete existing to make reporting easier with last exported reports, current.
                 $glob = glob("$local_directory/*.*");
                 if ($glob !== false) {
-                    array_map('unlink', $glob);
+                    array_map(unlink(...), $glob);
                 }
                 $content = '';
                 $file = '';
@@ -285,7 +285,7 @@ class QrdaReportController
         // Clean up existing files in local directory
         $glob = glob("$directory/*.*");
         if ($glob !== false) {
-            array_map('unlink', $glob);
+            array_map(unlink(...), $glob);
         }
 
         $pids = is_array($pids) ? $pids : [$pids];

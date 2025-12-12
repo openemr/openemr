@@ -1375,7 +1375,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $cls = 'pmt';
                 // include our accounting totals
                 if (is_array($acctng) && count($acctng)) {
-                    array_walk($acctng, 'edih_round_cb');
+                    array_walk($acctng, edih_round_cb(...));
                     $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
                     $acct_str = text($bal) . ": <em>Fee</em> " . text($acctng['fee']) . " <em>Pmt</em> " . text($acctng['pmt']) . " ";
                     $acct_str .= "<em>ClpAdj</em> " . text($acctng['clmadj']) . " <em>SvcAdj</em> " . text($acctng['svcadj']) . " ";

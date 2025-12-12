@@ -550,7 +550,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
         if (!empty($descriptions)) {
             // Properly escape HTML entities for each description
-            $escapedDescriptions = array_map('text', $descriptions);
+            $escapedDescriptions = array_map(text(...), $descriptions);
             // Build compact XHTML with each description in a paragraph
             $carePlanText['xhtml'] = "<p>" . implode("</p><p>", $escapedDescriptions) . "</p>";
         }

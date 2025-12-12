@@ -74,7 +74,7 @@ function smarty_function_html_checkboxes($params, &$smarty)
 
             case 'checked':
             case 'selected':
-                $selected = array_map('strval', array_values((array)$_val));
+                $selected = array_map(strval(...), array_values((array)$_val));
                 break;
 
             case 'checkboxes':

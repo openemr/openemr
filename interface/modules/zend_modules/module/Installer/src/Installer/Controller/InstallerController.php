@@ -573,7 +573,7 @@ class InstallerController extends AbstractActionController
             }
         }
         $arrayKeys = array_keys($versions);
-        usort($arrayKeys, 'version_compare');
+        usort($arrayKeys, version_compare(...));
         $sortVersions = [];
         foreach ($arrayKeys as $key) {
             $sortVersions[$key] = $versions[$key];
