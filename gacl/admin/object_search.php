@@ -35,8 +35,8 @@ switch ($_GET['action']) {
 
         if (count($exploded_value_search_str) > 1 OR count($exploded_name_search_str) > 1) {
             //Given a list, lets try to match all lines in it.
-            array_walk($exploded_value_search_str, 'array_walk_trim');
-            array_walk($exploded_name_search_str, 'array_walk_trim');
+            array_walk($exploded_value_search_str, array_walk_trim(...));
+            array_walk($exploded_name_search_str, array_walk_trim(...));
         } else {
             if ($value_search_str != '') {
                 $value_search_str .= '%';

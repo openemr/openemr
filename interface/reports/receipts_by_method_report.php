@@ -702,7 +702,7 @@ if (!empty($_POST['form_refresh'])) {
             if ($form_report_by == '1') { // by payer with details
                 // Sort and dump saved info, and consolidate items with all key
                 // fields being the same.
-                usort($insarray, 'payerCmp');
+                usort($insarray, payerCmp(...));
                 $b = [];
                 foreach ($insarray as $a) {
                     if (empty($a[4])) {

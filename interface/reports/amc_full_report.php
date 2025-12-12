@@ -128,7 +128,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
     }
 
     // now grab all the patients and let's populate here
-    $sanitizedPids = array_map('intval', array_keys($reportDataByPid));
+    $sanitizedPids = array_map(intval(...), array_keys($reportDataByPid));
     $totalPids = count($sanitizedPids);
     $aggregatedPatientRecords = [];
     if (!empty($sanitizedPids)) {
