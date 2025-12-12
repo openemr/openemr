@@ -35,7 +35,8 @@ class Rainforest
         $mid = $bag->get('rainforestpay_merchant_id');
         $pid = $bag->get('rainforestpay_platform_id');
 
-        $client = self::makeClient($bag->get(''));
+        $prod = $bag->get('gateway_mode_production') === '1';
+        $client = self::makeClient($prod);
         return new Rainforest(
             client: $client,
             apiKey: $apiKey,
@@ -87,7 +88,7 @@ class Rainforest
         $payload = [
             'merchant_id' => $this->merchantId,
             'idempotency_key' => Uuid::uuid4()->toString(),
-            'amount' => $amount->getAmount(),
+            'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
         ];
         $parsed = $this->post('/v1/payin_configs', $payload);
