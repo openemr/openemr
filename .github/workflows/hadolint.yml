@@ -47,9 +47,8 @@ jobs:
     - name: Run hadolint on changed files
       if: ${{ steps.changed-files.outcome == 'success' && steps.changed-files.outputs.any_changed == 'true' }}
       run: |
-        set -f  # disable glob expansion
-        files=( ${{ steps.changed-files.outputs.all_changed_files }} )
-        set +f  # re-enable glob expansion
+        # Safely handle changed files list using mapfile
+        mapfile -t files < <(echo '${{ steps.changed-files.outputs.all_changed_files }}' | tr ' ' '\n')
         
         echo "Linting ${#files[@]} changed Dockerfile(s)..."
         for file in "${files[@]}"; do
