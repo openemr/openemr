@@ -46,9 +46,11 @@ jobs:
     
     - name: Run hadolint on changed files
       if: ${{ steps.changed-files.outcome == 'success' && steps.changed-files.outputs.any_changed == 'true' }}
+      env:
+        CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
       run: |
-        # Safely handle changed files list using mapfile
-        mapfile -t files < <(echo '${{ steps.changed-files.outputs.all_changed_files }}' | tr ' ' '\n')
+        # Safely handle changed files list using environment variable
+        mapfile -t files < <(printf '%s\n' $CHANGED_FILES)
         
         echo "Linting ${#files[@]} changed Dockerfile(s)..."
         for file in "${files[@]}"; do
