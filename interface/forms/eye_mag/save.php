@@ -386,7 +386,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         <?php
         echo report_header($pid);
         include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
-        call_user_func($form_name . "_report", $pid, $form_encounter, $N, $form_id);
+        ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";
         }

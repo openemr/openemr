@@ -416,14 +416,8 @@ class Criteria
             $mapname = $this->_map_object_class;
             $this->IncludeMap($mapname);
 
-            $this->_fieldmaps = call_user_func([
-                    $mapname,
-                    "GetFieldMaps"
-            ]);
-            $this->_keymaps = call_user_func([
-                    $mapname,
-                    "GetKeyMaps"
-            ]);
+            $this->_fieldmaps = $mapname::GetFieldMaps();
+            $this->_keymaps = $mapname::GetKeyMaps();
         }
     }
 
