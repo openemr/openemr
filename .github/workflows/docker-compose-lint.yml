@@ -48,6 +48,8 @@ jobs:
         files: |
           **/*compose*.yml
           **/*compose*.yaml
+        files_ignore: |
+          .github/**
     
     - name: Determine files to check
       id: files-to-check
@@ -70,9 +72,9 @@ jobs:
     - name: Run dclint on changed files
       if: steps.files-to-check.outputs.mode == 'files'
       run: |
-        npx dclint@3.1.0 ${{ steps.files-to-check.outputs.files }}
+        npx dclint@3.1.0 --exclude .github ${{ steps.files-to-check.outputs.files }}
     
     - name: Run dclint recursively
       if: steps.files-to-check.outputs.mode == 'recursive'
       run: |
-        npx dclint@3.1.0 --recursive ci/ docker/
+        npx dclint@3.1.0 --exclude .github --recursive ci/ docker/
