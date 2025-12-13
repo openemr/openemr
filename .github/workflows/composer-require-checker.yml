@@ -129,8 +129,39 @@ jobs:
     - name: "Run Composer Require Checker"
       shell: bash
       run: |
+        echo "::add-matcher::.github/problem-matchers/composer-require-checker.json"
+        echo "# Composer Require Checker" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Checking for missing dependencies in composer.json..." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Run composer-require-checker and capture output
         if [[ -f .composer-require-checker.json ]]; then
-          php composer-require-checker.phar check --config-file=.composer-require-checker.json composer.json
+          if php composer-require-checker.phar check --config-file=.composer-require-checker.json composer.json 2>&1 | tee checker_output.txt; then
+            echo "✅ All dependencies are properly declared" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All dependencies are properly declared"
+          else
+            echo "❌ Found missing or undeclared dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat checker_output.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "::remove-matcher owner=composer-require-checker::"
+            exit 1
+          fi
         else
-          php composer-require-checker.phar check composer.json
+          if php composer-require-checker.phar check composer.json 2>&1 | tee checker_output.txt; then
+            echo "✅ All dependencies are properly declared" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All dependencies are properly declared"
+          else
+            echo "❌ Found missing or undeclared dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat checker_output.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "::remove-matcher owner=composer-require-checker::"
+            exit 1
+          fi
         fi
+        
+        echo "::remove-matcher owner=composer-require-checker::"

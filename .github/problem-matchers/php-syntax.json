@@ -1,0 +1,15 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "php-syntax",
+      "pattern": [
+        {
+          "regexp": "^PHP\\s+(?:Parse error|Fatal error):\\s+(.+)\\s+in\\s+(.+?)\\s+on\\s+line\\s+(\\d+)$",
+          "message": 1,
+          "file": 2,
+          "line": 3
+        }
+      ]
+    }
+  ]
+}

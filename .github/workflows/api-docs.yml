@@ -64,10 +64,31 @@ jobs:
           echo '`openemr-api.yaml` is in sync with your changes' >> $GITHUB_STEP_SUMMARY
           exit 0
         fi
+        
+        # Get the list of changed files
+        changed_files=$(git diff --name-only)
+        
         echo '⚠️ The API documentation is not in sync with the code — see the Job Summary for next steps.'
         echo '# ⚠️ The API documentation is not in sync with the code' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         echo 'Looks like `openemr-api.yaml` is not in sync with your changes.' >> $GITHUB_STEP_SUMMARY
-        echo 'Please, run:' >> $GITHUB_STEP_SUMMARY
-        echo '`php bin/console openemr:create-api-documentation --skip-globals`' >> $GITHUB_STEP_SUMMARY
-        echo 'and push updated `openemr-api.yaml` file into your PR' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo '## Changed files:' >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "$changed_files" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo '## To fix:' >> $GITHUB_STEP_SUMMARY
+        echo 'Please run the following command and commit the changes:' >> $GITHUB_STEP_SUMMARY
+        echo '```bash' >> $GITHUB_STEP_SUMMARY
+        echo 'php bin/console openemr:create-api-documentation --skip-globals' >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo 'Then push the updated `openemr-api.yaml` file into your PR' >> $GITHUB_STEP_SUMMARY
+        
+        # Create annotations for changed files
+        for file in $changed_files; do
+          echo "::warning file=$file::API documentation needs to be regenerated"
+        done
+        
         exit 1

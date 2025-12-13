@@ -54,7 +54,44 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: "Validate Composer"
-      run: composer validate
+      run: |
+        echo "::add-matcher::.github/problem-matchers/composer-validate.json"
+        echo "# Composer Validation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Run composer validate and capture output
+        if composer validate --no-ansi 2>&1 | tee validation_output.txt; then
+          echo "✅ composer.json is valid" >> $GITHUB_STEP_SUMMARY
+          echo "✅ composer.json is valid"
+        else
+          echo "❌ composer.json validation failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat validation_output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "::remove-matcher owner=composer-validate::"
+          exit 1
+        fi
+        
+        # Check for warnings
+        if grep -q "warning" validation_output.txt; then
+          warning_count=$(grep -c "^\\s*-" validation_output.txt || echo "0")
+          echo "⚠️  Found $warning_count warning(s)" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "::remove-matcher owner=composer-validate::"
 
     - name: "Check Composer Normalized"
-      run: composer normalize --dry-run
+      run: |
+        echo "# Composer Normalize Check" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if composer normalize --dry-run --no-ansi 2>&1 | tee normalize_output.txt; then
+          echo "✅ composer.json is normalized" >> $GITHUB_STEP_SUMMARY
+          echo "✅ composer.json is normalized"
+        else
+          echo "❌ composer.json is not normalized" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please run \`composer normalize\` to fix formatting" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
