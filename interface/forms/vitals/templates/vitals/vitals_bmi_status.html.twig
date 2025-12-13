@@ -4,7 +4,7 @@
     {% if is_edit %}
     <td class='currentvalues p-2'>
         <input type="text" class="form-control skip-template-editor" size='20'
-            name="BMI_status" id="BMI_status" value="{{ vitals.get_BMI_status()|attr }}"/></td>
+               name="BMI_status" id="BMI_status" value="{{ vitals.get_BMI_status()|xl|attr }}"/></td> {# MODIFIED LINE #}
     <td class="editonly"></td>
     <td class="editonly actions">
         {% include 'vitals_actions.html.twig' with { input:'BMI_Status' } %}
