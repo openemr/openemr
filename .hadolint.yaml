@@ -42,6 +42,3 @@ ignored:
 # Trusted registries for base images
 trustedRegistries:
   - docker.io
-
-# Allow the use of specific base images
-# (This is informational and doesn't block builds)
