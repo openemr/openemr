@@ -1,0 +1,35 @@
+{# Collections Report - Insurance Summary Row #}
+{#
+    Expected Variables:
+    - insurance_name: Name of insurance company
+    - totals: Insurance totals from GroupingService
+    - show_aging_cols: Whether aging columns are enabled
+#}
+
+<tr class="insurance-summary-row">
+    <td class="detail">{{ insurance_name }}</td>
+
+    {# Financial Columns #}
+    <td class="detotal text-end">
+        &nbsp;{{ totals.charges|number_format(2, '.', ',') }}&nbsp;
+    </td>
+    <td class="detotal text-end">
+        &nbsp;{{ totals.adjustments|number_format(2, '.', ',') }}&nbsp;
+    </td>
+    <td class="detotal text-end">
+        &nbsp;{{ totals.paid|number_format(2, '.', ',') }}&nbsp;
+    </td>
+
+    {# Aging Columns or Balance #}
+    {% if show_aging_cols %}
+        {% for bucket_amount in totals.aging_buckets %}
+            <td class="detotal text-end">
+                &nbsp;{{ bucket_amount|number_format(2, '.', ',') }}&nbsp;
+            </td>
+        {% endfor %}
+    {% else %}
+        <td class="detotal text-end">
+            &nbsp;{{ totals.balance|number_format(2, '.', ',') }}&nbsp;
+        </td>
+    {% endif %}
+</tr>
