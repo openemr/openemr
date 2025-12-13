@@ -11,7 +11,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,7 +27,7 @@ $limit = '';
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
     $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
 }
-$searchTerm = isset($_GET['sSearch']) ? $_GET['sSearch'] : '';
+$searchTerm = $_GET['sSearch'] ?? '';
 
 // What we are picking from: codes, fields, lists or groups
 $what = $_GET['what'];
@@ -53,80 +53,80 @@ if ($what == 'codes') {
     }
 }
 
-$form_encounter_layout = array(
-  array('field_id'     => 'date',
+$form_encounter_layout = [
+    ['field_id'     => 'date',
         'title'        => xl('Visit Date'),
         'uor'          => '1',
         'data_type'    => '4',               // Text-date
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'facility_id',
+    ],
+    ['field_id'     => 'facility_id',
         'title'        => xl('Service Facility'),
         'uor'          => '1',
         'data_type'    => '35',              // Facilities
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'pc_catid',
+    ],
+    ['field_id'     => 'pc_catid',
         'title'        => xl('Visit Category'),
         'uor'          => '1',
         'data_type'    => '18',              // Visit Category
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'reason',
+    ],
+    ['field_id'     => 'reason',
         'title'        => xl('Reason for Visit'),
         'uor'          => '1',
         'data_type'    => '2',               // Text
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'onset_date',
+    ],
+    ['field_id'     => 'onset_date',
         'title'        => xl('Date of Onset'),
         'uor'          => '1',
         'data_type'    => '4',               // Text-date
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'referral_source',
+    ],
+    ['field_id'     => 'referral_source',
         'title'        => xl('Referral Source'),
         'uor'          => '1',
         'data_type'    => '1',               // List
         'list_id'      => 'refsource',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'shift',
+    ],
+    ['field_id'     => 'shift',
         'title'        => xl('Shift'),
         'uor'          => '1',
         'data_type'    => '1',               // List
         'list_id'      => 'shift',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'billing_facility',
+    ],
+    ['field_id'     => 'billing_facility',
         'title'        => xl('Billing Facility'),
         'uor'          => '1',
         'data_type'    => '35',              // Facilities
         'list_id'      => '',
         'edit_options' => '',
-       ),
-  array('field_id'     => 'voucher_number',
+    ],
+    ['field_id'     => 'voucher_number',
         'title'        => xl('Voucher Number'),
         'uor'          => '1',
         'data_type'    => '2',               // Text
         'list_id'      => '',
         'edit_options' => '',
-       ),
-);
+    ],
+];
 
 function feSearchSort($search = '', $column = 0, $reverse = false)
 {
     global $form_encounter_layout;
-    $arr = array();
+    $arr = [];
     foreach ($form_encounter_layout as $feitem) {
         if (
-            $search && stripos($feitem['field_id'], $search) === false &&
-            stripos($feitem['title'], $search) === false
+            $search && stripos((string) $feitem['field_id'], (string) $search) === false &&
+            stripos((string) $feitem['title'], (string) $search) === false
         ) {
             continue;
         }
@@ -162,10 +162,10 @@ if (isset($_GET['iSortCol_0'])) {
         $iSortCol = intval($_GET["iSortCol_$i"]);
         if ($_GET["bSortable_$iSortCol"] == "true") {
             $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
-      // We are to sort on column # $iSortCol in direction $sSortDir.
+            // We are to sort on column # $iSortCol in direction $sSortDir.
             $orderby .= $orderby ? ', ' : 'ORDER BY ';
 
-      // Note the primary sort column and direction for later logic.
+            // Note the primary sort column and direction for later logic.
             if ($i == 0) {
                 $fe_column = $iSortCol;
                 $fe_reverse = $sSortDir == 'DESC';
@@ -173,17 +173,17 @@ if (isset($_GET['iSortCol_0'])) {
 
             if ($what == 'codes') {
                 if ($iSortCol == 0) {
-                  // $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
-                    $ordermode = array('code', 'description');
+                    // $orderby .= $prod ? "d.drug_id $sSortDir, t.selector $sSortDir" : "c.code $sSortDir";
+                    $ordermode = ['code', 'description'];
                 } else {
-                  // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
-                    $ordermode = array('description', 'code');
+                    // $orderby .= $prod ? "d.name $sSortDir" : "c.code_text $sSortDir";
+                    $ordermode = ['description', 'code'];
                 }
             } elseif ($what == 'fields') {
                 if ($source == 'V') {
-                  // No action needed here.
+                    // No action needed here.
                 } else {
-                  // Remaining sources (D, H, E) come from a layout.
+                    // Remaining sources (D, H, E) come from a layout.
                     if ($iSortCol == 0) {
                         $orderby .= "lo.field_id $sSortDir";
                     } else {
@@ -208,24 +208,24 @@ if (isset($_GET['iSortCol_0'])) {
 }
 
 if ($what == 'codes') {
-  // Nothing to do here.
+    // Nothing to do here.
 } elseif ($what == 'fields') {
     if ($source == 'V') {
-      // No setup needed.
+        // No setup needed.
     } elseif ($source == 'E') {
         $sellist = "lo.field_id, " .
-        "MIN(lo.group_id    ) AS group_id, "     .
-        "MIN(lo.title       ) AS title, "        .
-        "MIN(lo.data_type   ) AS data_type, "    .
-        "MIN(lo.uor         ) AS uor, "          .
-        "MIN(lo.fld_length  ) AS fld_length, "   .
-        "MIN(lo.max_length  ) AS max_length, "   .
-        "MIN(lo.list_id     ) AS list_id, "      .
-        "MIN(lo.titlecols   ) AS titlecols, "    .
-        "MIN(lo.datacols    ) AS datacols, "     .
-        "MIN(lo.edit_options) AS edit_options, " .
-        "MIN(lo.description ) AS description, "  .
-        "MIN(lo.fld_rows    ) AS fld_rows";
+            "MIN(lo.group_id    ) AS group_id, "     .
+            "MIN(lo.title       ) AS title, "        .
+            "MIN(lo.data_type   ) AS data_type, "    .
+            "MIN(lo.uor         ) AS uor, "          .
+            "MIN(lo.fld_length  ) AS fld_length, "   .
+            "MIN(lo.max_length  ) AS max_length, "   .
+            "MIN(lo.list_id     ) AS list_id, "      .
+            "MIN(lo.titlecols   ) AS titlecols, "    .
+            "MIN(lo.datacols    ) AS datacols, "     .
+            "MIN(lo.edit_options) AS edit_options, " .
+            "MIN(lo.description ) AS description, "  .
+            "MIN(lo.fld_rows    ) AS fld_rows";
         $orderby = "GROUP BY lo.field_id $orderby";
         $from = "layout_options AS lo";
         $where1 = "WHERE lo.form_id LIKE '" . add_escape_custom($layout_id) . "' AND lo.uor > 0 AND lo.source = 'E'";
@@ -263,6 +263,10 @@ if ($what == 'codes') {
     exit();
 }
 
+// Initialize variables to avoid undefined variable warnings
+$iTotal = 0;
+$iFilteredTotal = 0;
+
 $skipTableCount = false;
 if ($what == 'fields' && $source == 'V') {
     $fe_array = feSearchSort($searchTerm, $fe_column, $fe_reverse);
@@ -271,26 +275,26 @@ if ($what == 'fields' && $source == 'V') {
 } elseif ($what != 'codes') {
     // we don't want to do counts for codes type anymore
 
-  // Get total number of rows with no filtering.
+    // Get total number of rows with no filtering.
     $iTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 $orderby"));
-  // Get total number of rows after filtering.
+    // Get total number of rows after filtering.
     $iFilteredTotal = sqlNumRows(sqlStatement("SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby"));
 }
 
 // Build the output data array.
 //
-$out = array(
-  "sEcho"                => intval($_GET['sEcho']),
-  "iTotalRecords"        => ($iTotal) ? $iTotal : 0,
-  "iTotalHasMoreRecords" => false,
-  "iSearchEmptyError"    => false,
-  "iTotalDisplayRecords" => ($iFilteredTotal) ? $iFilteredTotal : 0,
-  "aaData"               => array()
-);
+$out = [
+    "sEcho"                => intval($_GET['sEcho']),
+    "iTotalRecords"        => $iTotal ?: 0,
+    "iTotalHasMoreRecords" => false,
+    "iSearchEmptyError"    => false,
+    "iTotalDisplayRecords" => $iFilteredTotal ?: 0,
+    "aaData"               => []
+];
 
 if ($what == 'fields' && $source == 'V') {
     foreach ($fe_array as $feitem) {
-        $arow = array('DT_RowId' => genFieldIdString($feitem));
+        $arow = ['DT_RowId' => genFieldIdString($feitem)];
         $arow[] = $feitem['field_id'];
         $arow[] = $feitem['title'];
         $out['aaData'][] = $arow;
@@ -302,7 +306,7 @@ if ($what == 'fields' && $source == 'V') {
      * @global $code_external_tables
      */
     $stopEmptySearch = $externalTableId && $code_external_tables[$externalTableId][SKIP_TOTAL_TABLE_COUNT] ?? false;
-    if (empty(trim($searchTerm)) && $stopEmptySearch) {
+    if (empty(trim((string) $searchTerm)) && $stopEmptySearch) {
         $out['iSearchEmptyError'] = xl('Search term is required for this code type.');
         echo json_encode($out);
         exit;
@@ -333,16 +337,16 @@ if ($what == 'fields' && $source == 'V') {
     if (!empty($res)) {
         while ($count < $number && $row = sqlFetchArray($res)) {// && $iFilteredTotal < $maxCount) {
             $dynCodeType = $codetype;
-            if (stripos($codetype, 'VALUESET') !== false) {
+            if (stripos((string) $codetype, 'VALUESET') !== false) {
                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
             }
-            $arow = array('DT_RowId' => genFieldIdString(array(
-                'code' => $row['code'],
+            $arow = ['DT_RowId' => genFieldIdString([
+                'code' => (string) $row['code'],
                 'description' => $row['code_text'],
                 'codetype' => $dynCodeType,
                 'modifier' => $row['modifier'],
-            )));
-            $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+            ])];
+            $arow[] = str_replace('|', ':', rtrim((string) $row['code'], '|'));
             $arow[] = $row['code_text'];
             $arow[] = $row['modifier'];
             $out['aaData'][] = $arow;
@@ -351,11 +355,7 @@ if ($what == 'fields' && $source == 'V') {
         while ($count < $maxCount && $row = sqlFetchArray($res)) {
             $count += 1;
         }
-        if (sqlFetchArray($res)) {
-            $out['iTotalHasMoreRecords'] = true;
-        } else {
-            $out['iTotalHasMoreRecords'] = false;
-        }
+        $out['iTotalHasMoreRecords'] = sqlFetchArray($res) ? true : false;
     }
     $out['iTotalDisplayRecords'] = min($maxCount, $start + $count);
     $out['iTotalRecords'] = min($maxCount, $start + $count);
@@ -363,12 +363,12 @@ if ($what == 'fields' && $source == 'V') {
     $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-        $arow = array('DT_RowId' => genFieldIdString($row));
+        $arow = ['DT_RowId' => genFieldIdString($row)];
         if ($what == 'fields') {
             $arow[] = $row['field_id'];
             $arow[] = $row['title'];
         } else {
-            $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
+            $arow[] = str_replace('|', ':', rtrim((string) $row['code'], '|'));
             $arow[] = $row['description'] ?? "";
             $arow[] = $row['modifier'] ?? "";
         }

@@ -23,6 +23,7 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -69,6 +70,10 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         if (!isset($openEMRSearchParameters['name'])) {
@@ -93,7 +98,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $organizationResource = new FHIROrganization();
 
@@ -109,10 +114,10 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
 
         $narrativeText = trim($dataRecord['name'] ?? "");
         if (!empty($narrativeText)) {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $organizationResource->setText($text);
         }
 
@@ -171,14 +176,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      * @param  array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
         if (!$fhirResource instanceof FHIROrganization) {
             // we use get class to get the sub class type.
-            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_class($fhirResource));
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . $fhirResource::class);
         }
 
-        $data = array();
+        $data = [];
 
         $data['uuid'] = $fhirResource->getId() ?? null;
         $data['name'] = !empty($fhirResource->getName()) ? $fhirResource->getName()->getValue() : null;
@@ -198,9 +203,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return $val->getValue();
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val) => $val->getValue(), $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
             $data['postal_code'] = !empty($activeAddress->getPostalCode()) ? $activeAddress->getPostalCode()->getValue() : null;
             $data['city'] = !empty($activeAddress->getCity()) ? $activeAddress->getCity()->getValue() : null;

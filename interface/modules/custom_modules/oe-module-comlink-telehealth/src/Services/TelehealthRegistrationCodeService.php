@@ -20,20 +20,8 @@ use OpenEMR\Services\PatientService;
 
 class TelehealthRegistrationCodeService
 {
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $globalConfig;
-
-    /**
-     * @var TeleHealthUserRepository
-     */
-    private $userRepository;
-
-    public function __construct(TelehealthGlobalConfig $config, TeleHealthUserRepository $userRepository)
+    public function __construct(private readonly TelehealthGlobalConfig $globalConfig, private readonly TeleHealthUserRepository $userRepository)
     {
-        $this->globalConfig = $config;
-        $this->userRepository = $userRepository;
     }
 
     public function getRegistrationCodeForPatient($pid)

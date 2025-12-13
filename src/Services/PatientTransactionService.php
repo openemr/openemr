@@ -110,7 +110,7 @@ class PatientTransactionService extends BaseService
     private function getOneFromDb($tid)
     {
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = $this->getSelectStatement(self::_formPredicate);
         array_push($sqlBindArray, $tid);
@@ -123,7 +123,7 @@ class PatientTransactionService extends BaseService
     public function getAll($pid)
     {
         $processingResult = new ProcessingResult();
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = $this->getSelectStatement(self::_transactionPredicate);
         array_push($sqlBindArray, $pid);
@@ -170,12 +170,12 @@ class PatientTransactionService extends BaseService
 
         $results = sqlInsert(
             $sql,
-            array(
+            [
                 $data["type"],
                 $pid,
                 $data['groupname'],
                 $user
-            )
+            ]
         );
 
         if (!$results) {
@@ -206,20 +206,20 @@ class PatientTransactionService extends BaseService
             (?,  'refer_validThrough', ?)
         ";
 
-        $params = array
-        (
+        $params =
+        [
             $transactionId, $data["body"],
             $transactionId, $data["referralDate"],
             $transactionId, $data["referDiagnosis"],
             $transactionId, $referById,
             $transactionId, $referToId,
-            $transactionId, strtolower($data["riskLevel"]),
+            $transactionId, strtolower((string) $data["riskLevel"]),
             $transactionId, $data["includeVitals"],
             $transactionId, $data["authorization"],
             $transactionId, $data["visits"],
             $transactionId, $data["validFrom"],
             $transactionId, $data["validThrough"],
-        );
+        ];
 
         $results = sqlInsert(
             $sql,
@@ -241,7 +241,7 @@ class PatientTransactionService extends BaseService
         $body = $data["body"];
         $referralDate = $data["referralDate"];
         $referralDiagnosis = $data["referDiagnosis"];
-        $riskLevel = strtolower($data["riskLevel"]);
+        $riskLevel = strtolower((string) $data["riskLevel"]);
         $includeVitals = $data["includeVitals"];
         $authorization = $data["authorization"];
         $visits = $data["visits"];
@@ -269,7 +269,7 @@ class PatientTransactionService extends BaseService
     {
         if (empty($value) == false) {
             $sql = "Update lbt_data SET field_value = ? Where field_id = ? and form_id = ?";
-            $params = array($value, $fieldId, $formId);
+            $params = [$value, $fieldId, $formId];
             $res = sqlStatement($sql, $params);
         }
     }
@@ -299,7 +299,7 @@ class PatientTransactionService extends BaseService
     {
         try {
             return QueryUtils::fetchSingleValue('Select id FROM users WHERE npi = ? ', 'id', [$npi]);
-        } catch (exception $ex) {
+        } catch (\Exception $ex) {
             return $ex;
         }
     }

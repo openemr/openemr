@@ -22,6 +22,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrati
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\TestCase;
+use Twig\Environment;
 
 class TeleHealthVideoRegistrationControllerTest extends TestCase
 {
@@ -42,9 +43,8 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        global $GLOBALS;
         parent::setUp();
-        $globalsConfig = new TelehealthGlobalConfig();
+        $globalsConfig = new TelehealthGlobalConfig("", "", $this->createMock(Environment::class));
         $this->telehealthConfig = $globalsConfig;
         $providerRepo = new TeleHealthProviderRepository(new SystemLogger(), $globalsConfig);
         $userRepo = new TeleHealthUserRepository();
@@ -54,7 +54,7 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
         $this->controller = new TeleHealthVideoRegistrationController($remoteRepo, $providerRepo);
     }
 
-    public function testAddNewUser()
+    public function testAddNewUser(): void
     {
 
         $userRequest = $this->getCreateUserRequest();
@@ -74,7 +74,7 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
         $this->assertEquals(1, $savedTelehealthUserId, "Request was made and saved user id was returned");
     }
 
-    public function testSuspendUser()
+    public function testSuspendUser(): void
     {
         $controller = $this->controller;
         $userRequest = $this->getCreateUserRequest();
@@ -96,12 +96,12 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
         $this->assertEquals(true, $result, "Request was made and user was suspended");
     }
 
-    public function testDeactivateUser()
+    public function testDeactivateUser(): void
     {
         $this->markTestIncomplete("skipping test as we don't have a use for deactivation at this point");
     }
 
-    public function testResumeUser()
+    public function testResumeUser(): void
     {
         $controller = $this->controller;
         $userRequest = $this->getCreateUserRequest();
@@ -127,7 +127,7 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
         $this->assertEquals(true, $result, "Request was made and user status was resumed");
     }
 
-    public function testUpdateUser()
+    public function testUpdateUser(): void
     {
         $controller = $this->controller;
         $userRequest = $this->getCreateUserRequest();

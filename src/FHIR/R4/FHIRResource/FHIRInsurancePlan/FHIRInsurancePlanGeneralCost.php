@@ -213,7 +213,7 @@ class FHIRInsurancePlanGeneralCost extends FHIRBackboneElement implements \JsonS
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

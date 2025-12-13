@@ -6,16 +6,20 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 
 class FhirCareTeamRestController
 {
@@ -25,10 +29,38 @@ class FhirCareTeamRestController
     private $fhirCareTeamService;
     private $fhirService;
 
+    private ?OEGlobalsBag $oeGlobalsBag = null;
+
     public function __construct()
     {
-        $this->fhirCareTeamService = new FhirCareTeamService();
         $this->fhirService = new FhirResourcesService();
+    }
+
+    public function getOEGlobals(): OEGlobalsBag
+    {
+        if (!isset($this->oeGlobalsBag)) {
+            $this->oeGlobalsBag = new OEGlobalsBag();
+        }
+        return $this->oeGlobalsBag;
+    }
+
+    public function setOEGlobals(OEGlobalsBag $oeGlobals): void
+    {
+        $this->oeGlobalsBag = $oeGlobals;
+    }
+
+    public function getFhirCareTeamService(): FhirCareTeamService
+    {
+        if (!isset($this->fhirCareTeamService)) {
+            $this->fhirCareTeamService = new FhirCareTeamService();
+            $globals = $this->getOEGlobals();
+            $defaultVersion = $globals->getString(GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, FhirCareTeamService::PROFILE_VERSION_8_0_0);
+            $this->fhirCareTeamService->setHighestCompatibleUSCoreProfileVersion($defaultVersion);
+            if (isset($this->systemLogger)) {
+                $this->fhirCareTeamService->setSystemLogger($this->systemLogger);
+            }
+        }
+        return $this->fhirCareTeamService;
     }
 
     /**
@@ -39,7 +71,7 @@ class FhirCareTeamRestController
      */
     public function getOne($fhirId, $puuidBind = null)
     {
-        $processingResult = $this->fhirCareTeamService->getOne($fhirId, $puuidBind);
+        $processingResult = $this->getFhirCareTeamService()->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -50,8 +82,8 @@ class FhirCareTeamRestController
      */
     public function getAll($searchParams, $puuidBind = null)
     {
-        $processingResult = $this->fhirCareTeamService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $processingResult = $this->getFhirCareTeamService()->getAll($searchParams, $puuidBind);
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

@@ -156,7 +156,7 @@ function check_search_str()
     $query = "SELECT count(*) as count FROM drugs " .
       "WHERE (drug_id LIKE ? OR " .
       "name LIKE ?) ";
-    $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
+    $res = sqlStatement($query, ['%' . $search_term . '%', '%' . $search_term . '%']);
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
@@ -173,12 +173,12 @@ function check_search_str()
         "WHERE (drug_id LIKE ? OR " .
         "name LIKE ?) " .
         "ORDER BY drug_id";
-        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
+        $res = sqlStatement($query, ['%' . $search_term . '%', '%' . $search_term . '%']);
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
               $row_count += 1;
               $itercode = $row['drug_id'];
-              $itertext = ucfirst(strtolower(trim($row['name'])));
+              $itertext = ucfirst(strtolower(trim((string) $row['name'])));
             ?>
                <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }

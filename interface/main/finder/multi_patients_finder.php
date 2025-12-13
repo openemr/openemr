@@ -26,9 +26,9 @@ if (isset($_GET['patients'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $patients = rtrim($_GET['patients'], ";");
+    $patients = rtrim((string) $_GET['patients'], ";");
     $patients = explode(';', $patients);
-    $results = array();
+    $results = [];
     foreach ($patients as $patient) {
         $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;
@@ -148,7 +148,7 @@ if (isset($_GET['patients'])) {
                             '<td>' . text($result['ss']) . '</td>' .
                             '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                             '<td>' . text($result['pubpid']) . '</td>' .
-                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes($result['pid'])) . ')"></i></td>' .
+                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes((string) $result['pid'])) . ')"></i></td>' .
                         '<tr>';
                 }
             } ?>

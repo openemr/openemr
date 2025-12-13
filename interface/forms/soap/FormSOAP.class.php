@@ -34,17 +34,17 @@ class FormSOAP extends ORDataObject
      *
      * static
      */
-    var $id;
-    var $date;
-    var $pid;
-    var $user;
-    var $groupname;
-    var $authorized;
-    var $activity;
-    var $subjective;
-    var $objective;
-    var $assessment;
-    var $plan;
+    public $id;
+    public $date;
+    public $pid;
+    public $user;
+    public $groupname;
+    public $authorized;
+    public $activity;
+    public $subjective;
+    public $objective;
+    public $assessment;
+    public $plan;
 
     /**
      * Constructor sets all Form attributes to their default value

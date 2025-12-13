@@ -1,0 +1,43 @@
+includes:
+  - .phpstan/phpstan.github.neon
+
+parameters:
+  bootstrapFiles:
+  - .phpstan/phpstan_panther_alias.php
+  level: 1
+  # Set tmpDir explicitly so we know what it is
+  tmpDir: tmp-phpstan
+  paths:
+  - Documentation
+  - _rest_routes.inc.php
+  - acl_upgrade.php
+  - admin.php
+  - apis
+  - ccdaservice
+  - ccr
+  - contrib
+  - controller.php
+  - controllers
+  - custom
+  - gacl
+  - index.php
+  - interface
+  - ippf_upgrade.php
+  - library
+  - modules
+  - oauth2
+  - portal
+  - setup.php
+  - sites
+  - sphere
+  - sql_patch.php
+  - sql_upgrade.php
+  - src
+  - templates
+  - tests
+  - version.php
+  scanDirectories:
+  - ./vendor
+  - ./.phpstan
+  scanFiles:
+  - library/sql.inc.php

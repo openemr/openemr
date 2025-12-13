@@ -38,19 +38,19 @@
  */
 class xmltoarray_parser_htmlfix
 {
-    var $values;
-    var $index;
-    var $thearray;
-    var $parser;
+    public $values;
+    public $index;
+    public $thearray;
+    public $parser;
 
     /**
      * Default constructor for xmltoarray_parser_htmlfix.
      */
     function __construct()
     {
-        $this->values = array();
-        $this->index  = array();
-        $this->thearray  = array();
+        $this->values = [];
+        $this->index  = [];
+        $this->thearray  = [];
         $this->parser = xml_parser_create();
     }
 
@@ -71,15 +71,15 @@ class xmltoarray_parser_htmlfix
     function xmlparser_fix_into_struct($xml)
     {
         $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
-        $keys = array();
+        $keys = [];
         foreach ($trans_table as $key => $value) {
-            if ($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " ") {
+            if (!in_array($key, ["<", ">", "&", "\"", "'", " "])) {
                 $keys[$key] = $value;
             }
         }
 
         foreach ($keys as $key => $value) {
-            $xml =  preg_replace("/" . $key . "/", $value, $xml);
+            $xml =  preg_replace("/" . $key . "/", $value, (string) $xml);
         }
 
         $xml =  str_replace("&", "%and%", $xml);
@@ -95,8 +95,8 @@ class xmltoarray_parser_htmlfix
     function createArray()
     {
         $i = 0;
-        $name = isset($this->values[$i]['tag']) ? $this->values[$i]['tag'] : '';
-        $this->thearray[$name] = isset($this->values[$i]['attributes']) ? $this->values[$i]['attributes'] : '';
+        $name = $this->values[$i]['tag'] ?? '';
+        $this->thearray[$name] = $this->values[$i]['attributes'] ?? '';
         $this->thearray[$name] = $this->_struct_to_array($this->values, $i);
         return $this->thearray;
     }//createArray
@@ -109,7 +109,7 @@ class xmltoarray_parser_htmlfix
      */
     function _struct_to_array($values, &$i)
     {
-        $child = array();
+        $child = [];
         if (isset($values[$i]['value'])) {
             array_push($child, $values[$i]['value']);
         }
@@ -124,7 +124,7 @@ class xmltoarray_parser_htmlfix
                     case 'complete':
                         $name = $values[$i]['tag'];
                         if (!empty($name)) {
-                            $child[$name] = (isset($values[$i]['value'])) ? ($values[$i]['value']) : '';
+                            $child[$name] = $values[$i]['value'] ?? '';
                             if (isset($values[$i]['attributes'])) {
                                 $child[$name] = $values[$i]['attributes'];
                             }

@@ -3,16 +3,18 @@
 /**
  * List procedure orders and reports, and fetch new reports and their results.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Tyler Wrenn <tyler@tylerwrenn.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $orphanLog = '';
@@ -27,6 +29,7 @@ require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
@@ -56,7 +59,7 @@ function getListItem($listid, $value)
     $lrow = sqlQuery(
         "SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1",
-        array($listid, $value)
+        [$listid, $value]
     );
     $tmp = xl_list_label($lrow['title']);
     if (empty($tmp)) {
@@ -87,19 +90,21 @@ $errmsg = '';
 // very well as it will only send the first of those.
 if (!empty($_POST['form_xmit'])) {
     foreach ($_POST['form_cb'] as $formid) {
-        $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", array($formid));
+        $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE procedure_order_id = ?", [$formid]);
         $ppid = (int)$row['lab_id'];
-        $hl7 = '';
-        $errmsg = gen_hl7_order($formid, $hl7);
-        if (empty($errmsg)) {
-            $errmsg = send_hl7_order($ppid, $hl7);
+        $errmsg = '';
+        try {
+            $result = gen_hl7_order($formid);
+            $errmsg = send_hl7_order($ppid, $result->hl7);
+        } catch (Hl7OrderGenerationException $e) {
+            $errmsg = $e->getMessage();
         }
 
         if ($errmsg) {
             break;
         }
 
-        sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE procedure_order_id = ?", array($formid));
+        sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE procedure_order_id = ?", [$formid]);
     }
 }
 ?>
@@ -215,7 +220,7 @@ function doWait(e){
                             if ($pprow['ppid'] == $processing_lab) {
                                 echo " selected";
                             }
-                            if (stripos($pprow['npi'], 'QUEST') !== false) {
+                            if (stripos((string) $pprow['npi'], 'QUEST') !== false) {
                                 $pprow['name'] = "Quest Diagnostics";
                             }
                             echo ">" . text($pprow['name']) . "</option>";
@@ -253,20 +258,20 @@ function doWait(e){
     <?php } ?>
 
     <?php
-    $info = array('select' => array());
+    $info = ['select' => []];
     // We skip match/delete processing if this is just a refresh, because that
     // might be a nasty surprise.
     if (empty($_POST['form_external_refresh'])) {
         // Get patient matching selections from this form if there are any.
         if (!empty($_POST['select']) && is_array($_POST['select'])) {
             foreach ($_POST['select'] as $selkey => $selval) {
-                $info['select'][urldecode($selkey)] = $selval;
+                $info['select'][urldecode((string) $selkey)] = $selval;
             }
         }
         // Get file delete requests from this form if there are any.
         if (!empty($_POST['delete']) && is_array($_POST['delete'])) {
             foreach ($_POST['delete'] as $delkey => $dummy) {
-                $info[$delkey] = array('delete' => true);
+                $info[$delkey] = ['delete' => true];
             }
         }
     }
@@ -317,7 +322,7 @@ function doWait(e){
         if (is_array($infoval) && !empty($infoval['mssgs'])) {
             foreach ($infoval['mssgs'] as $message) {
                 $s .= " <tr class='detail'>\n";
-                if (substr($message, 0, 1) == '*') {
+                if (str_starts_with((string) $message, '*')) {
                     $errors = true;
                     // Error message starts with '*'
                     if (!$count++) {
@@ -327,12 +332,12 @@ function doWait(e){
                         $s .= "  <td>&nbsp;</td>\n";
                         $s .= "  <td>&nbsp;</td>\n";
                     }
-                    $s .= "  <td colspan='2' class='bg-danger'>" . text(substr($message, 1)) . "</td>\n";
+                    $s .= "  <td colspan='2' class='bg-danger'>" . text(substr((string) $message, 1)) . "</td>\n";
                 } else {
                     // Informational message starts with '>'
                     $s .= "  <td>&nbsp;</td>\n";
                     $s .= "  <td>" . text($infokey) . "</td>\n";
-                    $s .= "  <td colspan='2' class='bg-success'>" . text(substr($message, 1)) . "</td>\n";
+                    $s .= "  <td colspan='2' class='bg-success'>" . text(substr((string) $message, 1)) . "</td>\n";
                 }
                 $s .= " </tr>\n";
             }
@@ -387,8 +392,8 @@ function doWait(e){
         echo "<span class='text-danger'>" . text($errmsg) . "</span><br />\n";
     }
 
-    $form_from_date = empty($_POST['form_from_date']) ? '' : trim($_POST['form_from_date']);
-    $form_to_date = empty($_POST['form_to_date']) ? '' : trim($_POST['form_to_date']);
+    $form_from_date = empty($_POST['form_from_date']) ? '' : trim((string) $_POST['form_from_date']);
+    $form_to_date = empty($_POST['form_to_date']) ? '' : trim((string) $_POST['form_to_date']);
 
     $form_reviewed = empty($_POST['form_reviewed']) ? 3 : (int)$_POST['form_reviewed'];
     $form_patient = !empty($_POST['form_patient']);
@@ -409,13 +414,13 @@ function doWait(e){
             <select class="col-md form-control" name='form_reviewed'>
                 <?php
                 foreach (
-                    array(
+                    [
                         '1' => xl('All'),
                         '2' => xl('Reviewed'),
                         '3' => xl('Received, unreviewed'),
                         '4' => xl('Sent, not received'),
                         '5' => xl('Not sent'),
-                    ) as $key => $value
+                    ] as $key => $value
                 ) {
                     echo "<option value='" . attr($key) . "'";
                     if ($key == $form_reviewed) {
@@ -428,8 +433,8 @@ function doWait(e){
         </div>
         <div class="col-md">
             <?php
-            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                'empty_title' => '-- All Providers --'), $form_provider);
+            generate_form_field(['data_type' => 10, 'field_id' => 'provider',
+                'empty_title' => '-- All Providers --'], $form_provider);
             ?>
         </div>
         <div class="col-md">
@@ -489,7 +494,7 @@ function doWait(e){
                 "pc.do_not_send, pc.procedure_order_seq, pr.procedure_report_id";
 
             $where = "1 = 1";
-            $sqlBindArray = array();
+            $sqlBindArray = [];
 
             if (!empty($form_from_date)) {
                 $where .= " AND po.date_ordered >= ?";
@@ -554,7 +559,7 @@ function doWait(e){
                 $procedure_code = empty($row['procedure_code']) ? '' : $row['procedure_code'];
                 $procedure_name = empty($row['procedure_name']) ? '' : $row['procedure_name'];
                 $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-                $date_report = empty($row['date_report']) ? '' : substr($row['date_report'], 0, 16);
+                $date_report = empty($row['date_report']) ? '' : substr((string) $row['date_report'], 0, 16);
                 $date_report_suf = empty($row['date_report_tz']) ? '' : (' ' . $row['date_report_tz']);
                 $report_status = empty($row['report_status']) ? '' : $row['report_status'];
                 $review_status = empty($row['review_status']) ? '' : $row['review_status'];

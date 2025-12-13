@@ -11,6 +11,7 @@ use OpenEMR\Services\DecisionSupportInterventionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
 class RouteController
@@ -20,11 +21,12 @@ class RouteController
     const CDR_ACTION_INFO = "cdr-info";
 
     public function __construct(
-        private ClientRepository $repo,
-        private LoggerInterface $logger,
+        private readonly SessionInterface $session,
+        private readonly ClientRepository $repo,
+        private readonly LoggerInterface $logger,
         private Environment $twig,
-        private ActionUrlBuilder $actionUrlBuilder,
-        private DecisionSupportInterventionService $dsiService
+        private readonly ActionUrlBuilder $actionUrlBuilder,
+        private readonly DecisionSupportInterventionService $dsiService
     ) {
         $this->setTwigEnvironment($twig);
     }
@@ -44,12 +46,12 @@ class RouteController
         // make sure the request matches the EXTERNAL_CDR_ACTION route either standalone or as a prefix
         $action = $request->get('action', '');
         return $action === self::EXTERNAL_CDR_ACTION ||
-            str_starts_with($action, self::EXTERNAL_CDR_ACTION . '/');
+            str_starts_with((string) $action, self::EXTERNAL_CDR_ACTION . '/');
     }
 
     public function parseRequest(Request $request)
     {
-        $parts = explode("/", $request->get('action'));
+        $parts = explode("/", (string) $request->get('action'));
 
         $mainAction = $parts[0] ?? null;
         $mainActionChild = $parts[1] ?? null;
@@ -96,10 +98,10 @@ class RouteController
         $serviceId = $request->get('serviceId', '');
         $csrfToken = $request->get('csrf_token', '');
 
-        if (CsrfUtils::verifyCsrfToken($csrfToken) === false) {
+        if (CsrfUtils::verifyCsrfToken($csrfToken, $this->session) === false) {
             return $this->notFoundAction($request);
         }
-        if (empty(trim($serviceId))) {
+        if (empty(trim((string) $serviceId))) {
             return $this->notFoundAction($request);
         }
         $dsiService = $this->getDecisionsSupportInterventionService();
@@ -175,7 +177,7 @@ class RouteController
         // TODO: @adunsulag need to handle CSRF token in save action
         ['subAction' => $serviceId] = $this->parseRequest($request);
         $csrfToken = $request->get('_token', '');
-        if (!CsrfUtils::verifyCsrfToken($csrfToken)) {
+        if (!CsrfUtils::verifyCsrfToken($csrfToken, 'default', $this->session)) {
             throw new CsrfInvalidException(xlt('Authentication Error'));
         }
 
@@ -194,9 +196,9 @@ class RouteController
         try {
             $fields = $service->getFields();
             if ($service->getType() == PredictiveDSIServiceEntity::TYPE) {
-                $dsiService->updatePredictiveDSIAttributes($service->getId(), $_SESSION['authUserID'], $fields);
+                $dsiService->updatePredictiveDSIAttributes($service->getId(), $this->session->get('authUserID'), $fields);
             } else {
-                $dsiService->updateEvidenceDSIAttributes($service->getId(), $_SESSION['authUserID'], $fields);
+                $dsiService->updateEvidenceDSIAttributes($service->getId(), $this->session->get('authUserID'), $fields);
             }
             $status = "success";
         } catch (\Exception $e) {

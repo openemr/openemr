@@ -14,7 +14,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if ($langModuleFlag !== true) {
+if (!isset($langModuleFlag) || $langModuleFlag !== true) {
     die(function_exists('xlt') ? xlt('Authentication Error') : 'Authentication Error');
 }
 
@@ -40,7 +40,7 @@ if (!empty($_POST['add'])) {
     }
 
     $sql = "SELECT * FROM lang_languages WHERE lang_code LIKE ? or lang_description LIKE ? limit 1" ;
-    $res = SqlQuery($sql, array("%" . $_POST['lang_code'] . "%","%" . $_POST['lang_name']));
+    $res = SqlQuery($sql, ["%" . $_POST['lang_code'] . "%","%" . $_POST['lang_name']]);
     if ($res) {
         echo xlt("Data Alike is already in database, please change code and/or description") . '<br />';
         $err = 'y';
@@ -52,7 +52,7 @@ if (!empty($_POST['add'])) {
     } else {
             //insert into the main table
         $sql = "INSERT INTO lang_languages SET lang_code=?, lang_description=?";
-        SqlStatement($sql, array($_POST['lang_code'],$_POST['lang_name']));
+        sqlStatement($sql, [$_POST['lang_code'],$_POST['lang_name']]);
 
         //insert into the log table - to allow persistant customizations
         insert_language_log($_POST['lang_name'], $_POST['lang_code'], '', '');

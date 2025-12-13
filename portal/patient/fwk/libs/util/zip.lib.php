@@ -32,28 +32,28 @@ class zipfile
      *
      * @var array $datasec
      */
-    var $datasec = array ();
+    public $datasec =  [];
 
     /**
      * Central directory
      *
      * @var array $ctrl_dir
      */
-    var $ctrl_dir = array ();
+    public $ctrl_dir =  [];
 
     /**
      * End of central directory record
      *
      * @var string $eof_ctrl_dir
      */
-    var $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
+    public $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
 
     /**
      * Last offset position
      *
      * @var integer $old_offset
      */
-    var $old_offset = 0;
+    public $old_offset = 0;
 
     /**
      * Converts an Unix timestamp to a four byte DOS date and time format (date
@@ -109,9 +109,9 @@ class zipfile
         $fr .= $hexdtime; // last mod time and date
 
         // "local file header" segment
-        $unc_len = strlen($data);
-        $crc = crc32($data);
-        $zdata = gzcompress($data);
+        $unc_len = strlen((string) $data);
+        $crc = crc32((string) $data);
+        $zdata = gzcompress((string) $data);
         $zdata = substr(substr($zdata, 0, strlen($zdata) - 4), 2); // fix crc bug
         $c_len = strlen($zdata);
         $fr .= pack('V', $crc); // crc32

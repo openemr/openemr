@@ -53,7 +53,7 @@ $language = $tmp['language'];
 ?>
 <html>
 <head>
-<?php Header::setupHeader('popper'); ?>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Patient Issues'); ?></title>
 <script>
 
@@ -105,6 +105,7 @@ function headerSelectionChanged(groupBox, issueType) {
     rowSelectionChanged(issueType);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function deleteSelectedIssues(tableName) {
     var selBoxes = getSelectionCheckBoxes(tableName);
     var ids = ""
@@ -119,20 +120,29 @@ function deleteSelectedIssues(tableName) {
         }
     }
 
-    dlgopen('../deleter.php?issue=' + ids + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+    const params = new URLSearchParams({
+        issue: ids,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
+// AI-generated code end
 
 // Called by the deleter.php window on a successful delete.
 function imdeleted() {
     refreshIssue('', '')
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on diagnosis for patient education popup.
 function educlick(codetype, codevalue) {
   top.restoreSession();
-  dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
-    '&code=' + encodeURIComponent(codevalue) +
-    '&language=' + <?php echo js_url($language); ?>,
+  const params = new URLSearchParams({
+    type: codetype,
+    code: codevalue,
+    language: <?php echo js_escape($language); ?>
+  });
+  dlgopen('../education.php?' + params.toString(),
     '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
 }
 
@@ -140,8 +150,13 @@ function educlick(codetype, codevalue) {
 function newEncounter() {
     var f = document.forms[0];
     top.restoreSession();
-    location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
+    const params = new URLSearchParams({
+        autoloaded: '1',
+        calenc: ''
+    });
+    location.href='../../forms/newpatient/new.php?' + params.toString();
 }
+// AI-generated code end
 
 </script>
 <script>
@@ -150,17 +165,17 @@ require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery 
 ?>
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Medical Issues'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array("stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd"),//all file names need suffix _xpd
+    'expandable_files' => ["stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd"],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "issues_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
@@ -272,9 +287,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($row = sqlFetchArray($pres)) :
                             $rowid = $row['id'];
 
-                            $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+                            $disptitle = trim((string) $row['title']) ? $row['title'] : "[Missing Title]";
 
-                            $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", array($rowid));
+                            $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE list_id = ?", [$rowid]);
 
                             // encount is used to toggle the color of the table-row output below
                             ++$encount;
@@ -285,10 +300,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             // look up the diag codes
                             $codetext = "";
                             if ($row['diagnosis'] != "") {
-                                $diags = explode(";", $row['diagnosis']);
+                                $diags = explode(";", (string) $row['diagnosis']);
                                 foreach ($diags as $diag) {
                                     $codedesc = lookup_code_descriptions($diag);
-                                    list($codetype, $code) = explode(':', $diag);
+                                    [$codetype, $code] = explode(':', $diag);
                                     if ($codetext) {
                                         $codetext .= "<br>";
                                     }
@@ -303,7 +318,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if ($row['outcome'] == "1" && $row['enddate'] != null) {
                                 // Resolved
                                 $resolved = true;
-                                $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
+                                $statusCompute = generate_display_field(['data_type' => '1','list_id' => 'outcome'], $row['outcome']);
                             } elseif ($row['enddate'] == null) {
                                 $statusCompute = xlt("Active");
                             } else {
@@ -343,7 +358,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php
                                     if ($focustitles[0] == "Allergies") :
-                                        echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
+                                        echo generate_display_field(['data_type' => '1','list_id' => 'reaction'], $row['reaction']);
                                     endif;
                                     ?>
                                 </div>
@@ -386,7 +401,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <div>
                                                 <?php
                                                     $codeListName = (!empty($thistype) && ($thistype == 'medical_problem')) ? 'condition-verification' : 'allergyintolerance-verification';
-                                                    echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
+                                                    echo generate_display_field(['data_type' => '1','list_id' => $codeListName], $row['verification']);
                                                 ?>
                                                 </div>
                                             </div>

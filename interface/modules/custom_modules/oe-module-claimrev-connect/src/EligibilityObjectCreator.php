@@ -32,7 +32,7 @@ class EligibilityObjectCreator
         $useFacility = $GLOBALS['oe_claimrev_config_use_facility_for_eligibility'];
         $serviceTypeCodes = $GLOBALS['oe_claimrev_config_service_type_codes'];
         $accountNumber = "";
-        $productsToRun = array(1);
+        $productsToRun = [1];
 
 
         $revenueTools = new RevenueToolsRequest();
@@ -40,7 +40,7 @@ class EligibilityObjectCreator
         $revenueTools->accountNumber = $accountNumber;
         $revenueTools->payerResponsibility = $pr;
         $revenueTools->includeCredit = false;
-        $revenueTools->serviceTypeCodes = explode(",", $serviceTypeCodes);
+        $revenueTools->serviceTypeCodes = explode(",", (string) $serviceTypeCodes);
         $revenueTools->productsToRun = $productsToRun;
 
 
@@ -102,10 +102,10 @@ class EligibilityObjectCreator
     }
     public static function buildObject($pid, $payer_responsibility, $eventDate = null, $facilityId = null, $providerId = null)
     {
-        $results = array();
+        $results = [];
         $resultSubscribers = EligibilityData::getSubscriberData($pid, $payer_responsibility);
         foreach ($resultSubscribers as $subscriberRow) {
-            $payers = array();
+            $payers = [];
             $pr = ValueMapping::mapPayerResponsibility($subscriberRow['type']);
             $revenueTools = EligibilityObjectCreator::buildRevenueToolsRequest($pid, $pr, $eventDate, $providerId, $facilityId);
             $payer = new RevenueToolsPayer();
@@ -134,24 +134,24 @@ class EligibilityObjectCreator
 
         //if it's greater than aged date then lets remove completely from the tables, the new one will handle it. We don't care about statuses
         $sql = "DELETE FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? AND (datediff(now(),create_date) >= ? or status in('error','waiting','creating') ) ";
-        $sqlarr = array($pid,$req->payerResponsibility, $stale_age);
+        $sqlarr = [$pid,$req->payerResponsibility, $stale_age];
         $result = sqlStatement($sql, $sqlarr);
 
         $sql = "SELECT * FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ?";
-        $sqlarr = array($pid,$req->payerResponsibility);
+        $sqlarr = [$pid,$req->payerResponsibility];
         $result = sqlStatement($sql, $sqlarr);
         if (sqlNumRows($result) <= 0) {
             $status = "creating";
             $sql = "INSERT INTO mod_claimrev_eligibility (pid,payer_responsibility,status,create_date) VALUES(?,?,?,NOW())";
 
-            $sqlarr = array($pid,$req->payerResponsibility,$status);
+            $sqlarr = [$pid,$req->payerResponsibility,$status];
             $result = sqlInsert($sql, $sqlarr);
             $status = "waiting";
 
             $req->originatingSystemId = strval($result);
             $json = json_encode($req, true);
             $sql = "UPDATE mod_claimrev_eligibility SET request_json = ?, status = ? where id = ?";
-            $sqlarr = array($json,$status,$result);
+            $sqlarr = [$json,$status,$result];
             sqlStatement($sql, $sqlarr);
         }
     }

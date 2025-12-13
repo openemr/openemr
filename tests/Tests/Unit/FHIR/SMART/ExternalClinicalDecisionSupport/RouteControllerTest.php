@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Unit\FHIR\SMART\ExternalClinicalDecisionSupport;
 
+use Google\Service\Bigquery\SessionInfo;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -13,19 +14,24 @@ use OpenEMR\Services\DecisionSupportInterventionService;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Twig\Environment;
 
 class RouteControllerTest extends TestCase
 {
     protected RouteController $controller;
-    protected ClientRepository $mockRepository;
-    protected SystemLogger $mockLogger;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockRepository;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockLogger;
 
-    protected Environment $mockTwig;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockTwig;
 
-    protected ActionUrlBuilder $actionUrlBuilder;
+    protected \PHPUnit\Framework\MockObject\MockObject $actionUrlBuilder;
 
-    protected DecisionSupportInterventionService $dsiService;
+    protected \PHPUnit\Framework\MockObject\MockObject $dsiService;
+
+    private SessionInterface $session;
 
     protected function setUp(): void
     {
@@ -36,10 +42,12 @@ class RouteControllerTest extends TestCase
         $this->actionUrlBuilder = $this->createMock(ActionUrlBuilder::class);
         $this->dsiService = $this->createMock(DecisionSupportInterventionService::class);
         $this->dsiService->method('getClientRepository')->willReturn($this->mockRepository);
-        $this->controller = new RouteController($this->mockRepository, $this->mockLogger, $this->mockTwig, $this->actionUrlBuilder, $this->dsiService);
+        $this->session = new Session(new MockArraySessionStorage());
+        CsrfUtils::setupCsrfKey($this->session);
+        $this->controller = new RouteController($this->session, $this->mockRepository, $this->mockLogger, $this->mockTwig, $this->actionUrlBuilder, $this->dsiService);
     }
 
-    public function testSupportsRequest()
+    public function testSupportsRequest(): void
     {
         $request = new Request(['action' => 'external-cdr/']);
         $this->assertTrue($this->controller->supportsRequest($request));
@@ -60,7 +68,7 @@ class RouteControllerTest extends TestCase
         $this->assertFalse($this->controller->supportsRequest($request));
     }
 
-    public function testParseRequest()
+    public function testParseRequest(): void
     {
         $request = new Request(['action' => 'external-cdr/']);
         $result = $this->controller->parseRequest($request);
@@ -81,7 +89,7 @@ class RouteControllerTest extends TestCase
         $this->assertEquals('edit', $result['subAction']);
     }
 
-    public function testDispatch()
+    public function testDispatch(): void
     {
         $id = "1";
         $this->setupDSIServiceForClientEntity($id, "Test Client");
@@ -99,16 +107,16 @@ class RouteControllerTest extends TestCase
         $dsiService = new PredictiveDSIServiceEntity($client);
         $this->dsiService->method("getService")->willReturn($dsiService);
     }
-    public function testSaveAction()
+    public function testSaveAction(): void
     {
         $id = "1";
-        CsrfUtils::setupCsrfKey(); // setup the key
+//        CsrfUtils::setupCsrfKey(); // setup the key
         $this->setupDSIServiceForClientEntity($id, "Test Client");
-        $_SESSION['authUserID'] = 1;
+        $this->session->set('authUserID', 1);
         $request = new Request(['action' => 'external-cdr/save/' . $id]);
         $request->request->set("predictive_details_developer", "OpenEMR");
         $request->request->set("predictive_details_funding", "Donations");
-        $request->request->set('_token', CsrfUtils::collectCsrfToken());
+        $request->request->set('_token', CsrfUtils::collectCsrfToken('default', $this->session));
 
         $this->dsiService->expects($this->once())->method("updatePredictiveDSIAttributes");
 

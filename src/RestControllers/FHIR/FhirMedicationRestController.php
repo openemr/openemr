@@ -31,11 +31,12 @@ class FhirMedicationRestController
     /**
      * Queries for a single FHIR medication resource by FHIR id
      * @param $fhirId The FHIR medication resource id (uuid)
+     * @param string|null $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne($fhirId, ?string $puuidBind = null)
     {
-        $processingResult = $this->fhirMedicationService->getOne($fhirId);
+        $processingResult = $this->fhirMedicationService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -48,7 +49,7 @@ class FhirMedicationRestController
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirMedicationService->getAll($searchParams);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

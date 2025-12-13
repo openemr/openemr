@@ -34,35 +34,15 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 
 //global variables:
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -85,52 +65,24 @@ if (!isset($_GET["mode"])) {
 <br />
 
 <?php
-if ($my_authorized === 'on') {
-    $my_authorized = true;
-} else {
-    $my_authorized = '%';
-}
+$my_authorized = $my_authorized === 'on' ? true : '%';
 
-if ($unbilled === 'on') {
-    $unbilled = '0';
-} else {
-    $unbilled = '%';
-}
+$unbilled = $unbilled === 'on' ? '0' : '%';
 
 if ($code_type === 'all') {
     $code_type = '%';
 }
 
 if (!isset($_GET["mode"])) {
-    if (!isset($_GET["from_date"])) {
-        $from_date = date("Y-m-d");
-    } else {
-        $from_date = $_GET["from_date"];
-    }
+    $from_date = !isset($_GET["from_date"]) ? date("Y-m-d") : $_GET["from_date"];
 
-    if (!isset($_GET["to_date"])) {
-        $to_date = date("Y-m-d");
-    } else {
-        $to_date = $_GET["to_date"];
-    }
+    $to_date = !isset($_GET["to_date"]) ? date("Y-m-d") : $_GET["to_date"];
 
-    if (!isset($_GET["code_type"])) {
-        $code_type = "all";
-    } else {
-        $code_type = $_GET["code_type"];
-    }
+    $code_type = !isset($_GET["code_type"]) ? "all" : $_GET["code_type"];
 
-    if (!isset($_GET["unbilled"])) {
-        $unbilled = "on";
-    } else {
-        $unbilled = $_GET["unbilled"];
-    }
+    $unbilled = !isset($_GET["unbilled"]) ? "on" : $_GET["unbilled"];
 
-    if (!isset($_GET["authorized"])) {
-        $my_authorized = "on";
-    } else {
-        $my_authorized = $_GET["authorized"];
-    }
+    $my_authorized = !isset($_GET["authorized"]) ? "on" : $_GET["authorized"];
 } else {
     $from_date = $_GET["from_date"];
     $to_date = $_GET["to_date"];
@@ -139,17 +91,9 @@ if (!isset($_GET["mode"])) {
     $my_authorized = $_GET["authorized"];
 }
 
-if ($my_authorized === 'on') {
-    $my_authorized = true;
-} else {
-    $my_authorized = '%';
-}
+$my_authorized = $my_authorized === 'on' ? true : '%';
 
-if ($unbilled === 'on') {
-    $unbilled = '0';
-} else {
-    $unbilled = '%';
-}
+$unbilled = $unbilled === 'on' ? '0' : '%';
 
 if ($code_type === 'all') {
     $code_type = '%';
@@ -164,7 +108,7 @@ $N = 1;
 $k = 1;
 $anypats = 0;
 $the_first_time = 1;
-$itero = array();
+$itero = [];
 
 if ($ret = getBillsBetweendayReport($code_type)) {
 // checking to see if there is any information in the array if not display a message (located after this if statment)
@@ -190,7 +134,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 // sort array in assending order
     sort($final_list);
 
-    $all4 = array_natsort($ret, pid, fulname, asc);
+    $all4 = array_natsort($ret, 'pid', 'fulname', 'asc');
     if ($_POST['end_of_day_totals_only'] == 1) {
         $totals_only = 1;
     }
@@ -198,7 +142,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
     foreach ($all4 as $iter) {
         // Case statment to tally information by user
         switch ($iter['user']) {
-            case $iter['user'] = $final_list[0]:
+            case $final_list[0]:
                 $us0_user = $iter['user'];
                 $us0_fee += $iter['fee'];
                 $us0_inspay += $iter['ins_code'];
@@ -206,7 +150,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us0_patadj += $iter['pat_adjust_dollar'];
                 $us0_patpay += $iter['pat_code'];
                 break;
-            case $ite['user'] = $final_list[1]:
+            case $final_list[1]:
                 $us1_user = $iter['user'];
                 $us1_fee += $iter['fee'];
                 $us1_inspay += $iter['ins_code'];
@@ -214,7 +158,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us1_patadj += $iter['pat_adjust_dollar'];
                 $us1_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[2]:
+            case $final_list[2]:
                 $us2_user = $iter['user'];
                 $us2_fee += $iter['fee'];
                 $us2_inspay += $iter['ins_code'];
@@ -222,7 +166,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us2_patadj += $iter['pat_adjust_dollar'];
                 $us2_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[3]:
+            case $final_list[3]:
                 $us3_user = $iter['user'];
                 $us3_fee += $iter['fee'];
                 $us3_inspay += $iter['ins_code'];
@@ -230,7 +174,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us3_patadj += $iter['pat_adjust_dollar'];
                 $us3_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[4]:
+            case $final_list[4]:
                 $us4_user = $iter['user'];
                 $us4_fee += $iter['fee'];
                 $us4_inspay += $iter['ins_code'];
@@ -238,7 +182,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us4_patadj += $iter['pat_adjust_dollar'];
                 $us4_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[5]:
+            case $final_list[5]:
                 $us5_user = $iter['user'];
                 $us5_fee += $iter['fee'];
                 $us5_inspay += $iter['ins_code'];
@@ -246,7 +190,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us5_patadj += $iter['pat_adjust_dollar'];
                 $us5_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[6]:
+            case $final_list[6]:
                 $us6_user = $iter['user'];
                 $us6_fee += $iter['fee'];
                 $us6_inspay += $iter['ins_code'];
@@ -254,7 +198,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us6_patadj += $iter['pat_adjust_dollar'];
                 $us6_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[7]:
+            case $final_list[7]:
                 $us7_user = $iter['user'];
                 $us7_fee += $iter['fee'];
                 $us7_inspay += $iter['ins_code'];
@@ -262,7 +206,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us7_patadj += $iter['pat_adjust_dollar'];
                 $us7_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[8]:
+            case $final_list[8]:
                 $us8_user = $iter['user'];
                 $us8_fee += $iter['fee'];
                 $us8_inspay += $iter['ins_code'];
@@ -270,7 +214,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us8_patadj += $iter['pat_adjust_dollar'];
                 $us8_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[9]:
+            case $final_list[9]:
                 $us9_user = $iter['user'];
                 $us9_fee += $iter['fee'];
                 $us9_inspay += $iter['ins_code'];
@@ -278,7 +222,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us9_patadj += $iter['pat_adjust_dollar'];
                 $us9_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[10]:
+            case $final_list[10]:
                 $us10_user = $iter['user'];
                 $us10_fee += $iter['fee'];
                 $us10_inspay += $iter['ins_code'];
@@ -286,7 +230,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us10_patadj += $iter['pat_adjust_dollar'];
                 $us10_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[11]:
+            case $final_list[11]:
                 $us11_user = $iter['user'];
                 $us11_fee += $iter['fee'];
                 $us11_inspay += $iter['ins_code'];
@@ -294,7 +238,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us11_patadj += $iter['pat_adjust_dollar'];
                 $us11_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[12]:
+            case $final_list[12]:
                 $us12_user = $iter['user'];
                 $us12_fee += $iter['fee'];
                 $us12_inspay += $iter['ins_code'];
@@ -302,7 +246,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us12_patadj += $iter['pat_adjust_dollar'];
                 $us12_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[13]:
+            case $final_list[13]:
                 $us13_user = $iter['user'];
                 $us13_fee += $iter['fee'];
                 $us13_inspay += $iter['ins_code'];
@@ -310,7 +254,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us13_patadj += $iter['pat_adjust_dollar'];
                 $us13_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[14]:
+            case $final_list[14]:
                 $us14_user = $iter['user'];
                 $us14_fee += $iter['fee'];
                 $us14_inspay += $iter['ins_code'];
@@ -318,7 +262,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us14_patadj += $iter['pat_adjust_dollar'];
                 $us14_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[15]:
+            case $final_list[15]:
                 $us15_user = $iter['user'];
                 $us15_fee += $iter['fee'];
                 $us15_inspay += $iter['ins_code'];
@@ -326,7 +270,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us15_patadj += $iter['pat_adjust_dollar'];
                 $us15_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[16]:
+            case $final_list[16]:
                 $us16_user = $iter['user'];
                 $us16_fee += $iter['fee'];
                 $us16_inspay += $iter['ins_code'];
@@ -334,7 +278,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us16_patadj += $iter['pat_adjust_dollar'];
                 $us16_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[17]:
+            case $final_list[17]:
                 $us17_user = $iter['user'];
                 $us17_fee += $iter['fee'];
                 $us17_inspay += $iter['ins_code'];
@@ -342,7 +286,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us17_patadj += $iter['pat_adjust_dollar'];
                 $us17_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[18]:
+            case $final_list[18]:
                 $us18_user = $iter['user'];
                 $us18_fee += $iter['fee'];
                 $us18_inspay += $iter['ins_code'];
@@ -350,7 +294,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 $us18_patadj += $iter['pat_adjust_dollar'];
                 $us18_patpay += $iter['pat_code'];
                 break;
-            case $iter['user'] = $final_list[19]:
+            case $final_list[19]:
                 $us19_user = $iter['user'];
                 $us19_fee += $iter['fee'];
                 $us19_inspay += $iter['ins_code'];
@@ -398,7 +342,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 print "<tr><td colspan='10'><hr><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
                 //==================================
 
-                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {
                       print "<td class='w-100'><span class='text'><center><strong>" . xlt("Units") . "</strong></center>";
                       print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Fee") . "</strong></center>" ;
                       print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Code") . "</strong></center>" ;
@@ -426,7 +370,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
             // get dollar amounts to appear on pat,ins payments and copays
 
             if ($iter['code_type'] != 'payment_info') {
-                if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
+                if (in_array($iter['code_type'], ['COPAY', 'Patient Payment', 'Insurance Payment'], true)) {
                        print "<td class='w-100'><span class='text'><center>" . "1" . "</center>" ;
 
                       // start fee output
@@ -496,22 +440,22 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                       print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']) . "</center>";
                       print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']) . "</center>" ;
                       print  "</span></td><td class='w-100'><span class='text'>";
-                      print  "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
+                      print  "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime((string) $iter['date']))) . "</center>";
                       print  "</span></td>\n";
                 } else {
-                    if (date("Y-m-d", strtotime($iter['bill_date'])) == "1969-12-31") {
+                    if (date("Y-m-d", strtotime((string) $iter['bill_date'])) == "1969-12-31") {
                         print "<td class='w-100'><span class='text'><center>" . text($iter['units']) . "</center>" ;
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['fee']) . "</center>";
                         if ($GLOBALS['language_default'] === 'English (Standard)') {
-                            print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr($iter['code_text'], 0, 38)))) . "</center>";
+                            print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                         } else {
-                            print "</span></td><td width='250'><span class='text'><center>" . text(substr($iter['code_text'], 0, 38)) . "</center>";
+                            print "</span></td><td width='250'><span class='text'><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
                         }
 
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']) . "</center>" ;
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']) . "</center>" ;
                         print "</span></td><td class='w-100'><span class='text'><center>" . xlt('Not Billed') . "</center>";
-                        print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
+                        print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime((string) $iter['date']))) . "</center>";
                         print "</span></td>\n";
                     } else {
                         if ($iter['fee'] != 0) {
@@ -519,15 +463,15 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                             print "<td class='w-100'><span class='text'><center>" . text($iter["units"]) . "</center>";
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['fee']) . "</center>";
                             if ($GLOBALS['language_default'] === 'English (Standard)') {
-                                 print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr($iter['code_text'], 0, 38)))) . "</center>";
+                                 print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                             } else {
-                                 print "</span></td><td width='250'><span class='text'><center>" . text(substr($iter['code_text'], 0, 38)) . "</center>";
+                                 print "</span></td><td width='250'><span class='text'><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
                             }
 
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']) . "</center>";
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']) . "</center>";
-                            print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['bill_date']))) . "</center>";
-                            print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter["date"]))) . "</center>";
+                            print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime((string) $iter['bill_date']))) . "</center>";
+                            print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime((string) $iter["date"]))) . "</center>";
                             print "</span></td>\n";
                         }
                     }
@@ -774,8 +718,8 @@ if ($totals_only != 1) {
 }
 
 if ($totals_only == 1) {
-    $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
-    $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
+    $from_date = oeFormatShortDate(substr((string) $query_part_day, 37, 10));
+    $to_date = oeFormatShortDate(substr((string) $query_part_day, 63, 10));
     print "<br /><br />";
 
     ?><span><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></span><?php
@@ -792,11 +736,11 @@ for ($i = 1; $i < $k;) {
     Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Adj") . '. ' . "</center></strong><center>" . "%1\$.2f", text($user_info['patadj'][$i])) . "</center>";
     Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Payments") . ' ' . "</center></strong><center>" . "%1\$.2f", text($user_info['patpay'][$i])) . "</center>";
 
-    $gtotal_fee += $user_info[fee][$i];
-    $gtotal_insadj += $user_info[insadj][$i];
-    $gtotal_inspay += $user_info[inspay][$i];
-    $gtotal_patadj += $user_info[patadj][$i];
-    $gtotal_patpay += $user_info[patpay][$i];
+    $gtotal_fee += $user_info['fee'][$i];
+    $gtotal_insadj += $user_info['insadj'][$i];
+    $gtotal_inspay += $user_info['inspay'][$i];
+    $gtotal_patadj += $user_info['patadj'][$i];
+    $gtotal_patpay += $user_info['patpay'][$i];
 
     ++$i;
 

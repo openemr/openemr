@@ -63,7 +63,7 @@ class InfernoSinglePatientAPITest extends TestCase
 //        self::$sessionId = null;
 //    }
 
-    public function testCapabilityStatement()
+    public function testCapabilityStatement(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'capability_statement');
         $this->assertResultsPassed(
@@ -78,182 +78,182 @@ class InfernoSinglePatientAPITest extends TestCase
         );
     }
 
-    public function testPatient()
+    public function testPatient(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'patient', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Patient Resource test failed");
     }
 
-    public function testAllergyIntolerance()
+    public function testAllergyIntolerance(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'allergy_intolerance', 'smart_auth_info');
 //        $response = $this->getTestGroupResponse('g10_certification-g10_single_patient_api-us_core_v311_allergy_intolerance', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "AllergyIntolerance Resource test failed");
     }
 
-    public function testCarePlan()
+    public function testCarePlan(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'care_plan', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "CarePlan Resource test failed");
     }
 
-    public function testCondition()
+    public function testCondition(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'condition', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Condition Resource test failed");
     }
 
-    public function testDevice()
+    public function testDevice(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'device', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Device Resource test failed");
     }
-    public function testDiagnosticReportNote()
+    public function testDiagnosticReportNote(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'diagnostic_report_note', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "DiagnosticReport and Note exchange test failed");
     }
 
-    public function testDiagnosticReportLab()
+    public function testDiagnosticReportLab(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'diagnostic_report_lab', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "DiagnosticReport Laboratory Resource test failed");
     }
 
-    public function testDocumentReference()
+    public function testDocumentReference(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'document_reference', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Document Reference Resource test failed");
     }
 
-    public function testGoal()
+    public function testGoal(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'goal', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Goal Resource test failed");
     }
 
-    public function testImmunization()
+    public function testImmunization(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'immunization', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Immunization Resource test failed");
     }
 
-    public function testMedicationRequest()
+    public function testMedicationRequest(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'medication_request', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "MedicationRequest Resource test failed");
     }
 
-    public function testSmokingStatus()
+    public function testSmokingStatus(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'smokingstatus', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Smoking Status Observation Resource test failed");
     }
 
-    public function testPediatricWeightForHeight()
+    public function testPediatricWeightForHeight(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'pediatric_weight_for_height', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Pediatric Weight for Height Observation Resource test failed");
     }
 
-    public function testObservationLab()
+    public function testObservationLab(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'observation_lab', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Observation Laboratory Resource test failed");
     }
 
-    public function testPediatricBmiForAge()
+    public function testPediatricBmiForAge(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'pediatric_bmi_for_age', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Pediatric BMI for Age Observation Resource test failed");
     }
 
-    public function testPulseOximetry()
+    public function testPulseOximetry(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'pulse_oximetry', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Pulse Oximetry Observation Resource test failed");
     }
 
-    public function testHeadCircumference()
+    public function testHeadCircumference(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'head_circumference', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Head Circumference Observation Resource test failed");
     }
 
-    public function testBodyHeight()
+    public function testBodyHeight(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'body_height', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Height Observation Resource test failed");
     }
 
-    public function testBodyTemp()
+    public function testBodyTemp(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'bodytemp', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Temperature Observation Resource test failed");
     }
 
-    public function testBloodPressure()
+    public function testBloodPressure(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'bp', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Blood Pressure Observation Resource test failed");
     }
 
-    public function testBodyWeight()
+    public function testBodyWeight(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'body_weight', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Weight Observation Resource test failed");
     }
 
-    public function testHeartRate()
+    public function testHeartRate(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'heartrate', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Heart rate Observation Resource test failed");
     }
 
-    public function testRespRate()
+    public function testRespRate(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'resprate', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Respitatory Rate Observation Resource test failed");
     }
 
-    public function testProcedure()
+    public function testProcedure(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'procedure', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Procedure Resource test failed");
     }
 
-    public function testEncounter()
+    public function testEncounter(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'encounter', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Encounter Resource test failed");
     }
 
-    public function testOrganization()
+    public function testOrganization(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'encounter', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Organization Resource test failed");
     }
 
-    public function testPractitioner()
+    public function testPractitioner(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'encounter', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Practitioner Resource test failed");
     }
 
-    public function testClinicalNotesGuidance()
+    public function testClinicalNotesGuidance(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'clinical_notes_guidance', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Clinical Notes Guidance test failed");
     }
 
-    public function testDataAbsentReason()
+    public function testDataAbsentReason(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'data_absent_reason', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Data Absent Reason test failed");
     }
 
     // we do provenance last as it is the most complex test and can take a while to run
-    public function testProvenance()
+    public function testProvenance(): void
     {
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'provenance', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Provenance Resource test failed");
@@ -270,7 +270,7 @@ class InfernoSinglePatientAPITest extends TestCase
             throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
         }
     }
-    protected function assertResultsPassed(array $results, string $assertMessage, array $testIdsToSkipFailures = array()): void
+    protected function assertResultsPassed(array $results, string $assertMessage, array $testIdsToSkipFailures = []): void
     {
         foreach ($results as $result) {
             $failMessage = '';

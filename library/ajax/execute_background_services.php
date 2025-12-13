@@ -95,7 +95,7 @@ ignore_user_abort(1);
  * administrator intervention. Any service function return values and output are ignored.
  */
 
-function execute_background_service_calls()
+function execute_background_service_calls(): void
 {
   /**
    * Note: The global $service_name below is set to the name of the service currently being
@@ -105,12 +105,12 @@ function execute_background_service_calls()
    */
     global $service_name;
 
-    $single_service = isset($_REQUEST['background_service']) ? $_REQUEST['background_service'] : '';
+    $single_service = $_REQUEST['background_service'] ?? '';
     $force = (isset($_REQUEST['background_force']) && $_REQUEST['background_force']);
 
     $sql = 'SELECT * FROM background_services WHERE ' . ($force ? '1' : 'execute_interval > 0');
     if ($single_service != "") {
-        $services = sqlStatementNoLog($sql . ' AND name=?', array($single_service));
+        $services = sqlStatementNoLog($sql . ' AND name=?', [$single_service]);
     } else {
         $services = sqlStatementNoLog($sql . ' ORDER BY sort_order');
     }
@@ -127,7 +127,7 @@ function execute_background_service_calls()
         //will need to assess performance in high concurrency setting at some point
         $sql = 'UPDATE background_services SET running = 1, next_run = NOW()+ INTERVAL ?'
         . ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
-        if (sqlStatementNoLog($sql, array($interval,$service_name)) === false) {
+        if (sqlStatementNoLog($sql, [$interval,$service_name]) === false) {
             continue;
         }
 
@@ -147,12 +147,12 @@ function execute_background_service_calls()
         //use try/catch in case service functions throw an unexpected Exception
         try {
             $service['function']();
-        } catch (Exception $e) {
+        } catch (Exception) {
           //do nothing
         }
 
         $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
-        $res = sqlStatementNoLog($sql, array($service_name));
+        $res = sqlStatementNoLog($sql, [$service_name]);
     }
 }
 
@@ -164,15 +164,15 @@ function execute_background_service_calls()
  * so we need to reset the is_running flag for that service before quitting
  */
 
-function background_shutdown()
+function background_shutdown(): void
 {
     global $service_name;
     if (isset($service_name)) {
         $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
-        $res = sqlStatementNoLog($sql, array($service_name));
+        $res = sqlStatementNoLog($sql, [$service_name]);
     }
 }
 
-register_shutdown_function('background_shutdown');
+register_shutdown_function(background_shutdown(...));
 execute_background_service_calls();
 unset($service_name);

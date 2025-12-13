@@ -23,10 +23,10 @@ use OpenEMR\Telemetry\TelemetryService;
 /**
  * @gloal $incdir the include directory
  */
-$incdir = $incdir ?? "";
+$incdir ??= "";
 
 $pageName = "new.php";
-if (!str_starts_with($_GET["formname"], 'LBF')) {
+if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
@@ -47,8 +47,9 @@ $formLocator = new FormLocator();
 $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
-if (TelemetryService::isTelemetryEnabled()) {
-    (new TelemetryService())->reportClickEvent([
+$telemetryService = new TelemetryService();
+if ($telemetryService->isTelemetryEnabled()) {
+    $telemetryService->reportClickEvent([
         'eventType' => 'encounterForm',
         'eventLabel' => $_GET['formname'] ?? 'Unknown',
         'eventUrl' => str_replace($GLOBALS['fileroot'], '', $file),

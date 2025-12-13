@@ -59,14 +59,14 @@ if (empty($isSMS)) {
     $form_pid = $clientApp->getRequest('form_pid');
     $isDoc = (int)$clientApp->getRequest('isDocuments');
     $isQueue = $clientApp->getRequest('isQueue');
-    $file_name = pathinfo($the_file, PATHINFO_BASENAME);
-    $details = json_decode($clientApp->getRequest('details', ''), true);
+    $file_name = pathinfo((string) $the_file, PATHINFO_BASENAME);
+    $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $template_name = $clientApp->getRequest('title');
 } else {
 // SMS contact dialog. Passed in phone or select patient from popup.
     $interface_pid = $clientApp->getRequest('pid', '');
     $portal_url = $GLOBALS['portal_onsite_two_address'];
-    $details = json_decode($clientApp->getRequest('details', ''), true);
+    $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
     $pid = $interface_pid;
 }
@@ -105,7 +105,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                     setpatient(pid);
                 }
             }
-            if (!isSms) {
+            if (!isSms && !isEmail) {
                 $(".smsExclude").addClass("d-none");
             }
             if (isUniversal) {
@@ -278,8 +278,8 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
             <input type="hidden" id="form_details" name="details" value='<?php echo attr_js($details ?? ''); ?>'>
             <div class="messages"></div>
             <div class="row">
-                <div class="form-group col-md-12 show-detail d-none">
-                    <label for="form_pid"><?php echo xlt('Medical Record Number') ?></label>
+                <div class="form-group col-12 col-sm-3 show-detail d-none">
+                    <label for="form_pid"><?php echo xlt('MRN') ?></label>
                     <input id="form_pid" type="text" name="form_pid" class="form-control"
                         placeholder="<?php echo xla('If Applicable for charting.') ?>"
                         value="<?php echo attr($interface_pid ?? '') ?>" />
@@ -309,7 +309,8 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                                 echo($isSMTP ? xla('Forward to email address if address is included.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
                             }
                             ?>"
-                            title="<?php echo xla('Attach and send to an email Address.') ?>" />
+                            title="<?php echo xla('Attach and send to an email Address.') ?>"
+                            value="<?php echo attr($details['email'] ?? '') ?>" />
                     </div>
                     <?php if (($isSMS || $isFax)) { ?>
                         <div class="form-group">

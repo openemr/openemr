@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Login screen.
+ * register-app.php Handles the registration of a new OpenEMR OAuth2 application.  This is just a front-end GUI for the
+ * /oauth2/<site>/registeration endpoint.
+ * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR
  * @link      http://www.open-emr.org
@@ -31,7 +33,6 @@ use OpenEMR\Services\DecisionSupportInterventionService;
 // not sure if we need the site id or not...
 $ignoreAuth = true;
 require_once("../globals.php");
-require_once("./../../_rest_config.php");
 
 // exit if fhir api is not turned on
 if (empty($GLOBALS['rest_fhir_api'])) {
@@ -68,13 +69,17 @@ switch ($GLOBALS['login_page_layout']) {
 }
 
 // TODO: adunsulag find out where our openemr name comes from
-$openemr_name = $openemr_name ?? '';
+$openemr_name ??= '';
 
-$scopeRepo = new ScopeRepository(RestConfig::GetInstance());
+$serverConfig = new ServerConfig();
+$fhirRegisterURL = $serverConfig->getRegistrationUrl();
+$audienceUrl = $serverConfig->getFhirUrl();
+
+$scopeRepo = new ScopeRepository();
+$scopeRepo->setServerConfig($serverConfig);
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
-$fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();
-$audienceUrl = (new ServerConfig())->getFhirUrl();
+
 
 $dsiService = new DecisionSupportInterventionService();
 $evidenceService = $dsiService->getEmptyService(ClientEntity::DSI_TYPE_EVIDENCE);

@@ -30,13 +30,13 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$db = isset($_GET['db']) ? $_GET['db'] : '0';
-$version = isset($_GET['version']) ? $_GET['version'] : '0';
-$rf = isset($_GET['rf']) ? $_GET['rf'] : '0';
-$file_revision_date = isset($_GET['file_revision_date']) ? $_GET['file_revision_date'] : '0';
-$file_checksum = isset($_GET['file_checksum']) ? $_GET['file_checksum'] : '0';
-$newInstall =   isset($_GET['newInstall']) ? $_GET['newInstall'] : '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower($db);
+$db = $_GET['db'] ?? '0';
+$version = $_GET['version'] ?? '0';
+$rf = $_GET['rf'] ?? '0';
+$file_revision_date = $_GET['file_revision_date'] ?? '0';
+$file_checksum = $_GET['file_checksum'] ?? '0';
+$newInstall =   $_GET['newInstall'] ?? '0';
+$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) $db);
 
 $files_array = scandir($mainPATH);
 array_shift($files_array); // get rid of "."
@@ -44,7 +44,7 @@ array_shift($files_array); // get rid of ".."
 
 foreach ($files_array as $file) {
     $this_file = $mainPATH . "/" . $file;
-    if (strpos($file, ".zip") === false) {
+    if (!str_contains($file, ".zip")) {
         continue;
     }
 
@@ -56,14 +56,14 @@ foreach ($files_array as $file) {
 // load the database
 if ($db == 'RXNORM') {
     if (!rxnorm_import(IS_WINDOWS)) {
-        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars((string) xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($db);
         exit;
     }
 } elseif ($db == 'SNOMED') {
     if ($rf == "rf2") {
         if (!snomedRF2_import()) {
-            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+            echo htmlspecialchars((string) xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
             temp_dir_cleanup($db);
             exit;
         } else {
@@ -72,7 +72,7 @@ if ($db == 'RXNORM') {
         }
     } elseif ($version == "US Extension") {
         if (!snomed_import(true)) {
-            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+            echo htmlspecialchars((string) xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
             temp_dir_cleanup($db);
             exit;
         } else {
@@ -81,7 +81,7 @@ if ($db == 'RXNORM') {
         }
     } else {
         if (!snomed_import(false)) {
-            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+            echo htmlspecialchars((string) xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
             temp_dir_cleanup($db);
             exit;
         } else {
@@ -91,13 +91,13 @@ if ($db == 'RXNORM') {
     }
 } elseif ($db == 'CQM_VALUESET') {
     if (!valueset_import($db)) {
-        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars((string) xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($db);
         exit;
     }
 } else { //$db == 'ICD'
     if (!icd_import($db)) {
-        echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars((string) xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($db);
         exit;
     }
@@ -105,7 +105,7 @@ if ($db == 'RXNORM') {
 
 // set the revision version in the database
 if (!update_tracker_table($db, $file_revision_date, $version, $file_checksum)) {
-    echo htmlspecialchars(xl('ERROR: Unable to set the version number.'), ENT_NOQUOTES) . "<br />";
+    echo htmlspecialchars((string) xl('ERROR: Unable to set the version number.'), ENT_NOQUOTES) . "<br />";
     temp_dir_cleanup($db);
     exit;
 }

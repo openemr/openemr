@@ -26,17 +26,11 @@ final class CDAPreParseEvent extends Event
     public const EVENT_HANDLE = 'cda.component.pre.parse';
 
     /**
-     * @var array Should equal the $templateData property in CdaTemplateParse
-     */
-    private $components;
-
-    /**
      *
      * @param array $components
      */
-    public function __construct(array $components = [])
+    public function __construct(private array $components = [])
     {
-        $this->components = $components;
     }
 
     /**

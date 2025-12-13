@@ -13,25 +13,18 @@ if (!extension_loaded("curl")) {
 
 class MaviqClient
 {
-    protected $Endpoint;
-    protected $SiteId;
-    protected $Token;
-
-    public function __construct($siteId, $token, $endpoint)
+    public function __construct(protected $SiteId, protected $Token, protected $Endpoint)
     {
-        $this->SiteId = $siteId;
-        $this->Token = $token;
-        $this->Endpoint = $endpoint;
     }
 
-    public function sendRequest($path, $method = "POST", $vars = array())
+    public function sendRequest($path, $method = "POST", $vars = [])
     {
 
         echo "Path: {$path}\n";
 
         $encoded = "";
         foreach ($vars as $key => $value) {
-            $encoded .= "$key=" . urlencode($value) . "&";
+            $encoded .= "$key=" . urlencode((string) $value) . "&";
         }
 
         $encoded = substr($encoded, 0, -1);
@@ -45,7 +38,7 @@ class MaviqClient
 
         // if GET and vars, append them
         if ($method == "GET") {
-            $url .= (false === strpos($path, '?') ? "?" : "&") . $encoded;
+            $url .= (!str_contains((string) $path, '?') ? "?" : "&") . $encoded;
         }
 
         // initialize a new curl object
@@ -53,7 +46,7 @@ class MaviqClient
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        switch (strtoupper($method)) {
+        switch (strtoupper((string) $method)) {
             case "GET":
                 curl_setopt($curl, CURLOPT_HTTPGET, true);
                 break;
@@ -119,26 +112,22 @@ class MaviqClient
 
 class RestResponse
 {
-    public $ResponseText;
     public $ResponseXml;
-    public $HttpStatus;
     public $Url;
     public $QueryString;
     public $IsError;
     public $ErrorMessage;
 
-    public function __construct($url, $text, $status)
+    public function __construct($url, public $ResponseText, public $HttpStatus)
     {
-        preg_match('/([^?]+)\??(.*)/', $url, $matches);
+        preg_match('/([^?]+)\??(.*)/', (string) $url, $matches);
         $this->Url = $matches[1];
         $this->QueryString = $matches[2];
-        $this->ResponseText = $text;
-        $this->HttpStatus = $status;
         if ($this->HttpStatus != 204) {
-            $this->ResponseXml = @simplexml_load_string($text);
+            $this->ResponseXml = @simplexml_load_string((string) $this->ResponseText);
         }
 
-        if ($this->IsError = ($status >= 400)) {
+        if ($this->IsError = ($this->HttpStatus >= 400)) {
             $this->ErrorMessage =
                 (string)$this->ResponseXml->RestException->Message;
         }

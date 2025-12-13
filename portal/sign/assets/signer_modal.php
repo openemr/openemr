@@ -24,7 +24,7 @@ if (empty($is_portal)) {
     SessionUtil::portalSessionCookieDestroy();
 } else {
     //landing page definition -- where to go if something goes wrong
-    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+    $landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? null));
     //
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $pid = $_SESSION['pid'];

@@ -4,17 +4,16 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Tests\Api\ApiTestClient;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Test cases for the OpenEMR Api Test Client
- * NOTE: currently disabled (by naming convention) until work is completed to support running as part of Travis CI
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class ApiTestClientTest extends TestCase
 {
@@ -37,28 +36,17 @@ class ApiTestClientTest extends TestCase
         $this->client = new ApiTestClient($baseUrl, false);
     }
 
-    public function tearDown(): void
-    {
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
-    }
-
-    /**
-     * @cover ::getConfig with a null value
-     */
-    public function testGetConfigWithNull()
+    public function testGetConfigWithNull(): void
     {
         $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->expectException(\InvalidArgumentException::class);
         $this->client->getConfig(null);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
-    /**
-     * @cover ::getConfig for HTTP client settings
-     */
-    public function testGetConfig()
+    public function testGetConfig(): void
     {
         $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertFalse($this->client->getConfig("http_errors"));
@@ -69,108 +57,103 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals("application/json", $actualHeaders["Accept"]);
         $this->assertArrayHasKey("User-Agent", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests the automated testing when invalid credentials arguments are provided
-     * @covers ::setAuthToken with invalid credential argument
      */
-    public function testApiAuthInvalidArgs()
+    public function testApiAuthInvalidArgs(): void
     {
         try {
-            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("foo" => "bar"));
+            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, ["foo" => "bar"]);
             $this->assertFalse(true, "expected InvalidArgumentException");
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $this->assertTrue(true);
         }
 
-        $this->tearDown();
+        $this->client->cleanupClient();
 
         try {
-            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("username" => "bar"));
+            $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, ["username" => "bar"]);
             $this->assertFalse(true, "expected InvalidArgumentException");
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $this->assertTrue(true);
         }
 
-        $this->tearDown();
+        $this->client->cleanupClient();
     }
     /**
      * Tests OpenEMR OAuth when invalid client id is provided
-     * @covers ::setAuthToken with invalid credentials
      */
-    public function testApiAuthInvalidClientId()
+    public function testApiAuthInvalidClientId(): void
     {
         $actualValue = $this->client->setAuthToken(
             ApiTestClient::OPENEMR_AUTH_ENDPOINT,
             ["client_id" => ApiTestClient::BOGUS_CLIENTID]
         );
         $this->assertEquals(401, $actualValue->getStatusCode());
-        $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
+        $this->assertEquals('invalid_client', json_decode((string) $actualValue->getBody())->error);
 
-        $this->tearDown();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR OAuth when invalid user credentials are provided
-     * @covers ::setAuthToken with invalid credentials
      */
-    public function testApiAuthInvalidUserCredentials()
+    public function testApiAuthInvalidUserCredentials(): void
     {
         $actualValue = $this->client->setAuthToken(
             ApiTestClient::OPENEMR_AUTH_ENDPOINT,
-            array("username" => "bar", "password" => "boo")
+            ["username" => "bar", "password" => "boo"]
         );
         $this->assertEquals(400, $actualValue->getStatusCode());
-        $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);
+        $this->assertEquals('Failed Authentication', json_decode((string) $actualValue->getBody())->hint);
 
-        $this->tearDown();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Auth for the REST and FHIR APIs
-     * @cover ::setAuthToken
-     * @cover ::removeAuthToken
      */
-    public function testApiAuth()
+    public function testApiAuth(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Auth for the REST and FHIR APIs (test refresh request after the auth)
-     * @cover ::setAuthToken
-     * @cover ::removeAuthToken
      */
-    public function testApiAuthThenRefresh()
+    public function testApiAuthThenRefresh(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
@@ -198,30 +181,29 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Auth for the REST and FHIR APIs (test refresh request after the auth with bad refresh token)
-     * @cover ::setAuthToken
-     * @cover ::removeAuthToken
      */
-    public function testApiAuthThenBadRefresh()
+    public function testApiAuthThenBadRefresh(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
+        $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
@@ -249,19 +231,20 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(401, $authResponse->getStatusCode());
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs
      */
-    public function testApiAuthExampleUse()
+    public function testApiAuthExampleUse(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -269,20 +252,21 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs (also does a
      *  token refresh and use with new token)
      */
-    public function testApiAuthExampleUseThenRefreshThenUse()
+    public function testApiAuthExampleUseThenRefreshThenUse(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -311,9 +295,9 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -322,20 +306,21 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs (also does a
      *  token refresh and use with new token) with missing route scope
      */
-    public function testApiAuthExampleUseThenRefreshThenUseWithMissingRouteScope()
+    public function testApiAuthExampleUseThenRefreshThenUseWithMissingRouteScope(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -345,7 +330,6 @@ class ApiTestClientTest extends TestCase
 
         // remove the route scope
         $scopeCustom = str_replace(self::API_ROUTE_SCOPE, '', ApiTestClient::ALL_SCOPES);
-
         $refreshBody = [
             "grant_type" => "refresh_token",
             "client_id" => $this->client->getClientId(),
@@ -368,31 +352,32 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(401, $actualResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs (also does a
      *  token refresh and use with new token) with missing endpoint scope
      */
-    public function testApiAuthExampleUseThenRefreshThenUseWithMissingEndpointScope()
+    public function testApiAuthExampleUseThenRefreshThenUseWithMissingEndpointScope(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -425,9 +410,9 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
         $responseBody = json_decode($authResponse->getBody());
-        $this->assertGreaterThan(10, strlen($responseBody->id_token));
-        $this->assertGreaterThan(10, strlen($responseBody->access_token));
-        $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
+        $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -436,33 +421,35 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth for the REST and FHIR APIs
      *  Then test revoking user
      */
-    public function testApiAuthExampleUseThenRevoke()
+    public function testApiAuthExampleUseThenRevoke(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(200, $actualResponse->getStatusCode());
-        $id_token = json_decode($actualValue->getBody())->id_token;
-        $this->assertGreaterThan(10, strlen($id_token));
+        $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
+        $id_token = json_decode((string) $actualValue->getBody())->id_token;
+        $this->assertGreaterThan(10, strlen((string) $id_token));
 
         $actualResponse = $this->client->cleanupRevokeAuth();
-        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
         $this->assertEquals("You have been signed out. Thank you.", $actualResponse->getBody());
 
         $actualResponse = $this->client->cleanupRevokeAuth();
-        $this->assertEquals(200, $actualResponse->getStatusCode());
-        $this->assertEquals("You are currently not signed in.", $actualResponse->getBody());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $actualResponse->getStatusCode());
+        $responseBody = json_decode((string) $actualResponse->getBody(), true);
+        $this->assertEquals("You are currently not signed in.", $responseBody['message']);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -471,19 +458,19 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint with Invalid Site After Getting Auth for the REST and FHIR APIs
      */
-    public function testApiAuthExampleUseBadSite()
+    public function testApiAuthExampleUseBadSite(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT_INVALID_SITE);
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -491,22 +478,23 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth With Bad Bearer Token for the REST and FHIR APIs
      */
-    public function testApiAuthExampleUseBadToken()
+    public function testApiAuthExampleUseBadToken(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
@@ -515,22 +503,23 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
     /**
      * Tests OpenEMR API Example Endpoint After Getting Auth With Empty Bearer Token for the REST and FHIR APIs
      */
-    public function testApiAuthExampleUseEmptyToken()
+    public function testApiAuthExampleUseEmptyToken(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->assertEquals(200, $actualValue->getStatusCode());
-        $this->assertGreaterThan(10, strlen($this->client->getIdToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getAccessToken()));
-        $this->assertGreaterThan(10, strlen($this->client->getRefreshToken()));
+        $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
+        $this->assertGreaterThan(10, strlen((string) $this->client->getIdToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
+        $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
@@ -538,27 +527,23 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
 
-        $this->tearDown();
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
     }
 
-    /**
-     * @cover ::removeAuthToken when an auth token is not present
-     */
-    public function testRemoveAuthTokenNoToken()
+    public function testRemoveAuthTokenNoToken(): void
     {
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
     }
 
-    public function testApiAuthPublicClientDoesNotReturnRefreshToken()
+    public function testApiAuthPublicClientDoesNotReturnRefreshToken(): void
     {
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [], 'public');
-        $this->assertEquals(200, $actualValue->getStatusCode(), "public client authorization should return valid status code");
+        $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode(), "public client authorization should return valid status code");
         $this->assertNull($this->client->getRefreshToken(), "Refresh token should be empty for public client");
         $this->assertNotNull($this->client->getAccessToken(), "Access token should be populated");
         $this->assertNotNull($this->client->getIdToken(), "Id token should be populated");
-
-        $this->tearDown();
     }
 }

@@ -37,11 +37,7 @@ if (
     // Attempt login
 
     // set the language
-    if (!empty($_POST['languageChoice'])) {
-        $_SESSION['language_choice'] = $_POST['languageChoice'];
-    } else {
-        $_SESSION['language_choice'] = 1;
-    }
+    $_SESSION['language_choice'] = !empty($_POST['languageChoice']) ? $_POST['languageChoice'] : 1;
 
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
@@ -127,16 +123,16 @@ if (empty($skipSessionExpirationCheck) && $throttleDownWaitMilliseconds > 0) {
     SessionTracker::processSessionThrottleDown($throttleDownWaitMilliseconds);
 }
 
-function authCloseSession()
+function authCloseSession(): void
 {
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
     global $incoming_site_id;
-    $incoming_site_id = $_SESSION['site_id'];
+    $incoming_site_id = $_SESSION['site_id'] ?? '';
     SessionUtil::coreSessionDestroy();
 }
 
-function authLoginScreen($timed_out = false)
+function authLoginScreen($timed_out = false): void
 {
   // See comment in authCloseSession().
     global $incoming_site_id;

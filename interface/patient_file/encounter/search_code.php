@@ -85,7 +85,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     " LIMIT " . escape_limit(($M + 1)) .
     "";
 
-    if ($res = sqlStatement($sql, array($pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']))) {
+    if ($res = sqlStatement($sql, [$pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']])) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
@@ -127,8 +127,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
                     "&text="     . attr_url($iter["code_text"]) .
                     "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
                     "' onclick='top.restoreSession()'>";
-                echo ucwords("<b>" . text(strtoupper($iter["code"])) . "&nbsp;" . text($iter['modifier']) .
-                    "</b>" . " " . text(strtolower($iter["code_text"])));
+                echo ucwords("<b>" . text(strtoupper((string) $iter["code"])) . "&nbsp;" . text($iter['modifier']) .
+                    "</b>" . " " . text(strtolower((string) $iter["code_text"])));
                 echo "</a><br />\n";
                 echo "</div>";
 

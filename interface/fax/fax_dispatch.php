@@ -21,6 +21,7 @@ require_once("$srcdir/gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 
 if ($_GET['file']) {
@@ -51,7 +52,7 @@ if ($_GET['file']) {
     die("No filename was given.");
 }
 
-$ext = substr($filename, strrpos($filename, '.'));
+$ext = substr((string) $filename, strrpos((string) $filename, '.'));
 $filebase = basename("/$filename", $ext);
 $faxcache = $GLOBALS['OE_SITE_DIR'] . "/faxcache/$mode/$filebase";
 
@@ -60,10 +61,10 @@ $info_msg = "";
 // This function builds an array of document categories recursively.
 // Kittens are the children of cats, you know.  :-)getKittens
 //
-function getKittens($catid, $catstring, &$categories)
+function getKittens($catid, $catstring, &$categories): void
 {
     $cres = sqlStatement("SELECT id, name FROM categories " .
-    "WHERE parent = ? ORDER BY name", array($catid));
+    "WHERE parent = ? ORDER BY name", [$catid]);
     $childcount = 0;
     while ($crow = sqlFetchArray($cres)) {
         ++$childcount;
@@ -84,7 +85,7 @@ function mergeTiffs()
     global $faxcache;
     $msg = '';
     $inames = '';
-    $tmp1 = array();
+    $tmp1 = [];
     $tmp2 = 0;
   // form_images are the checkboxes to the right of the images.
     foreach ($_POST['form_images'] as $inbase) {
@@ -96,7 +97,7 @@ function mergeTiffs()
         die(xlt("Internal error - no pages were selected!"));
     }
 
-    $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
+    $tmp0 = exec("cd " . escapeshellarg((string) $faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
     if ($tmp2) {
         $msg .= "tiffcp returned $tmp2: $tmp0 ";
     }
@@ -112,7 +113,7 @@ if ($_POST['form_save']) {
     }
 
     $action_taken = false;
-    $tmp1 = array();
+    $tmp1 = [];
     $tmp2 = 0;
 
     if ($_POST['form_cb_copy']) {
@@ -129,10 +130,10 @@ if ($_POST['form_save']) {
         //
         if ($_POST['form_cb_copy_type'] == 1) {
             // Compute a target filename that does not yet exist.
-            $ffname = check_file_dir_name(trim($_POST['form_filename']));
-            $i = strrpos($ffname, '.');
+            $ffname = check_file_dir_name(trim((string) $_POST['form_filename']));
+            $i = strrpos((string) $ffname, '.');
             if ($i) {
-                $ffname = trim(substr($ffname, 0, $i));
+                $ffname = trim(substr((string) $ffname, 0, $i));
             }
 
             if (!$ffname) {
@@ -162,7 +163,7 @@ if ($_POST['form_save']) {
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
             } else {
-                $newid = generate_id();
+                $newid = QueryUtils::generateId();
                 $fsize = filesize($target);
                 $catid = (int) $_POST['form_category'];
                 // Update the database.
@@ -172,13 +173,13 @@ if ($_POST['form_save']) {
                 "?, 'file_url', ?, NOW(), ?, " .
                 "'application/pdf', ?, ? " .
                 ")";
-                sqlStatement($query, array($newid, $fsize, 'file://' . $target, $patient_id, $docdate));
+                sqlStatement($query, [$newid, $fsize, 'file://' . $target, $patient_id, $docdate]);
                 $query = "INSERT INTO categories_to_documents ( " .
                 "category_id, document_id" .
                 " ) VALUES ( " .
                 "?, ? " .
                 ")";
-                sqlStatement($query, array($catid, $newid));
+                sqlStatement($query, [$catid, $newid]);
             } // end not error
 
             // If we are posting a note...
@@ -187,13 +188,13 @@ if ($_POST['form_save']) {
                 // See pnotes_full.php which uses this to auto-display the document.
                 $note = "$ffname$ffmod$ffsuff";
                 for ($tmp = $catid; $tmp;) {
-                    $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+                    $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", [$tmp]);
                     $note = $catrow['name'] . "/$note";
                     $tmp = $catrow['parent'];
                 }
 
                 $note = "New scanned document $newid: $note";
-                $form_note_message = trim($_POST['form_note_message']);
+                $form_note_message = trim((string) $_POST['form_note_message']);
                 if ($form_note_message) {
                     $note .= "\n" . $form_note_message;
                 }
@@ -229,7 +230,7 @@ if ($_POST['form_save']) {
                 // The following is cloned from contrib/forms/scanned_notes/new.php:
                 //
                 $query = "INSERT INTO form_scanned_notes ( notes ) VALUES ( ? )";
-                $formid = sqlInsert($query, array($_POST['form_copy_sn_comments']));
+                $formid = sqlInsert($query, [$_POST['form_copy_sn_comments']]);
                 addForm(
                     $encounter_id,
                     "Scanned Notes",
@@ -256,7 +257,7 @@ if ($_POST['form_save']) {
 
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
-                $cmd = "convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
+                $cmd = "convert -resize 800 -density 96 " . escapeshellarg((string) $tmp_name) . " -append " . escapeshellarg($imagepath);
                 $tmp0 = exec($cmd, $tmp1, $tmp2);
                 if ($tmp2) {
                     die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
@@ -265,8 +266,8 @@ if ($_POST['form_save']) {
 
             // If we are posting a patient note...
             if ($_POST['form_cb_note'] && !$info_msg) {
-                $note = "New scanned encounter note for visit on " . substr($erow['date'], 0, 10);
-                $form_note_message = trim($_POST['form_note_message']);
+                $note = "New scanned encounter note for visit on " . substr((string) $erow['date'], 0, 10);
+                $form_note_message = trim((string) $_POST['form_note_message']);
                 if ($form_note_message) {
                     $note .= "\n" . $form_note_message;
                 }
@@ -286,16 +287,16 @@ if ($_POST['form_save']) {
     } // end copy to chart
 
     if ($_POST['form_cb_forward']) {
-        $form_from     = trim($_POST['form_from']);
-        $form_to       = trim($_POST['form_to']);
-        $form_fax      = trim($_POST['form_fax']);
-        $form_message  = trim($_POST['form_message']);
+        $form_from     = trim((string) $_POST['form_from']);
+        $form_to       = trim((string) $_POST['form_to']);
+        $form_fax      = trim((string) $_POST['form_fax']);
+        $form_message  = trim((string) $_POST['form_message']);
         $form_finemode = $_POST['form_finemode'] ? '-m' : '-l';
 
         // Generate a cover page using enscript.  This can be a cool thing
         // to do, as enscript is very powerful.
         //
-        $tmp1 = array();
+        $tmp1 = [];
         $tmp2 = 0;
         $tmpfn1 = tempnam("/tmp", "fax1");
         $tmpfn2 = tempnam("/tmp", "fax2");
@@ -399,7 +400,7 @@ if ($_POST['form_save']) {
         // Close this window and refresh the fax list.
         echo "<html>\n<body>\n<script>\n";
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert('" . addslashes((string) $info_msg) . "');\n";
         }
 
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -453,7 +454,7 @@ if (! is_dir($faxcache)) {
 }
 
 // Get the categories list.
-$categories = array();
+$categories = [];
 getKittens(0, '', $categories);
 
 // Get the users list.
@@ -703,7 +704,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     <div class="col-10">
                         <?php
                         // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-                        generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), '');
+                        generate_form_field(['data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'], '');
                         ?>
                     </div>
                 </div>
@@ -827,7 +828,7 @@ if (! $dh) {
     die("Cannot read " . text($faxcache));
 }
 
-$jpgarray = array();
+$jpgarray = [];
 while (false !== ($jfname = readdir($dh))) {
     if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
         $jpgarray[$matches[1]] = $jfname;

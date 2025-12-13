@@ -35,12 +35,9 @@ class DecisionSupportInterventionService extends BaseService
 
     private bool $inNestedTransaction = false;
 
-    protected ?ClientRepository $clientRepository = null;
-
-    public function __construct(?ClientRepository $clientRepository = null)
+    public function __construct(protected ?ClientRepository $clientRepository = null)
     {
         parent::__construct(self::TABLE_NAME);
-        $this->clientRepository = $clientRepository;
     }
 
     public function setClientRepository(ClientRepository $clientRepository)
@@ -230,12 +227,8 @@ class DecisionSupportInterventionService extends BaseService
     {
         $repository = $this->getClientRepository();
         $clientEntities = $repository->listClientEntities();
-        $clientEntities = array_filter($clientEntities, function ($clientEntity) {
-            return $clientEntity->hasPredictiveDSI() || $clientEntity->hasEvidenceDSI();
-        });
-        return array_map(function ($clientEntity) use ($isSummary) {
-            return $this->getServiceForClient($clientEntity, $isSummary);
-        }, $clientEntities);
+        $clientEntities = array_filter($clientEntities, fn($clientEntity): bool => $clientEntity->hasPredictiveDSI() || $clientEntity->hasEvidenceDSI());
+        return array_map(fn($clientEntity) => $this->getServiceForClient($clientEntity, $isSummary), $clientEntities);
     }
 
     public function getService($serviceId, bool $isSummary = false)

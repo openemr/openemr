@@ -73,7 +73,7 @@ class FileUtils
      */
     public static function getHumanReadableFileSize($bytes): string
     {
-        $sizes = array('Bytes', 'KB', 'MB', 'GB', 'TB');
+        $sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         if ($bytes == 0) {
             return 'n/a';
         }
@@ -83,7 +83,7 @@ class FileUtils
         if ($i == 0) {
             return $bytes . ' ' . $sizes[$i];
         } else {
-            return round($bytes / pow(1024, $i), 1) . ' ' . $sizes[$i];
+            return round($bytes / 1024 ** $i, 1) . ' ' . $sizes[$i];
         }
     }
 

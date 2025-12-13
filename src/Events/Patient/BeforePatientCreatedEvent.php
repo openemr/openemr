@@ -26,8 +26,6 @@ class BeforePatientCreatedEvent extends Event
      */
     const EVENT_HANDLE = 'patient.before-created';
 
-    private $patientData;
-
     /**
      * BeforePatientUpdatedEvent constructor takes an array
      * of key/value pairs that represent fields of the patient_data
@@ -35,9 +33,8 @@ class BeforePatientCreatedEvent extends Event
      *
      * @param array $patientData
      */
-    public function __construct(array $patientData)
+    public function __construct(private array $patientData)
     {
-        $this->patientData = $patientData;
     }
 
     /**

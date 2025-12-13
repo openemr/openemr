@@ -13,8 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/FeeSheet.class.php");
-require_once(dirname(__FILE__) . "/api.inc.php");
+require_once(__DIR__ . "/FeeSheet.class.php");
+require_once(__DIR__ . "/api.inc.php");
 
 class FeeSheetHtml extends FeeSheet
 {
@@ -38,7 +38,7 @@ class FeeSheetHtml extends FeeSheet
         $drow = sqlQuery("SELECT facility_id FROM users where username = ?", [$_SESSION['authUser']]);
         $def_facility = 0 + $drow['facility_id'];
         //
-        $sqlarr = array($def_facility);
+        $sqlarr = [$def_facility];
         $query = "SELECT id, lname, fname, facility_id FROM users WHERE " .
         "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' ";
         if (!$GLOBALS['include_inactive_providers']) {
@@ -129,8 +129,8 @@ class FeeSheetHtml extends FeeSheet
                         $allowed = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
                     }
                     if (
-                        ((strlen($default) == 0 && $lrow['is_default']) ||
-                        (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
+                        ((strlen((string) $default) == 0 && $lrow['is_default']) ||
+                        (strlen((string) $default)  > 0 && $lrow['option_id'] == $default)) &&
                         ($is_sold || $allowed)
                     ) {
                         $s .= " selected";
@@ -173,7 +173,7 @@ class FeeSheetHtml extends FeeSheet
             "FROM list_options AS lo " .
             "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
             "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-            array($pr_id, $pr_selector)
+            [$pr_id, $pr_selector]
         );
         $standardPrice = 0;
         while ($lrow = sqlFetchArray($lres)) {
@@ -187,7 +187,7 @@ class FeeSheetHtml extends FeeSheet
                 // If price level notes contains a percentage,
                 // calculate price as percentage of standard price
                 $notes = $lrow['notes'];
-                if (!empty($notes) && strpos($notes, '%') > -1) {
+                if (!empty($notes) && strpos((string) $notes, '%') > -1) {
                     $percent = intval(str_replace('%', '', $notes));
                     if ($percent > 0) {
                         $price = $standardPrice * ((100 - $percent) / 100);
@@ -201,8 +201,8 @@ class FeeSheetHtml extends FeeSheet
             $s .= "<option value='" . attr($lrow['option_id']) . "'";
             $s .= " id='prc_$price'";
             if (
-                (strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
-                (strlen($default)  > 0 && $lrow['option_id'] == $default)
+                (strlen((string) $default) == 0 && $lrow['is_default'] && !$disabled) ||
+                (strlen((string) $default)  > 0 && $lrow['option_id'] == $default)
             ) {
                 $s .= " selected";
             }
@@ -252,7 +252,7 @@ class FeeSheetHtml extends FeeSheet
             $csrow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM shared_attributes WHERE " .
                 "pid = ? AND field_id = 'cgen_newmauser'",
-                array($this->pid)
+                [$this->pid]
             );
             if ($csrow['count'] == 0) {
                 $s .= "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'>\n";

@@ -58,7 +58,7 @@ function addNewDocument(
     }
 
     // Build the $_FILES array
-    $TEMP_FILES = array();
+    $TEMP_FILES = [];
     $TEMP_FILES['file']['name'][0] = $name;
     $TEMP_FILES['file']['type'][0] = $type;
     $TEMP_FILES['file']['tmp_name'][0] = $tmp_name;
@@ -88,7 +88,7 @@ function addNewDocument(
         return false;
     }
 
-    return array("doc_id" => $v[0]->id, "url" => $v[0]->url, "name" => $v[0]->name);
+    return ["doc_id" => $v[0]->id, "url" => $v[0]->url, "name" => $v[0]->name];
 }
 
 /**
@@ -99,7 +99,7 @@ function addNewDocument(
  */
 function document_category_to_id($category_title)
 {
-    $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", array($category_title));
+    $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", [$category_title]);
     if ($ret['id']) {
         return $ret['id'];
     } else {
@@ -119,278 +119,142 @@ function get_extension($imagetype)
         return false;
     }
 
-    switch ($imagetype) {
-        case 'application/andrew-inset':
-            return '.ez';
-        case 'application/mac-binhex40':
-            return '.hqx';
-        case 'application/mac-compactpro':
-            return '.cpt';
-        case 'application/msword':
-            return '.doc';
-        case 'application/octet-stream':
-            return '.bin';
-        case 'application/octet-stream':
-            return '.dms';
-        case 'application/octet-stream':
-            return '.lha';
-        case 'application/octet-stream':
-            return '.lzh';
-        case 'application/octet-stream':
-            return '.exe';
-        case 'application/octet-stream':
-            return '.class';
-        case 'application/octet-stream':
-            return '.so';
-        case 'application/octet-stream':
-            return '.dll';
-        case 'application/oda':
-            return '.oda';
-        case 'application/pdf':
-            return '.pdf';
-        case 'application/postscript':
-            return '.ai';
-        case 'application/postscript':
-            return '.eps';
-        case 'application/postscript':
-            return '.ps';
-        case 'application/smil':
-            return '.smi';
-        case 'application/smil':
-            return '.smil';
-        case 'application/vnd.wap.wbxml':
-            return '.wbxml';
-        case 'application/vnd.wap.wmlc':
-            return '.wmlc';
-        case 'application/vnd.wap.wmlscriptc':
-            return '.wmlsc';
-        case 'application/x-bcpio':
-            return '.bcpio';
-        case 'application/x-cdlink':
-            return '.vcd';
-        case 'application/x-chess-pgn':
-            return '.pgn';
-        case 'application/x-cpio':
-            return '.cpio';
-        case 'application/x-csh':
-            return '.csh';
-        case 'application/x-director':
-            return '.dcr';
-        case 'application/x-director':
-            return '.dir';
-        case 'application/x-director':
-            return '.dxr';
-        case 'application/x-dvi':
-            return '.dvi';
-        case 'application/x-futuresplash':
-            return '.spl';
-        case 'application/x-gtar':
-            return '.gtar';
-        case 'application/x-hdf':
-            return '.hdf';
-        case 'application/x-javascript':
-            return '.js';
-        case 'application/x-koan':
-            return '.skp';
-        case 'application/x-koan':
-            return '.skd';
-        case 'application/x-koan':
-            return '.skt';
-        case 'application/x-koan':
-            return '.skm';
-        case 'application/x-latex':
-            return '.latex';
-        case 'application/x-netcdf':
-            return '.nc';
-        case 'application/x-netcdf':
-            return '.cdf';
-        case 'application/x-sh':
-            return '.sh';
-        case 'application/x-shar':
-            return '.shar';
-        case 'application/x-shockwave-flash':
-            return '.swf';
-        case 'application/x-stuffit':
-            return '.sit';
-        case 'application/x-sv4cpio':
-            return '.sv4cpio';
-        case 'application/x-sv4crc':
-            return '.sv4crc';
-        case 'application/x-tar':
-            return '.tar';
-        case 'application/x-tcl':
-            return '.tcl';
-        case 'application/x-tex':
-            return '.tex';
-        case 'application/x-texinfo':
-            return '.texinfo';
-        case 'application/x-texinfo':
-            return '.texi';
-        case 'application/x-troff':
-            return '.t';
-        case 'application/x-troff':
-            return '.tr';
-        case 'application/x-troff':
-            return '.roff';
-        case 'application/x-troff-man':
-            return '.man';
-        case 'application/x-troff-me':
-            return '.me';
-        case 'application/x-troff-ms':
-            return '.ms';
-        case 'application/x-ustar':
-            return '.ustar';
-        case 'application/x-wais-source':
-            return '.src';
-        case 'application/xhtml+xml':
-            return '.xhtml';
-        case 'application/xhtml+xml':
-            return '.xht';
-        case 'application/zip':
-            return '.zip';
-        case 'audio/basic':
-            return '.au';
-        case 'audio/basic':
-            return '.snd';
-        case 'audio/midi':
-            return '.mid';
-        case 'audio/midi':
-            return '.midi';
-        case 'audio/midi':
-            return '.kar';
-        case 'audio/mpeg':
-            return '.mpga';
-        case 'audio/mpeg':
-            return '.mp2';
-        case 'audio/mpeg':
-            return '.mp3';
-        case 'audio/x-aiff':
-            return '.aif';
-        case 'audio/x-aiff':
-            return '.aiff';
-        case 'audio/x-aiff':
-            return '.aifc';
-        case 'audio/x-mpegurl':
-            return '.m3u';
-        case 'audio/x-pn-realaudio':
-            return '.ram';
-        case 'audio/x-pn-realaudio':
-            return '.rm';
-        case 'audio/x-pn-realaudio-plugin':
-            return '.rpm';
-        case 'audio/x-realaudio':
-            return '.ra';
-        case 'audio/x-wav':
-            return '.wav';
-        case 'chemical/x-pdb':
-            return '.pdb';
-        case 'chemical/x-xyz':
-            return '.xyz';
-        case 'image/bmp':
-            return '.bmp';
-        case 'image/gif':
-            return '.gif';
-        case 'image/ief':
-            return '.ief';
-        case 'image/jpeg':
-            return '.jpeg';
-        case 'image/jpeg':
-            return '.jpg';
-        case 'image/jpeg':
-            return '.jpe';
-        case 'image/png':
-            return '.png';
-        case 'image/tiff':
-            return '.tiff';
-        case 'image/tif':
-            return '.tif';
-        case 'image/vnd.djvu':
-            return '.djvu';
-        case 'image/vnd.djvu':
-            return '.djv';
-        case 'image/vnd.wap.wbmp':
-            return '.wbmp';
-        case 'image/x-cmu-raster':
-            return '.ras';
-        case 'image/x-portable-anymap':
-            return '.pnm';
-        case 'image/x-portable-bitmap':
-            return '.pbm';
-        case 'image/x-portable-graymap':
-            return '.pgm';
-        case 'image/x-portable-pixmap':
-            return '.ppm';
-        case 'image/x-rgb':
-            return '.rgb';
-        case 'image/x-xbitmap':
-            return '.xbm';
-        case 'image/x-xpixmap':
-            return '.xpm';
-        case 'image/x-windowdump':
-            return '.xwd';
-        case 'model/iges':
-            return '.igs';
-        case 'model/iges':
-            return '.iges';
-        case 'model/mesh':
-            return '.msh';
-        case 'model/mesh':
-            return '.mesh';
-        case 'model/mesh':
-            return '.silo';
-        case 'model/vrml':
-            return '.wrl';
-        case 'model/vrml':
-            return '.vrml';
-        case 'text/css':
-            return '.css';
-        case 'text/html':
-            return '.html';
-        case 'text/html':
-            return '.htm';
-        case 'text/plain':
-            return '.asc';
-        case 'text/plain':
-            return '.txt';
-        case 'text/richtext':
-            return '.rtx';
-        case 'text/rtf':
-            return '.rtf';
-        case 'text/sgml':
-            return '.sgml';
-        case 'text/sgml':
-            return '.sgm';
-        case 'text/tab-seperated-values':
-            return '.tsv';
-        case 'text/vnd.wap.wml':
-            return '.wml';
-        case 'text/vnd.wap.wmlscript':
-            return '.wmls';
-        case 'text/x-setext':
-            return '.etx';
-        case 'text/xml':
-            return '.xml';
-        case 'text/xml':
-            return '.xsl';
-        case 'video/mpeg':
-            return '.mpeg';
-        case 'video/mpeg':
-            return '.mpg';
-        case 'video/mpeg':
-            return '.mpe';
-        case 'video/quicktime':
-            return '.qt';
-        case 'video/quicktime':
-            return '.mov';
-        case 'video/vnd.mpegurl':
-            return '.mxu';
-        case 'video/x-msvideo':
-            return '.avi';
-        case 'video/x-sgi-movie':
-            return '.movie';
-        case 'x-conference-xcooltalk':
-            return '.ice';
-        default:
-            return "";
-    }
+    return match ($imagetype) {
+        'application/andrew-inset' => '.ez',
+        'application/mac-binhex40' => '.hqx',
+        'application/mac-compactpro' => '.cpt',
+        'application/msword' => '.doc',
+        'application/octet-stream' => '.bin',
+        'application/octet-stream' => '.dms',
+        'application/octet-stream' => '.lha',
+        'application/octet-stream' => '.lzh',
+        'application/octet-stream' => '.exe',
+        'application/octet-stream' => '.class',
+        'application/octet-stream' => '.so',
+        'application/octet-stream' => '.dll',
+        'application/oda' => '.oda',
+        'application/pdf' => '.pdf',
+        'application/postscript' => '.ai',
+        'application/postscript' => '.eps',
+        'application/postscript' => '.ps',
+        'application/smil' => '.smi',
+        'application/smil' => '.smil',
+        'application/vnd.wap.wbxml' => '.wbxml',
+        'application/vnd.wap.wmlc' => '.wmlc',
+        'application/vnd.wap.wmlscriptc' => '.wmlsc',
+        'application/x-bcpio' => '.bcpio',
+        'application/x-cdlink' => '.vcd',
+        'application/x-chess-pgn' => '.pgn',
+        'application/x-cpio' => '.cpio',
+        'application/x-csh' => '.csh',
+        'application/x-director' => '.dcr',
+        'application/x-director' => '.dir',
+        'application/x-director' => '.dxr',
+        'application/x-dvi' => '.dvi',
+        'application/x-futuresplash' => '.spl',
+        'application/x-gtar' => '.gtar',
+        'application/x-hdf' => '.hdf',
+        'application/x-javascript' => '.js',
+        'application/x-koan' => '.skp',
+        'application/x-koan' => '.skd',
+        'application/x-koan' => '.skt',
+        'application/x-koan' => '.skm',
+        'application/x-latex' => '.latex',
+        'application/x-netcdf' => '.nc',
+        'application/x-netcdf' => '.cdf',
+        'application/x-sh' => '.sh',
+        'application/x-shar' => '.shar',
+        'application/x-shockwave-flash' => '.swf',
+        'application/x-stuffit' => '.sit',
+        'application/x-sv4cpio' => '.sv4cpio',
+        'application/x-sv4crc' => '.sv4crc',
+        'application/x-tar' => '.tar',
+        'application/x-tcl' => '.tcl',
+        'application/x-tex' => '.tex',
+        'application/x-texinfo' => '.texinfo',
+        'application/x-texinfo' => '.texi',
+        'application/x-troff' => '.t',
+        'application/x-troff' => '.tr',
+        'application/x-troff' => '.roff',
+        'application/x-troff-man' => '.man',
+        'application/x-troff-me' => '.me',
+        'application/x-troff-ms' => '.ms',
+        'application/x-ustar' => '.ustar',
+        'application/x-wais-source' => '.src',
+        'application/xhtml+xml' => '.xhtml',
+        'application/xhtml+xml' => '.xht',
+        'application/zip' => '.zip',
+        'audio/basic' => '.au',
+        'audio/basic' => '.snd',
+        'audio/midi' => '.mid',
+        'audio/midi' => '.midi',
+        'audio/midi' => '.kar',
+        'audio/mpeg' => '.mpga',
+        'audio/mpeg' => '.mp2',
+        'audio/mpeg' => '.mp3',
+        'audio/x-aiff' => '.aif',
+        'audio/x-aiff' => '.aiff',
+        'audio/x-aiff' => '.aifc',
+        'audio/x-mpegurl' => '.m3u',
+        'audio/x-pn-realaudio' => '.ram',
+        'audio/x-pn-realaudio' => '.rm',
+        'audio/x-pn-realaudio-plugin' => '.rpm',
+        'audio/x-realaudio' => '.ra',
+        'audio/x-wav' => '.wav',
+        'chemical/x-pdb' => '.pdb',
+        'chemical/x-xyz' => '.xyz',
+        'image/bmp' => '.bmp',
+        'image/gif' => '.gif',
+        'image/ief' => '.ief',
+        'image/jpeg' => '.jpeg',
+        'image/jpeg' => '.jpg',
+        'image/jpeg' => '.jpe',
+        'image/png' => '.png',
+        'image/tiff' => '.tiff',
+        'image/tif' => '.tif',
+        'image/vnd.djvu' => '.djvu',
+        'image/vnd.djvu' => '.djv',
+        'image/vnd.wap.wbmp' => '.wbmp',
+        'image/x-cmu-raster' => '.ras',
+        'image/x-portable-anymap' => '.pnm',
+        'image/x-portable-bitmap' => '.pbm',
+        'image/x-portable-graymap' => '.pgm',
+        'image/x-portable-pixmap' => '.ppm',
+        'image/x-rgb' => '.rgb',
+        'image/x-xbitmap' => '.xbm',
+        'image/x-xpixmap' => '.xpm',
+        'image/x-windowdump' => '.xwd',
+        'model/iges' => '.igs',
+        'model/iges' => '.iges',
+        'model/mesh' => '.msh',
+        'model/mesh' => '.mesh',
+        'model/mesh' => '.silo',
+        'model/vrml' => '.wrl',
+        'model/vrml' => '.vrml',
+        'text/css' => '.css',
+        'text/html' => '.html',
+        'text/html' => '.htm',
+        'text/plain' => '.asc',
+        'text/plain' => '.txt',
+        'text/richtext' => '.rtx',
+        'text/rtf' => '.rtf',
+        'text/sgml' => '.sgml',
+        'text/sgml' => '.sgm',
+        'text/tab-seperated-values' => '.tsv',
+        'text/vnd.wap.wml' => '.wml',
+        'text/vnd.wap.wmlscript' => '.wmls',
+        'text/x-setext' => '.etx',
+        'text/xml' => '.xml',
+        'text/xml' => '.xsl',
+        'video/mpeg' => '.mpeg',
+        'video/mpeg' => '.mpg',
+        'video/mpeg' => '.mpe',
+        'video/quicktime' => '.qt',
+        'video/quicktime' => '.mov',
+        'video/vnd.mpegurl' => '.mxu',
+        'video/x-msvideo' => '.avi',
+        'video/x-sgi-movie' => '.movie',
+        'x-conference-xcooltalk' => '.ice',
+        default => "",
+    };
 }

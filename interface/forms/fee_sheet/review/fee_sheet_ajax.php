@@ -39,7 +39,7 @@ if (isset($_REQUEST['task'])) {
 }
 
 if ($task == 'retrieve') {
-    $retval = array();
+    $retval = [];
     if ($_REQUEST['mode'] == 'encounters') {
         $encounters = select_encounters($req_pid, $req_encounter);
         if (isset($_REQUEST['prev_encounter'])) {
@@ -50,8 +50,8 @@ if ($task == 'retrieve') {
             }
         }
 
-        $issues = array();
-        $procedures = array();
+        $issues = [];
+        $procedures = [];
         fee_sheet_items($req_pid, ($prev_enc ?? null), $issues, $procedures);
         $retval['prev_encounter'] = $prev_enc ?? null;
         $retval['encounters'] = $encounters;
@@ -73,17 +73,17 @@ if ($task == 'retrieve') {
 
 if ($task == 'add_diags') {
     if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode($_REQUEST['diags']);
+        $json_diags = json_decode((string) $_REQUEST['diags']);
     }
 
-    $diags = array();
+    $diags = [];
     foreach ($json_diags as $diag) {
         $diags[] = new code_info($diag->code, $diag->code_type, $diag->description);
     }
 
-    $procs = array();
+    $procs = [];
     if (isset($_REQUEST['procs'])) {
-        $json_procs = json_decode($_REQUEST['procs']);
+        $json_procs = json_decode((string) $_REQUEST['procs']);
     }
 
     foreach ($json_procs as $proc) {

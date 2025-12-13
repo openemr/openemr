@@ -40,7 +40,7 @@ class SimpleTemplate
     static function TextToHtml($txt)
     {
         // Kills double spaces and spaces inside tags.
-        while (! (strpos($txt, '  ') === false)) {
+        while (str_contains((string) $txt, '  ')) {
             $txt = str_replace('  ', ' ', $txt);
         }
 
@@ -61,14 +61,14 @@ class SimpleTemplate
         // $txt = str_ireplace("<a href=http://","<a rel=\"noopener\" target=\"_blank\" href=http://",$txt);
 
         // Basic formatting
-        $eol = (strpos($txt, "\r") === false) ? "\n" : "\r\n";
+        $eol = (!str_contains($txt, "\r")) ? "\n" : "\r\n";
         $html = '<p>' . str_replace("$eol$eol", "</p><p>", $txt) . '</p>';
         $html = str_replace("$eol", "<br />\n", $html);
         $html = str_replace("</p>", "</p>\n\n", $html);
         $html = str_replace("<p></p>", "<p>&nbsp;</p>", $html);
 
         // Wipes <br /> after block tags (for when the user includes some html in the text).
-        $wipebr = array (
+        $wipebr =  [
                 "table",
                 "tr",
                 "td",
@@ -76,7 +76,7 @@ class SimpleTemplate
                 "ul",
                 "ol",
                 "li"
-        );
+        ];
 
         for ($x = 0; $x < count($wipebr); $x++) {
             $tag = $wipebr [$x];
@@ -133,7 +133,7 @@ class SimpleTemplate
      */
     static function MergeSimple($template, $values, $ldelim = "{{", $rdelim = "}}")
     {
-        $replacements = array ();
+        $replacements =  [];
 
         foreach ($values as $key => $val) {
             $replacements [$ldelim . $key . $rdelim] = $val;
@@ -165,7 +165,7 @@ class SimpleTemplate
             throw new Exception("Custom delimiters are not yet implemented. Sorry!");
         }
 
-        $results = preg_replace_callback('!\{\{(\w+)\}\}!', 'SimpleTemplate::_MergeRegExCallback', $template);
+        $results = preg_replace_callback('!\{\{(\w+)\}\}!', SimpleTemplate::_MergeRegExCallback(...), $template);
 
         self::$_MERGE_TEMPLATE_VALUES = null;
 

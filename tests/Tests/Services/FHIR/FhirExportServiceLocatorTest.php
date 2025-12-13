@@ -13,7 +13,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
-use OpenEMR\Tests\MockRestConfig;
+use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use PHPUnit\Framework\TestCase;
 
 class FhirExportServiceLocatorTest extends TestCase
@@ -23,33 +23,25 @@ class FhirExportServiceLocatorTest extends TestCase
      */
     private $object;
 
-    /**
-     * @var MockRestConfig
-     */
-    private $mockConfig;
-
     public function setUp(): void
     {
-        $this->mockConfig = new MockRestConfig();
-        $this->object = new FhirExportServiceLocator($this->mockConfig);
     }
 
     public function tearDown(): void
     {
-        $this->mockConfig::reset();
     }
 
-    public function testFindExportServices()
+    public function testFindExportServices(): void
     {
-
         $noop = function (): void {};
-        $config = $this->mockConfig;
-        $config::$FHIR_ROUTE_MAP = [
+        $routes = [
             'GET /fhir/Patient' => $noop
             ,'GET /fhir/SomeRandomResourceWithNoServiceDefinition' => $noop
         ];
+        $this->object = new FhirExportServiceLocator(
+            new FhirServiceLocator($routes)
+        );
         $resources = $this->object->findExportServices();
-
         $this->assertArrayHasKey('Patient', $resources, "Service Locator should have found Patient class");
         $this->assertArrayNotHasKey('SomeRandomResourceWithNoServiceDefinition', $resources, "Should skip resources with no export interface");
         $service = $resources['Patient'];

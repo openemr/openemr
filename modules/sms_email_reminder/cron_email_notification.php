@@ -11,8 +11,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment below exit if plan to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_CRON_EMAIL_NOTIFICATION')) {
+    die('Set OPENEMR_ENABLE_CRON_EMAIL_NOTIFICATION=1 environment variable to enable this script');
+}
 
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
@@ -39,7 +41,7 @@ $db_email_msg = cron_getNotificationData($TYPE);
 //my_print_r($db_email_msg);
 
 // get patient data for send alert
-$db_patient = cron_getAlertpatientData($TYPE);
+$db_patient = cron_getAlertpatientData();
 echo "<br />Total " . count($db_patient) . " Records Found\n";
 for ($p = 0; $p < count($db_patient); $p++) {
     $prow = $db_patient[$p];

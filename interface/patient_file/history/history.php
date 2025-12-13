@@ -40,7 +40,7 @@ $(function () {
 <style>
 <?php
 // This is for layout font size override.
-$grparr = array();
+$grparr = [];
 getLayoutProperties('HIS', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
     $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
@@ -62,17 +62,17 @@ if (!empty($grparr['']['grp_size'])) {
 <?php } ?>
 </style>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('History and Lifestyle'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "history_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -104,7 +104,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div>
     <?php
-    if (AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {?>
+    if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {?>
         <div class="row">
             <div class="col-sm-12">
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>

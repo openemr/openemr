@@ -69,7 +69,7 @@ class CarecoordinationController extends AbstractActionController
      */
     public function indexAction()
     {
-        $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
+        return $this->redirect()->toRoute('encountermanager', ['action' => 'index']);
     }
 
     /**
@@ -82,17 +82,17 @@ class CarecoordinationController extends AbstractActionController
         $request = $this->getRequest();
         $amid = $request->getPost('am_id') ?? null;
         if ($amid) {
-            $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $amid));
+            $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $amid]);
         }
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
-        $view = new ViewModel(array(
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
+        $view = new ViewModel([
             'records' => $records,
             'category_id' => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
-        ));
+        ]);
 
         return $view;
     }
@@ -111,7 +111,7 @@ class CarecoordinationController extends AbstractActionController
             $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);
         }
         if (($request->getPost('chart_all_imports') ?? null) === 'true' && empty($action)) {
-            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
             foreach ($records as $record) {
                 if (!empty($record['matched_patient']) && empty($record['is_unstructured_document'])) {
                     // @todo figure out a way to make this auto. $data is array of doc changes.
@@ -123,9 +123,9 @@ class CarecoordinationController extends AbstractActionController
             }
         }
         if (($request->getPost('delete_all_imports') ?? null) === 'true' && empty($action)) {
-            $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+            $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
             foreach ($records as $record) {
-                $this->getCarecoordinationTable()->deleteImportAuditData(array('audit_master_id' => $record['amid']));
+                $this->getCarecoordinationTable()->deleteImportAuditData(['audit_master_id' => $record['amid']]);
             }
         }
 
@@ -140,7 +140,7 @@ class CarecoordinationController extends AbstractActionController
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    array('user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s'))
+                    ['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
                     $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
@@ -159,7 +159,7 @@ class CarecoordinationController extends AbstractActionController
             }
         }
 
-        $records = $this->getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCDA', 'type' => '12'));
+        $records = $this->getCarecoordinationTable()->document_fetch(['cat_title' => 'CCDA', 'type' => '12']);
         foreach ($records as $key => $r) {
             if (!empty($records[$key]['dupl_patient'] ?? null)) {
                 continue;
@@ -185,11 +185,7 @@ class CarecoordinationController extends AbstractActionController
                     $why = xlt('Match DOB');
                 }
                 if ($name == $n && ($f || $r1['race'] == $r['race'] || $r1['ethnicity'] == $r['ethnicity'])) {
-                    if ($f) {
-                        $why = xlt('Matched Demographic and DOB');
-                    } else {
-                        $why = xlt('Matched Demographic');
-                    }
+                    $why = $f ? xlt('Matched Demographic and DOB') : xlt('Matched Demographic');
                     if ($r1['enc_count'] != $r['enc_count'] || $r1['cp_count'] != $r['cp_count'] || $r1['ob_count'] != $r['ob_count']) {
                         $why .= ' ' . xlt('with Mismatched Components');
                     }
@@ -222,13 +218,13 @@ class CarecoordinationController extends AbstractActionController
             }
         }
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'records' => $records,
             'category_id' => $category_details[0]['id'],
             'file_location' => basename($_FILES['file']['name'] ?? ''),
             'patient_id' => '00',
             'listenerObject' => $this->listenerObject
-        ));
+        ]);
         // I haven't a clue why this delay is needed to allow batch to work from fetch.
         if (!empty($upload)) {
             sleep(1);
@@ -262,65 +258,65 @@ class CarecoordinationController extends AbstractActionController
     public function revandapproveAction()
     {
         $request = $this->getRequest();
-        $document_id = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
-        $audit_master_id = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
-        $pid = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
+        $document_id = $request->getQuery('document_id') ?: $request->getPost('document_id', null);
+        $audit_master_id = $request->getQuery('amid') ?: $request->getPost('amid', null);
+        $pid = $request->getQuery('pid') ?: $request->getPost('pid', null);
 
         if ($request->getPost('setval') == 'approve') {
             $this->getCarecoordinationTable()->insertApprovedData($request->getPost());
-            return $this->redirect()->toRoute('carecoordination', array(
+            return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
-                'action' => 'upload'));
+                'action' => 'upload']);
         } elseif ($request->getPost('setval') == 'discard') {
-            $this->getCarecoordinationTable()->discardCCDAData(array('audit_master_id' => $audit_master_id));
-            return $this->redirect()->toRoute('carecoordination', array(
+            $this->getCarecoordinationTable()->discardCCDAData(['audit_master_id' => $audit_master_id]);
+            return $this->redirect()->toRoute('carecoordination', [
                 'controller' => 'Carecoordination',
-                'action' => 'upload'));
+                'action' => 'upload']);
         }
 
         $documentationOf = $this->getCarecoordinationTable()->getdocumentationOf($audit_master_id);
-        $demographics = $this->getCarecoordinationTable()->getDemographics(array('audit_master_id' => $audit_master_id));
-        $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(array('pid' => $pid));
+        $demographics = $this->getCarecoordinationTable()->getDemographics(['audit_master_id' => $audit_master_id]);
+        $demographics_old = $this->getCarecoordinationTable()->getDemographicsOld(['pid' => $pid]);
 
-        $problems = $this->getCarecoordinationTable()->getProblems(array('pid' => $pid));
+        $problems = $this->getCarecoordinationTable()->getProblems(['pid' => $pid]);
         $problems_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists1');
 
-        $allergies = $this->getCarecoordinationTable()->getAllergies(array('pid' => $pid));
+        $allergies = $this->getCarecoordinationTable()->getAllergies(['pid' => $pid]);
         $allergies_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists2');
 
-        $medications = $this->getCarecoordinationTable()->getMedications(array('pid' => $pid));
+        $medications = $this->getCarecoordinationTable()->getMedications(['pid' => $pid]);
         $medications_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'lists3');
 
-        $immunizations = $this->getCarecoordinationTable()->getImmunizations(array('pid' => $pid));
+        $immunizations = $this->getCarecoordinationTable()->getImmunizations(['pid' => $pid]);
         $immunizations_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'immunization');
 
-        $lab_results = $this->getCarecoordinationTable()->getLabResults(array('pid' => $pid));
+        $lab_results = $this->getCarecoordinationTable()->getLabResults(['pid' => $pid]);
         $lab_results_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure_result');
 
-        $vitals = $this->getCarecoordinationTable()->getVitals(array('pid' => $pid));
+        $vitals = $this->getCarecoordinationTable()->getVitals(['pid' => $pid]);
         $vitals_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'vital_sign');
 
-        $social_history = $this->getCarecoordinationTable()->getSocialHistory(array('pid' => $pid));
+        $social_history = $this->getCarecoordinationTable()->getSocialHistory(['pid' => $pid]);
         $social_history_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'social_history');
 
-        $encounter = $this->getCarecoordinationTable()->getEncounterData(array('pid' => $pid));
+        $encounter = $this->getCarecoordinationTable()->getEncounterData(['pid' => $pid]);
         $encounter_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'encounter');
 
-        $procedure = $this->getCarecoordinationTable()->getProcedure(array('pid' => $pid));
+        $procedure = $this->getCarecoordinationTable()->getProcedure(['pid' => $pid]);
         $procedure_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'procedure');
 
-        $care_plan = $this->getCarecoordinationTable()->getCarePlan(array('pid' => $pid));
+        $care_plan = $this->getCarecoordinationTable()->getCarePlan(['pid' => $pid]);
         $care_plan_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'care_plan');
 
-        $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(array('pid' => $pid));
+        $functional_cognitive_status = $this->getCarecoordinationTable()->getFunctionalCognitiveStatus(['pid' => $pid]);
         $functional_cognitive_status_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'functional_cognitive_status');
 
-        $referral = $this->getCarecoordinationTable()->getReferralReason(array('pid' => $pid));
+        $referral = $this->getCarecoordinationTable()->getReferralReason(['pid' => $pid]);
         $referral_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'referral');
 
         $discharge_medication_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_medication');
 
-        $discharge_summary = array(); // TODO: stephen what happened here?? no discharge summary review?
+        $discharge_summary = []; // TODO: stephen what happened here?? no discharge summary review?
         $discharge_summary_audit = $this->getRevAndApproveAuditArray($audit_master_id, 'discharge_summary');
 
         $gender_list = $this->getCarecoordinationTable()->getList('sex');
@@ -340,9 +336,8 @@ class CarecoordinationController extends AbstractActionController
         $demographics_old[0]['ethnicity'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['ethnicity'], 'ethnicity', '');
         $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['state'], 'state', '');
 
-        $view = new ViewModel(array(
+        $view = new ViewModel([
             'carecoordinationTable' => $this->getCarecoordinationTable(),
-            'ApplicationTable' => $this->getApplicationTable(),
             'commonplugin' => $this->CommonPlugin(), // this comes from the Application Module
             'demographics' => $demographics,
             'demographics_old' => $demographics_old,
@@ -386,7 +381,7 @@ class CarecoordinationController extends AbstractActionController
             'state_list' => $state_list,
             'listenerObject' => $this->listenerObject,
             'documentationOf' => $documentationOf,
-        ));
+        ]);
         return $view;
     }
 
@@ -394,7 +389,7 @@ class CarecoordinationController extends AbstractActionController
     {
         $request = $this->getRequest();
         $id = $request->getQuery('id');
-        $arr = explode("-", $id);
+        $arr = explode("-", (string) $id);
         $amid = $arr[0];
         $pid = $arr[1];
         $components = $this->getCarecoordinationTable()->getCCDAComponents(1);
@@ -408,7 +403,7 @@ class CarecoordinationController extends AbstractActionController
             $components['discharge_summary'] = 'Dishcharge Summary';
         }
 
-        $components = array_diff($components, array('instructions' => 'Instructions'));
+        $components = array_diff($components, ['instructions' => 'Instructions']);
 
         $temp = '<table>';
         foreach ($components as $key => $value) {
@@ -453,11 +448,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($allergies_audit['lists2'] as $val) {
                         $severity_option_id = $this->getCarecoordinationTable()->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $val['severity_al']);
                         $severity_text = $this->getCarecoordinationTable()->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $val['severity_al']);
-                        if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                            $status = 'completed';
-                        } else {
-                            $status = 'active';
-                        }
+                        $status = $val['enddate'] != 0 && $val['enddate'] != '' ? 'completed' : 'active';
 
                         $temp .= '<tr class="narr_tr">
             <td>' . CommonPlugin::escape($val['list_code_text']) . '</td>
@@ -486,16 +477,12 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($medications_audit['lists3'] as $val) {
-                        if ($val['enddate'] && $val['enddate'] != 0) {
-                            $active = 'completed';
-                        } else {
-                            $active = 'active';
-                        }
+                        $active = $val['enddate'] && $val['enddate'] != 0 ? 'completed' : 'active';
 
                         $temp .= '<tr class="narr_tr">
                 <td>' . CommonPlugin::escape($val['drug_text']) . '</td>
                 <td>' . CommonPlugin::escape($val['rate'] . " " . $val['rate_unit'] . " " . $val['route_display'] . " " . $val['dose'] . " " . $val['dose_unit']) . '</td>
-                <td>' . ApplicationTable::fixDate(substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+                <td>' . ApplicationTable::fixDate(substr((string) $val['begdate'], 0, 4) . "-" . substr((string) $val['begdate'], 4, 2) . "-" . substr((string) $val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
                 <td>' . Listener::z_xlt($active) . '</td>
                 <td>' . CommonPlugin::escape($val['indication']) . '</td>
                 <td>' . CommonPlugin::escape($val['note']) . '</td>
@@ -513,13 +500,9 @@ class CarecoordinationController extends AbstractActionController
                     $temp .= '<div><ul>';
                     $i = 1;
                     foreach ($problems_audit['lists1'] as $val) {
-                        if ($val['enddate'] != 0 && $val['enddate'] != '') {
-                            $status = 'Resolved';
-                        } else {
-                            $status = 'Active';
-                        }
+                        $status = $val['enddate'] != 0 && $val['enddate'] != '' ? 'Resolved' : 'Active';
 
-                        $temp .= '<li>' . $i . '. ' . CommonPlugin::escape($val['list_code_text']) . ',' . substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2) . ', ' . Listener::z_xlt('Status') . ' :' . Listener::z_xlt($status) . '</li>';
+                        $temp .= '<li>' . $i . '. ' . CommonPlugin::escape($val['list_code_text']) . ',' . substr((string) $val['begdate'], 0, 4) . "-" . substr((string) $val['begdate'], 4, 2) . "-" . substr((string) $val['begdate'], 6, 2) . ', ' . Listener::z_xlt('Status') . ' :' . Listener::z_xlt($status) . '</li>';
                         $i++;
                     }
 
@@ -541,7 +524,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($immunizations_audit['immunization'] as $val) {
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['cvx_code_text']) . '</td>
-        <td>' . $this->getCarecoordinationTable()->getMonthString(substr($val['administered_date'], 4, 2)) . ' ' . substr($val['administered_date'], 0, 4) . '</td>
+        <td>' . $this->getCarecoordinationTable()->getMonthString(substr((string) $val['administered_date'], 4, 2)) . ' ' . substr((string) $val['administered_date'], 0, 4) . '</td>
         <td>' . Listener::z_xlt('Completed') . '</td>
     </tr>';
                     }
@@ -563,7 +546,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($procedure_audit['procedure'] as $val) {
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['code_text']) . '</td>
-        <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+        <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
     </tr>';
                     }
 
@@ -588,7 +571,7 @@ class CarecoordinationController extends AbstractActionController
                             $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['results_text']) . ($val['results_range'] != "-" ? "(" . CommonPlugin::escape($val['results_range']) . ")" : "") . '</td>
         <td>' . CommonPlugin::escape($val['results_value']) . " " . CommonPlugin::escape($val['results_unit']) . '</td>
-        <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+        <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
      </tr>';
                         }
                     }
@@ -610,7 +593,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($care_plan_audit['care_plan'] as $val) {
                         $temp .= '<tr class="narr_tr">
     <td>' . CommonPlugin::escape($val['code_text']) . '</td>
-    <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+    <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
     </tr>';
                     }
 
@@ -626,7 +609,7 @@ class CarecoordinationController extends AbstractActionController
  <thead><tr class="narr_tr">
  <th class="narr_th" align="right">' . Listener::z_xlt('Date / Time') . ': </th>';
                     foreach ($vitals_audit['vital_sign'] as $val) {
-                        $temp .= '<th class="narr_th">' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</th>';
+                        $temp .= '<th class="narr_th">' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</th>';
                     }
 
                     $temp .= '</tr></thead><tbody>
@@ -715,7 +698,7 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($social_history_audit['social_history'] as $val) {
-                        $array_his_tobacco = explode("|", $val['smoking']);
+                        $array_his_tobacco = explode("|", (string) $val['smoking']);
                         if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                             $his_tob_date = substr($array_his_tobacco[2], 0, 4) . "-" . substr($array_his_tobacco[2], 4, 2) . "-" . substr($array_his_tobacco[2], 6, 2);
                         }
@@ -747,13 +730,9 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                     foreach ($encounter_audit['encounter'] as $val) {
-                        if (!empty($val['code_text'])) {
-                            $encounter_activity = 'Active';
-                        } else {
-                            $encounter_activity = '';
-                        }
+                        $encounter_activity = !empty($val['code_text']) ? 'Active' : '';
 
-                        $enc_date = substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2);
+                        $enc_date = substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2);
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['pc_catname']) . '</td>
         <td>' . CommonPlugin::escape($val['provider_name']) . '</td>
@@ -784,7 +763,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach ($functional_cognitive_status_audit['functional_cognitive_status'] as $val) {
                         $temp .= '<tr class="narr_tr">
         <td>' . CommonPlugin::escape($val['description']) . '</td>
-        <td>' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+        <td>' . ApplicationTable::fixDate(substr((string) $val['date'], 0, 4) . "-" . substr((string) $val['date'], 4, 2) . "-" . substr((string) $val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
         <td>' . Listener::z_xlt('Active') . '</td>
     </tr>';
                     }
@@ -799,7 +778,7 @@ class CarecoordinationController extends AbstractActionController
                 if (count($referral_audit) > 0) {
                     $temp .= '<div>';
                     foreach ($referral_audit['referral'] as $val) {
-                        $referal_data = explode("#$%^&*", $val['body']);
+                        $referal_data = explode("#$%^&*", (string) $val['body']);
                         foreach ($referal_data as $v) {
                             $temp .= '<p>' . CommonPlugin::escape($v) . '</p>';
                         }
@@ -826,16 +805,12 @@ class CarecoordinationController extends AbstractActionController
         </tr></thead>
     <tbody>';
                 foreach ($discharge_medication_audit['discharge_medication'] as $val) {
-                    if ($val['enddate'] && $val['enddate'] != 0) {
-                        $active = 'completed';
-                    } else {
-                        $active = 'active';
-                    }
+                    $active = $val['enddate'] && $val['enddate'] != 0 ? 'completed' : 'active';
 
                     $temp .= '<tr class="narr_tr">
                 <td>' . CommonPlugin::escape($val['drug_text']) . '</td>
                 <td>' . CommonPlugin::escape($val['rate'] . " " . $val['rate_unit'] . " " . $val['route_display'] . " " . $val['dose'] . " " . $val['dose_unit']) . '</td>
-                <td>' . ApplicationTable::fixDate(substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
+                <td>' . ApplicationTable::fixDate(substr((string) $val['begdate'], 0, 4) . "-" . substr((string) $val['begdate'], 4, 2) . "-" . substr((string) $val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</td>
                 <td>' . Listener::z_xlt($active) . '</td>
                 <td>' . CommonPlugin::escape($val['indication']) . '</td>
                 <td>' . CommonPlugin::escape($val['note']) . '</td>
@@ -868,14 +843,6 @@ class CarecoordinationController extends AbstractActionController
     public function getCarecoordinationTable()
     {
         return $this->carecoordinationTable;
-    }
-
-    /**
-     * Returns the application table.
-     */
-    public function getApplicationTable()
-    {
-        return $this->applicationTable;
     }
 
     /**
@@ -932,7 +899,7 @@ class CarecoordinationController extends AbstractActionController
             } elseif ($componentCount == ($patientNameIndex + 1)) {
                 // if they have more than maxDocuments in ccd files we need to break out of someone trying to directory
                 // bomb the file system
-                $patientCountHash[$patientNameIndex] = $patientCountHash[$patientNameIndex] ?? 0;
+                $patientCountHash[$patientNameIndex] ??= 0;
 
                 // let's check for ccda
                 if ($patientCount > $maxPatients) {
@@ -952,7 +919,7 @@ class CarecoordinationController extends AbstractActionController
                     $patientCountHash[$patientNameIndex];
                 }
             } elseif ($componentCount == ($patientDocumentsIndex + 1)) {
-                if ($patientCountHash[$patientNameIndex] ?? '' > $maxDocuments) {
+                if (($patientCountHash[$patientNameIndex] ?? '') > $maxDocuments) {
                     $shouldDeleteIndex = true;
                 } else {
                     if (!empty($patientCountHash[$patientNameIndex])) {

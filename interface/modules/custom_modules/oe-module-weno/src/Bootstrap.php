@@ -35,11 +35,6 @@ class Bootstrap
 {
     const MODULE_MENU_NAME = "Weno";
 
-    /**
-     * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
-     */
-    private $eventDispatcher;
-
     private $moduleDirectoryName;
 
     /**
@@ -59,12 +54,12 @@ class Bootstrap
      */
     private $logger;
 
-    private string $modulePath;
+    private readonly string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private SelectedPatientPharmacy $selectedPatientPharmacy;
+    private readonly SelectedPatientPharmacy $selectedPatientPharmacy;
     public string $installPath;
     /**
      * @var mixed|string
@@ -72,10 +67,13 @@ class Bootstrap
     public mixed $isWenoUser;
     public bool $isAuthorized;
 
-    public function __construct(EventDispatcher $dispatcher)
-    {
+    /**
+     * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     */
+    public function __construct(
+        private readonly EventDispatcher $eventDispatcher
+    ) {
         $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
-        $this->eventDispatcher = $dispatcher;
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
@@ -167,7 +165,7 @@ class Bootstrap
      */
     public function registerDemographicsEvents(): void
     {
-        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, [$this, 'renderWenoSection']);
+        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, $this->renderWenoSection(...));
     }
 
     /**
@@ -176,7 +174,7 @@ class Bootstrap
      */
     public function renderWenoSection(pRenderEvent $event): void
     {
-        if (!$this->isWenoUser || !$this->isAuthorized) {
+        if (!$this->isAuthorized) {
             return;
         }
 
@@ -222,7 +220,7 @@ class Bootstrap
      */
     public function addGlobalSettings(): void
     {
-        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalWenoSettings']);
+        $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, $this->addGlobalWenoSettings(...));
     }
 
     /**
@@ -230,7 +228,7 @@ class Bootstrap
      */
     public function registerMenuItems(): void
     {
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomMenuItem(...));
     }
 
     /**
@@ -326,7 +324,7 @@ class Bootstrap
      */
     public function demographicsSelectorEvents(): void
     {
-        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, $this->renderWenoPharmacySelector(...));
     }
 
     /**
@@ -346,7 +344,7 @@ class Bootstrap
      */
     public function demographicsDisplaySelectedEvents(): void
     {
-        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, $this->renderSelectedWenoPharmacies(...));
     }
 
     /**
@@ -363,7 +361,7 @@ class Bootstrap
      */
     public function patientSaveEvents(): void
     {
-        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
+        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, $this->persistPatientWenoPharmacies(...));
     }
 
     /**
@@ -381,7 +379,7 @@ class Bootstrap
      */
     public function patientUpdateEvents(): void
     {
-        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
+        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, $this->updatePatientWenoPharmacies(...));
     }
 
     /**
@@ -408,8 +406,8 @@ class Bootstrap
     public function moduleSqlUpgrade($installScript): string
     {
         try {
-            $fileName = basename($installScript);
-            $dir = dirname($installScript);
+            $fileName = basename((string) $installScript);
+            $dir = dirname((string) $installScript);
             $sqlUpgradeService = new SQLUpgradeService();
             $sqlUpgradeService->setThrowExceptionOnError(true);
             $sqlUpgradeService->setRenderOutputToScreen(false);

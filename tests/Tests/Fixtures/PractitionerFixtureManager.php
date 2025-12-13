@@ -41,7 +41,7 @@ class PractitionerFixtureManager
      */
     private function loadJsonFile($fileName)
     {
-        $filePath = dirname(__FILE__) . "/" . $fileName;
+        $filePath = __DIR__ . "/" . $fileName;
         $jsonData = file_get_contents($filePath);
         $parsedRecords = json_decode($jsonData, true);
         return $parsedRecords;
@@ -84,7 +84,7 @@ class PractitionerFixtureManager
 
         foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
-            $sqlBinds = array();
+            $sqlBinds = [];
 
             foreach ($fixture as $field => $fieldValue) {
                 $sqlColumnValues .= $field . " = ?, ";
@@ -161,7 +161,7 @@ class PractitionerFixtureManager
      */
     public function installSinglePractitionerFixture($practitionerFixture)
     {
-        return $this->installFixtures("users", array($practitionerFixture));
+        return $this->installFixtures("users", [$practitionerFixture]);
     }
 
     /**
@@ -180,7 +180,7 @@ class PractitionerFixtureManager
 
         // remove the practitioners
         $delete = "DELETE FROM users WHERE fname LIKE ?";
-        sqlStatement($delete, array($bindVariable));
+        sqlStatement($delete, [$bindVariable]);
     }
 
     /**

@@ -19,7 +19,7 @@ class AMC_304a_Numerator implements AmcFilterIF
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Simply need a prescription within the report dates.
-        $check = sqlQuery("SELECT * FROM `prescriptions` WHERE `patient_id`=? AND `date_added`>=? AND `date_added`<=? AND erx_source = 1", array($patient->id,$beginDate,$endDate));
+        $check = sqlQuery("SELECT * FROM `prescriptions` WHERE `patient_id`=? AND `date_added`>=? AND `date_added`<=? AND erx_source = 1", [$patient->id,$beginDate,$endDate]);
         if (!empty($check)) {
             return true;
         } else {

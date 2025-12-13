@@ -3,18 +3,26 @@
     "version": "7.0.4",
     "description": "OpenEMR C-CDA templating generator service",
     "main": "serveccda.js",
-    "scripts": {},
     "author": "sjpadgett@gmail.com",
     "license": "GPL-3.0",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "start": "node serveccda.js",
+        "start:cqm": "node packages/oe-cqm-service/server.js",
+        "start:schematron": "node oe-schematron-service/app.js",
+        "test": "npm run test --workspaces"
+    },
     "dependencies": {
         "file": "./oe-blue-button-generate",
         "libxmljs2": "0.37.0",
         "lodash": "4.17.21",
         "moment": "2.30.1",
         "net": "1.0.2",
-        "oe-cqm-service": "6.0.0",
-        "oe-schematron-service": "1.1.1",
+        "oe-schematron-service": "openemr/oe-schematron-service#v2.0.0",
         "uuid": "11.1.0",
-        "xmljson": "0.2.0"
+        "xml2js": "0.6.2"
     }
 }

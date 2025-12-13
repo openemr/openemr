@@ -31,7 +31,7 @@ class Kernel
     /** @var ContainerBuilder */
     private $container;
 
-    public function __construct()
+    public function __construct(private readonly ?EventDispatcher $dispatcher = null)
     {
         $this->prepareContainer();
     }
@@ -45,10 +45,16 @@ class Kernel
             $builder = new ContainerBuilder(new ParameterBag());
             $builder->addCompilerPass(new RegisterListenersPass());
             $definition = new Definition(EventDispatcher::class, [new Reference('service_container')]);
+            if (!empty($this->dispatcher)) {
+                $definition->setSynthetic(true);
+            }
             $definition->setPublic(true);
             $builder->setDefinition('event_dispatcher', $definition);
             $builder->compile();
             $this->container = $builder;
+            if (!empty($this->dispatcher)) {
+                $this->container->set('event_dispatcher', $this->dispatcher);
+            }
         }
     }
 

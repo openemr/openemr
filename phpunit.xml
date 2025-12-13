@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+OpenEMR has two different kinds of tests:
+- "Isolated tests": Tests that run without secondary services, a data layer or significant initialization requirements
+- "Tests": Tests that require a database and initialization before they can run or pass.
+
+This file configures the kind that requires initialization.
+-->
+
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd" backupGlobals="false" bootstrap="tests/bootstrap.php" colors="false" processIsolation="false" stopOnError="false" stopOnFailure="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerErrors="true" displayDetailsOnTestsThatTriggerWarnings="true" displayDetailsOnTestsThatTriggerNotices="true" testdox="false">
   <coverage> </coverage>
   <php>
@@ -9,16 +18,6 @@
     <!--<server name="PANTHER_NO_HEADLESS" value="1"/>-->
   </php>
   <testsuites>
-    <testsuite name="openemr">
-      <directory>tests/Tests/Unit</directory>
-      <directory>tests/Tests/E2e</directory>
-      <directory>tests/Tests/Api</directory>
-      <directory>tests/Tests/Fixtures</directory>
-      <directory>tests/Tests/Services</directory>
-      <directory>tests/Tests/Validators</directory>
-      <directory>tests/Tests/RestControllers</directory>
-      <directory>tests/Tests/Common</directory>
-    </testsuite>
     <testsuite name="ECQM">
       <directory>tests/Tests/ECQM</directory>
     </testsuite>
@@ -27,6 +26,8 @@
     </testsuite>
     <testsuite name="e2e">
       <directory>tests/Tests/E2e</directory>
+      <exclude>tests/Tests/E2e/EmailSendTest.php</exclude>
+      <exclude>tests/Tests/E2e/FaxSmsEmailTest.php</exclude>
     </testsuite>
     <testsuite name="api">
       <directory>tests/Tests/Api</directory>
@@ -47,7 +48,11 @@
       <directory>tests/Tests/Common</directory>
     </testsuite>
     <testsuite name="certification">
-      <directory>tests/Tests/Certification/HIT1/G10_Certification</directory>
+      <directory>tests/Tests/Certification/HIT1</directory>
+    </testsuite>
+    <testsuite name="email">
+      <file>tests/Tests/E2e/EmailSendTest.php</file>
+      <file>tests/Tests/E2e/FaxSmsEmailTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>

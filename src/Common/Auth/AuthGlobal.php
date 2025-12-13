@@ -19,13 +19,10 @@ use OpenEMR\Common\Crypto\CryptoGen;
 class AuthGlobal
 {
     /**
-     * @var string
+     * @param string $globalSetting
      */
-    private $globalSetting;
-
-    public function __construct($globalSetting)
+    public function __construct(private $globalSetting)
     {
-        $this->globalSetting = $globalSetting;
     }
 
     public function globalVerify(string $pass): bool

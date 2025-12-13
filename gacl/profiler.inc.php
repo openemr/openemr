@@ -20,32 +20,32 @@
 
 /// Enable multiple timers to aid profiling of performance over sections of code
 class Profiler {
-    var $description;
-    var $startTime;
-    var $endTime;
-    var $initTime;
-    var $cur_timer;
-    var $stack;
-    var $trail;
-    var $trace;
-    var $count;
-    var $running;
+    public $description;
+    public $startTime;
+    public $endTime;
+    public $initTime;
+    public $cur_timer;
+    public $stack;
+    public $trail;
+    public $trace;
+    public $count;
+    public $running;
 
     /**
     * Initialise the timer. with the current micro time
     */
     function __construct( $output_enabled=false, $trace_enabled=false)
     {
-        $this->description = array();
-        $this->startTime = array();
-        $this->endTime = array();
+        $this->description = [];
+        $this->startTime = [];
+        $this->endTime = [];
         $this->initTime = 0;
         $this->cur_timer = "";
-        $this->stack = array();
+        $this->stack = [];
         $this->trail = "";
         $this->trace = "";
-        $this->count = array();
-        $this->running = array();
+        $this->count = [];
+        $this->running = [];
         $this->initTime = $this->getMicroTime();
         $this->output_enabled = $output_enabled;
         $this->trace_enabled = $trace_enabled;
@@ -132,7 +132,7 @@ class Profiler {
             echo"============================================================================\n";
             print( "Calls                    Time  Routine\n");
             echo"-----------------------------------------------------------------------------\n";
-            while (list ($key, $val) = each ($this->description)) {
+            foreach ($this->description as $key => $val) {
                 $t = $this->elapsedTime($key);
                 $total = $this->running[$key];
                 $count = $this->count[$key];
@@ -205,12 +205,12 @@ class Profiler {
     }
 }
 
-function profiler_start($name) {
+function profiler_start($name): void {
     if (array_key_exists("midcom_profiler",$GLOBALS))
       $GLOBALS["midcom_profiler"]->startTimer ($name);
 }
 
-function profiler_stop($name) {
+function profiler_stop($name): void {
     if (array_key_exists("midcom_profiler",$GLOBALS))
       $GLOBALS["midcom_profiler"]->stopTimer ($name);
 }

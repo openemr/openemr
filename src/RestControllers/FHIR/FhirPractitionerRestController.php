@@ -13,24 +13,27 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
-use OpenEMR\Validators\ProcessingResult;
-
-require_once(__DIR__ . '/../../../_rest_config.php');
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Supports REST interactions with the FHIR practitioner resource
  */
 class FhirPractitionerRestController
 {
-    private $fhirPractitionerService;
-    private $fhirService;
-    private $fhirValidate;
+    use SystemLoggerAwareTrait;
+
+    private FhirPractitionerService $fhirPractitionerService;
+    private FhirResourcesService $fhirService;
+    private FhirValidationService $fhirValidate;
 
     public function __construct()
     {
@@ -39,16 +42,22 @@ class FhirPractitionerRestController
         $this->fhirValidate = new FhirValidationService();
     }
 
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->fhirPractitionerService->setSystemLogger($systemLogger);
+        $this->systemLogger = $systemLogger;
+    }
+
     /**
      * Creates a new FHIR practitioner resource
-     * @param $fhirJson The FHIR practitioner resource
-     * @returns 201 if the resource is created, 400 if the resource is invalid
+     * @param array $fhirJson The FHIR practitioner resource
+     * @returns Response 201 if the resource is created, 400 if the resource is invalid
      */
-    public function post($fhirJson)
+    public function post($fhirJson): Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
-            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
+            return RestControllerHelper::handleFhirProcessingResult($fhirValidate, 400);
         }
 
         $object = FhirPractitionerSerializer::deserialize($fhirJson);
@@ -59,9 +68,9 @@ class FhirPractitionerRestController
 
     /**
      * Updates an existing FHIR practitioner resource
-     * @param $fhirId The FHIR practitioner resource id (uuid)
-     * @param $fhirJson The updated FHIR practitioner resource (complete resource)
-     * @returns 200 if the resource is created, 400 if the resource is invalid
+     * @param string $fhirId The FHIR practitioner resource id (uuid)
+     * @param array $fhirJson The updated FHIR practitioner resource (complete resource)
+     * @returns ResponseInterface 200 if the resource is created, 400 if the resource is invalid
      */
     public function patch($fhirId, $fhirJson)
     {
@@ -78,12 +87,12 @@ class FhirPractitionerRestController
 
     /**
      * Queries for a single FHIR practitioner resource by FHIR id
-     * @param $fhirId The FHIR practitioner resource id (uuid)
+     * @param string $fhirId The FHIR practitioner resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
     public function getOne($fhirId)
     {
-        $processingResult = $this->fhirPractitionerService->getOne($fhirId, true);
+        $processingResult = $this->fhirPractitionerService->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -101,12 +110,12 @@ class FhirPractitionerRestController
      * - name (title, first name, middle name, last name)
      * - phone (phone, work, cell)
      * - telecom (email, phone)
-     * @return FHIR bundle with query results, if found
+     * @return Response FHIR bundle with query results, if found
      */
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirPractitionerService->getAll($searchParams);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

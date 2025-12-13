@@ -19,7 +19,7 @@
  */
 function edih_php_inivals()
 {
-    $ival = array();
+    $ival = [];
     $td = basename(sys_get_temp_dir());
     $ival['maxfsize'] = ini_get('upload_max_filesize');
     $ival['maxfuploads'] = ini_get('max_file_uploads');
@@ -135,11 +135,7 @@ function edih_disp_archive_report()
     //
     csv_edihist_log("GET archivereport:  archivereport $la period $pd");
     //
-    if ($la == 'yes') {
-        $str_html = edih_archive_report($pd);
-    } else {
-        $str_html = "File Information report input parameter error<br />";
-    }
+    $str_html = $la == 'yes' ? edih_archive_report($pd) : "File Information report input parameter error<br />";
 
     //
     return $str_html;
@@ -158,11 +154,7 @@ function edih_disp_archive()
     //
     $pd = (isset($_POST['archive_sel'])) ? filter_input(INPUT_POST, 'archive_sel', FILTER_DEFAULT) : '';
     //
-    if ($pd) {
-        $str_html = edih_archive_main($pd);
-    } else {
-        $str_html = "<p>Invalid aging period for archive function</p>" . PHP_EOL;
-    }
+    $str_html = $pd ? edih_archive_main($pd) : "<p>Invalid aging period for archive function</p>" . PHP_EOL;
 
     return $str_html;
 }
@@ -226,7 +218,7 @@ function edih_disp_file_process()
             $dh = opendir($fdir);
             if ($dh) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..' && $file != "process_bills.log") {
+                    if (!in_array($file, ['.', '..', "process_bills.log"])) {
                         $checkdir = true;
                         break;
                     }
@@ -419,7 +411,7 @@ function edih_disp_x12trans()
                 // this claim payment
                 $str_htm .= edih_835_html($fn, '', $clm01, $summary);
             }
-        } elseif (strpos('|f270|f271|f276|f277|f278', $ft)) {
+        } elseif (strpos('|f270|f271|f276|f277|f278', (string) $ft)) {
             if ($fmt == 'seg') {
                 if ($trace && $rsptype) {
                     // 270|276|278|837 claim or request segments
@@ -679,7 +671,7 @@ function edih_disp_csvtable()
     csv_edihist_log("edih_disp_csvtable: $csvfile period $prd datestart $dts dateend $dte");
     //
     if ($dts && strpos($dts, '-') != 4) {
-        if (strlen($_GET['csv_date_start']) == 10 && strpos($_GET['csv_date_start'], '/') == 4) {
+        if (strlen((string) $_GET['csv_date_start']) == 10 && strpos((string) $_GET['csv_date_start'], '/') == 4) {
             $dts = str_replace('/', '-', $dts);
         } else {
             $str_html = "<p>Date " . text($dts) . " must be in YYYY-MM-DD format, no / or . please</p>" . PHP_EOL;
@@ -689,7 +681,7 @@ function edih_disp_csvtable()
     }
 
     if ($dte && strpos($dte, '-') != 4) {
-        if (strlen($_GET['csv_date_end']) == 10 && strpos($_GET['csv_date_end'], '/') == 4) {
+        if (strlen((string) $_GET['csv_date_end']) == 10 && strpos((string) $_GET['csv_date_end'], '/') == 4) {
             $dte = str_replace('/', '-', $dte);
         } else {
             $dte = '';
@@ -720,11 +712,7 @@ function edih_disp_clmhist()
     //
     if (isset($_GET['hist_enctr'])) {
         $enctr = filter_input(INPUT_GET, 'hist_enctr', FILTER_DEFAULT);
-        if ($enctr) {
-            $str_html = edih_claim_history($enctr);
-        } else {
-            $str_html = "Invalid or unknown encounter number" . PHP_EOL;
-        }
+        $str_html = $enctr ? edih_claim_history($enctr) : "Invalid or unknown encounter number" . PHP_EOL;
     } else {
         $str_html = "Invalid or unknown encounter number" . PHP_EOL;
     }
@@ -748,7 +736,7 @@ function edih_disp_era_processed()
     if ($ckno) {
         $srchval = 'ePay - ' . $ckno;
         // reference like '%".$srchval."%'"
-        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", array($srchval));
+        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", [$srchval]);
         if (!empty($row)) {
             $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
             if ($row['global_amount'] === '0' || $row['global_amount'] === '0.00') {

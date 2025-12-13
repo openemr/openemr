@@ -28,24 +28,19 @@ class IndividualResult extends AbstractType
 
     public $population_set_key;
 
-    /**
-     * @var Measure
-     */
-    public $measure;
-
     protected $_result;
 
     /**
      * IndividualResult constructor.
      *
      * @param $_result
+     * @param \OpenEMR\Services\Qdm\Measure $measure
      */
-    public function __construct($_result, $measure)
+    public function __construct($_result, public $measure)
     {
         parent::__construct($_result);
         $this->patient_id = PatientService::makeQdmIdentifier('System', PatientService::convertIdFromBSONObjectIdFormat($_result['patient_id'] ?? null));
         $this->_result = $_result;
-        $this->measure = $measure;
     }
 
     public function getInnerResult()
@@ -148,18 +143,14 @@ class IndividualResult extends AbstractType
         $population_set = reset($pop_sets);
         // collect the observation_statements for the population_set. There may be more than one. episode_results are recorded in the same order
         $observation_statements = array_map(
-            function ($obs) {
-                return $obs['observation_parameter']['statement_name'];
-            },
+            fn($obs) => $obs['observation_parameter']['statement_name'],
             $population_set->observations // was this->population_set
         );
         // collect the observation_values from and individual_result
         // a scenario with multiple episodes and multiple observations would look like this [[2], [9, 1]]
         // remove any empty values
         $obs_values_array = $this->get_observ_values($this->episode_results) ?? [];
-        $observation_values = array_filter($obs_values_array, function ($a) {
-            return isset($a);
-        });
+        $observation_values = array_filter($obs_values_array, fn($a): bool => isset($a));
         foreach ($observation_values as $episode_index => $observation_value) {
             foreach ($observation_value as $observation => $index) {
                 $obs_pop = null;

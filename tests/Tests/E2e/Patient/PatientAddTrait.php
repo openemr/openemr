@@ -23,7 +23,8 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientAddTrait;
-use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 trait PatientAddTrait
 {
@@ -33,9 +34,8 @@ trait PatientAddTrait
     private int $patientAddAttemptCounter = 1;
     private bool $closedClient = false;
 
-    /**
-     * @depends testLoginAuthorized
-     */
+    #[Depends('testLoginAuthorized')]
+    #[Test]
     public function testPatientAdd(): void
     {
         $this->base();
@@ -97,6 +97,7 @@ trait PatientAddTrait
         $newPatient['form_lname'] = $lastname;
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
+        $newPatient['form_sex_identified'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();

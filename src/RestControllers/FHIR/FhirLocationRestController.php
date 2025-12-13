@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirLocationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -22,17 +23,18 @@ class FhirLocationRestController
     /**
      * @var FhirLocationService
      */
-    private $fhirLocationService;
+    private readonly FhirLocationService $fhirLocationService;
 
     /**
      * @var FhirResourcesService
      */
     private $fhirService;
 
-    public function __construct()
+    public function __construct(private readonly HttpRestRequest $request)
     {
         $this->fhirLocationService = new FhirLocationService();
         $this->fhirService = new FhirResourcesService();
+        $this->fhirLocationService->setSession($this->request->getSession());
     }
 
     /**
@@ -53,7 +55,7 @@ class FhirLocationRestController
     public function getAll($searchParams, $patientUuid)
     {
         $processingResult = $this->fhirLocationService->getAll($searchParams, $patientUuid);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

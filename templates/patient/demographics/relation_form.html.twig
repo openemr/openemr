@@ -1,0 +1,798 @@
+{#
+  Relation Form Template - Complete Version
+  Handles editing, creating, and deleting relationships with person search
+  No modal popups - uses inline expansion for better UX
+#}
+
+<style>
+    div.table_edit_relations div.label_custom, div.form_relations div.label_custom {
+        text-align: left !important;
+    }
+    .relation-inactive {
+        opacity: 0.6;
+        background-color: var(--light);
+    }
+    .relation-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        margin: 0.5rem 0rem;
+        background-color: var(--white);
+
+    }
+    .relation-card-header {
+        background-color:  var(--light);
+        padding: 0.3rem 0.3rem;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+    }
+    .relation-card-body {
+        padding: 0.8rem 2rem;
+    }
+</style>
+
+
+<div id="{{ table_id|attr }}" class="row mt-3">
+    <div class="table_edit_relations col-12">
+        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">{{ 'Related Persons'|xlt }}</div>
+                <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_{{ table_id|attr }}" 
+                    style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_relations_{{ table_id|attr }}">
+                <label class="form-check-label" for="show_inactive_relations_{{ table_id|attr }}" style="font-size: 0.9em;">
+                    {{ 'Show Inactive'|xlt }}
+                </label>
+            </div>
+        </div>
+
+        {# Include Person Search and Create Component #}
+        {% include 'patient/demographics/relation_form_search.html.twig'  with {
+                        'owner_contact_id': owner_contact_id,
+                        'csrfToken': csrfToken
+        } %}
+
+        {% if relatedPersons|length == 0 %}
+        <div class="no_relations">
+            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NO RELATED PERSONS'|xlt }}</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+        {% endif %}
+
+        {# Render existing relations #}
+        {% for relatedPerson in relatedPersons %}
+        {% set is_inactive = not relatedPerson.active %}
+        {% set relatedPerson_index = loop.index0 %}
+        <div class="relations_group col-12 pl-0 {{ is_inactive ? 'relation-inactive d-none' : '' }}" data-active="{{ relatedPerson.active ? '1' : '0' }}" data-index="{{ relatedPerson_index }}">
+
+            {# Hidden fields - always submitted #}
+            <input type="hidden" class="form_relations_data_action"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][data_action]" value="NO CHANGE" />
+
+            <input type="hidden" class="form_relations_owner_contact_relation_id"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][owner_contact_relation_id]" value="{{ relatedPerson.owner_contact_relation_id|attr }}" />
+
+            <input type="hidden" class="form_relations_owner_contact_id"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][owner_contact_id]" value="{{ relatedPerson.owner_contact_id|attr }}" />
+
+            <input type="hidden" class="form_relations_target_table"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][target_table]" value="{{ relatedPerson.target_table|attr }}" />
+
+            <input type="hidden" class="form_relations_target_id"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][target_id]" value="{{ relatedPerson.target_id|attr }}" />
+
+            <input type="hidden" class="form_relations_active"
+                    name="{{ name_field_id|attr }}[{{ relatedPerson_index }}][active]" value="{{ relatedPerson.active ? '1' : '0' }}" />
+
+            <div class="relation-card">
+                <div class="relation-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="display_related_person form-row">
+
+                            <div class="col-2;">
+                                <i class="fas fa-caret-right fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;">
+                                    {{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}
+                                    {% if is_inactive %}
+                                        <span class="badge   text-white ml-2" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;">
+                                    {{ list_relationships[relatedPerson.relationship]|text }}
+                                    {% if relatedPerson.role %} - {{ list_roles[relatedPerson.role]|text }}{% endif %}
+                                </small>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted display_relations_dob" style="vertical-align: 0.1rem;">{% if relatedPerson.birth_date %}{{ 'DOB'|xlt }}: {{ relatedPerson.birth_date|text }}{% endif %}</small>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="display_relations_badges">
+                                {% if relatedPerson.is_emergency_contact %}
+                                    <span class="badge badge-danger mr-1">{{ 'Emergency'|xlt }}</span>
+                                {% endif %}
+                                {% if relatedPerson.is_primary_contact %}
+                                    <span class="badge badge-primary mr-1">{{ 'Primary'|xlt }}</span>
+                                {% endif %}
+                            </span>
+                            {% if is_inactive %}
+                                <button type="button" class="btn btn-sm btn-success btn-activate-relation ml-2">
+                                    <i class="fas fa-check"></i> {{ 'Reactivate'|xlt }}
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
+                                    <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class='d-none form_relations relation-card-body'>
+                    {% include 'patient/demographics/relation_form_fields.html.twig' with {
+                        'relatedPerson': relatedPerson,
+                        'field_id_esc': field_id_esc,
+                        'name_field_id': 'form_' ~ field_id_esc,
+                        'relatedPerson_index': relatedPerson_index,
+                        'is_new': false
+                    } %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# Template for adding new relations #}
+<template class="template_add_relation">
+    <div class="relations_group col-12 pl-0" data-active="1" data-index="__RP-INDEX__">
+
+        {# Hidden fields #}
+
+        <input type="hidden" class="form_relations_data_action"
+                name="{{ name_field_id|attr }}[__RP-INDEX__][data_action]" value="ADD" />
+
+        <input type="hidden" class="form_relations_owner_contact_relation_id"
+                name="{{ name_field_id|attr }}[__RP-INDEX__][owner_contact_relation_id]" value="" />
+
+        <input type="hidden" class="form_relations_owner_contact_id"
+                name="{{ name_field_id|attr }}[__RP-INDEX__][owner_contact_id]" value="" />
+
+        <input type="hidden" class="form_relations_target_table"
+                name="{{ name_field_id|attr }}[__RP-INDEX__][target_table]" value="" />
+
+        <input type="hidden" class="form_relations_target_id"
+                name="{{ name_field_id|attr }}[__RP-INDEX__][target_id]" value="" />
+
+        <input type="hidden" class="form_relations_active"
+                name="{{ name_field_id|attr }}[__RP-INDEX__][active]" value="1" />
+
+        <div class="relation-card">
+            <div class="relation-card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="display_related_person form-row">
+
+                            <div class="col-2;">
+                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;"></span>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                            </div>
+                        </div>
+
+                    <div>
+                        <span class="display_relations_badges"></span>
+                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
+                            <i class="fas fa-times"></i> {{ 'Inactivate'|xlt }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class='form_relations relation-card-body'>
+                {% include 'patient/demographics/relation_form_fields.html.twig' with {
+                    'relatedPerson': {
+                        'target_contact_id': '',
+                        'relationship': '',
+                        'role': '',
+                        'contact_priority': 1,
+                        'is_primary_contact': false,
+                        'is_emergency_contact': false,
+                        'can_make_medical_decisions': false,
+                        'can_receive_medical_info': false,
+                        'start_date': 'now'|date('Y-m-d'),
+                        'telecoms': [],
+                        'addresses': []
+                    },
+                    'field_id_esc': field_id_esc,
+                    'name_field_id': 'form_' ~ field_id_esc,
+                    'relatedPerson_index': '__RP-INDEX__',
+                    'widget_constants': widget_constants,
+                    'is_new': true
+                } %}
+            </div>
+        </div>
+    </div>
+</template>
+
+<script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
+    (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+    // IIFE Wrapper For Relation Form Functions
+    (function() {
+
+        const tableId = {{ table_id|js_escape }}
+        const ownerContactId = {{ owner_contact_id|js_escape }};
+        console.log("Running relation script for table id:", tableId);
+
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {relationFormHandler()});
+        } else {
+            relationFormHandler();
+        }
+
+        // Listen for custom event (for dynamically cloned tables)
+        document.addEventListener('relationFormHandler', function(e) {
+            console.log('Received dispatch, tableid:', tableId, 'Event:', e);
+            if (e.detail && e.detail.tableId === tableId) {
+                console.log('Received init event for relation table:', tableId);
+                relationFormHandler();
+            }
+        });
+
+
+
+        function relationFormHandler() {
+            console.debug("Running relationFormHandler for table id:", tableId);
+            const table = document.getElementById(tableId);
+            if (!table) {
+                console.error('Table not found:', tableId);
+                return;
+            }
+            const container = table.querySelector('.table_edit_relations')
+
+            let RELATION_ACTION_VALUES = {
+                'INACTIVATE': 'INACTIVATE',
+                'ADD': 'ADD',
+                'UPDATE': 'UPDATE'
+            };
+
+            let relationDatePickerSettings = {};
+            
+            {{ DateToYYYYMMDD_js() }}
+
+            disableHTML5Validation();
+            initEventListeners(tableId);
+
+            function initEventListeners(tableId) {
+                console.log('Initializing relations table:', tableId);
+
+                // Event listeners for form changes
+                table.addEventListener('input', relationUpdated);
+                table.addEventListener('change', relationUpdated);
+
+                // Listen for "add relation" requests from search component
+                document.addEventListener('addRelationForPerson', function(e) {
+                    if (e.detail && e.detail.tableId === tableId && e.detail.person) {
+                        console.log('Received addRelationForPerson event for table:', tableId);
+                        addRelationForPerson(e.detail.person);
+                    }
+                });
+
+                // ===== DATEPICKER-AGNOSTIC LISTENER =====
+                // Catches any datepicker change, regardless of library
+                if (typeof $ !== 'undefined') {
+                    // Listen for ANY event that contains 'change' or 'date' in its name
+                    // This works with: changedatetime.xdsoft, changeDate, dp.change, etc.
+                    $(table).on('change.datetimepicker changedatetime.xdsoft changeDate dp.change', 
+                        'input[class*="date"], input.datepicker', 
+                        function(e) {
+                            console.log('Datepicker changed (generic listener)');
+                            // Ensure standard change event fires
+                            if (e.type !== 'change') {
+                                $(this).trigger('change');
+                            }
+                        }
+                    );
+                }
+                
+                // ===== FALLBACK: Blur detection for manual typing in DatePicker =====
+                table.addEventListener('blur', function(event) {
+                    if (event.target.matches('input[class*="date"], input.datepicker')) {
+                        if (!event.target.dataset.lastValue) {
+                            event.target.dataset.lastValue = '';
+                        }
+                        if (event.target.dataset.lastValue !== event.target.value) {
+                            event.target.dataset.lastValue = event.target.value;
+                            console.log('Date changed via blur/typing');
+                            relationUpdated(event);
+                        }
+                    }
+                }, true);
+
+
+                // Setup show inactive checkbox
+                var showInactiveCheckbox = document.getElementById("show_inactive_relations_" + tableId);
+                if (showInactiveCheckbox) {
+                    showInactiveCheckbox.addEventListener('change', function() {
+                        toggleInactiveRelations(tableId);
+                    });
+                }
+
+                 // Setup existing related persons buttons
+                table.querySelectorAll('.relation-card-header').forEach(function (row) {
+                    setupRelatedPersonsRowButtonEventListeners(row);
+                });
+
+                /*
+                table.querySelectorAll('.form_relations').forEach(function (row) {
+                    setupContainerDatePickers(row);
+                    setupContainerListAddButtons(row);
+                });
+                */
+            }
+
+            function setupRelatedPersonsRowButtonEventListeners(row) {
+                let buttonEdit = row.querySelector(".display_related_person");
+                if (buttonEdit) {
+                    buttonEdit.addEventListener('click', toggleRelationEdit);
+                }
+
+                let buttonInactivate = row.querySelector(".btn-inactivate-relation");
+                if (buttonInactivate) {
+                    buttonInactivate.addEventListener('click', changeRelationStatus);
+                }
+
+                let buttonActivate = row.querySelector(".btn-activate-relation");
+                if (buttonActivate) {
+                    buttonActivate.addEventListener('click', changeRelationStatus);
+                }
+            }
+
+            function toggleInactiveRelations(tableId) {
+                const checkbox = document.getElementById('show_inactive_relations_' + tableId);
+                const inactiveRelations = document.querySelectorAll('#' + tableId + ' .relation-inactive');
+
+                inactiveRelations.forEach(function(relation) {
+                    if (checkbox.checked) {
+                        relation.classList.remove('d-none');
+                    } else {
+                        relation.classList.add('d-none');
+                    }
+                });
+            }
+
+            function toggleRelationEdit(event) {
+                const card = event.target.closest('.relation-card');
+                const formDiv = card.querySelector('.form_relations');
+                const icon = card.querySelector('.btn-edit-relation');
+
+                if (formDiv.classList.contains('d-none')) {
+                    formDiv.classList.remove('d-none');
+                    icon.classList.remove('fa-caret-right');
+                    icon.classList.add('fa-caret-down');
+                } else {
+                    formDiv.classList.add('d-none');
+                    icon.classList.remove('fa-caret-down');
+                    icon.classList.add('fa-caret-right');
+                }
+            }
+
+            function changeRelationStatus(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const relationsGroup = event.target.closest('.relations_group');
+                const currentActive = relationsGroup.getAttribute('data-active') === '1';
+                const activeInput = relationsGroup.querySelector('input.form_relations_active');
+                const actionInput = relationsGroup.querySelector('input.form_relations_data_action');
+
+                if (currentActive) {
+                    const confirmMsg = window.xl("Are you sure you wish to inactivate this relationship?");
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                    relationsGroup.setAttribute('data-active', '0');
+                    activeInput.value = '0';
+                    relationsGroup.classList.add('relation-inactive');
+
+                    if (actionInput.value === 'ADD') {
+                        actionInput.value = 'ADD';
+                    } else {
+                        actionInput.value = 'INACTIVATE';
+                    }
+                } else {
+                    relationsGroup.setAttribute('data-active', '1');
+                    activeInput.value = '1';
+                    relationsGroup.classList.remove('relation-inactive');
+                    actionInput.value = 'UPDATE';
+                }
+
+                relationUpdated(event);
+            }
+
+            function relationUpdated(event) {
+                console.log('Relation updated event');
+                const formTelecoms = event.target.closest('.form_telecoms');
+                if (formTelecoms !== null) return;
+
+                const formAddresses = event.target.closest('.form_adresses');
+                if (formAddresses !== null) return;
+
+                const formRelations = event.target.closest('.form_relations');
+                if (!formRelations) return;
+        
+                const relationsGroup = event.target.closest('.relations_group');
+                if (!relationsGroup) return;
+
+                const actionInput = relationsGroup.querySelector('input.form_relations_data_action');
+                if (!actionInput) return;
+
+                const currentAction = actionInput.value;
+                if (currentAction === 'ADD' || currentAction === 'INACTIVATE') return;
+
+                if (currentAction === 'NO CHANGE') {
+                    actionInput.value = RELATION_ACTION_VALUES.UPDATE;
+                    console.log('Changed action to UPDATE for relation:');
+                }
+
+                updateRelationDisplayOnChange(relationsGroup);
+                console.log('Relation form updated');
+            }
+
+            function updateRelationDisplayOnChange(relationsGroup) {
+                const displayName = relationsGroup.querySelector('.display_relations_name');
+                const displayRelationship = relationsGroup.querySelector('.display_relations_relationship');
+                const displayDob = relationsGroup.querySelector('.display_relations_dob');
+                const displayBadges = relationsGroup.querySelector('.display_relations_badges');
+
+                const firstNameInput = relationsGroup.querySelector('.form_relations_first_name');
+                const middleNameInput = relationsGroup.querySelector('.form_relations_middle_name');
+                const lastNameInput = relationsGroup.querySelector('.form_relations_last_name');
+                const birthDateInput = relationsGroup.querySelector('.form_relations_birth_date');
+
+                const relationshipSelect = relationsGroup.querySelector('.form_relations_relationship');
+                const roleSelect = relationsGroup.querySelector('.form_relations_role');
+                const emergencyCheckbox = relationsGroup.querySelector('.form_relations_emergency');
+                const primaryCheckbox = relationsGroup.querySelector('.form_relations_primary');
+
+                // Update display name from first, middle, last name inputs
+                if (displayName && (firstNameInput || lastNameInput)) {
+                    let nameParts = [];
+                    if (firstNameInput && firstNameInput.value.trim()) {
+                        nameParts.push(firstNameInput.value.trim());
+                    }
+                    if (middleNameInput && middleNameInput.value.trim()) {
+                        nameParts.push(middleNameInput.value.trim());
+                    }
+                    if (lastNameInput && lastNameInput.value.trim()) {
+                        nameParts.push(lastNameInput.value.trim());
+                    }
+                    
+                    // Check if this relation is inactive
+                    const isInactive = relationsGroup.getAttribute('data-active') === '0';
+                    let nameHtml = nameParts.join(' ');
+                    if (isInactive) {
+                        nameHtml += ' <span class="badge text-white ml-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
+                    }
+                    displayName.innerHTML = nameHtml;
+                }
+
+                // Update DOB display
+                if (displayDob && birthDateInput) {
+                    if (birthDateInput.value.trim()) {
+                        displayDob.textContent = window.xl('DOB') + ': ' + birthDateInput.value.trim();
+                    } else {
+                        displayDob.textContent = '';
+                    }
+                }
+
+                if (relationshipSelect && displayRelationship) {
+                    let displayText = relationshipSelect.options[relationshipSelect.selectedIndex]?.text || '';
+                    if (roleSelect && roleSelect.value) {
+                        displayText += ' - ' + roleSelect.options[roleSelect.selectedIndex]?.text;
+                    }
+                    displayRelationship.textContent = displayText;
+                }
+
+                if (displayBadges) {
+                    let badgesHtml = '';
+                    if (emergencyCheckbox && emergencyCheckbox.checked) {
+                        badgesHtml += '<span class="badge badge-danger mr-1">' + window.xl('Emergency') + '</span>';
+                    }
+                    if (primaryCheckbox && primaryCheckbox.checked) {
+                        badgesHtml += '<span class="badge badge-primary mr-1">' + window.xl('Primary') + '</span>';
+                    }
+                    displayBadges.innerHTML = badgesHtml;
+                }
+            }
+
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        {{ jqueryDateTimePicker('this', false, false, true) }};
+                    }
+                });
+            }
+
+            // ===== ADD RELATION FOR PERSON, AFTER PERSON CREATED BY relation_form_search.html.twig =====
+            function addRelationForPerson(person) {
+                console.log('addRelationForPerson called with:', person);
+
+                // Hide "no relations" message
+                let noRelationsElement = container.querySelector(".no_relations");
+                if (noRelationsElement && !noRelationsElement.classList.contains('d-none')) {
+                    noRelationsElement.classList.add('d-none');
+                }
+
+                const relation_template = document.querySelector(".template_add_relation");
+
+                // Find the highest existing index
+                var allGroups = container.querySelectorAll('.relations_group[data-index]');
+                var maxIndex = -1;
+                allGroups.forEach(function(group) {
+                    var idx = parseInt(group.getAttribute('data-index'));
+                    if (!isNaN(idx) && idx > maxIndex) {
+                        maxIndex = idx;
+                    }
+                });
+                var newIndex = maxIndex + 1;
+
+                // Clone the template
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = relation_template.innerHTML;
+                var html = tempDiv.innerHTML;
+
+                // Replace __RP-INDEX__ with actual index
+                html = html.replace(/__RP-INDEX__/g, newIndex);
+
+                // ===== TELECOM TABLE ID REPLACEMENTS =====
+                // Create unique ID for related person telecom tables
+                var newTelecomTableIdSuffix = js_uniqid();
+
+                // Find the old telecom table ID
+                var telecomMatch = html.match(/table_edit_telecoms_([a-f0-9]+)/);
+
+                if (telecomMatch && telecomMatch[1]) {
+                    var oldTelecomTableIdSuffix = telecomMatch[1];
+                    console.log('Replacing telecom suffix:', oldTelecomTableIdSuffix, '→', newTelecomTableIdSuffix);
+
+                    // Replace ALL occurrences of the old suffix with new suffix
+                    var telecomRegex = new RegExp(oldTelecomTableIdSuffix, 'g');
+                    html = html.replace(telecomRegex, newTelecomTableIdSuffix);
+                }
+
+                // ===== ADDRESS TABLE ID REPLACEMENTS =====
+                // Create unique ID for related person address table
+                var newAddressTableIdSuffix = js_uniqid();
+
+                // Find the old address table ID
+                var addressMatch = html.match(/table_edit_addresses_([a-f0-9]+)/);
+
+                if (addressMatch && addressMatch[1]) {
+                    var oldAddressTableIdSuffix = addressMatch[1];
+                    console.log('Address: Replacing', oldAddressTableIdSuffix, '→', newAddressTableIdSuffix);
+
+                    // Replace table ID everywhere it appears
+                    var addressRegex = new RegExp(oldAddressTableIdSuffix, 'g');
+                    html = html.replace(addressRegex, newAddressTableIdSuffix);
+                }
+
+                // Update the HTML in the temp div
+                tempDiv.innerHTML = html;
+                var relation_clone = tempDiv.firstElementChild;
+
+                // Set person data in hidden fields
+                const ownerContactIdInput = relation_clone.querySelector('.form_relations_owner_contact_id');
+                const targetTableInput = relation_clone.querySelector('.form_relations_target_table');
+                const targetIdInput = relation_clone.querySelector('.form_relations_target_id');
+                const nameDisplay = relation_clone.querySelector('.display_relations_name');
+
+                if (ownerContactIdInput) ownerContactIdInput.value = ownerContactId || '';
+                if (targetIdInput) targetIdInput.value = person.id;
+                if (targetTableInput) targetTableInput.value = person.target_table || 'person';
+
+                if (nameDisplay) {
+                    let displayName = person.first_name;
+                    if (person.middle_name) displayName += ' ' + person.middle_name;
+                    displayName += ' ' + person.last_name;
+                    nameDisplay.textContent = displayName;
+
+                    if (person.birth_date) {
+                        const dobSpan = document.createElement('small');
+                        dobSpan.className = 'text-muted';
+                        dobSpan.textContent = ' (' + window.xl('DOB') + ': ' + person.birth_date + ')';
+                        nameDisplay.appendChild(dobSpan);
+                    }
+                }
+
+                // Populate the form fields with person data
+                const firstNameInput = relation_clone.querySelector('.form_relations_first_name');
+                const middleNameInput = relation_clone.querySelector('.form_relations_middle_name');
+                const lastNameInput = relation_clone.querySelector('.form_relations_last_name');
+                const genderInput = relation_clone.querySelector('.form_relations_gender');
+                const birthDateInput = relation_clone.querySelector('.form_relations_birth_date');
+
+                if (firstNameInput) firstNameInput.value = person.first_name || '';
+                if (middleNameInput) middleNameInput.value = person.middle_name || '';
+                if (lastNameInput) lastNameInput.value = person.last_name || '';
+                if (genderInput) genderInput.value = person.gender || '';
+                if (birthDateInput) birthDateInput.value = person.birth_date || '';
+
+                // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
+                // Scripts inserted via innerHTML don't execute, so we need to replace them
+                var oldScripts = relation_clone.querySelectorAll('script');
+                oldScripts.forEach(function(oldScript) {
+                    var newScript = document.createElement('script');
+                    newScript.type = 'text/javascript';
+
+                    // Copy the script content
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+
+                    // Copy any other attributes
+                    Array.from(oldScript.attributes).forEach(function(attr) {
+                        if (attr.name !== 'type') {
+                            newScript.setAttribute(attr.name, attr.value);
+                        }
+                    });
+
+                    // Replace the old script with the new one
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+                // Add Clone to container
+                container.appendChild(relation_clone);
+                const newRelation = container.querySelector('.relations_group:last-child');
+                setupContainerDatePickers(newRelation);
+
+                // Setup event listeners for the new relation row buttons
+                const row = newRelation.querySelector('.relation-card-header');
+                if (row) {
+                    setupRelatedPersonsRowButtonEventListeners(row);
+                }
+
+                // Expand the new relation for editing
+                if (newRelation) {
+                    const formDiv = newRelation.querySelector('.form_relations');
+                    if (formDiv) {
+                        formDiv.classList.remove('d-none');
+
+                        const icon = newRelation.querySelector('.btn-edit-relation');
+                        if (icon) {
+                            icon.classList.remove('fa-caret-right');
+                            icon.classList.add('fa-caret-down');
+                        }
+
+                        newRelation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                        setTimeout(() => {
+                            const firstSelect = formDiv.querySelector('select');
+                            if (firstSelect) {
+                                firstSelect.focus();
+                            }
+                        }, 300);
+                    }
+                }
+
+                updateRelationDisplayOnChange(newRelation);
+                console.log('=== Relation #' + newIndex + ' created successfully ===\n');
+            }
+
+            function disableHTML5Validation() {
+                // Find the form and disable HTML5 validation
+                const form = document.querySelector('form[name="DEM"]') || document.querySelector('form');
+
+                if (form) {
+                    // DISABLE HTML5 validation entirely
+                    form.setAttribute('novalidate', 'novalidate');
+                    console.log('HTML5 validation disabled for form');
+
+                    // Add our own validation
+                    form.addEventListener('submit', function(e) {
+                        console.log('Form submitting - custom validation');
+
+                        let isValid = true;
+                        let firstInvalidField = null;
+                        const errors = [];
+
+                        // Only validate VISIBLE relation sections
+                        const visibleSections = document.querySelectorAll('.relation-card-body:not(.d-none)');
+
+                        visibleSections.forEach(section => {
+                            const relationsGroup = section.closest('.relations_group');
+                            const isActive = relationsGroup && relationsGroup.getAttribute('data-active') === '1';
+
+                            if (!isActive) {
+                                return; // Skip inactive relations
+                            }
+
+                            // Check for required relationship field
+                            const relationshipField = section.querySelector('.form_relations_relationship select, .form_relations_relationship input');
+
+                            if (relationshipField) {
+                                if (!relationshipField.value || relationshipField.value.trim() === '') {
+                                    isValid = false;
+                                    errors.push('Relationship is required');
+                                    relationshipField.classList.add('is-invalid');
+
+                                    if (!firstInvalidField) {
+                                        firstInvalidField = relationshipField;
+                                    }
+                                } else {
+                                    relationshipField.classList.remove('is-invalid');
+                                }
+                            }
+                        });
+
+                        if (!isValid) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            if (firstInvalidField) {
+                                // Expand the collapsed section if needed
+                                const parentCard = firstInvalidField.closest('.relation-card');
+                                if (parentCard) {
+                                    const formDiv = parentCard.querySelector('.relation-card-body');
+                                    if (formDiv && formDiv.classList.contains('d-none')) {
+                                        formDiv.classList.remove('d-none');
+                                        const icon = parentCard.querySelector('.btn-edit-relation');
+                                        if (icon) {
+                                            icon.classList.remove('fa-caret-right');
+                                            icon.classList.add('fa-caret-down');
+                                        }
+                                    }
+                                }
+
+                                setTimeout(() => {
+                                    firstInvalidField.focus();
+                                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }, 100);
+                            }
+
+                            alert(window.xl('Please fill in all required fields:\n') + errors.join('\n'));
+                            return false;
+                        }
+
+                        console.log('Validation passed, allowing submit');
+                        return true;
+                    });
+                } else {
+                    console.error('Could not find form for validation override');
+                }
+            }
+        }
+    })();
+
+</script>

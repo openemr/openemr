@@ -21,7 +21,6 @@ require_once("DBKey.php");
  */
 class DBTable
 {
-    public $Schema;
     public $Name;
     public $Engine;
     public $Comment;
@@ -40,18 +39,17 @@ class DBTable
      * Instantiate new DBTable
      *
      * @access public
-     * @param DBSchema $schema
+     * @param DBSchema $Schema
      * @return Array $row array that is result from "show tables" statement
      */
-    function __construct($schema, $row)
+    function __construct(public $Schema, $row)
     {
-        $this->Schema = $schema;
         $this->Name = $row ["Tables_in_" . $this->Schema->Name];
-        $this->Columns = array ();
-        $this->PrimaryKeys = array ();
-        $this->ForeignKeys = array ();
-        $this->Constraints = array ();
-        $this->Sets = array ();
+        $this->Columns =  [];
+        $this->PrimaryKeys =  [];
+        $this->ForeignKeys =  [];
+        $this->Constraints =  [];
+        $this->Sets =  [];
 
         $this->LoadColumns();
         $this->DiscoverColumnPrefix();
@@ -150,11 +148,11 @@ class DBTable
         $prev_prefix = "";
         $has_prefix = true;
         foreach ($this->Columns as $column) {
-            $curr_prefix = substr($column->Name, 0, strpos($column->Name, "_") + 1);
+            $curr_prefix = substr((string) $column->Name, 0, strpos((string) $column->Name, "_") + 1);
 
             if ($prev_prefix == "") {
                 // first time through the loop
-                $prev_prefix = $curr_prefix ? $curr_prefix : "#NONE#";
+                $prev_prefix = $curr_prefix ?: "#NONE#";
             } elseif ($prev_prefix != $curr_prefix) {
                 $has_prefix = false;
             }
@@ -166,14 +164,14 @@ class DBTable
 
             // update the columns to reflect the prefix as well
             foreach ($this->Columns as $column) {
-                $column->NameWithoutPrefix = substr($column->Name, strlen($curr_prefix));
+                $column->NameWithoutPrefix = substr((string) $column->Name, strlen($curr_prefix));
             }
         }
 
         // if a column begins with a numeric character then prepend a string to prevent generated code errors
         if (self::$NUMERIC_COLUMN_PREFIX) {
             foreach ($this->Columns as $column) {
-                if (is_numeric(substr($column->NameWithoutPrefix, 0, 1))) {
+                if (is_numeric(substr((string) $column->NameWithoutPrefix, 0, 1))) {
                     $column->NameWithoutPrefix = self::$NUMERIC_COLUMN_PREFIX . $column->NameWithoutPrefix;
                 }
             }
@@ -185,7 +183,7 @@ class DBTable
      */
     public function GetObjectName()
     {
-        if (is_numeric(substr($this->Name, 0, 1))) {
+        if (is_numeric(substr((string) $this->Name, 0, 1))) {
             return self::$NUMERIC_TABLE_PREFIX . $this->Name;
         }
 
@@ -200,7 +198,7 @@ class DBTable
     public function RemovePrefix($name)
     {
         // print "remove prefix $name: " . $this->ColumnPrefix . "<br />";
-        return substr($name, strlen($this->ColumnPrefix));
+        return substr((string) $name, strlen((string) $this->ColumnPrefix));
     }
 
     /**
@@ -258,18 +256,18 @@ class DBTable
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (substr($line, 0, 11) == "PRIMARY KEY") {
+            if (str_starts_with($line, "PRIMARY KEY")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->PrimaryKeys [$matches [1] [0]] = new DBKey($this, "PRIMARY KEY", $matches [0] [0]);
-            } elseif (substr($line, 0, 3) == "KEY") {
+            } elseif (str_starts_with($line, "KEY")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->ForeignKeys [$matches [1] [0]] = new DBKey($this, $matches [1] [0], $matches [1] [1]);
 
                 // Add keys to the column for convenience
                 $this->Columns [$matches [1] [1]]->Keys [] = $matches [1] [0];
-            } elseif (substr($line, 0, 10) == "CONSTRAINT") {
+            } elseif (str_starts_with($line, "CONSTRAINT")) {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
                 // print "<pre>"; print_r($matches); die(); // DEBUG
                 $this->Constraints [$matches [1] [0]] = new DBConstraint($this, $matches [1]);
@@ -292,7 +290,7 @@ class DBTable
                 $comment = str_replace("''", "'", $comment);
                 $this->Columns [$column]->Comment = $comment;
 
-                if ($this->Columns [$column]->Default == "" && substr($comment, 0, 8) == "default=") {
+                if ($this->Columns [$column]->Default == "" && str_starts_with($comment, "default=")) {
                     $this->Columns [$column]->Default = substr($comment, 9, strlen($comment) - 10);
                 }
 

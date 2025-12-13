@@ -46,6 +46,7 @@ $lform_response = $_POST['lform_response'] ?? '';
 $lform = $_POST['lform'] ?? '';
 $qid = null;
 $qrid = null;
+$category = $_POST['category'] ?? null;
 // so form save will work
 unset($_POST['select_item']);
 // security
@@ -79,11 +80,11 @@ if ($mode !== 'new' && $mode !== 'new_repository_form') {
 // register new form
 if (isset($_POST['save_registry'])) {
     unset($_POST['save_registry']);
-    $check = sqlQuery("Select id From registry Where `directory` = ? And `name` = ? And `form_foreign_id` > 0", array("questionnaire_assessments", $form_name));
+    $check = sqlQuery("Select id From registry Where `directory` = ? And `name` = ? And `form_foreign_id` > 0", ["questionnaire_assessments", $form_name]);
     if (empty($check['id'])) {
         $service = new QuestionnaireService();
         try {
-            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter');
+            $form_foreign_id = $service->saveQuestionnaireResource($q_json, $form_name, null, null, $lform, 'encounter', $category);
         } catch (Exception $e) {
             die(xlt("New Questionnaire insert failed") . '<br />' . text($e->getMessage()));
         }
@@ -96,7 +97,7 @@ if (isset($_POST['save_registry'])) {
         `category`=?,
         `date`= NOW(),
         `form_foreign_id`=?
-    ", array($form_name, 1, "questionnaire_assessments", 1, 1, "Questionnaires", $form_foreign_id));
+    ", [$form_name, 1, "questionnaire_assessments", 1, 1, "Questionnaires", $form_foreign_id]);
     } else {
         /* TBD TODO do an update form and registry or error back to user for duplicate */
         $msg = "<br /><br /><div><h3 style='color: red;font-weight: normal;'>" . xlt("Error. Form already registered! Redirecting back to form.") . "</h3></div>";

@@ -51,16 +51,24 @@ use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
+use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+
+if (!isset($pid)) {
+    $pid = $_SESSION['pid'] ?? $_GET['pid'] ?? null;
+}
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
@@ -123,11 +131,7 @@ if ($GLOBALS['enable_cdr']) {
     }
 }
 //Check to see is only one insurance is allowed
-if ($GLOBALS['insurance_only_one']) {
-    $insurance_array = array('primary');
-} else {
-    $insurance_array = array('primary', 'secondary', 'tertiary');
-}
+$insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 function getHiddenDashboardCards(): array
 {
@@ -142,7 +146,7 @@ function getHiddenDashboardCards(): array
 
 function print_as_money($money)
 {
-    preg_match("/(\d*)\.?(\d*)/", $money, $moneymatches);
+    preg_match("/(\d*)\.?(\d*)/", (string) $money, $moneymatches);
     $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
     $ccheck = strrev($tmp);
     if ($ccheck[0] == ",") {
@@ -159,12 +163,12 @@ function print_as_money($money)
 // get an array from Photos category
 function pic_array($pid, $picture_directory)
 {
-    $pics = array();
+    $pics = [];
     $sql_query = "select documents.id from documents join categories_to_documents " .
         "on documents.id = categories_to_documents.document_id " .
         "join categories on categories.id = categories_to_documents.category_id " .
         "where categories.name like ? and documents.foreign_id = ? and documents.deleted = 0";
-    if ($query = sqlStatement($sql_query, array($picture_directory, $pid))) {
+    if ($query = sqlStatement($sql_query, [$picture_directory, $pid])) {
         while ($results = sqlFetchArray($query)) {
             array_push($pics, $results['id']);
         }
@@ -186,7 +190,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT " . escape_limit($limit), array($pid, $doc_catg));
+            ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
     }
     while ($result = sqlFetchArray($query)) {
         $results[] = $result['id'];
@@ -289,7 +293,7 @@ function deceasedDays($days_deceased)
     }
 
     if (strlen($days_deceased['date_deceased'] ?? '') > 10 && $GLOBALS['date_display_format'] < 1) {
-        $deceased_date = substr($days_deceased['date_deceased'], 0, 10);
+        $deceased_date = substr((string) $days_deceased['date_deceased'], 0, 10);
     } else {
         $deceased_date = oeFormatShortDate($days_deceased['date_deceased'] ?? '');
     }
@@ -301,15 +305,15 @@ $deceased = is_patient_deceased($pid);
 
 
 // Display image in 'widget style'
-function image_widget($doc_id, $doc_catg)
+function image_widget($doc_id, $doc_catg): void
 {
     global $pid, $web_root;
     $docobj = new Document($doc_id);
     $image_file = $docobj->get_url_file();
     $image_file_name = $docobj->get_name();
     $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
-    $extension = substr($image_file_name, strrpos($image_file_name, "."));
-    $viewable_types = array('.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP');
+    $extension = substr((string) $image_file_name, strrpos((string) $image_file_name, "."));
+    $viewable_types = ['.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP'];
     if (in_array($extension, $viewable_types)) { // extension matches list
         $to_url = "<td> <a href = '$web_root" .
             "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
@@ -340,6 +344,7 @@ $vitals_is_registered = $tmp['count'];
 // Get patient/employer/insurance information.
 //
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData(
     $pid,
@@ -354,18 +359,18 @@ if (!empty($result3['provider'])) {   // Use provider in case there is an ins re
     $insco_name = getInsuranceProvider($result3['provider']);
 }
 
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'page_id' => 'core.mrd',
     'heading_title' => xl('Medical Record Dashboard'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array('demographics_xpd'), //all file names need suffix _xpd
+    'expandable_files' => ['demographics_xpd'], //all file names need suffix _xpd
     'action' => "", //conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "", //only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "medical_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 <!DOCTYPE html>
@@ -398,9 +403,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             location.reload();
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
-            dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450, '', '', {
+            const params = new URLSearchParams({
+                patient: <?php echo js_escape($pid); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
                 allowResize: false,
                 allowDrag: false,
                 dialogId: 'patdel',
@@ -408,18 +418,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             return false;
         }
+        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
             top.clearPatient();
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
-            let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
+            const params = new URLSearchParams({
+                patientid: <?php echo js_escape($pid); ?>
+            });
+            const url = '../../main/calendar/add_edit_event.php?' + params.toString();
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
         }
+        // AI-generated code end
 
         function toggleIndicator(target, div) {
             // <i id="show_hide" class="fa fa-lg small fa-eye-slash" title="Click to Hide"></i>
@@ -457,8 +473,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 allowDrag: true,
                 dialogId: 'editscripts',
                 type: 'iframe'
-            })
-            .then(() => refreshme());
+            }).then(() => refreshme());
             return false;
         }
 
@@ -524,7 +539,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             var msg_updation = '';
             <?php
             if ($GLOBALS['erx_enable']) {
-                $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
+                $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", [$pid]);
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
             top.restoreSession();
             let reloadRequired = false;
@@ -652,7 +667,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
                             // loadFrame already handles webroot and /interface/ prefix.
-                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' +encodeURIComponent(data.ruleId)
+                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' + encodeURIComponent(data.ruleId)
                                 + "&csrf_token=" + encodeURIComponent(csrfToken);
                             window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                         }
@@ -672,7 +687,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         dialogId: 'rulereview',
                         type: 'iframe',
                         url: launchUrl,
-                        onClose: function() {
+                        onClose: function () {
                             window.top.removeEventListener('message', windowMessageHandler);
                         }
                     });
@@ -905,11 +920,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php
             //Encounter details are stored to javacript as array.
                 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
-                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
+                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
                 if (sqlNumRows($result4) > 0) {
                     while ($rowresult4 = sqlFetchArray($result4)) { ?>
             EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
-            EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+            EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
             CalendarCategoryArray[Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
             Count++;
                         <?php
@@ -922,9 +937,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
-                $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
-            encurl = 'encounter/encounter_top.php?set_encounter=' + <?php echo js_url($encounter); ?> +'&pid=' + <?php echo js_url($pid); ?>;
-            parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
+                $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
+            // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+            const encParams = new URLSearchParams({
+                set_encounter: <?php echo js_escape($encounter); ?>,
+                pid: <?php echo js_escape($pid); ?>
+            });
+            encurl = 'encounter/encounter_top.php?' + encParams.toString();
+            parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');
             top.restoreSession();
             parent.left_nav.loadFrame('enc2', 'enc', 'patient_file/' + encurl);
             <?php } // end setting new encounter id (only if new pid is also set)
@@ -966,7 +986,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
       <?php
       // This is for layout font size override.
-        $grparr = array();
+        $grparr = [];
         getLayoutProperties('DEM', $grparr, 'grp_size');
         if (!empty($grparr['']['grp_size'])) {
             $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
@@ -1014,7 +1034,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 <body class="mt-1 patient-demographic bg-light">
-
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
@@ -1031,7 +1050,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none' onclick='top.restoreSession()'></a>
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
-
         if ($thisauth) {
             if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
                 $thisauth = 0;
@@ -1039,6 +1057,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP, 10);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1075,9 +1094,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                  */
                 function filterActiveIssues(array $i): array
                 {
-                    return array_filter($i, function ($_i) {
-                        return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now')));
-                    });
+                    return array_filter($i, fn($_i): bool => ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime((string) $_i['enddate']) > strtotime('now'))));
                 }
 
                 // ALLERGY CARD
@@ -1151,16 +1168,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // Render the Prescriptions card if turned on
                 if ($rx === 1) :
-                    if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
+                    if ($GLOBALS['erx_enable'] && ($display_current_medications_below ?? '') == 1) {
                         $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
                         $res = sqlStatement($sql, [$pid]);
 
                         $rxArr = [];
                         while ($row = sqlFetchArray($res)) {
-                            $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-                            $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-                            $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-                            $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                            $row['unit'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_units'], $row['unit']);
+                            $row['form'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_form'], $row['form']);
+                            $row['route'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_route'], $row['route']);
+                            $row['interval'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_interval'], $row['interval']);
                             $rxArr[] = $row;
                         }
                         $id = "current_prescriptions_ps_expand";
@@ -1215,6 +1232,86 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ?>
             </div>
             <div class="row">
+                <?php
+                if (!in_array('card_care_team', $hiddenCards)) {
+                    $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
+                    $btnLabel = false;
+                    if ($card->canAdd()) {
+                        $btnLabel = 'Add';
+                    } elseif ($card->canEdit()) {
+                        $btnLabel = 'Edit';
+                    }
+                    $viewArgs = [
+                        'title' => $card->getTitle(),
+                        'id' => $card->getIdentifier(),
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => $card->getBackgroundColorClass(),
+                        'card_text_color' => $card->getTextColorClass(),
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'btnLabel' => $btnLabel,
+                        'btnLink' => 'test',
+                    ];
+                    $_auth = $card->getAcl();
+                    if (!empty($_auth) && AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                        echo "<div class='col-12 m-0 p-0 px-2'>";
+                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                        echo "</div>";
+                    }
+                }
+                // ============================================================================
+                // TREATMENT INTERVENTION PREFERENCES CARD
+                // ============================================================================
+                if (!in_array('card_treatment_preferences', $hiddenCards)) {
+                    $card = new TreatmentPreferenceViewCard($pid);
+                    $viewArgs = [
+                        'title' => xl('Treatment Intervention Preferences'),
+                        'id' => 'card_treatment_preferences',
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'btnClass'   => 'js-card-toggle-edit',
+                        'btnLabel' => 'Add',
+                        'linkMethod' => 'javascript',
+                        'btnLink' => "void(0);",
+                    ];
+                    // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+
+                // ============================================================================
+                // CARE EXPERIENCE PREFERENCES CARD
+                // ============================================================================
+                if (!in_array('card_care_experience', $hiddenCards)) {
+                    $card = new CareExperiencePreferenceViewCard($pid);
+
+                    $viewArgs = [
+                        'title' => xl('Care Experience Preferences'),
+                        'id' => 'card_care_experience',
+                        'initiallyCollapsed' => getUserSetting('card_care_experience') == 0,
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' =>  !$card->canCollapse(),
+                        'btnClass'   => 'js-card-toggle-edit',
+                        'btnLabel' => 'Add',
+                        'linkMethod' => 'javascript',
+                        'btnLink' => "void(0);",
+                    ];
+
+                    // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+                ?>
                 <div class="col-md-8 px-2">
                     <?php
                     if ($deceased > 0) :
@@ -1233,6 +1330,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (!in_array('card_insurance', $hiddenCards)) {
                         $sectionRenderEvents->addCard(new InsuranceViewCard($pid, ['dispatcher' => $ed]));
                     }
+
                     // Get the cards to render
                     $sectionCards = $sectionRenderEvents->getCards();
 
@@ -1251,7 +1349,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         } elseif ($card->canEdit()) {
                             $btnLabel = 'Edit';
                         }
-
                         $viewArgs = [
                             'title' => $card->getTitle(),
                             'id' => $card->getIdentifier(),
@@ -1265,6 +1362,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
+                    // Alternative approach: Add it directly in the secondary column section
+                    // Around line 1200 in demographics.php, in the secondary column section:
 
                     if (AclMain::aclCheckCore('patients', 'notes')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('note'), CardRenderEvent::EVENT_HANDLE);
@@ -1368,7 +1467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             JOIN procedure_order ON  procedure_report.procedure_order_id = procedure_order.procedure_order_id
                             WHERE procedure_order.patient_id = ?
                             ORDER BY procedure_report.date_collected DESC";
-                        $existLabdata = sqlQuery($spruch, array($pid));
+                        $existLabdata = sqlQuery($spruch, [$pid]);
                         $widgetAuth = ($existLabdata) ? true : false;
 
                         $id = "labdata_ps_expand";
@@ -1393,7 +1492,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('vital_sign'), CardRenderEvent::EVENT_HANDLE);
                         // vitals expand collapse widget
                         // check to see if any vitals exist
-                        $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
+                        $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", [$pid]);
                         $widgetAuth = ($existVitals) ? true : false;
 
                         $id = "vitals_ps_expand";
@@ -1429,7 +1528,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     while ($gfrow = sqlFetchArray($gfres)) :
                         // $jobj = json_decode($gfrow['notes'], true);
-                        $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', $gfrow['grp_aco_spec']);
+                        $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', (string) $gfrow['grp_aco_spec']);
                         if ($LBF_ACO && !AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
                             continue;
                         }
@@ -1553,7 +1652,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         if ($myrow2) {
                             $parentId = $myrow2['id'];
                             $query = "SELECT id, name FROM categories WHERE parent=?";
-                            $resNew1 = sqlStatement($query, array($parentId));
+                            $resNew1 = sqlStatement($query, [$parentId]);
                             while ($myrows3 = sqlFetchArray($resNew1)) {
                                 $categoryId = $myrows3['id'];
                                 $nameDoc = $myrows3['name'];
@@ -1564,12 +1663,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     AND documents.foreign_id=?
                                     AND documents.deleted = 0
                                     ORDER BY documents.date DESC";
-                                $resNew2 = sqlStatement($query, array($categoryId, $pid));
+                                $resNew2 = sqlStatement($query, [$categoryId, $pid]);
                                 $limitCounter = 0; // limit to one entry per category
                                 while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
                                     $dateTimeDoc = $myrows4['date'];
                                     // remove time from datetime stamp
-                                    $tempParse = explode(" ", $dateTimeDoc);
+                                    $tempParse = explode(" ", (string) $dateTimeDoc);
                                     $dateDoc = $tempParse[0];
                                     $idDoc = $myrows4['id'];
                                     $tmp = [
@@ -1637,7 +1736,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayAppts = true;
                         $current_date2 = date('Y-m-d');
-                        $events = array();
+                        $events = [];
                         $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
                         $apptNum2 = ($apptNum != 0) ? abs($apptNum) : 10;
 
@@ -1717,7 +1816,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $count = 0;
                         $toggleSet = true;
                         $priorDate = "";
-                        $therapyGroupCategories = array();
+                        $therapyGroupCategories = [];
                         $query = sqlStatement("SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_cattype = 3 AND pc_active = 1");
                         while ($result = sqlFetchArray($query)) {
                             $therapyGroupCategories[] = $result['pc_catid'];
@@ -1727,10 +1826,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $appts = [];
                         foreach ($events as $row) {
                             $count++;
-                            $dayname = date("D", strtotime($row['pc_eventDate']));
+                            $dayname = date("D", strtotime((string) $row['pc_eventDate']));
                             $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
-                            $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-                            $dispmin = substr($row['pc_startTime'], 3, 2);
+                            $disphour = substr((string) $row['pc_startTime'], 0, 2) + 0;
+                            $dispmin = substr((string) $row['pc_startTime'], 3, 2);
                             if ($disphour >= 12 && $GLOBALS['time_display_format'] == 1) {
                                 $displayMeridiem = "pm";
                                 if ($disphour > 12) {
@@ -1758,7 +1857,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             }
@@ -1771,7 +1870,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['bgColor'] = $bgColor;
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;
-                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
+                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", (string) $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $appts[] = $row;
                         }
 
@@ -1847,10 +1946,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         foreach ($pastAppts as $row) {
                             $count++;
-                            $dayname = date("D", strtotime($row['pc_eventDate']));
+                            $dayname = date("D", strtotime((string) $row['pc_eventDate']));
                             $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
-                            $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-                            $dispmin = substr($row['pc_startTime'], 3, 2);
+                            $disphour = substr((string) $row['pc_startTime'], 0, 2) + 0;
+                            $dispmin = substr((string) $row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
                                 $displayMeridiem = "pm";
                                 if ($disphour > 12 && $GLOBALS['time_display_format'] == 1) {
@@ -1864,13 +1963,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $row['etitle'] = $petitle;
 
-                            $row['pc_status'] = generate_display_field(array('data_type' => '1', 'list_id' => 'apptstat'), $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
                             $row['uname'] = text($row['ufname'] . " " . $row['ulname']);
-                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
+                            $row['jsEvent'] = attr_js(preg_replace("/-/", "", (string) $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $past_appts[] = $row;
                         }
                     }
@@ -1908,7 +2007,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $track_is_registered = $tmp['count'];
                     if ($track_is_registered) {
                         $spruch = "SELECT id FROM forms WHERE pid = ? AND formdir = ?";
-                        $existTracks = sqlQuery($spruch, array($pid, "track_anything"));
+                        $existTracks = sqlQuery($spruch, [$pid, "track_anything"]);
                         $id = "track_anything_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('track_anything'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', [
@@ -1955,5 +2054,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         });
     </script>
 </body>
-<?php $ed->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD, 10); ?>
+<?php $ed->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD); ?>
 </html>

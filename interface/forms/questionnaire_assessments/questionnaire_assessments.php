@@ -34,6 +34,8 @@ $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/user.inc.php");
+// used for form generation utilities
+require_once("$srcdir/options.inc.php");
 
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
@@ -151,17 +153,9 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    if (stripos($GLOBALS['portal_css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos((string) $GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
 } else {
-    if (stripos($GLOBALS['css_header'], 'dark') !== false) {
-        $theme = 'dark';
-    } else {
-        $theme = 'light';
-    }
+    $theme = stripos((string) $GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
 }
 
 if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
@@ -488,6 +482,10 @@ if ($isModule || $isDashboard || $isPortal) {
                 </div>
             <?php } ?>
             <div class="mb-3">
+                <div class="input-group isNew d-none">
+                    <label for="category" class="font-weight-bold mt-2 mr-1"><?php echo xlt('Category'); ?>:</label>
+                    <?php echo generate_select_list('category', 'Observation_Types', $form['category'] ?? $q['category'] ?? 'survey', '', 'Unassigned', 'form-control-sm'); ?>
+                </div>
                 <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
                     <input class="form-control search_field bg-light text-dark" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">

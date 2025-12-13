@@ -132,9 +132,14 @@ class SMARTLaunchToken
         $jsonEncoded = json_encode($context);
         (new SystemLogger())->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
         $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
-        return $launchParams;
+        return base64_encode($launchParams); // make it URL safe
     }
 
+    /**
+     * @param $serialized
+     * @return self
+     * @throws \JsonException
+     */
     public static function deserializeToken($serialized): self
     {
         $token = new self();
@@ -142,10 +147,19 @@ class SMARTLaunchToken
         return $token;
     }
 
+    /**
+     * @param $serialized
+     * @return void
+     * @throws \JsonException
+     */
     public function deserialize($serialized)
     {
         $cryptoGen = new CryptoGen();
-        $jsonEncoded = $cryptoGen->decryptStandard($serialized);
+        $jsonEncrypted = base64_decode((string) $serialized);
+        if ($jsonEncrypted === false) {
+            throw new \InvalidArgumentException("serialized token is not valid base64");
+        }
+        $jsonEncoded = $cryptoGen->decryptStandard($jsonEncrypted);
         if ($jsonEncoded === false) {
             throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
         }

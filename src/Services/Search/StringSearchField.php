@@ -15,7 +15,8 @@ use OpenEMR\Services\Search\SearchFieldType;
 
 class StringSearchField extends BasicSearchField
 {
-    private const VALID_MODIFIERS = [SearchModifier::CONTAINS, SearchModifier::EXACT, SearchModifier::PREFIX, SearchModifier::MISSING, SearchModifier::NOT_EQUALS_EXACT];
+    private const VALID_MODIFIERS = [SearchModifier::CONTAINS, SearchModifier::EXACT, SearchModifier::PREFIX
+        , SearchModifier::SUFFIX, SearchModifier::MISSING, SearchModifier::NOT_EQUALS_EXACT];
     public function __construct($field, $values, $modifier = null, $isAnd = null)
     {
         if (array_search($modifier, self::VALID_MODIFIERS) === false) {

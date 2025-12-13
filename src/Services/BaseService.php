@@ -26,16 +26,12 @@ use Particle\Validator\Exception\InvalidValueException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
 
-class BaseService
+class BaseService implements BaseServiceInterface
 {
-    /**
-     * Passed in data should be vetted and fully qualified from calling service class
-     * Expect to see some search helpers here as well.
-     */
-    private $table;
     private $fields;
     private $autoIncrements;
 
@@ -44,7 +40,7 @@ class BaseService
      */
     private $logger;
 
-    private const PREFIXES = array(
+    private const PREFIXES = [
         'eq' => "=",
         'ne' => "!=",
         'gt' => ">",
@@ -54,7 +50,7 @@ class BaseService
         'sa' => "",
         'eb' => "",
         'ap' => ""
-    );
+    ];
 
     /**
      * @var EventDispatcher
@@ -62,15 +58,31 @@ class BaseService
     private $eventDispatcher;
 
     /**
-     * Default constructor.
+     * @var ?SessionInterface For handling session data in the service
      */
-    public function __construct($table)
-    {
-        $this->table = $table;
-        $this->fields = sqlListFields($table);
-        $this->autoIncrements = self::getAutoIncrements($table);
+    private ?SessionInterface $session = null;
+
+    /**
+     * Default constructor.
+     * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
+     */
+    public function __construct(
+        private $table
+    ) {
+        $this->fields = QueryUtils::listTableFields($table);
+        $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    }
+
+    public function setSession(SessionInterface $session): void
+    {
+        $this->session = $session;
+    }
+
+    public function getSession(): ?SessionInterface
+    {
+        return $this->session;
     }
 
     public function getEventDispatcher(): EventDispatcher
@@ -163,11 +175,7 @@ class BaseService
      */
     public function queryFields($map = null, $data = null)
     {
-        if ($data == null || $data == "*" || $data == "all") {
-            $value = "*";
-        } else {
-            $value = implode(", ", $data);
-        }
+        $value = in_array($data, [null, "*", "all"]) ? "*" : implode(", ", $data);
         $sql = "SELECT $value from $this->table";
         return $this->selectHelper($sql, $map);
     }
@@ -191,11 +199,11 @@ class BaseService
      *                  null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
-    protected function buildInsertColumns($passed_in = array(), $options = array())
+    protected function buildInsertColumns($passed_in = [], $options = [])
     {
         $keyset = '';
-        $bind = array();
-        $result = array();
+        $bind = [];
+        $result = [];
         $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
 
         foreach ($passed_in as $key => $value) {
@@ -220,7 +228,7 @@ class BaseService
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
                 // for dates which should be saved as null
-                if (empty($value) && (strpos($key, 'date') !== false)) {
+                if (empty($value) && (str_contains((string) $key, 'date'))) {
                     $bind[] = null;
                 } else {
                     $bind[] = ($value === null || $value === false) ? $null_value : $value;
@@ -243,11 +251,11 @@ class BaseService
      *                       null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
-    protected function buildUpdateColumns($passed_in = array(), $options = array())
+    protected function buildUpdateColumns($passed_in = [], $options = [])
     {
         $keyset = '';
-        $bind = array();
-        $result = array();
+        $bind = [];
+        $result = [];
         // can't use ??,empty, or isset as null_value could be NULL.  We have to deal with legacy which defaults to ''
         $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
 
@@ -281,18 +289,14 @@ class BaseService
                     $value === null
                     || $value === false
                 )
-                && (strpos($key, 'date') === false)
+                && (!str_contains((string) $key, 'date'))
             ) {
                 // in case unwanted values passed in.
                 continue;
             }
             if (!empty($key)) {
                 $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-                if (empty($value) && (strpos($key, 'date') !== false)) {
-                    $bind[] = null;
-                } else {
-                    $bind[] = $value;
-                }
+                $bind[] = empty($value) && str_contains((string) $key, 'date') ? null : $value;
             }
         }
 
@@ -308,10 +312,10 @@ class BaseService
      */
     private static function getAutoIncrements($table)
     {
-        $results = array();
+        $results = [];
         $rtn = sqlStatementNoLog(
             "SHOW COLUMNS FROM $table Where extra Like ?",
-            array('%auto_increment%')
+            ['%auto_increment%']
         );
         while ($row = sqlFetchArray($rtn)) {
             array_push($results, $row);
@@ -343,7 +347,7 @@ class BaseService
      * @param $type                 - Type of Exception
      * @throws InvalidValueException
      */
-    public static function throwException($message, $type = "Error")
+    public static function throwException($message, $type = "Error"): never
     {
         throw new InvalidValueException($message, $type);
     }
@@ -357,7 +361,7 @@ class BaseService
      */
     public static function isValidDate($dateString)
     {
-        return (bool) strtotime($dateString);
+        return (bool) strtotime((string) $dateString);
     }
 
     /**
@@ -378,12 +382,12 @@ class BaseService
      * @param string $uuid              - UUID of Resource
      * @param string $table             - Table reffering to the ID field
      * @param string $field             - Identifier field
-     * @return false if nothing found otherwise return ID
+     * @return string|false if nothing found return false, otherwise return ID
      */
     public static function getIdByUuid($uuid, $table, $field)
     {
         $sql = "SELECT $field from $table WHERE uuid = ?";
-        $result = sqlQuery($sql, array($uuid));
+        $result = sqlQuery($sql, [$uuid]);
         return $result[$field] ?? false;
     }
 
@@ -393,13 +397,13 @@ class BaseService
      * @param string $id                - ID of Resource
      * @param string $table             - Table reffering to the UUID field
      * @param string $field             - Identifier field
-     * @return false if nothing found otherwise return UUID
+     * @return string|false if nothing found return false, otherwise return UUID string
      */
     public static function getUuidById($id, $table, $field)
     {
         $table = escape_table_name($table);
         $sql = "SELECT uuid from $table WHERE $field = ?";
-        $result = sqlQuery($sql, array($id));
+        $result = sqlQuery($sql, [$id]);
         return $result['uuid'] ?? false;
     }
 
@@ -411,7 +415,7 @@ class BaseService
      */
     public static function processDateTime($date)
     {
-        $processedDate = array();
+        $processedDate = [];
         $result = substr($date, 0, 2);
 
         // Assign Default
@@ -459,9 +463,7 @@ class BaseService
 
         return array_filter(
             $data,
-            function ($key) use ($whitelistedFields) {
-                return in_array($key, $whitelistedFields);
-            },
+            fn($key): bool => in_array($key, $whitelistedFields),
             ARRAY_FILTER_USE_KEY
         );
     }
@@ -552,7 +554,7 @@ class BaseService
         }
         $codesService = new CodeTypesService();
         $diags = explode(";", $diagnosis);
-        $diagnosis = array();
+        $diagnosis = [];
         foreach ($diags as $diag) {
             $parsedCode = $codesService->parseCode($diag);
             $codeType = $parsedCode['code_type'];
@@ -580,10 +582,10 @@ class BaseService
     protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id")
     {
         $fields = explode("|", $fields);
-        $result = array();
+        $result = [];
         foreach ($fields as $field) {
             $data = sqlQuery("SELECT uuid
-                    FROM $table WHERE $primaryId = ?", array($field));
+                    FROM $table WHERE $primaryId = ?", [$field]);
             if ($data) {
                 array_push($result, UuidRegistry::uuidToString($data['uuid']));
             }

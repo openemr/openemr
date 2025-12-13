@@ -15,7 +15,9 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -106,6 +108,14 @@ class PractitionerService extends BaseService
             $search['username'] = new TokenSearchField('username', [new TokenSearchValue(false)]);
             $search['username']->setModifier(SearchModifier::MISSING);
         }
+        // we are going to grab all users that have a username defined OR that have an included abook_type
+        // we only grab practitioners that have valid npis as defined up above so we don't need to recheck that here
+        $compoundIsAndCondition = false;
+        $compoundUsernameAndAbookType = new CompositeSearchField('compound_username_abook_type', [], $compoundIsAndCondition);
+        $compoundUsernameAndAbookType->addChild($search['username']);
+        $compoundUsernameAndAbookType->addChild(new TokenSearchField('abook_type', ['ord_lab', 'spe','external_provider']));
+        $search['compound_username_abook_type'] = $compoundUsernameAndAbookType;
+        unset($search['username']);
         return parent::search($search, $isAndCondition);
     }
 
@@ -123,7 +133,7 @@ class PractitionerService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
         if (!empty($search)) {
             $fields = $this->getFields();
@@ -209,10 +219,10 @@ class PractitionerService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array(
+            $processingResult->addData([
                 'id' => $results,
                 'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
+            ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }

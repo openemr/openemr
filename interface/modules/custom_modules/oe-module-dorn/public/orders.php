@@ -146,7 +146,7 @@ if (!empty($_POST)) {
                                         ?>
                                         <tr>
                                             <td scope="row"><?php echo text($data->labName); ?></td>
-                                            <td scope="row"><?php echo text(date('Y-m-d H:i:s', strtotime($data->createdDateTimeUtc))); ?></td>
+                                            <td scope="row"><?php echo text(date('Y-m-d H:i:s', strtotime((string) $data->createdDateTimeUtc))); ?></td>
                                             <td scope="row"><?php echo text($data->orderNumber); ?></td>
                                             <td scope="row"><?php echo text($data->orderStatusLong); ?></td>
                                             <td scope="row"><?php echo text($data->isPending); ?></td>

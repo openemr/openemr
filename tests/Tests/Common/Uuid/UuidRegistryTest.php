@@ -8,13 +8,12 @@ use Ramsey\Uuid\UuidFactory;
 
 /**
  * Uuid Registry Tests
- * @coversDefaultClass OpenEMR\Common\UuidRegistry
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class UuidRegistryTest extends TestCase
 {
@@ -27,10 +26,8 @@ class UuidRegistryTest extends TestCase
 
     /**
      * Tests bi-directional uuid conversions
-     * @covers \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes
-     * @covers \OpenEMR\Common\Uuid\UuidRegistry::uuidToString
      */
-    public function testUuidConversions()
+    public function testUuidConversions(): void
     {
         $stringValue = $this->uuidFactory->uuid4()->toString();
         $byteValue = UuidRegistry::uuidToBytes($stringValue);

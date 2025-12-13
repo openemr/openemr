@@ -3,7 +3,11 @@
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
+use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -21,6 +25,8 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
  */
 class ApiTestClient
 {
+    use SystemLoggerAwareTrait;
+
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
     const OAUTH_LOGOUT_ENDPOINT = "/oauth2/default/logout";
@@ -67,7 +73,7 @@ class ApiTestClient
      * If the request succeeds the token is set in the HTTP Authorization header.
      *
      * Credentials are optionally provided using the $credentials array. Supported
-     * keys include username and password. If credentials are not provided they will be parsed
+     * keys include username,password,scopes. If credentials are not provided they will be parsed
      * from environment variables or fallback to a reasonable default if the environment variable
      * does not exist.
      *
@@ -76,7 +82,7 @@ class ApiTestClient
      * @return the authorization response
      *
      */
-    public function setAuthToken($authURL, $credentials = array(), $client = 'private')
+    public function setAuthToken($authURL, $credentials = [], $client = 'private')
     {
         if (!empty($credentials) && !array_key_exists("client_id", $credentials)) {
             if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
@@ -94,10 +100,12 @@ class ApiTestClient
             $this->getClient($authURL, $client);
         }
 
+        $scopes = $credentials['scopes'] ?? self::ALL_SCOPES;
+
         $authBody = [
             "grant_type" => "password",
             "client_id" => $this->client_id,
-            "scope" => self::ALL_SCOPES,
+            "scope" => $scopes,
             "user_role" => "users",
             "username" => $credentials["username"],
             "password" => $credentials["password"]
@@ -118,6 +126,21 @@ class ApiTestClient
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
             $this->refresh_token = $responseBody->refresh_token ?? null;
+        } else {
+            $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
+            if ($authResponse->getBody()) {
+                $errorBody = json_decode($authResponse->getBody());
+                if (isset($errorBody->error)) {
+                    $errorMessage .= " - " . $errorBody->error;
+                }
+                if (isset($errorBody->error_description)) {
+                    $errorMessage .= ": " . $errorBody->error_description;
+                }
+                if (isset($errorBody->hint)) {
+                    $errorMessage .= ": " . $errorBody->hint;
+                }
+            }
+            error_log($errorMessage);
         }
 
         return $authResponse;
@@ -143,14 +166,18 @@ class ApiTestClient
             throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
         }
         $clientResponseBodyRaw = $clientResponse->getBody();
+
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
+            $this->getSystemLogger()->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
+        $logger = new SystemLogger(Level::Emergency); // suppress logging
+        $clientRepository->setSystemLogger($logger);
         $client = $clientRepository->getClientEntity($this->client_id);
         $clientRepository->saveIsEnabled($client, true);
     }
@@ -239,7 +266,7 @@ class ApiTestClient
      * @param $body - The POST request body (array)
      * @return $postResponse - HTTP response
      */
-    public function post($url, $body, $json = true)
+    public function post($url, $body, $json = true): ResponseInterface
     {
         if ($json) {
             $postResponse = $this->client->post($url, [
@@ -310,7 +337,7 @@ class ApiTestClient
      * @param $params - Array of search parameters. Defaults to empty array.
      * @return $getResponse - HTTP response
      */
-    public function get($url, $params = array())
+    public function get($url, $params = [])
     {
         $getResponse = $this->client->get($url, [
             "headers" => $this->headers,

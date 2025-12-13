@@ -26,13 +26,13 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$id = (int) ($_GET['id'] ?? '');
 $instruction = $_POST["instruction"];
 
 if ($id && $id != 0) {
-    sqlStatement("UPDATE form_clinical_instructions SET instruction =? WHERE id = ?", array($instruction, $id));
+    sqlStatement("UPDATE form_clinical_instructions SET instruction =? WHERE id = ?", [$instruction, $id]);
 } else {
-    $newid = sqlInsert("INSERT INTO form_clinical_instructions (pid,encounter,user,instruction) VALUES (?,?,?,?)", array($pid, $encounter, $_SESSION['authUser'], $instruction));
+    $newid = sqlInsert("INSERT INTO form_clinical_instructions (pid,encounter,user,instruction) VALUES (?,?,?,?)", [$pid, $encounter, $_SESSION['authUser'], $instruction]);
     addForm($encounter, "Clinical Instructions", $newid, "clinical_instructions", $pid, $userauthorized);
 }
 

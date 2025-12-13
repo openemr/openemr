@@ -99,21 +99,21 @@ if ($_POST['form_complete'] ?? null) {
         $form_entryID = trim($_POST['form_entryID']);
     }
 
-    $form_date = trim($_POST['form_date']);
-    $form_category = trim($_POST['form_category']);
-    $form_item = trim($_POST['form_item']);
-    $form_complete = trim($_POST['form_complete']);
-    $form_result = trim($_POST['form_result']);
+    $form_date = trim((string) $_POST['form_date']);
+    $form_category = trim((string) $_POST['form_category']);
+    $form_item = trim((string) $_POST['form_item']);
+    $form_complete = trim((string) $_POST['form_complete']);
+    $form_result = trim((string) $_POST['form_result']);
 
     if (!isset($form_entryID)) {
         // Insert new row of data into rule_patient_data table
         sqlStatement("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
-        "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result));
+        "VALUES (?,?,?,?,?,?)", [$form_date, $pid, $form_category, $form_item, $form_complete, $form_result]);
     } else { // $form_mode == "edit"
         // Modify selected row in rule_patient_data table
         sqlStatement("UPDATE `rule_patient_data` " .
         "SET `date`=?, `complete`=?, `result`=? " .
-        "WHERE `id`=?", array($form_date,$form_complete,$form_result,$form_entryID));
+        "WHERE `id`=?", [$form_date,$form_complete,$form_result,$form_entryID]);
     }
 
     // Close this window and refresh the patient summary display.
@@ -127,17 +127,17 @@ if ($_POST['form_complete'] ?? null) {
 
 // Display the form
 // Collect and trim variables
-$category = trim($_GET['category']);
-$item = trim($_GET['item']);
+$category = trim((string) $_GET['category']);
+$item = trim((string) $_GET['item']);
 if (isset($_GET['entryID'])) {
-    $entryID = trim($_GET['entryID']);
+    $entryID = trim((string) $_GET['entryID']);
 }
 
 // Collect data if a specific entry is selected
 if (isset($entryID)) {
     $selectedEntry = sqlQuery("SELECT `date`, `complete`, `result` " .
     "FROM `rule_patient_data` " .
-    "WHERE `id`=?", array($entryID));
+    "WHERE `id`=?", [$entryID]);
     $form_date = $selectedEntry['date'];
     $form_complete = $selectedEntry['complete'];
     $form_result = $selectedEntry['result'];
@@ -146,8 +146,8 @@ if (isset($entryID)) {
 ?>
 <table cellspacing='0' cellpadding='0' border='0'>
 <tr>
-<td><span class="title"><?php echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
-" - " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
+<td><span class="title"><?php echo generate_display_field(['data_type' => '1','list_id' => 'rule_action_category'], $category) .
+" - " . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="javascript:submitme();" class="btn btn-primary"><?php echo xlt('Save'); ?></a></td>
 <td><a href="#" id="cancel" class="btn btn-secondary"><?php echo xlt('Cancel'); ?></a></td>
 </tr>
@@ -170,7 +170,7 @@ if (isset($entryID)) {
     echo "<tr><td class='required'>";
     echo xlt('Completed');
     echo ":</td><td class='text'>";
-    generate_form_field(array('data_type' => 1,'field_id' => 'complete','list_id' => 'yesno','empty_title' => 'SKIP'), ($form_complete ?? null) ?: "YES");
+    generate_form_field(['data_type' => 1,'field_id' => 'complete','list_id' => 'yesno','empty_title' => 'SKIP'], ($form_complete ?? null) ?: "YES");
     echo "</td></tr>";
 
     echo "<tr><td class='bold'>";
@@ -198,7 +198,7 @@ if (isset($entryID)) {
 $res = sqlStatement("SELECT `id`, `date`, `complete`, `result` " .
   "FROM `rule_patient_data` " .
   "WHERE `category`=? AND `item`=? AND `pid`=? " .
-  "ORDER BY `date` DESC", array($category,$item,$pid));
+  "ORDER BY `date` DESC", [$category,$item,$pid]);
 ?>
 <hr />
 <br />

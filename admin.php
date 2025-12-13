@@ -14,7 +14,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
+require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -22,7 +22,7 @@ if ($response !== true) {
 
 require_once "version.php";
 
-$webserver_root = dirname(__FILE__);
+$webserver_root = __DIR__;
 if (stripos(PHP_OS, 'WIN') === 0) {
     $webserver_root = str_replace("\\", "/", $webserver_root);
 }

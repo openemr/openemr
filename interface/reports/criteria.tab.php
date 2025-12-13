@@ -22,19 +22,19 @@ use OpenEMR\Billing\BillingReport;
 
 // TPS = This Page Search
 
-$TPSCriteriaKey = array();
-$TPSCriteriaDataType = array();
-$TPSCriteriaDisplay = array();
-$TPSCriteriaRadioKey = array();
-$TPSCriteriaDisplayRadio = array();
-$TPSCriteriaQueryDropDown = array();
-$TPSCriteriaQueryDropDownDefault = array();
-$TPSCriteriaQueryDropDownDefaultKey = array();
-$TPSCriteriaInclude = array();
+$TPSCriteriaKey = [];
+$TPSCriteriaDataType = [];
+$TPSCriteriaDisplay = [];
+$TPSCriteriaRadioKey = [];
+$TPSCriteriaDisplayRadio = [];
+$TPSCriteriaQueryDropDown = [];
+$TPSCriteriaQueryDropDownDefault = [];
+$TPSCriteriaQueryDropDownDefaultKey = [];
+$TPSCriteriaInclude = [];
 // Filling the input array.
 $TPSCriteriaDisplay = $TPSCriteriaDisplayMaster;
-$TPSCriteriaKey = explode(',', $TPSCriteriaKeyMaster);
-$TPSCriteriaDataType = explode(',', $TPSCriteriaDataTypeMaster);
+$TPSCriteriaKey = explode(',', (string) $TPSCriteriaKeyMaster);
+$TPSCriteriaDataType = explode(',', (string) $TPSCriteriaDataTypeMaster);
 // --------------------------------------------------------------
 // Filling the input array.
 // --------------------------------------------------------------
@@ -45,7 +45,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
     if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio_like') {
         $NumberOfRadioTPSCriteria++;
         $TPSCriteriaDisplayRadio[$TPSCriteriaIndex] = $TPSCriteriaDisplayRadioMaster[$NumberOfRadioTPSCriteria];
-        $TPSCriteriaRadioKey[$TPSCriteriaIndex] = explode(',', $TPSCriteriaRadioKeyMaster[$NumberOfRadioTPSCriteria]);
+        $TPSCriteriaRadioKey[$TPSCriteriaIndex] = explode(',', (string) $TPSCriteriaRadioKeyMaster[$NumberOfRadioTPSCriteria]);
     }
     if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'query_drop_down') {
         $NumberOfQueryDropDownTPSCriteria++;

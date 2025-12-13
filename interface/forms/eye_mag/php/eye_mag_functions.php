@@ -13,8 +13,8 @@
  */
 
 $form_folder = "eye_mag";
-require_once(dirname(__FILE__) . "/../../../../custom/code_types.inc.php");
-require_once(dirname(__FILE__) . "/../../../../library/options.inc.php");
+require_once(__DIR__ . "/../../../../custom/code_types.inc.php");
+require_once(__DIR__ . "/../../../../library/options.inc.php");
 global $PMSFH;
 
     use OpenEMR\Common\Acl\AclMain;
@@ -41,10 +41,10 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
         $zone .= "_canvas";
     }
 
-    $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
+    $tables = ['form_eye_hpi','form_eye_ros','form_eye_vitals',
                 'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
                 'form_eye_external', 'form_eye_antseg','form_eye_postseg',
-                'form_eye_neuro','form_eye_locking');
+                'form_eye_neuro','form_eye_locking'];
     $output_return = "<span id='" . attr($zone) . "_prefix_oldies' name='" . attr($zone) . "_prefix_oldies' class='oldies_prefix'>";
     $selected = '';
     $current = '';
@@ -59,9 +59,9 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                     forms.formdir='eye_mag' and form_eye_base.pid=? ORDER BY encounter_date DESC LIMIT 20";
                     // Unlike the obj data(PMSFH,Clinical,IMPPLAN etc), this data is static.
                     // It only needs to be passed once to the client side.
-        $result     = sqlStatement($query, array($pid));
+        $result     = sqlStatement($query, [$pid]);
         $counter    = sqlNumRows($result);
-        $priors     = array();
+        $priors     = [];
         if ($counter < 2) {
             return;
         }
@@ -73,7 +73,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             $oeexam_date = oeFormatShortDate($dated);
             foreach ($tables as $table) {
                 $sql = "SELECT * from " . $table . " WHERE id=?";
-                $sub_data = sqlStatement($sql, array($prior['id']));
+                $sub_data = sqlStatement($sql, [$prior['id']]);
                 $data = sqlFetchArray($sub_data);
                 if ($data) {
                     $prior = array_merge($prior, $data);
@@ -85,7 +85,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             if (($i > 0) && ($prior['PLAN'])) {
                 //this plan is a todo list for next visit, which is $i-1 actually
                 $j = $i - 1;
-                $priors[$j]['TODO'] = array();
+                $priors[$j]['TODO'] = [];
                 $priors[$j]['TODO'] = $prior['PLAN'];
             }
 
@@ -125,24 +125,16 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     }
 
     $i--;
-    if ($current < $i) {
-        $earlier = $current + 1;
-    } else {
-        $earlier = $current;
-    }
+    $earlier = $current < $i ? $current + 1 : $current;
 
-    if ($current > '0') {
-        $later   = ($current - 1);
-    } else {
-        $later   = "0";
-    }
+    $later = $current > '0' ? $current - 1 : "0";
 
 
     //current visit =[0]
     if (!$priors[$current]['PLAN']) {
-        $priors[$current]['PLAN'] = array();
+        $priors[$current]['PLAN'] = [];
         $query = "SELECT * from form_eye_mag_orders where form_id=?";
-        $orders = sqlStatement($query, array($priors[$earlier]['id']));
+        $orders = sqlStatement($query, [$priors[$earlier]['id']]);
         while ($row = sqlFetchArray($orders)) {
             $priors[$current]["PLAN"][] = $row;
             $priors[$later]["TODO"][] = $row;
@@ -218,7 +210,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 where PEZONE='PREFS' AND id=?
                 ORDER BY ZONE_ORDER,ordering";
 
-    $result = sqlStatement($query, array($_SESSION['authUserID']));
+    $result = sqlStatement($query, [$_SESSION['authUserID']]);
     while ($prefs = sqlFetchArray($result)) {
         ${$prefs['LOCATION']} = $prefs['GOVALUE'];
     }
@@ -243,7 +235,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     form_eye_base.id=form_eye_locking.id and
                     form_eye_base.pid =? and
                     form_eye_base.id=?";
-    $result = sqlQuery($query, array($pid,$id_to_show));
+    $result = sqlQuery($query, [$pid,$id_to_show]);
     @extract($result);
     ob_start();
     if ($zone == "REFRACTIONS") {
@@ -272,7 +264,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 <div id="PRIORS_EXT_left_1">
                     <table>
                         <?php
-                            list($imaging,$episode) = display($pid, $encounter ?? '', "EXT");
+                            [$imaging, $episode] = display($pid, $encounter ?? '', "EXT");
                             echo $episode;
                         ?>
                     </table>
@@ -333,8 +325,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     </table>
                 </div>
 
-            <?php ($EXT_VIEW ?? '' == 1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view = "narrow_textarea");?>
-            <?php ($display_EXT_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
+            <?php
+                [$display_EXT_view, $marker] = (($EXT_VIEW ?? '') == 1)
+                    ? ['wide_textarea', 'fa-minus-square-o']
+                    : ['narrow_textarea', 'fa-plus-square-o'];
+            ?>
             <div id="PRIOR_EXT_text_list" name="PRIOR_EXT_text_list" class="borderShadow PRIORS <?php echo attr($display_EXT_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_EXT_text_view" id="PRIOR_EXT_text_view"></span>
                 <table cellspacing="0" cellpadding="0" >
@@ -394,7 +389,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div class="text_clinical" id="PRIORS_ANTSEG_left_1">
             <table>
                 <?php
-                    list($imaging,$episode) = display($pid, $encounter ?? '', "ANTSEG");
+                    [$imaging, $episode] = display($pid, $encounter ?? '', "ANTSEG");
                     echo $episode;
                 ?>
             </table>
@@ -495,8 +490,11 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 </tr>
             </table>
         </div>
-        <?php ($ANTSEG_VIEW ?? '' == '1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view = "narrow_textarea");?>
-        <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
+        <?php
+            [$display_ANTSEG_view, $marker] = (($ANTSEG_VIEW ?? '') == '1')
+                ? ['wide_textarea', 'fa-minus-square-o']
+                : ['narrow_textarea', 'fa-plus-square-o'];
+        ?>
         <div id="PRIOR_ANTSEG_text_list"  name="PRIOR_ANTSEG_text_list" class="borderShadow PRIORS <?php echo attr($display_ANTSEG_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_ANTSEG_text_view" id="PRIOR_ANTSEG_text_view"></span>
                 <table>
@@ -555,7 +553,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div id="PRIORS_RETINA_left_1" class="text_clinical">
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter ?? '', "POSTSEG");
+                [$imaging, $episode] = display($pid, $encounter ?? '', "POSTSEG");
                 echo $episode;
                 ?>
             </table>
@@ -589,14 +587,17 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             <br />
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter ?? '', "NEURO");
+                [$imaging, $episode] = display($pid, $encounter ?? '', "NEURO");
                 echo $episode;
                 ?>
             </table>
         </div>
 
-        <?php ($RETINA_VIEW ?? '' == 1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view = "narrow_textarea");?>
-        <?php ($display_RETINA_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
+        <?php
+            [$display_RETINA_view, $marker] = (($RETINA_VIEW ?? '') == 1)
+                ? ['wide_textarea', 'fa-minus-square-o']
+                : ['narrow_textarea', 'fa-plus-square-o'];
+        ?>
         <div>
             <div id="PRIOR_RETINA_text_list" name="PRIOR_RETINA_text_list" class="borderShadow PRIORS <?php echo attr($display_RETINA_view); ?>">
                     <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_RETINA_text_view" id="PRIOR_RETINA_text_view"></span>
@@ -916,7 +917,7 @@ margin: 2px 0 2px 2px;">
                 </table>
                 <br />
                 <div id="PRIOR_NPCNPA" name="PRIOR_NPCNPA">
-                    <table style="position:relative;float:left;text-align:center;margin: 4 2;width:100%;font-size:1.0em;padding:4px;">
+                    <table style="position:relative;float:left;text-align:center;margin: 4px 2px;width:100%;font-size:1.0em;padding:4px;">
                         <tr style="">
                             <td style="width:50%;"></td>
                             <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -975,7 +976,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RS; ++$index) {
                         $here = "PRIOR_MOTILITY_RS_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -983,7 +984,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RI; ++$index) {
                         $here = "PRIOR_MOTILITY_RI_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -991,7 +992,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LS; ++$index) {
                         $here = "PRIOR_MOTILITY_LS_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -999,7 +1000,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LI; ++$index) {
                         $here = "PRIOR_MOTILITY_LI_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1007,7 +1008,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RRSO; ++$index) {
                         $here = "PRIOR_MOTILITY_RRSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1015,7 +1016,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LRSO; ++$index) {
                         $here = "PRIOR_MOTILITY_LRSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1023,7 +1024,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RLIO; ++$index) {
                         $here = "PRIOR_MOTILITY_RLIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1031,7 +1032,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LLIO; ++$index) {
                         $here = "PRIOR_MOTILITY_LLIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1039,7 +1040,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RLSO; ++$index) {
                         $here = "PRIOR_MOTILITY_RLSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1047,7 +1048,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LLSO; ++$index) {
                         $here = "PRIOR_MOTILITY_LLSO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1055,7 +1056,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RRIO; ++$index) {
                         $here = "PRIOR_MOTILITY_RRIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1063,7 +1064,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LRIO; ++$index) {
                         $here = "PRIOR_MOTILITY_LRIO_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1073,7 +1074,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LR; ++$index) {
                         $here = "PRIOR_MOTILITY_LR_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1081,7 +1082,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_LL; ++$index) {
                         $here = "PRIOR_MOTILITY_LL_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1089,7 +1090,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RR; ++$index) {
                         $here = "PRIOR_MOTILITY_RR_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
 
@@ -1097,7 +1098,7 @@ margin: 2px 0 2px 2px;">
                     $PRIOR_MOTILITYNORMAL = '';
                     for ($index = 1; $index <= $MOTILITY_RL; ++$index) {
                         $here = "PRIOR_MOTILITY_RL_" . $index;
-                        $$here = $hash_tag;
+                        ${$here} = $hash_tag;
                     }
                 }
                 ?>
@@ -1142,47 +1143,47 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_4 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_4 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_3" id="PRIOR_MOTILITY_RS_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_1" id="PRIOR_MOTILITY_RS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4"><?php echo $PRIOR_MOTILITY_RS_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4"><?php echo text($PRIOR_MOTILITY_RS_4 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_2" id="PRIOR_MOTILITY_RS_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_4" id="PRIOR_MOTILITY_RS_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_4 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_4 ?? ''); ?></div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_3 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_3_1" id="PRIOR_MOTILITY_RS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3"><?php echo $PRIOR_MOTILITY_RS_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3"><?php echo text($PRIOR_MOTILITY_RS_3 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_3_2" id="PRIOR_MOTILITY_RS_3_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_3 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_2_1" id="PRIOR_MOTILITY_RS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2"><?php echo $PRIOR_MOTILITY_RS_2 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2"><?php echo text($PRIOR_MOTILITY_RS_2 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_2_2" id="PRIOR_MOTILITY_RS_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -1190,13 +1191,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_1 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRSO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_1_1" id="PRIOR_MOTILITY_RS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1"><?php echo $PRIOR_MOTILITY_RS_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1"><?php echo text($PRIOR_MOTILITY_RS_1 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_1_2" id="PRIOR_MOTILITY_RS_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_1 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLSO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1218,17 +1219,17 @@ margin: 2px 0 2px 2px;">
                     </div>
                     <div class="divMiddleRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4"><?php echo $PRIOR_MOTILITY_RR_4 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3"><?php echo $PRIOR_MOTILITY_RR_3 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2"><?php echo $PRIOR_MOTILITY_RR_2 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1"><?php echo $PRIOR_MOTILITY_RR_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4"><?php echo text($PRIOR_MOTILITY_RR_4 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3"><?php echo text($PRIOR_MOTILITY_RR_3 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2"><?php echo text($PRIOR_MOTILITY_RR_2 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1"><?php echo text($PRIOR_MOTILITY_RR_1 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RR_0" id="PRIOR_MOTILITY_RR_0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_R0" id="PRIOR_MOTILITY_R0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RL_0" id="PRIOR_MOTILITY_RL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1"><?php echo $PRIOR_MOTILITY_RL_1 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2"><?php echo $PRIOR_MOTILITY_RL_2 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3"><?php echo $PRIOR_MOTILITY_RL_3 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4"><?php echo $PRIOR_MOTILITY_RL_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1"><?php echo text($PRIOR_MOTILITY_RL_1 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2"><?php echo text($PRIOR_MOTILITY_RL_2 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3"><?php echo text($PRIOR_MOTILITY_RL_3 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4"><?php echo text($PRIOR_MOTILITY_RL_4 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
@@ -1250,13 +1251,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_1 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_1_1" id="PRIOR_MOTILITY_RI_1_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1"><?php echo $PRIOR_MOTILITY_RI_1 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1"><?php echo text($PRIOR_MOTILITY_RI_1 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_1_2" id="PRIOR_MOTILITY_RI_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_1 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1264,47 +1265,47 @@ margin: 2px 0 2px 2px;">
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_2_1" id="PRIOR_MOTILITY_RI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2"><?php echo $PRIOR_MOTILITY_RI_2 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2"><?php echo text($PRIOR_MOTILITY_RI_2 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_2_2" id="PRIOR_MOTILITY_RI_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_3 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_5" id="PRIOR_MOTILITY_RI_3_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_3" id="PRIOR_MOTILITY_RI_3_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_1" id="PRIOR_MOTILITY_RI_3_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3"><?php echo $PRIOR_MOTILITY_RI_3 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3"><?php echo text($PRIOR_MOTILITY_RI_3 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_2" id="PRIOR_MOTILITY_RI_3_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_4" id="PRIOR_MOTILITY_RI_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_6" id="PRIOR_MOTILITY_RI_3_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_3 ?? ''); ?></div>
                         <div class="divCell"></div>
                     </div>
                     <div class="divRow">
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_4 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RRIO_4 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_5" id="PRIOR_MOTILITY_RI_4_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_3" id="PRIOR_MOTILITY_RI_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_1" id="PRIOR_MOTILITY_RI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4"><?php echo $PRIOR_MOTILITY_RI_4 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4"><?php echo text($PRIOR_MOTILITY_RI_4 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_2" id="PRIOR_MOTILITY_RI_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_4" id="PRIOR_MOTILITY_RI_4_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_6" id="PRIOR_MOTILITY_RI_4_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_4 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_RLIO_4 ?? ''); ?></div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
@@ -1315,47 +1316,47 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_4 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_4 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_3" id="PRIOR_MOTILITY_LS_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_1" id="PRIOR_MOTILITY_LS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4"><?php echo $PRIOR_MOTILITY_LS_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4"><?php echo text($PRIOR_MOTILITY_LS_4 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_2" id="PRIOR_MOTILITY_LS_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_4" id="PRIOR_MOTILITY_LS_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_4 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_4 ?? ''); ?></div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_3 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_3_1" id="PRIOR_MOTILITY_LS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3"><?php echo $PRIOR_MOTILITY_LS_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3"><?php echo text($PRIOR_MOTILITY_LS_3 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_3_2" id="PRIOR_MOTILITY_LS_3_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_3 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_2_1" id="PRIOR_MOTILITY_LS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2"><?php echo $PRIOR_MOTILITY_LS_2 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2"><?php echo text($PRIOR_MOTILITY_LS_2 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_2_2" id="PRIOR_MOTILITY_LS_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -1363,13 +1364,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_1 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRSO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_1_1" id="PRIOR_MOTILITY_LS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1"><?php echo $PRIOR_MOTILITY_LS_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1"><?php echo text($PRIOR_MOTILITY_LS_1 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_1_2" id="PRIOR_MOTILITY_LS_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_1 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLSO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1391,17 +1392,17 @@ margin: 2px 0 2px 2px;">
                     </div>
                     <div class="divMiddleRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4"><?php echo $PRIOR_MOTILITY_LR_4 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3"><?php echo $PRIOR_MOTILITY_LR_3 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2"><?php echo $PRIOR_MOTILITY_LR_2 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1"><?php echo $PRIOR_MOTILITY_LR_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4"><?php echo text($PRIOR_MOTILITY_LR_4 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3"><?php echo text($PRIOR_MOTILITY_LR_3 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2"><?php echo text($PRIOR_MOTILITY_LR_2 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1"><?php echo text($PRIOR_MOTILITY_LR_1 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_0" id="PRIOR_MOTILITY_LR_0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_L0" id="PRIOR_MOTILITY_L0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_0" id="PRIOR_MOTILITY_LL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1"><?php echo $PRIOR_MOTILITY_LL_1 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2"><?php echo $PRIOR_MOTILITY_LL_2 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3"><?php echo $PRIOR_MOTILITY_LL_3 ?? ''; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4"><?php echo $PRIOR_MOTILITY_LL_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1"><?php echo text($PRIOR_MOTILITY_LL_1 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2"><?php echo text($PRIOR_MOTILITY_LL_2 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3"><?php echo text($PRIOR_MOTILITY_LL_3 ?? ''); ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4"><?php echo text($PRIOR_MOTILITY_LL_4 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
@@ -1423,13 +1424,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_4_3" id="PRIOR_MOTILITY_LR_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_3_3" id="PRIOR_MOTILITY_LR_3_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_2" id="PRIOR_MOTILITY_RO_I_2"><?php echo $PRIOR_MOTILITY_LRIO_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_2" id="PRIOR_MOTILITY_RO_I_2"><?php echo text($PRIOR_MOTILITY_LRIO_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1"><?php echo $PRIOR_MOTILITY_LI_1 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1"><?php echo text($PRIOR_MOTILITY_LI_1 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_LO_I_2"><?php echo $PRIOR_MOTILITY_LLIO_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_LO_I_2"><?php echo text($PRIOR_MOTILITY_LLIO_1 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_3_4" id="PRIOR_MOTILITY_LL_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_4_4" id="PRIOR_MOTILITY_LL_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1437,48 +1438,48 @@ margin: 2px 0 2px 2px;">
                     <div class="divRow">
                         <div class="divCell" name="PRIOR_MOTILITY_RO_I_3_1" id="PRIOR_MOTILITY_RO_I_3_1">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RO_I_3" id="PRIOR_MOTILITY_RO_I_3">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRIO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRIO_2 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_2_1" id="PRIOR_MOTILITY_LI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2"><?php echo $PRIOR_MOTILITY_LI_2 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2"><?php echo text($PRIOR_MOTILITY_LI_2 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_2_2" id="PRIOR_MOTILITY_LI_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLIO_2 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLIO_2 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_RO_I_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_3_1" id="PRIOR_MOTILITY_LO_I_3_1">&nbsp;</div>
                         </div>
                     <div class="divRow">
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_3" id="PRIOR_MOTILITY_RO_I_3">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRIO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LRIO_3 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_5" id="PRIOR_MOTILITY_LI_3_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_3" id="PRIOR_MOTILITY_LI_3_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_1" id="PRIOR_MOTILITY_LI_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3"><?php echo $PRIOR_MOTILITY_LI_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3"><?php echo text($PRIOR_MOTILITY_LI_3 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_2" id="PRIOR_MOTILITY_LI_3_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_4" id="PRIOR_MOTILITY_LI_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_6" id="PRIOR_MOTILITY_LI_3_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLIO_3 ?? ''; ?></div>
+                        <div class="divCell"><?php echo text($PRIOR_MOTILITY_LLIO_3 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_3" id="PRIOR_MOTILITY_LO_I_3">&nbsp;</div>
 
                     </div>
                     <div class="divRow">
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_4" id="PRIOR_MOTILITY_RO_I_4"><?php echo $PRIOR_MOTILITY_LRIO_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_4" id="PRIOR_MOTILITY_RO_I_4"><?php echo text($PRIOR_MOTILITY_LRIO_4 ?? ''); ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_5" id="PRIOR_MOTILITY_LI_4_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_3" id="PRIOR_MOTILITY_LI_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_1" id="PRIOR_MOTILITY_LI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"><?php echo $PRIOR_MOTILITY_LI_4 ?? ''; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"><?php echo text($PRIOR_MOTILITY_LI_4 ?? ''); ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_2" id="PRIOR_MOTILITY_LI_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_4" id="PRIOR_MOTILITY_LI_4_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_6" id="PRIOR_MOTILITY_LI_4_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_4" id="PRIOR_MOTILITY_LO_I_4"><?php echo $PRIOR_MOTILITY_LLIO_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_4" id="PRIOR_MOTILITY_LO_I_4"><?php echo text($PRIOR_MOTILITY_LLIO_4 ?? ''); ?></div>
                     </div>
                     <div class="divRow"><div class="divCell">&nbsp;</div>
                     </div>
@@ -1592,9 +1593,9 @@ margin: 2px 0 2px 2px;">
  * via display_PMSFH('2') and show_PMSFH_panel($PMSFH) respectively,
  * to javascript to display changes to the user.
  * @param associative array $PMSFH if it exists
- * @return json encoded string
+ * @return void
  */
-function send_json_values($PMSFH = "")
+function send_json_values($PMSFH = ""): void
 {
     global $pid;
     global $form_id;
@@ -1633,12 +1634,12 @@ function build_PMSFH($pid)
     $PMSFH = [];
     $PMSFH['CHRONIC'] = [];
     //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = array("POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
+    $PMSFH_labels = ["POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS"];
     foreach ($PMSFH_labels as $panel_type) {
         $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";
         $order = "ORDER BY title";
-        if ($panel_type == "FH" || $panel_type == "SOCH" || $panel_type == "ROS") {
+        if (in_array($panel_type, ["FH", "SOCH", "ROS"])) {
             /*
              *  We are going to build SocHx, FH and ROS separately below since they don't feed off of
              *  the pre-existing ISSUE_TYPE array - so for now do nothing
@@ -1687,24 +1688,24 @@ function build_PMSFH($pid)
         }
 
         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
-            $subtype . " " . $order, array($pid,$focusISSUE));
+            $subtype . " " . $order, [$pid,$focusISSUE]);
         $row_counter = '0';
         while ($row = sqlFetchArray($pres)) {
             $rowid = $row['id'];
-            $disptitle = text(trim($row['title'])) ? text($row['title']) : "[" . xlt("Missing Title") . "]";
+            $disptitle = text(trim((string) $row['title'])) ? text($row['title']) : "[" . xlt("Missing Title") . "]";
             //  look up the diag codes
             $codetext = "";
             $codedesc = "";
             $codetype = "";
             $code = "";
             if ($row['diagnosis'] != "") {
-                $diags = explode(";", $row['diagnosis']);
+                $diags = explode(";", (string) $row['diagnosis']);
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
-                    if (strpos($diag, ':') !== false) {
-                        list($codetype, $code) = explode(':', $diag);
+                    if (str_contains($diag, ':')) {
+                        [$codetype, $code] = explode(':', $diag);
                     }
-                    $order   = array("\r\n", "\n","\r");
+                    $order   = ["\r\n", "\n","\r"];
                     $codedesc = str_replace($order, '', $codedesc);
                     $codetext .= text($diag) . " (" . text($codedesc) . ")";
                 }
@@ -1713,7 +1714,7 @@ function build_PMSFH($pid)
             // calculate the status
             if ($row['outcome'] == "1" && $row['enddate'] != null) {
               // Resolved
-                $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
+                $statusCompute = generate_display_field(['data_type' => '1','list_id' => 'outcome'], $row['outcome']);
             } elseif ($row['enddate'] == null) {
                    $statusCompute = xlt("Active");
             } else {
@@ -1722,7 +1723,7 @@ function build_PMSFH($pid)
 
             ($row['comments'] != null) ? ($comments = $row['comments']) : ($comments = "");
             $counter_here = count($PMSFH[$panel_type]);
-            $newdata =  array (
+            $newdata =   [
                 'title' => $disptitle,
                 'status' => $statusCompute,
                 'begdate' => $row['begdate'],
@@ -1757,7 +1758,7 @@ function build_PMSFH($pid)
                 'erx_uploaded' => $row['erx_uploaded'],
                 'modifydate' => $row['modifydate'],
                 'PMSFH_link' => $panel_type . "_" . $row_counter
-            );
+            ];
             //let the end user decide on display elsewhere...  This is all about the array itself.
             $PMSFH[$panel_type][] = $newdata;
             if ($row['occurrence'] == '4') {
@@ -1770,7 +1771,7 @@ function build_PMSFH($pid)
 
     //Build the SocHx portion of $PMSFH for this patient.
     //$given ="coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs";
-    $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", array($pid));
+    $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", [$pid]);
 
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " .
@@ -1790,7 +1791,7 @@ function build_PMSFH($pid)
         }
         $PMSFH['SOCH'][$field_id] = [];
         if ($data_type == 28 || $data_type == 32) {
-            $tmp = explode('|', $currvalue);
+            $tmp = explode('|', (string) $currvalue);
             switch (count($tmp)) {
                 case "4":
                     $PMSFH['SOCH'][$field_id]['resnote'] = $tmp[0];
@@ -1820,7 +1821,7 @@ function build_PMSFH($pid)
             $PMSFH['SOCH'][$field_id]['resnote'] = text($PMSFH['SOCH'][$field_id]['resnote']);
             $PMSFH['SOCH'][$field_id]['resdate'] = text($PMSFH['SOCH'][$field_id]['resdate']);
         } elseif ($data_type == 2) {
-            $PMSFH['SOCH'][$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+            $PMSFH['SOCH'][$field_id]['resnote'] = nl2br(htmlspecialchars((string) $currvalue, ENT_NOQUOTES));
         }
 
         if ($PMSFH['SOCH'][$field_id]['resnote'] > '') {
@@ -1915,7 +1916,7 @@ function build_PMSFH($pid)
             $currvalue = $result1[$field_id];
         }
 
-        $PMSFH['FH'][$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+        $PMSFH['FH'][$field_id]['resnote'] = nl2br(htmlspecialchars((string) $currvalue, ENT_NOQUOTES));
         if ($PMSFH['FH'][$field_id]['resnote'] > '') {
             $PMSFH['FH'][$field_id]['display'] = substr($PMSFH['FH'][$field_id]['resnote'], 0, 100);
         } elseif ($PMSFH['FH'][$field_id]['restype']) {
@@ -1972,19 +1973,19 @@ function build_PMSFH($pid)
 
     $PMSFH['FH']['glaucoma']['display'] = (substr($result1['usertext11'] ?? '', 0, 100));
     $PMSFH['FH']['glaucoma']['short_title'] = xlt("Glaucoma");
-    $PMSFH['FH']['cataract']['display'] = (substr($result1['usertext12'], 0, 100));
+    $PMSFH['FH']['cataract']['display'] = (substr((string) $result1['usertext12'], 0, 100));
     $PMSFH['FH']['cataract']['short_title'] = xlt("Cataract");
-    $PMSFH['FH']['amd']['display'] = (substr($result1['usertext13'], 0, 100));
+    $PMSFH['FH']['amd']['display'] = (substr((string) $result1['usertext13'], 0, 100));
     $PMSFH['FH']['amd']['short_title'] = xlt("AMD{{age related macular degeneration}}");
-    $PMSFH['FH']['RD']['display'] = (substr($result1['usertext14'], 0, 100));
+    $PMSFH['FH']['RD']['display'] = (substr((string) $result1['usertext14'], 0, 100));
     $PMSFH['FH']['RD']['short_title'] = xlt("RD{{retinal detachment}}");
-    $PMSFH['FH']['blindness']['display'] = (substr($result1['usertext15'], 0, 100));
+    $PMSFH['FH']['blindness']['display'] = (substr((string) $result1['usertext15'], 0, 100));
     $PMSFH['FH']['blindness']['short_title'] = xlt("Blindness");
-    $PMSFH['FH']['amblyopia']['display'] = (substr($result1['usertext16'], 0, 100));
+    $PMSFH['FH']['amblyopia']['display'] = (substr((string) $result1['usertext16'], 0, 100));
     $PMSFH['FH']['amblyopia']['short_title'] = xlt("Amblyopia");
-    $PMSFH['FH']['strabismus']['display'] = (substr($result1['usertext17'], 0, 100));
+    $PMSFH['FH']['strabismus']['display'] = (substr((string) $result1['usertext17'], 0, 100));
     $PMSFH['FH']['strabismus']['short_title'] = xlt("Strabismus");
-    $PMSFH['FH']['other']['display'] = (substr($result1['usertext18'], 0, 100));
+    $PMSFH['FH']['other']['display'] = (substr((string) $result1['usertext18'], 0, 100));
     $PMSFH['FH']['other']['short_title'] = xlt("Other");
 
     // Thinking this might be a good place to put in last_retinal exam and last_HbA1C?
@@ -2003,7 +2004,7 @@ function build_PMSFH($pid)
     $ROS_table = "form_eye_ros";
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
-    $ROS = sqlStatement($query, array($form_id));
+    $ROS = sqlStatement($query, [$form_id]);
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
             $PMSFH['ROS'][$item]['display'] = $row[$item];
@@ -2039,7 +2040,7 @@ function build_PMSFH($pid)
     $PMSFH['ROS']['ROSENDOCRINE']['title'] = xlt("Endocrine");
     $PMSFH['ROS']['ROSCOMMENTS']['title'] = xlt("Comments");
 
-    return array($PMSFH); //yowsah!
+    return [$PMSFH]; //yowsah!
 }
 /**
  *  This function uses the complete PMSFH array for a given patient, including the ROS for this encounter
@@ -2124,7 +2125,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $row_count = 1;
 
     foreach ($PMSFH[0] as $key => $value) {
-        if ($key == "FH" || $key == "SOCH" || $key == "ROS") {
+        if (in_array($key, ["FH", "SOCH", "ROS"])) {
             // We are going to build SocHx, FH and ROS separately below since they are different..
             continue;
         }
@@ -2158,7 +2159,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         <table class="PMSFH_header">
                             <tr>
                                 <td width="90%">
-                                    <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt(ucwords($item['row_subtype'])) . ' Meds</span>
+                                    <span class="left" style="font-weight:800;font-size:0.9em;">' . xlt(ucwords((string) $item['row_subtype'])) . ' Meds</span>
                                 </td>
                                 <td>
                                     <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\'Eye Meds\',\'0\');" style="text-align:right;font-size:8px;">' . xlt("New") . '</span>
@@ -2166,7 +2167,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                             </tr>
                         </table>
                         ';
-                    $subtype_Meds[$item['row_subtype']]['table'] = $subtype_Meds[$item['row_subtype']]['table'] ?? '';
+                    $subtype_Meds[$item['row_subtype']]['table'] ??= '';
                     $subtype_Meds[$item['row_subtype']]['table'] .= "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
                             onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",\"Eye Meds\"," . attr_js($index) . ");\">" . text($item['title']) . "</span><br />";
                     $index++;
@@ -2174,11 +2175,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 }
 
                 if ($key == "Allergy") {
-                    if ($item['reaction']) {
-                        $reaction = " (" . text($item['reaction']) . ")";
-                    } else {
-                        $reaction = "";
-                    }
+                    $reaction = $item['reaction'] ? " (" . text($item['reaction']) . ")" : "";
 
                     $red = "style='color:red;'";
                 } else {
@@ -2539,11 +2536,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if ($PMSFH[0]['Allergy']) {
         $i = 0;
         foreach ($PMSFH[0]['Allergy'] as $item) {
-            if ($item['reaction']) {
-                $reaction = "(" . text($item['reaction']) . ")";
-            } else {
-                $reaction = "";
-            }
+            $reaction = $item['reaction'] ? "(" . text($item['reaction']) . ")" : "";
 
             echo "<span style='color:red;' name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
       onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",'Allergy','" . $i . "');\">" . text($item['title']) . " " . $reaction . "</span><br />";
@@ -2634,7 +2627,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
  *  @param array $PMSFH
  *
  */
-function show_PMSFH_report($PMSFH)
+function show_PMSFH_report($PMSFH): void
 {
     global $pid;
     global $ISSUE_TYPES;
@@ -2955,13 +2948,13 @@ function display_QP($zone, $provider_id)
 
     ob_start();
     $query  = "SELECT * FROM list_options where list_id =?  ORDER BY seq";
-    $result = sqlStatement($query, array("Eye_QP_" . $zone . "_$provider_id"));
+    $result = sqlStatement($query, ["Eye_QP_" . $zone . "_$provider_id"]);
     if (sqlNumRows($result) < '1') {
         //this provider's list has not been created yet.
         $query = "REPLACE INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists', ?, ?, '0', '1', '0')";
-        sqlStatement($query, array('Eye_QP_' . $zone . '_' . $provider_id,'Eye QP List ' . $zone . ' for ' . $prov_data['lname']));
+        sqlStatement($query, ['Eye_QP_' . $zone . '_' . $provider_id,'Eye QP List ' . $zone . ' for ' . $prov_data['lname']]);
         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
-        $result = sqlStatement($query, array("Eye_QP_" . $zone . "_defaults"));
+        $result = sqlStatement($query, ["Eye_QP_" . $zone . "_defaults"]);
         $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES (?,?,?,?,?,?,?,?,?)";
     } else {
         $SQL_INSERT = '';
@@ -2969,7 +2962,7 @@ function display_QP($zone, $provider_id)
 
     while ($QP = sqlFetchArray($result)) {
         if (!empty($SQL_INSERT)) {
-            sqlStatement($SQL_INSERT, array("Eye_QP_" . $zone . "_" . $provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
+            sqlStatement($SQL_INSERT, ["Eye_QP_" . $zone . "_" . $provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']]);
         }
 
         $here[$QP['title']][$QP['subtype']]['notes']    = $QP['notes'];     //the text to fill into form
@@ -2979,8 +2972,8 @@ function display_QP($zone, $provider_id)
     }
 
     foreach ($here as $title => $values) { //start QP section items
-        $title_show = (strlen($title) > 19) ? substr($title, 0, 16) . '...' : $title;
-        if (preg_match('/clear field/', $title)) {
+        $title_show = (strlen((string) $title) > 19) ? substr((string) $title, 0, 16) . '...' : $title;
+        if (preg_match('/clear field/', (string) $title)) {
             $title_show = "<em><strong>$title</strong></em>";
         }
 
@@ -3083,17 +3076,17 @@ function canvas_select($zone, $encounter, $pid)
      *
      * Let's try $documents['docs_in_name'] where ['name']['zone']
      */
-    //iterate through documents?
-        // which are in this zone?
-    //are any from the same as the encounter?  If so selected=selected
-    //
+    // iterate through documents?
+    // which are in this zone?
+    // are any from the same as the encounter?  If so selected=selected
+
     global $documents;
-    $side = "OU";
-    $type_name = $side . "_" . $zone . "_VIEW";
+    //  Currently $side = "OU" everywhere.  We may need OD and OS.  Then we will use $type_name.
+    // $type_name = $side . "_" . $zone . "_VIEW";
     $canvi = [];
     if (!empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
-            if (!preg_match("/_" . $zone . "_VIEW/", $doc['name'])) {
+            if (!preg_match("/_" . $zone . "_VIEW/", (string) $doc['name'])) {
                 continue;
             }
             if (!$doc['encounter_id']) {
@@ -3102,9 +3095,7 @@ function canvas_select($zone, $encounter, $pid)
             $canvi[] = $doc;
         }
     }
-    usort($canvi, function ($a, $b) {
-        return $b['encounter_date'] <=> $a['encounter_date'];
-    });
+    usort($canvi, fn($a, $b): int => $b['encounter_date'] <=> $a['encounter_date']);
     if (!empty($canvi)) {
         if ($canvi[0]['encounter_id'] != $encounter) {
             //put today on the front as current, item "0"
@@ -3172,9 +3163,9 @@ function canvas_select($zone, $encounter, $pid)
  *  @param string $visit_date Future functionality to limit result set. UTC DATE Formatted
  *  @param string $pid value = patient id
  *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
- *  @return true : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
+function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = ''): void
 {
     global $form_folder;
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid . "/";
@@ -3202,7 +3193,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
             <div class="tools">
                 <div id="sketch_tooled_<?php echo attr($zone); ?>_8">
                     <span id="sketch_tool_<?php echo attr($zone);?>_color"
-                          class="color_indicator jscolor"
+                          class="color_indicator"
                           data-jscolor="{ previewElement:'#sketch_tool_<?php echo attr($zone); ?>_color',
                                      previewSize:75,
                                      valueElement:'#selColor_<?php echo attr($zone); ?>',
@@ -3216,10 +3207,10 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <?php
 
                 $sql = "SELECT * from documents where name like ? ORDER by id DESC";
-                $doc = sqlQuery($sql, array("%" . $base_name . "%"));
+                $doc = sqlQuery($sql, ["%" . $base_name . "%"]);
                 $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
                 if ((($doc['id'] ?? null) > '0')) {
-                    $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
+                    $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
                 } else {
                     //base image.
                     $filetoshow = $base_filetoshow;
@@ -3273,7 +3264,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
             </div>
         </div>
-        <div id="<?php echo attr($zone); ?>_olddrawing"></div>
+        <div id="<?php echo attr($zone); ?>_olddrawing" name="<?php echo attr($zone); ?>_olddrawing"></div>
     </div>
 
     <?php
@@ -3286,9 +3277,9 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
  * @param string $form_id is the form_eye_*.id where the data to carry forward is located
  * @param string $pid value = patient id
- * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone
+ * @return void : outputs the ZONE specific HTML for a prior record + widget for the desired zone
  */
-function copy_forward($zone, $copy_from, $copy_to, $pid)
+function copy_forward($zone, $copy_from, $copy_to, $pid): void
 {
     global $form_id;
 
@@ -3318,7 +3309,7 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
                     forms.pid =? and
                     forms.form_id =? ";
 
-    $objQuery = sqlQuery($query, array($pid,$copy_from));
+    $objQuery = sqlQuery($query, [$pid,$copy_from]);
     if ($zone == "EXT") {
         $result['RUL'] = $objQuery['RUL'];
         $result['LUL'] = $objQuery['LUL'];
@@ -3658,7 +3649,7 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
         $result = $objQuery;
         $count_rx = '0';
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
-        $wear = sqlStatement($query1, array($pid,$_SESSION['encounter']));
+        $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
         while ($wearing = sqlFetchArray($wear)) {
             ${"display_W_$count_rx"}        = '';
                   ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
@@ -3718,8 +3709,8 @@ function build_IMPPLAN_items($pid, $form_id)
 {
     global $form_folder;
     $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? ORDER BY IMPPLAN_order";
-    $newdata = array();
-    $fres = sqlStatement($query, array($form_id,$pid));
+    $newdata = [];
+    $fres = sqlStatement($query, [$form_id,$pid]);
     $i = 0;
     while ($frow = sqlFetchArray($fres)) {
         $IMPPLAN_items[$i]['form_id'] = $frow['form_id'];
@@ -3739,16 +3730,16 @@ function build_IMPPLAN_items($pid, $form_id)
     return $IMPPLAN_items ?? [];
 }
 
-            /**
-             *  This builds the CODING_items variable for a given pid and encounter.
-             *  @param string $pid patient_id
-             *  @param string $encounter field id in table form_encounters
-             *  @return object CODING_items
-             */
+/**
+ *  This builds the CODING_items variable for a given pid and encounter.
+ *  @param string $pid patient_id
+ *  @param string $encounter field id in table form_encounters
+ *  @return object CODING_items
+ */
 function build_CODING_items($pid, $encounter)
 {
     $query = "select * from billing where encounter=? and pid=? ORDER BY id";
-    $fres = sqlStatement($query, array($encounter,$pid));
+    $fres = sqlStatement($query, [$encounter,$pid]);
     $i = 0;
 
     while ($frow = sqlFetchArray($fres)) {
@@ -3779,7 +3770,7 @@ function document_engine($pid)
     $sql1 =  sqlStatement("Select * from categories");
     while ($row1 = sqlFetchArray($sql1)) {
         $categories[] = $row1;
-        $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
+        $row1['name'] = preg_replace('/ - Eye/', '', (string) $row1['name']);
 
         $my_name[$row1['id']] = $row1['name'];
         $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
@@ -3789,6 +3780,7 @@ function document_engine($pid)
         if (($row1['value'] ?? '') > '') {
             //if there is a value, tells us what segment of exam ($zone) this belongs in...
             $zones[$row1['value']][] = $row1;
+            $zone[$row1['name']] = true;
         } else {
             if ($row1['name'] != "Categories") {
                 $zones['OTHER'][] = $row1;
@@ -3798,18 +3790,18 @@ function document_engine($pid)
 
     $query = "Select *, categories.name as cat_name
                 from
-                categories, documents,categories_to_documents
+                categories, documents, categories_to_documents
                 where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
                 categories_to_documents.category_id=categories.id and documents.deleted = 0 ORDER BY categories.name";
-    $sql2 =  sqlStatement($query, array($pid));
+    $sql2 =  sqlStatement($query, [$pid]);
     while ($row2 = sqlFetchArray($sql2)) {
         //the document may not be created on the same day as the encounter, use encounter date first
         //get encounter date from encounter id
-        $row2['cat_name'] = preg_replace('/ - Eye/', '', $row2['cat_name']);
-        $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot'] . "/sites/", $row2['url']);
+        $row2['cat_name'] = preg_replace('/ - Eye/', '', (string) $row2['cat_name']);
+        $row2['display_url'] = preg_replace("|file:///.*/sites/|", $GLOBALS['webroot'] . "/sites/", (string) $row2['url']);
         if ($row2['encounter_id']) {
             $visit = getEncounterDateByEncounter($row2['encounter_id']);
-            $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date']));
+            $row2['encounter_date'] = oeFormatSDFT(strtotime($visit['date'] ?? ''));
         } else {
             $row2['encounter_date'] = $row2['docdate'];
         }
@@ -3836,7 +3828,7 @@ function document_engine($pid)
     $documents['docs_in_name']      = $docs_in_name ?? '';
     $documents['docs_by_date']      = $docs_by_date ?? '';
 
-    return array($documents);
+    return [$documents];
 }
 
 /**
@@ -3875,14 +3867,14 @@ function display($pid, $encounter, $category_value)
         *   to the associative array.
         */
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
 
     for ($j = 0; $j < count($documents['zones'][$category_value]); $j++) {
         $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
-        $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
+        $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", (string) $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
         <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
         <td>
@@ -3909,7 +3901,7 @@ function display($pid, $encounter, $category_value)
         }
     }
 
-    return array($documents,$episode);
+    return [$documents,$episode];
 }
 
 /**
@@ -3921,7 +3913,7 @@ function display($pid, $encounter, $category_value)
  *
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
+function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
 {
     global $form_folder;
     global $prov_data;
@@ -3992,8 +3984,9 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             if ($display !== "fullscreen") { ?>
                                     <li class="divider"></li>
                                     <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
+                                        <!-- AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams -->
                                         <a class="nav-link black"
-                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&display=fullscreen&encounter=' + <?php echo attr_js(urlencode($encounter)); ?>);"
+                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
                                            href="JavaScript:void(0);"
                                            ><?php echo xlt('Fullscreen'); ?></a>
                                     </li>
@@ -4067,7 +4060,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
  *  @param string $encounter is the current encounter number
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_left($pid, $encounter)
+function menu_overhaul_left($pid, $encounter): void
 {
     global $form_folder;
     global $pat_data;
@@ -4085,7 +4078,7 @@ function menu_overhaul_left($pid, $encounter)
      * find out if the patient has a photo
      */
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
     ?>
     <div class="borderShadow row" id="title_bar">
@@ -4177,7 +4170,7 @@ function menu_overhaul_left($pid, $encounter)
                                     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
                                     "AND p.type = 2 where d.id=? " .
                                     "ORDER BY state, city, name, area_code, prefix, number";
-                                $pharm = sqlQuery($sql, array($pat_data['pharmacy_id']));
+                                $pharm = sqlQuery($sql, [$pat_data['pharmacy_id']]);
                                 echo text($pharm['name'] . ", " . $pharm['city'] . " " . $pharm['state']);
                             }
                             ?>
@@ -4204,7 +4197,7 @@ function menu_overhaul_left($pid, $encounter)
  *  @return nothing, outputs directly to screen
  */
 
-function menu_overhaul_bottom($pid, $encounter)
+function menu_overhaul_bottom($pid, $encounter): void
 {
     ?><div class="navbar-custom" style="width:100%;height:25px;position:relative;border-top:1pt solid black;bottom:0px;z-index:1000000;">&nbsp;</div><?php
 }
@@ -4222,7 +4215,7 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
         $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
     }
 
-    $res = sqlStatement($sql, array($state));
+    $res = sqlStatement($sql, [$state]);
     if ($res) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
@@ -4304,7 +4297,7 @@ function report_header($pid, $direction = 'shell')
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
                 <span style="font-weight:bold;"><?php echo xlt('DOB'); ?>:</span> <?php echo text($DOB); ?><br />
                 <span style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</span> <?php echo text(oeFormatShortDate()); ?><br />
-                <span style="font-weight:bold;"><?php echo xlt('Visit Date'); ?>:</span> <?php echo oeFormatSDFT(strtotime($visit_date)); ?><br />
+                <span style="font-weight:bold;"><?php echo xlt('Visit Date'); ?>:</span> <?php echo oeFormatSDFT(strtotime((string) $visit_date)); ?><br />
                 <span style="font-weight:bold;"><?php echo xlt('Provider') . ':</span> ' . text(getProviderName(getProviderIdOfEncounter($encounter))) . '<br />'; ?>
 
           </td>
@@ -4358,11 +4351,11 @@ function start_your_engines($FIELDS)
     $result = sqlStatement($query);
     while ($term_sheet = sqlFetchArray($result)) {
         if ($term_sheet['title'] > '') {
-            $newdata =  array (
+            $newdata =   [
               'term'        => $term_sheet['title'], //the term to search for + possible option_values eg. CSME:DM|IOL|RVO
               'location'    => $term_sheet['notes'], //the Eye Form field to search for the term
               'codes'       => $term_sheet['codes']  //the specific code for this term/location, may be blank
-              );
+              ];
             $clinical_terms[] = $newdata;
         }
     }
@@ -4371,7 +4364,7 @@ function start_your_engines($FIELDS)
         return;
     }
 
-    $positives = array();
+    $positives = [];
     // Terms are sequenced in the DB (seq) from detailed (more complex descriptions) to a simple (one word) description.
     // $clinical_terms[] is built in this sequence also.
     // eg. "cicatricial ectropion","spastic ectropion", "ectropion".
@@ -4383,15 +4376,15 @@ function start_your_engines($FIELDS)
     foreach ($clinical_terms as $amihere) {
         $option_values = "";
         $term = "";
-        $code_found = array();
-        if (stripos($amihere['term'], ":") !== false) { //options are stored here code:option_values
-            list ($term,$option_values) = explode(":", $amihere['term']);
+        $code_found = [];
+        if (stripos((string) $amihere['term'], ":") !== false) { //options are stored here code:option_values
+            [$term, $option_values] = explode(":", (string) $amihere['term']);
         } else {
             $term = $amihere['term'];
         }
 
         $matches = [];
-        preg_match("/\b$term\b/", $FIELDS[$amihere['location']], $matches);
+        preg_match("/\b$term\b/", ($FIELDS[$amihere['location']] ?? ''), $matches);
         if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
@@ -4399,7 +4392,7 @@ function start_your_engines($FIELDS)
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
                 foreach ($positives[$amihere['location']] as $v) {
-                    if (preg_match("/\b$term\b/", $v)) {
+                    if (preg_match("/\b$term\b/", (string) $v)) {
                         $within_array = 'yes';
                         break;
                     }
@@ -4411,7 +4404,7 @@ function start_your_engines($FIELDS)
             }
 
             $positives[$amihere['location']][] = $term;
-            if (preg_match("/^(OD)/", $amihere['location'])) {
+            if (preg_match("/^(OD)/", (string) $amihere['location'])) {
                 $side = "right eye";
                 $side1 = "OD";
                 $side2 = "R";
@@ -4424,8 +4417,8 @@ function start_your_engines($FIELDS)
             if (($amihere['codes'] > '') && ($option_values == "")) { //did the user define a code for this term in list Eye_Coding_Terms?
                 //If so process - we are primed and don't need the carburetor for the Builder
                 //eg ICD10:H02.891
-                if (stripos($amihere['codes'], ":") !== false) {
-                    list($code_type,$code) = explode(":", $amihere['codes']);
+                if (stripos((string) $amihere['codes'], ":") !== false) {
+                    [$code_type, $code] = explode(":", (string) $amihere['codes']);
                 } else {
                     //default to ICD10.  Maybe there is a GLOBALS value for this? Maybe there should be?
                     $code_type = "ICD10";
@@ -4433,7 +4426,7 @@ function start_your_engines($FIELDS)
 
                 $code_found['code'] = $code_type . ":" . $code;
                 $code_found['code_type'] = $code_type;
-                list($sub_term,$newdata) = coding_engine($term, $code_found, $amihere['location']);
+                [$sub_term, $newdata] = coding_engine($term, $code_found, $amihere['location']);
                 $codes_found[$sub_term][] = $newdata;
                 $positives[$amihere['location']][] = $term;
             } else { //no code was defined, further processing needed.
@@ -4466,17 +4459,17 @@ function start_your_engines($FIELDS)
                             //search medical_problem for DM
                             $within_array = "";
                             foreach ($PMSFH[0]['PMH'] as $v) {
-                                if (stripos($v['codedesc'], "diabetes")) {
+                                if (stripos((string) $v['codedesc'], "diabetes")) {
                                     $DM_code = $v['codedesc'];
                                     $within_array = 'yes';
                                 }
                             }
 
                             if ($within_array == "yes") {
-                                if (stripos($DM_code, "1")) {
+                                if (stripos((string) $DM_code, "1")) {
                                     $DM_text = "Type 1 diabetes mellitus";
                                     $label = "DM 1";
-                                } elseif (stripos($DM_code, "2")) {
+                                } elseif (stripos((string) $DM_code, "2")) {
                                     $DM_text = "Type 2 diabetes mellitus";
                                     $label = "DM 2";
                                 } else {
@@ -4500,7 +4493,7 @@ function start_your_engines($FIELDS)
                                 $location3 = "OSPERIPH";
                             }
 
-                            if ((stripos($FIELDS[$location], "flat") === false) && (stripos($FIELDS[$location], "CSME") !== false)) {
+                            if ((stripos((string) $FIELDS[$location], "flat") === false) && (stripos((string) $FIELDS[$location], "CSME") !== false)) {
                                 //what if they type "no CSME" or "not flat"?
                                 $MAC_text = "with macular edema";
                                 $hit_CSME = "w/ CSME";
@@ -4519,36 +4512,36 @@ function start_your_engines($FIELDS)
                             $IRMA   = "IrMA";
                             //note stripos() is case-insensitive
                             if (
-                                ( (stripos($FIELDS[$location1], $NVD) !== false) ||
-                                (stripos($FIELDS[$location2], $NVE) !== false) ||
-                                (stripos($FIELDS[$location3], $NVE) !== false) ) &&
-                                ( (stripos($FIELDS[$location1], "no " . $NVD) !== true) ||
-                                (stripos($FIELDS[$location2], "no " . $NVE) !== true) ||
-                                (stripos($FIELDS[$location3], "no " . $NVE) !== true) )
+                                ( (stripos((string) $FIELDS[$location1], $NVD) !== false) ||
+                                (stripos((string) $FIELDS[$location2], $NVE) !== false) ||
+                                (stripos((string) $FIELDS[$location3], $NVE) !== false) ) &&
+                                ( (stripos((string) $FIELDS[$location1], "no " . $NVD) !== true) ||
+                                (stripos((string) $FIELDS[$location2], "no " . $NVE) !== true) ||
+                                (stripos((string) $FIELDS[$location3], "no " . $NVE) !== true) )
                             ) {
                                 $DX = "with proliferative";
                                 $label = $label . "w/ PDR " . $hit_CSME;
                                 $hit_PDR[$side] = '1';
                             } elseif (
-                                (stripos($FIELDS[$location2], $PPDR) !== false) ||
-                                (stripos($FIELDS[$location2], $PPDR) !== false) ||
-                                (stripos($FIELDS[$location], $IRMA)  !== false) ||
-                                (stripos($FIELDS[$location2], $IRMA) !== false) ||
-                                (stripos($FIELDS[$location3], $IRMA) !== false)
+                                (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
+                                (stripos((string) $FIELDS[$location2], $PPDR) !== false) ||
+                                (stripos((string) $FIELDS[$location], $IRMA)  !== false) ||
+                                (stripos((string) $FIELDS[$location2], $IRMA) !== false) ||
+                                (stripos((string) $FIELDS[$location3], $IRMA) !== false)
                             ) {
                                 $DX = "with severe nonproliferative";
                                 $label = $label . " w/ PPDR " . $hit_CSME;
                                 $hit_PPDR[$side] = '1';
                             } elseif (
-                                (stripos($FIELDS[$location], $BDR) !== false) ||
-                                (stripos($FIELDS[$location2], $BDR) !== false)
+                                (stripos((string) $FIELDS[$location], $BDR) !== false) ||
+                                (stripos((string) $FIELDS[$location2], $BDR) !== false)
                             ) {
                                     $trace = "tr";
                                 if (
-                                    (stripos($FIELDS[$location], $trace . " " . $BDR) !== false) ||
-                                    (stripos($FIELDS[$location2], "+1 " . $BDR) !== false) ||
-                                    (stripos($FIELDS[$location], $trace . " " . $BDR) !== false) ||
-                                    (stripos($FIELDS[$location2], "+1 " . $BDR) !== false)
+                                    (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
+                                    (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false) ||
+                                    (stripos((string) $FIELDS[$location], $trace . " " . $BDR) !== false) ||
+                                    (stripos((string) $FIELDS[$location2], "+1 " . $BDR) !== false)
                                 ) {
                                     $DX = "with mild nonproliferative";
                                     $label = $label . " w/ mild BDR " . $hit_CSME;
@@ -4563,11 +4556,11 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($DM_text, $MAC_text);
                             if (isset($code_found)) { //there are matches, present them to the engine
                                 foreach ($code_found as $found) {
-                                    list($sub_term,$newdata) = coding_engine($label, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($label, $found, $amihere['location'], $side1);
                                     // The carburetor is a simple machine - it has no boolean options -
                                     // so "with" and "without" match a search for "with"...
                                     // We need to be specific to whittle down the options.
-                                    if ((stripos($newdata['codedesc'], $MAC_text)) && (stripos($newdata['codedesc'], $DX))) {
+                                    if ((stripos((string) $newdata['codedesc'], $MAC_text)) && (stripos((string) $newdata['codedesc'], $DX))) {
                                         //does this code already exist for the other eye (right eye is always first)?
                                         //if so, change OD to OU and skip adding this code.
                                         //or is there a code for both eyes?
@@ -4590,35 +4583,31 @@ function start_your_engines($FIELDS)
                         } elseif ($option == "RVO") {
                             //is there a CRVO or BRVO associated?
                             //check Clinical fields for these terms
-                            if ($side == "right eye") {
-                                $location = "ODVESSELS";
-                            } else {
-                                $location = "OSVESSELS";
-                            }
+                            $location = $side == "right eye" ? "ODVESSELS" : "OSVESSELS";
 
                             if ($hit_RVO[$location] == '1') {
                                 continue;
                             }
 
-                            if (stripos($FIELDS[$location], "CRVO") !== false) {
+                            if (stripos((string) $FIELDS[$location], "CRVO") !== false) {
                                // this is a CRVO, look up code for location
                                 $terms = "CRVO";
                                 $code_found = coding_carburetor("central retinal vein", $side);
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
-                                        list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                        [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
                                         $positives[$location][] = "CRVO";
                                         $hit_RVO[$location] = "1";
                                     }
                                 }
-                            } elseif (stripos($FIELDS[$location], "BRVO") !== false) {
+                            } elseif (stripos((string) $FIELDS[$location], "BRVO") !== false) {
                                // this is a BRVO, look up code for location
                                 $code_found = coding_carburetor("branch retinal vein", $side);
                                 $terms = "BRVO " . $term;
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
-                                        list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                        [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                         $codes_found[$sub_term][] = $newdata;
                                         $positives[$location][] = "BRVO";
                                         $hit_RVO[$location] = '1';
@@ -4633,7 +4622,7 @@ function start_your_engines($FIELDS)
                                 if (isset($code_found)) { //there are matches, present them to the Builder
                                     foreach ($code_found as $found) {
                                         if ($found['code'] == "ICD10:H35.81") {
-                                            list($sub_term,$newdata) = coding_engine($terms, $found, $location, $side1);
+                                            [$sub_term, $newdata] = coding_engine($terms, $found, $location, $side1);
                                             $codes_found[$sub_term][] = $newdata;
                                             $positives[$location][] = "CSME";
                                             $hit_RVO_CSME = '1';
@@ -4646,12 +4635,12 @@ function start_your_engines($FIELDS)
                             //search the same side Lens field for term IOL, ? procedure this eye in last 3 months?
                             //search surgery_issue_list or even search the billng engine
                             $query = "select begdate as surg_date from lists where pid=? and type='surgery' and title like '%IOL%' and (title like '%" . xlt($side1) . "%')";
-                            $surg = sqlQuery($query, array($pid));
+                            $surg = sqlQuery($query, [$pid]);
                             if ($surg['surg_date'] > '') {
                                 $date1 = date('Y-m-d');
                                 //$date2 = (DateTime($surg['surg_date']));
                                 //echo $term."\n".$date."\n";continue;
-                                $date_diff = strtotime($date1) - strtotime($surg['surg_date']);
+                                $date_diff = strtotime($date1) - strtotime((string) $surg['surg_date']);
                                 $interval = $date_diff / (60 * 60 * 24);
                                 //$interval was 180, now = 90;
                                 if (($interval < '90') && ($term == "CSME")) {
@@ -4660,7 +4649,7 @@ function start_your_engines($FIELDS)
                                     if (isset($code_found)) { //there are matches, present them to the Builder
                                         foreach ($code_found as $found) {
                                             $term = "Post-cataract CME";
-                                            list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
+                                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
                                             $codes_found[$sub_term][] = $newdata;
                                             $positives[$amihere['location']][] = $term;
                                             $hit_IOL = '1';
@@ -4687,7 +4676,7 @@ function start_your_engines($FIELDS)
                             $code_found = coding_carburetor($term_now, $FIELDS[$amihere['location']]);
                             if (isset($code_found)) { //there are matches, present them to the Builder
                                 foreach ($code_found as $found) {
-                                    list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location'], $side1);
+                                    [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location'], $side1);
                                     $codes_found[$sub_term][] = $newdata;
                                     $positives[$amihere['location']][] = $term_now;
                                 }
@@ -4700,7 +4689,7 @@ function start_your_engines($FIELDS)
                     $code_found = coding_carburetor($term, $FIELDS[$amihere['location']]);
                     if ($code_found !== null) { //there are matches, present them to the Builder
                         foreach ($code_found as $found) {
-                            list($sub_term,$newdata) = coding_engine($term, $found, $amihere['location']);
+                            [$sub_term, $newdata] = coding_engine($term, $found, $amihere['location']);
                             $codes_found[$sub_term][] = $newdata;
                             $positives[$amihere['location']][] = $term;
                         }
@@ -4732,17 +4721,17 @@ function coding_carburetor($term, $field)
         return;
     }
 
-    $codes = array();
+    $codes = [];
     $code_type = "ICD10";  //only option is PROD (product or drug search) or NOT PROD...
     $search_term = $term . " " . $field;
     $res = main_code_set_search($code_type, $search_term);
     while ($row = sqlFetchArray($res)) {
-        $newdata =  array (
+        $newdata =   [
                         'code'  =>  $row['code'],
                         'code_text' => $row['code_text'],
                         'code_type' => $row['code_type_name'],
                         'code_desc' => $row['code_desc'] ?? ''
-                    );
+                    ];
         $codes[] = $newdata;
     }
 
@@ -4761,8 +4750,8 @@ function coding_carburetor($term, $field)
  */
 function coding_engine($term, $code_found, $location, $side = '')
 {
-    if (strpos($code_found['code'], ":")) {
-        list($code_type, $code) = explode(':', $code_found['code']);
+    if (strpos((string) $code_found['code'], ":")) {
+        [$code_type, $code] = explode(':', (string) $code_found['code']);
     } else {
         $code = $code_found['code'];
         $code_type = "ICD10";//default to ICD10
@@ -4770,7 +4759,7 @@ function coding_engine($term, $code_found, $location, $side = '')
     }
 
     $code_desc = lookup_code_descriptions($code_found['code']);
-    $order   = array("\r\n", "\n","\r");
+    $order   = ["\r\n", "\n","\r"];
     $code_desc = str_replace($order, '', $code_desc);
 
     $code_text = text($code_found['code']) . " (" . text($code_desc) . ")";
@@ -4779,8 +4768,8 @@ function coding_engine($term, $code_found, $location, $side = '')
     //some codes are bilateral, some not, some are per eyelid.  Comment this out for now:
     //(preg_match("/right/",$code_desc))? $side = xlt('OD{{right eye}}') : $side = xlt('OS{{left eye}}');
 
-    $newdata =  array (
-        'title'         => ucfirst($term) . " " . $side,
+    $newdata =   [
+        'title'         => ucfirst((string) $term) . " " . $side,
         'location'      => $location,
         'diagnosis'     => $code,
         'code'          => $code,
@@ -4788,8 +4777,8 @@ function coding_engine($term, $code_found, $location, $side = '')
         'codedesc'      => $code_desc,
         'codetext'      => $code_text,
         'PMSFH_link'    => "Clinical_" . $sub_term
-    );
-    return array($sub_term,$newdata);
+    ];
+    return [$sub_term,$newdata];
 }
 /**
  *  This is a function to sort an array of dates/times etc
@@ -4801,17 +4790,18 @@ function cmp($a, $b)
         return 0;
     }
 
-    return (strtotime($a) < strtotime($b)) ? -1 : 1;
+    return (strtotime((string) $a) < strtotime((string) $b)) ? -1 : 1;
 }
 
 /**
- *  This function returns the TARGET IOP values for a given ($pid) if ever set, otherwise returns the DEFAULT IOP.
- *  when a value is found for a given field in the Eye Form for a given patient ($pid)
- *  @param $name is in the name of the field
+ * This function displays the Glaucoma Flow Sheet.
+ * Default is to display IOP measurements 'byday'.
  *
- *  @return $ranges.  A mysqlArray(max_FIELD,max_date,min_date)
+ * @param int    $pid
+ * @param string $bywhat == byday or byhour
+ * @return void
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 {
     global $PMSFH;
     global $form_folder;
@@ -4819,13 +4809,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     global $provider_id;
     global $documents;
     global $encounter_data;
-    global $ODIOPTARGET;
-    global $OSIOPTARGET;
     global $dated;
     global $visit_date;
 
     if (!$documents) {
-        list($documents) = document_engine($pid);
+        [$documents] = document_engine($pid);
     }
 
     $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
@@ -4841,23 +4829,35 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             $VF_date[] = $VF['docdate'];
         }
     }
+    if (empty($encounter_data['ODIOPTARGET']) || empty($encounter_data['OSIOPTARGET'])) {
+        [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+    } else {
+        $ODIOPTARGET = $encounter_data['ODIOPTARGET'];
+        $OSIOPTARGET = $encounter_data['OSIOPTARGET'];
+    }
 
     $i = 0;
-        //if there are no priors, this is the first visit, display a generic splash screen.
+    [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+    //if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
+        if (empty($encounter_data['ODIOPTARGET'])) {
+            $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
+        }
+
+        if (empty($encounter_data['OSIOPTARGET'])) {
+            $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
+        }
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date'] == '') {
                 continue;
             }
 
-            $old_date_timestamp = strtotime($visit['visit_date']);
+            $old_date_timestamp = strtotime((string) $visit['visit_date']);
             $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
             $VISITS_date[$i] = $visit['exam_date'];
 
-            //$date_OU[$i] = $visit['exam_date'];
-
-            $time_here = explode(":", $visit['IOPTIME']);
+            $time_here = explode(":", (string) $visit['IOPTIME']);
             $time = $time_here[0] . ":" . $time_here[1];
             $time_OU[$i] = $time;
 
@@ -4892,32 +4892,31 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             //build the Target line values for each date.
             $j =  $i - 1;
-
             if ($visit['ODIOPTARGET'] > '') {
                 $ODIOPTARGETS[$i] = $visit['ODIOPTARGET'];
             } elseif ($i == 0) { //this should be set on in view/page load.  Keep for reports though...
-                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+                $ODIOPTARGETS[$i] = $ODIOPTARGET;
             } elseif (!$ODIOPTARGETS[$j]) {
-                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
+                $ODIOPTARGETS[$i] = $ODIOPTARGET;
             } else {
                 $ODIOPTARGETS[$i] = $ODIOPTARGETS[$j];
             }
 
             if ($visit['OSIOPTARGET'] > '') {
-                 $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
+                $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
             } elseif ($i == 0) {
-                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+                $OSIOPTARGETS[$i] = $OSIOPTARGET;
             } elseif (!$OSIOPTARGETS[$j]) {
-                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
+                $OSIOPTARGETS[$i] = $OSIOPTARGET;
             } else {
                 $OSIOPTARGETS[$i] = $OSIOPTARGETS[$j];
             }
             $i++;
         }
-    } else { //there are no priors, get info for this visit
-        $VISITS_date[0] = $dated;
+    } else { //there are no priors, get info from this visit
+            $VISITS_date[0] = $dated;
         if ($encounter_data['IOPTIME']) {
-            $time_here = explode(":", $encounter_data['IOPTIME']);
+            $time_here = explode(":", (string) $encounter_data['IOPTIME']);
             $time = $time_here[0] . ":" . $time_here[1];
             $time_OU[] = $time;
         }
@@ -4926,9 +4925,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             $GONIO_date[$i] = $dated;
         }
 
-        $ODIOP[$i]['time'] = $time;
-        $OSIOP[$i]['time'] = $time;
-        //$IOPTARGET['visit_date'] = $encounter_data['exam_date'];
+            $ODIOP[$i]['time'] = $time;
+            $OSIOP[$i]['time'] = $time;
+
         if ($encounter_data['ODIOPAP'] > '') {
             if (!is_int($encounter_data['ODIOPAP'])) {
                 $ODIOP[$k]['IOP'] = '';
@@ -4953,11 +4952,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
             //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
         }
-
         if ($encounter_data['ODIOPTARGET'] > '0') {
             $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else {
-            list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $ODIOPTARGETS[$i] = $ODIOPTARGET;
             $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
         }
@@ -4965,18 +4962,17 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($encounter_data['OSIOPTARGET']) {
             $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
         } else {
-            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $OSIOPTARGETS[$i] = $OSIOPTARGET;
             $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
         }
     }
 
-    //There are visits for testing only, no IOP.
+    //There are visits for testing only, no IOP, or old tests have been imported, like VF or OCTs...
     //We need to insert these dates into the arrays created above.
     //recreate them to include the testing only dates, placing null values for those dates if not done.
 
     //can't merge empty arrays
-    $list = array();
+    $list = [];
     $arrs[] = $OCT_date ?? '';
     $arrs[] = $VF_date ?? '';
     $arrs[] = $GONIO_date ?? '';
@@ -4989,15 +4985,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     }
 
     $date_OU = array_unique($list);
-    usort($date_OU, "cmp");
+    usort($date_OU, cmp(...));
     $times_OU = $time_OU;
-    usort($times_OU, "cmp");
+    usort($times_OU, cmp(...));
 
     for ($a = 0; $a < count($date_OU); $a++) {
         if (!empty($GONIO_date)) {
             foreach ($GONIO_date as $GONIO) {
                 if ($date_OU[$a] == $GONIO) {
-                    $GONIO_values[$a] = "1";
+                    $GONIO_values[$a] = "4";
                     break;
                 }
             }
@@ -5010,7 +5006,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($count_OCT > 0) {
             foreach ($OCT_date as $OCT) {
                 if ($date_OU[$a] == $OCT) {
-                    $OCT_values[$a] = "1";
+                    $OCT_values[$a] = "Completed";
                     break;
                 }
             }
@@ -5023,7 +5019,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($count_VF > 0) {
             foreach ($VF_date as $VF) {
                 if ($date_OU[$a] == $VF) {
-                    $VF_values[$a] = "1";
+                    $VF_values[$a] = "4";
                     break;
                 }
             }
@@ -5039,11 +5035,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $ODIOP[$k]['IOP'] = '';}
                 if (preg_match('/[a-z]/i', ($OSIOP[$k]['IOP'] ?? ''))) {
                     $OSIOP[$k]['IOP'] = '';}
-                $OD_values[$a] = "'" . ($ODIOP[$k]['IOP'] ?? '') . "'";
+                $OD_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
                 $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
                 $OS_values[$a] = $OSIOP[$k]['IOP'] ?? '';
                 $OS_methods[$a] = $OSIOP[$k]['method'] ?? '';
-                $ODIOPTARGET_values[$a] = $ODIOPTARGETS[$k];
+                $ODIOPTARGET_values[$a] = $ODIOPTARGETS[$k] ?? '';
                 $OSIOPTARGET_values[$a] = $OSIOPTARGETS[$k] ?? '';
                 break;
             }
@@ -5077,38 +5073,24 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     for ($a = 0; $a < count($times_OU); $a++) {
         for ($k = 0; $k < count($ODIOP); $k++) {
             if ($times_OU[$a] == $time_OU[$k]) {
-                $OD_time_values[$a] = $ODIOP[$k]['IOP'] ?? '';
-                $OS_time_values[$a] = $OSIOP[$k]['IOP'] ?? '';
+                $OD_time_values[$a] = ($ODIOP[$k]['IOP'] ?? '');
+                $OS_time_values[$a] = ($OSIOP[$k]['IOP'] ?? '');
                 break;
             }
         }
     }
 
-    $dates_OU = "'" . implode("','", $date_OU) . "'";
-    $OD_values = implode(",", $OD_values);
-    $OS_values = implode(",", $OS_values);
-    $OCT_values = "'" . implode("','", $OCT_values) . "'";
-    $VF_values = "'" . implode("','", $VF_values) . "'";
-    $GONIO_values =  "'" . implode("','", $GONIO_values) . "'";
-    $IOPTARGET_values =  implode(",", $ODIOPTARGET_values);
-    $times_OU = "'" . implode("','", $times_OU) . "'";
-    $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
-    $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
-
     ?> <p style="font-weight:bold;"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
        <span class="closeButton fas fa-times" id="Close_IOP" name="Close_IOP"></span>
-        <div id="GFS_table" name="GFS_table" class="table-responsive borderShadow" style="position:relative;display:table;float:left;margin-top:10px;padding:15px;text-align:left;vertical-align:center;width:30%;">
-            <table class="GFS_table">
+        <div id="GFS_table" name="GFS_table"
+             style="position:relative;display:table;float:left;margin-top:10px;padding:15px;text-align:left;vertical-align:center;width:30%;">
+            <table class="GFS_table table-responsive borderShadow">
                 <tr >
-                    <td colspan="1" class="GFS_title_1" style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('Current Target'); ?>:
-                        <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OD{{right eye}}'); ?>: <input type="text" style="width: 20px;" name="ODIOPTARGET" id="ODIOPTARGET" value="<?php echo attr($ODIOPTARGET); ?>" /></td>
+                    <td colspan="1" class="GFS_title_1" style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('Current Targets'); ?>:
+                        <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OD{{right eye}}'); ?>: <input type="text" style="width: 20px;" name="ODIOPTARGET" id="ODIOPTARGET" value="<?php echo attr($encounter_data['ODIOPTARGET']); ?>" /></td>
                         <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OS{{left eye}}'); ?>: <input type="text" style="width: 20px;" name="OSIOPTARGET" id="OSIOPTARGET"  value="<?php echo attr($encounter_data['OSIOPTARGET']); ?>"  /></td>
                 </tr>
-                <tr>
-                    <td colspan="3" class="hideme nodisplay">
-                        TARGET IOP HISTORY
-                    </td>
-                </tr>
+
                 <?php
                     //what active meds have a subtype eye?
                     $i = 0;
@@ -5116,7 +5098,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
                         if (($drug['row_subtype'] == "eye") && (strtotime($drug['enddate'] ?? '') < strtotime($visit_date ?? '') ) && ($drug['status'] != "Inactive")) {
-                            $current_drugs = $current_drugs ?? '';
+                            $current_drugs ??= '';
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_" . attr($drug['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($drug['rowid']) . "'
                                       onclick=\"alter_issue2(" . attr_js($drug['rowid']) . ",'Medication','" . $i . "');\">" . text($drug['title']) . "</span></td>
                                       <td class='GFS_td'>" . text(oeFormatShortDate($drug['begdate'])) . "</td></tr>";
@@ -5200,6 +5182,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 ?>
                 <tr>
                     <td colspan="3" class="GFS_title"><?php echo xlt('Optic Nerve Analysis'); ?>:&nbsp;
+                   <pre>
+                       <?php
+
+                  // var_dump($documents); ?></pre>
                         <?php
                         if ($count_OCT > '0') { //need to decide how many to show on open, and hide the rest?  For now show first, hide rest.
                             $count = 0;
@@ -5255,7 +5241,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                             }
                         }
                         if (!empty($GONIO[$i]['list'])) {
-                            $GONIO = rtrim(($GONIO[$i]['list']), ",");
+                            $GONIO = rtrim(((string) $GONIO[$i]['list']), ",");
                         }
                         if ($count == 0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
@@ -5291,7 +5277,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $cups = "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
                             }
 
-                            $DISCS_chart = $DISCS_chart ?? '';
+                            $DISCS_chart ??= '';
                             $DISCS_chart .= '"1",';
                             $count++;
                         } else {
@@ -5326,25 +5312,25 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
+        <div class="right" style="position:relative;float:right; margin: 0px 5px 10px;text-align:center;width:60%;">
             <?php
             if ($priors) {
                 if ($bywhat == 'byday') { //$bywhat='byday'
-                        $class_1 = "nodisplay";
-                        $class_2 = "";
+                    $class_1 = "nodisplay";
+                    $class_2 = "";
                 } else {
                     $class_2 = "nodisplay";
                     $class_1 = "";
                 }
-
-
                 ?>
-                <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
-                <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
+                    <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
+                    <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
+                    <hr />
+                    <button id="dailyData" class="<?php echo $class_1; ?>"><?php echo xlt('Show IOP by Date'); ?></button>
+                    <button id="hourlyData" class="<?php echo $class_2; ?>"><?php echo xlt('Show IOP by Time'); ?></button>
 
-                <button id="dailyData" class="<?php echo $class_1; ?>"><?php echo xlt('Show IOP by Date'); ?></button>
-                <button id="hourlyData" class="<?php echo $class_2; ?>"><?php echo xlt('Show IOP by Time'); ?></button>
-                <script>
+
+                    <script>
                     /**
                      *  Below is the Chart.js code to render IOP by day and IOP by time
                      *
@@ -5352,75 +5338,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     var visit_date = '<?php echo attr($dated); ?>';
                     var dateFormat = 'YYYY-MM-DD';
                     var timeFormat = 'HH tt';
-                    var customTooltips = function(tooltip) {
-                        // Tooltip Element
-                        var tooltipEl = $('#chartjs-tooltip');
-                        if (!tooltipEl[0]) {
-                            $('body').append('<div id="chartjs-tooltip"></div>');
-                            tooltipEl = $('#chartjs-tooltip');
-                        }
-                            // Hide if no tooltip
-                        if (!tooltip.opacity) {
-                            tooltipEl.css({
-                                          opacity: 0.3
-                                          });
-                            $('.chartjs-wrap canvas')
-                            .each(function(index, el) {
-                                  $(el).css('cursor', 'default');
-                                  });
-                            return;
-                        }
-                        $(this._chart.canvas).css('cursor', 'pointer');
-                            // Set caret Position
-                        tooltipEl.removeClass('above below no-transform');
-                        if (tooltip.yAlign) {
-                            tooltipEl.addClass(tooltip.yAlign);
-                        } else {
-                            tooltipEl.addClass('no-transform');
-                        }
-
-                            // Set Text
-                        if (tooltip.body) {
-                            var innerHtml = [
-                                             (tooltip.beforeTitle || []).join('\n'), (tooltip.title || []).join('\n'), (tooltip.afterTitle || []).join('\n'), (tooltip.beforeBody || []).join('\n'), (tooltip.body || []).join('\n'), (tooltip.afterBody || []).join('\n'), (tooltip.beforeFooter || [])
-                                             .join('\n'), (tooltip.footer || []).join('\n'), (tooltip.afterFooter || []).join('\n')
-                                             ];
-                            tooltipEl.html(innerHtml.join('\n'));
-                        }
-
-                            // Find Y Location on page
-                        var top = 0;
-                        if (tooltip.yAlign) {
-                            if (tooltip.yAlign == 'above') {
-                                top = tooltip.y - tooltip.caretHeight - tooltip.caretPadding;
-                            } else {
-                                top = tooltip.y + tooltip.caretHeight + tooltip.caretPadding;
-                            }
-                        }
-                        var position = $(this._chart.canvas)[0].getBoundingClientRect();
-                            // Display, position, and set styles for font
-                        tooltipEl.css({
-                                      opacity: 0.5,
-                                      width: tooltip.width ? (tooltip.width + 'px') : 'auto',
-                                      left: position.left + tooltip.x + 'px',
-                                      top: position.top + top + 'px',
-                                      fontFamily: tooltip._fontFamily,
-                                      fontSize: tooltip.fontSize,
-                                      fontStyle: tooltip._fontStyle,
-                                      padding: tooltip.yPadding + 'px ' + tooltip.xPadding + 'px',
-                                      });
-                    };
 
                     var config_byhour = {
+                        type: 'line',
                         data: {
-                            labels: [<?php echo $times_OU; ?>],
+                            labels: <?php echo js_escape($times_OU); ?>,
                             datasets: [
                                 {
                                     type: 'line',
                                     label: "OD",
-                                    data: [
-                                        <?php echo $OD_time_values; ?>
-                                    ],
+                                    data: <?php echo js_escape($OD_time_values); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -5439,11 +5366,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 {
                                     type: 'line',
                                     label: 'OS',
-                                    data: [
-                                        <?php echo $OS_time_values; ?>
-                                    ],
+                                    data: <?php echo js_escape($OS_time_values); ?>,
                                     fill: false,
-                                    lineTension: 3,
                                     borderColor : "#000099",
                                     backgroundColor : "#000099",
                                     pointBorderColor : "black",
@@ -5455,84 +5379,39 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverRadius: 5,
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
-                                    pointHitRadius: 3,
+                                    pointHitRadius: 3
                                 }
                             ]
                         },
                         options: {
-                            responsive: true,
-                            animation: false,
-                            onAnimationComplete: function () {
-                                // prevents the update from triggering an infinite loop
-                                if (!this.clearCycle) {
-                                    this.clearCycle = true;
-
-                                    this.datasets.forEach(function (dataset) {
-                                        dataset.points.forEach(function (point) {
-                                            if (point.value === 0) {
-                                                point.display = false;
-                                                point.hasValue = function () {
-                                                    return false;
-                                                }
-                                            }
-                                        })
-                                    })
-                                    this.update();
-                                } else
-                                    delete this.clearCycle;
-                                },
-                            scaleShowHorizontalLines: true,
-                            title:{
-                                display: true,
-                                text:'<?php echo xla("Intraocular Pressures") . " (" . xla("mmHg") . ") by Hour"; ?>'
-                            },
-                            tooltips: {
-                                mode: 'label'
-                            },
-                            hover: {
-                                mode: 'dataset'
-                            },
-                            scales: {
-                                xAxes:  {
-                                    type: "time",
-                                    time: {
-                                       format: "HH:mm",
-                                       unit: 'hour',
-                                       unitStepSize: 2,
-                                       displayFormats: {
-                                           'minute': 'h:mm a',
-                                           'hour': 'h:mm a'
-                                       },
-                                       tooltipFormat: 'h:mm a'
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Time'
-                                    },
-                                    ticks: {
-                                        suggestedMin: 4,
-                                        suggestedMax: 24,
-                                    }
-                                },
-                                yAxes: {
-                                    type: "linear",
+                            plugins: {
+                                title: {
                                     display: true,
-                                    position: "left",
-                                    id: "y-axis-2",
-                                    gridLines:{
-                                        display: false
-                                    },
-                                    labels: {
-                                        show:true,
-                                    },
-                                    scaleLabel: {
+                                    text: '<?php echo xla("Intraocular Pressures by Time of Day"); ?>'
+                                }
+                            },
+
+                            scales: {
+                                x: {
+                                    title: {
                                         display: true,
-                                        labelString: 'IOP (mmHg)'
+                                        text: '<?php echo xla("Time of Day"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     },
-                                    ticks: {
-                                        suggestedMin: 0,
-                                        suggestedMax: 24,
-                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
+                                    },
+                                    beginAtZero: true,
+                                    Min: 0,
+                                    suggestedMax: 35
                                 }
                             }
                         }
@@ -5556,25 +5435,21 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                            $('#showTesting').removeClass('nodisplay');
                                            });
                     var config_byday = {
-                        type: 'bar',
+                        type: 'line',
                         data: {
-                            labels: [
-                                <?php echo $dates_OU; ?>
-                            ],
+                            labels: <?php echo js_escape($date_OU); ?>,
                             datasets: [
                                 {
                                     axis: 'y',
                                     type: 'line',
-                                    label: "Target",
-                                    data: [<?php echo $IOPTARGET_values; ?>],
+                                    label: "Target OD",
+                                    data: <?php echo js_escape($ODIOPTARGET_values); ?>,
                                     fill: false,
                                     borderColor : "#f28282",
                                     backgroundColor : "#f28282",
                                     pointBorderColor : "black",
                                     pointBackgroundColor : "#f28282",
                                     pointBorderWidth : 3,
-                                    drugs: ["test1\ntimoptic","test2","test3"],
-                                    yAxisID: 'y-axis-1',
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
                                     borderDash: [1,5],
@@ -5587,15 +5462,35 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 {
                                     axis: 'y',
                                     type: 'line',
+                                    label: "Target OS",
+                                    data: <?php echo js_escape($OSIOPTARGET_values); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "#AA8282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+
+                                {
+                                    axis: 'y',
+                                    type: 'line',
                                     label: "OD",
-                                    data: [<?php echo $OD_values; ?>],
+                                    data: <?php echo js_escape($OD_values); ?>,
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
                                     pointBorderColor : "#055d2b",
                                     pointBackgroundColor : "#44a3a7",
                                     pointBorderWidth : 3,
-                                    yAxisID: 'y-axis-1',
                                     lineTension: 0.3,
                                     borderCapStyle: 'butt',
                                     borderDashOffset: 0.0,
@@ -5609,7 +5504,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     axis: 'y',
                                     type: 'line',
                                     label: 'OS',
-                                    data: [<?php echo $OS_values; ?>],
+                                    data: <?php echo js_escape($OS_values); ?>,
                                     fill: false,
                                     lineTension: 3,
                                     borderColor : "#000099",
@@ -5617,14 +5512,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointBorderColor : "black",
                                     pointBackgroundColor : "#000099",
                                     pointBorderWidth : 3,
-                                    yAxisID: 'y-axis-1',
                                     lineTension: 0.3,
                                     borderCapStyle: 'butt',
                                     borderJoinStyle: 'miter',
                                     pointHoverRadius: 5,
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
-                                    pointHitRadius: 3,
+                                    pointHitRadius: 3
                                 },
                                 {
                                     axis: 'y',
@@ -5632,132 +5526,62 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     label: "VF",
                                     strokeColor: '#5CABFA',
                                     fillColor:"#5CABFA",
-                                    data: [<?php echo $VF_values; ?>],
-                                    fill: false,
-                                    backgroundColor: '#5CABFA',
-                                    borderColor: 'var(--black)',
-                                    yAxisID: 'y-axis-2'
+                                    data: <?php echo js_escape($VF_values); ?>,
+                                    fill: true,
+                                    backgroundColor: '#5CABFA'
                                 },
                                 {
                                     axis: 'y',
                                     type: 'bar',
                                     label: "OCT",
-                                    data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
+                                    data: <?php echo js_escape($OCT_values); ?>, //0/null is not done, 1 if performed.
                                     fill: true,
-                                    backgroundColor: '#71B37C',
-                                    borderColor: 'var(--black)',
-                                    yAxisID: 'y-axis-2'
+                                    backgroundColor: '#71B37C'
                                 },
                                 {
                                     axis: 'y',
                                     type: 'bar',
                                     label: "Gonio",
-                                    data: [<?php echo $GONIO_values; ?>],
+                                    data: <?php echo js_escape($GONIO_values); ?>,
                                     fill: false,
                                     strokeColor: 'rgba(209, 30, 93, 0.3)',
                                     fillColor:'rgba(209, 30, 93, 0.3)',
-                                    backgroundColor: 'red',
-                                    borderColor: 'var(--black)',
-                                    yAxisID: 'y-axis-2'
+                                    backgroundColor: 'red'
                                 }
                             ]
                         },
                         options: {
-                            responsive: true,
-                            scaleShowHorizontalLines: true,
-                            title: {
-                                display: true,
-                                text:'<?php echo xla("Intraocular Pressures (mmHg) by Date"); ?>'
-                            },
-                            tooltips: {
-                                enabled: true,
-                                    //id: "tooltip-1",
-                                    //backgroundColor: '#FCFFC5',
-                                    //mode: 'label',
-                                enabled: true,
-                                shared: false,
-
-                                callbacks: {
-                                label: function(tooltipItem, data) {
-                                    if (tooltipItem.yLabel =='0') {
-                                        return data.datasets[tooltipItem.datasetIndex].label + "  ---  "; ;
-                                    } else if (tooltipItem.yLabel =='1') {
-                                        return data.datasets[tooltipItem.datasetIndex].label + " <?php echo xlt('performed'); ?>";
-                                    } else if (tooltipItem.yLabel > '1') {
-                                        return data.datasets[tooltipItem.datasetIndex].label + ": "+tooltipItem.yLabel;
-                                    }
-                                },
-                                afterBody: function(tooltipItems, data) {
-                                        //console.log(tooltipItems);
-                                        //return data.datasets[2].drugs[tagme];
-                                    }
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '<?php echo xla("Intraocular Pressures by Date"); ?>'
                                 }
                             },
-                            hover: {
-                                mode: 'label'
+                            responsive: true,
+                            tooltips: {
+                                enabled: true
                             },
                             scales: {
-                                xAxes:  {
-                                    type: "time",
-                                    stacked:false,
-                                    id: "x-axis-1",
-                                    time: {
-                                        format: dateFormat,
-                                        round: 'day',
-                                        tooltipFormat: 'h:mm a'
-                                    },
-                                    categoryPercentage: 0.5,
-                                    barPercentage:1.0,
-                                    //categoryPercentage:0.3,
-                                    scaleLabel: {
+                                x: {
+                                    title: {
                                         display: true,
-                                        labelString: 'Date'
-                                    },
-                                    ticks: {
-                                        suggestedMin: 3,
-                                        suggestedMax: 6
+                                        text: '<?php echo xla("Visit Dates"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     }
                                 },
-                                'y-Axis-1': {
-                                    type: "linear",
-                                    display: false,
-                                    position: "right",
-                                    id: "y-axis-1",
-                                    stacked: false,
-                                    gridLines:{
-                                        display: false
-                                    },
-                                    labels: {
-                                        show:true,
-                                    },
-                                    scaleLabel: {
-                                        display: false,
-                                        labelString: 'Testing'
-                                    },
-                                    ticks: {
-                                        suggestedMin: 4,
-                                        suggestedMax: 4
-                                    }
-                                },
-                                'y-Axis-2': {
-                                    type: "linear",
-                                    display: true,
-                                    position: "left",
-                                    id: "y-axis-2",
-                                    gridLines:{
-                                        display: true
-                                    },
-                                    labels: {
-                                        show:true,
-                                    },
-                                    scaleLabel: {
+                                y: {
+                                    title: {
                                         display: true,
-                                        labelString: 'IOP (mmHg)'
+                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     },
-                                    ticks: {
-                                        suggestedMin: 4,
-                                        suggestedMax: 24,
-                                    }
+                                    beginAtZero: true,
+                                    Min: 0,
+                                    suggestedMax: 35
                                 }
                             }
                         }
@@ -5772,7 +5596,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 </script>
                 <?php
             } else {
-                echo "<div style='text-align:left;padding-left:20px;'><span>The Glaucoma Flow Sheet graphically displays:
+                echo "<div style='text-align:left;padding-left:20px;margin:40px;font-size:1.3em;'><span>The Glaucoma Flow Sheet graphically displays:
                 <ul>
                 <li> IOP measurements</li>
                 <li> Target IOPs </li>
@@ -5786,30 +5610,505 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             <?php
 }
 
+
+/**
+ *
+ * This function displays today + historical visual acuity measurements
+ * I imagined this as a condensed table with top row = types of acuities
+ *   Date | sc | CC | Ph | AR | MR | CR | CTL | comments
+ * second row OD/OS
+ * OD - OS|OD - OS|OD - OS|OD - OS|OD - OS|OD - OS|
+ *
+ * and 3rd row on: the leftmost/first column containing Date of visit, then the actual measurements obtained
+ *
+ * @param int $pid
+ * @return void
+ *
+*/
+function display_VisualAcuities($pid = 0): void
+{
+    global $priors;
+    global $visit_date;
+    global $dated;
+
+    if ($priors) {
+        // We have to get this data if it exists for each prior visit.
+        // if it is a resource hog, then maybe show just the last 10
+        //  Have to test that but for now show it all.
+        usort($priors, function ($a, $b) {
+            $dateA = strtotime((string) $a['visit_date']);
+            $dateB = strtotime((string) $b['visit_date']);
+
+            return $dateB - $dateA; // Sort in descending order
+            //return $b['visit_date'] <=> $a['visit_date'];
+        });
+        $flip_priors = new ArrayIterator(array_reverse($priors));
+        $array_va_dates = [];
+        $array_va_SCODVA = [];
+        $array_va_SCOSVA = [];
+        $array_va_CCODVA = [];
+        $array_va_CCOSVA = [];
+        $array_va_PHODVA = [];
+        $array_va_PHOSVA = [];
+        $array_va_ARODVA = [];
+        $array_va_AROSVA = [];
+        $array_va_MRODVA = [];
+        $array_va_MROSVA = [];
+        $array_va_CRODVA = [];
+        $array_va_CROSVA = [];
+        $array_va_CTLODVA = [];
+        $array_va_CTLOSVA = [];
+        foreach ($flip_priors as $prior) {
+            if ($prior['visit_date'] > $visit_date) {
+                continue;
+            }
+            $old_date_timestamp = strtotime((string) $prior['visit_date']);
+            $visit_timestamp = strtotime((string) $visit_date);
+
+            if ($old_date_timestamp > $visit_timestamp) {
+                continue;
+            }
+            // Current Correction or CC refers to the VA with current glasses.
+            $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and RX_NUMBER =1";
+            $wear   = sqlQuery($query, [$pid,$prior['form_id']]);
+            $prior['CCODVA'] = $wear['ODVA'];
+            $prior['CCOSVA'] = $wear['OSVA'];
+
+            $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
+            $array_va_dates[]   = $visit['exam_date'];
+            // Some people write Va as 20/20, or 6/6.
+            // We need to remove the prefix + the "/"
+            // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
+            // Just take digits, even ignore + and - notations
+            $prior['SCODVA'] = preg_replace("/\d+\//", "", (string) $prior['SCODVA']);
+            $prior['SCOSVA'] = preg_replace("/\d+\//", "", (string) $prior['SCOSVA']);
+            $prior['CCODVA'] = preg_replace("/\d+\//", "", (string) $prior['CCODVA']);
+            $prior['CCOSVA'] = preg_replace("/\d+\//", "", (string) $prior['CCOSVA']);
+            $prior['ARODVA'] = preg_replace("/\d+\//", "", (string) $prior['ARODVA']);
+            $prior['AROSVA'] = preg_replace("/\d+\//", "", (string) $prior['AROSVA']);
+            $prior['CRODVA'] = preg_replace("/\d+\//", "", (string) $prior['CRODVA']);
+            $prior['CROSVA'] = preg_replace("/\d+\//", "", (string) $prior['CROSVA']);
+            $prior['MRODVA'] = preg_replace("/\d+\//", "", (string) $prior['MRODVA']);
+            $prior['MROSVA'] = preg_replace("/\d+\//", "", (string) $prior['MROSVA']);
+            $prior['CTLODVA'] = preg_replace("/\d+\//", "", (string) $prior['CTLODVA']);
+            $prior['CTLOSVA'] = preg_replace("/\d+\//", "", (string) $prior['CTLOSVA']);
+            $array_va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['SCODVA']);
+            $array_va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['SCOSVA']);
+            $array_va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['CCODVA']);
+            $array_va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['CCOSVA']);
+            $array_va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['PHODVA']);
+            $array_va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['PHOSVA']);
+            $array_va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['ARODVA']);
+            $array_va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['AROSVA']);
+            $array_va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['MRODVA']);
+            $array_va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['MROSVA']);
+            $array_va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['CRODVA']);
+            $array_va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['CROSVA']);
+            $array_va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['CTLODVA']);
+            $array_va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", (string) $prior['CTLOSVA']);
+            $flip_priors_CC[] = $prior;
+        }
+
+        $VA_dates = implode("','", $array_va_dates);
+        $VA_SCODVA = implode(',', $array_va_SCODVA);
+        $VA_SCOSVA = implode(',', $array_va_SCOSVA);
+        $VA_CCODVA = implode(',', $array_va_CCODVA);
+        $VA_CCOSVA = implode(',', $array_va_CCOSVA);
+        $VA_PHODVA = implode(',', $array_va_PHODVA);
+        $VA_PHOSVA = implode(',', $array_va_PHOSVA);
+        $VA_ARODVA = implode(',', $array_va_ARODVA);
+        $VA_AROSVA = implode(',', $array_va_AROSVA);
+        $VA_MRODVA = implode(',', $array_va_MRODVA);
+        $VA_MROSVA = implode(',', $array_va_MROSVA);
+        $VA_CRODVA = implode(',', $array_va_CRODVA);
+        $VA_CROSVA = implode(',', $array_va_CROSVA);
+        $VA_CTLODVA = implode(',', $array_va_CTLODVA);
+        $VA_CTLOSVA = implode(',', $array_va_CTLOSVA);
+        ?>
+        <div>
+            <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
+            <h5><?php echo xlt('Visual Acuity History'); ?></h5>
+        </div>
+        <div id="VAHX_table" name="VAHX_table" class="borderShadow table-responsive"
+             style="position:relative;display:inline-block;float:left;vertical-align: middle;width:40%;">
+            <table class="table d-inline">
+                    <tr class="bold text-center">
+                        <th></th>
+                        <?php if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                            <th colspan="2" class="vasc_class"><?php echo xlt('SC{{abbr without correction}}'); ?></th>
+                            <?php
+                        }
+                        if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                <th colspan="2" class="vacc_class"><?php echo xlt('CC{{abbr Acuity with current Correction}}'); ?></th>
+                                <?php
+                        }
+                        if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                <th colspan="2" class="vaph_class"><?php echo xlt('Ph{{abbr Pinhole acuity}}'); ?></th>
+                                <?php
+                        }
+                        if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                <th colspan="2" class="vaar_class"><?php echo xlt('AR{{abbr Autorefraction acuity}}'); ?></th>
+                                <?php
+                        }
+                        if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                <th colspan="2" class="vamr_class"><?php echo xlt('MR{{abbr Manifest Refraction acuity}}'); ?></th>
+                                <?php
+                        }
+                        if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                <th colspan="2" class="vacr_class"><?php echo xlt('CR{{abbr Cycloplegic Refraction acuity}}'); ?></th>
+                                <?php
+                        }
+                        if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                <th colspan="2" class="vactl_class"><?php echo xlt('CTL{{abbr Contact Lens Refraction acuity}}'); ?></th>
+                            <?php  }  ?>
+                    </tr>
+                    <tr class="bold underline text-center">
+                        <td><?php echo xlt('Date'); ?></td>
+                        <?php if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                            <td class="vasc_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vasc_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                            <?php
+                        }
+                        if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                <td class="vacc_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacc_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                        }
+                        if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                <td class="vaph_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vaph_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                        }
+                        if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                <td class="vaar_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vaar_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                        }
+                        if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                <td class="vacr_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacr_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                        }
+                        if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                <td class="vacr_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacr_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                        }
+                        if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                <td class="vactl_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vactl_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                        }
+                        ?>
+                    </tr>
+                    <?php
+                    if (!empty($flip_priors_CC)) {
+                        foreach ($flip_priors_CC as $prior) {
+                            ?>
+                                <tr>
+                                    <td><?php echo text($prior['visit_date']); ?></td>
+                                <?php
+                                if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                                            <td class="vasc_class"><?php echo text($prior['SCODVA']); ?></td><td class="vasc_class"><?php echo text($prior['SCOSVA']); ?></td>
+                                            <?php
+                                }
+                                if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                            <td class="vacc_class"><?php echo text($prior['CCODVA']); ?></td><td class="vacc_class"><?php echo text($prior['CCOSVA']); ?></td>
+                                            <?php
+                                }
+                                if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                            <td class="vaph_class"><?php echo text($prior['PHODVA']); ?></td><td class="vaph_class"><?php echo text($prior['PHOSVA']); ?></td>
+                                            <?php
+                                }
+                                if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                            <td class="vaar_class"><?php echo text($prior['ARODVA']); ?></td><td class="vaar_class"><?php echo text($prior['AROSVA']); ?></td>
+                                            <?php
+                                }
+                                if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                            <td class="vamr_class"><?php echo text($prior['MRODVA']); ?></td><td class="vamr_class"><?php echo text($prior['MROSVA']); ?></td>
+                                            <?php
+                                }
+                                if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                            <td class="vacr_class"><?php echo text($prior['CRODVA']); ?></td><td class="vacr_class"><?php echo text($prior['CROSVA']); ?></td>
+                                            <?php
+                                }
+                                if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                            <td class="vactl_class"><?php echo text($prior['CTLODVA']); ?></td><td class="vactl_class"><?php echo text($prior['CTLOSVA']); ?></td>
+                                        <?php } ?>
+                                </tr>
+
+                                <?php
+                        }
+                    }
+                    ?>
+                </table>
+        </div>
+        <div class="right" style="position:relative;float:right;margin: 0px 5px 10px;text-align:center;width:55%;">
+            <table class="top_right" style="width:40%;">
+                <canvas id="canvas_VA"></canvas>
+                <script>
+                    /**
+                     *  Below is the Chart.js code to render Va for each refraction type
+                     *
+                     */
+                    var visit_date = '<?php echo attr($dated); ?>';
+                    var dateFormat = 'YYYY-MM-DD';
+
+                    var config_byVA = {
+                        type: 'line',
+                        data: {
+                            labels: '<?php echo js_escape($VA_dates); ?>',
+                            datasets: [
+                                <?php
+                                if (!empty($VA_SCODVA) || !empty($VA_SCOSVA)) { ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD sc{{Visual Acuity without correction right eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_SCODVA); ?>,
+                                    fill: false,
+                                    borderColor : "#f28282",
+                                    backgroundColor : "#f28282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS sc{{Visual Acuity without correction left eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_SCOSVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "#AA8282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                <?php  }
+                                if (!empty($VA_CCODVA) || !empty($VA_CCOSVA)) {
+                                    ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD CC{{Visual Acuity with correction right eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_CCODVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "red",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS CC{{Visual Acuity with correction left eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_CCOSVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "blue",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                <?php  }
+                                if (!empty($VA_MRODVA) || !empty($VA_MROSVA)) {
+                                    ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD MR{{Visual Acuity with Manifest refraction right eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_MRODVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "navy",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS MR{{Visual Acuity with Manifest refraction left eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_MROSVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "yellow",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                <?php  }
+                                if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA)) {
+                                    ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD CTL{{Va with Contact Lens right eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_CTLODVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "orange",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "green",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS CTL{{Va with Contact Lens left eye}}"); ?>",
+                                    data: <?php echo js_escape($VA_CTLOSVA); ?>,
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "purple",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                }
+                                    <?php
+                                }
+                                ?>
+                            ]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '<?php echo xla("Visual Acuities by Date"); ?>'
+                                }
+                            },
+                            responsive: true,
+                            tooltips: {
+                                enabled: true
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '<?php echo xla("Visit Dates"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '<?php echo xla("Visual Acuity"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
+                                    },
+                                    beginAtZero: true,
+                                    Min: 0,
+                                    suggestedMax: 50
+                                }
+                            }
+                        }
+                    };
+
+                    var ctx3 = document.getElementById("canvas_VA").getContext("2d");
+
+                    var myLine = new Chart(ctx3, config_byVA);
+
+                </script>
+                <?php
+    } else {
+        echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
+                            <ul>
+                            <li> Va measurements</li>
+
+                            </ul>
+                            Visual Acuity graphs are not generated on the initial visit...</span></div>";
+    } ?>
+            </table>
+        </div>
+    <?php
+}
+
+
 # gets the provider from the encounter file , or from the logged on user or from the patient file
 function findProvider($pid, $encounter)
 {
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($pid,$encounter));
+        "ORDER BY id DESC LIMIT 1", [$pid,$encounter]);
     $providerid = $find_provider['provider_id'] ?? '';
     if ($providerid < '1') {
        //find the default providerID from the calendar
         $visit_date = date('Y-m-d', strtotime($find_provider['date'] ?? ''));
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
-        $find_provider3 = sqlQuery($query, array($pid,$visit_date));
+        $find_provider3 = sqlQuery($query, [$pid,$visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
             $get_authorized = $_SESSION['userauthorized'];
             if ($get_authorized == 1) {
-                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", array($pid));
+                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
                 $new_providerid = $find_provider2['providerID'];
             }
         }
 
         $providerid = $new_providerid;
-        sqlStatement("UPDATE form_encounter set provider_id =? WHERE pid = ? AND encounter = ?", array($providerid,$pid,$encounter));
-        sqlStatement("UPDATE patient_data set providerID =? WHERE pid = ?", array($providerid,$pid));
+        sqlStatement("UPDATE form_encounter set provider_id =? WHERE pid = ? AND encounter = ?", [$providerid,$pid,$encounter]);
+        sqlStatement("UPDATE patient_data set providerID =? WHERE pid = ?", [$providerid,$pid]);
     }
 
     return $providerid;
@@ -5819,9 +6118,9 @@ function generate_lens_treatments($W, $LTs_present)
 {
     ob_start();
     $query = "SELECT * FROM list_options where list_id =? and activity='1' ORDER BY seq";
-    $TXs_data = sqlStatement($query, array("Eye_Lens_Treatments"));
+    $TXs_data = sqlStatement($query, ["Eye_Lens_Treatments"]);
     $counter = 0;
-    $TXs_arr = explode("|", $LTs_present);
+    $TXs_arr = explode("|", (string) $LTs_present);
     $tabindex = $W . "0144";
     while ($row = sqlFetchArray($TXs_data)) {
         $checked = '';
@@ -5831,7 +6130,7 @@ function generate_lens_treatments($W, $LTs_present)
         }
 
         echo "<input type='checkbox' id='TXs_" . $W . "_" . $counter . "' name='LENS_TREATMENTS_" . $W . "[]' $checked value='" . attr($ID) . "' tabindex='$tabindex'> ";
-        $label = text(substr($row['title'], 0, 30));
+        $label = text(substr((string) $row['title'], 0, 30));
         echo "<label for='TXs_" . $W . "_" . $counter . "' class='input-helper input-helper--checkbox' title='" . attr($row['notes']) . "'>";
         echo $label . "</label><br />";
         $counter++;
@@ -5852,7 +6151,7 @@ function generate_specRx($W)
     global $pid,$form_id,$encounter,$display_W_width;
 
     $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? and RX_NUMBER =?";
-    $wear   = sqlQuery($query, array($pid,$form_id,$encounter,$W));
+    $wear   = sqlQuery($query, [$pid,$form_id,$encounter,$W]);
     if ($wear) {
         $RX_VALUE = '1';
         @extract($wear);
@@ -5865,7 +6164,7 @@ function generate_specRx($W)
     ?>
     <input type="hidden" id="W_<?php echo attr($W); ?>" name="W_<?php echo attr($W); ?>" value="<?php echo attr($RX_VALUE); ?>">
 
-    <div id="LayerVision_W_<?php echo attr($W); ?>" name="currentRX" class="refraction current_W borderShadow <?php echo attr($display_W); ?> <?php echo $display_W_width; ?>">
+    <div id="LayerVision_W_<?php echo attr($W); ?>" name="currentRX" class="refraction current_W borderShadow <?php echo attr($display_W ?? ''); ?> <?php echo $display_W_width; ?>">
                       <i class="closeButton fas fa-times" id="Close_W_<?php echo attr($W); ?>" name="Close_W_<?php echo attr($W); ?>"
                         title="<?php echo xla('Close this panel and delete this Rx'); ?>"></i>
                       <i class="closeButton_2 fas fa-arrows-alt-h" id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
@@ -5994,7 +6293,7 @@ function generate_specRx($W)
                           <td name="W_wide"><input type="text" class="prism" id="BPDD_<?php echo attr($W); ?>" name="BPDD_<?php echo attr($W); ?>" value="<?php echo attr($BPDD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0128"></td>
                           <td name="W_wide"><input type="text" class="prism" id="BPDN_<?php echo attr($W); ?>" name="BPDN_<?php echo attr($W); ?>" value="<?php echo attr($BPDN ?? ''); ?>" tabindex="<?php echo attr($W); ?>0129"></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material Options'); ?>" colspan="2">
-                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", ($LENS_MATERIAL  ?? ''), '', ' ', '', 'restoreSession;submit_form();', '', array('style' => 'width:120px','tabindex' => $W . '0130')); ?>
+                            <?php echo generate_select_list("LENS_MATERIAL_" . $W, "Eye_Lens_Material", ($LENS_MATERIAL  ?? ''), '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px','tabindex' => $W . '0130']); ?>
                           </td>
                         </tr>
                         <tr>
@@ -6021,14 +6320,14 @@ function generate_specRx($W)
  * Function to display Refractive Data for an encounter
  * @param array $encounter_data, visit data for a given encounter
  */
-function display_refractive_data($encounter_data)
+function display_refractive_data($encounter_data): void
 {
     @extract($encounter_data);
     $count_rx = '0';
 
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
 
-    $wear = sqlStatement($query, array($pid,$id));
+    $wear = sqlStatement($query, [$pid,$id]);
     while ($wearing = sqlFetchArray($wear)) {
         $count_rx++;
         ${"display_W_$count_rx"} = '';
@@ -6053,7 +6352,7 @@ function display_refractive_data($encounter_data)
         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
     }
 
-    if (!$ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
+    if ($ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
         <table class="refraction_tables">
            <tr class="text-center bold underline" style="background-color: #F3EEC7;">
                 <td ><?php echo oeFormatShortDate($date); ?></td>
@@ -6400,13 +6699,18 @@ function getIOPTARGETS($pid, $id, $provider_id)
 {
     //iterate through this patient's encounters to find IOPTARGETS.
     //if none use provider's default value, or 21.
+    //If a practice is loading old visits into OpenEMR, the visit date and id will not correlate linearly.
+    //We cannot rely on visit id to represent visit order.  We need to use visit dates to make this work.
 
-    $query = "SELECT ODIOPTARGET, OSIOPTARGET from form_eye_vitals where pid=? and id < ? ORDER BY id DESC";
-    $result = sqlStatement($query, array($pid, $id));
-
+    $query = "SELECT ODIOPTARGET, OSIOPTARGET from form_eye_vitals join form_encounter on form_encounter.id=form_eye_vitals.id
+                where form_eye_vitals.pid=? and form_encounter.date <= (
+                    SELECT date from form_encounter where id = ?
+                    )
+                ORDER BY form_encounter.date DESC";
+    $result = sqlStatement($query, [$pid, $id]);
     while ($row = sqlFetchArray($result)) {
-        if (($row['ODIOPTARGET'] > '0') || ($row['OSIOPTARGET'] > '0')) {
-            return array($row['ODIOPTARGET'], $row['OSIOPTARGET']);
+        if (($row['ODIOPTARGET'] > '0') && ($row['OSIOPTARGET'] > '0')) {
+            return [$row['ODIOPTARGET'], $row['OSIOPTARGET']];
         }
     }
     $query = "SELECT * FROM `list_options`
@@ -6415,7 +6719,7 @@ function getIOPTARGETS($pid, $id, $provider_id)
             (   option_id = 'ODIOPTARGET' OR
                 option_id = 'OSIOPTARGET'  )
              ";
-    $result = sqlQuery($query, array("Eye_defaults_" . $provider_id));
+    $result = sqlQuery($query, ["Eye_defaults_" . $provider_id]);
     while ($default_TARGETS = sqlFetchArray($result)) {
         if ($default_TARGETS['option_id'] == 'ODIOPTARGET') {
             $ODIOPTARGET = $default_TARGETS["title"];
@@ -6425,9 +6729,9 @@ function getIOPTARGETS($pid, $id, $provider_id)
         }
     }
     if ((($ODIOPTARGET ?? null) > '0') || (($OSIOPTARGET ?? null) > '0')) {
-        return array($ODIOPTARGET, $OSIOPTARGET);
+        return [$ODIOPTARGET, $OSIOPTARGET];
     }
-    return array('21','21');
+    return ['21','21'];
 }
 
 ?>

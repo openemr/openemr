@@ -7,17 +7,15 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once(dirname(__FILE__) . "/../../../patient.inc.php");
+require_once(__DIR__ . "/../../../patient.inc.php");
 
 class RsPatient
 {
-    public $id;
     public $dob;
 
-    public function __construct($id)
+    public function __construct(public $id)
     {
-        $this->id = $id;
-        $this->dob = $this->get_DOB($id);
+        $this->dob = $this->get_DOB($this->id);
     }
 
     /* Function to get patient dob

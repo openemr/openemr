@@ -345,7 +345,8 @@ class AuthUtils
         }
 
         // Check to ensure user is in a group (and collect the group name)
-        $authGroup = UserService::getAuthGroupForUser($username);
+        $userService = new UserService();
+        $authGroup = $userService->getAuthGroupForUser($username);
         if (empty($authGroup)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
@@ -473,11 +474,7 @@ class AuthUtils
         }
         if ($this->loginAuth) {
             // Specialized code for login auth (not api auth)
-            if (!empty($newHash)) {
-                $hash = $newHash;
-            } else {
-                $hash = $userSecure['password'];
-            }
+            $hash = !empty($newHash) ? $newHash : $userSecure['password'];
 
             // If $hash is empty, then something is very wrong
             if (empty($hash)) {
@@ -684,7 +681,7 @@ class AuthUtils
                     return false;
                 }
                 // Collect the new user id from the users table
-                privStatement($insert_sql, array());
+                privStatement($insert_sql, []);
                 $getUserID = "SELECT `id`" .
                     " FROM `users`" .
                     " WHERE BINARY `username` = ?";
@@ -765,7 +762,7 @@ class AuthUtils
                 die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
             }
 
-            $updateParams = array();
+            $updateParams = [];
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `login_fail_counter` = 0";
@@ -877,7 +874,7 @@ class AuthUtils
         if ($user == '') {
             $user = $_SESSION['authUser'];
         }
-        $exarr = explode(',', $GLOBALS['gbl_ldap_exclusions']);
+        $exarr = explode(',', (string) $GLOBALS['gbl_ldap_exclusions']);
         foreach ($exarr as $ex) {
             if ($user == trim($ex)) {
                 return false;
@@ -896,7 +893,7 @@ class AuthUtils
     private function activeDirectoryValidation($user, &$pass)
     {
         // Make sure the connection is not anonymous.
-        if ($pass === '' || preg_match('/^\0/', $pass) || !preg_match('/^[\w.-]+$/', $user)) {
+        if ($pass === '' || preg_match('/^\0/', (string) $pass) || !preg_match('/^[\w.-]+$/', (string) $user)) {
             error_log("Empty user or password for activeDirectoryValidation()");
             return false;
         }
@@ -1019,7 +1016,7 @@ class AuthUtils
     private function testMinimumPasswordLength(&$pwd)
     {
         if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
-            if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
+            if (strlen((string) $pwd) < $GLOBALS['gbl_minimum_password_length']) {
                 $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . $GLOBALS['gbl_minimum_password_length'];
                 return false;
             }
@@ -1046,7 +1043,7 @@ class AuthUtils
     private function testMaximumPasswordLength(&$pwd)
     {
         if ((!empty($GLOBALS['gbl_maximum_password_length'])) && (check_integer($GLOBALS['gbl_maximum_password_length']))) {
-            if (strlen($pwd) > $GLOBALS['gbl_maximum_password_length']) {
+            if (strlen((string) $pwd) > $GLOBALS['gbl_maximum_password_length']) {
                 $this->errorMessage = xl("Password too long. Maximum characters allowed") . ": " . $GLOBALS['gbl_maximum_password_length'];
                 return false;
             }
@@ -1065,9 +1062,9 @@ class AuthUtils
     {
         if ($GLOBALS['secure_password']) {
             $features = 0;
-            $reg_security = array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
+            $reg_security = ["/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/"];
             foreach ($reg_security as $expr) {
-                if (preg_match($expr, $pwd)) {
+                if (preg_match($expr, (string) $pwd)) {
                     $features++;
                 }
             }
@@ -1182,11 +1179,7 @@ class AuthUtils
                 self::resetLoginFailedCounter($user);
                 return ['pass' => true, 'email_notification' => null];
             }
-            if (empty($query['auto_block_emailed'])) {
-                $emailNotification = true;
-            } else {
-                $emailNotification = false;
-            }
+            $emailNotification = empty($query['auto_block_emailed']) ? true : false;
             return ['pass' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'email_notification' => null];
@@ -1229,11 +1222,7 @@ class AuthUtils
                 $this->resetIpLoginFailedCounter($ipString);
                 return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
             }
-            if (empty($query['ip_auto_block_emailed'])) {
-                $emailNotification = true;
-            } else {
-                $emailNotification = false;
-            }
+            $emailNotification = empty($query['ip_auto_block_emailed']) ? true : false;
             return ['pass' => false, 'force_block' => false, 'skip_timing_attack' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
@@ -1494,7 +1483,8 @@ class AuthUtils
         }
 
         // Ensure that the user is in an auth group
-        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        $userService = new UserService();
+        $authGroup = $userService->getAuthGroupForUser($user['username']);
         if (empty($authGroup)) {
             EventAuditLogger::instance()->newEvent($event, $user['username'], '', 0, $beginLog . ": " . $ip['ip_string'] . " user with Google mail '" . $payload['email'] . "' does not belong to a group ");
             return false;

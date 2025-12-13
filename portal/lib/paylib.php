@@ -23,11 +23,11 @@ SessionUtil::portalSessionStart();
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth_onsite_portal = true;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -53,7 +53,7 @@ if ($_POST['mode'] == 'Sphere') {
 
     $form_pid = $dataTrans['get']['patient_id_cc'];
 
-    $cc = array();
+    $cc = [];
     $cc["cardHolderName"] = $dataTrans['post']['name'];
     $cc['status'] = $dataTrans['post']['status_name'];
     $cc['authCode'] = $dataTrans['post']['authcode'];
@@ -85,7 +85,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
             exit();
         }
         $r = $response->getParsedData();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->getMessage();
         $cc['authCode'] = $r->transactionResponse->authCode;
@@ -94,7 +94,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['cc_type'] = $r->transactionResponse->accountType;
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
-        $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+        $invoice = $_POST['invValues'] ?? '';
     } catch (\Exception $ex) {
         return $ex->getMessage();
     }
@@ -122,7 +122,7 @@ if ($_POST['mode'] == 'Stripe') {
             exit();
         }
         $r = $response->getSource();
-        $cc = array();
+        $cc = [];
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "Payment Successful" : "Failed";
         $cc['authCode'] = $r['fingerprint'];
@@ -148,11 +148,11 @@ if ($_POST['mode'] == 'Stripe') {
 
 if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
-    $upay = isset($_POST['form_upay']) ? $_POST['form_upay'] : '';
-    $cc = isset($_POST['extra_values']) ? $_POST['extra_values'] : '';
-    $amts = isset($_POST['inv_values']) ? $_POST['inv_values'] : '';
+    $form_method = trim((string) $_POST['form_method']);
+    $form_source = trim((string) $_POST['form_source']);
+    $upay = $_POST['form_upay'] ?? '';
+    $cc = $_POST['extra_values'] ?? '';
+    $amts = $_POST['inv_values'] ?? '';
     $s = SaveAudit($form_pid, $amts, $cc);
     if ($s) {
         echo 'failed';
@@ -162,11 +162,11 @@ if ($_POST['mode'] == 'portal-save') {
     echo true;
 } elseif ($_POST['mode'] == 'review-save') {
     $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
-    $upay = isset($_POST['form_upay']) ? $_POST['form_upay'] : '';
-    $cc = isset($_POST['extra_values']) ? $_POST['extra_values'] : '';
-    $amts = isset($_POST['inv_values']) ? $_POST['inv_values'] : '';
+    $form_method = trim((string) $_POST['form_method']);
+    $form_source = trim((string) $_POST['form_source']);
+    $upay = $_POST['form_upay'] ?? '';
+    $cc = $_POST['extra_values'] ?? '';
+    $amts = $_POST['inv_values'] ?? '';
     $s = CloseAudit($form_pid, $amts, $cc);
     if ($s) {
         echo 'failed';
@@ -180,7 +180,7 @@ function SaveAudit($pid, $amts, $cc)
 {
     $appsql = new ApplicationTable();
     try {
-        $audit = array();
+        $audit = [];
         $audit['patient_id'] = $pid;
         $audit['activity'] = "payment";
         $audit['require_audit'] = "1";
@@ -213,7 +213,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
 {
     $appsql = new ApplicationTable();
     try {
-        $audit = array();
+        $audit = [];
         $audit['patient_id'] = $pid;
         $audit['activity'] = "payment";
         $audit['require_audit'] = "1";
@@ -223,7 +223,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['narrative'] = "Payment authorized.";
         $audit['table_action'] = "update";
         $audit['table_args'] = $amts;
-        $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
+        $audit['action_user'] = $_SESSION['authUserID'] ?? "0";
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
         $cryptoGen = new CryptoGen();
         $audit['checksum'] = $cryptoGen->encryptStandard($cc);

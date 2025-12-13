@@ -23,15 +23,15 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 
 $res = sqlStatement("SELECT date, encounter, reason FROM form_encounter " .
   "WHERE pid = ? " .
-  "ORDER BY date DESC, encounter DESC LIMIT 10", array($_GET['p']));
+  "ORDER BY date DESC, encounter DESC LIMIT 10", [$_GET['p']]);
 
 echo "var s = document.forms[0].form_copy_sn_visit;\n";
 echo "s.options.length = 0;\n";
 
 while ($row = sqlFetchArray($res)) {
     echo "s.options[s.options.length] = new Option(" .
-    "'" . attr(substr($row['date'], 0, 10)) . " " .
-    attr(strtr(substr($row['reason'], 0, 40), "\r\n", "  ")) . "', " .
+    "'" . attr(substr((string) $row['date'], 0, 10)) . " " .
+    attr(strtr(substr((string) $row['reason'], 0, 40), "\r\n", "  ")) . "', " .
     "'" . attr($row['encounter']) . "'" .
     ");\n";
 }

@@ -31,8 +31,8 @@
 
 /* $Id$ */
 
-require_once(dirname(__FILE__) . "/Config_File_Legacy.class.php");
-require_once(dirname(__FILE__) . "/Smarty_Compiler_Legacy.class.php");
+require_once(__DIR__ . "/Config_File_Legacy.class.php");
+require_once(__DIR__ . "/Smarty_Compiler_Legacy.class.php");
 
 /**
  * DIR_SEP isn't used anymore, but third party apps might
@@ -48,7 +48,7 @@ if(!defined('DIR_SEP')) {
  */
 
 if (!defined('SMARTY_DIR')) {
-    define('SMARTY_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
+    define('SMARTY_DIR', __DIR__ . DIRECTORY_SEPARATOR);
 }
 
 if (!defined('SMARTY_CORE_DIR')) {
@@ -74,28 +74,28 @@ class Smarty_Legacy
      *
      * @var string
      */
-    var $template_dir    =  'templates';
+    public $template_dir    =  'templates';
 
     /**
      * The directory where compiled templates are located.
      *
      * @var string
      */
-    var $compile_dir     =  'templates_c';
+    public $compile_dir     =  'templates_c';
 
     /**
      * The directory where config files are located.
      *
      * @var string
      */
-    var $config_dir      =  'configs';
+    public $config_dir      =  'configs';
 
     /**
      * An array of directories searched for plugins.
      *
      * @var array
      */
-    var $plugins_dir     =  array('plugins');
+    public $plugins_dir     =  ['plugins'];
 
     /**
      * If debugging is enabled, a debug console window will display
@@ -104,14 +104,14 @@ class Smarty_Legacy
      *
      * @var boolean
      */
-    var $debugging       =  false;
+    public $debugging       =  false;
 
     /**
      * When set, smarty does uses this value as error_reporting-level.
      *
      * @var integer
      */
-    var $error_reporting  =  null;
+    public $error_reporting  =  null;
 
     /**
      * This is the path to the debug console template. If not set,
@@ -119,7 +119,7 @@ class Smarty_Legacy
      *
      * @var string
      */
-    var $debug_tpl       =  '';
+    public $debug_tpl       =  '';
 
     /**
      * This determines if debugging is enable-able from the browser.
@@ -130,7 +130,7 @@ class Smarty_Legacy
      * @link http://www.foo.dom/index.php?SMARTY_DEBUG
      * @var string
      */
-    var $debugging_ctrl  =  'NONE';
+    public $debugging_ctrl  =  'NONE';
 
     /**
      * This tells Smarty whether to check for recompiling or not. Recompiling
@@ -140,7 +140,7 @@ class Smarty_Legacy
      *
      * @var boolean
      */
-    var $compile_check   =  true;
+    public $compile_check   =  true;
 
     /**
      * This forces templates to compile every time. Useful for development
@@ -148,7 +148,7 @@ class Smarty_Legacy
      *
      * @var boolean
      */
-    var $force_compile   =  false;
+    public $force_compile   =  false;
 
     /**
      * This enables template caching.
@@ -159,14 +159,14 @@ class Smarty_Legacy
      * </ul>
      * @var integer
      */
-    var $caching         =  0;
+    public $caching         =  0;
 
     /**
      * The name of the directory for cache files.
      *
      * @var string
      */
-    var $cache_dir       =  'cache';
+    public $cache_dir       =  'cache';
 
     /**
      * This is the number of seconds cached content will persist.
@@ -177,7 +177,7 @@ class Smarty_Legacy
      *
      * @var integer
      */
-    var $cache_lifetime  =  3600;
+    public $cache_lifetime  =  3600;
 
     /**
      * Only used when $caching is enabled. If true, then If-Modified-Since headers
@@ -187,7 +187,7 @@ class Smarty_Legacy
      *
      * @var boolean
      */
-    var $cache_modified_check = false;
+    public $cache_modified_check = false;
 
     /**
      * This determines how Smarty handles "<?php ... ?>" tags in templates.
@@ -201,7 +201,7 @@ class Smarty_Legacy
      *
      * @var integer
      */
-    var $php_handling    =  SMARTY_PHP_PASSTHRU;
+    public $php_handling    =  SMARTY_PHP_PASSTHRU;
 
     /**
      * This enables template security. When enabled, many things are restricted
@@ -211,7 +211,7 @@ class Smarty_Legacy
      *
      * @var boolean
      */
-    var $security       =   false;
+    public $security       =   false;
 
     /**
      * This is the list of template directories that are considered secure. This
@@ -220,7 +220,7 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $secure_dir     =   array();
+    public $secure_dir     =   [];
 
     /**
      * These are the security settings for Smarty. They are used only when
@@ -228,19 +228,19 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $security_settings  = array(
+    public $security_settings  = [
                                     'PHP_HANDLING'    => false,
-                                    'IF_FUNCS'        => array('array', 'list',
+                                    'IF_FUNCS'        => ['array', 'list',
                                                                'isset', 'empty',
                                                                'count', 'sizeof',
                                                                'in_array', 'is_array',
-                                                               'true', 'false', 'null'),
+                                                               'true', 'false', 'null'],
                                     'INCLUDE_ANY'     => false,
                                     'PHP_TAGS'        => false,
-                                    'MODIFIER_FUNCS'  => array('count'),
+                                    'MODIFIER_FUNCS'  => ['count'],
                                     'ALLOW_CONSTANTS'  => false,
                                     'ALLOW_SUPER_GLOBALS' => true
-                                   );
+                                   ];
 
     /**
      * This is an array of directories where trusted php scripts reside.
@@ -248,21 +248,21 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $trusted_dir        = array();
+    public $trusted_dir        = [];
 
     /**
      * The left delimiter used for the template tags.
      *
      * @var string
      */
-    var $left_delimiter  =  '{';
+    public $left_delimiter  =  '{';
 
     /**
      * The right delimiter used for the template tags.
      *
      * @var string
      */
-    var $right_delimiter =  '}';
+    public $right_delimiter =  '}';
 
     /**
      * The order in which request variables are registered, similar to
@@ -271,7 +271,7 @@ class Smarty_Legacy
      *
      * @var string
      */
-    var $request_vars_order    = 'EGPCS';
+    public $request_vars_order    = 'EGPCS';
 
     /**
      * Indicates wether $HTTP_*_VARS[] (request_use_auto_globals=false)
@@ -281,7 +281,7 @@ class Smarty_Legacy
      *
      * @var boolean
      */
-    var $request_use_auto_globals      = true;
+    public $request_use_auto_globals      = true;
 
     /**
      * Set this if you want different sets of compiled files for the same
@@ -291,7 +291,7 @@ class Smarty_Legacy
      *
      * @var string
      */
-    var $compile_id            = null;
+    public $compile_id            = null;
 
     /**
      * This tells Smarty whether or not to use sub dirs in the cache/ and
@@ -301,7 +301,7 @@ class Smarty_Legacy
      * @var boolean
      *
      */
-    var $use_sub_dirs          = false;
+    public $use_sub_dirs          = false;
 
     /**
      * This is a list of the modifiers to apply to all template variables.
@@ -310,7 +310,7 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $default_modifiers        = array();
+    public $default_modifiers        = [];
 
     /**
      * This is the resource type to be used when not specified
@@ -324,21 +324,21 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $default_resource_type    = 'file';
+    public $default_resource_type    = 'file';
 
     /**
      * The function used for cache file handling. If not set, built-in caching is used.
      *
      * @var null|string function name
      */
-    var $cache_handler_func   = null;
+    public $cache_handler_func   = null;
 
     /**
      * This indicates which filters are automatically loaded into Smarty.
      *
      * @var array array of filter names
      */
-    var $autoload_filters = array();
+    public $autoload_filters = [];
 
     /**#@+
      * @var boolean
@@ -347,14 +347,14 @@ class Smarty_Legacy
      * This tells if config file vars of the same name overwrite each other or not.
      * if disabled, same name variables are accumulated in an array.
      */
-    var $config_overwrite = true;
+    public $config_overwrite = true;
 
     /**
      * This tells whether or not to automatically booleanize config file variables.
      * If enabled, then the strings "on", "true", and "yes" are treated as boolean
      * true, and "off", "false" and "no" are treated as boolean false.
      */
-    var $config_booleanize = true;
+    public $config_booleanize = true;
 
     /**
      * This tells whether hidden sections [.foobar] are readable from the
@@ -362,13 +362,13 @@ class Smarty_Legacy
      * the point behind hidden sections: the application can access them, but
      * the templates cannot.
      */
-    var $config_read_hidden = false;
+    public $config_read_hidden = false;
 
     /**
      * This tells whether or not automatically fix newlines in config files.
      * It basically converts \r (mac) or \r\n (dos) to \n
      */
-    var $config_fix_newlines = true;
+    public $config_fix_newlines = true;
     /**#@-*/
 
     /**
@@ -377,7 +377,7 @@ class Smarty_Legacy
      *
      * @var string function name
      */
-    var $default_template_handler_func = '';
+    public $default_template_handler_func = '';
 
     /**
      * The file that contains the compiler class. This can a full
@@ -385,21 +385,21 @@ class Smarty_Legacy
      *
      * @var string
      */
-    var $compiler_file        =    'Smarty_Compiler_Legacy.class.php';
+    public $compiler_file        =    'Smarty_Compiler_Legacy.class.php';
 
     /**
      * The class used for compiling templates.
      *
      * @var string
      */
-    var $compiler_class        =   'Smarty_Compiler_Legacy';
+    public $compiler_class        =   'Smarty_Compiler_Legacy';
 
     /**
      * The class used to load config vars.
      *
      * @var string
      */
-    var $config_class          =   'Config_File_Legacy';
+    public $config_class          =   'Config_File_Legacy';
 
 /**#@+
  * END Smarty Configuration Section
@@ -411,135 +411,135 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $_tpl_vars             = array();
+    public $_tpl_vars             = [];
 
     /**
      * stores run-time $smarty.* vars
      *
      * @var null|array
      */
-    var $_smarty_vars          = null;
+    public $_smarty_vars          = null;
 
     /**
      * keeps track of sections
      *
      * @var array
      */
-    var $_sections             = array();
+    public $_sections             = [];
 
     /**
      * keeps track of foreach blocks
      *
      * @var array
      */
-    var $_foreach              = array();
+    public $_foreach              = [];
 
     /**
      * keeps track of tag hierarchy
      *
      * @var array
      */
-    var $_tag_stack            = array();
+    public $_tag_stack            = [];
 
     /**
      * configuration object
      *
      * @var Config_file
      */
-    var $_conf_obj             = null;
+    public $_conf_obj             = null;
 
     /**
      * loaded configuration settings
      *
      * @var array
      */
-    var $_config               = array(array('vars'  => array(), 'files' => array()));
+    public $_config               = [['vars'  => [], 'files' => []]];
 
     /**
      * md5 checksum of the string 'Smarty'
      *
      * @var string
      */
-    var $_smarty_md5           = 'f8d698aea36fcbead2b9d5359ffca76f';
+    public $_smarty_md5           = 'f8d698aea36fcbead2b9d5359ffca76f';
 
     /**
      * Smarty version number
      *
      * @var string
      */
-    var $_version = '2.6.33';
+    public $_version = '2.6.33';
 
     /**
      * current template inclusion depth
      *
      * @var integer
      */
-    var $_inclusion_depth      = 0;
+    public $_inclusion_depth      = 0;
 
     /**
      * for different compiled templates
      *
      * @var string
      */
-    var $_compile_id           = null;
+    public $_compile_id           = null;
 
     /**
      * text in URL to enable debug mode
      *
      * @var string
      */
-    var $_smarty_debug_id      = 'SMARTY_DEBUG';
+    public $_smarty_debug_id      = 'SMARTY_DEBUG';
 
     /**
      * debugging information for debug console
      *
      * @var array
      */
-    var $_smarty_debug_info    = array();
+    public $_smarty_debug_info    = [];
 
     /**
      * info that makes up a cache file
      *
      * @var array
      */
-    var $_cache_info           = array();
+    public $_cache_info           = [];
 
     /**
      * default file permissions
      *
      * @var integer
      */
-    var $_file_perms           = 0644;
+    public $_file_perms           = 0644;
 
     /**
      * default dir permissions
      *
      * @var integer
      */
-    var $_dir_perms               = 0771;
+    public $_dir_perms               = 0771;
 
     /**
      * registered objects
      *
      * @var array
      */
-    var $_reg_objects           = array();
+    public $_reg_objects           = [];
 
     /**
      * table keeping track of plugins
      *
      * @var array
      */
-    var $_plugins              = array(
-                                       'modifier'      => array(),
-                                       'function'      => array(),
-                                       'block'         => array(),
-                                       'compiler'      => array(),
-                                       'prefilter'     => array(),
-                                       'postfilter'    => array(),
-                                       'outputfilter'  => array(),
-                                       'resource'      => array(),
-                                       'insert'        => array());
+    public $_plugins              = [
+                                       'modifier'      => [],
+                                       'function'      => [],
+                                       'block'         => [],
+                                       'compiler'      => [],
+                                       'prefilter'     => [],
+                                       'postfilter'    => [],
+                                       'outputfilter'  => [],
+                                       'resource'      => [],
+                                       'insert'        => []];
 
 
     /**
@@ -547,14 +547,14 @@ class Smarty_Legacy
      *
      * @var array
      */
-    var $_cache_serials = array();
+    public $_cache_serials = [];
 
     /**
      * name of optional cache include file
      *
      * @var string
      */
-    var $_cache_include = null;
+    public $_cache_include = null;
 
     /**
      * indicate if the current code is used in a compiled
@@ -562,16 +562,16 @@ class Smarty_Legacy
      *
      * @var string
      */
-    var $_cache_including = false;
+    public $_cache_including = false;
 
     /**
      * plugin filepath cache
      *
      * @var array
      */
-    var $_filepaths_cache = array();
+    public $_filepaths_cache = [];
 
-    var $_cache_include_info;
+    public $_cache_include_info;
 
     /**#@-*/
     /**
@@ -579,8 +579,7 @@ class Smarty_Legacy
      */
     public function __construct()
     {
-      $this->assign('SCRIPT_NAME', isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME']
-                    : @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
+        $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
     }
 
     /**
@@ -665,7 +664,7 @@ class Smarty_Legacy
     {
         if ($tpl_var != '' && isset($value)) {
             if(!@is_array($this->_tpl_vars[$tpl_var])) {
-             settype($this->_tpl_vars[$tpl_var],'array');
+                settype($this->_tpl_vars[$tpl_var],'array');
             }
             if ($merge && is_array($value)) {
                 foreach($value as $_key => $_val) {
@@ -702,7 +701,7 @@ class Smarty_Legacy
     function register_function($function, $function_impl, $cacheable=true, $cache_attrs=null)
     {
         $this->_plugins['function'][$function] =
-            array($function_impl, null, null, false, $cacheable, $cache_attrs);
+            [$function_impl, null, null, false, $cacheable, $cache_attrs];
 
     }
 
@@ -725,12 +724,12 @@ class Smarty_Legacy
      * @param boolean $smarty_args smarty argument format, else traditional
      * @param null|array $block_functs list of methods that are block format
      */
-    function register_object($object, &$object_impl, $allowed = array(), $smarty_args = true, $block_methods = array())
+    function register_object($object, &$object_impl, $allowed = [], $smarty_args = true, $block_methods = [])
     {
         settype($allowed, 'array');
         settype($smarty_args, 'boolean');
         $this->_reg_objects[$object] =
-            array(&$object_impl, $allowed, $smarty_args, $block_methods);
+            [&$object_impl, $allowed, $smarty_args, $block_methods];
     }
 
     /**
@@ -753,7 +752,7 @@ class Smarty_Legacy
     function register_block($block, $block_impl, $cacheable=true, $cache_attrs=null)
     {
         $this->_plugins['block'][$block] =
-            array($block_impl, null, null, false, $cacheable, $cache_attrs);
+            [$block_impl, null, null, false, $cacheable, $cache_attrs];
     }
 
     /**
@@ -775,7 +774,7 @@ class Smarty_Legacy
     function register_compiler_function($function, $function_impl, $cacheable=true)
     {
         $this->_plugins['compiler'][$function] =
-            array($function_impl, null, null, false, $cacheable);
+            [$function_impl, null, null, false, $cacheable];
     }
 
     /**
@@ -797,7 +796,7 @@ class Smarty_Legacy
     function register_modifier($modifier, $modifier_impl)
     {
         $this->_plugins['modifier'][$modifier] =
-            array($modifier_impl, null, null, false);
+            [$modifier_impl, null, null, false];
     }
 
     /**
@@ -820,15 +819,15 @@ class Smarty_Legacy
     {
         if (count($functions)==4) {
             $this->_plugins['resource'][$type] =
-                array($functions, false);
+                [$functions, false];
 
         } elseif (count($functions)==5) {
             $this->_plugins['resource'][$type] =
-                array(array(array(&$functions[0], $functions[1])
-                            ,array(&$functions[0], $functions[2])
-                            ,array(&$functions[0], $functions[3])
-                            ,array(&$functions[0], $functions[4]))
-                      ,false);
+                [[[&$functions[0], $functions[1]]
+                            ,[&$functions[0], $functions[2]]
+                            ,[&$functions[0], $functions[3]]
+                            ,[&$functions[0], $functions[4]]]
+                      ,false];
 
         } else {
             $this->trigger_error("malformed function-list for '$type' in register_resource");
@@ -855,7 +854,7 @@ class Smarty_Legacy
     function register_prefilter($function)
     {
         $this->_plugins['prefilter'][$this->_get_filter_name($function)]
-            = array($function, null, null, false);
+            = [$function, null, null, false];
     }
 
     /**
@@ -877,7 +876,7 @@ class Smarty_Legacy
     function register_postfilter($function)
     {
         $this->_plugins['postfilter'][$this->_get_filter_name($function)]
-            = array($function, null, null, false);
+            = [$function, null, null, false];
     }
 
     /**
@@ -899,7 +898,7 @@ class Smarty_Legacy
     function register_outputfilter($function)
     {
         $this->_plugins['outputfilter'][$this->_get_filter_name($function)]
-            = array($function, null, null, false);
+            = [$function, null, null, false];
     }
 
     /**
@@ -922,7 +921,7 @@ class Smarty_Legacy
     {
         switch ($type) {
             case 'output':
-                $_params = array('plugins' => array(array($type . 'filter', $name, null, null, false)));
+                $_params = ['plugins' => [[$type . 'filter', $name, null, null, false]]];
                 require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
                 smarty_core_load_plugins($_params, $this);
                 break;
@@ -957,12 +956,12 @@ class Smarty_Legacy
 
         if (!empty($this->cache_handler_func)) {
             return call_user_func_array($this->cache_handler_func,
-                                  array('clear', &$this, &$dummy, $tpl_file, $cache_id, $compile_id, $exp_time));
+                                  ['clear', &$this, &$dummy, $tpl_file, $cache_id, $compile_id, $exp_time]);
         } else {
-            $_params = array('auto_base' => $this->cache_dir,
+            $_params = ['auto_base' => $this->cache_dir,
                             'auto_source' => $tpl_file,
                             'auto_id' => $_auto_id,
-                            'exp_time' => $exp_time);
+                            'exp_time' => $exp_time];
             require_once(SMARTY_CORE_DIR . 'core.rm_auto.php');
             return smarty_core_rm_auto($_params, $this);
         }
@@ -998,11 +997,11 @@ class Smarty_Legacy
         if (!isset($compile_id))
             $compile_id = $this->compile_id;
 
-        $_params = array(
+        $_params = [
             'tpl_file' => $tpl_file,
             'cache_id' => $cache_id,
             'compile_id' => $compile_id
-        );
+        ];
         require_once(SMARTY_CORE_DIR . 'core.read_cache_file.php');
         return smarty_core_read_cache_file($_params, $this);
     }
@@ -1014,7 +1013,7 @@ class Smarty_Legacy
      */
     function clear_all_assign()
     {
-        $this->_tpl_vars = array();
+        $this->_tpl_vars = [];
     }
 
     /**
@@ -1032,11 +1031,11 @@ class Smarty_Legacy
         if (!isset($compile_id)) {
             $compile_id = $this->compile_id;
         }
-        $_params = array('auto_base' => $this->compile_dir,
+        $_params = ['auto_base' => $this->compile_dir,
                         'auto_source' => $tpl_file,
                         'auto_id' => $compile_id,
                         'exp_time' => $exp_time,
-                        'extensions' => array('.inc', '.php'));
+                        'extensions' => ['.inc', '.php']];
         require_once(SMARTY_CORE_DIR . 'core.rm_auto.php');
         return smarty_core_rm_auto($_params, $this);
     }
@@ -1049,7 +1048,7 @@ class Smarty_Legacy
      */
     function template_exists($tpl_file)
     {
-        $_params = array('resource_name' => $tpl_file, 'quiet'=>true, 'get_source'=>false);
+        $_params = ['resource_name' => $tpl_file, 'quiet'=>true, 'get_source'=>false];
         return $this->_fetch_resource_info($_params);
     }
 
@@ -1128,19 +1127,18 @@ class Smarty_Legacy
      */
     function fetch($resource_name, $cache_id = null, $compile_id = null, $display = false)
     {
-        static $_cache_info = array();
+        static $_cache_info = [];
 
-        $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting(isset($this->error_reporting)
-               ? $this->error_reporting : error_reporting() & ~E_NOTICE);
+        $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting($this->error_reporting ?? error_reporting() & ~E_NOTICE);
 
         if (!$this->debugging && $this->debugging_ctrl == 'URL') {
             $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : $GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'];
-            if (@strstr($_query_string, $this->_smarty_debug_id)) {
-                if (@strstr($_query_string, $this->_smarty_debug_id . '=on')) {
+            if (@strstr((string) $_query_string, $this->_smarty_debug_id)) {
+                if (@strstr((string) $_query_string, $this->_smarty_debug_id . '=on')) {
                     // enable debugging for this browser session
                     @setcookie('SMARTY_DEBUG', true);
                     $this->debugging = true;
-                } elseif (@strstr($_query_string, $this->_smarty_debug_id . '=off')) {
+                } elseif (@strstr((string) $_query_string, $this->_smarty_debug_id . '=off')) {
                     // disable debugging for this browser session
                     @setcookie('SMARTY_DEBUG', false);
                     $this->debugging = false;
@@ -1155,12 +1153,12 @@ class Smarty_Legacy
 
         if ($this->debugging) {
             // capture time for debugging info
-            $_params = array();
+            $_params = [];
             require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
             $_debug_start_time = smarty_core_get_microtime($_params, $this);
-            $this->_smarty_debug_info[] = array('type'      => 'template',
+            $this->_smarty_debug_info[] = ['type'      => 'template',
                                                 'filename'  => $resource_name,
-                                                'depth'     => 0);
+                                                'depth'     => 0];
             $_included_tpls_idx = count($this->_smarty_debug_info) - 1;
         }
 
@@ -1174,26 +1172,26 @@ class Smarty_Legacy
         if ($this->caching) {
             // save old cache_info, initialize cache_info
             array_push($_cache_info, $this->_cache_info);
-            $this->_cache_info = array();
-            $_params = array(
+            $this->_cache_info = [];
+            $_params = [
                 'tpl_file' => $resource_name,
                 'cache_id' => $cache_id,
                 'compile_id' => $compile_id,
                 'results' => null
-            );
+            ];
             require_once(SMARTY_CORE_DIR . 'core.read_cache_file.php');
             if (smarty_core_read_cache_file($_params, $this)) {
                 $_smarty_results = $_params['results'];
                 if (!empty($this->_cache_info['insert_tags'])) {
-                    $_params = array('plugins' => $this->_cache_info['insert_tags']);
+                    $_params = ['plugins' => $this->_cache_info['insert_tags']];
                     require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
                     smarty_core_load_plugins($_params, $this);
-                    $_params = array('results' => $_smarty_results);
+                    $_params = ['results' => $_smarty_results];
                     require_once(SMARTY_CORE_DIR . 'core.process_cached_inserts.php');
                     $_smarty_results = smarty_core_process_cached_inserts($_params, $this);
                 }
                 if (!empty($this->_cache_info['cache_serials'])) {
-                    $_params = array('results' => $_smarty_results);
+                    $_params = ['results' => $_smarty_results];
                     require_once(SMARTY_CORE_DIR . 'core.process_compiled_include.php');
                     $_smarty_results = smarty_core_process_compiled_include($_params, $this);
                 }
@@ -1203,7 +1201,7 @@ class Smarty_Legacy
                     if ($this->debugging)
                     {
                         // capture time for debugging info
-                        $_params = array();
+                        $_params = [];
                         require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
                         $this->_smarty_debug_info[$_included_tpls_idx]['exec_time'] = smarty_core_get_microtime($_params, $this) - $_debug_start_time;
                         require_once(SMARTY_CORE_DIR . 'core.display_debug_console.php');
@@ -1211,7 +1209,7 @@ class Smarty_Legacy
                     }
                     if ($this->cache_modified_check) {
                         $_server_vars = ($this->request_use_auto_globals) ? $_SERVER : $GLOBALS['HTTP_SERVER_VARS'];
-                        $_last_modified_date = @substr($_server_vars['HTTP_IF_MODIFIED_SINCE'], 0, strpos($_server_vars['HTTP_IF_MODIFIED_SINCE'], 'GMT') + 3);
+                        $_last_modified_date = @substr((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 0, strpos((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 'GMT') + 3);
                         $_gmt_mtime = gmdate('D, d M Y H:i:s', $this->_cache_info['timestamp']).' GMT';
                         if (empty($this->_cache_info['insert_tags'])
                             && !$this->_cache_serials
@@ -1278,15 +1276,15 @@ class Smarty_Legacy
             ob_end_clean();
 
             foreach ((array)$this->_plugins['outputfilter'] as $_output_filter) {
-                $_smarty_results = call_user_func_array($_output_filter[0], array($_smarty_results, &$this));
+                $_smarty_results = call_user_func_array($_output_filter[0], [$_smarty_results, &$this]);
             }
         }
 
         if ($this->caching) {
-            $_params = array('tpl_file' => $resource_name,
+            $_params = ['tpl_file' => $resource_name,
                         'cache_id' => $cache_id,
                         'compile_id' => $compile_id,
-                        'results' => $_smarty_results);
+                        'results' => $_smarty_results];
             require_once(SMARTY_CORE_DIR . 'core.write_cache_file.php');
             smarty_core_write_cache_file($_params, $this);
             require_once(SMARTY_CORE_DIR . 'core.process_cached_inserts.php');
@@ -1307,7 +1305,7 @@ class Smarty_Legacy
             if (isset($_smarty_results)) { echo $_smarty_results; }
             if ($this->debugging) {
                 // capture time for debugging info
-                $_params = array();
+                $_params = [];
                 require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
                 $this->_smarty_debug_info[$_included_tpls_idx]['exec_time'] = (smarty_core_get_microtime($_params, $this) - $_debug_start_time);
                 require_once(SMARTY_CORE_DIR . 'core.display_debug_console.php');
@@ -1331,7 +1329,7 @@ class Smarty_Legacy
     function config_load($file, $section = null, $scope = 'global')
     {
         require_once($this->_get_plugin_filepath('function', 'config_load'));
-        smarty_function_config_load(array('file' => $file, 'section' => $section, 'scope' => $scope), $this);
+        smarty_function_config_load(['file' => $file, 'section' => $section, 'scope' => $scope], $this);
     }
 
     /**
@@ -1359,8 +1357,8 @@ class Smarty_Legacy
     {
         if(!isset($var)) {
             // clear all values
-            $this->_config = array(array('vars'  => array(),
-                                         'files' => array()));
+            $this->_config = [['vars'  => [],
+                                         'files' => []]];
         } else {
             unset($this->_config[0]['vars'][$var]);
         }
@@ -1375,7 +1373,7 @@ class Smarty_Legacy
      */
     function _get_plugin_filepath($type, $name)
     {
-        $_params = array('type' => $type, 'name' => $name);
+        $_params = ['type' => $type, 'name' => $name];
         require_once(SMARTY_CORE_DIR . 'core.assemble_plugin_filepath.php');
         return smarty_core_assemble_plugin_filepath($_params, $this);
     }
@@ -1395,7 +1393,7 @@ class Smarty_Legacy
                 return true;
             } else {
                 // get file source and timestamp
-                $_params = array('resource_name' => $resource_name, 'get_source'=>false);
+                $_params = ['resource_name' => $resource_name, 'get_source'=>false];
                 if (!$this->_fetch_resource_info($_params)) {
                     return false;
                 }
@@ -1423,7 +1421,7 @@ class Smarty_Legacy
     function _compile_resource($resource_name, $compile_path)
     {
 
-        $_params = array('resource_name' => $resource_name);
+        $_params = ['resource_name' => $resource_name];
         if (!$this->_fetch_resource_info($_params)) {
             return false;
         }
@@ -1435,10 +1433,10 @@ class Smarty_Legacy
             // if a _cache_serial was set, we also have to write an include-file:
             if ($this->_cache_include_info) {
                 require_once(SMARTY_CORE_DIR . 'core.write_compiled_include.php');
-                smarty_core_write_compiled_include(array_merge($this->_cache_include_info, array('compiled_content'=>$_compiled_content, 'resource_name'=>$resource_name)),  $this);
+                smarty_core_write_compiled_include(array_merge($this->_cache_include_info, ['compiled_content'=>$_compiled_content, 'resource_name'=>$resource_name]),  $this);
             }
 
-            $_params = array('compile_path'=>$compile_path, 'compiled_content' => $_compiled_content);
+            $_params = ['compile_path'=>$compile_path, 'compiled_content' => $_compiled_content];
             require_once(SMARTY_CORE_DIR . 'core.write_compiled_resource.php');
             smarty_core_write_compiled_resource($_params, $this);
 
@@ -1501,10 +1499,10 @@ class Smarty_Legacy
         $_results = $smarty_compiler->_compile_file($resource_name, $source_content, $compiled_content);
 
         if ($smarty_compiler->_cache_serial) {
-            $this->_cache_include_info = array(
+            $this->_cache_include_info = [
                 'cache_serial'=>$smarty_compiler->_cache_serial
                 ,'plugins_code'=>$smarty_compiler->_plugins_code
-                ,'include_file_path' => $cache_include_path);
+                ,'include_file_path' => $cache_include_path];
 
         } else {
             $this->_cache_include_info = null;
@@ -1546,7 +1544,7 @@ class Smarty_Legacy
         if(!isset($params['quiet'])) { $params['quiet'] = false; }
 
         $_return = false;
-        $_params = array('resource_name' => $params['resource_name']) ;
+        $_params = ['resource_name' => $params['resource_name']] ;
         if (isset($params['resource_base_path']))
             $_params['resource_base_path'] = $params['resource_base_path'];
         else
@@ -1569,14 +1567,14 @@ class Smarty_Legacy
                     if ($params['get_source']) {
                         $_source_return = isset($this->_plugins['resource'][$_resource_type]) &&
                             call_user_func_array($this->_plugins['resource'][$_resource_type][0][0],
-                                                 array($_resource_name, &$params['source_content'], &$this));
+                                                 [$_resource_name, &$params['source_content'], &$this]);
                     } else {
                         $_source_return = true;
                     }
 
                     $_timestamp_return = isset($this->_plugins['resource'][$_resource_type]) &&
                         call_user_func_array($this->_plugins['resource'][$_resource_type][0][1],
-                                             array($_resource_name, &$params['resource_timestamp'], &$this));
+                                             [$_resource_name, &$params['resource_timestamp'], &$this]);
 
                     $_return = $_source_return && $_timestamp_return;
                     break;
@@ -1591,7 +1589,7 @@ class Smarty_Legacy
                 } else {
                     $_return = call_user_func_array(
                         $this->default_template_handler_func,
-                        array($_params['resource_type'], $_params['resource_name'], &$params['source_content'], &$params['resource_timestamp'], &$this));
+                        [$_params['resource_type'], $_params['resource_name'], &$params['source_content'], &$params['resource_timestamp'], &$this]);
                 }
             }
         }
@@ -1628,7 +1626,7 @@ class Smarty_Legacy
     {
 
         // split tpl_path by the first colon
-        $_resource_name_parts = explode(':', $params['resource_name'], 2);
+        $_resource_name_parts = explode(':', (string) $params['resource_name'], 2);
 
         if (count($_resource_name_parts) == 1) {
             // no resource type given
@@ -1638,7 +1636,6 @@ class Smarty_Legacy
             if(strlen($_resource_name_parts[0]) == 1) {
                 // 1 char is not resource type, but part of filepath
                 $params['resource_type'] = $this->default_resource_type;
-                $params['resource_name'] = $params['resource_name'];
             } else {
                 $params['resource_type'] = $_resource_name_parts[0];
                 $params['resource_name'] = $_resource_name_parts[1];
@@ -1646,7 +1643,7 @@ class Smarty_Legacy
         }
 
         if ($params['resource_type'] == 'file') {
-            if (!preg_match('/^([\/\\\\]|[a-zA-Z]:[\/\\\\])/', $params['resource_name'])) {
+            if (!preg_match('/^([\/\\\\]|[a-zA-Z]:[\/\\\\])/', (string) $params['resource_name'])) {
                 // relative pathname to $params['resource_base_path']
                 // use the first directory where the file is found
                 foreach ((array)$params['resource_base_path'] as $_curr_path) {
@@ -1656,7 +1653,7 @@ class Smarty_Legacy
                         return true;
                     }
                     // didn't find the file, try include_path
-                    $_params = array('file_path' => $_fullpath);
+                    $_params = ['file_path' => $_fullpath];
                     require_once(SMARTY_CORE_DIR . 'core.get_include_path.php');
                     if(smarty_core_get_include_path($_params, $this)) {
                         $params['resource_name'] = $_params['new_file_path'];
@@ -1669,7 +1666,7 @@ class Smarty_Legacy
                 return file_exists($params['resource_name']);
             }
         } elseif (empty($this->_plugins['resource'][$params['resource_type']])) {
-            $_params = array('type' => $params['resource_type']);
+            $_params = ['type' => $params['resource_type']];
             require_once(SMARTY_CORE_DIR . 'core.load_resource_plugin.php');
             smarty_core_load_resource_plugin($_params, $this);
         }
@@ -1688,8 +1685,8 @@ class Smarty_Legacy
     function _run_mod_handler()
     {
         $_args = func_get_args();
-        list($_modifier_name, $_map_array) = array_splice($_args, 0, 2);
-        list($_func_name, $_tpl_file, $_tpl_line) =
+        [$_modifier_name, $_map_array] = array_splice($_args, 0, 2);
+        [$_func_name, $_tpl_file, $_tpl_line] =
             $this->_plugins['modifier'][$_modifier_name];
 
         $_var = $_args[0];
@@ -1708,7 +1705,7 @@ class Smarty_Legacy
      */
     function _dequote($string)
     {
-        if ((substr($string, 0, 1) == "'" || substr($string, 0, 1) == '"') &&
+        if ((str_starts_with($string, "'") || str_starts_with($string, '"')) &&
             substr($string, -1) == substr($string, 0, 1))
             return substr($string, 1, -1);
         else
@@ -1797,11 +1794,11 @@ class Smarty_Legacy
      * @return string|null
      */
     function _get_auto_id($cache_id=null, $compile_id=null) {
-    if (isset($cache_id))
+        if (isset($cache_id))
         return (isset($compile_id)) ? $cache_id . '|' . $compile_id  : $cache_id;
-    elseif(isset($compile_id))
+        elseif(isset($compile_id))
         return $compile_id;
-    else
+        else
         return null;
     }
 
@@ -1818,11 +1815,7 @@ class Smarty_Legacy
     function _trigger_fatal_error($error_msg, $tpl_file = null, $tpl_line = null,
             $file = null, $line = null, $error_type = E_USER_ERROR)
     {
-        if(isset($file) && isset($line)) {
-            $info = ' ('.basename($file).", line $line)";
-        } else {
-            $info = '';
-        }
+        $info = isset($file) && isset($line) ? ' ('.basename($file).", line $line)" : '';
         if (isset($tpl_line) && isset($tpl_file)) {
             $this->trigger_error('[in ' . $tpl_file . ' line ' . $tpl_line . "]: $error_msg$info", $error_type);
         } else {
@@ -1857,12 +1850,12 @@ class Smarty_Legacy
     function _smarty_include($params)
     {
         if ($this->debugging) {
-            $_params = array();
+            $_params = [];
             require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
             $debug_start_time = smarty_core_get_microtime($_params, $this);
-            $this->_smarty_debug_info[] = array('type'      => 'template',
+            $this->_smarty_debug_info[] = ['type'      => 'template',
                                                   'filename'  => $params['smarty_include_tpl_file'],
-                                                  'depth'     => ++$this->_inclusion_depth);
+                                                  'depth'     => ++$this->_inclusion_depth];
             $included_tpls_idx = count($this->_smarty_debug_info) - 1;
         }
 
@@ -1888,7 +1881,7 @@ class Smarty_Legacy
 
         if ($this->debugging) {
             // capture time for debugging info
-            $_params = array();
+            $_params = [];
             require_once(SMARTY_CORE_DIR . 'core.get_microtime.php');
             $this->_smarty_debug_info[$included_tpls_idx]['exec_time'] = smarty_core_get_microtime($_params, $this) - $debug_start_time;
         }
@@ -1915,7 +1908,7 @@ class Smarty_Legacy
 
         } else {
             /* add a reference to a new set of cache_attrs */
-            $_cache_attrs[] = array();
+            $_cache_attrs[] = [];
             return $_cache_attrs[count($_cache_attrs)-1];
 
         }
@@ -1952,17 +1945,17 @@ class Smarty_Legacy
      * @param callback $function
      * @return string
      */
-	function _get_filter_name($function)
-	{
-		if (is_array($function)) {
-			$_class_name = (is_object($function[0]) ?
-				get_class($function[0]) : $function[0]);
-			return $_class_name . '_' . $function[1];
-		}
-		else {
-			return $function;
-		}
-	}
+    function _get_filter_name($function)
+    {
+        if (is_array($function)) {
+            $_class_name = (is_object($function[0]) ?
+                $function[0]::class : $function[0]);
+            return $_class_name . '_' . $function[1];
+        }
+        else {
+            return $function;
+        }
+    }
 
     /**#@-*/
 

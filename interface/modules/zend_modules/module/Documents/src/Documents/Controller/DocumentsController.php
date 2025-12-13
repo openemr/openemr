@@ -72,7 +72,7 @@ class DocumentsController extends AbstractActionController
         }
         if ($request->isPost()) {
             $error = false;
-            $files = array();
+            $files = [];
             $uploaddir = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $request->getPost('file_location');
             $pid = $request->getPost('patient_id');
             $encounter = $request->getPost('encounter_id');
@@ -81,25 +81,25 @@ class DocumentsController extends AbstractActionController
             $encrypted_file = $request->getPost('encrypted_file');
             $encryption_key = $request->getPost('encryption_key');
             $storage_method = $GLOBALS['document_storage_method'];
-            $documents = array();
+            $documents = [];
             $i = 0;
             foreach ($_FILES as $file) {
                 $i++;
                 $dateStamp = date('Y-m-d-H-i-s');
-                $file_name = $dateStamp . "_" . basename($file["name"]);
+                $file_name = $dateStamp . "_" . basename((string) $file["name"]);
                 $file["name"] = $file_name;
 
                 if ($file['type'] != 'text/xml' && $file['type'] != 'application/xml') {
                     continue;
                 }
-                $documents[$i] = array(
+                $documents[$i] = [
                     'name' => $file_name,
                     'type' => $file['type'],
                     'batch_upload' => $batch_upload,
                     'storage' => $storage_method,
                     'category_id' => $category_id,
                     'pid' => $pid,
-                );
+                ];
 
                 // Read File Contents
                 $tmpfile = fopen($file['tmp_name'], "r");
@@ -136,7 +136,7 @@ class DocumentsController extends AbstractActionController
     {
 
         // List of Preview Available File types
-        $previewAvailableFiles = array(
+        $previewAvailableFiles = [
             'application/pdf',
             'image/jpeg',
             'image/png',
@@ -144,7 +144,7 @@ class DocumentsController extends AbstractActionController
             'text/plain',
             'text/html',
             'text/xml',
-        );
+        ];
 
         $request = $this->getRequest();
         $documentId = $this->params()->fromRoute('id');
@@ -158,9 +158,9 @@ class DocumentsController extends AbstractActionController
 
         // @see Documents/Plugin/Documents
         $document = $this->Documents()->getDocument($documentId, $doEncryption, $encryptionKey);
-        $categoryIds = $this->getDocumentsTable()->getCategoryIDs(array('CCD', 'CCR', 'CCDA'));
+        $categoryIds = $this->getDocumentsTable()->getCategoryIDs(['CCD', 'CCR', 'CCDA']);
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml' && !$doEncryption) {
-            $xml = simplexml_load_string($document);
+            $xml = simplexml_load_string((string) $document);
             $xsl = new DomDocument();
             $qrda = $xml->templateId[2]['root'];
             switch ($result['category_id']) {
@@ -194,11 +194,7 @@ class DocumentsController extends AbstractActionController
                 $skip_headers = true;
             }
         } else {
-            if ($doEncryption) {
-                $contentType = "application/octet-stream";
-            } else {
-                $contentType = $result['mimetype'];
-            }
+            $contentType = $doEncryption ? "application/octet-stream" : $result['mimetype'];
         }
 
         if (!$skip_headers) {
@@ -208,7 +204,7 @@ class DocumentsController extends AbstractActionController
             $headers->clearHeaders()
                 ->addHeaderLine('Content-Type', $contentType)
                 ->addHeaderLine('Content-Disposition', $type . '; filename="' . $result['name'] . '"')
-                ->addHeaderLine('Content-Length', strlen($document));
+                ->addHeaderLine('Content-Length', strlen((string) $document));
             $response->setHeaders($headers);
             return $this->response;
         }

@@ -2,24 +2,30 @@
 
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\Tests\RestControllers\FHIR\Trait\FhirResponseAssertionTrait;
+use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-
-/**
- * @coversDefaultClass OpenEMR\RestControllers\FHIR\FhirPatientRestController
- */
+use Symfony\Component\HttpFoundation\Response;
 
 class FhirPatientRestControllerTest extends TestCase
 {
-    private $fhirPatientController;
-    private $fixtureManager;
-    private $fhirFixture;
+    use JsonResponseHandlerTrait;
+    use FhirResponseAssertionTrait;
+
+    private FhirPatientRestController $fhirPatientController;
+    private FixtureManager $fixtureManager;
+    private array $fhirFixture;
 
 
     protected function setUp(): void
     {
         $this->fhirPatientController = new FhirPatientRestController();
+        $this->fhirPatientController->setSystemLogger(new SystemLogger(Level::Emergency));
         $this->fixtureManager = new FixtureManager();
 
         $this->fhirFixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
@@ -32,85 +38,82 @@ class FhirPatientRestControllerTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * @cover ::post with valid data
-     */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
-        $this->assertEquals(201, http_response_code());
-        $this->assertNotEmpty($actualResult['uuid']);
+        $this->assertEquals(Response::HTTP_CREATED, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertArrayHasKey('uuid', $contents);
+        $this->assertNotEmpty($contents['uuid']);
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->fhirFixture['name']);
 
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
-        $this->assertEquals(400, http_response_code());
-        $this->assertGreaterThan(0, count($actualResult['validationErrors']));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertGreaterThan(0, count($contents['validationErrors']));
     }
 
-    /**
-     * @cover ::put with valid data
-     */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
-        $fhirId = $actualResult['uuid'];
+        $this->assertEquals(Response::HTTP_CREATED, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $fhirId = $contents['uuid'];
 
         $this->fhirFixture['name'][0]['family'] = 'Smithers';
         $actualResult = $this->fhirPatientController->put($fhirId, $this->fhirFixture);
+        $this->assertEquals(Response::HTTP_OK, $actualResult->getStatusCode());
 
-        $this->assertEquals(200, http_response_code());
-        $this->assertEquals($fhirId, $actualResult->getId());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertNotEmpty($contents, "put() should have returned a result");
+        $this->assertEquals($fhirId, $contents['id']);
     }
 
-    /**
-     * @cover ::put with valid data
-     */
-    public function testInvalidPut()
+    public function testInvalidPut(): void
     {
         $this->fhirPatientController->post($this->fhirFixture);
 
         $this->fhirFixture['name'][0]['family'] = 'Smithers';
         $actualResult = $this->fhirPatientController->put('bad-uuid', $this->fhirFixture);
-
-        $this->assertEquals(400, http_response_code());
-        $this->assertGreaterThan(0, count($actualResult['validationErrors']));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertGreaterThan(0, count($contents['validationErrors']));
     }
 
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
-        $fhirId = $actualResult['uuid'];
+        $contents = $this->getJsonContents($actualResult);
+        $fhirId = $contents['uuid'];
 
         $actualResult = $this->fhirPatientController->getOne($fhirId);
-        $this->assertEquals($fhirId, $actualResult->getId());
+        $this->assertEquals(Response::HTTP_OK, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertNotEmpty($contents, "getOne() should have returned a result");
+        $this->assertEquals($fhirId, $contents['id']);
     }
 
-    public function testGetOneNoMatch()
+    public function testGetOneNoMatch(): void
     {
         $this->fhirPatientController->post($this->fhirFixture);
 
         $actualResult = $this->fhirPatientController->getOne("not-a-matching-uuid");
-        $this->assertGreaterThan(0, count($actualResult['validationErrors']));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $actualResult->getStatusCode());
+        $contents = $this->getJsonContents($actualResult);
+        $this->assertEquals(1, count($contents['validationErrors']));
     }
 
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fhirPatientController->post($this->fhirFixture);
 
         $searchParams = ['address-state' => 'CA'];
         $actualResults = $this->fhirPatientController->getAll($searchParams);
-        $this->assertNotEmpty($actualResults);
-
-        foreach ($actualResults->getEntry() as $bundleEntry) {
-            $this->assertObjectHasProperty('fullUrl', $bundleEntry);
-            $this->assertObjectHasProperty('resource', $bundleEntry);
-        }
+        $fhirPatient = new FHIRPatient();
+        $this->assertFhirBundleResponse($actualResults, Response::HTTP_OK, $fhirPatient->get_fhirElementName());
     }
 }

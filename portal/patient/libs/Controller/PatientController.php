@@ -80,10 +80,10 @@ class PatientController extends AppBasePortalController
         $this->Assign('encounter', $encounter);
         $this->Assign('register', $register);
 
-        $trow = array();
+        $trow = [];
         $ptdata = $this->startupQuery($pid);
         foreach ($ptdata[0] as $key => $v) {
-            $trow[lcfirst($key)] = $v;
+            $trow[lcfirst((string) $key)] = $v;
         }
         $this->Assign('trow', $trow);
 
@@ -92,13 +92,10 @@ class PatientController extends AppBasePortalController
         $q = sqlStatement("SELECT `field_id`, `uor`, `edit_options` FROM `layout_options` " .
             "WHERE `form_id` = 'DEM' AND (`uor` = 0 || `edit_options` > '') ORDER BY `group_id`, `seq`");
         while ($key = sqlFetchArray($q)) {
-            if ((int)$key['uor'] === 0 || strpos($key['edit_options'], "EP") !== false) {
-                $key['field_id'] = strtolower($key['field_id']);
-                $key['field_id'] = preg_replace_callback('/_([^_])/', function (array $m) {
-
-                        return ucfirst($m[1]);
-                }, $key['field_id']);
-                $exclude[] = lcfirst($key['field_id']) . "InputContainer";
+            if ((int)$key['uor'] === 0 || str_contains((string) $key['edit_options'], "EP")) {
+                $key['field_id'] = strtolower((string) $key['field_id']);
+                $key['field_id'] = preg_replace_callback('/_([^_])/', fn(array $m): string => ucfirst($m[1]), $key['field_id']);
+                $exclude[] = lcfirst((string) $key['field_id']) . "InputContainer";
             }
         }
         $this->Assign('exclude', $exclude);
@@ -209,11 +206,7 @@ class PatientController extends AppBasePortalController
 
             // get new pid
             $result = sqlQueryNoLog("select max(`pid`)+1 as `pid` from `patient_data`");
-            if (empty($result['pid'])) {
-                $pidRegistration = 1;
-            } else {
-                $pidRegistration = $result['pid'];
-            }
+            $pidRegistration = empty($result['pid']) ? 1 : $result['pid'];
             // store the pid so can use for other registration elements inserted later (such as insurance)
             sqlStatementNoLog("UPDATE `verify_email` SET `pid_holder` = ? WHERE `id` = ?", [$pidRegistration , $_SESSION['token_id_holder']]);
 
@@ -244,7 +237,7 @@ class PatientController extends AppBasePortalController
             $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
             $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
             $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
-            $patient->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $patient->Date)));
+            $patient->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $patient->Date)));
             $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
             $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
             $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
@@ -282,7 +275,7 @@ class PatientController extends AppBasePortalController
             //$patient->Fitness = $this->SafeGetVal($json, 'fitness', $patient->Fitness);
             //$patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
             //$patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);
-            $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+            $patient->Regdate = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'regdate', $patient->Regdate)));
             //$patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
             //$patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
             //$patient->AdReviewed = date('Y-m-d', strtotime($this->SafeGetVal($json, 'adReviewed', $patient->AdReviewed)));
@@ -326,15 +319,20 @@ class PatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+
+            // Ensure user can only update their own profile
+            $sessionPid = $_SESSION['pid'] ?? null;
+            if (!$sessionPid || $patient->Pid != $sessionPid) {
+                throw new Exception('Unauthorized: You can only update your own profile');
+            }
+
             // this is a primary key. uncomment if updating is allowed
-            // $patient->Id = $this->SafeGetVal($json, 'id', $patient->Id);
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
-            //$patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
             $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
             $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
             $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
-            $patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            $patient->Dob = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'dob', $patient->Dob)));
             $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
             $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
             $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
@@ -350,7 +348,7 @@ class PatientController extends AppBasePortalController
             $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
             $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
             $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
-            $patient->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $patient->Date)));
+            $patient->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $patient->Date)));
             $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
             $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
             $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
@@ -362,28 +360,14 @@ class PatientController extends AppBasePortalController
             $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
             $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
             $patient->Religion = $this->SafeGetVal($json, 'religion', $patient->Religion);
-            //$patient->Interpretter = $this->SafeGetVal($json, 'interpretter', $patient->Interpretter);
-            //$patient->Migrantseasonal = $this->SafeGetVal($json, 'migrantseasonal', $patient->Migrantseasonal);
             $patient->FamilySize = $this->SafeGetVal($json, 'familySize', $patient->FamilySize);
-            //$patient->MonthlyIncome = $this->SafeGetVal($json, 'monthlyIncome', $patient->MonthlyIncome);
-            //$patient->BillingNote = $this->SafeGetVal($json, 'billingNote', $patient->BillingNote);
-            //$patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
-            //$patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));
-            $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
-            $patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
             $patient->HipaaMail = $this->SafeGetVal($json, 'hipaaMail', $patient->HipaaMail);
             $patient->HipaaVoice = $this->SafeGetVal($json, 'hipaaVoice', $patient->HipaaVoice);
             $patient->HipaaNotice = $this->SafeGetVal($json, 'hipaaNotice', $patient->HipaaNotice);
             $patient->HipaaMessage = $this->SafeGetVal($json, 'hipaaMessage', $patient->HipaaMessage);
             $patient->HipaaAllowsms = $this->SafeGetVal($json, 'hipaaAllowsms', $patient->HipaaAllowsms);
             $patient->HipaaAllowemail = $this->SafeGetVal($json, 'hipaaAllowemail', $patient->HipaaAllowemail);
-            //$patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
-            //$patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);
-            $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
-            //$patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
-            //$patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
-            //$patient->AdReviewed = date('Y-m-d', strtotime($this->SafeGetVal($json, 'adReviewed', $patient->AdReviewed)));
-            //$patient->Vfc = $this->SafeGetVal($json, 'vfc', $patient->Vfc);
+            $patient->Regdate = date('Y-m-d', strtotime((string) $this->SafeGetVal($json, 'regdate', $patient->Regdate)));
             $patient->Mothersname = $this->SafeGetVal($json, 'mothersname', $patient->Mothersname);
             $patient->Guardiansname = $this->SafeGetVal($json, 'guardiansname', $patient->Guardiansname);
             $patient->AllowImmRegUse = $this->SafeGetVal($json, 'allowImmRegUse', $patient->AllowImmRegUse);
@@ -392,7 +376,6 @@ class PatientController extends AppBasePortalController
             $patient->AllowPatientPortal = $this->SafeGetVal($json, 'allowPatientPortal', $patient->AllowPatientPortal);
             $patient->CareTeam = $this->SafeGetVal($json, 'careTeam', $patient->CareTeam);
             $patient->County = $this->SafeGetVal($json, 'county', $patient->County);
-            //$patient->Industry = $this->SafeGetVal($json, 'industry', $patient->Industry);
             $patient->Validate();
             $errors = $patient->GetValidationErrors();
             if (count($errors) > 0) {
@@ -411,7 +394,7 @@ class PatientController extends AppBasePortalController
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {
-            $audit = array ();
+            $audit =  [];
             $audit['patient_id'] = $ja['pid'];
             $audit['activity'] = "profile";
             $audit['require_audit'] = "1";
@@ -421,7 +404,7 @@ class PatientController extends AppBasePortalController
             $audit['narrative'] = "Changes reviewed and commited to demographics.";
             $audit['table_action'] = "update";
             $audit['table_args'] = $ja;
-            $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
+            $audit['action_user'] = $_SESSION['authUserID'] ?? "0";
             $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
             // returns false for new audit

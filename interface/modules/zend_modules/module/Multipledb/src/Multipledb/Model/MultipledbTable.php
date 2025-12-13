@@ -49,7 +49,7 @@ class MultipledbTable
         /* $resultSet = $this->tableGateway->select();
          return $resultSet;*/
 
-        $rsArray = array();
+        $rsArray = [];
         $rs = $this->tableGateway->select();
         foreach ($rs as $r) {
             $rsArray[] = get_object_vars($r);
@@ -60,7 +60,7 @@ class MultipledbTable
 
     public function checknamespace($namespace)
     {
-        $rowset = $this->tableGateway->select(array('namespace' => $namespace));
+        $rowset = $this->tableGateway->select(['namespace' => $namespace]);
         $count = $rowset->count();
 
         if ($count and $_SESSION['multiple_edit_id'] == 0) {
@@ -70,7 +70,7 @@ class MultipledbTable
         }
     }
 
-    public function storeMultipledb($id = 0, $db = array())
+    public function storeMultipledb($id = 0, $db = [])
     {
 
         if ($db['password']) {
@@ -81,7 +81,7 @@ class MultipledbTable
         }
 
         if ($id) {
-            $this->tableGateway->update($db, array('id' => $id));
+            $this->tableGateway->update($db, ['id' => $id]);
         } else {
             $this->tableGateway->insert($db);
         }
@@ -89,13 +89,13 @@ class MultipledbTable
 
     public function deleteMultidbById($id)
     {
-        $this->tableGateway->delete(array('id' => (int)$id));
+        $this->tableGateway->delete(['id' => (int)$id]);
     }
 
     public function getMultipledbById($id)
     {
 
-        $rowset = $this->tableGateway->select(array('id' => $id));
+        $rowset = $this->tableGateway->select(['id' => $id]);
         $row = $rowset->current();
         if (!$row) {
             return false;
@@ -109,13 +109,13 @@ class MultipledbTable
     public function randomSafeKey()
     {
         $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890$%&#@(){}[]<>~=?.*+-!';
-        $pass = array(); //remember to declare $pass as an array
+        $pass = []; //remember to declare $pass as an array
         $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
         for ($i = 0; $i < 32; $i++) {
             $n = mt_rand(0, $alphaLength);
             $pass[] = $alphabet[$n];
         }
 
-        return implode($pass); //turn the array into a string
+        return implode('', $pass); //turn the array into a string
     }
 }

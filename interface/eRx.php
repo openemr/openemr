@@ -24,11 +24,7 @@ set_time_limit(0);
 
 function array_key_exists_default($key, $search, $default = null)
 {
-    if (array_key_exists($key, $search)) {
-        $value = $search[$key];
-    } else {
-        $value = $default;
-    }
+    $value = array_key_exists($key, $search) ? $search[$key] : $default;
 
     return $value;
 }

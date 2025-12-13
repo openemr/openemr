@@ -5,9 +5,15 @@
 declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
+use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\Config\RectorConfig;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
+    ->withBootstrapFiles([
+        __DIR__ . '/rector-bootstrap.php',
+    ])
     ->withPaths([
         __DIR__ . '/Documentation',
         __DIR__ . '/apis',
@@ -27,14 +33,34 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])
-    // uncomment to reach your current PHP version
-    // ->withPhpSets()
-    ->withTypeCoverageLevel(0)
-    ->withDeadCodeLevel(0)
-    ->withCodeQualityLevel(0)
     ->withCache(
         // ensure file system caching is used instead of in-memory
         cacheClass: FileCacheStorage::class,
         // specify a path that works locally as well as on CI job runners
         cacheDirectory: '/tmp/rector'
-    );
+    )
+    ->withCodeQualityLevel(5)
+    ->withConfiguredRule(ClassPropertyAssignToConstructorPromotionRector::class, [
+        'allow_model_based_classes' => true,
+        'inline_public' => false,
+        'rename_property' => true,
+    ])
+    ->withDeadCodeLevel(5)
+    // https://getrector.com/documentation/troubleshooting-parallel
+    ->withParallel(
+        timeoutSeconds: 120,
+        maxNumberOfProcess: 12,
+        jobSize: 12
+    )
+    // FIXME rector should pick the php version from composer.json
+    // but that doesn't seem to be working, so hard-coding for now.
+    ->withPhpVersion(PhpVersion::PHP_82)
+    ->withRules([
+        // add rules one at a time until we can replace them with a named ruleset
+        SimplifyIfElseToTernaryRector::class,
+    ])
+    ->withPhpSets()
+    ->withSkip([
+        __DIR__ . '/sites/default/documents/smarty'
+    ])
+    ->withTypeCoverageLevel(5);

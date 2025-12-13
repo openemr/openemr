@@ -18,10 +18,10 @@ class X125010837I
 {
     public static function x12Date($frmdate)
     {
-        return ('20' . substr($frmdate, 4, 2) . substr($frmdate, 0, 2) . substr($frmdate, 2, 2));
+        return ('20' . substr((string) $frmdate, 4, 2) . substr((string) $frmdate, 0, 2) . substr((string) $frmdate, 2, 2));
     }
 
-    public $ub04id = array();
+    public $ub04id = [];
 
     public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
     {
@@ -32,7 +32,7 @@ class X125010837I
         // Qualify data array
         if (!empty($ub04id)) {
             for ($i = 0; $i < 428; ++$i) {
-                $ub04id[$i] = $ub04id[$i] ?? '';
+                $ub04id[$i] ??= '';
             }
         }
         // This is the start of the 837I claim
@@ -64,7 +64,7 @@ class X125010837I
         $out .= "GS" .
             "*HC" .
             "*" . $claim->x12gsgs02() .
-            "*" . trim($claim->x12gs03()) .
+            "*" . trim((string) $claim->x12gs03()) .
             "*" . date('Ymd', $today) .
             "*" . date('Hi', $today) .
             "*" . BillingClaimBatchControlNumber::getGs06() .
@@ -91,7 +91,7 @@ class X125010837I
 
         ++$edicount;
         //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
-        $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+        $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
         if ($billingFacilityName == '') {
             $log .= "*** billing facility name in 1000A loop is empty\n";
         }
@@ -143,7 +143,7 @@ class X125010837I
         // Situational CUR segment (foreign currency information) omitted here.
         ++$edicount;
         //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
-        $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
+        $billingFacilityName = substr((string) $claim->billingFacilityName(), 0, 60);
         $out .= "NM1" .       // Loop 2010AA Billing Provider stays in the 837I
             "*" . "85" .
             "*" . "2" .
@@ -270,7 +270,7 @@ class X125010837I
         // Segment REF*Y4 (Property and Casualty Claim Number) omitted.
         // Segment PER*IC (Property and Casualty Subscriber Contact Information) omitted.
         ++$edicount;
-        $payerName = substr($claim->payerName(), 0, 60);
+        $payerName = substr((string) $claim->payerName(), 0, 60);
         $out .= "NM1" .       // Loop 2010BB Payer
             "*PR" .
             "*" . "2" .
@@ -360,7 +360,7 @@ class X125010837I
             "*";
         // Service location this need to be bill type from ub form type_of_bill
         if (strlen($ub04id[7] ?? '') >= 3) {
-            $out .= "*" . substr($ub04id[7], 1, 1) . ":" . substr($ub04id[7], 2, 1) . ":" . substr($ub04id[7], 3, 1);
+            $out .= "*" . substr((string) $ub04id[7], 1, 1) . ":" . substr((string) $ub04id[7], 2, 1) . ":" . substr((string) $ub04id[7], 3, 1);
         }
 
         $out .= "*" .
@@ -492,11 +492,7 @@ class X125010837I
                 $out .= "HI"; // Health Diagnosis Codes
             }
             $out .= "*" . $diag_type_code . ":" . $diag;
-            if ($claim->diagtype == "ICD9") {
-                $diag_type_code = 'BF';
-            } else {
-                $diag_type_code = 'ABF';
-            }
+            $diag_type_code = $claim->diagtype == "ICD9" ? 'BF' : 'ABF';
 
             ++$tmp;
         }
@@ -647,17 +643,13 @@ class X125010837I
                     $out .= "*" . $diag_type_code . ":" . $ub04id[319];
                     $diag_type_code = 'TC';
                 }
-                if ($i = 1) {
-                    if ($ub04id[322]) {
-                        $out .= "*" . $diag_type_code . ":" . $ub04id[322];
-                        $diag_type_code = 'TC';
-                    }
+                if ($i === 1 && $ub04id[322]) {
+                    $out .= "*" . $diag_type_code . ":" . $ub04id[322];
+                    $diag_type_code = 'TC';
                 }
-                if ($i = 2) {
-                    if ($ub04id[325]) {
-                        $out .= "*" . $diag_type_code . ":" . $ub04id[325];
-                        $diag_type_code = 'TC';
-                    }
+                if ($i === 2 && $ub04id[325]) {
+                    $out .= "*" . $diag_type_code . ":" . $ub04id[325];
+                    $diag_type_code = 'TC';
                 }
 
                 ++$tmp;
@@ -784,7 +776,7 @@ class X125010837I
 
         // 5010 spec says nothing here if NPI was specified.
         //
-        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {
+        if (!$claim->providerNPI() && in_array($claim->providerNumberType(), ['0B', '1G', 'G2', 'LU'])) {
             if ($claim->providerNumber()) {
                 ++$edicount;
                 $out .= "REF" . "*" . $claim->providerNumberType() . "*" . $claim->providerNumber() . "~\n";
@@ -799,7 +791,7 @@ class X125010837I
 
             $out .= "NM1" . // Loop 2310E Service Location
                 "*77" . "*2";
-            $facilityName = substr($claim->facilityName(), 0, 60);
+            $facilityName = substr((string) $claim->facilityName(), 0, 60);
             if ($claim->facilityName() || $claim->facilityNPI() || $claim->facilityETIN()) {
                 $out .= "*" . $facilityName;
             }
@@ -884,7 +876,7 @@ class X125010837I
                 "*" . $claim->insuredRelationship($ins) .
                 "*" . $claim->groupNumber($ins) .
                 "*" . (($claim->groupNumber($ins)) ? '' : $claim->groupName($ins)) .
-                "*" . ($claim->insuredTypeCode($ins) ? $claim->insuredTypeCode($ins) : $tmp2) .
+                "*" . ($claim->insuredTypeCode($ins) ?: $tmp2) .
                 "*" .
                 "*" .
                 "*" .
@@ -950,7 +942,7 @@ class X125010837I
 
             // Segment REF (Other Subscriber Secondary Identification) omitted.
             ++$edicount;
-            $payerName = substr($claim->payerName($ins), 0, 60);
+            $payerName = substr((string) $claim->payerName($ins), 0, 60);
             $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 322/359.
                 "*" . "PR" .
                 "*" . "2" .
@@ -996,17 +988,13 @@ class X125010837I
         for ($tlh = 0; $tlh < $proccount; ++$tlh) {
             $tmp = $claim->procs[$tlh]['code_text'];
 
-            if ($claim->procs[$tlh]['code_type'] == 'HCPCS') {
-                $tmpcode = '3';
-            } else {
-                $tmpcode = '1';
-            }
+            $tmpcode = $claim->procs[$tlh]['code_type'] == 'HCPCS' ? '3' : '1';
             $getrevcd = $claim->cptCode($tlh);
             $sql = "SELECT * FROM codes WHERE code_type = ? and code = ? ORDER BY revenue_code DESC";
-            $revcode[$tlh] = sqlQuery($sql, array(
+            $revcode[$tlh] = sqlQuery($sql, [
                 $tmpcode,
                 $getrevcd
-            ));
+            ]);
         }
 
 
@@ -1052,7 +1040,7 @@ class X125010837I
             $out .= "DTP" . // Date of Service. Needs to be when service preformed.
                 "*" . "472" . "*" . "D8" . "*" . $ub04id[$dosos] . "~\n"; //$claim->serviceDate()
 
-            $testnote = rtrim($claim->cptNotecodes($prockey));
+            $testnote = rtrim((string) $claim->cptNotecodes($prockey));
             if (!empty($testnote)) {
                 ++$edicount;
                 $out .= "NTE" . // Explain Unusual Circumstances.
@@ -1103,7 +1091,7 @@ class X125010837I
                     "*" . $ndc .
                     "~\n";
 
-                if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp) && !preg_match('/^\d{11}$/', $ndc)) {
+                if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', (string) $ndc, $tmp) && !preg_match('/^\d{11}$/', (string) $ndc)) {
                     $log .= "*** NDC code '$ndc' has invalid format!\n";
                 }
 

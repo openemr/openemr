@@ -11,8 +11,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../user.inc.php");
+require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../user.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +23,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 //If 'mode' is either a 1 or 0 and 'target' ends with _expand
 //  Then will update the appropriate user _expand flag
-if ((isset($_POST['mode']) && ( $_POST['mode'] == 1 || $_POST['mode'] == 0 )) && ( substr($_POST['target'], -7, 7) == "_expand" )) {
+if ((isset($_POST['mode']) && ( $_POST['mode'] == 1 || $_POST['mode'] == 0 )) && ( str_ends_with((string) $_POST['target'], "_expand") )) {
   //set the user setting
     setUserSetting($_POST['target'], $_POST['mode']);
 }

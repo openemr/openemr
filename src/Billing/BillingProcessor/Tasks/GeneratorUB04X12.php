@@ -32,8 +32,8 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
     use WritesToBillingLog;
 
     // These two are specific to UB04
-    protected $template = array();
-    protected $ub04id = array();
+    protected $template = [];
+    protected $ub04id = [];
 
     protected $batch;
 
@@ -43,7 +43,7 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
         $log = '';
         $segs = explode(
             "~\n",
-            X125010837I::generateX12837I(
+            (string) X125010837I::generateX12837I(
                 $claim->getPid(),
                 $claim->getEncounter(),
                 $claim->getPartner(),

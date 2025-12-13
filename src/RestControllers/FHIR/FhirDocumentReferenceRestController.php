@@ -32,6 +32,7 @@ class FhirDocumentReferenceRestController
     {
         $this->fhirService = new FhirResourcesService();
         $this->service = new FhirDocumentReferenceService($request->getApiBaseFullUrl());
+        $this->service->setSession($request->getSession());
     }
 
     /**
@@ -54,7 +55,7 @@ class FhirDocumentReferenceRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->service->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

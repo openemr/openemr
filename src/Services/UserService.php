@@ -67,7 +67,7 @@ class UserService
      * @param $username
      * @return string|bool
      */
-    public static function getAuthGroupForUser($username)
+    public function getAuthGroupForUser($username)
     {
         $return = false;
         $result = privQuery("select `name` from `groups` where BINARY `user` = ?", [$username]);
@@ -213,9 +213,6 @@ class UserService
         // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
         if (count($records) == 1) {
             $akeys = array_keys($records[0]);
-            foreach ($akeys as $key) {
-                $records[0][$key] = $records[0][$key];
-            }
         }
 
         return ($records ?? null);
@@ -288,9 +285,9 @@ class UserService
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll($search = array(), $isAndCondition = true)
+    public function getAll($search = [], $isAndCondition = true)
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $sql = "SELECT  id,
                         uuid,
@@ -333,7 +330,7 @@ class UserService
 
         if (!empty($search)) {
             $sql .= ' AND ';
-            $whereClauses = array();
+            $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);

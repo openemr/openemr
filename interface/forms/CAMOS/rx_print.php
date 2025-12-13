@@ -37,7 +37,7 @@ $patient_state = '';
 $patient_zip = '';
 $patient_phone = '';
 $patient_dob = '';
-$sigline = array();
+$sigline = [];
 $sigline['plain'] =
     "<div class='signature'>"
   . " ______________________________________________<br/>"
@@ -52,7 +52,7 @@ $sigline['signed'] =
     "<div class='sig'>"
   . "<img src='./sig.jpg'>"
   . "</div>\n";
-$query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", array($_SESSION['pid']));
+$query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", [$_SESSION['pid']]);
 if ($result = sqlFetchArray($query)) {
     $patient_name = $result['fname'] . ' ' . $result['lname'];
     $patient_address = $result['street'];
@@ -85,7 +85,7 @@ if ($_POST['update']) { // OPTION update practice inf
 }
 
 //get user information
-$query = sqlStatement("select * from users where id =?", array($_SESSION['authUserID']));
+$query = sqlStatement("select * from users where id =?", [$_SESSION['authUserID']]);
 if ($result = sqlFetchArray($query)) {
     $physician_name = $result['fname'] . ' ' . $result['lname'] . ', ' . $result['title'];
     $practice_fname = $result['fname'];
@@ -105,14 +105,14 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $camos_content = array();
+    $camos_content = [];
     foreach ($_POST as $key => $val) {
-        if (substr($key, 0, 3) == 'ch_') {
-            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", array(substr($key, 3)));
+        if (str_starts_with((string) $key, 'ch_')) {
+            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr((string) $key, 3)]);
             if ($result = sqlFetchArray($query)) {
                 if ($_POST['print_html']) { //do this change to formatting only for html output
                             $content = preg_replace('|\n|', '<br/>', text($result['content']));
-                            $content = preg_replace('|<br/><br/>|', '<br/>', $content);
+                            $content = preg_replace('|<br/><br/>|', '<br/>', (string) $content);
                 } else {
                         $content = $result['content'];
                 }
@@ -121,8 +121,8 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             }
         }
 
-        if (substr($key, 0, 5) == 'chrx_') {
-            $rx = new Prescription(substr($key, 5));
+        if (str_starts_with((string) $key, 'chrx_')) {
+            $rx = new Prescription(substr((string) $key, 5));
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
             $content = ''
             . text($rx->drug) . ' '
@@ -158,7 +158,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
         if ($camos_content[0]) { //decide if we are printing this rx
             ?>
             <?php
-            function topHeaderRx()
+            function topHeaderRx(): void
             {
                 global $physician_name,$practice_address,$practice_city,$practice_state,$practice_zip,$practice_phone,$practice_fax,$practice_dea;
                 print text($physician_name) . "<br/>\n";
@@ -169,7 +169,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
                 print xlt('Voice') . ': ' . text($practice_phone) . ' / ' . xlt('Fax') . ': ' . text($practice_fax) . "<br/>\n";
                 print xlt('DEA') . ': ' . text($practice_dea);
             }
-            function bottomHeaderRx()
+            function bottomHeaderRx(): void
             {
                 global $patient_name,$patient_address,$patient_city,$patient_state,$patient_zip,$patient_phone,$patient_dob;
                 print "<span class='mytagname'> " . xlt('Name') . ":</span>\n";
@@ -203,7 +203,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[0];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -234,7 +234,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
                 print $camos_content[1];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -265,7 +265,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[2];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -296,7 +296,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
               print $camos_content[3];
             ?>
   </div>
-            <?php print $sigline[$_GET[sigline]] ?>
+            <?php print $sigline[$_GET['sigline']] ?>
 </div> <!-- end of rx block -->
             <?php
         } else { // end of deciding if we are printing the above rx block
@@ -307,7 +307,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
 </html>
         <?php
     } elseif ($_GET['letterhead']) { // end of printing to rx not letterhead. OPTION print to letterhead
-        $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
+        $content = preg_replace('/PATIENTNAME/i', $patient_name, (string) $camos_content[0]);
         if ($_POST['print_html']) { // print letterhead to html
             ?>
         <html>
@@ -492,17 +492,17 @@ return count_turnoff;
         mitigateSqlTableUpperCase("form_CAMOS") . " as x join forms as y on (x.id = y.form_id) " .
         "where y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .
-        " and x.activity = 1", array($_SESSION['pid']));
+        " and x.activity = 1", [$_SESSION['pid']]);
     } else {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
         mitigateSqlTableUpperCase("form_CAMOS") . "  as x join forms as y on (x.id = y.form_id) " .
         "where y.encounter = ?" .
         " and y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .
-        " and x.activity = 1", array($_SESSION['encounter'], $_SESSION['pid']));
+        " and x.activity = 1", [$_SESSION['encounter'], $_SESSION['pid']]);
     }
 
-    $results = array();
+    $results = [];
     echo "<div id='checkboxes'>\n";
     $count = 0;
     while ($result = sqlFetchArray($query)) {

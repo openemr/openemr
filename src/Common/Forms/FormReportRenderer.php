@@ -16,12 +16,8 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class FormReportRenderer
 {
-    private SystemLogger $logger;
-    private FormLocator $locator;
-    public function __construct(?FormLocator $locator = null, ?SystemLogger $logger = null)
+    public function __construct(private readonly ?FormLocator $locator = new FormLocator(), private readonly ?SystemLogger $logger = new SystemLogger())
     {
-        $this->locator = $locator ?? new FormLocator();
-        $this->logger = $logger ?? new SystemLogger();
     }
 
     public function renderReport(string $formDir, string $page, $attendant_id, $encounter, $columns, $formId, $noWrap = true)

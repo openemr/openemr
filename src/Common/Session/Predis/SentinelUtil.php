@@ -27,35 +27,25 @@ class SentinelUtil
     private static $masterCa = 'redis-master-ca';
     private static $masterCert = 'redis-master-cert';
     private static $masterKey = 'redis-master-key';
+    private readonly string $sessionStorageMode;
+    private readonly array $predisSentinels;
+    private readonly string $predisMaster;
+    private readonly ?string $predisSentinelsPassword;
+    private readonly ?string $predisMasterPassword;
 
-    private int $ttl;
-    private string $sessionStorageMode;
-    private array $predisSentinels;
-    private string $predisMaster;
-    private ?string $predisSentinelsPassword;
-    private ?string $predisMasterPassword;
+    private readonly bool $predisTls;
+    private readonly bool $predisX509;
 
-    private bool $predisTls;
-    private bool $predisX509;
+    private readonly ?string $predisSentinelCertKeyPath;
+    private readonly ?string $sentinelCaFile;
+    private readonly ?string $sentinelCertFile;
+    private readonly ?string $sentinelKeyFile;
+    private readonly ?string $masterCaFile;
+    private readonly ?string $masterCertFile;
+    private readonly ?string $masterKeyFile;
 
-    private ?string $predisSentinelCertKeyPath;
-    private ?string $sentinelCaFile;
-    private ?string $sentinelCertFile;
-    private ?string $sentinelKeyFile;
-    private ?string $masterCaFile;
-    private ?string $masterCertFile;
-    private ?string $masterKeyFile;
-
-    private SystemLogger $logger;
-
-    public function __construct(int $ttl)
+    public function __construct(private readonly int $ttl, private readonly ?SystemLogger $logger = new SystemLogger())
     {
-        // Initialize the logger
-        $this->logger = new SystemLogger();
-
-        // Collect and validate environment variables
-        $this->ttl = $ttl;
-
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;
         if ($this->sessionStorageMode !== 'predis-sentinel') {
@@ -152,7 +142,7 @@ class SentinelUtil
         ]);
     }
 
-    public function configure(): void
+    public function configure(): \SessionHandlerInterface
     {
         $useTls = $this->predisTls;
         $useClientCert = $this->predisX509;
@@ -231,5 +221,6 @@ class SentinelUtil
             throw new \Exception("Failed to set session handler for Predis Sentinel.");
         }
         $this->logger->debug("Successfully set session handler for Predis Sentinel.");
+        return $handler;
     }
 }
