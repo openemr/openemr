@@ -1,0 +1,70 @@
+name: Dockerfile Linting
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - '**/Dockerfile*'
+    - '.hadolint.yaml'
+    - '.github/workflows/hadolint.yml'
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - '**/Dockerfile*'
+    - '.hadolint.yaml'
+    - '.github/workflows/hadolint.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hadolint:
+    name: Lint Dockerfiles
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    
+    - name: Get changed Dockerfile files
+      id: changed-files
+      # We run hadolint on all Dockerfiles in the repo
+      # if only the workflow file itself is changed in a PR.
+      # Thus we validate changes to the workflow file.
+      continue-on-error: true
+      uses: tj-actions/changed-files@v47
+      with:
+        files: |
+          **/Dockerfile*
+    
+    - name: Run hadolint on changed files
+      if: ${{ steps.changed-files.outcome == 'success' && steps.changed-files.outputs.any_changed == 'true' }}
+      env:
+        CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        # Safely handle changed files list using environment variable
+        # Convert space-separated list to newline-separated for safe parsing
+        mapfile -t files < <(echo "$CHANGED_FILES" | tr ' ' '\n')
+        
+        echo "Linting ${#files[@]} changed Dockerfile(s)..."
+        for file in "${files[@]}"; do
+          [[ -n "$file" ]] || continue
+          echo "Checking: $file"
+          docker run --rm -i -v "$(pwd)/.hadolint.yaml:/.config/hadolint.yaml" hadolint/hadolint < "$file"
+        done
+    
+    - name: Run hadolint on all files
+      if: ${{ steps.changed-files.outcome != 'success' || steps.changed-files.outputs.any_changed != 'true' }}
+      run: |
+        echo "Linting all Dockerfiles in the repository..."
+        find . -type f -name "Dockerfile*" | while read -r file; do
+          echo "Checking: $file"
+          docker run --rm -i -v "$(pwd)/.hadolint.yaml:/.config/hadolint.yaml" hadolint/hadolint < "$file"
+        done
