@@ -31,9 +31,6 @@ jobs:
   dclint:
     name: Docker Compose Linting
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ['22']
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
@@ -41,7 +38,7 @@ jobs:
     - name: Install Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '22'
     
     - name: Get changed docker compose files
       id: changed-files
@@ -61,22 +58,21 @@ jobs:
         # use find to locate all docker compose files in the repo.
         if [[ "${{ steps.changed-files.outcome }}" = success && "${{ steps.changed-files.outputs.any_changed }}" = true ]]; then
           echo 'Changed files found, checking only those.'
-          set -f  # disable glob expansion
-          files_to_check=( ${{ steps.changed-files.outputs.all_changed_files }} )
-          set +f  # re-enable glob expansion
-          echo "files=${files_to_check[*]}" >> "$GITHUB_OUTPUT"
+          # Store files in a way that handles spaces properly
+          echo "mode=files" >> "$GITHUB_OUTPUT"
+          echo "files=${{ steps.changed-files.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
         else
           echo 'No changed files found, checking all docker compose files in the repo.'
           # Use recursive mode in dclint to find all compose files
-          echo "files=" >> "$GITHUB_OUTPUT"
+          echo "mode=recursive" >> "$GITHUB_OUTPUT"
         fi
     
     - name: Run dclint on changed files
-      if: steps.files-to-check.outputs.files != ''
+      if: steps.files-to-check.outputs.mode == 'files'
       run: |
         npx dclint@3.1.0 ${{ steps.files-to-check.outputs.files }}
     
     - name: Run dclint recursively
-      if: steps.files-to-check.outputs.files == ''
+      if: steps.files-to-check.outputs.mode == 'recursive'
       run: |
         npx dclint@3.1.0 --recursive ci/ docker/
