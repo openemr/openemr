@@ -50,10 +50,12 @@ jobs:
         CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
       run: |
         # Safely handle changed files list using environment variable
-        mapfile -t files < <(printf '%s\n' $CHANGED_FILES)
+        # Convert space-separated list to newline-separated for safe parsing
+        mapfile -t files < <(echo "$CHANGED_FILES" | tr ' ' '\n')
         
         echo "Linting ${#files[@]} changed Dockerfile(s)..."
         for file in "${files[@]}"; do
+          [[ -n "$file" ]] || continue
           echo "Checking: $file"
           docker run --rm -i -v "$(pwd)/.hadolint.yaml:/.config/hadolint.yaml" hadolint/hadolint < "$file"
         done
