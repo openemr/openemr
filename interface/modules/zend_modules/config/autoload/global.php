@@ -16,6 +16,9 @@
  */
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 // If to use utf-8 or not in my sql query
 if (!$GLOBALS['disable_utf8_flag']) {
@@ -29,7 +32,7 @@ if (!$GLOBALS['disable_utf8_flag']) {
 }
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
 
-if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
+if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($session->get("enable_database_connection_pooling"))) && empty($GLOBALS['connection_pooling_off'])) {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
 } else {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];

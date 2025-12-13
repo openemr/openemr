@@ -15,6 +15,7 @@ require_once(__DIR__ . '/../../interface/globals.php');
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ApplicationTable
 {
@@ -140,6 +141,7 @@ class ApplicationTable
      */
     public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $return = false;
         $result = false;
         $audit =  [];
@@ -150,7 +152,7 @@ class ApplicationTable
             $audit['date'] = $auditvals['date'] ?: date("Y-m-d H:i:s");
         }
 
-        $audit['patient_id'] = $auditvals['patient_id'] ?: $_SESSION['pid'];
+        $audit['patient_id'] = $auditvals['patient_id'] ?: $session->get('pid');
         $audit['activity'] = $auditvals['activity'] ?: "";
         $audit['require_audit'] = $auditvals['require_audit'] ?: "";
         $audit['pending_action'] = $auditvals['pending_action'] ?: "";
@@ -199,14 +201,15 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         $groupname = $GLOBALS['groupname'] ?? 'none';
-        $user = $_SESSION['portal_username'] ?? $_SESSION['authUser'] ?? null;
-        $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
-        if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser'])) {
+        $user = $session->get('portal_username') ?? $session->get('authUser') ?? null;
+        $log_from = $session->has('portal_username') ? 'onsite-portal' : 'portal-dashboard';
+        if (!$session->has('portal_username') && !$session->has('authUser')) {
             $log_from = 'portal-login';
         }
 
-        $user_notes .= isset($_SESSION['whereto']) ? (' Module:' . $_SESSION['whereto']) : "";
+        $user_notes .= !empty($session->get('whereto')) ? (' Module:' . $session->get('whereto')) : "";
 
         $processed_binds = "";
         if (is_array($binds)) {
