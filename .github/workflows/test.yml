@@ -377,7 +377,7 @@ jobs:
         curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
 
     - name: Upload PHP info to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ hashFiles('phpinfo.html') != '' }}
       with:
         name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
@@ -780,7 +780,7 @@ jobs:
 
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
         path: selenium-videos/
@@ -799,7 +799,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml
@@ -845,14 +845,14 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Upload clover coverage to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
 
     - name: Upload html coverage to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
       with:
         name: htmlcov
