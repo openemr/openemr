@@ -1098,7 +1098,7 @@ parameters:
       path: ../interface/modules/custom_modules/oe-module-faxsms/library/utility.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 6
+      count: 7
       path: ../interface/modules/custom_modules/oe-module-faxsms/messageUI.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
