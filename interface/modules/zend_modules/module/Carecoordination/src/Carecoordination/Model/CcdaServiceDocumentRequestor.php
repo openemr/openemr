@@ -14,15 +14,19 @@
 namespace Carecoordination\Model;
 
 use Exception;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 
 class CcdaServiceDocumentRequestor
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @throws CcdaServiceConnectionException
      */
     public function socket_get($data)
     {
+        $this->getSystemLogger()->debug("Calling CcdaServiceDocumentRequestor::socket_get");
         $output = "";
         $system = new System();
 
@@ -33,8 +37,9 @@ class CcdaServiceDocumentRequestor
         }
         // Let's check if server is already running but suppress warning with @ operator
         $server_active = @socket_connect($socket, "127.0.0.1", "6661");
-
+        $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get server active: " . var_export($server_active, true));
         if ($server_active === false) {
+            $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get starting local ccda service");
             // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
             if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
                 $path = $GLOBALS['fileroot'] . "/ccdaservice";
@@ -49,7 +54,7 @@ class CcdaServiceDocumentRequestor
                         throw new CcdaServiceConnectionException("Failed to start local ccdaservice");
                     }
                     if (pclose($pipeHandle) === -1) {
-                        error_log("Failed to close pipehandle for ccdaservice");
+                        $this->getSystemLogger()->errorLogCaller("Failed to close pipehandle for ccdaservice");
                     }
                 } else {
                     $command = 'node';
@@ -58,7 +63,7 @@ class CcdaServiceDocumentRequestor
                             // older or custom Ubuntu systems that have nodejs rather than node command
                             $command = 'nodejs';
                         } else {
-                            error_log("Node is not installed on the system.  Connection failed");
+                            $this->getSystemLogger()->errorLogCaller("Node is not installed on the system.  Connection failed");
                             throw new CcdaServiceConnectionException('Connection Failed.');
                         }
                     }
@@ -66,16 +71,17 @@ class CcdaServiceDocumentRequestor
                     exec($cmd . " > /dev/null &");
                 }
                 sleep(5); // give cpu a rest
+                $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get attempting connection again after starting service");
                 // now try to connect to the server
                 $result = socket_connect($socket, "127.0.0.1", 6661);
                 if ($result === false) {
                     $errorCode = socket_last_error($socket);
                     $errorMsg = socket_strerror($errorCode);
-                    error_log("Socket connection error $errorCode: $errorMsg");
+                    $this->getSystemLogger()->errorLogCaller("Socket connection error $errorCode: $errorMsg");
                     throw new CcdaServiceConnectionException("Connection Failed: $errorMsg");
                 }
             } else {
-                error_log("C-CDA Service is not enabled in Global Settings");
+                $this->getSystemLogger()->errorLogCaller("C-CDA Service is not enabled in Global Settings");
                 throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
             }
         }
@@ -85,7 +91,7 @@ class CcdaServiceDocumentRequestor
         // Set default buffer size to target data array size.
         $good_buf = socket_set_option($socket, SOL_SOCKET, SO_SNDBUF, $len);
         if ($good_buf === false) { // Can't set buffer
-            error_log("Failed to set socket buffer to " . $len);
+            $this->getSystemLogger()->errorLogCaller("Failed to set socket buffer to " . $len);
         }
         // make writeSize chunk either the size set above or the default buffer size (64Kb).
         $writeSize = socket_get_option($socket, SOL_SOCKET, SO_SNDBUF);
@@ -103,7 +109,7 @@ class CcdaServiceDocumentRequestor
             // pause for the receiving side
             usleep(200000);
         } while ($out !== false && $pos < $len && $currentCounter++ <= $maxLineAttempts);
-
+        $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get finished writing to socket");
         socket_set_nonblock($socket);
         //Read back rendered document from node service!
         do {
@@ -113,6 +119,7 @@ class CcdaServiceDocumentRequestor
         } while (!empty($line));
 
         $output = substr(trim($output), 0, strlen($output) - 1);
+        $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get finished reading from socket");
         // Close and return.
         socket_close($socket);
         if ($output == "Authentication Failure") {
