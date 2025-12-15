@@ -1,0 +1,44 @@
+# Hadolint configuration for OpenEMR
+# This configuration allows existing Dockerfiles to pass linting
+# while still catching critical issues
+
+ignored:
+  # DL3003: Use WORKDIR to switch to a directory
+  # Many of our existing Dockerfiles use cd in RUN commands for complex build processes
+  - DL3003
+  
+  # DL3006: Always tag the version of an image explicitly
+  # Some base images (osixia/openldap, nginx) are intentionally using latest
+  - DL3006
+  
+  # DL3008: Pin versions in apt-get install
+  # Pinning apt versions can make maintenance difficult and break builds
+  - DL3008
+  
+  # DL3009: Delete the apt lists after installing something
+  # Some Dockerfiles deliberately keep apt lists for development purposes
+  - DL3009
+  
+  # DL3015: Avoid additional packages by specifying --no-install-recommends
+  # Some builds intentionally include recommended packages
+  - DL3015
+  
+  # DL4006: Set the SHELL option -o pipefail before RUN with a pipe
+  # Adding pipefail to all existing RUN commands would be intrusive
+  - DL4006
+  
+  # SC2086: Double quote to prevent globbing and word splitting
+  # Many existing scripts use intentional word splitting
+  - SC2086
+  
+  # SC2046: Quote this to prevent word splitting
+  # Many existing scripts use intentional word splitting
+  - SC2046
+  
+  # DL3020: Use COPY instead of ADD for files and folders
+  # Some existing Dockerfiles use ADD for local files
+  - DL3020
+
+# Trusted registries for base images
+trustedRegistries:
+  - docker.io

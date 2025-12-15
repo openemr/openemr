@@ -1,0 +1,17 @@
+# Configuration for dclint (Docker Compose Linter)
+# https://github.com/zavoloklom/docker-compose-linter
+
+# Rules are set to 0 (off), 1 (warning), or 2 (error)
+rules:
+  # These rules are disabled to allow existing compose files to pass
+  # Consider enabling them gradually as files are updated
+  require-project-name-field: 0
+  service-keys-order: 0
+  service-image-require-explicit-tag: 0
+  no-unbound-port-interfaces: 0
+  require-quotes-in-ports: 0
+  
+  # Alphabetical ordering rules are kept as warnings
+  services-alphabetical-order: 1
+  service-ports-alphabetical-order: 1
+  service-dependencies-alphabetical-order: 1

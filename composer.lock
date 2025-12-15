@@ -5870,16 +5870,16 @@
         },
         {
             "name": "particle/validator",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/particle-php/Validator.git",
-                "reference": "aab07e734bc40e8777fb4a1f9d9037dc11fb60b6"
+                "reference": "8a1677866a4e7ab448b969539a94601a7b00b279"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/particle-php/Validator/zipball/aab07e734bc40e8777fb4a1f9d9037dc11fb60b6",
-                "reference": "aab07e734bc40e8777fb4a1f9d9037dc11fb60b6",
+                "url": "https://api.github.com/repos/particle-php/Validator/zipball/8a1677866a4e7ab448b969539a94601a7b00b279",
+                "reference": "8a1677866a4e7ab448b969539a94601a7b00b279",
                 "shasum": ""
             },
             "require": {
@@ -5930,9 +5930,9 @@
             ],
             "support": {
                 "issues": "https://github.com/particle-php/Validator/issues",
-                "source": "https://github.com/particle-php/Validator/tree/v2.3.5"
+                "source": "https://github.com/particle-php/Validator/tree/v2.3.6"
             },
-            "time": "2022-12-12T19:35:42+00:00"
+            "time": "2025-12-09T13:33:27+00:00"
         },
         {
             "name": "pear/archive_tar",
@@ -13306,21 +13306,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.2.7",
+            "version": "2.2.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "022038537838bc8a4e526af86c2d6e38eaeff7ef"
+                "reference": "6d56bb0e94d4df4f57a78610550ac76ab403657d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/022038537838bc8a4e526af86c2d6e38eaeff7ef",
-                "reference": "022038537838bc8a4e526af86c2d6e38eaeff7ef",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/6d56bb0e94d4df4f57a78610550ac76ab403657d",
+                "reference": "6d56bb0e94d4df4f57a78610550ac76ab403657d",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4|^8.0",
-                "phpstan/phpstan": "^2.1.26"
+                "phpstan/phpstan": "^2.1.33"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -13354,7 +13354,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.2.7"
+                "source": "https://github.com/rectorphp/rector/tree/2.2.14"
             },
             "funding": [
                 {
@@ -13362,7 +13362,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-29T15:46:12+00:00"
+            "time": "2025-12-09T10:57:55+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -14352,16 +14352,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "4.0.0",
+            "version": "4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "06113cfdaf117fc2165f9cd040bd0f17fcd5242d"
+                "reference": "0525c73950de35ded110cffafb9892946d7771b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/06113cfdaf117fc2165f9cd040bd0f17fcd5242d",
-                "reference": "06113cfdaf117fc2165f9cd040bd0f17fcd5242d",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/0525c73950de35ded110cffafb9892946d7771b5",
+                "reference": "0525c73950de35ded110cffafb9892946d7771b5",
                 "shasum": ""
             },
             "require": {
@@ -14427,7 +14427,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-09-15T11:28:58+00:00"
+            "time": "2025-11-10T16:43:36+00:00"
         },
         {
             "name": "staabm/side-effects-detector",
