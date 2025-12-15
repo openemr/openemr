@@ -15,11 +15,13 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
 SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
@@ -73,7 +75,7 @@ $ignoreAuth_onsite_portal = true;
 require_once('../interface/globals.php');
 
 if (
-    $GLOBALS['enforce_signin_email']
+    $globalsBag->get('enforce_signin_email')
     && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
 ) {
     SessionUtil::portalSessionCookieDestroy();
@@ -195,7 +197,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         exit();
     }
 
-    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $GLOBALS['enforce_signin_email']) {
+    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->get('enforce_signin_email')) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');
