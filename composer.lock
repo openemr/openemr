@@ -13305,21 +13305,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.2.7",
+            "version": "2.2.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "022038537838bc8a4e526af86c2d6e38eaeff7ef"
+                "reference": "6d56bb0e94d4df4f57a78610550ac76ab403657d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/022038537838bc8a4e526af86c2d6e38eaeff7ef",
-                "reference": "022038537838bc8a4e526af86c2d6e38eaeff7ef",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/6d56bb0e94d4df4f57a78610550ac76ab403657d",
+                "reference": "6d56bb0e94d4df4f57a78610550ac76ab403657d",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4|^8.0",
-                "phpstan/phpstan": "^2.1.26"
+                "phpstan/phpstan": "^2.1.33"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -13353,7 +13353,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.2.7"
+                "source": "https://github.com/rectorphp/rector/tree/2.2.14"
             },
             "funding": [
                 {
@@ -13361,7 +13361,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-29T15:46:12+00:00"
+            "time": "2025-12-09T10:57:55+00:00"
         },
         {
             "name": "sebastian/cli-parser",
