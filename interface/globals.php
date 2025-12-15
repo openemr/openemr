@@ -6,8 +6,10 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -40,6 +42,66 @@ if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
 
 //This is to help debug the ssl mysql connection. This will send messages to php log to show if mysql connections have a cipher set up.
 $GLOBALS['debug_ssl_mysql_connection'] = false;
+
+/**
+ * HTTP Client SSL Verification
+ *
+ * For security reasons, these settings are not user-serviceable via UI.
+ * Disabling SSL verification for non-loopback addresses on a system with PHI is a violation of §164.312(e)(1) in a HIPAA context.
+ *
+ * You can get a valid SSL certificate for free at letsencrypt.org.
+ *
+ * Configuration via environment variables:
+ * - OPENEMR_SETTING_http_verify_ssl (true/false/1/0/yes/no)
+ * - OPENEMR_SETTING_http_ca_cert (path to CA certificate file, e.g., /var/www/certs/ca-cert.pem)
+ *
+ * @var bool $GLOBALS['http_verify_ssl'] - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
+ * @var string|false $GLOBALS['http_ca_cert'] - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
+ *
+ * SSL Verification Logic:
+ * - Loopback addresses (localhost, 127.x.x.x, ::1) → SSL verification always disabled
+ * - Non-loopback site_addr_oath (e.g., nginx sidecar) → use http_verify_ssl + optional http_ca_cert
+ * - External APIs (rxnav, NPI registry, etc.) → always use http_verify_ssl with system CA bundle
+ *
+ * The http_ca_cert setting ONLY applies when connecting to site_addr_oath configured to a non-loopback address.
+ * It does NOT affect external API calls, which always use the system's default CA bundle.
+ *
+ * LOOPBACK ADDRESS SECURITY:
+ * Loopback addresses (127.0.0.0/8, ::1, localhost) are immune to network-based man-in-the-middle attacks because
+ * traffic never leaves the local machine. SSL verification is always disabled for loopback addresses because:
+ * - No security benefit (traffic can't be intercepted)
+ * - Often fails due to hostname mismatches
+ * - Unnecessary complexity for local communication
+ *
+ * SEPARATE WEB AND APP SERVER:
+ * For deployments where the web server runs on a different host than php:
+ * 1. Configure "Site Address Override" in Admin > Config > Connectors with the web server hostname (e.g., https://nginx)
+ * 2. Since this is NOT a loopback address, http_verify_ssl=true will be used (secure by default)
+ * 3. If using self-signed certificates for internal container-to-container communication:
+ *    a. Generate a CA certificate and sign your web server's certificate with it
+ *    b. Mount the CA certificate into the container at a known path (e.g., /var/www/certs/ca-cert.pem)
+ *    c. Set OPENEMR_SETTING_http_ca_cert=/var/www/certs/ca-cert.pem
+ *    This allows proper certificate verification even with self-signed certificates.
+ */
+$GLOBALS['http_verify_ssl'] = filter_var(
+    $_ENV['OPENEMR_SETTING_http_verify_ssl'] ?? 'true',
+    FILTER_VALIDATE_BOOLEAN,
+    FILTER_NULL_ON_FAILURE
+) ?? true;  // Verify by default
+
+// Custom CA certificate path for verifying self-signed certificates
+// If set, this will be used instead of the system's default CA bundle
+$GLOBALS['http_ca_cert'] = $_ENV['OPENEMR_SETTING_http_ca_cert'] ?? false;
+
+// Debug logging for potentially problematic SSL configuration
+if (!empty($GLOBALS['http_ca_cert']) && !$GLOBALS['http_verify_ssl']) {
+    error_log(
+        'OpenEMR SSL Configuration Warning: Custom CA certificate is configured ' .
+        '(http_ca_cert=' . $GLOBALS['http_ca_cert'] . ') but SSL verification is disabled ' .
+        '(http_verify_ssl=false). The CA certificate will be ignored. ' .
+        'This may indicate a configuration error.'
+    );
+}
 
 // Unless specified explicitly, apply Auth functions
 if (!isset($ignoreAuth)) {

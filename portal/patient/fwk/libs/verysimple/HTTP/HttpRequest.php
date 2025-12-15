@@ -18,7 +18,16 @@ class HttpRequest
     static $METHOD_PUT = "PUT";
     static $METHOD_DELETE = "DELETE";
     static $USER_AGENT = "verysimple::HttpRequest";
-    static $VERIFY_CERT = false;
+    static $VERIFY_CERT = true;
+
+    /**
+     * Get SSL verification setting from global configuration
+     * @return bool
+     */
+    static function GetVerifyCert()
+    {
+        return (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+    }
 
     /**
      *
@@ -62,7 +71,7 @@ class HttpRequest
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 0); // <- ENABLE DEBUGGING
         curl_setopt($ch, CURLOPT_USERAGENT, HttpRequest::$USER_AGENT);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, HttpRequest::$VERIFY_CERT);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, HttpRequest::GetVerifyCert());
         curl_setopt($ch, CURLOPT_NOPROGRESS, 1);
 
         // make the request
@@ -89,8 +98,9 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function Post($url, $data, $verify_cert = false, $timeout = 30)
+    static function Post($url, $data, $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         if (function_exists("curl_init")) {
             return HttpRequest::CurlPost($url, $data, $verify_cert, $timeout);
         } else {
@@ -108,12 +118,13 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function Get($url, $data = "", $verify_cert = false, $timeout = 30)
+    static function Get($url, $data = "", $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         if (function_exists("curl_init")) {
-            return HttpRequest::CurlPost($url, $data, $verify_cert, $timeout);
+            return HttpRequest::CurlGet($url, $data, $verify_cert, $timeout);
         } else {
-            return HttpRequest::FilePost($url, $data, $verify_cert, $timeout);
+            return HttpRequest::FileGet($url, $data, $verify_cert, $timeout);
         }
     }
 
@@ -129,8 +140,9 @@ class HttpRequest
      *          int timeout (in seconds)
      * @return string
      */
-    static function Put($url, $data = "", $verify_cert = false, $timeout = 30)
+    static function Put($url, $data = "", $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         if (function_exists("curl_init")) {
             return HttpRequest::CurlPut($url, $data, $verify_cert, $timeout);
         } else {
@@ -148,7 +160,7 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function FileGet($url, $data = "", $verify_cert = false, $timeout = 30)
+    static function FileGet($url, $data = "", $verify_cert = null, $timeout = 30)
     {
         $qs = HttpRequest::ArrayToQueryString($data);
         $full_url = $url . ($qs ? "?" . $qs : "");
@@ -165,7 +177,7 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function FilePost($url, $data = "", $verify_cert = false, $timeout = 30)
+    static function FilePost($url, $data = "", $verify_cert = null, $timeout = 30)
     {
         $qs = HttpRequest::ArrayToQueryString($data);
         $url .= $qs ? "?" . $qs : "";
@@ -216,8 +228,9 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function CurlGet($url, $data = "", $verify_cert = false, $timeout = 30)
+    static function CurlGet($url, $data = "", $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         return HttpRequest::CurlRequest("GET", $url, $data, $verify_cert, $timeout);
     }
 
@@ -231,8 +244,9 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function CurlPost($url, $data, $verify_cert = false, $timeout = 30)
+    static function CurlPost($url, $data, $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         return HttpRequest::CurlRequest("POST", $url, $data, $verify_cert, $timeout);
     }
 
@@ -246,8 +260,9 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function CurlPut($url, $data, $verify_cert = false, $timeout = 30)
+    static function CurlPut($url, $data, $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         return HttpRequest::CurlRequest("PUT", $url, $data, $verify_cert, $timeout);
     }
 
@@ -263,8 +278,9 @@ class HttpRequest
      *          bool true to require verification of SSL cert
      * @return string
      */
-    static function CurlRequest($method, $url, $data, $verify_cert = false, $timeout = 30)
+    static function CurlRequest($method, $url, $data, $verify_cert = null, $timeout = 30)
     {
+        $verify_cert ??= HttpRequest::GetVerifyCert();
         // if the data provided is in array format, convert it to a querystring
         $qs = HttpRequest::ArrayToQueryString($data);
 
