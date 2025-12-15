@@ -10,15 +10,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
+
+require_once("../interface/globals.php");
+
+if (!($globalsBag->get('portal_onsite_two_enable') !== null) || !($globalsBag->get('portal_onsite_two_enable'))) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
@@ -525,7 +531,7 @@ function renderEditorHtml($template_id, $content): void
  */
 function renderProfileHtml(): void
 {
-    global $templateService;
+    global $templateService, $globalsBag;
 
     $category_list = $templateService->fetchDefaultCategories();
     $profile_list = $templateService->fetchDefaultProfiles();
@@ -534,11 +540,11 @@ function renderProfileHtml(): void
     <html>
     <head>
         <?php
-        if (empty($GLOBALS['openemr_version'] ?? null)) {
+        if (empty($globalsBag->get('openemr_version'))) {
             Header::setupHeader(['opener', 'sortablejs']);
         } else {
             Header::setupHeader(['opener']); ?>
-            <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+            <script src="<?php echo $globalsBag->get('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
         <?php } ?>
     </head>
     <style>
