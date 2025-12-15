@@ -125,12 +125,13 @@ class EtherFaxClient
         }
 
         try {
+            $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
             $client = new \GuzzleHttp\Client([
             "defaults" => [
                 "allow_redirects" => true,
                 "exceptions" => false
             ],
-            'verify' => false,
+            'verify' => $httpVerifySsl,
             //'proxy' => "localhost:8888", // use a proxy for debugging.
             ]);
             // request it

@@ -354,7 +354,11 @@ parameters:
       path: ../interface/eRx.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 12
+      count: 1
+      path: ../interface/eRxXMLBuilder.php
+    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
+      identifier: openemr.forbiddenGlobalsAccess
+      count: 13
       path: ../interface/eRx_xml.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -750,7 +754,7 @@ parameters:
       path: ../interface/forms_admin/forms_admin.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 32
+      count: 37
       path: ../interface/globals.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -1134,7 +1138,7 @@ parameters:
       path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 1
+      count: 2
       path: ../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -2366,6 +2370,10 @@ parameters:
       path: ../library/lists.inc.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
+      count: 1
+      path: ../library/maviq_phone_api.php
+    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
+      identifier: openemr.forbiddenGlobalsAccess
       count: 34
       path: ../library/options.inc.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
@@ -2502,6 +2510,14 @@ parameters:
       path: ../modules/sms_email_reminder/cron_functions.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
+      count: 1
+      path: ../modules/sms_email_reminder/sms_clickatell.php
+    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
+      identifier: openemr.forbiddenGlobalsAccess
+      count: 1
+      path: ../modules/sms_email_reminder/sms_tmb4.php
+    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
+      identifier: openemr.forbiddenGlobalsAccess
       count: 10
       path: ../portal/account/account.lib.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
@@ -2600,6 +2616,10 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 10
       path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php
+    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
+      identifier: openemr.forbiddenGlobalsAccess
+      count: 1
+      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
@@ -2895,6 +2915,10 @@ parameters:
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
+      path: ../src/Common/Http/oeHttpRequest.php
+    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
+      identifier: openemr.forbiddenGlobalsAccess
+      count: 2
       path: ../src/Common/Http/oeOAuth.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -3202,7 +3226,7 @@ parameters:
       path: ../src/Services/BaseService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 1
+      count: 3
       path: ../src/Services/CDADocumentService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -3210,7 +3234,7 @@ parameters:
       path: ../src/Services/Cda/CdaTemplateParse.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 7
+      count: 8
       path: ../src/Services/Cda/CdaValidateDocuments.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -3274,7 +3298,7 @@ parameters:
       path: ../src/Services/PatientTrackerService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 1
+      count: 2
       path: ../src/Services/ProductRegistrationService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -3310,7 +3334,7 @@ parameters:
       path: ../src/Services/VitalsService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 4
+      count: 5
       path: ../src/Telemetry/TelemetryService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess

@@ -30,10 +30,12 @@ class oeHttpRequest extends oeHttp
 
         self::$client = $client;
         $this->bodyFormat = "json";
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $this->options = [
             'base_uri' => '',
             'http_errors' => false,
-            'verify' => false];
+            'verify' => $httpVerifySsl,
+        ];
 
         /* set here in class as default
         *  otherwise has to be invoked via setDebug().
