@@ -371,12 +371,12 @@ class EtherFaxActions extends AppDispatch
         $dateTo = date("Y-m-d H:i:s", strtotime($this->getRequest('dateto') . 'T23:59:59'));
         $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo, false);
 
-        $responseMsg = [0 => '', 2 => xlt('Not Implemented')];
+        $responseMsg = [0 => '', 1 => '', 2 => xlt('Not Implemented')];
 
         foreach ($faxStore as $faxDetails) {
             $id = $faxDetails->JobId;
             $record_id = $faxDetails->RecordId;
-            $faxDate = strtotime($faxDetails->ReceivedOn . ' UTC');
+            $faxDate = strtotime(($faxDetails->ReceivedOn ?? '') . ' UTC');
             $formattedDate = date('M j, Y g:i:sa T', $faxDate);
             $docLen = round($faxDetails->DocumentParams->Length / 1000, 2) . "KB";
             $transaction = 0;
@@ -395,7 +395,7 @@ class EtherFaxActions extends AppDispatch
             $actionLinks = $this->generateActionLinks($id, $record_id, $pid_assumed);
             $detailLink = $this->generateDetailLink($id, $recognizeResult);
 
-            if ($transaction == '0') {
+            if ($transaction == 0) {
                 $faxRow = "<tr>
                 <td>" . text($formattedDate) . "</td>
                 <td>" . text($faxDetails->CallingNumber) . "</td>
@@ -536,6 +536,7 @@ class EtherFaxActions extends AppDispatch
         $c_header = $apiResponse->DocumentParams->Type;
 
         if ($c_header == 'image/tiff' || $c_header == 'image/tif') {
+            // imagick if installed
             $formattedImage = $this->formatFax($faxImage);
             $c_header = $formattedImage ? 'application/pdf' : 'image/tiff';
             $faxImage = $formattedImage ?: $faxImage;
@@ -675,11 +676,6 @@ class EtherFaxActions extends AppDispatch
      */
     private function normalizePath(string $path): string
     {
-        // If the path is relative, anchor it under allowed baseDir
-        if (str_starts_with($path, DIRECTORY_SEPARATOR)) {
-            $path = rtrim((string)$this->baseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
-        }
-        // Collapse .. and .
         $parts = [];
         foreach (explode(DIRECTORY_SEPARATOR, $path) as $segment) {
             if ($segment === '' || $segment === '.') {
@@ -810,7 +806,7 @@ class EtherFaxActions extends AppDispatch
 
     /**
      * Insert a sent fax into the queue for status tracking.
-     * TransactionType 0 = Sent, 1 = Received
+     * TransactionType 0 = Received, 1 = Sent
      *
      * @param object $faxStatus  The FaxStatus object returned from sendFax
      * @param string $dialNumber The destination fax number
@@ -889,8 +885,12 @@ class EtherFaxActions extends AppDispatch
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
         $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$id]);
+        if (empty($row)) {
+            error_log("Fax not found or corrupt: " . text($jobId));
+            return [];
+        }
         $detail = json_decode((string)$row['details_json']);
-        $detail->RecordId = $row['id'];
+        $detail->RecordId = $row['id'] ?? 0;
 
         return $detail;
     }

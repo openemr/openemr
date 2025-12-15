@@ -37,7 +37,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
-    <!--<script src="./public/WebPhoneService.js"></script>-->
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/utif2/UTIF.js"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -261,6 +261,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     setTimeout(retrieveMsgs, 1000);
                     return false;
                 }
+
                 if (downFlag == 'true') {
                     let base64 = data.base64;
                     if (data.mime === 'image/tiff' || data.mime === 'image/tif') {
@@ -269,6 +270,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     } else {
                         base64 = '';
                     }
+
                     fetch('disposeDocument?type=fax', {
                         method: 'POST',
                         headers: {
@@ -289,9 +291,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     }).catch(error => {
                         console.error('Error:', error);
                     });
-
                     return false;
                 }
+
                 if (data.mime === 'application/pdf') {
                     showDocument(data.base64, data.mime);
                 } else if (data.mime === 'image/tiff') {
