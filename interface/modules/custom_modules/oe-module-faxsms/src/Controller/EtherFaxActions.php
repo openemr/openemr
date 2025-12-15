@@ -676,7 +676,7 @@ class EtherFaxActions extends AppDispatch
     private function normalizePath(string $path): string
     {
         // If the path is relative, anchor it under allowed baseDir
-        if (!str_starts_with($path, DIRECTORY_SEPARATOR)) {
+        if (str_starts_with($path, DIRECTORY_SEPARATOR)) {
             $path = rtrim((string)$this->baseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
         }
         // Collapse .. and .
@@ -888,7 +888,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
-        $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? LIMIT 1", [$id]);
+        $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$id]);
         $detail = json_decode((string)$row['details_json']);
         $detail->RecordId = $row['id'];
 
