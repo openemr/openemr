@@ -11,7 +11,7 @@
     "oe-cqm-parsers": "openemr/oe-cqm-parsers#ecqm-v7.0.4",
     "regexp-clone": "1.0.0",
     "sliced": "1.0.1",
-    "winston": "3.0.0"
+    "winston": "3.19.0"
   },
   "deprecated": false,
   "license": "MIT",
