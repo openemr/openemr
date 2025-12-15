@@ -13,6 +13,8 @@ namespace OpenEMR\Core;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+use function array_key_exists;
+
 class OEGlobalsBag extends ParameterBag
 {
     private static ?OEGlobalsBag $instance = null;
@@ -48,7 +50,8 @@ class OEGlobalsBag extends ParameterBag
     {
         parent::set($key, $value);
 
-        // In compatibility mode, also set the value in the global $GLOBALS array
+        // Push the value into GLOBALS for backwards compatibility. Eventually
+        // this should be removed.
         $GLOBALS[$key] = $value;
     }
 
