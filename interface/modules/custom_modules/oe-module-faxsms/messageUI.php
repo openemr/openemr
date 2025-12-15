@@ -106,12 +106,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&isQueue=' +
                 encodeURIComponent(from) + '&file=' + encodeURIComponent(filePath);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 800, '', title, { // dialog auto restores session cookie
+            dlgopen(url, '', 'modal-sm', 500, '', title, { // dialog auto restores session cookie
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ],
                 resolvePromiseOn: 'close',
-                sizeHeight: 'full'
             }).then(function (contact) {
                 top.restoreSession();
             });
@@ -931,7 +930,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                                 <th><?php echo xlt("Caller Id") ?></th>
                                                 <th><?php echo xlt("To") ?></th>
                                                 <th><?php echo xlt("Pages") ?></th>
-                                                <th><?php echo xlt("Length") ?></th>
+                                                <th><?php echo xlt("Name") ?></th>
                                                 <th><?php echo xlt("Status") ?></th>
                                                 <th><?php echo xlt("Actions") ?></th>
                                                 <th><i role="button" id="delete-selected-sent" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
