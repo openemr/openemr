@@ -625,6 +625,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 function generate_id()
 {
     $database = $GLOBALS['adodb']['db'];
+    // @phpstan-ignore openemr.deprecatedSqlFunction
     return $database->GenID("sequences");
 }
 
@@ -894,5 +895,6 @@ function privQuery($sql, $params = null)
 function edi_generate_id()
 {
     $database = $GLOBALS['adodb']['db'];
+    // @phpstan-ignore openemr.deprecatedSqlFunction
     return $database->GenID("edi_sequences");
 }

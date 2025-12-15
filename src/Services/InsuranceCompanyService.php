@@ -344,7 +344,7 @@ class InsuranceCompanyService extends BaseService
         // I don't like actually inserting a raw id... yet if we don't allow for this
         // it makes it very hard for any kind of data import that needs to maintain the same id.
         if (empty($data["id"])) {
-            $data["id"] = generate_id();
+            $data["id"] = QueryUtils::generateId();
         }
         $freshId = $data['id'];
 

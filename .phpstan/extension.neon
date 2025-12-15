@@ -21,6 +21,9 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenFunctionsRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenMethodsRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenGlobalsAccessRule
   tags:
   - phpstan.rules.rule

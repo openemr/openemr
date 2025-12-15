@@ -21,6 +21,7 @@ require_once("$srcdir/gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 
 if ($_GET['file']) {
@@ -162,7 +163,7 @@ if ($_POST['form_save']) {
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
             } else {
-                $newid = generate_id();
+                $newid = QueryUtils::generateId();
                 $fsize = filesize($target);
                 $catid = (int) $_POST['form_category'];
                 // Update the database.

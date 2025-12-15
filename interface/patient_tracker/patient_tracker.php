@@ -978,15 +978,26 @@ function myLocalJS(): void
         /**
          * @return {boolean}
          */
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function SMS_bot(pid) {
             top.restoreSession();
             var from = <?php echo js_escape($from_date ?? ''); ?>;
             var to = <?php echo js_escape($to_date ?? ''); ?>;
             var oefrom = <?php echo js_escape(oeFormatShortDate($from_date ?? null)); ?>;
             var oeto = <?php echo js_escape(oeFormatShortDate($to_date ?? null)); ?>;
-            window.open('../main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&to=' + encodeURIComponent(to) + '&from=' + encodeURIComponent(from) + '&oeto=' + encodeURIComponent(oeto) + '&oefrom=' + encodeURIComponent(oefrom), 'SMS_bot', 'width=370,height=600,resizable=0');
+            const params = new URLSearchParams({
+                nomenu: '1',
+                go: 'SMS_bot',
+                pid: pid,
+                to: to,
+                from: from,
+                oeto: oeto,
+                oefrom: oefrom
+            });
+            window.open('../main/messages/messages.php?' + params.toString(), 'SMS_bot', 'width=370,height=600,resizable=0');
             return false;
         }
+        // AI-generated code end
 
         function kiosk_FLB() {
             $("#kiosk").val('1');

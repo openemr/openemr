@@ -466,11 +466,17 @@ function printlog_before_print() {
     divstyle.display = '';
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on Delete button.
 function deleteme() {
-    dlgopen('deleter.php?payment=' + <?php echo js_url($payment_key); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+    const params = new URLSearchParams({
+        payment: <?php echo js_escape($payment_key); ?>,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+    });
+    dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
     return false;
 }
+// AI-generated code end
 
 // Called by the deleteme.php window on a successful delete.
 function imdeleted() {
