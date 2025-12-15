@@ -73,4 +73,5 @@ class Database
     // private static function fromGlobals(array $globals): Database
     // {
     // }
+    public function c(): Connection { return $this->connection; }
 }

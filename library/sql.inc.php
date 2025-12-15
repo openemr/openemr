@@ -624,6 +624,10 @@ function HelpfulDie($statement, $sqlerr = ''): never
 */
 function generate_id()
 {
+    $db = \OpenEMR\BC\Database::instance();
+    $_ = $db->c()->executeStatement(sprintf('update %s set id=LAST_INSERT_ID(id+1)', 'sequences'));
+    return $db->c()->lastInsertId();
+
     $database = $GLOBALS['adodb']['db'];
     // @phpstan-ignore openemr.deprecatedSqlFunction
     return $database->GenID("sequences");
