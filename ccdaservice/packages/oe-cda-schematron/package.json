@@ -29,6 +29,6 @@
     "cqm-execution": "4.4.0",
     "cqm-models": "4.3.0",
     "express": "4.22.1",
-    "xpath": "0.0.23"
+    "xpath": "0.0.34"
   }
 }
