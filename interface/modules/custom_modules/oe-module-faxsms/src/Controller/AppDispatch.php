@@ -202,7 +202,7 @@ abstract class AppDispatch
      * This is where we decide which Api to use.
      *
      * @param string $type
-     * @return EtherFaxActions|TwilioSMSClient|RCFaxClient|ClickatellSMSClient|EmailClient|void|null
+     * @return EtherFaxActions|TwilioSMSClient|RCFaxClient|ClickatellSMSClient|EmailClient|SignalWireClient|void|null
      */
     static function getApiService(string $type)
     {
@@ -225,7 +225,7 @@ abstract class AppDispatch
      * @param string $type
      * @return void
      */
-    static function setApiService($type): void
+    static function setApiService(string $type): void
     {
         try {
             if (empty($type)) {
@@ -273,6 +273,8 @@ abstract class AppDispatch
                     break;
                 case 3:
                     return new EtherFaxActions();
+                case 6:
+                    return new SignalWireClient();
             }
         } elseif ($type == 'email') {
             switch ($s) {
@@ -396,7 +398,13 @@ abstract class AppDispatch
             $smsMessage = $this->getRequest('smsmessage');
             $smsHours = $this->getRequest('smshours');
             $jwt = $this->getRequest('jwt');
-            $setup = [
+            // SignalWire specific fields
+            $spaceUrl = $this->getRequest('space_url');
+            $projectId = $this->getRequest('project_id');
+            $apiToken = $this->getRequest('api_token');
+            $faxNumber = $this->formatPhoneForSave($this->getRequest('fax_number'));
+            
+            $setup = array(
                 'username' => "$username",
                 'extension' => "$ext",
                 'account' => $account,
@@ -412,7 +420,12 @@ abstract class AppDispatch
                 'smsHours' => $smsHours,
                 'smsMessage' => $smsMessage,
                 'jwt' => $jwt ?? '',
-            ];
+                // SignalWire credentials
+                'space_url' => $spaceUrl ?? '',
+                'project_id' => $projectId ?? '',
+                'api_token' => $apiToken ?? '',
+                'fax_number' => $faxNumber ?? '',
+            );
         }
 
         $vendor = self::getModuleVendor();
@@ -565,7 +578,13 @@ abstract class AppDispatch
                 'smsHours' => "50",
                 'smsMessage' => "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.",
                 'jwt' => '',
-            ];
+                // SignalWire fields
+                'space_url' => '',
+                'project_id' => '',
+                'api_token' => '',
+                'fax_number' => '',
+            );
+            return $credentials;
         } else {
             $credentials = $credentials['credentials'];
         }
@@ -597,7 +616,11 @@ abstract class AppDispatch
      */
     public function validEmail($email): bool
     {
-        return ValidationUtils::isValidEmail($email);
+        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -634,7 +657,11 @@ abstract class AppDispatch
                 $mail->MsgHTML(text($htmlContent));
                 $mail->IsHTML(true);
             }
-            $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+            if ($mail->Send()) {
+                $status = xlt("Email successfully sent.");
+            } else {
+                $status = xlt("Error: Email failed") . text($mail->ErrorInfo);
+            }
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $status = 'Error: ' . $message;
