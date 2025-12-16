@@ -7,109 +7,67 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-if (!extension_loaded("curl")) {
-    die("Curl extension is required");
-}
+// Code migrated from curl to Guzzle by GitHub Copilot AI
+
+use OpenEMR\Common\Http\GuzzleHttpClient;
 
 class MaviqClient
 {
+    private readonly GuzzleHttpClient $httpClient;
+
     public function __construct(protected $SiteId, protected $Token, protected $Endpoint)
     {
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $this->httpClient = new GuzzleHttpClient([
+            'verify' => $httpVerifySsl,
+        ]);
     }
 
     public function sendRequest($path, $method = "POST", $vars = [])
     {
-
         echo "Path: {$path}\n";
-
-        $encoded = "";
-        foreach ($vars as $key => $value) {
-            $encoded .= "$key=" . urlencode((string) $value) . "&";
-        }
-
-        $encoded = substr($encoded, 0, -1);
-        $tmpfile = "";
-        $fp = null;
 
         // construct full url
         $url = "{$this->Endpoint}/$path";
-
         echo "Url: {$url}\n";
 
-        // if GET and vars, append them
-        if ($method == "GET") {
-            $url .= (!str_contains((string) $path, '?') ? "?" : "&") . $encoded;
-        }
+        $options = [
+            'auth' => [$this->SiteId, $this->Token],
+        ];
 
-        // initialize a new curl object
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         switch (strtoupper((string) $method)) {
             case "GET":
-                curl_setopt($curl, CURLOPT_HTTPGET, true);
+                if (!empty($vars)) {
+                    $options['query'] = $vars;
+                }
+                $httpResponse = $this->httpClient->get($url, $options);
                 break;
             case "POST":
-                curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
+                $options['form_params'] = $vars;
+                $httpResponse = $this->httpClient->post($url, $options);
                 break;
             case "PUT":
-                // curl_setopt($curl, CURLOPT_PUT, TRUE);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                file_put_contents(
-                    $tmpfile = tempnam("/tmp", "put_"),
-                    $encoded
-                );
-                curl_setopt($curl, CURLOPT_INFILE, $fp = fopen(
-                    $tmpfile,
-                    'r'
-                ));
-                curl_setopt(
-                    $curl,
-                    CURLOPT_INFILESIZE,
-                    filesize($tmpfile)
-                );
+                $options['form_params'] = $vars;
+                $httpResponse = $this->httpClient->put($url, $options);
                 break;
             case "DELETE":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+                $httpResponse = $this->httpClient->delete($url, $options);
                 break;
             default:
                 throw(new Exception("Unknown method $method"));
-                break;
         }
 
-        // send credentials
-        curl_setopt(
-            $curl,
-            CURLOPT_USERPWD,
-            $pwd = "{$this->SiteId}:{$this->Token}"
-        );
-
-        // do the request. If FALSE, then an exception occurred
-        if (false === ($result = curl_exec($curl))) {
+        // Check for errors
+        if ($httpResponse->hasError()) {
             throw(new Exception(
-                "Curl failed with error " . curl_error($curl)
+                "HTTP request failed with error: " . ($httpResponse->getError() ?? 'Unknown error')
             ));
         }
 
-        // get result code
-        $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        // unlink tmpfiles
-        if ($fp) {
-            fclose($fp);
-        }
-
-        if (strlen($tmpfile)) {
-            unlink($tmpfile);
-        }
-
-        return new RestResponse($url, $result, $responseCode);
+        return new RestResponse($url, $httpResponse->getBody(), $httpResponse->getStatusCode());
     }
 }
+// End of AI-generated code
 
 class RestResponse
 {

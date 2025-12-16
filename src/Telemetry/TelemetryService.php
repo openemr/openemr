@@ -11,6 +11,7 @@
 namespace OpenEMR\Telemetry;
 
 use OpenEMR\Common\Database\DatabaseQueryTrait;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionServiceInterface;
@@ -28,15 +29,28 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
 
+    protected TelemetryRepository $repository;
+    protected VersionServiceInterface $versionService;
+    protected SystemLogger $logger;
+    protected GuzzleHttpClient $httpClient;
+
     /**
      * TelemetryService constructor.
      *
      * @param ?TelemetryRepository $repository
      * @param ?VersionServiceInterface $versionService
      * @param ?SystemLogger $logger
+     * @param ?GuzzleHttpClient $httpClient
      */
-    public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?SystemLogger $logger = new SystemLogger())
+    public function __construct(?TelemetryRepository $repository = null, ?VersionServiceInterface $versionService = null, ?SystemLogger $logger = null, ?GuzzleHttpClient $httpClient = null)
     {
+        $this->repository = $repository ?? new TelemetryRepository();
+        $this->versionService = $versionService ?? new VersionService();
+        $this->logger = $logger ?? new SystemLogger();
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $this->httpClient = $httpClient ?? new GuzzleHttpClient([
+            'verify' => $httpVerifySsl,
+        ]);
     }
 
     /**
@@ -238,7 +252,8 @@ class TelemetryService
     }
 
     /**
-     * A stubbable wrapper around cURL operations.
+     * A stubbable wrapper around HTTP operations.
+     * Code migrated from curl to Guzzle by GitHub Copilot AI
      *
      * @codeCoverageIgnore
      *
@@ -248,27 +263,19 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Content-Length: " . strlen($payload)
+        $httpResponse = $this->httpClient->post($endpoint, [
+            'body' => $payload,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Content-Length' => strlen($payload)
+            ]
         ]);
 
-        $response = curl_exec($ch);
-        $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_errno($ch) ? curl_error($ch) : null;
-        curl_close($ch);
-
         return [
-            'response' => $response,
-            'httpStatus' => $httpStatus,
-            'error' => $error
+            'response' => $httpResponse->getBody(),
+            'httpStatus' => $httpResponse->getStatusCode(),
+            'error' => $httpResponse->getError()
         ];
     }
+    // End of AI-generated code
 }

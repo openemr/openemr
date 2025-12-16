@@ -15,6 +15,7 @@ namespace OpenEMR\Services\Cda;
 use CURLFile;
 use DOMDocument;
 use Exception;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -23,8 +24,9 @@ class CdaValidateDocuments
 {
     public $externalValidatorUrl;
     public $externalValidatorEnabled;
+    private GuzzleHttpClient $httpClient;
 
-    public function __construct()
+    public function __construct(?GuzzleHttpClient $httpClient = null)
     {
         $this->externalValidatorEnabled = !empty($GLOBALS['mdht_conformance_server_enable'] ?? false);
         if (empty($GLOBALS['mdht_conformance_server'])) {
@@ -40,6 +42,10 @@ class CdaValidateDocuments
 
             $this->externalValidatorUrl .= 'referenceccdaservice/';
         }
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $this->httpClient = $httpClient ?? new GuzzleHttpClient([
+            'verify' => $httpVerifySsl,
+        ]);
     }
 
     /**
@@ -152,39 +158,34 @@ class CdaValidateDocuments
      * @param $type
      * @return mixed|null
      * @throws Exception
+     * Code migrated from curl to Guzzle by GitHub Copilot AI
      */
     private function schematronValidateDocument($xml, $type = 'ccda')
     {
         $service = $this->startValidationService();
         $reply = [];
-        $headers = [
-            "Content-Type: application/xml",
-            "Accept: application/json",
-        ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://127.0.0.1?type=' . attr_url($type));
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_PORT, 6662);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        $response = curl_exec($ch);
-        curl_close($ch);
 
-        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        if ($status == '200') {
-            $reply = json_decode($response, true);
+        $httpResponse = $this->httpClient->post('http://127.0.0.1:6662/?type=' . attr_url($type), [
+            'body' => $xml,
+            'headers' => [
+                'Content-Type' => 'application/xml',
+                'Accept' => 'application/json',
+            ],
+            'connect_timeout' => 10,
+        ]);
+
+        if ($httpResponse->getStatusCode() == 200) {
+            $reply = json_decode($httpResponse->getBody(), true);
         }
 
         return $reply;
     }
+    // End of AI-generated code
 
     /**
      * @param $xml
      * @return array|mixed
+     * Code migrated from curl to Guzzle by GitHub Copilot AI
      */
     private function ettValidateDocumentRequest($xml)
     {
@@ -193,54 +194,74 @@ class CdaValidateDocuments
             return $reply;
         }
 
-        $headers = [
-            "Content-Type: multipart/form-data",
-            "Accept: application/json",
-        ];
         $post_url = $this->externalValidatorUrl;
         // I know there's a better way to do this but, not seeing it just now.
         $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
         file_put_contents($post_file, $xml);
-        $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
 
-        $post_this = [
-            'validationObjective' => 'C-CDA_IG_Plus_Vocab',
-            'referenceFileName' => 'noscenariofile',
-            'vocabularyConfig' => 'ccdaReferenceValidatorConfig',
-            'severityLevel' => 'ERROR',
-            'curesUpdate' => true,
-            'ccdaFile' => $file
-        ];
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_this);
+        // Open file handle to be managed by Guzzle
+        $fileHandle = fopen($post_file, 'r');
+        if ($fileHandle === false) {
+            $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
+            $reply['ccdaValidationResults'][] = [
+                'description' => xlt('Failed to open file for upload')
+            ];
+            return $reply;
+        }
 
-        $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        if (empty($response) || $status !== '200') {
+        $httpResponse = $this->httpClient->post($post_url, [
+            'multipart' => [
+                [
+                    'name' => 'validationObjective',
+                    'contents' => 'C-CDA_IG_Plus_Vocab'
+                ],
+                [
+                    'name' => 'referenceFileName',
+                    'contents' => 'noscenariofile'
+                ],
+                [
+                    'name' => 'vocabularyConfig',
+                    'contents' => 'ccdaReferenceValidatorConfig'
+                ],
+                [
+                    'name' => 'severityLevel',
+                    'contents' => 'ERROR'
+                ],
+                [
+                    'name' => 'curesUpdate',
+                    'contents' => 'true'
+                ],
+                [
+                    'name' => 'ccdaFile',
+                    'contents' => $fileHandle,
+                    'filename' => 'ccda.xml',
+                    'headers' => ['Content-Type' => 'application/xhtml+xml']
+                ]
+            ],
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'connect_timeout' => 10,
+        ]);
+
+        $status = $httpResponse->getStatusCode();
+        $response = $httpResponse->getBody();
+        
+        if (empty($response) || $status !== 200) {
             $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
             $reply['ccdaValidationResults'][] = [
                 'description' => xlt('Validation Request failed') .
-                    ': Error ' . (curl_error($ch) ?: xlt('Unknown')) . ' ' .
+                    ': Error ' . ($httpResponse->getError() ?: xlt('Unknown')) . ' ' .
                     xlt('Request Status') . ':' . $status
             ];
         }
-        curl_close($ch);
-        if ($status == '200') {
+        if ($status == 200) {
             $reply = json_decode($response, true);
         }
 
         return $reply;
     }
+    // End of AI-generated code
 
     /**
      * @param $document

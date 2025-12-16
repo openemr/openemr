@@ -11,6 +11,7 @@
 namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 
 class AuthorizationService
 {
@@ -207,22 +208,18 @@ class AuthorizationService
 
     public static function registration($clinic): bool|string
     {
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.affordablecustomehr.com/register.php',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => ["name" => $clinic['name'],"phone" => $clinic['phone'],"email" => $clinic['email']],
+        // Code migrated from curl to Guzzle by GitHub Copilot AI
+        $httpClient = new GuzzleHttpClient();
+        $httpResponse = $httpClient->post('https://api.affordablecustomehr.com/register.php', [
+            'form_params' => [
+                "name" => $clinic['name'],
+                "phone" => $clinic['phone'],
+                "email" => $clinic['email']
+            ],
+            'allow_redirects' => ['max' => 10],
         ]);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-        return $response;
+        // End of AI-generated code
+        return $httpResponse->getBody();
     }
 
     public static function insuranceName($pid): string

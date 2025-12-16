@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Http\GuzzleHttpClient;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class LogProperties
@@ -179,15 +180,17 @@ class LogProperties
 
         $wenoLog->insertWenoLog("Sync Report", "Sent a Sync Request", $urlOut);
 
-        $ch = curl_init($urlOut);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 200);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $rpt = curl_exec($ch);
-        if (curl_errno($ch)) {
-            throw new Exception(curl_error($ch));
+        // Code migrated from curl to Guzzle by GitHub Copilot AI
+        $httpClient = new GuzzleHttpClient();
+        $httpResponse = $httpClient->get($urlOut, [
+            'timeout' => 200,
+        ]);
+        if ($httpResponse->hasError()) {
+            throw new Exception($httpResponse->getError());
         }
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $statusCode = $httpResponse->getStatusCode();
+        $rpt = $httpResponse->getBody();
+        // End of AI-generated code
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
             $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
