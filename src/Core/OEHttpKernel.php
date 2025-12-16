@@ -18,7 +18,7 @@ class OEHttpKernel extends HttpKernel
     public function __construct(EventDispatcherInterface $dispatcher, ControllerResolverInterface $resolver, ?RequestStack $requestStack = null, ?ArgumentResolverInterface $argumentResolver = null, bool $handleAllThrowables = false)
     {
         parent::__construct($dispatcher, $resolver, $requestStack, $argumentResolver, $handleAllThrowables);
-        $this->globalsBag = new OEGlobalsBag([], true); // set compatibility mode to true until we can get rid of it
+        $this->globalsBag = new OEGlobalsBag([]);
     }
 
     public function getGlobalsBag(): OEGlobalsBag
