@@ -544,7 +544,7 @@ function renderProfileHtml(): void
             Header::setupHeader(['opener', 'sortablejs']);
         } else {
             Header::setupHeader(['opener']); ?>
-            <script src="<?php echo $globalsBag->get('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
+            <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
         <?php } ?>
     </head>
     <style>

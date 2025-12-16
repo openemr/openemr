@@ -422,7 +422,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     ?>
 
     <title><?php echo xlt('Receipt for Payment'); ?></title>
-    <script src="<?php echo $globalsBag->get('assets_static_relative'); ?>/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery/dist/jquery.min.js"></script>
     <script>
 
         function goHome() {
@@ -527,8 +527,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             font-weight: normal
         }
     </style>
-    <script src="<?php echo $globalsBag->get('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
-    <script src="<?php echo $globalsBag->get('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+    <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -871,7 +871,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             let extra = "&inv_values=" + inv_values + "&extra_values=" + extra_values;
 
             let flag = 0
-            let liburl = '<?php echo $globalsBag->get("webroot") ?>/portal/lib/paylib.php';
+            let liburl = '<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php';
             $.ajax({
                 type: "POST",
                 url: liburl,
@@ -933,7 +933,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <body class="skin-blue" onunload='imclosing()' onLoad="cursor_pointer();"
           style="text-align: center; margin: auto;">
 
-    <form id="invoiceForm" method='post' action='<?php echo $globalsBag->get("webroot") ?>/portal/portal_payment.php'>
+    <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
         <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
@@ -1303,7 +1303,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 </div>
                 <div class="modal-body">
                     <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
-                    <form id='paymentForm' method='post' action='<?php echo $globalsBag->get("webroot") ?>/portal/lib/paylib.php'>
+                    <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"

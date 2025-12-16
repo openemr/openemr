@@ -23,7 +23,17 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 //setting the session & other config options
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\LogoService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 //  Need access to classes, so run autoloader now instead of in globals.php.
@@ -36,24 +46,12 @@ SessionUtil::portalSessionStart();
 $ignoreAuth_onsite_portal = true;
 
 //includes
-
 require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
-use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
-use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\LogoService;
-
 //For redirect if the site on session does not match
-$landingpage = $globalsBag->get('web_root') . "/portal/index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = $globalsBag->getString('web_root') . "/portal/index.php?site=" . urlencode((string) $_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
@@ -107,7 +105,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         CsrfUtils::setupCsrfKey();
         $twig = new TwigContainer(null, $globalsBag->get('kernel'));
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
-            'action' => $globalsBag->get('web_root') . '/portal/index.php',
+            'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],
             'target' => $_GET['target'] ?? null,
             'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),

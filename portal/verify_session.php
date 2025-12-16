@@ -27,15 +27,12 @@
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Core\OEGlobalsBag;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
-$globalsBag = OEGlobalsBag::getInstance(true);
-$globalsBag->set('already_autoloaded', true);
-
 SessionUtil::portalSessionStart();
 
 // Landing page definition -- where to go if something goes wrong

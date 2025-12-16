@@ -37,8 +37,8 @@ $globalsBag = OEGlobalsBag::getInstance(true);
 $globalsBag->set('already_autoloaded', true);
 
 require_once('verify_session.php');
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
@@ -102,7 +102,7 @@ foreach ($msgs as $i) {
 /*if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }*/
-$messagesURL = $globalsBag->get('web_root') . '/portal/messaging/messages.php';
+$messagesURL = "{$globalsBag->getString('web_root')}/portal/messaging/messages.php";
 
 $isEasyPro = $globalsBag->get('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
 
@@ -240,7 +240,7 @@ function buildNav($newcnt, $pid, $result): array
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
-                    'url' => $globalsBag->get('web_root') . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
+                    'url' => $globalsBag->getString('web_root') . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
                     'label' => xl('Forms and Documents'),
                     'icon' => 'fa-file',
                 ],

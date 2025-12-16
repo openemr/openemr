@@ -55,7 +55,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth_onsite_portal = true;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
@@ -412,7 +412,7 @@ if ($_REQUEST['providerid']) {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($globalsBag->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
