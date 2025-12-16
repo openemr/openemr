@@ -1802,7 +1802,7 @@ parameters:
       path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php
     - message: '#^Use QueryUtils\:\:sqlInsert\(\) instead of sqlInsert\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
-      count: 1
+      count: 2
       path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
