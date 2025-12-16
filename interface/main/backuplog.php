@@ -20,6 +20,10 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
+if (!isset($argv[1])) {
+    throw new RuntimeException("At least one argument is required");
+}
+
 require_once("$argv[1]/library/sqlconf.php");
 $backuptime = date("Ymd_His");
 $BACKUP_EVENTLOG_DIR = $argv[2] . "/emr_eventlog_backup";
