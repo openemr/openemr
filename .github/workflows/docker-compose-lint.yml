@@ -31,14 +31,11 @@ jobs:
   dclint:
     name: Docker Compose Linting
     runs-on: ubuntu-latest
+    container:
+      image: zavoloklom/dclint:3.1.0
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
-    
-    - name: Install Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '22'
     
     - name: Get changed docker compose files
       id: changed-files
@@ -72,9 +69,9 @@ jobs:
     - name: Run dclint on changed files
       if: steps.files-to-check.outputs.mode == 'files'
       run: |
-        npx dclint@3.1.0 -- --exclude .github ${{ steps.files-to-check.outputs.files }}
+        dclint --exclude .github ${{ steps.files-to-check.outputs.files }}
     
     - name: Run dclint recursively
       if: steps.files-to-check.outputs.mode == 'recursive'
       run: |
-        npx dclint@3.1.0 -- --exclude .github --recursive ci/ docker/
+        dclint --exclude .github --recursive ci/ docker/
