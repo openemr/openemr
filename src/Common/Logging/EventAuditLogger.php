@@ -719,14 +719,15 @@ MSG;
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $sql = "update extended_log set
-                event=" . $adodb->qstr($event) . ",
-                date=" .  $adodb->qstr($dates) . ",
-                recipient=" . $adodb->qstr($recipient) . ",
-                description=" . $adodb->qstr($description) . "
-                where id=" . $adodb->qstr($disclosure_id) . "";
-        sqlInsertClean_audit($sql);
+        $sql = 'UPDATE extended_log SET event = ?, date = ?, recipient = ?, description = ? WHERE id = ?';
+        $values = [
+            $event,
+            $dates,
+            $recipient,
+            $description,
+            $disclosure_id,
+        ];
+        sqlInsertClean_audit($sql, $values);
     }
 
     /**
