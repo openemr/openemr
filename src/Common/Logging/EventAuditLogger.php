@@ -692,13 +692,17 @@ MSG;
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
-            "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
-            "," . $adodb->qstr($recipient) . "," .
-            $adodb->qstr($pid) . "," .
-            $adodb->qstr($description) . ")";
-        sqlInsertClean_audit($sql);
+        $sql = "INSERT INTO extended_log ( date, event, user, recipient, patient_id, description) " .
+            "VALUES (?, ?, ?, ?, ?, ?)";
+        $values = [
+            $dates,
+            $event,
+            $user,
+            $recipient,
+            $pid,
+            $description,
+        ];
+        sqlInsertClean_audit($sql, $values);
     }
 
     /**
