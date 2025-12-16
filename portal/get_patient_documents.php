@@ -32,8 +32,8 @@ require_once("./verify_session.php");
 /**
  * @Global $srcdir openemr src folder, setup during verify_session.php
  */
-require_once("$srcdir/documents.php");
-require_once($globalsBag->get('fileroot') . "/controllers/C_Document.class.php");
+require_once("{$globalsBag->getString('srcdir')}/documents.php");
+require_once($globalsBag->getString('fileroot') . "/controllers/C_Document.class.php");
 
 
 

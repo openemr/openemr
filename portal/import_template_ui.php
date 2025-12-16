@@ -196,7 +196,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($globalsBag->get('srcdir') . '/js/xl/select2.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();

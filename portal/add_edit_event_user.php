@@ -45,9 +45,9 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/appointments.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/forms.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/appointments.inc.php");
 
 use OpenEMR\Services\AppointmentService;
 
