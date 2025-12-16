@@ -702,7 +702,7 @@
 -  eye form view.php shorthand icons are position incorrectly in 7.0. ([#6831](https://github.com/openemr/openemr/pull/6831))
 -  fix none issue mechanism in the patient summary screen ([#6861](https://github.com/openemr/openemr/pull/6861))
 -  fix none mechanism in issues gui ([#6860](https://github.com/openemr/openemr/pull/6860))
--  fix parsing of allergy and medication responses from NewCrop, prevent sending diagnosis other than ICD10 to NewCrop ([#6912](https://github.com/openemr/openemr/pull/6912))
+-  fix parsing of allergy and medication responses from Ensora, prevent sending diagnosis other than ICD10 to Ensora ([#6912](https://github.com/openemr/openemr/pull/6912))
 -  fix several clinical_notes form fixes ([#6811](https://github.com/openemr/openemr/pull/6811))
 -  fix solar nav background, set default theme if missing in globals, add portal theme to global settings. ([#6536](https://github.com/openemr/openemr/pull/6536))
 -  fix static domain included in URL for patient portal onsite documents. ([#6829](https://github.com/openemr/openemr/pull/6829))

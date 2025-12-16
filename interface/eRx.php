@@ -75,7 +75,7 @@ if (count($missingExtensions) > 0) {
                 echo '<li>' . text($message) . '</li>';
             } ?>
         <ul>
-        <p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to NewCrop again.'); ?></p>
+        <p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to Ensora again.'); ?></p>
         <?php
 
         ob_end_flush();
@@ -121,7 +121,7 @@ if (count($missingExtensions) > 0) {
 
         if (count($errors) > 0) {
             ?>
-        <strong><?php echo xlt('NewCrop call failed'); ?></strong>
+        <strong><?php echo xlt('Ensora call failed'); ?></strong>
         <ul>
             <?php foreach ($errors as $message) {
                 echo '<li>' . text($message) . '</li>';

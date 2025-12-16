@@ -100,7 +100,7 @@ Accept Assignment
 Accept Credit Card transactions from Front Payments
 Accept Payment
 Accept Payment for
-Accept Payment for 
+Accept Payment for
 Accepts Assignment
 Access can be given to other groups by editing User Memberships or Groups and Access Controls in Administration > ACL
 Access Control
@@ -120,13 +120,13 @@ Access Your Patient Portal
 Accident
 Account
 Account Id
-Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.
+Account Id issued for Ensora eRx service, used to separate multi-facility accounts.
 Account Id issued for Weno eRx service.
 Account Id issued for Your clinics eRx service.
 Account is validated. Send new credentials?
 Account Name
-Account Name issued for NewCrop eRx service.
-Account Password issued for NewCrop eRx service.
+Account Name issued for Ensora eRx service.
+Account Password issued for Ensora eRx service.
 Account Registration
 Accounting
 Accounting (acct)
@@ -215,7 +215,7 @@ Add a note to the biller
 Add a Pharmacy
 Add all needed providers in a similar manner
 Add all rules to plan
-add an event for 
+add an event for
 Add as a new message
 Add as a new note
 Add as New
@@ -256,7 +256,7 @@ Add modifiers for this field type. You may select more than one.
 Add More Items
 Add New
 Add new
-Add new category : 
+Add new category :
 Add new certificates to the Apache configuration file
 Add New Component
 Add New Components
@@ -335,7 +335,7 @@ Additional Notes
 Additional Notes field is for local use in openEMR
 Additional notes for this result or recommendation
 Additional Notes:
-Additional Notes: 
+Additional Notes:
 additional scopes
 Additional X-RAY Notes:
 Additionally, the corresponding US Snomed Extension Package can be imported separately after installing the International (English version) Snomed Release
@@ -379,7 +379,7 @@ Adjustment Reasons
 Adjustment type is required for each line with an adjustment.
 Adjustment type is required for every line item.
 Adjustment value for code
-Adjustment value for code 
+Adjustment value for code
 Adjustment, Consumption, Return, or Edit
 Adjustments
 Adjustments at Checkout
@@ -698,7 +698,7 @@ Analyzed
 and
 And
 AND
-and 
+and
 and all subordinate data? This action will be logged
 and modifier
 and processed.
@@ -1053,7 +1053,7 @@ AVM Confirmed
 AVM OK
 Avulsion / avulsion fracture
 Avulsion lateral malleolus
-Avulsion medial malleolus 
+Avulsion medial malleolus
 Awareness-Based
 Axial Length
 Axillary
@@ -1209,14 +1209,14 @@ Billing Log Overwrite
 Billing log setting to append or overwrite the log file.
 Billing Manager
 Billing Note
-Billing Note for 
+Billing Note for
 Billing Note:
 Billing queue results
 Billing queue results:
 Billing Report
 Billing Status
 Billing Status = Unbilled
-billing to 
+billing to
 Billing View
 Binocular Pupillary Diameter - Distance
 Binocular Pupillary Diameter - Near
@@ -1269,11 +1269,11 @@ Bottom
 Bottom Margin (px)
 Box 10 - This information indicates whether the patient’s illness or injury is related to employment, auto accident, or other accident
 Box 10 A. Employment related
-BOX 10 A. Employment related 
+BOX 10 A. Employment related
 Box 10 B. Auto Accident
-BOX 10 B. Auto Accident 
+BOX 10 B. Auto Accident
 Box 10 C. Other Accident
-BOX 10 C. Other Accident 
+BOX 10 C. Other Accident
 Box 10 D - Is used to submit the Early and Periodic Screening, Diagnosis and Treatment (EPSDT) Referral Code
 Box 10 D. EPSDT Referral Code
 BOX 10 D. EPSDT Referral Code
@@ -1309,23 +1309,23 @@ Box 17. Provider:
 Box 18 - The “Hospitalization Dates Related to Current Services” would refer to an inpatient stay and indicates the admission and discharge dates associated with the service(s) on the claim
 Box 18. Hospitalization date from
 BOX 18. Hospitalization date from
-BOX 18. Hospitalization date from (yyyy-mm-dd): 
+BOX 18. Hospitalization date from (yyyy-mm-dd):
 Box 18. Hospitalization date from:
 Box 18. Hospitalization date to
 BOX 18. Hospitalization date to
-BOX 18. Hospitalization date to (yyyy-mm-dd): 
+BOX 18. Hospitalization date to (yyyy-mm-dd):
 Box 18. Hospitalization date to:
 Box 20 - Indicates that services have been rendered by an independent provider as indicated in Box 32 (Service Facility Location Information) and the related costs
 Box 20. Is Outside Lab used?
 BOX 20. Is Outside Lab used?
 Box 22 - Medicaid Resubmission Code and Original Reference Number is the code and original reference number assigned by the destination payer or receiver to indicate a previously submitted claim or encounter
 Box 22. Medicaid Resubmission Code (ICD-10)
-Box 22. Medicaid Resubmission Code (ICD-9) 
-BOX 22. Medicaid Resubmission Code (ICD-9) 
+Box 22. Medicaid Resubmission Code (ICD-9)
+BOX 22. Medicaid Resubmission Code (ICD-9)
 Box 23 - Prior Authorization Number is the payer assigned number authorizing the service(s)
 Box 23. Prior Authorization No.
-Box 23. Prior Authorization No. 
-BOX 23. Prior Authorization No. 
+Box 23. Prior Authorization No.
+BOX 23. Prior Authorization No.
 BP
 BP Diastolic
 BP Systolic
@@ -1447,16 +1447,16 @@ Cannot create file
 Cannot delete (from SFTP server) file
 Cannot delete file
 Cannot determine a destination filename
-Cannot find 
+Cannot find
 Cannot find a destination filename
 Cannot find a skip source field for
 Cannot find a skip target field for
 Cannot find patient from SQL-Ledger customer id
-Cannot find postscript document reference in 
-Cannot find provider from SQL-Ledger employee = 
+Cannot find postscript document reference in
+Cannot find provider from SQL-Ledger employee =
 Cannot Modify Payments.Undistributed is Negative.
 Cannot open
-Cannot open 
+Cannot open
 Cannot Post for Insurance.The Paying Entity selected is Patient.
 Cannot Post for Patient.The Paying Entity selected is Insurance.
 Cannot Post Payments.Undistributed is Negative.
@@ -1505,7 +1505,7 @@ Categories
 Categories for
 Category
 category
-Category 
+Category
 Category - Order, Result and Recommendation need an identifying code
 Category changed.
 Category Color Schema
@@ -1745,14 +1745,14 @@ City, State, ZIP
 City,St,Zip
 City/State
 Claim
-Claim 
+Claim
 Claim Edit
 Claim File Tracker
 Claim Status
 Claim test has completed running
 Claim Type
 Claim was generated to file
-Claim was generated to file 
+Claim was generated to file
 Claims
 claims selected.
 Class
@@ -2268,8 +2268,8 @@ Contact Lens Refraction
 Contact Lenses
 Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.
 Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service
-Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.
-Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.
+Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the Ensora eRx service.
+Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the Ensora eRx service.
 Contact name
 Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.
 Contact or Notify Phone
@@ -2362,7 +2362,7 @@ CouchDB UserName
 Cough
 Cough:
 could not connect to server
-Could not create directory for X12 partner 
+Could not create directory for X12 partner
 Could not find RxNorm Table! Please install.
 Could not import the document. Please contact the EMR vendor.
 could not install ACL
@@ -2370,13 +2370,13 @@ could not open table
 Could not read file
 Could not read the file
 could not run sql query
-Could not send email due to a server problem, 
+Could not send email due to a server problem,
 Could not send email due to a server problem.
-Could not send email due to a server problem. 
+Could not send email due to a server problem.
 Couldn't create backup dir:
 Couldn't remove dir:
 Couldn't remove old backup file:
-Couldn't remove old export file: 
+Couldn't remove old export file:
 Coumadin Management - INR Monitoring
 Couns by Method
 Counseling
@@ -2461,7 +2461,7 @@ Created
 Created Definitions
 Created Definitions List
 Creates a report that contains various sections of the patient's medical record
-Creating a Custom Favorite Group to order frequently ordered tests together 
+Creating a Custom Favorite Group to order frequently ordered tests together
 Creating a Custom Group of Tests as Favorites
 CREATING A NEW DATED REMINDER
 CREATING A NEW MESSAGE
@@ -2556,7 +2556,7 @@ Custodian
 Custom
 Custom Billing Phone Number
 Custom Checkout Receipt
-Custom Favorite Group - to group individual tests 
+Custom Favorite Group - to group individual tests
 Custom Favorite Group > Custom Favorite Item > Discrete results
 Custom Favorite Group and Custom Favorite Item is used to create customized groups of orders
 Custom Favorite Item  - for individual orders or tests
@@ -2649,7 +2649,7 @@ Date format for "not seen since" is not valid
 Date format for "seen before" is not valid
 Date format for "seen since" is not valid
 Date Immunization Information Statements Given
-Date is missing for code 
+Date is missing for code
 Date Master Criteria
 Date of appointments
 Date of appointments mm/dd/yyyy
@@ -2788,7 +2788,7 @@ Default Method
 Default Password Expiration Days
 Default password expiration period in days. 0 means this feature is disabled.
 Default Patient Country
-Default Patient Country sent to NewCrop eRx, only if patient country is not set.
+Default Patient Country sent to Ensora eRx, only if patient country is not set.
 Default Patient Templates
 Default Price Level
 Default Priority
@@ -2829,7 +2829,7 @@ del
 Delayed Recurrence (> 12 Mo)
 Delete
 delete
-Delete Categories with ID(s) : 
+Delete Categories with ID(s) :
 Delete Category
 Delete Document
 Delete Encounter Form
@@ -2887,7 +2887,7 @@ Dependency Modules
 Dependency Problem
 Depending on the level of access you can View/Edit the Transaction
 Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.
-Depending on whether or not NewCrop eRx module is enabled the method of entry will vary
+Depending on whether or not Ensora eRx module is enabled the method of entry will vary
 Deposit Date
 Deposit Date Cannot be greater than Today
 Deposit Date:
@@ -2956,7 +2956,7 @@ Diagnosis Reporting
 Diagnosis Reporting Only
 Diagnosis Title
 Diagnosis:
-Diagnosis: 
+Diagnosis:
 Diagnostic
 Diagnostic Tests:
 Diagnostics
@@ -2968,7 +2968,7 @@ Diarrhea
 Diastolic
 Dicom Viewer
 Dictation
-Dictation: 
+Dictation:
 Did you receive a copy of the HIPAA Notice?
 Difference
 Difficulty working etc.
@@ -3120,12 +3120,12 @@ Dizziness:
 Do not allow insurance eligibility report log download
 Do not allow SQL queries to be outputted to screen.
 Do not change
-Do not display Allergies uploaded after visiting NewCrop eRx.
-Do not display Allergy uploaded to NewCrop
-Do not display Medications uploaded after visiting NewCrop eRx.
-Do not display Medications uploaded to NewCrop
-Do not display NewCrop eRx Allergy uploaded
-Do not display NewCrop eRx Medications uploaded
+Do not display Allergies uploaded after visiting Ensora eRx.
+Do not display Allergy uploaded to Ensora
+Do not display Medications uploaded after visiting Ensora eRx.
+Do not display Medications uploaded to Ensora
+Do not display Ensora eRx Allergy uploaded
+Do not display Ensora eRx Medications uploaded
 Do not display the calendar.
 Do not display the patient flow board.
 Do not display the Recall Board.
@@ -3432,7 +3432,7 @@ Editing failed
 Education
 Education Date
 Educational materials for
-ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 
+ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free
 Effective Date
 Effective Dates
 Effectiveness
@@ -3582,8 +3582,8 @@ Enable Google Sign-In
 Enable Group Therapy
 Enable Help Modal
 Enable Hylafax Support
-Enable import status message after visiting NewCrop eRx.
-Enable import status message for NewCrop erx
+Enable import status message after visiting Ensora eRx.
+Enable import status message for Ensora erx
 Enable Itemization of AMC Reports
 Enable Itemization of CQM Reports
 Enable Itemization of Standard Clinical Rules Reports
@@ -3599,9 +3599,9 @@ Enable logging of patient record modifications.
 Enable logging of scheduling activities.
 Enable logging of security and administration activities.
 Enable MedEx Communication Service
-Enable NewCrop eRx import status message
-Enable NewCrop eRx Service
-Enable NewCrop eRx Service.
+Enable Ensora eRx import status message
+Enable Ensora eRx Service
+Enable Ensora eRx Service.
 Enable OAuth2 Password Grant (Not considered secure)
 Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.
 Enable Office Ally Insurance Eligibility
@@ -3664,7 +3664,7 @@ Enc#
 Encnter
 Encounter
 encounter
-Encounter 
+Encounter
 encounter acute inpatient or ED
 Encounter Balance
 Encounter Billing Note
@@ -3719,7 +3719,7 @@ Encryption
 Encryption key issued by Weno eRx service.
 Encryption Pass Phrase
 End
-End (yyyy-mm-dd): 
+End (yyyy-mm-dd):
 End Date
 End date
 End Date From
@@ -3751,7 +3751,7 @@ Enforce E-Mail in Portal Log On Dialog
 Engineer
 Engineering Firm
 English
-English 
+English
 English (Australian)
 English (Indian)
 English (Standard)
@@ -3885,7 +3885,7 @@ Error in "HIPAA" selection
 Error in "Process" selection
 Error in "SMS Gateway" selection
 Error in "Sort By" selection
-Error in gzip compression of file: 
+Error in gzip compression of file:
 Error in YES or NO option
 Error Message
 ERROR Missing Patient ID
@@ -4064,7 +4064,7 @@ Expand All Document Categories by Default
 Expand Form
 Expand/Collapse this form
 Expanded View
-Expected form_encounter.pid to be 
+Expected form_encounter.pid to be
 Expiration
 Expiration Date
 Expired
@@ -4269,7 +4269,7 @@ Field not suitable for edit option M
 Field type to use for employer or subscriber country in demographics.
 Field type to use for employer or subscriber state in demographics.
 Field(s) are missing!
-FIELD: Text(.a); 
+FIELD: Text(.a);
 Fields in This Form
 Fields{{visual fields}}
 Fifth account message
@@ -4429,7 +4429,7 @@ Football Injury Report
 Footwear Type
 for
 For
-for 
+for
 For a Recognized Panel of Tests
 For a search to show results the codes must exist in the database.
 For added ease of use the Fee Sheet needs to be customized
@@ -4439,8 +4439,8 @@ For Category
 For code
 For Custom Groups
 For Dates
-For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. 
-For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. 
+For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form.
+For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form.
 For each issue type there is a list of commonly selected titles which are customizable for your clinic's specific needs
 For ease of use it is rendered as a unique 6 digit number
 For editing the values under Procedures you would need to modify
@@ -4461,7 +4461,7 @@ For IPPF Suriname and maybe others
 For manual lab entry you can give the organization any name  - e.g Local Lab and click Save
 For Medicare only, forces the referring provider to be the same as the rendering provider.
 For Mental Status
-For more information on Issues see the 
+For more information on Issues see the
 For NetSuite financial integration
 for OBR placer order number
 for patient
@@ -4474,7 +4474,7 @@ For Provider
 For Referred Organization/Practitioner
 For sending claims directly to insurance company, based on X12 Partner Settings
 For the deceased notification to appear the date of death must be noted under Medical Dashboard > Edit Demographics > Misc
-For the name to appear on the drop-down list it must be first entered in Administration > Address Book 
+For the name to appear on the drop-down list it must be first entered in Administration > Address Book
 For the past
 For the Procedure Module to be useful several tests have to be setup using the above methods
 For the Standard Code use the LOINC code 24326-1
@@ -4523,7 +4523,7 @@ Forward Pages via Fax
 Forward this Reminder
 Forward to current canvas
 Forwarded
-Forwarded Portal Message Re: 
+Forwarded Portal Message Re:
 Foster Child
 Fourth
 Fourth account message
@@ -4554,7 +4554,7 @@ From the Issues Menu item on the Nav Bar
 From the Patient dashboard via the individual Issues widgets on the right hand column
 From your clinic
 From:
-From: 
+From:
 FROM_CITY
 FROM_EMAIL
 FROM_FNAME
@@ -4632,7 +4632,7 @@ GCAC Statistics Reporting
 GCAC Stats
 GCAC visit form is missing
 Gender
-Gender 
+Gender
 Gender Missing
 General
 General Anxiety Disorder 7 (GAD-7)
@@ -4663,7 +4663,7 @@ Generate HCFA
 Generate Institutional X12 837I
 Generate Invoice
 Generate Letter
-Generate Letter regarding 
+Generate Letter regarding
 Generate new key
 Generate New Receipt Number
 Generate New Report
@@ -4676,7 +4676,7 @@ Generate QRDA III - 2014
 Generate Report
 Generate Report - that opens the CCD in a separate tab on the browser
 Generate Report - that opens the CCR in a separate tab on the browser
-Generate Report that creates a report and displays it in a separate tab on the browser 
+Generate Report that creates a report and displays it in a separate tab on the browser
 Generate safe key
 Generate thumbnail
 Generate thumbnail images
@@ -4857,7 +4857,7 @@ HCFA top margin in points
 HCPCS Procedure/Service
 HD
 HD+
-he PostCalendar 
+he PostCalendar
 Head
 Head Circ
 Head Circumference
@@ -4918,7 +4918,7 @@ Herpes
 Hertel Exophthalmometry
 HERT{{Hertel exophthalmometry}}
 Hesitancy
-heyyo. you have been here for 
+heyyo. you have been here for
 Hib 1
 Hib 2
 Hib 3
@@ -5060,7 +5060,7 @@ hypoT{{hypotropia}}
 Hysterectomy
 I
 I am busy during this time.
-I do not have permission to read 
+I do not have permission to read
 I have read and accept the
 I have read and my practice agrees to the
 I know but we need it!
@@ -5109,7 +5109,7 @@ If enabled, uses the specified active directory for login and authentication.
 if entered, select only those who have had this service
 If it it still active i.e. End Date is not entered it will be displayed in red, if the problem has an end Date then it will be displayed in black
 If name, any part of lastname or lastname,firstname
-If NewCrop eRx - the electronic prescription module, is enabled the NewCrop MedEntry and NewCrop Account Status buttons will be appear here
+If Ensora eRx - the electronic prescription module, is enabled the Ensora MedEntry and Ensora Account Status buttons will be appear here
 If not listed you can add the drug to the Title text-box
 If nothing is selected here then all are permitted.
 If only capture the QR code but do not register the TOTP key with OpenEMR this feature will not be enabled at login
@@ -5187,7 +5187,7 @@ If you have entered a Pay Date in the search page, this will override the postin
 If you have followed all the above steps correctly you should see Serum Uric Acid under Name, it will be preceded by a vertical bar indicating the absence of descendants or children to this entry
 If you have followed the above steps correctly the Serum Uric Acid Test should now have a + sign preceding the Name indicating the presence of successors or children
 If you have lost your Smartphone those with administrator privileges can delete the keys by going to Administration > Users and checking the Clear 2FA checkbox and clicking Save
-If you have NewCrop eRx module enabled then the allergies have to be entered on the NewCrop MedEntry page
+If you have Ensora eRx module enabled then the allergies have to be entered on the Ensora MedEntry page
 If you have not already done some pre-configuration, including adding providers, do so by going to Procedures > Providers
 If you have the need to order individual components of the panel you will have to create a separate Procedure Order for each individual component of the panel and store the returned result under a Discrete Result created in a fashion similar to that used earlier to create an order for Serum Uric Acid
 If you hit the refresh button without setting any filters then all dated reminders for the user will appear below
@@ -5291,7 +5291,7 @@ In Office
 In openEMR the Continuity of Care Record (CCR) reports to be generated can be limited to a specific date range by checking the Use Date Range check-box and entering the desired date range
 In order to fulfill Meaningful Use requirements for Computerized Provider Order Entry (CPOE) for lab and radiology tests this module needs to be used
 In order to properly store and retrieve test results and place new orders, tests/orders have to be setup in a hierarchical manner
-In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc.
 In order to register your device, please provide your OpenEMR login password
 In order to send Continuity of Care Record (CCR) and /or Continuity of Care Document (CCD) optionally check phiMail Allow CCD Send and/or phiMail Allow CCR Send to enable the Transmit feature for these data types
 In our case we will choose Local Lab that was setup previously
@@ -5438,7 +5438,7 @@ Ins1
 Ins2
 Ins3
 Insert
-Insert failed: 
+Insert failed:
 Insert in Form
 Insert normals
 Insert normals - 100/100
@@ -5522,7 +5522,7 @@ Internal error in tableNameFromLayout
 Internal error!
 Internal error, no drug ID specified!
 Internal error: Cannot find MSH-10
-Internal error: claim 
+Internal error: claim
 Internal error: encounter '
 Internal error: pid or encounter is missing.
 Internal error: the referenced encounter no longer exists.
@@ -5565,7 +5565,7 @@ Invalid file type.
 Invalid layout ID
 Invalid length for
 Invalid non-numeric character in
-Invalid or missing payer in source for code 
+Invalid or missing payer in source for code
 Invalid password
 Invalid recipient address. Please try again.
 Invalid Request
@@ -5693,7 +5693,7 @@ It also lets you create new groups (AROs) as well as remove existing ones.
 It can also just receive results electronically
 It can be either linked to a patient or just be a message addressed to another user(s)
 It combines what the user knows i.e. user password with what the user has i.e. a device that is unique or a mechanism to generate/receive a unique code to be used at each login
-It consists of three sections 
+It consists of three sections
 It consists of two parts - defining a Provider and configuring the Orders and Results
 It consists of two parts - the Receiving application and Receiving facility
 It consists of two parts - the Sending application and Sending facility
@@ -5703,7 +5703,7 @@ It contains structured data that is included in the Continuity of Care Record (C
 It does not refer to the actual referral that has been created
 It does so by using an algorithm to combine the current UNIX time with the secret key to generate an ever changing unique key
 It has four tabs
-It has three tiers 
+It has three tiers
 It is a commercial messaging module available to openEMR practices utilizing version 5.0.1 and higher
 It is a field in the HL7 Message header known as Processing ID
 It is a part of the medical record
@@ -5788,7 +5788,7 @@ Justify each CPT code with one or more justifications using the dropdown box. Th
 Justify/Save
 JWT not found in system
 J{{Justify Header}}
-k, here's the rest 
+k, here's the rest
 K1{{Keratometry 1}}
 K2{{Keratometry 2}}
 Kalaallisut, Greenlandic
@@ -5996,7 +5996,7 @@ Left Vastus Lateralis
 Left w/o visit
 Left-Form Layout
 Left:
-Left: 
+Left:
 Leg Pain/Cramping
 Legal
 Legal Authenticator
@@ -6084,7 +6084,7 @@ List lists
 List modifiers, up to 4 can be listed, each separated by a space or a colon
 List Name
 List names cannot start with numbers.
-List of 
+List of
 List of health care practitioners
 List of previous refractions
 List of previously dispensed Spectacle and Contact Lens Rxs
@@ -6092,7 +6092,7 @@ List Prescriptions
 List used by above Country Data Type option.
 List used by above State Data Type option.
 Listening port of the RFC 5425 TLS syslog server.
-Listing an ICD10 code will let you search for educational material for that particular code 
+Listing an ICD10 code will let you search for educational material for that particular code
 Lists
 Lists (lists)
 Lithuanian
@@ -6145,7 +6145,7 @@ Lock e-signed encounters and their forms
 Lock?
 Locked
 Locked Payment Pending
-Log all NewCrop eRx Requests and / or Responses.
+Log all Ensora eRx Requests and / or Responses.
 Log entire document
 Log In
 Log in
@@ -6156,13 +6156,13 @@ Log Types
 Log was already empty. Please close window.
 Logged in
 Logged in as
-Logged in as: 
+Logged in as:
 Logged in User if provider, otherwise Current Provider
 Logged out.
 Logging
 Login
 login
-Login - details are only required if you are connecting to a facility using the SFTP protocol 
+Login - details are only required if you are connecting to a facility using the SFTP protocol
 Login Into Facility
 Login name of WordPress user for portal access
 Login Page Layout
@@ -6339,7 +6339,7 @@ Maximum Size
 Maximum Size (entering 0 will allow any size)
 Maximum size of thumbnail file
 May
-MBO 
+MBO
 MC
 mcg
 MDM Document Category Name
@@ -6531,7 +6531,7 @@ Missing or Invalid
 Missing Patient ID
 Missing PID.
 Missing report date
-Missing slash after payer in source for code 
+Missing slash after payer in source for code
 Missing SMS config record
 Missing Subscriber Policy Number or DOB
 Missing Title
@@ -6866,7 +6866,7 @@ New in ACL Ver 5
 New in ACL Ver 6
 New in ACL Ver 7
 New in ACL Ver 8
-New in openEMR ver 5.0.2 
+New in openEMR ver 5.0.2
 New Inj/Status
 New Items (see above for details)
 New Layout
@@ -6902,30 +6902,30 @@ New User
 New Value
 New Visit
 New/Search
-NewCrop Account Status
-NewCrop Admin
-NewCrop call failed
-NewCrop Doctor
-NewCrop eRx Account Id
-NewCrop eRx Account Name
-NewCrop eRx Debug Setting
-NewCrop eRx Default Patient Country
-NewCrop eRx Name
-NewCrop eRx Partner Name
-NewCrop eRx Password
-NewCrop eRX Role
-NewCrop eRx Role
-NewCrop eRx Site Address
-NewCrop eRx SOAP Request Time-To-Live for Allergies
-NewCrop eRx SOAP Request Time-To-Live for Medications
-NewCrop eRx User Role
-NewCrop eRx User Role * invalid selection *
-NewCrop eRx Web Service Address
-NewCrop Manager
-NewCrop MedEntry
-NewCrop Midlevel Prescriber
-NewCrop Nurse
-NewCrop Supervising Doctor
+Ensora Account Status
+Ensora Admin
+Ensora call failed
+Ensora Doctor
+Ensora eRx Account Id
+Ensora eRx Account Name
+Ensora eRx Debug Setting
+Ensora eRx Default Patient Country
+Ensora eRx Name
+Ensora eRx Partner Name
+Ensora eRx Password
+Ensora eRX Role
+Ensora eRx Role
+Ensora eRx Site Address
+Ensora eRx SOAP Request Time-To-Live for Allergies
+Ensora eRx SOAP Request Time-To-Live for Medications
+Ensora eRx User Role
+Ensora eRx User Role * invalid selection *
+Ensora eRx Web Service Address
+Ensora Manager
+Ensora MedEntry
+Ensora Midlevel Prescriber
+Ensora Nurse
+Ensora Supervising Doctor
 Newer
 NewRx
 Newspaper
@@ -6978,7 +6978,7 @@ No data available in table
 No Data to Process
 No Diagnosis
 no diagnosis was auto-generated from the clinical findings.
-No directory for X12 partner 
+No directory for X12 partner
 No Documents
 No Documents Found
 No Encounter could be created
@@ -7095,7 +7095,7 @@ No translations!
 No version of Internet Explorer supports U2F
 No visit
 No vitals have been documented.
-No X-12 partner assigned for claim 
+No X-12 partner assigned for claim
 No, Cancel
 No-fault Insurance including Auto is Primary
 No:
@@ -7153,9 +7153,9 @@ Normal
 Normal (normal)
 Normal BL
 Normal Cardiac Exam:
-Normal Cardiac Exam: 
+Normal Cardiac Exam:
 Normal Lung Exam:
-Normal Lung Exam: 
+Normal Lung Exam:
 Normal Office Visit
 Normal Oropharynx:
 Normal Right
@@ -7209,7 +7209,7 @@ Not Due
 Not Esigned
 Not Examined
 Not Examined:
-Not Examined: 
+Not Examined:
 Not For Diagnostic Use
 not found
 Not Found
@@ -7257,7 +7257,7 @@ Note: This code was not entered by an authorized user. Only authorized codes may
 Note: This copay was entered against billing that has not been authorized. Please review status.
 Note: this is not an email address
 NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category.
-NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
+NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category.
 Notes
 NOTES
 Notes - A short description that will show up as a tooltip
@@ -7454,8 +7454,8 @@ Once completed, view and store this encounter as a PDF file
 Once finished editing, click Save. The procedure forms current procedure diagnoses will fill exactly as built in this dialog.
 Once saved the entity for a Custom Favorite Group cannot be changed. If you need to change the entity you have to delete this entry and create a new one
 Once the app captures the QR code it will show the OpenEMR user name in the app
-Once the Primary Business Facility is set, changing the facility id will affect NewCrop ePrescription.
-Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.
+Once the Primary Business Facility is set, changing the facility id will affect Ensora ePrescription.
+Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in Ensora ePrescription.
 Once this feature is enabled you will be required to type in the 6 digit key at each login
 Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user's authenticator app
 Once this step is completed you can proceed to next step - to configure the tests that can be ordered from the system
@@ -7494,15 +7494,15 @@ Only need to set this if the server is not providing the correct host for OAuth2
 Only one TOTP Key can be set up per user
 Only recall to provider, no reminder
 Only reminder to provider, no recall
-Only Show Active Codes 
+Only Show Active Codes
 Only Show Diagnosis Reporting Codes
 Only Show Service Code Finance Reporting Codes
 Only upload active prescriptions
-Only upload active prescriptions to NewCrop eRx.
+Only upload active prescriptions to Ensora eRx.
 Onset
 Onset of Current Symptoms or Illness
 Onset of Illness:
-Onset of Ilness: 
+Onset of Ilness:
 Onset of Swelling:
 Onset/Hosp Date for Encounters
 Onset/hosp. date
@@ -7677,7 +7677,7 @@ Original file
 Original file deletion error
 Oriya
 Oromo
-OROPHARYNX: 
+OROPHARYNX:
 Ortho
 Orthophoric
 Orthopnea
@@ -7786,10 +7786,10 @@ Parse Token
 Partially Administered
 Participant's name
 participants
-Participants 
+Participants
 Partner
 Partner Name
-Partner Name issued for NewCrop eRx service.
+Partner Name issued for Ensora eRx service.
 Partner not configured
 Pashto, Pushto
 Pass Phrase
@@ -7882,7 +7882,7 @@ Patient Characteristics
 Patient chart ID
 Patient Chat
 Patient Checkout
-Patient Checkout for 
+Patient Checkout for
 Patient City
 Patient City is missing
 Patient city missing
@@ -8109,7 +8109,7 @@ Payment Tracking Id
 Payment Type
 Payment Validated: Save?
 Payment value for code
-Payment value for code 
+Payment value for code
 Payment was successfully authorized and charged. Thank You.
 Payment was successfully authorized and your card is charged.
 Payments
@@ -8403,8 +8403,8 @@ Please select a default provider.
 Please select a format
 Please select a language
 Please Select a Patient.
-Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
-Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
+Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
 Please select a procedure provider
 Please Select A Recipient
 Please Select a Recipient for Message.
@@ -8412,7 +8412,7 @@ Please select a start date and end date
 Please select a valid recipient
 Please Select an Active Group
 Please select an adjustment reason for code
-Please select an adjustment reason for code 
+Please select an adjustment reason for code
 Please select an answer
 Please select an event
 Please select an item that has more data
@@ -8660,8 +8660,8 @@ Pricelevel
 Prices
 Primary
 Primary Business Entity
-Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.
-Primary Business Entity tax id is used as the account id for NewCrop ePrescription.
+Primary Business Entity tax id is used as account id for Ensora ePrescription. Changing the facility will affect the working in Ensora.
+Primary Business Entity tax id is used as the account id for Ensora ePrescription.
 Primary Care
 Primary Care Provider
 Primary Diagnosis
@@ -8727,7 +8727,7 @@ Printer
 Printing Log Option
 Printing results:
 Printing skipped; see test output in
-Printing skipped; see test output in 
+Printing skipped; see test output in
 Prints the CMS 1500 on the Preprinted form
 Prior Auth
 Prior Authorization
@@ -8740,7 +8740,7 @@ Prior Validations Errors
 Prior Visit
 Prior Visits
 Priority
-Priority 
+Priority
 Prism
 Prism Diopters
 Prison Correctional Facility
@@ -9186,7 +9186,7 @@ Reference classification (risk level)
 Reference range of results
 Reference Reason
 Reference table and reference id must both be set
-Reference this Account Id: 
+Reference this Account Id:
 Reference this Account Number
 Referential CDS
 Referential CDS (codetype:code)
@@ -9497,7 +9497,7 @@ Return to this page and you will be able to complete the Valueset installation p
 Return Value
 Return Visit
 Returned to Play
-Returned: 
+Returned:
 Reuse of previous passwords not allowed!
 Reuse of three previous passwords not allowed!
 Rev.
@@ -9592,7 +9592,7 @@ rules already in plan
 Rules Configuration
 RUL{{right upper eyelid}}
 Run Setup again or contact support for assistance
-Running Command: 
+Running Command:
 Rupture
 Rural Health Clinic
 Russian
@@ -9635,7 +9635,7 @@ S
 S.S.
 S3:
 S4:
-SA  *  * To read the license please read the docs/license.txt or visit  * http://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= // 
+SA  *  * To read the license please read the docs/license.txt or visit  * http://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= //
 Safe key database
 Sale
 Sales
@@ -9803,7 +9803,7 @@ Seatbelt Use
 Second
 second
 Second account message
-Second is the All Patients. This View shows all current templates that are default to all patients. 
+Second is the All Patients. This View shows all current templates that are default to all patients.
 Secondary
 Secondary billing
 Secondary Insurance
@@ -9926,7 +9926,7 @@ Select one or more files to upload
 Select only one code per problem
 Select Options for Current Encounter
 Select Options for Current Order Id
-Select Options for Current Procedure Order Id 
+Select Options for Current Procedure Order Id
 Select output
 Select patient
 Select Pharmacy
@@ -9992,7 +9992,7 @@ Send
 Send A Dated Reminder
 Send a Reminder
 Send a report to this provider
-Send an email to 
+Send an email to
 Send CCD
 Send CCR
 Send Complete - Prescription(s) Return Status
@@ -10352,7 +10352,7 @@ SMS Sent
 SMS Text Usable Tags
 SMS Text Usable Tags:
 SMS Text, Usable Tag: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***<br> i.e. Dear ***NAME***
-SMS Text, Usable Tags: 
+SMS Text, Usable Tags:
 SMS Zone
 SMS zone - This section lets use send and receive SMS texts
 SMS/Email Alert Settings
@@ -10439,7 +10439,7 @@ Source
 Source CSV File
 Source File
 Source File Path
-Source is missing for code 
+Source is missing for code
 Source Lot
 Source of the document
 Source Patient
@@ -10539,7 +10539,7 @@ Standard Measures (Patient Reminders)
 Standard Name
 Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury
 Start
-Start (yyyy-mm-dd): 
+Start (yyyy-mm-dd):
 Start Another Report
 Start Assessment
 Start Batch Processing
@@ -10988,7 +10988,7 @@ The CDA is a plain text document that is coded using the Extensible Markup Langu
 The Certificate Authority certificate
 The Charge column would be blank
 The Charge will be the actual amount being charged for each line item
-The claim file: 
+The claim file:
 The CMS 1500 form has 33 boxes and is divided into two sections
 The Code column should have 905, the vendor specific Identifying code that was entered previously
 The Code column will be empty as items listed as a Group are not used in the actual reporting of results and therefore do not have a distinct code number
@@ -11011,7 +11011,7 @@ The dashboard is the central location for convenient access the patient's medica
 The Dashboard page is divided into three sections
 The data integrity test failed for this form
 The data section of the dashboard page lists all pertinent items related to a patient
-The dated reminder will start to appear 5 days before the reminder date under Dated Reminders 
+The dated reminder will start to appear 5 days before the reminder date under Dated Reminders
 The default code type to search for in the Fee Sheet.
 The default fee sheet can be modified and customized to make it more useful.
 The default fee sheet is divided into several sections and is designed to be filled from top to bottom with the save button at the very end.
@@ -11031,7 +11031,7 @@ the Denial Group code is
 The Description column displays the short description that was entered, Serum chemistry tests
 The Description column will reflect the description value that was entered previously
 The Description should say Serum Uric Acid result
-The Description will detail the type of payment or adjustment - Cash, Check, Electronic etc 
+The Description will detail the type of payment or adjustment - Cash, Check, Electronic etc
 The destination form was closed
 The destination form was closed.
 The destination form was closed; I cannot act on your selection.
@@ -11065,7 +11065,7 @@ The file cannot be generated again. Do you want to proceed?
 The file could not be saved to CouchDB.
 The file could not be succesfully renamed, this error is usually related to permissions problems on the storage system.
 The file could not be succesfully stored, this error is usually related to permissions problems on the storage system
-The filter section can be hidden or revealed by clicking the arrowhead  on the bottom right 
+The filter section can be hidden or revealed by clicking the arrowhead  on the bottom right
 The filtered results will show up in the section below it
 The finder table is grouped by past procedures then diagnosis code. Although there may be duplicate dx codes, they will be grouped with the appropriate procedure making building diagnoses list easier.
 The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
@@ -11165,12 +11165,12 @@ The Name cell contains the name, date of birth, patient ID and date of last visi
 The Narrative Block contains information that is rendered as readable text
 The National Uniform Claim Committee (NUCC) is responsible for the maintenance of the 1500 Claim Form
 The Nav Bar allows one to quickly navigate to various parts of the patient's medical record
-The new category will be a sub-category of 
+The new category will be a sub-category of
 The new list
 The new password can not be the same as the current password.
 The new password fields are not the same.
 The new password is the same as the current password. Click Okay to accept anyway.
-The NewCrop eRx Partner Name, NewCrop eRx Name and NewCrop eRx Password will be provided by the vendor
+The Ensora eRx Partner Name, Ensora eRx Name and Ensora eRx Password will be provided by the vendor
 The next box is Body Site, not relevant for a blood test but may be more useful in say tracking injections or ordering X-rays
 The next few lines will list all the E/M and CPT codes that were billed, one line per code
 The next group consists of the ICD codes
@@ -11186,9 +11186,9 @@ The options for Outline and Border will either wrap a row in thin border or add 
 The order in which the Category, Procedure or Result appears
 The other 4 transaction types are simple transaction types - Patient Request, Physician Request, Legal and Billing
 The other Segments contain additional information in a strictly structured fashion
-The page will be redirected to Demographics. You can edit the country field and clickthrough to NewCrop again.
+The page will be redirected to Demographics. You can edit the country field and clickthrough to Ensora again.
 The page you requested was not found. Please check that you typed the URL correctly.
-The parts of the program to which access can be controlled are called Access Control Objects (ACOs). 
+The parts of the program to which access can be controlled are called Access Control Objects (ACOs).
 The password must be at least eight characters, and should
 The password you entered is invalid
 The Past Ocular History (POH) and Past Medical History (PMH) are negative.
@@ -11222,7 +11222,7 @@ The reminders that are past the due date will have a red exclamation triangle ic
 The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it
 The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.
 The rest may be left blank if so preferred
-The rest of the boxes related to the NewCrop eRx service can be left at default values
+The rest of the boxes related to the Ensora eRx service can be left at default values
 The Result Line will begin with a Name Serum Uric Acid that will be preceded by a vertical bar indicating no successors or children
 The results could not be loaded
 The results, Discrete Result, will be the fruit on this branch and we will create one such Discrete Result for each of the component tests, Sodium, Potassium, Chloride and Carbon Dioxide
@@ -11242,7 +11242,7 @@ The selected code will be added to the coding text-box and the Description on th
 The selected codes will then appear in the 'Selected Fee Sheet Codes and Charges for Current Encounter' section
 The selections in this section will be used in charging for this encounter
 The sequence is the order in which this top order item will be displayed on the page, 1 to denote the first top level group
-The server address will be of the form 
+The server address will be of the form
 The setup for lab tests will be described in detail, minor modification to these steps will be needed to setup in-office procedures and other procedure types
 The somewhat ambiguously named Counter-Referral is the space where the reply to the referral being made can be documented
 The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
@@ -11301,7 +11301,7 @@ The vendor-specific code identifying this procedure or result. If no vendor ente
 The very first step would be install the ICD codes. Go to Administraion > Other > External Data Loads. Select the Code sets you want to install and click Install
 The very last line of this report will give the Grand Total of Charges, Payments, Adjustments and the Balance
 The Weno Exchange is well integrated with openEMR and is not subscription based
-The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
 The X12 files as well as the resulting HTML output reports are archived in the 'era' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
 The zip file will contain the following items
 Theme
@@ -11319,7 +11319,7 @@ Therapy Group Encounter
 Therapy Group Finder
 There are
 There are 10 settings that are related to procedures included in the standard release of openEMR
-There are 3 forms in the Core category - Demographics, Facility Specific User Information and History and all 5 forms in Transactions that can be edited 
+There are 3 forms in the Core category - Demographics, Facility Specific User Information and History and all 5 forms in Transactions that can be edited
 There are currently no prescriptions
 There are errors with your submission.  These are outlined below.
 There are four message statuses - New, Forwarded, Read and Done
@@ -11339,7 +11339,7 @@ There are several versions of HL7, versions 2.x and version 3
 There are several ways to customize the fee sheet. It depends on how comfortable you are in adding information to the database itself
 There are three actions that are possible - Create a New Dated Reminder, Forward and Set as Completed
 There are three actions that can be performed here - edit an existing group (ARO), add a new group (ARO) or delete an existing group (ARO).
-There are three main template views. The first is the Repository where you store templates for future edits and disposal. 
+There are three main template views. The first is the Repository where you store templates for future edits and disposal.
 There are three main types of reports that can be created, two pertain to continuity of ongoing care - Continuity of Care Record (CCR) and Continuity of Care Document (CCD) and the third - Patient Report that creates a document containing various sections of the patient's medical record including demographics, medical issues, procedures and encounters. It also has the ability to include all or any of the scanned documents in the patient's chart
 There are three options available when you create a Continuity of Care Document (CCD)
 There are three options available when you create a Continuity of Care Record (CCR)
@@ -11360,14 +11360,14 @@ There is already a category named
 There is already a subcategory named
 There is already an item named
 There is already an open patient record request.
-There is no COA entry for AR account 
-There is no COA entry for cash account 
-There is no COA entry for income account 
+There is no COA entry for AR account
+There is no COA entry for cash account
+There is no COA entry for income account
 There is no current patient
 There is no local content for this topic.
 There is no match for invoice id
-There is no match for invoice id = 
-There is no parts entry for services ID 
+There is no match for invoice id =
+There is no parts entry for services ID
 There is no patient with portal login
 There was a problem registering you. Recommend contacting clinic for assistance.
 There was a problem sending the message.
@@ -11475,7 +11475,7 @@ This has to entered once in this form
 This help file is divided into four sections
 This help file is divided into the following sections
 This ICD code can be automatically added to to Problem List by checking the P (Problem) checkbox. This selected item will show up in the Issues section under Medical problems
-This invoice number has been changed to 
+This invoice number has been changed to
 This is a child of result
 This is done in Administration > Users.
 This is followed by the Edit and Add columns containing a pencil icon and a + icon
@@ -11511,15 +11511,15 @@ this location
 This message need not necessarily be linked to a patient
 This message text is not saved automatically. Copy and save it as appropriate for the content.
 This method will however result in the data becoming non-structured and one would loose the ability to document the reply in an electronic format
-This module is being used by 
+This module is being used by
 This module is in test mode. The database will not be changed.
-This module is subscription based and needs to be enabled from Administration > Globals > Connectors > Enable NewCrop eRx Service
+This module is subscription based and needs to be enabled from Administration > Globals > Connectors > Enable Ensora eRx Service
 This module is well integrated with openEMR, there are however two non-subscription based alternatives, Weno and Allscripts that can be used instead
 This module promotes efficient entry of EOB data.
 This Month to Date
 This name already exists under this parent.
 This namespace already exists in database
-This new category will be a sub-category of 
+This new category will be a sub-category of
 This note goes on the bottom of every checkout receipt.
 This order was already transmitted on
 This page allows you to review each of the supported external dataloads that you can install and upgrade. Each section below can be expanded by clicking on the section header to review the status of the particular database of interest.
@@ -11544,7 +11544,7 @@ This section can be customized to group the codes into various categories
 This section DOES NOT let you create new ACOs.
 This section is where the codes use to charge for the visit are selected
 This section lets you search for the needed code if it is not in the default or customized options in 'Select Code' section
-This section will allow the logged in user to view existing methods or to delete them 
+This section will allow the logged in user to view existing methods or to delete them
 This sets the Default Calendar View, Default is Day.
 This specifies the Printing of the Custom End of Day Report grouped Provider or allow the Printing of Totals Only
 This specifies whether to include date in Box 31.
@@ -11649,8 +11649,8 @@ Time slot is open, saving event
 Time Zone
 Time-To-Live for Allergies SOAP Request in seconds
 Time-To-Live for Medications SOAP Request in seconds
-Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.
-Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.
+Time-To-Live for Ensora eRx Allergies SOAP Request in seconds.
+Time-To-Live for Ensora eRx Medications SOAP Request in seconds.
 Timed event
 Times array (N/A)
 Timestamp and Text
@@ -11674,7 +11674,7 @@ To access it click on the Recall Board menu item in the top navigation bar or cl
 To add a copay click the 'Add Copay' button
 To add messages, please click here
 To add more options to the dropdown menu go to Administration > Lists > Manage Lists and select 'Price Level' in the dropdown box and enter the types e.g: Credit Card, Cash etc.
-To add notes, please click 
+To add notes, please click
 To add notes, please click here
 To Affected Area
 to affected area
@@ -11696,7 +11696,7 @@ To ded'ble
 To delete any or all the selected ICD10 codes click again on the Diagnosis Codes box to bring up the Select Diagnosis Codes pop-up window
 To delink just click on the item to delink and it will get delinked and will no longer be highlighted
 To Dems
-To disable automatic message checking go to Administration > Globals > Connectors  and set phiMail Message Check Interval to 0 (zero) 
+To disable automatic message checking go to Administration > Globals > Connectors  and set phiMail Message Check Interval to 0 (zero)
 To Disable client side SSL certificates, comment above lines in Apache configuration file and set
 To Disable client side SSL certificates, comment above lines in Apache configuration file and turn off the \'Enable Client SSL\' global setting in OpenEMR and restart Apache server.
 To Disable HTTPS, comment the above lines in Apache configuration file and restart Apache server.
@@ -11716,15 +11716,15 @@ To Enctr
 To filter by sex
 To fulfill Meaningful use requirements and help track its use you can check on the Sent Summary of Care check-box and the Sent Summary of Care Electronically check-box if appropriate
 To fully delete hit 'Save'
-To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' 
-To help explore the various components of the Report page especially if you want to use it as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR 
+To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload'
+To help explore the various components of the Report page especially if you want to use it as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR
 To help familiarize you with the various components of the Dashboard page it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR
 To help simplify implementations, commonly used templates were harmonized from existing CDA implementation guides and consolidated into a single implementation guide – the C-CDA Implementation Guide (IG) (07/2012)
 To History
 To include the scanned documents that are a part of the patient's record select the desired records by check the relevant check-boxes
 To Issues
 To link the Issues to an encounter first select the issue, it will be highlighted yellow, then click on one or more encounters to link them, the selected encounters will be highlighted in purple
-To link this encounter/consult to an existing issue, click the 
+To link this encounter/consult to an existing issue, click the
 To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.
 To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click Save
 to login again
@@ -11751,11 +11751,11 @@ To summarize
 to this visit?
 To upload CCR document of already existing patient use Patient Summary Screen->Documents. For CCR document of a new patient use Miscellanous->New Documents screen
 To upload local text or html templates click the Upload button in Template Repository title to expose the file select button. Next select a Category from Scope bar if wanted then click files select button to show the file browser. You may select as many files to upload within reason
-To use the help page as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR 
+To use the help page as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR
 To use this help file as an instruction manual it is best to resize your browser to occupy half the screen, open another instance of the browser to fill the other half of the screen, login to openEMR and open the help file in this browser and resize it by clicking and dragging the bottom right corner so that it occupies the entire half screen
 To use this help file as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR
 To:
-To: 
+To:
 TO_CITY
 TO_FAX
 TO_FNAME
@@ -11828,7 +11828,7 @@ total entries
 Total failed reminders sent via email
 Total failed reminders sent via phone
 Total for
-Total for 
+Total for
 Total for category
 Total GAD-7 score
 Total inactivated reminders
@@ -11867,7 +11867,7 @@ Total updated reminders
 Total Visit Charges
 Totals
 Totals for
-Totals for 
+Totals for
 Totals Only
 TOTP
 TOTP - Cons
@@ -11957,7 +11957,7 @@ Treatment Plan
 Treatment Planning
 Treatment Received
 Treatment:
-Treatment: 
+Treatment:
 Tree
 Trend
 trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );             $month_value
@@ -11999,7 +11999,7 @@ Two Years Ahead
 Tx Date
 Tympanic Membrane
 Type
-Type a brief message and hit Send Message 
+Type a brief message and hit Send Message
 Type a name for the key in the text box
 Type a name for your key, insert it into a USB port and click the Register button below
 Type Id or Name.3 characters minimum (including spaces).
@@ -12016,7 +12016,7 @@ Type of group
 Type of screen layout
 Type or scan the patient identifier here
 Type Sodium under Name and Sodium result under description
-Type the message and click Send Message 
+Type the message and click Send Message
 Type the name of the drug in the Drug Search text-box
 Type to search and select revenue code
 Type to search.
@@ -12231,14 +12231,14 @@ Urine Microalbumin
 Urine Stream
 Urine Urgency
 URL
-URL for NewCrop eRx Site Address.
+URL for Ensora eRx Site Address.
 URL for OpenEMR support.
 URL for Phone Gateway.
 URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
 URL for the WordPress site that supports the portal
 URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.
 URL to a support page.
-URLs for NewCrop eRx Service Address, separated by a semi-colon.
+URLs for Ensora eRx Service Address, separated by a semi-colon.
 Uruguay ASSE Token
 Uruguay ASSE URL
 Uruguay SINADI statistical report.
@@ -12280,12 +12280,12 @@ Use RxNorm
 Use servers protocol and host in urls (portal internal only).
 Use source filename
 Use SSL (encrypted) connection to CouchDB
-Use the fee sheet to charge for services or products. 
+Use the fee sheet to charge for services or products.
 Use the fields below for a purchase or transfer.
 Use the help file on that page for further help
 Use the latest versions of the following modern browsers - Chrome, Firefox, Safari, Edge and Opera
 Use the Select User dropdown box to select the user(s) to whom the message will be sent
-Use this feature only with newly installed sites, 
+Use this feature only with newly installed sites,
 Use this image
 Use this section to delete existing groups or Access Request Objects (AROs)
 Use topics?
@@ -12294,7 +12294,7 @@ Used on the login and about pages
 Used to enter information that pertains to this particular claim in order to facilitate processing and submitting this claim
 User
 user
-User 
+User
 User / Groups
 User Administration
 User and Facility Administration
@@ -12441,7 +12441,7 @@ Verify your email for patient portal registration
 Version
 Version 1 Onsite Patient Portal Site Address
 Version 2 Onsite Patient Portal Site Address
-Version 2.x is widely used in the healthcare industry and openEMR uses HL7 version 2.3 
+Version 2.x is widely used in the healthcare industry and openEMR uses HL7 version 2.3
 Version Number
 Version/Model Number
 Vert Base{{abbreviation for Vertical Prism Base}}
@@ -12812,7 +12812,7 @@ X-Ray Interpretation:
 X12 only ICN resubmission No.
 X12 only replacement claim:
 X12 only: Replacement Claim
-X12 only: Replacement Claim 
+X12 only: Replacement Claim
 X12 only: Replacement Claim, X12 only ICN resubmission No is used for electronic resubmission of claims. Requirement varies by insurer
 X12 OPTIONS
 X12 Partner
@@ -12949,14 +12949,14 @@ You should be running this test if this claim appeared to generate successfully 
 You should not make Discrete Result for Potassium be a descendant of a preceding Discrete Result i.e Sodium , i.e have a Tier value of 5
 You should select at least one context
 You should select at least one Provider
-You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to NewCrop again.
+You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to Ensora again.
 You will be notified when the payment transaction is confirmed.
 You will be notified when your payment is applied for this invoice.
 You will need Administrator privileges to edit this form
 You will need Administrator privileges to enable the patient portal
 You will need Administrator Privileges to install the ICD10 code set
 You will need Administrator privileges to setup phiMail Direct Messaging
-You will need Administrator privileges to setup the NewCrop service and has to be setup in conjunction with technical support from the NewCrop eRx service
+You will need Administrator privileges to setup the Ensora service and has to be setup in conjunction with technical support from the Ensora eRx service
 Your account has been successfully created however, we were unable to send the account information.
 Your browser does not support HTML5 audio
 Your Clinical Report
@@ -13046,39 +13046,39 @@ Zoom in
 Zoom out
 Zoom: click-drag, Pan: shift-click-drag, Restore: double-click
 Zulu
- but was 
+ but was
  could not be accessed.
  Do you really want to delete
  Drug
  emails not sent
  from
- has been created. 
+ has been created.
  has been re-opened.
  History
  is not a number
  is ready for re-billing.
  LLL:
  Lot
- Medicaid Original Reference No. 
+ Medicaid Original Reference No.
  min
  not found!
  Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it  appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing  below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the  billing and that is normal.
  prescription has reached its limit of
- until 
+ until
  update failed, not in database?
  was marked as billed only.
  was queued successfully.
 ! Left w/o visit
-" for code 
+" for code
 " is CHECKED in PostCalendar Settings!
 # Ins/fin issue
 # of tablets:
 $
 $ Coding done
-$label (yyyy-mm-dd): 
+$label (yyyy-mm-dd):
 %
 % Canceled < 24h
-% Cancelled <  24h 
+% Cancelled <  24h
 ' should exist but does not.
 (% matches any string, _ matches any character)
 ([ctrl] + click to select multiple recipients)
