@@ -13,11 +13,13 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
 SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -75,11 +77,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
-require_once("$srcdir/pnotes.inc.php");
+require_once("{$globalsBag->getString('srcdir')}/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!($globalsBag->get('portal_onsite_two_enable') !== null) || !($globalsBag->get('portal_onsite_two_enable'))) {
     echo xlt('Patient Portal is turned off');
     exit;
 }

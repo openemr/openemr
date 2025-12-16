@@ -19,11 +19,13 @@
 /* */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
 SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
@@ -53,10 +55,10 @@ require_once("verysimple/HTTP/RequestUtil.php");
  * database connection settings
  */
 GlobalConfig::$CONNECTION_SETTING = new ConnectionSetting();
-GlobalConfig::$CONNECTION_SETTING->ConnectionString = $GLOBALS['host'] . ":" . $GLOBALS['port'];
-GlobalConfig::$CONNECTION_SETTING->DBName = $GLOBALS['dbase'];
-GlobalConfig::$CONNECTION_SETTING->Username = $GLOBALS['login'];
-GlobalConfig::$CONNECTION_SETTING->Password = $GLOBALS['pass'];
+GlobalConfig::$CONNECTION_SETTING->ConnectionString = $globalsBag->get('host') . ":" . $globalsBag->get('port');
+GlobalConfig::$CONNECTION_SETTING->DBName = $globalsBag->get('dbase');
+GlobalConfig::$CONNECTION_SETTING->Username = $globalsBag->get('login');
+GlobalConfig::$CONNECTION_SETTING->Password = $globalsBag->get('pass');
 GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
 if (!$disable_utf8_flag) {
     if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
@@ -75,11 +77,11 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * the root url of the application with trailing slash, for example http://localhost/patient/
  * default is relative base address
  */
-GlobalConfig::$WEB_ROOT = $GLOBALS['qualified_site_addr'];
-if ($GLOBALS['portal_onsite_two_basepath']) {
+GlobalConfig::$WEB_ROOT = $globalsBag->get('qualified_site_addr');
+if ($globalsBag->get('portal_onsite_two_basepath')) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
-    GlobalConfig::$ROOT_URL = $GLOBALS['web_root'] . '/portal/patient/';
+    GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';
 }
 
 

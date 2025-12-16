@@ -7,12 +7,13 @@
  * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 require_once('./../../interface/globals.php');
-require_once("$srcdir/patient.inc.php");
-
-use OpenEMR\Core\Header;
-use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+$globalsBag = OEGlobalsBag::getInstance(true);
+require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 
 $templateService = new DocumentTemplateService();
 $group_list =  $templateService->fetchDefaultGroups();
@@ -96,11 +97,11 @@ if (!isset($_GET['render_group_assignments'])) {
 <html>
 <head>
     <?php
-    if (empty($GLOBALS['openemr_version'] ?? null)) {
+    if (empty($globalsBag->get('openemr_version') ?? null)) {
         Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
     } else {
         Header::setupHeader(['opener','datetime-picker']); ?>
-        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+        <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
     <?php } ?>
 </head>
 <style>
@@ -191,7 +192,7 @@ if (!isset($_GET['render_group_assignments'])) {
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 });
             } else {
                 $('#searchparm').datetimepicker("destroy");
@@ -348,11 +349,11 @@ if (!isset($_GET['render_group_assignments'])) {
 <html>
 <head>
     <?php
-    if (empty($GLOBALS['openemr_version'] ?? null)) {
+    if (empty($globalsBag->get('openemr_version') ?? null)) {
         Header::setupHeader(['opener','datetime-picker', 'sortablejs']);
     } else {
         Header::setupHeader(['opener','datetime-picker']); ?>
-        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+        <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
     <?php } ?>
 </head>
 <style>
