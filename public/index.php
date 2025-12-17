@@ -110,6 +110,9 @@ function unscopedRequire(/*string $path*/): void
     error_log('require done');
 }
 
+// Future scope: Put a router ahead of the fallback routing; any well-formed
+// new routes will be executed without touching the existing systems.
+
 // For global variables to get the correct scoping, this needs to be done at
 // the file root level instead of inside a function. GLOBALS and OEGlobalsBag
 // are fine, but the raw variables don't get defined when called from a function
