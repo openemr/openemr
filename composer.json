@@ -93,7 +93,7 @@
         "php81_bc/strftime": "0.7.6",
         "phpmailer/phpmailer": "6.12.0",
         "phpoffice/phpspreadsheet": "5.3.0",
-        "phpseclib/phpseclib": "3.0.47",
+        "phpseclib/phpseclib": "3.0.48",
         "predis/predis": "3.3.0",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.1",
