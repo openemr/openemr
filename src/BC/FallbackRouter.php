@@ -13,6 +13,8 @@ readonly class FallbackRouter
     public function __construct(
         private string $installRoot,
     ) {
+        // Sidenote: $_SERVER['DOCUMENT_ROOT'] seems to be pretty reliable in
+        // common installations, but the less relying on globals, the better.
     }
 
     /**
@@ -22,9 +24,10 @@ readonly class FallbackRouter
      *
      * @param string $requestUri The value of $_SERVER['REQUEST_URI']
      *
-     * @return string The absolute path to the legacy file to include
+     * @return ?string The absolute path to the legacy file to include, or null
+     * if not routable;
      */
-    public function performLegacyRouting(string $requestUri): string
+    public function performLegacyRouting(string $requestUri): ?string
     {
         $this->log("PERFORMING LEGACY ROUTING");
         if ($requestUri === '/') {
@@ -40,36 +43,38 @@ readonly class FallbackRouter
         };
 
         $this->log("path=$path");
+
         // Normalize the included file to the webroot
         $path = realpath(sprintf('%s%s', $this->installRoot, $path));
-
-        $fileDirectory = pathinfo($path, PATHINFO_DIRNAME);
-        chdir($fileDirectory);
-
-        // This seems fairly reliably to be $_SERVER['DOCUMENT_ROOT']
-        if ($path === false || !str_starts_with(needle: $this->installRoot, haystack: $path)) {
-            header('HTTP/1.1 404 Not Found');
-            echo 'Invalid path';
-            exit(1);
+        if ($path === false) {
+            $this->log('No file');
+            return null;
         }
 
-        $this->overrideGlobals($path);
+        if (!$this->isPathAllowed($path)) {
+            $this->log("BLOCKED $path");
+            return null;
+        }
+
+
+        $this->prepareRuntime($path);
         $this->log("include=$path");
         return $path;
     }
 
     /**
-     * Overrides values in $_SERVER in such a way that it looks like the
-     * request went directly to the target file
+     * Overrides various runtime values (including $_SERVER) in such a way that
+     * it looks like the request went directly to the target file.
      */
-    private function overrideGlobals(string $targetFile): void
+    private function prepareRuntime(string $targetFile): void
     {
+        // Directory change helps ensure relative paths (typically includes) work.
+        $fileDirectory = pathinfo($targetFile, PATHINFO_DIRNAME);
+        chdir($fileDirectory);
 
         $_SERVER['SCRIPT_FILENAME'] = $targetFile;
 
         $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->installRoot));
-        // SCRIPT_NAME = PHP_SELF = docroot-relative
-        // DOCUMENT_ROOT seems ok
     }
 
     private function log(string $message): void
@@ -77,5 +82,35 @@ readonly class FallbackRouter
         // Future scope: Have a PSR-3 logger injected and make calls
         // (debug-level?) to it instead.
         error_log($message);
+    }
+
+    /**
+     * Hook for blocking or permitting paths
+     */
+    private function isPathAllowed(string $path): bool
+    {
+        $this->log("IPA=$path");
+        if (!str_starts_with(needle: $this->installRoot, haystack: $path)) {
+            $this->log("Outside of docroot, deny");
+            return false;
+        }
+        $rootRelative = substr($path, strlen($this->installRoot));
+        $this->log("IPA/R=$rootRelative");
+
+        // Copy through the equivalent of htaccess "deny all" rules
+        // Block:
+        // - config paths
+        // - anything below the install root
+        return match (true) {
+            // All dotfiles and directories, including git
+            str_starts_with($rootRelative, '/.') => false,
+            // Obvious stuff that users shouldn't directly request
+            str_starts_with($rootRelative, '/src') => false,
+            str_starts_with($rootRelative, '/tests') => false,
+            str_starts_with($rootRelative, '/vendor') => false,
+            // Other non-executable content
+            str_ends_with($rootRelative, '.inc.php') => false,
+            default => true, // Future: default deny instead?
+        };
     }
 }
