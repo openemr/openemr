@@ -3,9 +3,9 @@
 namespace OpenEMR\Validators;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * Base class for OpenEMR object validation.
@@ -89,12 +89,26 @@ abstract class BaseValidator
             throw new \RuntimeException("unsupported context: " . $context);
         }
 
-        $validationResult = $this->validator->validate($dataFields, $context);
-
         $result = new ProcessingResult();
-        $result->setValidationMessages($validationResult->getMessages());
+        try {
+            $this->assertNoExtraFields($dataFields, $context);
+
+            $validationResult = $this->validator->validate($dataFields, $context);
+            $result->setValidationMessages($validationResult->getMessages());
+        } catch (InvalidArgumentException $exception) {
+            $result->setValidationMessages([
+                $exception->getMessage(),
+            ]);
+        }
 
         return $result;
+    }
+
+    /**
+     * @throws InvalidArgumentException When there are extra fields found
+     */
+    public function assertNoExtraFields(array $data, string $context): void
+    {
     }
 
     /**
