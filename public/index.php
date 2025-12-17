@@ -101,5 +101,8 @@ function unscopedRequire(/*string $path*/): void
     error_log('require done');
 }
 
+// For global variables to get the correct scoping, this needs to be done at
+// the file root level instead of inside a function. GLOBALS and OEGlobalsBag
+// are fine, but the raw variables don't get defined when called from a function
 $file = performLegacyRouting($_SERVER);
 require $file;
