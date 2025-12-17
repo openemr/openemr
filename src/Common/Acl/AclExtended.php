@@ -146,6 +146,9 @@ class AclExtended
             if ($arr_group_id) {
                 foreach ($arr_group_id as $key => $value) {
                     $arr_group_data = $gacl->get_group_data($value, 'ARO');
+                    if (false === $arr_group_data) {
+                        continue;
+                    }
                     $arr_group_titles[$key] = $arr_group_data[3];
                 }
                 sort($arr_group_titles);
