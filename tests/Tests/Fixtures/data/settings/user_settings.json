@@ -1,0 +1,132 @@
+[
+  {
+    "setting_user": 0,
+    "setting_label": "/interface/main/messages/messages.php.form_facility",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "/interface/main/messages/messages.php.form_provider",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "/interface/main/messages/messages.php.rcb_selectors",
+    "setting_value": "block"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "allergy_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "appointments_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "billing_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "clinical_reminders_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "demographics_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "dental_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "directives_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "disclosures_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "gacl_protect",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "immunizations_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "insurance_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "medical_problem_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "medication_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "patient_reminders_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "pnotes_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "prescriptions_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "setting_bootstrap_submenu",
+    "setting_value": " "
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "surgery_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "vitals_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "/interface/main/messages/messages.php.form_facility",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "/interface/main/messages/messages.php.form_provider",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "/interface/main/messages/messages.php.rcb_selectors",
+    "setting_value": "block"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "gacl_protect",
+    "setting_value": "1"
+  }
+]

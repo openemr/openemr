@@ -1,0 +1,2452 @@
+[
+  {
+    "gl_name": "activate_ccr_ccd_report",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "addr_label_type",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "add_unmatched_code_from_ins_co_era_to_billing",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "advance_directives_warning",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "age_display_format",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "age_display_limit",
+    "gl_index": 0,
+    "gl_value": "3"
+  },
+  {
+    "gl_name": "allow_custom_report",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "allow_debug_language",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "allow_early_check_in",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "allow_multiple_databases",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "allow_pat_delete",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "allow_portal_appointments",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "allow_portal_uploads",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "amendments",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "api_log_option",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "appt_display_sets_color_1",
+    "gl_index": 0,
+    "gl_value": "#FFFFFF"
+  },
+  {
+    "gl_name": "appt_display_sets_color_2",
+    "gl_index": 0,
+    "gl_value": "#E6E6FF"
+  },
+  {
+    "gl_name": "appt_display_sets_color_3",
+    "gl_index": 0,
+    "gl_value": "#E6FFE6"
+  },
+  {
+    "gl_name": "appt_display_sets_color_4",
+    "gl_index": 0,
+    "gl_value": "#FFE6FF"
+  },
+  {
+    "gl_name": "appt_display_sets_option",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "appt_recurrences_widget",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "atna_audit_cacert",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "atna_audit_host",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "atna_audit_localcert",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "atna_audit_port",
+    "gl_index": 0,
+    "gl_value": "6514"
+  },
+  {
+    "gl_name": "audit_events_backup",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_cdr",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "audit_events_http-request",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_lab-results",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_order",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_other",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_patient-record",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_query",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_scheduling",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "audit_events_security-administration",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "auto_create_new_encounters",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "auto_create_prevent_reason",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "auto_sftp_claims_to_x12_partner",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "backup_log_dir",
+    "gl_index": 0,
+    "gl_value": "/tmp"
+  },
+  {
+    "gl_name": "barcode_label_type",
+    "gl_index": 0,
+    "gl_value": "9"
+  },
+  {
+    "gl_name": "billing_log_option",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "billing_phone_number",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "calendar_appt_style",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "calendar_interval",
+    "gl_index": 0,
+    "gl_value": "15"
+  },
+  {
+    "gl_name": "calendar_view_type",
+    "gl_index": 0,
+    "gl_value": "day"
+  },
+  {
+    "gl_name": "cash_receipts_report_invoice",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "ccda_alt_service_enable",
+    "gl_index": 0,
+    "gl_value": "3"
+  },
+  {
+    "gl_name": "ccda_validation_disable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "cc_front_payments",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "cc_stripe_terminal",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "cdr_report_nice",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "certificate_authority_crt",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "certificate_authority_key",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "chart_label_type",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "checkout_roll_off",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "client_certificate_valid_in_days",
+    "gl_index": 0,
+    "gl_value": "365"
+  },
+  {
+    "gl_name": "cms_1500_box_31_date",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "cms_1500_box_31_format",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "cms_left_margin_default",
+    "gl_index": 0,
+    "gl_value": "20"
+  },
+  {
+    "gl_name": "cms_top_margin_default",
+    "gl_index": 0,
+    "gl_value": "24"
+  },
+  {
+    "gl_name": "configuration_import_export",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "couchdb_connection_ssl",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "couchdb_dbase",
+    "gl_index": 0,
+    "gl_value": "example"
+  },
+  {
+    "gl_name": "couchdb_encryption",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "couchdb_host",
+    "gl_index": 0,
+    "gl_value": "couchdb"
+  },
+  {
+    "gl_name": "couchdb_log",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "couchdb_pass",
+    "gl_index": 0,
+    "gl_value": "password"
+  },
+  {
+    "gl_name": "couchdb_port",
+    "gl_index": 0,
+    "gl_value": "6984"
+  },
+  {
+    "gl_name": "couchdb_ssl_allow_selfsigned",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "couchdb_user",
+    "gl_index": 0,
+    "gl_value": "admin"
+  },
+  {
+    "gl_name": "country_data_type",
+    "gl_index": 0,
+    "gl_value": "26"
+  },
+  {
+    "gl_name": "country_list",
+    "gl_index": 0,
+    "gl_value": "country"
+  },
+  {
+    "gl_name": "cqm_performance_period",
+    "gl_index": 0,
+    "gl_value": "2022"
+  },
+  {
+    "gl_name": "css_header",
+    "gl_index": 0,
+    "gl_value": "style_light.css"
+  },
+  {
+    "gl_name": "currency_decimals",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "currency_dec_point",
+    "gl_index": 0,
+    "gl_value": "."
+  },
+  {
+    "gl_name": "currency_thousands_sep",
+    "gl_index": 0,
+    "gl_value": ","
+  },
+  {
+    "gl_name": "dated_reminders_max_alerts_to_show",
+    "gl_index": 0,
+    "gl_value": "5"
+  },
+  {
+    "gl_name": "date_display_format",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "daysheet_provider_totals",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "default_chief_complaint",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "default_encounter_view",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "default_fee_sheet_line_item_provider",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "default_rendering_provider",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "default_search_code_type",
+    "gl_index": 0,
+    "gl_value": "ICD10"
+  },
+  {
+    "gl_name": "default_visit_category",
+    "gl_index": 0,
+    "gl_value": "_blank"
+  },
+  {
+    "gl_name": "disable_calendar",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "disable_chart_tracker",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "disable_eligibility_log",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "disable_immunizations",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "disable_non_default_groups",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "disable_pat_trkr",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "disable_prescriptions",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "disable_rcb",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "discount_by_money",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "display_acknowledgements",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "display_acknowledgements_on_login",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "display_donations_link",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "display_main_menu_logo",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "display_review_link",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "display_units_in_billing",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "docs_see_entire_calendar",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "document_storage_method",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "drive_encryption",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "drug_screen",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "drug_testing_percentage",
+    "gl_index": 0,
+    "gl_value": "33"
+  },
+  {
+    "gl_name": "easipro_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "easipro_name",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "easipro_pass",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "easipro_server",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "EMAIL_METHOD",
+    "gl_index": 0,
+    "gl_value": "SMTP"
+  },
+  {
+    "gl_name": "EMAIL_NOTIFICATION_HOUR",
+    "gl_index": 0,
+    "gl_value": "50"
+  },
+  {
+    "gl_name": "Emergency_Login_email_id",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "enable_alert_log",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_allergy_check",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_amc",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_amc_prompting",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_amc_tracking",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_atna_audit",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_auditlog",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_auditlog_encryption",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_batch_payment",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_cdr",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_cdr_crp",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_cdr_crw",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_cdr_new_crp",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_cdr_prw",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_compact_mode",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_cqm",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_database_connection_pooling",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_edihistory_in_left_menu",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_eligibility_requests",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_fees_in_left_menu",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_follow_up_encounters",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_group_therapy",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_help",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_hylafax",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_percent_pricing",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_posting",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "enable_scanner",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "enable_swap_secondary_insurance",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "encounter_page_size",
+    "gl_index": 0,
+    "gl_value": "20"
+  },
+  {
+    "gl_name": "enc_enable_class",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_enable_discharge_disposition",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_enable_facility",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_enable_issues",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_enable_ordering_provider",
+    "gl_index": 0,
+    "gl_value": "hide_both"
+  },
+  {
+    "gl_name": "enc_enable_referring_provider",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_enable_type",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_enable_visit_category",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_in_collection",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_sensitivity_visibility",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enc_service_date",
+    "gl_index": 0,
+    "gl_value": "show_both"
+  },
+  {
+    "gl_name": "enforce_signin_email",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "env_font_size",
+    "gl_index": 0,
+    "gl_value": "14"
+  },
+  {
+    "gl_name": "env_x_dist",
+    "gl_index": 0,
+    "gl_value": "65"
+  },
+  {
+    "gl_name": "env_x_width",
+    "gl_index": 0,
+    "gl_value": "104.775"
+  },
+  {
+    "gl_name": "env_y_dist",
+    "gl_index": 0,
+    "gl_value": "220"
+  },
+  {
+    "gl_name": "env_y_height",
+    "gl_index": 0,
+    "gl_value": "241.3"
+  },
+  {
+    "gl_name": "erx_account_id",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "erx_account_name",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "erx_account_partner_name",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "erx_account_password",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "erx_allergy_display",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "erx_debug_setting",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "erx_default_patient_country",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "erx_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "erx_import_status_message",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "erx_medication_display",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "erx_newcrop_path",
+    "gl_index": 0,
+    "gl_value": "https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx"
+  },
+  {
+    "gl_name": "erx_newcrop_path_soap",
+    "gl_index": 0,
+    "gl_value": "https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL"
+  },
+  {
+    "gl_name": "erx_soap_ttl_allergies",
+    "gl_index": 0,
+    "gl_value": "21600"
+  },
+  {
+    "gl_name": "erx_soap_ttl_medications",
+    "gl_index": 0,
+    "gl_value": "21600"
+  },
+  {
+    "gl_name": "erx_upload_active",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "esign_all",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "esign_individual",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "esign_lock_toggle",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "esign_report_hide_all_sig",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "esign_report_hide_empty_sig",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "esign_report_show_only_signed",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "event_color",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "expand_document_tree",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "expand_form",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "extra_logo_login",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "extra_portal_logo_login",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "fhir_us_core_profile_version",
+    "gl_index": 0,
+    "gl_value": "8.0.0"
+  },
+  {
+    "gl_name": "fifth_dun_msg_set",
+    "gl_index": 0,
+    "gl_value": "150"
+  },
+  {
+    "gl_name": "fifth_dun_msg_text",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "first_day_week",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "first_dun_msg_set",
+    "gl_index": 0,
+    "gl_value": "30"
+  },
+  {
+    "gl_name": "first_dun_msg_text",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "force_billing_widget_open",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "force_claim_balancing",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "form_actionbar_position",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "fourth_dun_msg_set",
+    "gl_index": 0,
+    "gl_value": "120"
+  },
+  {
+    "gl_name": "fourth_dun_msg_text",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "full_new_patient_form",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "gateway_api_key",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gateway_mode_production",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gateway_public_key",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gateway_transaction_key",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gbl_auth_argon_hash_memory_cost",
+    "gl_index": 0,
+    "gl_value": "DEFAULT"
+  },
+  {
+    "gl_name": "gbl_auth_argon_hash_thread_cost",
+    "gl_index": 0,
+    "gl_value": "DEFAULT"
+  },
+  {
+    "gl_name": "gbl_auth_argon_hash_time_cost",
+    "gl_index": 0,
+    "gl_value": "DEFAULT"
+  },
+  {
+    "gl_name": "gbl_auth_bcrypt_hash_cost",
+    "gl_index": 0,
+    "gl_value": "DEFAULT"
+  },
+  {
+    "gl_name": "gbl_auth_hash_algo",
+    "gl_index": 0,
+    "gl_value": "DEFAULT"
+  },
+  {
+    "gl_name": "gbl_auth_sha512_rounds",
+    "gl_index": 0,
+    "gl_value": "100000"
+  },
+  {
+    "gl_name": "gbl_currency_symbol",
+    "gl_index": 0,
+    "gl_value": "$"
+  },
+  {
+    "gl_name": "gbl_debug_hash_verify_execution_time",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_edit_patient_form",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_fac_warehouse_restrictions",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_force_log_breakglass",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "gbl_form_save_close",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_ldap_dn",
+    "gl_index": 0,
+    "gl_value": "cn={login},dc=example,dc=org"
+  },
+  {
+    "gl_name": "gbl_ldap_enabled",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_ldap_exclusions",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gbl_ldap_host",
+    "gl_index": 0,
+    "gl_value": "ldap://openldap:389"
+  },
+  {
+    "gl_name": "gbl_mask_invoice_number",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gbl_mask_patient_id",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gbl_mask_product_id",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gbl_maximum_password_length",
+    "gl_index": 0,
+    "gl_value": "72"
+  },
+  {
+    "gl_name": "gbl_mdm_category_name",
+    "gl_index": 0,
+    "gl_value": "Lab Report"
+  },
+  {
+    "gl_name": "gbl_minimum_password_length",
+    "gl_index": 0,
+    "gl_value": "9"
+  },
+  {
+    "gl_name": "gbl_nav_visit_forms",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "gbl_print_log_option",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "gbl_pt_list_new_window",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_pt_list_page_size",
+    "gl_index": 0,
+    "gl_value": "10"
+  },
+  {
+    "gl_name": "gbl_time_zone",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "gbl_visit_onset_date",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "gbl_visit_referral_source",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gbl_vitals_max_history_cols",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "gbl_vitals_options",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gb_how_sort_list",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "generate_doc_thumb",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "gen_x12_based_on_ins_co",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "google_recaptcha_secret_key",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "google_recaptcha_site_key",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "google_signin_client_id",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "google_signin_enabled",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "graph_data_warning",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "hidden_auth_dummy_hash",
+    "gl_index": 0,
+    "gl_value": "$2y$12$tAGzu/tZRJJ10knqJP1s0OtPJ5r3l3Nd3AZwumi0/smf/Z0ARVqu6"
+  },
+  {
+    "gl_name": "hide_billing_widget",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "hide_document_encryption",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "hylafax_basedir",
+    "gl_index": 0,
+    "gl_value": "/var/spool/hylafax"
+  },
+  {
+    "gl_name": "hylafax_server",
+    "gl_index": 0,
+    "gl_value": "localhost"
+  },
+  {
+    "gl_name": "ignore_pnotes_authorization",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "include_inactive_providers",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "inhouse_pharmacy",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "insurance_information",
+    "gl_index": 0,
+    "gl_value": "6"
+  },
+  {
+    "gl_name": "insurance_only_one",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "ip_max_failed_logins",
+    "gl_index": 0,
+    "gl_value": "100"
+  },
+  {
+    "gl_name": "ip_time_reset_password_max_failed_logins",
+    "gl_index": 0,
+    "gl_value": "3600"
+  },
+  {
+    "gl_name": "is_client_ssl_enabled",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "lab_results_category_name",
+    "gl_index": 0,
+    "gl_value": "Lab Report"
+  },
+  {
+    "gl_name": "language_default",
+    "gl_index": 0,
+    "gl_value": "English (Standard)"
+  },
+  {
+    "gl_name": "language_menu_showall",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "ledger_begin_date",
+    "gl_index": 0,
+    "gl_value": "Y1"
+  },
+  {
+    "gl_name": "left_ubmargin_default",
+    "gl_index": 0,
+    "gl_value": "11"
+  },
+  {
+    "gl_name": "lock_esign_all",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "lock_esign_individual",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "login_into_facility",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "login_page_layout",
+    "gl_index": 0,
+    "gl_value": "login/layouts/vertical_band.html.twig"
+  },
+  {
+    "gl_name": "login_tagline_text",
+    "gl_index": 0,
+    "gl_value": "The most popular open-source Electronic Health Record and Medical Practice Management solution."
+  },
+  {
+    "gl_name": "logo_position",
+    "gl_index": 0,
+    "gl_value": "flex-column"
+  },
+  {
+    "gl_name": "machine_name",
+    "gl_index": 0,
+    "gl_value": "openemr"
+  },
+  {
+    "gl_name": "maximum_drug_test_yearly",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "mdht_conformance_server",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "mdht_conformance_server_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "medex_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "MedicareReferrerIsRenderer",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "messages_due_date",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "minimum_amount_to_print",
+    "gl_index": 0,
+    "gl_value": "1.00"
+  },
+  {
+    "gl_name": "mysql_bin_dir",
+    "gl_index": 0,
+    "gl_value": "/usr/bin"
+  },
+  {
+    "gl_name": "new_validate",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "notes_to_display_in_Billing",
+    "gl_index": 0,
+    "gl_value": "3"
+  },
+  {
+    "gl_name": "number_appointments_on_statement",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "number_of_appts_to_show",
+    "gl_index": 0,
+    "gl_value": "10"
+  },
+  {
+    "gl_name": "number_of_ex_appts_to_show",
+    "gl_index": 0,
+    "gl_value": "15"
+  },
+  {
+    "gl_name": "number_of_group_appts_to_show",
+    "gl_index": 0,
+    "gl_value": "10"
+  },
+  {
+    "gl_name": "num_of_messages_displayed",
+    "gl_index": 0,
+    "gl_value": "3"
+  },
+  {
+    "gl_name": "num_past_appointments_to_show",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "oauth_app_manual_approval",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "oauth_ehr_launch_authorization_flow_skip",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "oauth_password_grant",
+    "gl_index": 0,
+    "gl_value": "3"
+  },
+  {
+    "gl_name": "observation_results_immunization",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "omit_employers",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "online_support_link",
+    "gl_index": 0,
+    "gl_value": "http://open-emr.org/"
+  },
+  {
+    "gl_name": "openemr_name",
+    "gl_index": 0,
+    "gl_value": "OpenEMR"
+  },
+  {
+    "gl_name": "password_expiration_days",
+    "gl_index": 0,
+    "gl_value": "180"
+  },
+  {
+    "gl_name": "password_grace_time",
+    "gl_index": 0,
+    "gl_value": "30"
+  },
+  {
+    "gl_name": "password_history",
+    "gl_index": 0,
+    "gl_value": "5"
+  },
+  {
+    "gl_name": "password_max_failed_logins",
+    "gl_index": 0,
+    "gl_value": "20"
+  },
+  {
+    "gl_name": "patient_birthday_alert",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "patient_birthday_alert_manual_off",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "patient_id_category_name",
+    "gl_index": 0,
+    "gl_value": "Patient ID card"
+  },
+  {
+    "gl_name": "patient_name_display",
+    "gl_index": 0,
+    "gl_value": "text-large"
+  },
+  {
+    "gl_name": "patient_photo_category_name",
+    "gl_index": 0,
+    "gl_value": "Patient Photograph"
+  },
+  {
+    "gl_name": "patient_reminder_sender_email",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "patient_reminder_sender_name",
+    "gl_index": 0,
+    "gl_value": "OpenEMR Reminders"
+  },
+  {
+    "gl_name": "patient_search_results_style",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "pat_rem_clin_nice",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "pat_trkr_timer",
+    "gl_index": 0,
+    "gl_value": "0:20"
+  },
+  {
+    "gl_name": "payment_gateway",
+    "gl_index": 0,
+    "gl_value": "InHouse"
+  },
+  {
+    "gl_name": "pdf_bottom_margin",
+    "gl_index": 0,
+    "gl_value": "8"
+  },
+  {
+    "gl_name": "pdf_font_size",
+    "gl_index": 0,
+    "gl_value": "10"
+  },
+  {
+    "gl_name": "pdf_language",
+    "gl_index": 0,
+    "gl_value": "en"
+  },
+  {
+    "gl_name": "pdf_layout",
+    "gl_index": 0,
+    "gl_value": "P"
+  },
+  {
+    "gl_name": "pdf_left_margin",
+    "gl_index": 0,
+    "gl_value": "5"
+  },
+  {
+    "gl_name": "pdf_output",
+    "gl_index": 0,
+    "gl_value": "D"
+  },
+  {
+    "gl_name": "pdf_right_margin",
+    "gl_index": 0,
+    "gl_value": "5"
+  },
+  {
+    "gl_name": "pdf_size",
+    "gl_index": 0,
+    "gl_value": "LETTER"
+  },
+  {
+    "gl_name": "pdf_top_margin",
+    "gl_index": 0,
+    "gl_value": "5"
+  },
+  {
+    "gl_name": "perl_bin_dir",
+    "gl_index": 0,
+    "gl_value": "/usr/bin"
+  },
+  {
+    "gl_name": "phimail_ccd_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "phimail_ccr_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "phimail_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "phimail_interval",
+    "gl_index": 0,
+    "gl_value": "5"
+  },
+  {
+    "gl_name": "phimail_notify",
+    "gl_index": 0,
+    "gl_value": "admin"
+  },
+  {
+    "gl_name": "phimail_password",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "phimail_server_address",
+    "gl_index": 0,
+    "gl_value": "https://phimail.example.com:32541"
+  },
+  {
+    "gl_name": "phimail_testmode_disabled",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "phimail_username",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "phimail_verifyrecipientreceived_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "phone_country_code",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "phone_gateway_password",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "phone_gateway_url",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "phone_gateway_username",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "phone_notification_hour",
+    "gl_index": 0,
+    "gl_value": "50"
+  },
+  {
+    "gl_name": "portal_css_header",
+    "gl_index": 0,
+    "gl_value": "style_light.css"
+  },
+  {
+    "gl_name": "portal_force_credential_reset",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "portal_onsite_document_download",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "portal_onsite_two_address",
+    "gl_index": 0,
+    "gl_value": "https://your_web_site.com/openemr/portal"
+  },
+  {
+    "gl_name": "portal_onsite_two_basepath",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "portal_onsite_two_enable",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "portal_onsite_two_register",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "portal_primary_menu_logo_height",
+    "gl_index": 0,
+    "gl_value": "30"
+  },
+  {
+    "gl_name": "portal_timeout",
+    "gl_index": 0,
+    "gl_value": "1800"
+  },
+  {
+    "gl_name": "portal_two_ledger",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "portal_two_pass_reset",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "portal_two_payments",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "posting_adj_disable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "post_to_date_benchmark",
+    "gl_index": 0,
+    "gl_value": "2025-11-28"
+  },
+  {
+    "gl_name": "pqri_registry_id",
+    "gl_index": 0,
+    "gl_value": "125789123"
+  },
+  {
+    "gl_name": "pqri_registry_name",
+    "gl_index": 0,
+    "gl_value": "Model Registry"
+  },
+  {
+    "gl_name": "practice_return_email_path",
+    "gl_index": 0,
+    "gl_value": "noreply@openemr.local"
+  },
+  {
+    "gl_name": "preprinted_cms_1500",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "prevent_browser_refresh",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "primary_logo_width",
+    "gl_index": 0,
+    "gl_value": "w-50"
+  },
+  {
+    "gl_name": "print_next_appointment_on_ledger",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "ptkr_date_range",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "ptkr_end_date",
+    "gl_index": 0,
+    "gl_value": "D0"
+  },
+  {
+    "gl_name": "ptkr_show_encounter",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "ptkr_show_pid",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "ptkr_show_staff",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "ptkr_start_date",
+    "gl_index": 0,
+    "gl_value": "D0"
+  },
+  {
+    "gl_name": "ptkr_visit_reason",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "questionnaire_display_fullscreen",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "questionnaire_display_LOINCnote",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "questionnaire_display_style",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "receipts_by_provider",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "recent_patient_count",
+    "gl_index": 0,
+    "gl_value": "20"
+  },
+  {
+    "gl_name": "replicate_justification",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "report_itemizing_amc",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "report_itemizing_cqm",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "report_itemizing_standard",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "restrict_user_facility",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rest_api",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "rest_fhir_api",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "rest_portal_api",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "rest_system_scopes_api",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "right_justify_labels_demographics",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_bottom_margin",
+    "gl_index": 0,
+    "gl_value": "30"
+  },
+  {
+    "gl_name": "rx_enable_DEA",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "rx_enable_NPI",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_enable_SLN",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_left_margin",
+    "gl_index": 0,
+    "gl_value": "30"
+  },
+  {
+    "gl_name": "rx_paper_size",
+    "gl_index": 0,
+    "gl_value": "LETTER"
+  },
+  {
+    "gl_name": "rx_right_margin",
+    "gl_index": 0,
+    "gl_value": "30"
+  },
+  {
+    "gl_name": "rx_send_email",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "rx_show_DEA",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_show_drug_drug",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_show_NPI",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_show_SLN",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_top_margin",
+    "gl_index": 0,
+    "gl_value": "72"
+  },
+  {
+    "gl_name": "rx_use_fax_template",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "rx_zend_html_action",
+    "gl_index": 0,
+    "gl_value": "default"
+  },
+  {
+    "gl_name": "rx_zend_html_template",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "rx_zend_pdf_action",
+    "gl_index": 0,
+    "gl_value": "default"
+  },
+  {
+    "gl_name": "rx_zend_pdf_template",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "safe_key_database",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sales_report_invoice",
+    "gl_index": 0,
+    "gl_value": "2"
+  },
+  {
+    "gl_name": "save_codes_history",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "scanner_output_directory",
+    "gl_index": 0,
+    "gl_value": "/mnt/scan_docs"
+  },
+  {
+    "gl_name": "schedule_end",
+    "gl_index": 0,
+    "gl_value": "17"
+  },
+  {
+    "gl_name": "schedule_start",
+    "gl_index": 0,
+    "gl_value": "8"
+  },
+  {
+    "gl_name": "search_any_patient",
+    "gl_index": 0,
+    "gl_value": "dual"
+  },
+  {
+    "gl_name": "secondary_logo_position",
+    "gl_index": 0,
+    "gl_value": "second"
+  },
+  {
+    "gl_name": "secondary_logo_width",
+    "gl_index": 0,
+    "gl_value": "w-50"
+  },
+  {
+    "gl_name": "secondary_portal_logo_position",
+    "gl_index": 0,
+    "gl_value": "second"
+  },
+  {
+    "gl_name": "second_dun_msg_set",
+    "gl_index": 0,
+    "gl_value": "60"
+  },
+  {
+    "gl_name": "second_dun_msg_text",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "secure_password",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "secure_upload",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "select_multi_providers",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "set_facility_cookie",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "set_pos_code_encounter",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "set_service_facility_encounter",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "show_aging_on_custom_statement",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "show_insurance_in_profile",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "show_labels_on_login_form",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "show_label_login",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "show_payment_history",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "show_portal_primary_logo",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "show_primary_logo",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "show_tagline_on_login",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "simplified_copay",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "simplified_demographics",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "simplified_prescriptions",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "site_addr_oath",
+    "gl_index": 0,
+    "gl_value": "https://localhost:9300"
+  },
+  {
+    "gl_name": "SMS_GATEWAY_APIKEY",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "SMS_GATEWAY_PASSWORD",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "SMS_GATEWAY_USENAME",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "SMS_NOTIFICATION_HOUR",
+    "gl_index": 0,
+    "gl_value": "50"
+  },
+  {
+    "gl_name": "SMTP_HOST",
+    "gl_index": 0,
+    "gl_value": "mailpit"
+  },
+  {
+    "gl_name": "SMTP_PASS",
+    "gl_index": 0,
+    "gl_value": "openemr"
+  },
+  {
+    "gl_name": "SMTP_PORT",
+    "gl_index": 0,
+    "gl_value": "1025"
+  },
+  {
+    "gl_name": "SMTP_SECURE",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "SMTP_USER",
+    "gl_index": 0,
+    "gl_value": "openemr"
+  },
+  {
+    "gl_name": "specific_application",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "sphere_clinicfront_retail_trxcustid",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_clinicfront_retail_trxcustid_licensekey",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_clinicfront_trxcustid",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_clinicfront_trxcustid_licensekey",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_credit_void_confirm_pin",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_ecomm_tc_link_pass",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_moto_tc_link_pass",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_patientfront_trxcustid",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_patientfront_trxcustid_licensekey",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sphere_retail_tc_link_pass",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "sql_string_no_show_screen",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "statement_appearance",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "statement_bill_note_print",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "statement_logo",
+    "gl_index": 0,
+    "gl_value": "practice_logo.gif"
+  },
+  {
+    "gl_name": "statement_message_to_patient",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "statement_msg_text",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "state_custom_addlist_widget",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "state_data_type",
+    "gl_index": 0,
+    "gl_value": "26"
+  },
+  {
+    "gl_name": "state_list",
+    "gl_index": 0,
+    "gl_value": "state"
+  },
+  {
+    "gl_name": "submit_changes_for_all_appts_at_once",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "support_encounter_claims",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "support_fee_sheet_line_item_provider",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "support_phone_number",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "system_error_logging",
+    "gl_index": 0,
+    "gl_value": "WARNING"
+  },
+  {
+    "gl_name": "temporary_files_dir",
+    "gl_index": 0,
+    "gl_value": "/tmp"
+  },
+  {
+    "gl_name": "text_templates_enabled",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "theme_tabs_layout",
+    "gl_index": 0,
+    "gl_value": "tabs_style_full.css"
+  },
+  {
+    "gl_name": "third_dun_msg_set",
+    "gl_index": 0,
+    "gl_value": "90"
+  },
+  {
+    "gl_name": "third_dun_msg_text",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "thumb_doc_max_size",
+    "gl_index": 0,
+    "gl_value": "100"
+  },
+  {
+    "gl_name": "timeout",
+    "gl_index": 0,
+    "gl_value": "7200"
+  },
+  {
+    "gl_name": "time_display_format",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "time_reset_password_max_failed_logins",
+    "gl_index": 0,
+    "gl_value": "3600"
+  },
+  {
+    "gl_name": "tiny_logo_1",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "tiny_logo_2",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "top_ubmargin_default",
+    "gl_index": 0,
+    "gl_value": "14"
+  },
+  {
+    "gl_name": "translate_appt_categories",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "translate_document_categories",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "translate_form_titles",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "translate_gacl_groups",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "translate_layout",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "translate_lists",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "translate_no_safe_apostrophe",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "ub04_support",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "unique_installation_id",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "units_of_measurement",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "user_debug",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "user_manual_link",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "use_charges_panel",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "use_custom_daysheet",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "use_custom_immun_list",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "use_custom_statement",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "use_dunning_message",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "use_email_for_portal_username",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "use_statement_print_exclusion",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "usps_webtools_enable",
+    "gl_index": 0,
+    "gl_value": "0"
+  },
+  {
+    "gl_name": "usps_webtools_username",
+    "gl_index": 0,
+    "gl_value": ""
+  },
+  {
+    "gl_name": "us_weight_format",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "void_checkout_reopen",
+    "gl_index": 0,
+    "gl_value": "1"
+  },
+  {
+    "gl_name": "weekend_days",
+    "gl_index": 0,
+    "gl_value": "6,0"
+  },
+  {
+    "gl_name": "window_title_add_patient_name",
+    "gl_index": 0,
+    "gl_value": "0"
+  }
+]
