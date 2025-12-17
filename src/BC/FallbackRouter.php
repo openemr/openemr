@@ -6,27 +6,32 @@ namespace OpenEMR\BC;
 
 readonly class FallbackRouter
 {
+    /**
+     * @param string $installRoot The absolute path to the root of the
+     * installation (e.g. where composer.json and .git exist)
+     */
     public function __construct(
-        private string $documentRoot,
+        private string $installRoot,
     ) {
     }
 
     /**
-     * @param array<string, string|int> $serverGlobals a copy of $_SERVER
+     * Determines the file that would have been directly requested, and
+     * modifies superglobals in such a way that requests relying on that path
+     * won't know the difference.
+     *
+     * @param string $requestUri The value of $_SERVER['REQUEST_URI']
      *
      * @return string The absolute path to the legacy file to include
      */
-    public function performLegacyRouting(array $serverGlobals): string
+    public function performLegacyRouting(string $requestUri): string
     {
-        $this->log("PERFORMING FRONT CONTROLLER ROUTING");
-        // debugGlobals();
-        // ksort($serverGlobals);
-        $requestUri = $serverGlobals['REQUEST_URI'];
+        $this->log("PERFORMING LEGACY ROUTING");
         if ($requestUri === '/') {
-            // Special-case the document root
+            // Special-case the "index" requests
             $requestUri = '/index.php';
         }
-        error_log("REQUEST_URI=$requestUri");
+        $this->log("REQUEST_URI=$requestUri");
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         $path = match (true) {
@@ -34,25 +39,22 @@ readonly class FallbackRouter
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 
-        error_log("path=$path");
+        $this->log("path=$path");
         // Normalize the included file to the webroot
-        // $path = realpath(__DIR__ . '/../' . $path);
-        $path = realpath(sprintf('%s%s', $this->documentRoot, $path));
+        $path = realpath(sprintf('%s%s', $this->installRoot, $path));
 
         $fileDirectory = pathinfo($path, PATHINFO_DIRNAME);
         chdir($fileDirectory);
 
         // This seems fairly reliably to be $_SERVER['DOCUMENT_ROOT']
-        if ($path === false || !str_starts_with(needle: $this->documentRoot, haystack: $path)) {
+        if ($path === false || !str_starts_with(needle: $this->installRoot, haystack: $path)) {
             header('HTTP/1.1 404 Not Found');
             echo 'Invalid path';
             exit(1);
         }
 
         $this->overrideGlobals($path);
-        error_log("include=$path");
-        // unscopedRequire($path);
-        // exit(0);
+        $this->log("include=$path");
         return $path;
     }
 
@@ -65,7 +67,7 @@ readonly class FallbackRouter
 
         $_SERVER['SCRIPT_FILENAME'] = $targetFile;
 
-        $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->documentRoot));
+        $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->installRoot));
         // SCRIPT_NAME = PHP_SELF = docroot-relative
         // DOCUMENT_ROOT seems ok
     }
@@ -75,18 +77,5 @@ readonly class FallbackRouter
         // Future scope: Have a PSR-3 logger injected and make calls
         // (debug-level?) to it instead.
         error_log($message);
-    }
-
-    private function debugGlobals(): never
-    {
-        header('Content-type: text/plain');
-        echo "Hello from front controller";
-
-        ksort($_SERVER);
-        print_r($_SERVER);
-        print_r($_GET);
-        print_r($_POST);
-
-        exit;
     }
 }
