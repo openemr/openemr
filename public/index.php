@@ -42,8 +42,16 @@ function performLegacyRouting($serverGlobals): string
         // Special-case the document root
         $requestUri = '/index.php';
     }
-    // var_dump($requestUri);
-    $path = parse_url($requestUri, PHP_URL_PATH);
+    error_log("REQUEST_URI=$requestUri");
+
+    // PHP-equivalent to `.htaccess` mod_rewrite rules
+    $path = match (true) {
+        str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
+        default => parse_url($requestUri, PHP_URL_PATH),
+    };
+
+    error_log("path=$path");
+    // Normalize the included file to the webroot
     $path = realpath(__DIR__ . '/../' . $path);
 
     $fileDirectory = pathinfo($path, PATHINFO_DIRNAME);
@@ -58,6 +66,7 @@ function performLegacyRouting($serverGlobals): string
     }
 
     overrideGlobals($path, $installationRoot);
+    error_log("include=$path");
     // unscopedRequire($path);
     // exit(0);
     return $path;
