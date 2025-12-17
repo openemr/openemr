@@ -1,0 +1,11 @@
+# root-level FC hack
+RewriteEngine On
+
+# Serve existing files EXCEPT PHP
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} !\.php$
+RewriteRule ^ - [L]
+
+# Everything else goes to front controller
+RewriteRule ^ public/index.php [QSA,L]
+
