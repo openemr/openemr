@@ -177,6 +177,14 @@ use OpenEMR\RestControllers\Config\RestConfig;
  *      description="Standard OpenEMR API"
  *  )
  *  @OA\Tag(
+ *      name="admin",
+ *      description="Standard OpenEMR Admin API"
+ *  )
+ *  @OA\Tag(
+ *      name="ACL",
+ *      description="Standard OpenEMR Admin ACL API"
+ *  )
+ *  @OA\Tag(
  *      name="standard-patient",
  *      description="Standard Patient Portal OpenEMR API"
  *  )
