@@ -326,7 +326,25 @@ use OpenEMR\RestControllers\Config\RestConfig;
 
 // Note that the api route is only for users role
 //  (there is a mechanism in place to ensure only user role can access the api route)
-RestConfig::$ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php";
+
+RestConfig::$ROUTE_MAP = array_merge(
+    require_once __DIR__ . "/apis/routes/_rest_routes_standard.inc.php",
+
+    require_once __DIR__ . '/apis/routes/standard/_rest_routes_standard_common.inc.php',
+
+    require_once __DIR__ . '/apis/routes/standard/user/_rest_routes_standard_user_setting.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/user/_rest_routes_standard_user.inc.php', // @todo Decide
+
+    require_once __DIR__ . '/apis/routes/standard/admin/_rest_routes_standard_admin_global_setting.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/admin/user/_rest_routes_standard_admin_user_setting.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/admin/user/_rest_routes_standard_admin_user.inc.php',
+
+    require_once __DIR__ . '/apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_section.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group_member.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_user_setting.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group_setting.inc.php',
+    require_once __DIR__ . '/apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group.inc.php',
+);
 
 RestConfig::$FHIR_ROUTE_MAP = require_once __DIR__ . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
 
