@@ -369,7 +369,9 @@ $(function () {
                                                 {% else %}
                                                     {{prescription.drug|text}}
                                                 {% endif %}&nbsp;
-                                                <br />{{prescription.note|text}}
+                                                <br />{% if prescription.get_dispensation_count() > 0 %}
+                                                    <span class="badge badge-success mr-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
+                                                {% endif %}{{prescription.note|text}}
                                             </td>
                                         {% else %}
                                             <td>&nbsp;</td>
@@ -379,7 +381,9 @@ $(function () {
                                                 {% else %}
                                                     {{prescription.drug|text}}
                                                 {% endif %}&nbsp;
-                                                <br />{{prescription.note|text}}
+                                                <br />{% if prescription.get_dispensation_count() > 0 %}
+                                                    <span class="badge badge-success mr-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
+                                                {% endif %}{{prescription.note|text}}
                                             </td>
                                         {% endif %}
                                         <td id="{{prescription.id|attr}}">
