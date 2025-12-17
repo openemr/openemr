@@ -411,7 +411,7 @@ function checkAll(bx) {
                             $date_collected[$key] = $row['date_collected'];
                         }
 
-                        array_multisort(array_map('strtolower', $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
+                        array_multisort(array_map(strtolower(...), $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
 
                         $cellcount = count($datelist);
                         $itemcount = count($value_matrix);

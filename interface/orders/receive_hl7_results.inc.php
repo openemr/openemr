@@ -682,7 +682,7 @@ function ucname($string)
 
     foreach (['-', '\''] as $delimiter) {
         if (str_contains($string, $delimiter)) {
-            $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
+            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
         }
     }
     return $string;
