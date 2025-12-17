@@ -356,7 +356,7 @@ class FhirOperationExportRestController
             }
             // if we've reached our shutdown point, every subsequent resource we just fail immediately
             if ($shutdownImminent) {
-                $errorResult[] = $this->getExportTimeoutExportError($resource);
+                $errorResult[] = $this->getExportTimeoutExportError();
                 continue;
             }
 
@@ -386,7 +386,7 @@ class FhirOperationExportRestController
             } catch (ExportWillShutdownException $exception) {
                 // we ran out of time and need to mark everything as failed
                 $shutdownImminent = true;
-                $errorOutcome = $this->getExportTimeoutExportError($resource);
+                $errorOutcome = $this->getExportTimeoutExportError();
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
                 $this->logger->error("FhirExportRestController->processResourceExportForJob() Export reached "
                     . "maximum execution time.", [

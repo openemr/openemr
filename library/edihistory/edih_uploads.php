@@ -243,7 +243,7 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
                 $fzp['name'] = $bnm;
                 $fzp['tmp_name'] = $newname;
                 // verification checks special to our application
-                $f_uplz = edih_upload_match_file($param_ar, $fzp, $html_str);
+                $f_uplz = edih_upload_match_file($param_ar, $fzp);
                 //
                 if (is_array($f_uplz) && count($f_uplz)) {
                     if (isset($f_uplz['reject'])) {

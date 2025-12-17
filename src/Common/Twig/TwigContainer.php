@@ -81,7 +81,7 @@ class TwigContainer
                 $twigEnv->enableDebug();
             }
             $event = new TwigEnvironmentEvent($twigEnv);
-            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED, 10);
+            $this->kernel->getEventDispatcher()->dispatch($event, TwigEnvironmentEvent::EVENT_CREATED);
         }
 
         return $twigEnv;
