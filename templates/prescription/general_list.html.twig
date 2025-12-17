@@ -219,6 +219,14 @@ $(function () {
   });
   // Set initial state of "check all" checkbox
   updateCheckAllState();
+
+  // Auto-print prescription if printPrescriptionId is set (Save and Print workflow)
+  {% if printPrescriptionId %}
+  (function() {
+      let printUrl = "{{ CONTROLLER|e('js') }}prescription&multiprint&id=:{{ printPrescriptionId|e('js') }}:";
+      window.open(printUrl, '_blank');
+  })();
+  {% endif %}
 });
 
 </script>

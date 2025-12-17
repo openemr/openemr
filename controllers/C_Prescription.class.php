@@ -169,7 +169,7 @@ class C_Prescription extends Controller
         $this->default_action();
     }
 
-    function list_action($id, $sort = "")
+    function list_action($id, $sort = "", $printPrescriptionId = null)
     {
         if (empty($id)) {
             $this->function_argument_error();
@@ -247,6 +247,8 @@ class C_Prescription extends Controller
         if (!($this->pconfig['use_signature'] && $this->current_user_has_signature())) {
             $vars['faxSignatureMissing'] = true;
         }
+        // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
+        $vars['printPrescriptionId'] = $printPrescriptionId;
         $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
@@ -425,13 +427,15 @@ class C_Prescription extends Controller
 
     /**
      * Print/download PDF immediately after saving a prescription.
-     * Directly calls multiprint_action with the newly saved prescription ID.
+     * Redirects to the prescription list with a flag to trigger the print dialog on load.
+     * This keeps the dialog open (unlike directly streaming the PDF which would replace the page).
      */
     private function printAfterSave(): void
     {
         $prescriptionId = $this->prescriptions[0]->id;
-        // Format expected by multiprint_action: :id:
-        $this->multiprint_action(':' . $prescriptionId . ':');
+        $patientId = $this->prescriptions[0]->get_patient_id();
+        $this->list_action($patientId, "", $prescriptionId);
+        exit;
     }
 
     function multiprintfax_header(&$pdf, $p)
