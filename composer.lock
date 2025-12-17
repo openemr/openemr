@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19165d0f2a6b07ddd027be6f8ceb7750",
+    "content-hash": "5ed3dc1c70119d63bfc590bcca535bd3",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -5870,16 +5870,16 @@
         },
         {
             "name": "particle/validator",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/particle-php/Validator.git",
-                "reference": "aab07e734bc40e8777fb4a1f9d9037dc11fb60b6"
+                "reference": "8a1677866a4e7ab448b969539a94601a7b00b279"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/particle-php/Validator/zipball/aab07e734bc40e8777fb4a1f9d9037dc11fb60b6",
-                "reference": "aab07e734bc40e8777fb4a1f9d9037dc11fb60b6",
+                "url": "https://api.github.com/repos/particle-php/Validator/zipball/8a1677866a4e7ab448b969539a94601a7b00b279",
+                "reference": "8a1677866a4e7ab448b969539a94601a7b00b279",
                 "shasum": ""
             },
             "require": {
@@ -5930,9 +5930,9 @@
             ],
             "support": {
                 "issues": "https://github.com/particle-php/Validator/issues",
-                "source": "https://github.com/particle-php/Validator/tree/v2.3.5"
+                "source": "https://github.com/particle-php/Validator/tree/v2.3.6"
             },
-            "time": "2022-12-12T19:35:42+00:00"
+            "time": "2025-12-09T13:33:27+00:00"
         },
         {
             "name": "pear/archive_tar",
