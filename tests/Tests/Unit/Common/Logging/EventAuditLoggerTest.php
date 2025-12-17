@@ -503,9 +503,22 @@ final class EventAuditLoggerTest extends TestCase
         $mockAdodb = $this->createMockAdodb();
         $this->setGlobalAdodbMock($mockAdodb);
 
+        // Create a mock CryptoGen to verify encryption calls
+        $cryptoMock = $this->getMockBuilder(CryptoGen::class)
+            ->onlyMethods(['encryptStandard'])
+            ->getMock();
+
+        $cryptoMock->expects($this->exactly(1))
+            ->method('encryptStandard')
+            ->willReturnCallback(
+                fn(string $value): string => 'encrypted_' . $value
+            );
+
+        $eventAuditLogger = new EventAuditLogger($cryptoMock);
+
         try {
             // This should execute the full recordLogItem flow including encryption
-            $this->eventAuditLogger->recordLogItem(
+            $eventAuditLogger->recordLogItem(
                 1,
                 'patient-record-select',
                 'testuser',
