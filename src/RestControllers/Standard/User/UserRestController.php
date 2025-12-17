@@ -69,7 +69,7 @@ class UserRestController
     public function __construct()
     {
         $this->userService = new UserService();
-        $this->userValidator = new UserValidator();
+        $this->userValidator = UserValidator::getInstance();
     }
 
     /**
