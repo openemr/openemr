@@ -21,8 +21,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
-use ReflectionMethod;
-use ReflectionProperty;
 
 /**
  * Interface for mocking ADODB connection in tests
@@ -49,8 +47,6 @@ final class EventAuditLoggerTest extends TestCase
      * @var EventAuditLogger
      */
     private $eventAuditLogger;
-
-    private \PHPUnit\Framework\MockObject\MockObject $cryptoGenMock;
 
     /**
      * @var array<string, mixed> Original $_SESSION backup
@@ -111,10 +107,9 @@ final class EventAuditLoggerTest extends TestCase
         }
 
         // Get EventAuditLogger instance (works with existing singleton)
-        $this->eventAuditLogger = EventAuditLogger::instance();
-
-        // Create mock for CryptoGen
-        $this->cryptoGenMock = $this->createMock(CryptoGen::class);
+        $this->eventAuditLogger = new EventAuditLogger(
+            new CryptoGen(),
+        );
 
         // Setup default test environment
         $this->setupTestEnvironment();
@@ -303,8 +298,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testSingletonPattern(): void
     {
-        $eventAuditLogger = EventAuditLogger::instance();
-        $instance2 = EventAuditLogger::instance();
+        $eventAuditLogger = EventAuditLogger::getInstance();
+        $instance2 = EventAuditLogger::getInstance();
 
         $this->assertSame($eventAuditLogger, $instance2, 'EventAuditLogger should implement singleton pattern');
         $this->assertInstanceOf(EventAuditLogger::class, $eventAuditLogger);
@@ -318,6 +313,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -403,6 +399,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem to verify it gets called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // We expect recordLogItem to be called once (either patient portal path or regular path)
@@ -474,13 +471,12 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
-        // Inject mock CryptoGen
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionProperty = $reflectionClass->getProperty('cryptoGen');
-        $reflectionProperty->setValue($this->eventAuditLogger, $this->cryptoGenMock);
+        $eventAuditLogger = new EventAuditLogger(
+            $this->createMock(CryptoGen::class)
+        );
 
         // Call recordLogItem - will return early due to disabled audit logging
-        $this->eventAuditLogger->recordLogItem(
+        $eventAuditLogger->recordLogItem(
             1,
             'patient-record-select',
             'testuser',
@@ -603,16 +599,13 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        // Inject the mock CryptoGen
-        $reflection = new \ReflectionClass($this->eventAuditLogger);
-        $cryptoProperty = $reflection->getProperty('cryptoGen');
-        $cryptoProperty->setValue($this->eventAuditLogger, $cryptoMock);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
         // Line 768: $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
         // Line 769: $api['response'] = (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
-        $this->eventAuditLogger->recordLogItem(
+        $eventAuditLogger->recordLogItem(
             1,
             'api-create',
             'apiuser',
@@ -652,6 +645,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock to verify newEvent is called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -693,6 +687,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -983,6 +978,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1010,6 +1006,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1038,6 +1035,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1066,6 +1064,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1141,6 +1140,7 @@ final class EventAuditLoggerTest extends TestCase
             // Mock newEvent method
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             // With audit logging disabled, newEvent should not be called
@@ -1166,6 +1166,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock newEvent method to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())->method('newEvent');
@@ -1186,6 +1187,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock newEvent method to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())->method('newEvent');
@@ -1220,6 +1222,7 @@ final class EventAuditLoggerTest extends TestCase
 
                 $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                     ->onlyMethods(['newEvent'])
+                    ->disableOriginalConstructor()
                     ->getMock();
 
                 // With audit logging disabled, newEvent should not be called
@@ -1251,6 +1254,7 @@ final class EventAuditLoggerTest extends TestCase
 
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->never())
@@ -1524,6 +1528,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect that recordLogItem is never called due to early return
@@ -1560,6 +1565,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect that recordLogItem is never called due to early return
@@ -1802,6 +1808,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a partial mock that only mocks recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect recordLogItem to be called with specific parameters (regular path)
@@ -1847,6 +1854,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with recordLogItem mocked to avoid database calls
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1913,6 +1921,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with recordLogItem mocked - we'll accept whatever menu_item_id we get
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1960,6 +1969,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with newEvent - should not be called when audit logging is disabled
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())
@@ -1979,6 +1989,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with newEvent - should not be called when http request logging is disabled
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->never())
@@ -2013,6 +2024,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2073,6 +2085,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2132,6 +2145,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2186,6 +2200,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2241,6 +2256,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2300,6 +2316,7 @@ final class EventAuditLoggerTest extends TestCase
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2423,6 +2440,7 @@ final class EventAuditLoggerTest extends TestCase
         try {
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
+                ->disableOriginalConstructor()
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2767,6 +2785,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a partial mock that only mocks the createTlsConn method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['createTlsConn'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Mock the protected createTlsConn method to return our mock connection

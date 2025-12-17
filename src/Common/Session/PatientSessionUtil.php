@@ -50,6 +50,6 @@ class PatientSessionUtil
         $sessionSetArray['pid'] = $new_pid_int;
         SessionUtil::setUnsetSession($sessionSetArray, $sessionUnsetArray);
         $pid = $new_pid_int;
-        EventAuditLogger::instance()->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
+        EventAuditLogger::getInstance()->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
     }
 }
