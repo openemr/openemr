@@ -24,7 +24,44 @@ class StandardRouteFinder implements IRouteFinder
 
     public function find(HttpRestRequest $request): array
     {
-        $routes = include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php';
+        /**
+         * @see ../../../apis/routes/_rest_routes_standard.inc.php
+         *
+         * @see ../../../apis/routes/standard/_rest_routes_standard_common.inc.php
+         *
+         * @see ../../../apis/routes/standard/user/_rest_routes_standard_user_setting.inc.php
+         * @see ../../../apis/routes/standard/user/_rest_routes_standard_user.inc.php
+         *
+         * @see ../../../apis/routes/standard/admin/_rest_routes_standard_admin_global_setting.inc.php
+         *
+         * @see ../../../apis/routes/standard/admin/user/_rest_routes_standard_admin_user_setting.inc.php
+         * @see ../../../apis/routes/standard/admin/user/_rest_routes_standard_admin_user.inc.php
+         *
+         * @see ../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_section.inc.php
+         * @see ../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group_member.inc.php
+         * @see ../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_user_setting.inc.php
+         * @see ../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group_setting.inc.php
+         * @see ../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group.inc.php
+         */
+        $routes = array_merge(
+            include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php',
+
+            include __DIR__ . '/../../../apis/routes/standard/_rest_routes_standard_common.inc.php',
+
+            include __DIR__ . '/../../../apis/routes/standard/user/_rest_routes_standard_user_setting.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/user/_rest_routes_standard_user.inc.php', // @todo Decide
+
+            include __DIR__ . '/../../../apis/routes/standard/admin/_rest_routes_standard_admin_global_setting.inc.php',
+
+            include __DIR__ . '/../../../apis/routes/standard/admin/user/_rest_routes_standard_admin_user_setting.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/admin/user/_rest_routes_standard_admin_user.inc.php',
+
+            include __DIR__ . '/../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_section.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group_member.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_user_setting.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group_setting.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/admin/acl/_rest_routes_standard_admin_acl_group.inc.php',
+        );
 
         // This method is intended to handle the request and extend routes.
         // Implementation details would depend on the specific requirements of the application.
