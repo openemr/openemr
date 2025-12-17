@@ -129,6 +129,7 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
+        "fakerphp/faker": "^1.24",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
