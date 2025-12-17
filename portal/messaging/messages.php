@@ -349,13 +349,19 @@ function getAuthPortalUsers()
                 };
 
                 $scope.renderMessageBody = function (html) {
-                    html = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+                    html = DOMPurify.sanitize(html, {
+                        USE_PROFILES: { html: true },
+                        FORBID_TAGS: ['a', 'img']
+                    });
                     return html;
                 };
 
                 $scope.htmlToText = function (html) {
                     const hold = document.createElement('DIV');
-                    hold.innerHTML = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+                    hold.innerHTML = DOMPurify.sanitize(html, {
+                        USE_PROFILES: { html: true },
+                        FORBID_TAGS: ['a', 'img']
+                    });
                     return jsText(hold.textContent || hold.innerText || '');
                 };
 
