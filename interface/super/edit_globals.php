@@ -239,7 +239,10 @@ function checkBackgroundServices(): void
             foreach ($grparr as $fldid => $fldarr) {
                 [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
+                if (
+                    GlobalSetting::DATA_TYPE_ENUM !== $fldtype
+                    && str_starts_with((string) $fldtype, 'm_')
+                ) {
                     if (isset($_POST["form_$i"])) {
                         $fldindex = 0;
 
@@ -502,9 +505,9 @@ function checkBackgroundServices(): void
                                                     echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
                                                 }
 
-                                                if (is_array($fldtype)) {
+                                                if (GlobalSetting::DATA_TYPE_ENUM === $fldtype) {
                                                     echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
-                                                    foreach ($fldtype as $key => $value) {
+                                                    foreach ($fldoptions[GlobalSetting::DATA_TYPE_OPTION_ENUM_VALUES] as $key => $value) {
                                                         if ($userMode) {
                                                             if ($globalValue == $key) {
                                                                 $globalTitle = $value;
