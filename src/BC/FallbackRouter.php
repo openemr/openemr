@@ -39,12 +39,12 @@ readonly class FallbackRouter
      */
     public function performLegacyRouting(string $requestUri): ?string
     {
-        $this->log("PERFORMING LEGACY ROUTING");
+        $this->debug("PERFORMING LEGACY ROUTING");
         if ($requestUri === '/') {
             // Special-case the "index" requests
             $requestUri = '/index.php';
         }
-        $this->log("REQUEST_URI=$requestUri");
+        $this->debug("REQUEST_URI=$requestUri");
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         $path = match (true) {
@@ -53,23 +53,28 @@ readonly class FallbackRouter
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 
-        $this->log("path=$path");
+        $this->debug("path=$path");
 
         // Normalize the included file to the webroot
         $path = realpath(sprintf('%s%s', $this->installRoot, $path));
         if ($path === false) {
-            $this->log('No file');
+            $this->debug('Not resolvable');
+            return null;
+        }
+        if (!is_file($path)) {
+            // Might have been a directory
+            $this->debug('No file');
             return null;
         }
 
         if (!$this->isPathAllowed($path)) {
-            $this->log("BLOCKED $path");
+            $this->debug("BLOCKED $path");
             return null;
         }
 
 
         $this->prepareRuntime($path);
-        $this->log("include=$path");
+        $this->debug("include=$path");
         return $path;
     }
 
@@ -88,7 +93,7 @@ readonly class FallbackRouter
         $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->installRoot));
     }
 
-    private function log(string $message): void
+    private function debug(string $message): void
     {
         // Future scope: Have a PSR-3 logger injected and make calls
         // (debug-level?) to it instead.
@@ -102,15 +107,15 @@ readonly class FallbackRouter
      */
     private function isPathAllowed(string $path): bool
     {
-        $this->log("IPA=$path");
+        $this->debug("IPA=$path");
         // Block anything outside of the install root
         if (!str_starts_with(needle: $this->installRoot, haystack: $path)) {
-            $this->log("Outside of docroot, deny");
+            $this->debug("Outside of docroot, deny");
             return false;
         }
         // This is just to simplify the matching procedure
         $rootRelative = substr($path, strlen($this->installRoot));
-        $this->log("IPA/R=$rootRelative");
+        $this->debug("IPA/R=$rootRelative");
 
         // TODO:
         // - Any equivalent `.htaccess` deny rules
@@ -123,6 +128,7 @@ readonly class FallbackRouter
             str_starts_with($rootRelative, '/tests') => false,
             str_starts_with($rootRelative, '/vendor') => false,
             // Other non-executable content
+            str_ends_with($rootRelative, '.inc') => false,
             str_ends_with($rootRelative, '.inc.php') => false,
             // Covers most DB configs in most locations
             str_ends_with($rootRelative, 'sqlconf.php') => false,
