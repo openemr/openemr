@@ -406,11 +406,12 @@ jobs:
 
     - name: Upload unit test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-unit.xml
         flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide unit test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
@@ -449,11 +450,12 @@ jobs:
 
     - name: Upload api test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-api.xml
         flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide api test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
@@ -509,11 +511,12 @@ jobs:
 
     - name: Upload fixtures test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-fixtures.xml
         flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide fixtures test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
@@ -541,11 +544,12 @@ jobs:
 
     - name: Upload services test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-services.xml
         flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide services test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
@@ -573,11 +577,12 @@ jobs:
 
     - name: Upload validators test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-validators.xml
         flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide validators test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
@@ -605,11 +610,12 @@ jobs:
 
     - name: Upload controllers test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-controllers.xml
         flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide controllers test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
@@ -637,11 +643,12 @@ jobs:
 
     - name: Upload common test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-common.xml
         flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide common test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
@@ -669,11 +676,12 @@ jobs:
 
     - name: Upload email test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-email.xml
         flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide email test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
@@ -754,11 +762,12 @@ jobs:
 
     - name: Upload e2e test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-e2e.xml
         flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide e2e test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
