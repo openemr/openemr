@@ -50,9 +50,9 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         exit;
     }
 }
-
-require_once("{$globalsBag->getString('srcdir')}/classes/Document.class.php");
-require_once("{$globalsBag->getString('srcdir')}/classes/Note.class.php");
+$srcdir = $globalsBag->getString('srcdir');
+require_once("$srcdir/classes/Document.class.php");
+require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/appsql.class.php");
 
 use Mpdf\Mpdf;
