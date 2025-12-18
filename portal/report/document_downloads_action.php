@@ -10,11 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../verify_session.php");
-require_once("$srcdir/documents.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
+$globalsBag = OEGlobalsBag::getInstance(true);
+require_once("../verify_session.php");
+require_once("{$globalsBag->getString('srcdir')}/documents.php");
+require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
+
+
 
 if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '')) {
     CsrfUtils::csrfNotVerified();
@@ -26,7 +29,7 @@ if (empty($_POST['documents'])) {
 }
 
 // Get the temporary folder
-$tmp = $GLOBALS['temporary_files_dir'];
+$tmp = $globalsBag->getString('temporary_files_dir');
 $documentIds = $_POST['documents'];
 $pid = $_SESSION['pid'];
 
