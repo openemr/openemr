@@ -40,9 +40,9 @@ readonly class FallbackRouter
     public function performLegacyRouting(string $requestUri): ?string
     {
         $this->debug("PERFORMING LEGACY ROUTING");
-        if ($requestUri === '/') {
+        if (str_ends_with($requestUri, '/')) {
             // Special-case the "index" requests
-            $requestUri = '/index.php';
+            $requestUri .= 'index.php';
         }
         $this->debug("REQUEST_URI=$requestUri");
 
