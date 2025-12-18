@@ -1,4 +1,6 @@
-# root-level FC hack
+# Send all PHP traffic to the front controller file at `public/index.php`.
+# Static assets should continue to be served by the webserver directly.
+
 RewriteEngine On
 
 # Serve existing files EXCEPT PHP
