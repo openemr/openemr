@@ -20,17 +20,25 @@ use OpenEMR\Common\Database\Exception\DatabaseQueryException;
 use OpenEMR\Common\Database\Exception\DatabaseResultException;
 use OpenEMR\Common\Database\Exception\NonUniqueDatabaseResultException;
 use OpenEMR\Common\Database\Exception\NoResultDatabaseResultException;
+use OpenEMR\Core\Traits\SingletonTrait;
 use Webmozart\Assert\InvalidArgumentException;
 use Webmozart\Assert\Assert;
 
 /**
  * Usage:
- *   DatabaseFactory::getInstance()->insert()
- *
- * @todo Rename to DatabaseManager
+ *   DatabaseManager::getInstance()->truncate($table)
  */
-class Database
+class DatabaseManager
 {
+    use SingletonTrait;
+
+    protected static function createInstance(): static
+    {
+        return new self(
+            $GLOBALS['adodb']['db'],
+        );
+    }
+
     public function __construct(
         private readonly ADODB_mysqli_log|ADOConnection $connection,
     ) {

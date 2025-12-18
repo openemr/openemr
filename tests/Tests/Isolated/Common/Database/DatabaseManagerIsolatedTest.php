@@ -10,9 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Common\Database;
+namespace OpenEMR\Tests\Isolated\Common\Database;
 
-use OpenEMR\Common\Database\Database;
+use OpenEMR\Common\Database\DatabaseManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -23,23 +23,22 @@ use Webmozart\Assert\InvalidArgumentException;
 
 #[Group('isolated')]
 #[Group('db')]
-#[CoversClass(Database::class)]
-#[CoversMethod(Database::class, 'insert')]
-#[CoversMethod(Database::class, 'count')]
-#[CoversMethod(Database::class, 'countBy')]
-#[CoversMethod(Database::class, 'find')]
-#[CoversMethod(Database::class, 'findOneBy')]
-#[CoversMethod(Database::class, 'findAll')]
-#[CoversMethod(Database::class, 'removeBy')]
-#[CoversMethod(Database::class, 'escapeIdentifier')]
-final class DatabaseIsolatedTest extends TestCase
+#[CoversClass(DatabaseManager::class)]
+#[CoversMethod(DatabaseManager::class, 'insert')]
+#[CoversMethod(DatabaseManager::class, 'count')]
+#[CoversMethod(DatabaseManager::class, 'countBy')]
+#[CoversMethod(DatabaseManager::class, 'find')]
+#[CoversMethod(DatabaseManager::class, 'findOneBy')]
+#[CoversMethod(DatabaseManager::class, 'findAll')]
+#[CoversMethod(DatabaseManager::class, 'removeBy')]
+#[CoversMethod(DatabaseManager::class, 'escapeIdentifier')]
+final class DatabaseManagerIsolatedTest extends TestCase
 {
     private function getDatabaseMockBuilder()
     {
-        return $this->getMockBuilder(Database::class)
+        return $this->getMockBuilder(DatabaseManager::class)
             ->setConstructorArgs([
                 $this->createMock(\ADOConnection::class),
-                1
             ])
         ;
     }
@@ -292,7 +291,7 @@ final class DatabaseIsolatedTest extends TestCase
             $this->expectExceptionMessage($expectedExceptionMessage);
         }
 
-        $object = $this->createMock(Database::class);
+        $object = $this->createMock(DatabaseManager::class);
         $class = new \ReflectionClass($object);
         $method = $class->getMethod('escapeIdentifier');
 

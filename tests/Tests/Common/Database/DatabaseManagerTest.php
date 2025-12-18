@@ -12,8 +12,7 @@
 
 namespace OpenEMR\Tests\Common\Database;
 
-use OpenEMR\Common\Database\Database;
-use OpenEMR\Common\Database\DatabaseManagerFactory;
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Exception\DatabaseResultException;
 use OpenEMR\Common\Database\Exception\NonUniqueDatabaseResultException;
 use OpenEMR\Common\Database\Exception\NoResultDatabaseResultException;
@@ -25,26 +24,26 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[Group('db')]
-#[CoversClass(Database::class)]
-#[CoversMethod(Database::class, 'insert')]
-#[CoversMethod(Database::class, 'count')]
-#[CoversMethod(Database::class, 'countBy')]
-#[CoversMethod(Database::class, 'find')]
-#[CoversMethod(Database::class, 'findOneBy')]
-#[CoversMethod(Database::class, 'findAll')]
-#[CoversMethod(Database::class, 'findBy')]
-#[CoversMethod(Database::class, 'removeBy')]
-#[CoversMethod(Database::class, 'getResult')]
-#[CoversMethod(Database::class, 'getSingleColumnResult')]
-#[CoversMethod(Database::class, 'getOneOrNullResult')]
-#[CoversMethod(Database::class, 'getSingleScalarResult')]
-final class DatabaseTest extends TestCase
+#[CoversClass(DatabaseManager::class)]
+#[CoversMethod(DatabaseManager::class, 'insert')]
+#[CoversMethod(DatabaseManager::class, 'count')]
+#[CoversMethod(DatabaseManager::class, 'countBy')]
+#[CoversMethod(DatabaseManager::class, 'find')]
+#[CoversMethod(DatabaseManager::class, 'findOneBy')]
+#[CoversMethod(DatabaseManager::class, 'findAll')]
+#[CoversMethod(DatabaseManager::class, 'findBy')]
+#[CoversMethod(DatabaseManager::class, 'removeBy')]
+#[CoversMethod(DatabaseManager::class, 'getResult')]
+#[CoversMethod(DatabaseManager::class, 'getSingleColumnResult')]
+#[CoversMethod(DatabaseManager::class, 'getOneOrNullResult')]
+#[CoversMethod(DatabaseManager::class, 'getSingleScalarResult')]
+final class DatabaseManagerTest extends TestCase
 {
-    private readonly Database $database;
+    private readonly DatabaseManager $database;
 
     protected function setUp(): void
     {
-        $this->database = DatabaseManagerFactory::getInstance();
+        $this->database = DatabaseManager::getInstance();
     }
 
     protected function tearDown(): void
