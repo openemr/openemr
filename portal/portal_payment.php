@@ -41,7 +41,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         exit();
     }
 }
-
+$srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/payment.inc.php");

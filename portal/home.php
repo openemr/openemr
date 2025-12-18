@@ -35,10 +35,12 @@ use Twig\Error\SyntaxError;
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance(true);
 $globalsBag->set('already_autoloaded', true);
+$srcdir = $globalsBag->getString('srcdir');
+$web_root = $globalsBag->getString('web_root');
 
 require_once('verify_session.php');
-require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
-require_once("{$globalsBag->getString('srcdir')}/options.inc.php");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
@@ -102,7 +104,7 @@ foreach ($msgs as $i) {
 /*if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }*/
-$messagesURL = "{$globalsBag->getString('web_root')}/portal/messaging/messages.php";
+$messagesURL = "$web_root/portal/messaging/messages.php";
 
 $isEasyPro = $globalsBag->get('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
 
@@ -333,7 +335,8 @@ while ($row = sqlFetchArray($result)) {
     $immunRecords[] = $row;
 }
 // CCDA Alt Service
-$ccdaOk = ($globalsBag->get('ccda_alt_service_enable') == 2 || $globalsBag->get('ccda_alt_service_enable') == 3);
+$ccda_alt_service_enable = $globalsBag->get('ccda_alt_service_enable');
+$ccdaOk = ($ccda_alt_service_enable == 2 || $ccda_alt_service_enable == 3);
 // Available Themes
 $styleArray = collectStyles();
 // Is telemetry enabled?

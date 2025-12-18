@@ -61,7 +61,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 
 // portal doesn't need to be enabled to chart from documents
-if (!($globalsBag->get('portal_onsite_two_enable') !== null) || !($globalsBag->get('portal_onsite_two_enable'))) {
+$portal_onsite_two_enable = $globalsBag->get('portal_onsite_two_enable');
+if (!$portal_onsite_two_enable) {
     $msg = xlt('Patient Portal is turned off');
     error_log($msg);
     echo $msg;

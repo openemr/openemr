@@ -81,7 +81,8 @@ require_once("{$globalsBag->getString('srcdir')}/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (!($globalsBag->get('portal_onsite_two_enable') !== null) || !($globalsBag->get('portal_onsite_two_enable'))) {
+$portal_onsite_two_enable = $globalsBag->get('portal_onsite_two_enable');
+if (!$portal_onsite_two_enable) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
