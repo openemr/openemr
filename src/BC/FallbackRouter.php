@@ -48,8 +48,8 @@ readonly class FallbackRouter
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         $path = match (true) {
-            // Note: not reachable until `/apis/.htaccess` is removed/bypassed
-            str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
+            // Future example: /apis/.htaccess RewriteRule
+            // str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 

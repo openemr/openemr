@@ -1,6 +1,13 @@
 # Send all PHP traffic to the front controller file at `public/index.php`.
 # Static assets should continue to be served by the webserver directly.
 
+# Important: .htaccess files in child directories (and equiavelent rules for
+# non-Apache webservers in their respective config formats) could still
+# potentially take precedence. To fully migrate all web trafic through the
+# FC file, those files will need to be removed (or, at minimum, have
+# RewriteRules removed) and have the logic ported into
+# `OpenEMR\BC\FallbackRouter`.
+
 RewriteEngine On
 
 # Serve existing files EXCEPT PHP
