@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+/**
+ * Sets up the application for "legacy" routing, i.e. as if the request was
+ * being processed directly by the target file.
+ *
+ * Performs some basic security checks for invalid paths, but largely doesn't
+ * aim to do much that wasn't the case previously. The goal is to enable
+ * getting a functional front-controller in place ASAP and support approaches
+ * less reliant on global state, minimizing the number of requests flowing
+ * through this path.
+ */
 readonly class FallbackRouter
 {
     /**
@@ -13,8 +23,8 @@ readonly class FallbackRouter
     public function __construct(
         private string $installRoot,
     ) {
-        // Sidenote: $_SERVER['DOCUMENT_ROOT'] seems to be pretty reliable in
-        // common installations, but the less relying on globals, the better.
+        // Sidenote: $_SERVER['DOCUMENT_ROOT'] seems to be pretty reliably the
+        // same as intended $installRoot, but better to avoid relying on it.
     }
 
     /**
@@ -25,7 +35,7 @@ readonly class FallbackRouter
      * @param string $requestUri The value of $_SERVER['REQUEST_URI']
      *
      * @return ?string The absolute path to the legacy file to include, or null
-     * if not routable;
+     * if not routable.
      */
     public function performLegacyRouting(string $requestUri): ?string
     {
@@ -38,6 +48,7 @@ readonly class FallbackRouter
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         $path = match (true) {
+            // Note: not reachable until `/apis/.htaccess` is removed/bypassed
             str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
             default => parse_url($requestUri, PHP_URL_PATH),
         };
@@ -86,21 +97,24 @@ readonly class FallbackRouter
 
     /**
      * Hook for blocking or permitting paths
+     *
+     * @param string $path The absolute path to the file that may be `include`d
      */
     private function isPathAllowed(string $path): bool
     {
         $this->log("IPA=$path");
+        // Block anything outside of the install root
         if (!str_starts_with(needle: $this->installRoot, haystack: $path)) {
             $this->log("Outside of docroot, deny");
             return false;
         }
+        // This is just to simplify the matching procedure
         $rootRelative = substr($path, strlen($this->installRoot));
         $this->log("IPA/R=$rootRelative");
 
-        // Copy through the equivalent of htaccess "deny all" rules
-        // Block:
-        // - config paths
-        // - anything below the install root
+        // TODO:
+        // - Any equivalent `.htaccess` deny rules
+        // - configs
         return match (true) {
             // All dotfiles and directories, including git
             str_starts_with($rootRelative, '/.') => false,
