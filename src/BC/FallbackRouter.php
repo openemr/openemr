@@ -130,8 +130,10 @@ readonly class FallbackRouter
             // Other non-executable content
             str_ends_with($rootRelative, '.inc') => false,
             str_ends_with($rootRelative, '.inc.php') => false,
+            str_ends_with($rootRelative, '.tpl.php') => false,
             // Covers most DB configs in most locations
             str_ends_with($rootRelative, 'sqlconf.php') => false,
+            str_contains($rootRelative, '/templates') => false,
             default => true, // Future: default deny instead?
         };
     }
