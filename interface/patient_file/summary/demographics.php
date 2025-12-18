@@ -465,9 +465,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         function editScripts(url) {
 
             let title = <?php echo xlj('Prescriptions'); ?>;
-            let w = 960; // for weno width
 
-            dlgopen(url, 'editScripts', w, 400, '', '', {
+            dlgopen(url, 'editScripts', 'modal-xl', 400, '', '', {
                 resolvePromiseOn: 'close',
                 allowResize: true,
                 allowDrag: true,
