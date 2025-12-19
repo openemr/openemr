@@ -98,7 +98,7 @@ class PatientAdvanceDirectiveService extends BaseService
     }
 
     public function getAdvancedDirectiveCodes() : array {
-        $codes = array_map(fn($codeMap) => FhirCodeSystemConstants::LOINC . "|" . $codeMap['code'], self::LOINC_CODES);
+        $codes = array_map(static fn($codeMap): string => FhirCodeSystemConstants::LOINC . "|" . $codeMap['code'], self::LOINC_CODES);
         return $codes;
 
     }

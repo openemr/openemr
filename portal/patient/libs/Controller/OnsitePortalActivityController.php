@@ -145,11 +145,7 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             // only allow patient to create onsiteportalactivity about themself
             $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
-            if (!empty($bootstrapPid)) {
-                $onsiteportalactivity->PatientId = $bootstrapPid;
-            } else {
-                $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId');
-            }
+            $onsiteportalactivity->PatientId = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'patientId');
 
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity');
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit');

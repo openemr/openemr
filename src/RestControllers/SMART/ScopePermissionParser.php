@@ -184,7 +184,7 @@ class ScopePermissionParser
                             'selected' => true, // All selected by default for ONC compliance
                             'actions' => array_keys(array_filter(
                                 $structuredScopes[$resource]['actions'],
-                                fn($action) => $action['enabled']
+                                static fn($action): bool => $action['enabled']
                             )),
                         ];
                     }

@@ -184,7 +184,7 @@ class Header
         }
 
         // Filter out any empty strings in case assets array contains them
-        $assets = array_filter($assets, fn ($asset) => is_string($asset) && trim($asset) !== '');
+        $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
         $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
