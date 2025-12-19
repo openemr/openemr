@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class Kernel.
@@ -31,7 +32,7 @@ class Kernel
     /** @var ContainerBuilder */
     private $container;
 
-    public function __construct(private readonly ?EventDispatcher $dispatcher = null)
+    public function __construct(private readonly ?EventDispatcherInterface $dispatcher = null)
     {
         $this->prepareContainer();
     }
@@ -85,13 +86,13 @@ class Kernel
     /**
      * Get the Event Dispatcher
      *
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      * @throws \Exception
      */
-    public function getEventDispatcher()
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         if ($this->container) {
-            /** @var EventDispatcher $dispatcher */
+            /** @var EventDispatcherInterface $dispatcher */
             return $this->container->get('event_dispatcher');
         } else {
             throw new \Exception('Container does not exist');
