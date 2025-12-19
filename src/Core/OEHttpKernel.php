@@ -27,11 +27,11 @@ class OEHttpKernel extends HttpKernel
         return $this->globalsBag;
     }
 
-    public function getEventDispatcher(): ?\Symfony\Component\EventDispatcher\EventDispatcherInterface
+    public function getEventDispatcher(): \Symfony\Component\EventDispatcher\EventDispatcherInterface
     {
         return $this->dispatcher;
     }
-    public function getSystemLogger(): ?LoggerInterface
+    public function getSystemLogger(): LoggerInterface
     {
         if (empty($this->logger)) {
             $this->logger = new SystemLogger();
