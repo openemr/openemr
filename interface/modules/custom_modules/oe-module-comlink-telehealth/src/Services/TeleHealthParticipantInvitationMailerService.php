@@ -19,7 +19,7 @@ use MyMailer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\LogoService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class TeleHealthParticipantInvitationMailerService
@@ -28,7 +28,7 @@ class TeleHealthParticipantInvitationMailerService
 
     const MESSAGE_ID_TELEHEALTH_NEW_PATIENT = 'comlink-telehealth-invitation-new-patient';
 
-    public function __construct(private readonly EventDispatcher $dispatcher, private readonly Environment $twig, private $publicPathFQDN, private readonly TelehealthGlobalConfig $config)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly Environment $twig, private $publicPathFQDN, private readonly TelehealthGlobalConfig $config)
     {
     }
 
