@@ -379,7 +379,7 @@ try {
     // we inject the eventDispatcher if we have one setup already
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
-    $globalsBag->set("kernel", new Kernel($globalsBag->get('eventDispatcher')));
+    $globalsBag->setKernel(new Kernel($globalsBag->get('eventDispatcher')));
 } catch (\Exception $e) {
     error_log(errorLogEscape($e->getMessage()));
     die();
@@ -767,7 +767,7 @@ if (!empty($checkModulesTableExists)) {
         // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
         /** @var ModulesApplication */
         $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->get('kernel'),
+            $globalsBag->getKernel(),
             $globalsBag->getString('fileroot'),
             $globalsBag->getString('baseModDir'),
             $globalsBag->getString('zendModDir')

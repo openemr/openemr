@@ -78,4 +78,14 @@ class OEGlobalsBag extends ParameterBag
 
         return $hasInBag;
     }
+
+    public function getKernel(): Kernel
+    {
+        $this->get('kernel');
+    }
+
+    public function setKernel(Kernel $kernel): void
+    {
+        $this->set('kernel', $kernel);
+    }
 }
