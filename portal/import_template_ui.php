@@ -33,7 +33,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
 }
 
 // Service
-$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
+$eventDispatcher = $globalsBag->getKernel()->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');

@@ -65,7 +65,7 @@ $auth_demo = true; //AclMain::aclCheckCore('patients'  , 'demo');
 $ignoreAuth_onsite_portal = true;
 
 $portalPatientReportController = new PortalPatientReportController();
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 
 $issues = [];
 $data = [];
@@ -134,7 +134,7 @@ try {
     ];
     $event = new PatientReportFilterEvent();
     $event->populateData($data);
-    $updatedEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch($event, PatientReportFilterEvent::FILTER_PORTAL_TWIG_DATA);
+    $updatedEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch($event, PatientReportFilterEvent::FILTER_PORTAL_TWIG_DATA);
     $updatedData  = $event->getDataAsArray();
     echo $twig->render("portal/portal_patient_report.html.twig", $updatedData);
 } catch (SyntaxError $exception) {

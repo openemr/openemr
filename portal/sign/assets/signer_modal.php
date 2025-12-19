@@ -54,7 +54,7 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twigContainer = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
 } catch (Exception $exception) {
