@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,7 +13,7 @@
 
 namespace OpenEMR\Tests\Fixtures\Purger;
 
-use OpenEMR\Common\Database\Database;
+use OpenEMR\Common\Database\DatabaseManager;
 
 /**
  * @template T of array
@@ -26,7 +27,7 @@ abstract class AbstractPurger implements PurgerInterface
     protected array $records = [];
 
     public function __construct(
-        protected readonly Database $db,
+        protected readonly DatabaseManager $db,
         protected readonly string $table,
     ) {
     }

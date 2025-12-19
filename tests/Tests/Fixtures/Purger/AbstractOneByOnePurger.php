@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,18 +13,18 @@
 
 namespace OpenEMR\Tests\Fixtures\Purger;
 
-use OpenEMR\Common\Database\Database;
+use OpenEMR\Common\Database\DatabaseManager;
 
 /**
  * Remove and restore records one-by-one
  *
  * @template T of array
- * @extends AbstractPurger<T>
+ * @template-extends AbstractPurger<T>
  */
 abstract class AbstractOneByOnePurger extends AbstractPurger
 {
     public function __construct(
-        Database $db,
+        DatabaseManager $db,
         string $table,
         protected readonly string $identifierFieldName = 'id'
     ) {

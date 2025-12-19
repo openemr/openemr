@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -17,7 +18,7 @@ namespace OpenEMR\Tests\Fixtures\Purger;
  * restore one-by-one
  *
  * @template T of array
- * @extends AbstractPurger<T>
+ * @template-extends AbstractPurger<T>
  */
 abstract class AbstractTruncatePurger extends AbstractPurger
 {
