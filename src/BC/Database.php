@@ -19,19 +19,8 @@ class Database
     public static function instance(): Database
     {
         if (self::$instance === null) {
-            $params = [
-                'driver' => 'pdo_mysql',
-                'user' => 'openemr',
-                'password' => 'openemr',
-                'dbname' => 'openemr',
-                'host' => 'mysql',
-                'port' => 3306,
-                'charset' => 'utf8mb4',
-                // 'driverOptions' => [
-                //     // ssl settings?
-                // ],
-
-            ];
+            $params = self::readLegacyConfig();
+            error_log(print_r($params, true));
             $connection = DriverManager::getConnection($params);
             self::$instance = new self($connection);
         }
@@ -41,6 +30,32 @@ class Database
     private function __construct(
         private Connection $connection,
     ) {
+    }
+
+    private static function readLegacyConfig(): array
+    {
+        error_log(__METHOD__);
+        // error_log(isset($sqlconf) ? 'sc exist' : 'no exust');
+        // require __DIR__ . '/../../library/sqlconf.php';
+        global $sqlconf;
+        error_log(isset($sqlconf) ? 'sc exist' : 'no exust');
+        // error_log(print_r(array_keys(get_defined_vars()), true));
+        error_log(print_r($sqlconf, true));
+        // replicate the same ssl cert detection in a compatible format
+        // return $sqlconf;
+
+        $connParams = [
+            'driver' => 'pdo_mysql',
+            'user' => $sqlconf['login'],
+            'password' => $sqlconf['pass'],
+            'dbname' => $sqlconf['dbase'],
+            'host' => $sqlconf['host'],
+            'charset' => $sqlconf['db_encoding'],
+            'port' => $sqlconf['port'],
+        ];
+
+        // if ssl, provide
+        return $connParams;
     }
 
     /**
