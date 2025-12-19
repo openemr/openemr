@@ -54,7 +54,7 @@ class PatientController extends AppBasePortalController
             $pid = (int) $_GET['pid'];
         }
 
-        $globalsBag = OEGlobalsBag::getInstance();
+        $globalsBag = OEGlobalsBag::getInstance(true);
         // only allow patient to see themself
         $bootstrapPid = $globalsBag->get('bootstrap_pid');
         if (!empty($bootstrapPid)) {
@@ -144,7 +144,7 @@ class PatientController extends AppBasePortalController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
-            $globalsBag = OEGlobalsBag::getInstance();
+            $globalsBag = OEGlobalsBag::getInstance(true);
             // only allow patient to see themself
             $bootstrapPid = $globalsBag->get('bootstrap_pid');
             if (!empty($bootstrapPid)) {
