@@ -53,7 +53,7 @@ try {
         $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContactId, true);
 
         // Filter to only person targets
-        $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+        $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
 
         // Transfer records to an array
         foreach ($relatedPersonRecords as $record) {

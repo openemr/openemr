@@ -396,11 +396,7 @@ class OnsiteDocumentController extends AppBasePortalController
             // only allow patient to update themselves (part 2)
 
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
-                $onsitedocument->Pid = $bootstrapPid;
-            } else {
-                $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
-            }
+            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
             // Set values from API interface.
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
