@@ -135,7 +135,7 @@ jobs:
     # We don't need to run composer install at all if we get a hit.
     - name: Restore vendor artifacts
       id: vendor-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -164,7 +164,7 @@ jobs:
     - name: Restore composer downloads
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -199,7 +199,7 @@ jobs:
     # This does not include ccda.
     - name: Restore npm build artifacts
       id: npm-build-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -230,7 +230,7 @@ jobs:
     # We don't need to run npm ci in ccdaservice at all if we get a hit.
     - name: Restore CCDA build artifacts
       id: ccda-build-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: |
           ccdaservice/node_modules/
@@ -261,7 +261,7 @@ jobs:
     - name: Restore npm cache
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
@@ -307,14 +307,14 @@ jobs:
     # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
     - name: Save npm cache
       if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
       if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         path: |
@@ -323,7 +323,7 @@ jobs:
 
     - name: Save NPM build artifacts
       if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -333,14 +333,14 @@ jobs:
 
     - name: Save composer cache
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
 
     - name: Save vendor artifacts
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -377,7 +377,7 @@ jobs:
         curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
 
     - name: Upload PHP info to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ hashFiles('phpinfo.html') != '' }}
       with:
         name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
@@ -780,7 +780,7 @@ jobs:
 
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
         path: selenium-videos/
@@ -799,7 +799,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml
@@ -845,14 +845,14 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Upload clover coverage to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
 
     - name: Upload html coverage to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
       with:
         name: htmlcov

@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use CouchDB;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Utils\NetworkUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -28,13 +29,46 @@ use Symfony\Component\HttpClient\HttpClient;
 class CDADocumentService extends BaseService
 {
     const TABLE_NAME = "ccda";
-    protected $serverUrl;
+    protected string $serverUrl;
+    protected bool $verifySsl;
+    protected string|bool $caCert;
 
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
+
+        // Determine the server URL for internal CCD generation
+        // Use the configured site address and apply appropriate SSL verification
+
         $this->serverUrl = $GLOBALS['qualified_site_addr'];
+
+        $networkUtils = new NetworkUtils();
+        if ($networkUtils->isLoopbackAddress($this->serverUrl)) {
+            // Loopback address - traffic never leaves the local machine
+            // SSL verification is always disabled for loopback (no security benefit, often fails)
+            $this->verifySsl = false;
+            $this->caCert = false;
+        } else {
+            // Non-loopback address (e.g., nginx sidecar, docker compose, kubernetes)
+            $this->verifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+            $this->caCert = $GLOBALS['http_ca_cert'] ?? false; // Use custom CA cert for self-signed certificates
+        }
+    }
+
+    protected function createHttpClient()
+    {
+        $config = [
+            'verify_host' => $this->verifySsl,
+            'verify_peer' => $this->verifySsl,
+        ];
+
+        // If SSL verification is enabled and a custom CA cert is provided, use it
+        if ($this->verifySsl && $this->caCert && file_exists($this->caCert)) {
+            $config['cafile'] = $this->caCert;
+        }
+
+        return HttpClient::create($config);
     }
 
     /**
@@ -92,10 +126,7 @@ class CDADocumentService extends BaseService
     public function generateCCDHtml($pid): string
     {
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
-        $httpClient = HttpClient::create([
-            "verify_peer" => false,
-            "verify_host" => false
-        ]);
+        $httpClient = $this->createHttpClient();
         $response = $httpClient->request('GET', $url, [
             'query' => [
                 'combination' => $pid,
@@ -119,10 +150,7 @@ class CDADocumentService extends BaseService
     public function generateCCDXml($pid): string
     {
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
-        $httpClient = HttpClient::create([
-            "verify_peer" => false,
-            "verify_host" => false
-        ]);
+        $httpClient = $this->createHttpClient();
         $response = $httpClient->request('GET', $url, [
             'query' => [
                 'combination' => $pid,
@@ -146,10 +174,7 @@ class CDADocumentService extends BaseService
     public function portalGenerateCCD($pid): string
     {
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
-        $httpClient = HttpClient::create([
-            "verify_peer" => false,
-            "verify_host" => false
-        ]);
+        $httpClient = $this->createHttpClient();
         $response = $httpClient->request('GET', $url, [
             'query' => [
                 'combination' => $pid,
@@ -184,10 +209,7 @@ class CDADocumentService extends BaseService
             'site' => $_SESSION ['site_id'],
         ];
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
-        $httpClient = HttpClient::create([
-            "verify_peer" => false,
-            "verify_host" => false
-        ]);
+        $httpClient = $this->createHttpClient();
         $response = $httpClient->request('POST', $url, [
             'query' => ['me' => session_id()], // to authenticate in CCM. Portal only.
             'body' => $parameterArray
@@ -220,10 +242,7 @@ class CDADocumentService extends BaseService
             'site' => $_SESSION['site_id'],
         ];
         $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch"; // add for debug ?XDEBUG_SESSION=PHPSTORM
-        $httpClient = HttpClient::create([
-            "verify_peer" => false,
-            "verify_host" => false
-        ]);
+        $httpClient = $this->createHttpClient();
         $response = $httpClient->request('POST', $url, [
             'query' => ['me' => session_id()],
             'body' => $parameterArray

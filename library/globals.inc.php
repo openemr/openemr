@@ -3269,7 +3269,7 @@ $GLOBALS_METADATA = [
             xl('Site Address Override (if needed for OAuth2, FHIR, CCDA, or Payment Processing)'),
             'text',
             '',
-            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR, CCDA, or Payment Processing. Example is') . ' https://localhost:8300 .'
+            xl('The hostname for OAuth2, FHIR, CCDA, and Payment Processing, pointing back back to this OpenEMR instance. e.g. https://localhost:9300.')
         ],
 
         GlobalConnectorsEnum::REST_FHIR_API->value => [
@@ -3689,18 +3689,18 @@ $GLOBALS_METADATA = [
             xl('Easipro Server Password')
         ],
 
-        'usps_webtools_enable' => [
-            xl('Enable USPS Web Tools API'),
-            'bool',                           // data type
-            '0',
-            xl('Enable USPS Web Tools API')
+        'usps_apiv3_client_id' => [
+            xl('USPS API Client ID'),
+            'encrypted',
+            '',
+            xl('Client ID for USPS API v3')
         ],
 
-        'usps_webtools_username' => [
-            xl('USPS Web Tools API Username'),
-            'text',                           // data type
+        'usps_apiv3_client_secret' => [
+            xl('USPS API Client Secret'),
+            'encrypted',
             '',
-            xl('USPS Web Tools API Username')
+            xl('Client Secret for USPS API v3')
         ],
 
         'ccda_validation_disable' => [

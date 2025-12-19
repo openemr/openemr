@@ -652,14 +652,16 @@ if (
             e.preventDefault();
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
             <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
-                dlgopen(url,'','modal-full',700,false,'', {
+            dlgopen(url,'editInvoiceDlg','modal-full', false, false, '', {
                 sizeHeight: 'full',
                 onClosed: 'reSubmit'
-            }); <?php } else { // keep era page up so can check on other remits ?>
-                dlgopen(url,'','modal-full',700,false,'', {
+            });
+            <?php } else { // keep era page up so can check on other remits ?>
+            dlgopen(url, 'editInvoiceDlg', 'modal-full', false, false, '', {
                 sizeHeight: 'full',
                 onClosed: ''
-            }); <?php } ?>
+            });
+            <?php } ?>
         }
 
         function checkAll(checked) {

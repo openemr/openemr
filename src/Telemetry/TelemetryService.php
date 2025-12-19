@@ -28,10 +28,6 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
 
-    protected TelemetryRepository $repository;
-    protected VersionServiceInterface $versionService;
-    protected SystemLogger $logger;
-
     /**
      * TelemetryService constructor.
      *
@@ -39,11 +35,8 @@ class TelemetryService
      * @param ?VersionServiceInterface $versionService
      * @param ?SystemLogger $logger
      */
-    public function __construct(?TelemetryRepository $repository = null, ?VersionServiceInterface $versionService = null, ?SystemLogger $logger = null)
+    public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?SystemLogger $logger = new SystemLogger())
     {
-        $this->repository = $repository ?? new TelemetryRepository();
-        $this->versionService = $versionService ?? new VersionService();
-        $this->logger = $logger ?? new SystemLogger();
     }
 
     /**
@@ -255,11 +248,12 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",

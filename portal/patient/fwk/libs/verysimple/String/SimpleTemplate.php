@@ -165,7 +165,7 @@ class SimpleTemplate
             throw new Exception("Custom delimiters are not yet implemented. Sorry!");
         }
 
-        $results = preg_replace_callback('!\{\{(\w+)\}\}!', 'SimpleTemplate::_MergeRegExCallback', $template);
+        $results = preg_replace_callback('!\{\{(\w+)\}\}!', SimpleTemplate::_MergeRegExCallback(...), $template);
 
         self::$_MERGE_TEMPLATE_VALUES = null;
 

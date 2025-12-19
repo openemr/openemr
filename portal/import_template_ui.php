@@ -391,6 +391,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(2000).then(rtn => {
@@ -417,6 +418,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -439,6 +441,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {

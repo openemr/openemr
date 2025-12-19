@@ -4985,9 +4985,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     }
 
     $date_OU = array_unique($list);
-    usort($date_OU, "cmp");
+    usort($date_OU, cmp(...));
     $times_OU = $time_OU;
-    usort($times_OU, "cmp");
+    usort($times_OU, cmp(...));
 
     for ($a = 0; $a < count($date_OU); $a++) {
         if (!empty($GONIO_date)) {

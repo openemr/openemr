@@ -46,7 +46,7 @@ class AclExtended
     public static function aclGetSquads()
     {
         $squads = self::aclGetSectionAcos('squads');
-        uasort($squads, "self::aclSquadCompare");
+        uasort($squads, self::aclSquadCompare(...));
         return $squads;
     }
 

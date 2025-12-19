@@ -54,7 +54,7 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Composer Cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
@@ -101,7 +101,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: junit-isolated-tests-php-${{ matrix.php-version }}
         path: junit.xml
@@ -115,7 +115,7 @@ jobs:
 
     - name: Upload clover coverage report to GitHub
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: coverage-clover-isolated-tests-php-${{ matrix.php-version }}
         path: |
@@ -123,7 +123,7 @@ jobs:
 
     - name: Upload html coverage report to GitHub
       if: ${{ steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: coverage-html-isolated-tests-php-${{ matrix.php-version }}
         path: |

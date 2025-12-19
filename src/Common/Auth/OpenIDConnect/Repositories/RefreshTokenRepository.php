@@ -42,7 +42,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     {
         $token = $this->getTokenByToken($refreshTokenEntity->getIdentifier());
         if (!empty($token)) {
-            throw UniqueTokenIdentifierConstraintViolationException::create("Duplicate id was generated");
+            throw UniqueTokenIdentifierConstraintViolationException::create();
         }
 
         $exp_date = $refreshTokenEntity->getExpiryDateTime()->format('Y-m-d H:i:s');

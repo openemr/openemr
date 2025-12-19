@@ -1683,8 +1683,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         '-- ' . xl("Please Select") . ' --',
                                         $default_rid,
                                         $isBilled,
-                                        false,
-                                        xl('This provider will be used as the default for services not specifying a provider.')
+                                        false
                                     );
                                     ?>
                                 </div>

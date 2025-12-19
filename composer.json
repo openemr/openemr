@@ -1,7 +1,7 @@
 {
     "name": "openemr/openemr",
     "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
-    "license": "GPL",
+    "license": "GPL-3.0-or-later",
     "type": "project",
     "version": "7.0.4",
     "support": {
@@ -88,7 +88,7 @@
         "nyholm/psr7-server": "1.1.0",
         "omnipay/stripe": "3.2.0",
         "openemr/mustache": "2.15.2",
-        "particle/validator": "2.3.5",
+        "particle/validator": "2.3.6",
         "pear/archive_tar": "1.6.0",
         "php-http/discovery": "1.20.0",
         "php-http/message": "^1.16",
@@ -96,7 +96,7 @@
         "phpmailer/phpmailer": "6.12.0",
         "phpoffice/phpspreadsheet": "5.3.0",
         "phpseclib/phpseclib": "3.0.47",
-        "predis/predis": "3.2.0",
+        "predis/predis": "3.3.0",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.1",
         "psr/http-message": "^1.1",
