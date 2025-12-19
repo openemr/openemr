@@ -3,6 +3,7 @@
 namespace OpenEMR\Core;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
@@ -11,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class OEHttpKernel extends HttpKernel
 {
-    private SystemLogger $logger;
+    private LoggerInterface $logger;
 
     private readonly OEGlobalsBag $globalsBag;
 
@@ -30,14 +31,14 @@ class OEHttpKernel extends HttpKernel
     {
         return $this->dispatcher;
     }
-    public function getSystemLogger(): ?SystemLogger
+    public function getSystemLogger(): ?LoggerInterface
     {
         if (empty($this->logger)) {
             $this->logger = new SystemLogger();
         }
         return $this->logger;
     }
-    public function setSystemLogger(SystemLogger $logger): void
+    public function setSystemLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }

@@ -14,13 +14,14 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Validators\ProcessingResult;
 
 class PersonPatientLinkService extends BaseService
 {
     public const TABLE_NAME = 'person_patient_link';
 
-    private readonly \OpenEMR\Common\Logging\SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct()
     {

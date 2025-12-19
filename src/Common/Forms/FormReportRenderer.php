@@ -13,10 +13,11 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class FormReportRenderer
 {
-    public function __construct(private readonly ?FormLocator $locator = new FormLocator(), private readonly ?SystemLogger $logger = new SystemLogger())
+    public function __construct(private readonly ?FormLocator $locator = new FormLocator(), private readonly ?LoggerInterface $logger = new SystemLogger())
     {
     }
 
