@@ -27,7 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 <!-- Styles -->
 
 <?php
-$globalsBag = OEGlobalsBag::getInstance();
+$globalsBag = OEGlobalsBag::getInstance(true);
 $assets_static_relative = $globalsBag->getString('assets_static_relative');
 $web_root = $globalsBag->getString('web_root');
 $v_js_includes = $globalsBag->get('v_js_includes');

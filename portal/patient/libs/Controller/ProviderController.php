@@ -47,7 +47,7 @@ class ProviderController extends AppBasePortalController
             exit;
         }
 
-        $pid = OEGlobalsBag::getInstance()->get('pid');
+        $pid = OEGlobalsBag::getInstance(true)->get('pid');
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $cuser);
 

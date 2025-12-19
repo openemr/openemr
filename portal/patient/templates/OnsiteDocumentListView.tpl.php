@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
-$globalsBag = OEGlobalsBag::getInstance();
+$globalsBag = OEGlobalsBag::getInstance(true);
 
 $pid = $this->cpid;
 $doc_edit = $this->doc_edit;
