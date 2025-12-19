@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -72,9 +73,9 @@ class Kernel
     /**
      * Get the Service Container
      *
-     * @return ContainerBuilder
+     * @return ContainerInterface
      */
-    public function getContainer()
+    public function getContainer(): ContainerInterface
     {
         if (!$this->container) {
             $this->prepareContainer();
