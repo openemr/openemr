@@ -19,29 +19,28 @@ class Database
     public static function instance(): Database
     {
         if (self::$instance === null) {
-            self::$instance = new self();
+            $params = [
+                'driver' => 'pdo_mysql',
+                'user' => 'openemr',
+                'password' => 'openemr',
+                'dbname' => 'openemr',
+                'host' => 'mysql',
+                'port' => 3306,
+                'charset' => 'utf8mb4',
+                // 'driverOptions' => [
+                //     // ssl settings?
+                // ],
+
+            ];
+            $connection = DriverManager::getConnection($params);
+            self::$instance = new self($connection);
         }
         return self::$instance;
     }
 
-    private Connection $connection;
-
-    private function __construct()
-    {
-        $params = [
-            'driver' => 'pdo_mysql',
-            'user' => 'openemr',
-            'password' => 'openemr',
-            'dbname' => 'openemr',
-            'host' => 'mysql',
-            'port' => 3306,
-            'charset' => 'utf8mb4',
-            // 'driverOptions' => [
-            //     // ssl settings?
-            // ],
-
-        ];
-        $this->connection = DriverManager::getConnection($params);
+    private function __construct(
+        private Connection $connection,
+    ) {
     }
 
     /**
