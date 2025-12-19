@@ -121,6 +121,6 @@ return [
     'GET /api/admin/acl/section' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminAclSectionRestController())->getAll($request);
+        return AdminAclSectionRestController::getInstance()->getAll($request);
     },
 ];

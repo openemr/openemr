@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,11 +13,12 @@
 
 namespace OpenEMR\Common\Database\Repository\User;
 
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Repository\IdAwareAbstractRepository;
 
 /**
  * Usage:
- *   $userSecureRepository = RepositoryFactory::createRepository(UserSecureRepository::class);
+ *   $userSecureRepository = UserSecureRepository::getInstance();
  *   $affected = $userRepository->remove($id);
  *   $affected = $userRepository->removeBy(['username' => $username]);
  *
@@ -38,12 +40,15 @@ use OpenEMR\Common\Database\Repository\IdAwareAbstractRepository;
  *     auto_block_emailed: int,
  * }
  *
- * @extends IdAwareAbstractRepository<TUserSecure>
+ * @template-extends IdAwareAbstractRepository<TUserSecure>
  */
 class UserSecureRepository extends IdAwareAbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('users_secure');
+        return new self(
+            DatabaseManager::getInstance(),
+            'users_secure',
+        );
     }
 }

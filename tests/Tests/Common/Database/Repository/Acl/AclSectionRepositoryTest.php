@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Common\Database\Repository\Acl;
 
 use OpenEMR\Common\Database\Repository\Acl\AclSectionRepository;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
@@ -29,7 +28,7 @@ final class AclSectionRepositoryTest extends TestCase
     #[Test]
     public function findTest(): void
     {
-        $repository = RepositoryFactory::createRepository(AclSectionRepository::class);
+        $repository = AclSectionRepository::getInstance();
         $section = $repository->find(5);
 
         $this->assertArrayHasKey('section_id', $section);

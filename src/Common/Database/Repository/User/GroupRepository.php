@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,13 +13,14 @@
 
 namespace OpenEMR\Common\Database\Repository\User;
 
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Repository\AbstractRepository;
 
 /**
  * Related to groups DB table
  *
  * Usage:
- *   $groupsRepository = RepositoryFactory::createRepository(GroupRepository::class);
+ *   $groupsRepository = GroupRepository::getInstance();
  *   $user = $groupsRepository->find($groupId);
  *
  * @phpstan-type TGroup = array{
@@ -27,12 +29,15 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
  *     user: string
  * }
  *
- * @extends AbstractRepository<TGroup>
+ * @template-extends AbstractRepository<TGroup>
  */
 class GroupRepository extends AbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('groups');
+        return new self(
+            DatabaseManager::getInstance(),
+            'groups',
+        );
     }
 }

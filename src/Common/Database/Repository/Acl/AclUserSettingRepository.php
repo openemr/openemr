@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -17,7 +18,7 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
 
 /**
  * Usage:
- *   $aclUserSettingRepository = RepositoryFactory::createRepository(AclUserSettingRepository::class);
+ *   $aclUserSettingRepository = AclUserSettingRepository::getInstance();
  *   $settings = $aclUserSettingRepository->findAll();
  *   $sectionSettings = $aclUserSettingRepository->findBySectionId($sectionId);
  *
@@ -34,7 +35,7 @@ class AclUserSettingRepository extends AbstractRepository
 {
     protected static function createInstance(): static
     {
-        return new static(
+        return new self(
             DatabaseManager::getInstance(),
             'module_acl_user_settings',
         );

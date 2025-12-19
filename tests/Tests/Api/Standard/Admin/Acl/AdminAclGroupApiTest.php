@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -45,7 +46,7 @@ class AdminAclGroupApiTest extends TestCase
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
-        $this->fixture = new AclGroupFixture();
+        $this->fixture = AclGroupFixture::getInstance();
         $this->fixture->load();
     }
 
@@ -54,7 +55,7 @@ class AdminAclGroupApiTest extends TestCase
         // @todo Test DB isolation and wiping, as otherwise new records inserting into non-test db and only wiped manually like this:
 
         // Remove all groups added by post*Test
-        $groupService = new AclGroupService();
+        $groupService = AclGroupService::getInstance();
         foreach (['inspectors', 'inspectorswithparentid'] as $groupValue) {
             $groupService->deleteByValue($groupValue);
         }

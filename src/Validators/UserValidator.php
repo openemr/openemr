@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,7 +14,6 @@
 namespace OpenEMR\Validators;
 
 use OpenEMR\Common\Auth\Password\PasswordStrengthChecker;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Database\Repository\User\UserRepository;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
@@ -30,7 +30,7 @@ class UserValidator extends BaseValidator
         $globals = OEGlobalsBag::getInstance();
 
         return new UserValidator(
-            RepositoryFactory::createRepository(UserRepository::class),
+            UserRepository::getInstance(),
             PasswordStrengthChecker::getInstance(),
             $globals->getInt('gbl_minimum_password_length', 9),
             $globals->getInt('gbl_maximum_password_length', 72),

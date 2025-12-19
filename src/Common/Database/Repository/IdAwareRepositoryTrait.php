@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,11 +13,8 @@
 
 namespace OpenEMR\Common\Database\Repository;
 
-use OpenEMR\Common\Database\Database;
-use OpenEMR\Common\Database\DatabaseManagerFactory;
 use OpenEMR\Common\Database\Exception\DatabaseQueryException;
 use OpenEMR\Common\Database\Exception\NonUniqueDatabaseResultException;
-use OpenEMR\Common\Database\SqlQueryException;
 use Webmozart\Assert\InvalidArgumentException;
 
 /**
@@ -30,6 +28,7 @@ trait IdAwareRepositoryTrait
      *   $user = $this->find($userId);
      *
      * @phpstan-return TEntity|null
+     *
      * @throws DatabaseQueryException
      * @throws NonUniqueDatabaseResultException
      */

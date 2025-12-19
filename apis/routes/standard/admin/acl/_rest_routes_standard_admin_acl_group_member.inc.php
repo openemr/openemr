@@ -56,7 +56,7 @@ return [
     'GET /api/admin/acl/group/:groupId/member' => static function (string $groupId, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'groups');
 
-        return (new AdminAclGroupMemberRestController())->getAll((int) $groupId, $request);
+        return AdminAclGroupMemberRestController::getInstance()->getAll((int) $groupId, $request);
     },
 
     /**
@@ -138,7 +138,7 @@ return [
         RestConfig::request_authorization_check($request, 'admin', 'groups');
         $data = (array) (json_decode(file_get_contents('php://input')));
 
-        return (new AdminAclGroupMemberRestController())->post((int) $groupId, (int) $userId, $data, $request);
+        return AdminAclGroupMemberRestController::getInstance()->post((int) $groupId, (int) $userId, $data, $request);
     },
 
     /**
@@ -187,6 +187,7 @@ return [
      */
     "DELETE /api/admin/acl/group/:groupId/member/:userId" => static function (string $groupId, string $userId, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "groups");
-        return (new AdminAclGroupMemberRestController())->delete($request, (int) $groupId, (int) $userId);
+
+        return AdminAclGroupMemberRestController::getInstance()->delete($request, (int) $groupId, (int) $userId);
     },
 ];

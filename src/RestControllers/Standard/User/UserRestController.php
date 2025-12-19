@@ -6,6 +6,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -19,8 +20,10 @@
 namespace OpenEMR\RestControllers\Standard\User;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\Services\UserService;
+use OpenEMR\Services\UserService as LegacyUserService;
+use OpenEMR\Services\User\UserService;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Validators\UserValidator;
@@ -29,47 +32,23 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class UserRestController
 {
-    private const SEARCH_FIELDS = [
-        'id',
-        'title',
-        'fname',
-        'lname',
-        'mname',
-        'federaltaxid',
-        'federaldrugid',
-        'upin',
-        'facility_id',
-        'facility',
-        'npi',
-        'email',
-        'specialty',
-        'billname',
-        'url',
-        'assistant',
-        'organization',
-        'valedictory',
-        'street',
-        'streetb',
-        'city',
-        'state',
-        'zip',
-        'phone',
-        'fax',
-        'phonew1',
-        'phonecell',
-        'notes',
-        'state_license_number',
-        'username',
-    ];
+    use SingletonTrait;
 
-    private readonly UserService $userService;
-
-    private readonly UserValidator $userValidator;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->userService = new UserService();
-        $this->userValidator = UserValidator::getInstance();
+        // @phpstan-ignore-next-line new.static
+        return new static(
+            new LegacyUserService(),
+            UserService::getInstance(),
+            UserValidator::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly LegacyUserService $legacyUserService,
+        private readonly UserService $userService,
+        private readonly UserValidator $userValidator,
+    ) {
     }
 
     /**
@@ -98,16 +77,28 @@ class UserRestController
      */
     public function getOne(HttpRestRequest $request, string $uuid): ResponseInterface
     {
-        $result = new ProcessingResult();
-
-        $user = $this->userService->getUserByUUID($uuid);
-        if ([] === $user) {
-            return RestControllerHelper::createProcessingResultResponse($request, $result, 404);
+        try {
+            $user = $this->userService->getOneByUuid($uuid);
+            if (null === $user) {
+                return RestControllerHelper::createProcessingResultResponse(
+                    $request,
+                    new ProcessingResult(),
+                    404,
+                );
+            }
+        } catch (InvalidArgumentException $exception) {
+            return RestControllerHelper::createProcessingResultResponse(
+                $request,
+                ProcessingResult::createNewWithInternalError($exception->getMessage()),
+            );
         }
 
-        $result->setData([$user]);
-
-        return RestControllerHelper::createProcessingResultResponse($request, $result, 200);
+        return RestControllerHelper::createProcessingResultResponse(
+            $request,
+            ProcessingResult::createNewWithData([
+                $user,
+            ]),
+        );
     }
 
     /**
@@ -115,25 +106,26 @@ class UserRestController
      */
     public function getAll(HttpRestRequest $request, array $search = []): ResponseInterface
     {
-        $search = array_filter(
-            $search,
-            static fn (string $key): bool => in_array($key, self::SEARCH_FIELDS, true),
-            \ARRAY_FILTER_USE_KEY
-        );
-
-        return RestControllerHelper::createProcessingResultResponse(
-            $request,
-            $this->userService->search($search),
-            200,
-            true
-        );
+        try {
+            return RestControllerHelper::createProcessingResultResponse(
+                $request,
+                $this->legacyUserService->search($search),
+                200,
+                true,
+            );
+        } catch (InvalidArgumentException $exception) {
+            return RestControllerHelper::createProcessingResultResponse(
+                $request,
+                ProcessingResult::createNewWithInternalError($exception->getMessage()),
+            );
+        }
     }
 
     public function delete(HttpRestRequest $request, string $uuid): ResponseInterface
     {
         $result = new ProcessingResult();
         try {
-            $this->userService->deleteByUuid($uuid);
+            $this->userService->deleteOneByUuid($uuid);
         } catch (InvalidArgumentException $e) {
             $result->setValidationMessages([
                 $e->getMessage()

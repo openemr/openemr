@@ -63,13 +63,12 @@ class RandomPasswordGeneratorIsolatedTest extends TestCase
         int $length,
         int $expectedPasswordLength,
     ): void {
-        $checker = new PasswordStrengthChecker();
-
         $generator = new RandomPasswordGenerator(...$constructorArguments);
         $password = $generator->generatePassword($length);
 
         $this->assertSame($expectedPasswordLength, strlen($password));
-        $this->assertTrue($checker->isPasswordStrongEnough($password), sprintf(
+
+        $this->assertTrue(PasswordStrengthChecker::getInstance()->isPasswordStrongEnough($password), sprintf(
             'Generated password %s is not strong enough',
             $password,
         ));

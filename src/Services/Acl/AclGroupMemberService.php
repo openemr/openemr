@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,8 +14,10 @@
 namespace OpenEMR\Services\Acl;
 
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Database\Repository\User\UserRepository;
+use OpenEMR\Common\Utils\ArrayUtils;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Gacl\GaclApi;
-use OpenEMR\Services\UserService;
 use Webmozart\Assert\Assert;
 use Webmozart\Assert\InvalidArgumentException;
 
@@ -23,8 +26,9 @@ use Webmozart\Assert\InvalidArgumentException;
  *     fname: string,
  *     mname: ?string,
  *     lname: string,
- *     username: string
+ *     username: string,
  * }
+ *
  * @phpstan-type TUserOutput = array{
  *     id: int,
  *     uuid: string,
@@ -32,29 +36,37 @@ use Webmozart\Assert\InvalidArgumentException;
  *     mname: ?string,
  *     lname: string,
  *     email: string,
- *     username: string
+ *     username: string,
  * }
  */
 class AclGroupMemberService
 {
-    private const RETURNABLE_USER_FIELDS = [
+    use SingletonTrait;
+
+    private const ALLOWED_USER_FIELDS = [
         'id',
         'uuid',
         'fname',
         'mname',
         'lname',
-        'username',
         'email',
+        'username',
     ];
 
-    private readonly GaclApi $acl;
-
-    private readonly AclGroupService $aclGroupService;
-
-    public function __construct(private readonly UserService $userService)
+    protected static function createInstance(): static
     {
-        $this->acl = new GaclApi();
-        $this->aclGroupService = new AclGroupService();
+        return new self(
+            new GaclApi(),
+            AclGroupService::getInstance(),
+            UserRepository::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly GaclApi $acl,
+        private readonly AclGroupService $aclGroupService,
+        private readonly UserRepository $userRepository,
+    ) {
     }
 
     /**
@@ -64,6 +76,7 @@ class AclGroupMemberService
      *
      * @phpstan-param TUserInput $user
      * @phpstan-param array{order?: int, hidden?: bool} $option
+     *
      * @throws InvalidArgumentException
      */
     public function addUserToGroup(array $user, int $groupId, array $options = []): void
@@ -112,11 +125,10 @@ class AclGroupMemberService
     {
         $groupObjects = $this->acl->get_group_objects($groupId, 'ARO', 'RECURSE');
 
-        dump($groupObjects);
         return array_map(
-            fn (array $user): array => $this->userService->normalize($user, self::RETURNABLE_USER_FIELDS),
+            fn (array $user): array => ArrayUtils::filter($user, self::ALLOWED_USER_FIELDS),
             array_filter(array_map(
-                fn (string $username): array|null => $this->userService->getUserByUsername($username) ?: null,
+                fn (string $username): array|null => $this->userRepository->findOneByUsername($username) ?: null,
                 $groupObjects['users'] ?? []
             ))
         );

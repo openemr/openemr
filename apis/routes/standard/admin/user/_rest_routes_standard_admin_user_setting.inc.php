@@ -49,7 +49,7 @@ return [
      */
     'GET /api/admin/user/setting/section' => static function(HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingSectionRestController())->getUserSpecificSections($request);
+        return AdminUserSettingSectionRestController::getInstance()->getUserSpecificSections($request);
     },
 
     /**
@@ -89,7 +89,7 @@ return [
      */
     'GET /api/admin/user/:userId/setting' => static function (string $userId, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->getAll($request, $userId);
+        return AdminUserSettingRestController::getInstance()->getAll($request, $userId);
     },
 
     /**
@@ -141,7 +141,7 @@ return [
      */
     'GET /api/admin/user/:userId/setting/:section' => static function(string $userId, string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->getBySectionSlug($request, $userId, $section);
+        return AdminUserSettingRestController::getInstance()->getBySectionSlug($request, $userId, $section);
     },
 
     /**
@@ -202,7 +202,7 @@ return [
      */
     'GET /api/admin/user/:userId/setting/:section/:key' => static function(string $userId, string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->getOneBySettingKey($request, $userId, $section, $key);
+        return AdminUserSettingRestController::getInstance()->getOneBySettingKey($request, $userId, $section, $key);
     },
 
     /**
@@ -262,7 +262,7 @@ return [
     'PUT /api/admin/user/:userId/setting/:section' => static function(string $userId, string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminUserSettingRestController())->putBySectionSlug(
+        return AdminUserSettingRestController::getInstance()->putBySectionSlug(
             $request,
             $userId,
             $section,
@@ -318,7 +318,7 @@ return [
      */
     'POST /api/admin/user/:userId/setting/:section/reset' => static function(string $userId, string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->resetBySectionSlug($request, $userId, $section);
+        return AdminUserSettingRestController::getInstance()->resetBySectionSlug($request, $userId, $section);
     },
 
     /**
@@ -379,6 +379,6 @@ return [
      */
     'POST /api/admin/user/:userId/setting/:section/:key/reset' => static function(string $userId, string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->resetOneBySettingKey($request, $userId, $section, $key);
+        return AdminUserSettingRestController::getInstance()->resetOneBySettingKey($request, $userId, $section, $key);
     },
 ];

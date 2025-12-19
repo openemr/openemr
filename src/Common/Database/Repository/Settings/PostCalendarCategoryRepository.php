@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,11 +13,12 @@
 
 namespace OpenEMR\Common\Database\Repository\Settings;
 
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Repository\AbstractRepository;
 
 /**
  * Usage:
- *   $categoryRepository = RepositoryFactory::createRepository(PostCalendarCategoryRepository::class);
+ *   $categoryRepository = PostCalendarCategoryRepository::getInstance();
  *   $activeCategories = $categoryRepository->findActive();
  *
  * @phpstan-type TCategory = array{
@@ -42,15 +44,19 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
  *     pc_last_updated: string,
  * }
  *
- * @extends AbstractRepository<TCategory>
+ * @template-extends AbstractRepository<TCategory>
  */
 class PostCalendarCategoryRepository extends AbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('openemr_postcalendar_categories', [
-            'pc_seq' => 'ASC',
-        ]);
+        return new self(
+            DatabaseManager::getInstance(),
+            'openemr_postcalendar_categories',
+            [
+                'pc_seq' => 'ASC',
+            ],
+        );
     }
 
     /**

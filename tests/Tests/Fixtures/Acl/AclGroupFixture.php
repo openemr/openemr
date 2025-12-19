@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,15 +13,24 @@
 
 namespace OpenEMR\Tests\Fixtures\Acl;
 
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Services\Acl\AclGroupService;
-use OpenEMR\Tests\Fixtures\AbstractFixture;
+use OpenEMR\Tests\Fixtures\AbstractRemovableFixture;
 
-class AclGroupFixture extends AbstractFixture
+class AclGroupFixture extends AbstractRemovableFixture
 {
-    private readonly AclGroupService $groupService;
+    use SingletonTrait;
 
-    public function __construct() {
-        $this->groupService = new AclGroupService();
+    protected static function createInstance(): static
+    {
+        return new self(
+            AclGroupService::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly AclGroupService $groupService,
+    ) {
     }
 
     public function load(): void

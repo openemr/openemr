@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -20,7 +21,7 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
  * we have custom find & remove methods
  *
  * Usage:
- *   $aclSectionRepository = RepositoryFactory::createRepository(AclSectionRepository::class);
+ *   $aclSectionRepository = AclSectionRepository::getInstance();
  *   $sections = $aclSectionRepository->findAll();
  *   $section = $aclSectionRepository->find(5);
  *   $affected = $aclSectionRepository->remove(5);
@@ -39,7 +40,7 @@ class AclSectionRepository extends AbstractRepository
 {
     protected static function createInstance(): static
     {
-        return new static(
+        return new self(
             DatabaseManager::getInstance(),
             'module_acl_sections',
         );

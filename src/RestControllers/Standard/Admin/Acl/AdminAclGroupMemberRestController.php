@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,6 +14,7 @@
 namespace OpenEMR\RestControllers\Standard\Admin\Acl;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Acl\AclGroupMemberService;
 use OpenEMR\Services\UserService;
@@ -25,17 +27,23 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class AdminAclGroupMemberRestController
 {
-    private readonly UserService $userService;
+    use SingletonTrait;
 
-    private readonly AclGroupMemberService $aclGroupMemberService;
-
-    private readonly AclGroupMemberValidator $aclGroupMemberValidator;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->userService = new UserService();
-        $this->aclGroupMemberService = new AclGroupMemberService($this->userService);
-        $this->aclGroupMemberValidator = new AclGroupMemberValidator();
+        $userService = new UserService();
+        return new self(
+            $userService,
+            AclGroupMemberService::getInstance(),
+            AclGroupMemberValidator::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly UserService $userService,
+        private readonly AclGroupMemberService $aclGroupMemberService,
+        private readonly AclGroupMemberValidator $aclGroupMemberValidator,
+    ) {
     }
 
     public function post(int $groupId, int $userId, array $data, HttpRestRequest $request): ResponseInterface

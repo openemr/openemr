@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Services\Acl;
 
 use OpenEMR\Services\Acl\AclGroupMemberService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Tests\Fixtures\UserFixture;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -37,8 +36,8 @@ class AclGroupMemberServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->userFixture = new UserFixture();
-        $this->aclGroupMemberService = new AclGroupMemberService(new UserService());
+        $this->userFixture = UserFixture::getInstance();
+        $this->aclGroupMemberService = AclGroupMemberService::getInstance();
 
         $this->userFixture->load();
     }

@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -17,7 +18,7 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
 
 /**
  * Usage:
- *   $aclGroupSettingRepository = RepositoryFactory::createRepository(AclGroupSettingRepository::class);
+ *   $aclGroupSettingRepository = AclGroupSettingRepository::getInstance();
  *   $settings = $aclGroupSettingRepository->findAll();
  *   $sectionSettings = $aclGroupSettingRepository->findBySectionId($sectionId);
  *
@@ -34,7 +35,7 @@ class AclGroupSettingRepository extends AbstractRepository
 {
     protected static function createInstance(): static
     {
-        return new static(
+        return new self(
             DatabaseManager::getInstance(),
             'module_acl_group_settings',
         );

@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,12 +13,11 @@
 
 namespace OpenEMR\Tests\Api\Standard\Admin\User;
 
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Database\Repository\User\UserRepository;
 use OpenEMR\Common\Database\Repository\User\UserSecureRepository;
 use OpenEMR\Common\Database\Repository\UuidRegistryRepository;
 use OpenEMR\RestControllers\Standard\User\UserRestController;
-use OpenEMR\Services\UserService;
+use OpenEMR\Services\User\UserService;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Common\Auth\AuthHashAwareTrait;
 use OpenEMR\Tests\Fixtures\UserFixture;
@@ -54,11 +54,11 @@ class AdminUserApiTest extends TestCase
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
-        $this->userRepository = RepositoryFactory::createRepository(UserRepository::class);
-        $this->userSecureRepository = RepositoryFactory::createRepository(UserSecureRepository::class);
-        $this->uuidRegistryRepository = RepositoryFactory::createRepository(UuidRegistryRepository::class);
+        $this->userSecureRepository = UserSecureRepository::getInstance();
+        $this->userRepository = UserRepository::getInstance();
+        $this->uuidRegistryRepository = UuidRegistryRepository::getInstance();
 
-        $this->fixture = new UserFixture();
+        $this->fixture = UserFixture::getInstance();
         $this->fixture->load();
     }
 
@@ -345,7 +345,7 @@ class AdminUserApiTest extends TestCase
 
     /**
      * @see UserRestController::getOne()
-     * @see UserService::getUserByUUID()
+     * @see UserService::getOneByUuid()
      */
     #[Test]
     public function getOneTest(): void
@@ -503,7 +503,7 @@ class AdminUserApiTest extends TestCase
 
     /**
      * @see UserRestController::delete()
-     * @see UserService::deleteByUuid()
+     * @see UserService::deleteOneByUuid()
      */
     #[Test]
     #[DataProvider('deleteFailedDataProvider')]

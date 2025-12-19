@@ -48,6 +48,24 @@ class ProcessingResult
         return $result;
     }
 
+    public static function createNewWithInternalError(string $errorMessage): self
+    {
+        $result = new ProcessingResult();
+        $result->addInternalError($errorMessage);
+
+        return $result;
+    }
+
+//    public static function createNewWithValidationMessage(string $validationMessage): self
+//    {
+//        $result = new ProcessingResult();
+//        $result->setValidationMessages([
+//            $validationMessage,
+//        ]);
+//
+//        return $result;
+//    }
+
     /**
      * @param QueryPagination $pagination
      */

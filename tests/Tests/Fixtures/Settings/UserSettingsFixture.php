@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,16 +13,24 @@
 
 namespace OpenEMR\Tests\Fixtures\Settings;
 
-use OpenEMR\Common\Database\Database;
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\DatabaseTables;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Tests\Fixtures\AbstractFixture;
 
 class UserSettingsFixture extends AbstractFixture
 {
-    private string $table = DatabaseTables::TABLE_USER_SETTINGS;
+    use SingletonTrait;
+
+    protected static function createInstance(): static
+    {
+        return new self(
+            DatabaseManager::getInstance(),
+        );
+    }
 
     public function __construct(
-        private readonly Database $db
+        private readonly DatabaseManager $db,
     ) {
     }
 
@@ -30,9 +39,12 @@ class UserSettingsFixture extends AbstractFixture
         $this->loadFromFile(sprintf('%s/../data/settings/user_settings.json', __DIR__));
     }
 
+    /**
+     * Settings has no IDs, so we have custom implementation
+     */
     protected function loadRecord(array $record): array
     {
-        $this->db->insert($this->table, $record);
+        $this->db->insert(DatabaseTables::TABLE_USER_SETTINGS, $record);
 
         return $record;
     }

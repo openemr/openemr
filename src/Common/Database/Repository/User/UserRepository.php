@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,6 +13,7 @@
 
 namespace OpenEMR\Common\Database\Repository\User;
 
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Repository\IdAwareAbstractRepository;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
@@ -21,7 +23,7 @@ use Webmozart\Assert\InvalidArgumentException;
  * Related to users_secure DB table
  *
  * Usage:
- *   $userRepository = RepositoryFactory::createRepository(UserRepository::class);
+ *   $userRepository = UserRepository::class::getInstance();
  *   $isUuidTaken = $userRepository->countByUuid($uuid) > 0;
  *   $user = $userRepository->findOneByUuid($uuid);
  *   $user = $userRepository->findOneByUsername('igormukhin');
@@ -29,7 +31,7 @@ use Webmozart\Assert\InvalidArgumentException;
  *
  * @phpstan-type TUser = array{
  *     id: int,
- *     uuid: ?string,
+ *     uuid: string,
  *     username: ?string,
  *     email: ?string,
  *     authorized: ?int,
@@ -43,13 +45,28 @@ use Webmozart\Assert\InvalidArgumentException;
  *     portal_user: int,
  * }
  *
- * @extends IdAwareAbstractRepository<TUser>
+ * @template-extends IdAwareAbstractRepository<TUser>
  */
 class UserRepository extends IdAwareAbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('users');
+        return new self(
+            DatabaseManager::getInstance(),
+            'users',
+            [
+                'lname' => 'ASC',
+                'fname' => 'ASC',
+                'mname' => 'ASC',
+            ],
+        );
+    }
+
+    public function normalize(array $data): array
+    {
+        $data['uuid'] = UuidRegistry::uuidToString($data['uuid']);
+
+        return $data;
     }
 
     public function countByUuid(string $uuid): int
@@ -61,12 +78,14 @@ class UserRepository extends IdAwareAbstractRepository
         }
 
         return $this->countBy([
-            'uuid' => $uuidBytes
+            'uuid' => $uuidBytes,
         ]);
     }
 
     /**
      * @phpstan-return TUser|null
+     *
+     * @throws InvalidArgumentException
      */
     public function findOneByUuid(string $uuid): array|null
     {
@@ -77,7 +96,7 @@ class UserRepository extends IdAwareAbstractRepository
         }
 
         return $this->findOneBy([
-            'uuid' => $uuidBytes
+            'uuid' => $uuidBytes,
         ]);
     }
 
@@ -88,6 +107,16 @@ class UserRepository extends IdAwareAbstractRepository
     {
         return $this->findOneBy([
             'username' => $username,
+        ]);
+    }
+
+    /**
+     * @phpstan-return array<TUser>
+     */
+    public function findActive(): array
+    {
+        return $this->findOneBy([
+            'active' => 1,
         ]);
     }
 }

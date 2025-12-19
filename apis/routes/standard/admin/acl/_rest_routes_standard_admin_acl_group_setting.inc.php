@@ -109,7 +109,7 @@ return [
     'GET /api/admin/acl/group/setting' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminAclGroupSettingRestController())->getAll($request);
+        return AdminAclGroupSettingRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -153,6 +153,6 @@ return [
     'GET /api/admin/acl/group/setting/:sectionId' => static function (int $sectionId, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminAclGroupSettingRestController())->getBySection($request, $sectionId);
+        return AdminAclGroupSettingRestController::getInstance()->getBySection($request, $sectionId);
     },
 ];

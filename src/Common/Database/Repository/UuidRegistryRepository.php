@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,15 +13,14 @@
 
 namespace OpenEMR\Common\Database\Repository;
 
-use OpenEMR\Common\Database\Database;
-use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * Usage:
- *   $uuidRegistryRepository = RepositoryFactory::createRepository(UuidRegistryRepository::class);
+ *   $uuidRegistryRepository = UuidRegistryRepository::getInstance();
  *   $affected = $uuidRegistryRepository->removeByUuidAndTable($uuid, 'users');
  *
  * @phpstan-type TUuidRegistry = array{
@@ -34,13 +34,16 @@ use Webmozart\Assert\InvalidArgumentException;
  *     created: string,
  * }
  *
- * @extends AbstractRepository<TUuidRegistry>
+ * @template-extends AbstractRepository<TUuidRegistry>
  */
 class UuidRegistryRepository extends AbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('uuid_registry');
+        return new self(
+            DatabaseManager::getInstance(),
+            'uuid_registry',
+        );
     }
 
     /**

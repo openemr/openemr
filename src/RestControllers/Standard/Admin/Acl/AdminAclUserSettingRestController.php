@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,8 +14,8 @@
 namespace OpenEMR\RestControllers\Standard\Admin\Acl;
 
 use OpenEMR\Common\Database\Repository\Acl\AclUserSettingRepository;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Acl\AclSectionService;
 use OpenEMR\Validators\ProcessingResult;
@@ -24,14 +25,20 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class AdminAclUserSettingRestController
 {
-    private readonly AclUserSettingRepository $aclUserSettingRepository;
+    use SingletonTrait;
 
-    private readonly AclSectionService $aclSectionService;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->aclUserSettingRepository = RepositoryFactory::createRepository(AclUserSettingRepository::class);
-        $this->aclSectionService = new AclSectionService();
+        return new self(
+            AclUserSettingRepository::getInstance(),
+            AclSectionService::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly AclUserSettingRepository $aclUserSettingRepository,
+        private readonly AclSectionService $aclSectionService,
+    ) {
     }
 
     public function getAll(HttpRestRequest $request): ResponseInterface

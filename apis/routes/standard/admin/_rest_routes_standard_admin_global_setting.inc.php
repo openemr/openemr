@@ -18,7 +18,6 @@ use Psr\Http\Message\ResponseInterface;
 use OpenEMR\RestControllers\Standard\Admin\GlobalSetting\AdminGlobalSettingRestController;
 use OpenEMR\RestControllers\Standard\Admin\GlobalSetting\AdminGlobalSettingSectionRestController;
 use OpenEMR\RestControllers\Config\RestConfig;
-use OpenEMR\Core\OEGlobalsBag;
 
 // @todo Move initialization to classes
 require_once(__DIR__ . "/../../../../library/globals.inc.php"); // As we need section names
@@ -51,7 +50,7 @@ return [
      */
     'GET /api/admin/global-setting/section' => static function(HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingSectionRestController())->getAll($request);
+        return AdminGlobalSettingSectionRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -81,7 +80,7 @@ return [
      */
     'GET /api/admin/global-setting' => static function(HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->getAll($request);
+        return AdminGlobalSettingRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -111,7 +110,7 @@ return [
      */
     'GET /api/admin/global-setting/:section' => static function(string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->getBySectionSlug($request, $section);
+        return adminGlobalSettingRestController::GetInstance()->getBySectionSlug($request, $section);
     },
 
     /**
@@ -141,7 +140,7 @@ return [
      */
     'GET /api/admin/global-setting/:section/:key' => static function(string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->getOneBySettingKey($request, $section, $key);
+        return adminGlobalSettingRestController::GetInstance()->getOneBySettingKey($request, $section, $key);
     },
 
     /**
@@ -201,7 +200,7 @@ return [
     'PUT /api/admin/global-setting/:section' => static function(string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminGlobalSettingRestController())->putBySectionSlug(
+        return adminGlobalSettingRestController::GetInstance()->putBySectionSlug(
             $request,
             $section,
             file_get_contents('php://input'),
@@ -245,7 +244,7 @@ return [
      */
     'POST /api/admin/global-setting/:section/reset' => static function(string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->resetBySectionSlug($request, $section);
+        return adminGlobalSettingRestController::GetInstance()->resetBySectionSlug($request, $section);
     },
 
     /**
@@ -295,6 +294,6 @@ return [
      */
     'POST /api/admin/global-setting/:section/:key/reset' => static function(string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->resetOneBySettingKey($request, $section, $key);
+        return adminGlobalSettingRestController::GetInstance()->resetOneBySettingKey($request, $section, $key);
     },
 ];

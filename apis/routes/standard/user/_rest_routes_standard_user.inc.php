@@ -376,7 +376,7 @@ return [
     'GET /api/user' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new UserRestController())->getAll($request, $_GET);
+        return UserRestController::getInstance()->getAll($request, $_GET);
     },
 
     /**
@@ -417,7 +417,7 @@ return [
     'GET /api/user/:uuid' => static function (string $uuid, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new UserRestController())->getOne($request, $uuid);
+        return UserRestController::getInstance()->getOne($request, $uuid);
     },
 
     /**
@@ -686,6 +686,6 @@ return [
         RestConfig::request_authorization_check($request, 'admin', 'users');
         $data = (array) (json_decode(file_get_contents('php://input')));
 
-        return (new UserRestController())->post($data, $request);
+        return UserRestController::getInstance()->post($data, $request);
     },
 ];

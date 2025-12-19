@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services\Acl;
 
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Gacl\GaclApi;
 use Webmozart\Assert\Assert;
 use Webmozart\Assert\InvalidArgumentException;
@@ -26,11 +27,18 @@ use Webmozart\Assert\InvalidArgumentException;
  */
 class AclGroupService
 {
-    private readonly GaclApi $acl;
+    use SingletonTrait;
 
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->acl = new GaclApi();
+        return new self(
+            new GaclApi(),
+        );
+    }
+
+    public function __construct(
+        private readonly GaclApi $acl,
+    ) {
     }
 
     /**

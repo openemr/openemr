@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,11 +13,12 @@
 
 namespace OpenEMR\Common\Database\Repository\Settings;
 
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Repository\AbstractRepository;
 
 /**
  * Usage:
- *   $languageRepository = RepositoryFactory::createRepository(LanguageRepository::class);
+ *   $languageRepository = LanguageRepository::getInstance();
  *   $language = $userRepository->findOneBy(['lang_code' => 'en']);
  *
  * @phpstan-type TLanguage = array{
@@ -26,15 +28,19 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
  *     lang_is_rtl: int,
  * }
  *
- * @extends AbstractRepository<TLanguage>
+ * @template-extends AbstractRepository<TLanguage>
  */
 class LanguageRepository extends AbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('lang_languages', [
-            'lang_description' => 'ASC',
-        ]);
+        return new self(
+            DatabaseManager::getInstance(),
+            'lang_languages',
+            [
+                'lang_description' => 'ASC',
+            ],
+        );
     }
 
     public function normalize(array $data): array
@@ -42,6 +48,7 @@ class LanguageRepository extends AbstractRepository
         // For some reason these values returned as string, so fixing that here
         $data['lang_id'] = (int) $data['lang_id'];
         $data['lang_is_rtl'] = (int) $data['lang_is_rtl'];
+
         return $data;
     }
 }

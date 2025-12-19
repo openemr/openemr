@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,16 +13,19 @@
 
 namespace OpenEMR\Tests\Fixtures\Purger\Settings;
 
-use OpenEMR\Common\Database\Database;
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\DatabaseTables;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Tests\Fixtures\Purger\AbstractTruncatePurger;
 
 class UserSettingsPurger extends AbstractTruncatePurger
 {
-    public function __construct(Database $db)
+    use SingletonTrait;
+
+    protected static function createInstance(): static
     {
-        parent::__construct(
-            $db,
+        return new self(
+            DatabaseManager::getInstance(),
             DatabaseTables::TABLE_USER_SETTINGS,
         );
     }

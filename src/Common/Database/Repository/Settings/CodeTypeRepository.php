@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,11 +13,12 @@
 
 namespace OpenEMR\Common\Database\Repository\Settings;
 
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Repository\AbstractRepository;
 
 /**
  * Usage:
- *   $codeTypeRepository = RepositoryFactory::createRepository(CodeTypeRepository::class);
+ *   $codeTypeRepository = CodeTypeRepository::getInstance();
  *   $codeType = $codeTypeRepository->findOneBy(['ct_key' => 'ICD10-PCS']);
  *   $codeTypes = $codeTypeRepository->findActive();
  *
@@ -41,16 +43,20 @@ use OpenEMR\Common\Database\Repository\AbstractRepository;
  *     ct_drug: int,
  * }
  *
- * @extends AbstractRepository<TCodeType>
+ * @template-extends AbstractRepository<TCodeType>
  */
 class CodeTypeRepository extends AbstractRepository
 {
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct('code_types', [
-            'ct_seq' => 'ASC',
-            'ct_key' => 'ASC', // @todo I would order by ct_label rather than ct_key
-        ]);
+        return new self(
+            DatabaseManager::getInstance(),
+            'code_types',
+            [
+                'ct_seq' => 'ASC',
+                'ct_key' => 'ASC', // @todo Order by ct_label rather than ct_key?
+            ],
+        );
     }
 
     public function normalize(array $data): array

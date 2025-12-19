@@ -11,15 +11,19 @@
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\Repository\User\UserRepository;
+use OpenEMR\Common\Utils\ArrayUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
+use Webmozart\Assert\InvalidArgumentException;
 
 class UserService
 {
@@ -29,6 +33,39 @@ class UserService
      * The name of the system user used for api requests.
      */
     const SYSTEM_USER_USERNAME = 'oe-system';
+
+    private const SEARCH_FIELDS = [
+        'id',
+        'title',
+        'fname',
+        'lname',
+        'mname',
+        'federaltaxid',
+        'federaldrugid',
+        'upin',
+        'facility_id',
+        'facility',
+        'npi',
+        'email',
+        'specialty',
+        'billname',
+        'url',
+        'assistant',
+        'organization',
+        'valedictory',
+        'street',
+        'streetb',
+        'city',
+        'state',
+        'zip',
+        'phone',
+        'fax',
+        'phonew1',
+        'phonecell',
+        'notes',
+        'state_license_number',
+        'username',
+    ];
 
     /**
      * Default constructor.
@@ -78,6 +115,9 @@ class UserService
     }
 
     /**
+     * @deprecated Use UserRepository::find() instead
+     * @see UserRepository::find()
+     *
      * @return array hydrated user object
      */
     public function getUser($userId)
@@ -88,6 +128,9 @@ class UserService
     }
 
     /**
+     * @deprecated Use UserRepository::findOneByUsername() instead
+     * @see UserRepository::findOneByUsername()
+     *
      * @return array hydrated user object
      */
     public function getUserByUsername($username)
@@ -101,6 +144,10 @@ class UserService
 
     /**
      * Retrieves the API System User if it exists, returns null if the user does not exist.
+     *
+     * @deprecated Use UserRepository::findOneByUsername() instead
+     * @see UserRepository::findOneByUsername()
+     *
      * @return array
      */
     public function getSystemUser()
@@ -117,6 +164,9 @@ class UserService
     }
 
     /**
+     * @deprecated Use UserRepository::findActive() instead
+     * @see UserRepository::findActive()
+     *
      * @return array active users (fully hydrated)
      */
     public function getActiveUsers()
@@ -131,6 +181,9 @@ class UserService
     }
 
     /**
+     * @deprecated Use UserRepository::find($_SESSION['authUserID']) instead
+     * @see UserRepository::find()
+     *
      * @return array
      */
     public function getCurrentlyLoggedInUser()
@@ -141,6 +194,10 @@ class UserService
 
     /**
      * Returns a user by the given UUID.  Can take a byte string or a UUID in string format.
+     *
+     * @deprecated Use UserRepository::findOneByUuid() instead
+     * @see UserRepository::findOneByUuid()
+     *
      * @param $userId string
      */
     public function getUserByUUID($uuid)
@@ -159,6 +216,7 @@ class UserService
 
     /**
      * Retrieves a single user that is authorized for the calendar
+     *
      * @param $userId
      * @return array|null
      */
@@ -218,8 +276,13 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search($search, $isAndCondition = true)
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function search(array $search, bool $isAndCondition = true): array
     {
+        ArrayUtils::filter($search, self::SEARCH_FIELDS);
+
         $sql = "SELECT  id,
                         uuid,
                         users.title as title,
@@ -349,6 +412,9 @@ class UserService
     }
 
     /**
+     * @deprecated Use UserRepository::getSingleScalarResultBy('id', ['username' => $username]) instead
+     * @see UserRepository::getSingleScalarResultBy
+     *
      * @return array id of User
      */
     public function getIdByUsername($username)
@@ -363,7 +429,12 @@ class UserService
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     * @param $row The record returned from the database
+     *
+     * @deprecated UserRepository::normalize() applied automatically at UserRepository::find* methods
+     * @see UserRepository::normalize
+     * @see UserRepository::findAll
+     *
+     * @param array $row The record returned from the database
      */
     protected function createResultRecordFromDatabaseResult($row)
     {

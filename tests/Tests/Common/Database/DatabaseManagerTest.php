@@ -35,6 +35,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversMethod(DatabaseManager::class, 'removeBy')]
 #[CoversMethod(DatabaseManager::class, 'getResult')]
 #[CoversMethod(DatabaseManager::class, 'getSingleColumnResult')]
+#[CoversMethod(DatabaseManager::class, 'getOneResult')]
 #[CoversMethod(DatabaseManager::class, 'getOneOrNullResult')]
 #[CoversMethod(DatabaseManager::class, 'getSingleScalarResult')]
 final class DatabaseManagerTest extends TestCase
@@ -266,6 +267,58 @@ final class DatabaseManagerTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('getOneResultSucceededDataProvider')]
+    public function getOneResultSucceededTest(string $statement, array $binds, null|array $expectedResult): void
+    {
+        $this->assertEquals(
+            $expectedResult,
+            $this->database->getOneResult($statement, $binds)
+        );
+    }
+
+    public static function getOneResultSucceededDataProvider(): iterable
+    {
+        yield 'Single result' => [
+            "select 'value1' as `field`",
+            [],
+            [
+                'field' => 'value1',
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('getOneResultFailedDataProvider')]
+    public function getOneResultFailedTest(
+        string $statement,
+        array $binds,
+        string $expectedException,
+        string $expectedExceptionMessage,
+    ): void {
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedExceptionMessage);
+
+        $this->database->getOneResult($statement, $binds);
+    }
+
+    public static function getOneResultFailedDataProvider(): iterable
+    {
+        yield 'Empty result' => [
+            "SELECT NULL WHERE FALSE",
+            [],
+            NoResultDatabaseResultException::class,
+            'No result'
+        ];
+
+        yield 'More than one results' => [
+            "select 'value1' as `field` union select 'value2' as `field`",
+            [],
+            NonUniqueDatabaseResultException::class,
+            'Unexpected non-unique result'
+        ];
+    }
+
+    #[Test]
     #[DataProvider('getOneOrNullResultSucceededDataProvider')]
     public function getOneOrNullResultSucceededTest(string $statement, array $binds, null|array $expectedResult): void
     {
@@ -357,13 +410,6 @@ final class DatabaseManagerTest extends TestCase
 
     public static function getSingleScalarResultFailedDataProvider(): iterable
     {
-        yield 'Empty result' => [
-            "SELECT NULL WHERE FALSE",
-            [],
-            NoResultDatabaseResultException::class,
-            'No result'
-        ];
-
         yield 'More than one results' => [
             "select 'value1' as `field` union select 'value2' as `field`",
             [],

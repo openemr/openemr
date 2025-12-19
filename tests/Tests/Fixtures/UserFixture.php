@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -14,11 +15,12 @@ namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Auth\Password\RandomPasswordGenerator;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Database\Repository\User\UserRepository;
 use OpenEMR\Common\Database\Repository\User\UserSecureRepository;
+use OpenEMR\Common\Database\Repository\UuidRegistryRepository;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Services\Acl\AclGroupMemberService;
-use OpenEMR\Services\UserService;
 
 /**
  * @phpstan-import-type TUser from UserRepository
@@ -26,24 +28,37 @@ use OpenEMR\Services\UserService;
  */
 class UserFixture extends UuidAwareFixture
 {
-    private readonly UserSecureRepository $userSecureRepository;
+    use SingletonTrait;
 
-    private readonly AclGroupMemberService $aclGroupMemberService;
-
-    private readonly RandomPasswordGenerator $randomPasswordGenerator;
-
-    private readonly AuthHash $authHash;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        parent::__construct(
-            RepositoryFactory::createRepository(UserRepository::class)
-        );
+        $repository = UserRepository::getInstance();
 
-        $this->userSecureRepository = RepositoryFactory::createRepository(UserSecureRepository::class);
-        $this->aclGroupMemberService = new AclGroupMemberService(new UserService());
-        $this->randomPasswordGenerator = RandomPasswordGenerator::getInstance();
-        $this->authHash = new AuthHash();
+        return new self(
+            $repository,
+            UuidRegistryRepository::getInstance(),
+            new UuidRegistry(['table_name' => $repository->getTable()]),
+            UserSecureRepository::getInstance(),
+            AclGroupMemberService::getInstance(),
+            RandomPasswordGenerator::getInstance(),
+            AuthHash::getInstance(),
+        );
+    }
+
+    public function __construct(
+        UserRepository $userRepository,
+        private readonly UuidRegistryRepository $uuidRegistryRepository,
+        private readonly UuidRegistry $uuidRegistry,
+        private readonly UserSecureRepository $userSecureRepository,
+        private readonly AclGroupMemberService $aclGroupMemberService,
+        private readonly RandomPasswordGenerator $randomPasswordGenerator,
+        private readonly AuthHash $authHash,
+    ) {
+        parent::__construct(
+            $userRepository,
+            $uuidRegistryRepository,
+            $uuidRegistry,
+        );
     }
 
     public function load(): void

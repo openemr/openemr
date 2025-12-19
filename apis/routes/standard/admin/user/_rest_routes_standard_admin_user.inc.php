@@ -546,7 +546,7 @@ return [
     'GET /api/admin/user' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminUserRestController())->getAll($request, $_GET);
+        return AdminUserRestController::getInstance()->getAll($request, $_GET);
     },
 
     /**
@@ -587,7 +587,7 @@ return [
     'GET /api/admin/user/:uuid' => static function (string $uuid, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminUserRestController())->getOne($request, $uuid);
+        return adminUserRestController::GetInstance()->getOne($request, $uuid);
     },
 
     /**
@@ -686,7 +686,7 @@ return [
         RestConfig::request_authorization_check($request, 'admin', 'users');
         $data = (array) (json_decode(file_get_contents('php://input')));
 
-        return (new AdminUserRestController())->post($data, $request);
+        return adminUserRestController::GetInstance()->post($data, $request);
     },
 
     /**
@@ -724,6 +724,6 @@ return [
      */
     "DELETE /api/admin/user/:uuid" => static function (string $uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        return (new AdminUserRestController())->delete($request, $uuid);
+        return adminUserRestController::GetInstance()->delete($request, $uuid);
     },
 ];

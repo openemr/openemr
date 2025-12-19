@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,23 +14,17 @@
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Database\Repository\AbstractRepository;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Database\Repository\UuidRegistryRepository;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 abstract class UuidAwareFixture extends AbstractRepositoryAwareFixture
 {
-    private readonly UuidRegistryRepository $uuidRegistryRepository;
-
-    private readonly UuidRegistry $uuidRegistry;
-
     public function __construct(
         AbstractRepository $repository,
+        private readonly UuidRegistryRepository $uuidRegistryRepository,
+        private readonly UuidRegistry $uuidRegistry,
     ) {
         parent::__construct($repository);
-
-        $this->uuidRegistryRepository = RepositoryFactory::createRepository(UuidRegistryRepository::class);
-        $this->uuidRegistry = new UuidRegistry(['table_name' => $this->repository->getTable()]);
     }
 
     protected function loadRecord(array $record): array

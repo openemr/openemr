@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,6 +14,7 @@
 namespace OpenEMR\RestControllers\Standard\Admin\Acl;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Acl\AclGroupService;
 use OpenEMR\Validators\Acl\AclGroupValidator;
@@ -24,14 +26,20 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class AdminAclGroupRestController
 {
-    private readonly AclGroupService $groupService;
+    use SingletonTrait;
 
-    private readonly AclGroupValidator $groupValidator;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->groupService = new AclGroupService();
-        $this->groupValidator = new AclGroupValidator();
+        return new self(
+            AclGroupService::getInstance(),
+            AclGroupValidator::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly AclGroupService $groupService,
+        private readonly AclGroupValidator $groupValidator,
+    ) {
     }
 
     public function post(array $data, HttpRestRequest $request): ResponseInterface

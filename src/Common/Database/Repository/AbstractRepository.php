@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,11 +13,11 @@
 
 namespace OpenEMR\Common\Database\Repository;
 
-use OpenEMR\Common\Database\Database;
-use OpenEMR\Common\Database\DatabaseManagerFactory;
+use OpenEMR\Common\Database\DatabaseManager;
 use OpenEMR\Common\Database\Exception\DatabaseQueryException;
 use OpenEMR\Common\Database\Exception\NonUniqueDatabaseResultException;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Core\Traits\SingletonTrait;
 use Webmozart\Assert\InvalidArgumentException;
 
 /**
@@ -27,13 +28,15 @@ use Webmozart\Assert\InvalidArgumentException;
  */
 abstract class AbstractRepository implements RepositoryInterface
 {
-    protected readonly Database $db;
+    use SingletonTrait;
+
+    abstract protected static function createInstance(): static;
 
     public function __construct(
+        protected readonly DatabaseManager $db,
         protected readonly string $table,
-        protected readonly array $orderBy = []
+        protected readonly array $orderBy = [],
     ) {
-        $this->db = DatabaseManagerFactory::getInstance();
     }
 
     public function getTable(): string
