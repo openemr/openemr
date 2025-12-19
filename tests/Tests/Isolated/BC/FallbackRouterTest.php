@@ -15,4 +15,8 @@ use PHPUnit\Framework\TestCase;
 class FallbackRouterTest extends TestCase
 {
     // TODO: add tests :)
+    public function testNothing(): void
+    {
+        $this->markTestSkipped('Finish POC before testing');
+    }
 }
