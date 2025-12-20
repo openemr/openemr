@@ -12,11 +12,17 @@
 
 namespace OpenEMR\Services;
 
+use Application\Model\ApplicationTable;
+use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\EncounterccdadispatchTable;
 use CouchDB;
+use DOMDocument;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\NetworkUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Symfony\Component\HttpClient\HttpClient;
+use XSLTProcessor;
 
 /**
  * Class CDADocumentService
@@ -51,7 +57,7 @@ class CDADocumentService extends BaseService
             $this->caCert = false;
         } else {
             // Non-loopback address (e.g., nginx sidecar, docker compose, kubernetes)
-            $this->verifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+            $this->verifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
             $this->caCert = $GLOBALS['http_ca_cert'] ?? false; // Use custom CA cert for self-signed certificates
         }
     }
@@ -102,7 +108,7 @@ class CDADocumentService extends BaseService
                     $cryptoGen = new CryptoGen();
                     $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
-                    $content = base64_decode((string) $resp->data);
+                    $content = base64_decode((string)$resp->data);
                 }
             } elseif (!empty($row['ccda_data'])) {
                 $fccda = fopen($row['ccda_data'], "r");
@@ -173,21 +179,54 @@ class CDADocumentService extends BaseService
      */
     public function portalGenerateCCD($pid): string
     {
-        $url = $this->serverUrl . "/interface/modules/zend_modules/public/encounterccdadispatch";
-        $httpClient = $this->createHttpClient();
-        $response = $httpClient->request('GET', $url, [
-            'query' => [
-                'combination' => $pid,
-                'recipient' => 'patient',
-                'view' => '1',
-                'me' => session_id(),// to authenticate in CCM. Portal only.
-                'site' => $_SESSION ['site_id']
-            ]
-        ]);
+        $dispatchTable = new EncounterccdadispatchTable(new ApplicationTable());
+        $ccdaGenerator = new CcdaGenerator($dispatchTable);
+        $result = $ccdaGenerator->generate(
+            $pid,
+            null,
+            null,
+            '0',
+            '1',
+            '0',
+            null,
+            null,
+            'patient',
+            '',
+            '',
+            null,
+            []
+        );
+        $content = $result->getContent();
+        unset($result);
 
-        $status = $response->getStatusCode(); // @todo validate
+        if (str_starts_with($content, 'ERROR:')) {
+            echo "<h3>" . text($content) . "</h3>";
+            (new SystemLogger())->errorLogCaller("Error generating Portal CCDA", ['message' => $content]);
+            die();
+        }
 
-        return $response->getContent();
+        return $this->XmlToHtmlContent($content);
+    }
+
+    private function XmlToHtmlContent($content): false|string
+    {
+        $xml = simplexml_load_string($content);
+        $xsl = new DOMDocument();
+        // cda.xsl is self-contained with bootstrap and jquery.
+        $sheet = __DIR__ . '/../../interface/modules/zend_modules/public/xsl/cda.xsl';
+        $xsl->load($sheet);
+        $proc = new XSLTProcessor();
+        $proc->importStyleSheet($xsl); // attach the xsl rules
+        $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
+        $proc->transformToURI($xml, $outputFile);
+
+        $htmlContent = file_get_contents($outputFile);
+        $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
+        if (!$result) {
+            (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+        }
+
+        return $htmlContent;
     }
 
     /**
