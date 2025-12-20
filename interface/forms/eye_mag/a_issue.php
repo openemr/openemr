@@ -99,6 +99,76 @@ $rres = sqlQuery($query, [
 foreach (explode(',', $given) as $item) {
     ${$item} = $rres[$item];
 }
+
+// Get user preferences, for this user (same as view.php)
+$query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
+$result = sqlStatement($query, [$_SESSION['authUserID']]);
+$prefs_loaded = 0;
+error_log("EYE_FORM: Loading preferences for user " . $_SESSION['authUserID']);
+while ($prefs = sqlFetchArray($result)) {
+    $LOCATION = $prefs['LOCATION'];
+    ${$LOCATION} = text($prefs['GOVALUE']);
+    error_log("EYE_FORM: Loaded preference " . $LOCATION . " = " . $prefs['GOVALUE']);
+    $prefs_loaded++;
+}
+// Ensure all preference variables exist even if not in database
+if (!isset($RETINA_RIGHT)) {
+    $RETINA_RIGHT = '';
+}
+if (!isset($SDRETINA_RIGHT)) {
+    $SDRETINA_RIGHT = '';
+}
+if (!isset($PMH_RIGHT)) {
+    $PMH_RIGHT = '';
+}
+if (!isset($HPI_RIGHT)) {
+    $HPI_RIGHT = '';
+}
+if (!isset($EXT_RIGHT)) {
+    $EXT_RIGHT = '';
+}
+if (!isset($ANTSEG_RIGHT)) {
+    $ANTSEG_RIGHT = '';
+}
+if (!isset($NEURO_RIGHT)) {
+    $NEURO_RIGHT = '';
+}
+if (!isset($IMPPLAN_RIGHT)) {
+    $IMPPLAN_RIGHT = '';
+}
+if (!isset($ACT_VIEW)) {
+    $ACT_VIEW = '';
+}
+if (!isset($HPI_VIEW)) {
+    $HPI_VIEW = '';
+}
+if (!isset($EXT_VIEW)) {
+    $EXT_VIEW = '';
+}
+if (!isset($ANTSEG_VIEW)) {
+    $ANTSEG_VIEW = '';
+}
+if (!isset($RETINA_VIEW)) {
+    $RETINA_VIEW = '';
+}
+if (!isset($SDRETINA_VIEW)) {
+    $SDRETINA_VIEW = '';
+}
+if (!isset($NEURO_VIEW)) {
+    $NEURO_VIEW = '';
+}
+if (!isset($ACT_SHOW)) {
+    $ACT_SHOW = '';
+}
+if (!isset($EXAM)) {
+    $EXAM = '';
+}
+if (!isset($PANEL_RIGHT)) {
+    $PANEL_RIGHT = '';
+}
+if (!isset($KB_VIEW)) {
+    $KB_VIEW = '';
+}
 ?>
 <html>
 <head>
@@ -594,7 +664,7 @@ foreach (explode(',', $given) as $item) {
 
     <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener', 'dialog'  ]); ?>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo $form_folder; ?>/css/style.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo (!empty($form_folder) ? $form_folder : 'eye_mag'); ?>/css/style.css">
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
 
@@ -604,6 +674,36 @@ foreach (explode(',', $given) as $item) {
             <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>" />
             <input type="hidden" name="issue" id="issue" value="<?php echo attr($issue); ?>" />
             <input type="hidden" name="uniqueID" id="uniqueID" value="<?php echo attr($uniqueID); ?>" />
+            <!-- Preference hidden inputs for update_PREFS() -->
+            <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?php echo attr($VA ?? ''); ?>">
+            <input type="hidden" name="PREFS_W" id="PREFS_W" value="<?php echo attr($W ?? ''); ?>">
+            <input type="hidden" name="PREFS_MR" id="PREFS_MR" value="<?php echo attr($MR ?? ''); ?>">
+            <input type="hidden" name="PREFS_CR" id="PREFS_CR" value="<?php echo attr($CR ?? ''); ?>">
+            <input type="hidden" name="PREFS_CTL" id="PREFS_CTL" value="<?php echo attr($CTL ?? ''); ?>">
+            <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?php echo attr($ADDITIONAL ?? ''); ?>">
+            <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?php echo attr($CLINICAL ?? ''); ?>">
+            <input type="hidden" name="PREFS_IOP" id="PREFS_IOP" value="<?php echo attr($IOP ?? ''); ?>">
+            <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?php echo attr($EXAM ?? ''); ?>">
+            <input type="hidden" name="PREFS_CYL" id="PREFS_CYL" value="<?php echo attr($CYLINDER ?? ''); ?>">
+            <input type="hidden" name="PREFS_HPI_VIEW" id="PREFS_HPI_VIEW" value="<?php echo attr($HPI_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_EXT_VIEW" id="PREFS_EXT_VIEW" value="<?php echo attr($EXT_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_ANTSEG_VIEW" id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_RETINA_VIEW" id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_SDRETINA_VIEW" id="PREFS_SDRETINA_VIEW" value="<?php echo attr($SDRETINA_VIEW ?? '1'); ?>">
+            <input type="hidden" name="PREFS_NEURO_VIEW" id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_ACT_VIEW" id="PREFS_ACT_VIEW" value="<?php echo attr($ACT_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_PMH_RIGHT" id="PREFS_PMH_RIGHT" value="<?php echo attr($PMH_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_HPI_RIGHT" id="PREFS_HPI_RIGHT" value="<?php echo attr($HPI_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_EXT_RIGHT" id="PREFS_EXT_RIGHT" value="<?php echo attr($EXT_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_ANTSEG_RIGHT" id="PREFS_ANTSEG_RIGHT" value="<?php echo attr($ANTSEG_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_RETINA_RIGHT" id="PREFS_RETINA_RIGHT" value="<?php echo attr($RETINA_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_SDRETINA_RIGHT" id="PREFS_SDRETINA_RIGHT" value="<?php echo attr($SDRETINA_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_NEURO_RIGHT" id="PREFS_NEURO_RIGHT" value="<?php echo attr($NEURO_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_IMPPLAN_RIGHT" id="PREFS_IMPPLAN_RIGHT" value="<?php echo attr($IMPPLAN_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_PANEL_RIGHT" id="PREFS_PANEL_RIGHT" value="<?php echo attr($PANEL_RIGHT ?? ''); ?>">
+            <input type="hidden" name="PREFS_KB" id="PREFS_KB" value="<?php echo attr($KB_VIEW ?? ''); ?>">
+            <input type="hidden" name="PREFS_TOOLTIPS" id="PREFS_TOOLTIPS" value="<?php echo attr($TOOLTIPS ?? ''); ?>">
+            <input type="hidden" name="PREFS_ACT_SHOW" id="PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW ?? ''); ?>">
             <div class="issues">
                 <?php
                 $output = '';
@@ -1125,9 +1225,11 @@ foreach (explode(',', $given) as $item) {
                                                                                                                                                                                           } ?> /><?php echo xlt('Quit') ?>&nbsp;</td>
                                             <td class="text"><input type="text" size="6" class="datepicker" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>" />&nbsp;</td>
                                             <td class="text-center"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'neverhazardous_activities') {
-                                                echo " checked"; } ?> /></td>
+                                                echo " checked";
+                                                                                                                                                                                                   } ?> /></td>
                                             <td class="text-center"><input name="radio_hazardous_activities" type="radio" id="radio_hazardous_activities[not_applicable]" <?php if (($PMSFH[0]['SOCH']['hazardous_activities']['restype'] ?? '') == 'not_applicable') {
-                                                echo " checked"; } ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)" /></td>
+                                                echo " checked";
+                                                                                                                                                                          } ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)" /></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1225,23 +1327,27 @@ foreach (explode(',', $given) as $item) {
                         <td class="right text-nowrap"><?php echo xlt('HTN{{hypertension}}'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_high_blood_pressure" name="radio_relatives_high_blood_pressure" <?php if (!$result1['relatives_high_blood_pressure']) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                                                                  } ?> />
                             <input type="text" name="relatives_high_blood_pressure" id="relatives_high_blood_pressure" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_high_blood_pressure']); ?>" /></td>
                         <td class="right text-nowrap"><?php echo xlt('Cardiac'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_heart_problems" name="radio_relatives_heart_problems" <?php if (!$result1['relatives_heart_problems']) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                                                        } ?> />
                             <input type="text" name="relatives_heart_problems" id="relatives_heart_problems" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_heart_problems']); ?>" /></td>
                     </tr>
                     <tr>
                         <td class="right text-nowrap"><?php echo xlt('Stroke'); ?>:</td>
                         <td class="text data">
                             <input type="radio" onclick='negate_radio(this);' id="radio_relatives_stroke" name="radio_relatives_stroke" <?php if (!$result1['relatives_stroke']) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                                        } ?> />
                             <input type="text" name="relatives_stroke" id="relatives_stroke" onclick='clear_option(this)' value="<?php echo attr($result1['relatives_stroke']); ?>" /></td>
                         <td class="right text-nowrap"><?php echo xlt('Other'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext18" name="radio_usertext18" <?php if (!$result1['usertext18']) {
-                            echo " checked='checked'"; } ?> />
+                            echo " checked='checked'";
+                                                                                                                                              } ?> />
                             <input type="text" name="usertext18" id="usertext18" onclick='clear_option(this)' value="<?php echo attr($result1['usertext18']); ?>" /></td>
                     </tr>
                 </table>
@@ -1259,72 +1365,84 @@ foreach (explode(',', $given) as $item) {
                         <td class="right text-nowrap"><label for="ROSGENERAL" class="input-helper input-helper--checkbox"><?php echo xlt('General'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGENERAL" name="radio_ROSGENERAL" <?php if (!$ROSGENERAL) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                            } ?> />
                             <input type="text" name="ROSGENERAL" id="ROSGENERAL" onclick='clear_option(this)' value="<?php echo attr($ROSGENERAL); ?>" /></td>
                         <td class="right text-nowrap"><label for="ROSHEENT" class="input-helper input-helper--checkbox"><?php echo xlt('HEENT'); ?>:</td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSHEENT" name="radio_ROSHEENT" <?php if (!$ROSHEENT) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                        } ?> />
                             <input type="text" name="ROSHEENT" id="ROSHEENT" onclick='clear_option(this)' value="<?php echo attr($ROSHEENT); ?>" /></td>
                     </tr>
                     <tr>
                         <td class="right text-nowrap"><label for="ROSCV" class="input-helper input-helper--checkbox"><?php echo xlt('CV{{Cardiovascular}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSCV" name="radio_ROSCV" <?php if (!$ROSCV) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                  } ?> />
                             <input type="text" name="ROSCV" id="ROSCV" onclick='clear_option(this)' value="<?php echo attr($ROSCV); ?>" /></td>
                         <td class="right text-nowrap"><label for="ROSPULM" class="input-helper input-helper--checkbox"><?php echo xlt('Pulmonary'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSPULM" name="radio_ROSPULM" <?php if (!$ROSPULM) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                      } ?> />
                             <input type="text" name="ROSPULM" id="ROSPULM" onclick='clear_option(this)' value="<?php echo attr($ROSPULM); ?>" /></td>
                     </tr>
                     <tr>
                         <td class="right text-nowrap"><label for="ROSGI" class="input-helper input-helper--checkbox"><?php echo xlt('GI{{Gastrointestinal}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGI" name="radio_ROSGI" <?php if (!$ROSGI) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                  } ?> />
                             <input type="text" name="ROSGI" id="ROSGI" onclick='clear_option(this)' value="<?php echo attr($ROSGI); ?>" /></td>
                         <td class="right text-nowrap"><label for="ROSGU" class="input-helper input-helper--checkbox"><?php echo xlt('GU{{Genitourinary}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSGU" name="radio_ROSGU" <?php if (!$ROSGU) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                  } ?> />
                             <input type="text" name="ROSGU" id="ROSGU" onclick='clear_option(this)' value="<?php echo attr($ROSGU); ?>" /></td>
                     </tr>
                     <tr>
                         <td class="right text-nowrap"><label for="ROSDERM" class="input-helper input-helper--checkbox"><?php echo xlt('Derm{{dermatologic}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSDERM" name="radio_ROSDERM" <?php if (!$ROSDERM) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                      } ?> />
                             <input type="text" name="ROSDERM" id="ROSDERM" onclick='clear_option(this)' value="<?php echo attr($ROSDERM); ?>" /></td>
                         <td class="right text-nowrap"><label for="ROSNEURO" class="input-helper input-helper--checkbox"><?php echo xlt('Neuro{{neurologic}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSNEURO" name="radio_ROSNEURO" <?php if (!$ROSNEURO) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                        } ?> />
                             <input type="text" name="ROSNEURO" id="ROSNEURO" onclick='clear_option(this)' value="<?php echo attr($ROSNEURO); ?>" /></td>
                     </tr>
                     <tr>
                         <td class="right text-nowrap"><label for="ROSPSYCH" class="input-helper input-helper--checkbox"><?php echo xlt('Psych{{psychiatric}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSPSYCH" name="radio_ROSPSYCH" <?php if (!$ROSPSYCH) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                        } ?> />
                             <input type="text" name="ROSPSYCH" id="ROSPSYCH" onclick='clear_option(this)' value="<?php echo attr($ROSPSYCH); ?>" /></td>
                         <td class="right text-nowrap"><label for="ROSMUSCULO" class="input-helper input-helper--checkbox"><?php echo xlt('Musculo{{musculoskeletal}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSMUSCULO" name="radio_ROSMUSCULO" <?php if (!$ROSMUSCULO) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                            } ?> />
                             <input type="text" name="ROSMUSCULO" id="ROSMUSCULO" onclick='clear_option(this)' value="<?php echo attr($ROSMUSCULO); ?>" /></td>
                     </tr>
                     <tr>
                         <td class="right text-nowrap"><label for="ROSIMMUNO" class="input-helper input-helper--checkbox"><?php echo xlt('Immuno{{immunologic}}'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSIMMUNO" name="radio_ROSIMMUNO" <?php if (!$ROSIMMUNO) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                          } ?> />
                             <input type="text" name="ROSIMMUNO" id="ROSIMMUNO" onclick='clear_option(this)' value="<?php echo attr($ROSIMMUNO); ?>" /></td>
                         <td class="right text-nowrap"><label for="ROSENDOCRINE" class="input-helper input-helper--checkbox"><?php echo xlt('Endocrine'); ?>:</label></td>
                         <td>
                             <input type="radio" onclick='negate_radio(this);' id="radio_ROSENDOCRINE" name="radio_ROSENDOCRINE" <?php if (!$ROSENDOCRINE) {
-                                echo " checked='checked'"; } ?> />
+                                echo " checked='checked'";
+                                                                                                                                } ?> />
                             <input type="text" name="ROSENDOCRINE" id="ROSENDOCRINE" onclick='clear_option(this)' value="<?php echo attr($ROSENDOCRINE); ?>" /></td>
                     </tr>
                     <tr>

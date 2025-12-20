@@ -544,6 +544,16 @@ input[type=text] {
   position: relative;
 }
 
+.size100 .exam_section_right.borderShadow {
+  padding: 10px;
+}
+
+#ANTSEG_right .Draw_class,
+#RETINA_right .Draw_class {
+  padding: 0;
+  height: 100%;
+}
+
 .borderShadow2 {
   box-shadow: 1px 1px 1px #888;
 }
@@ -674,7 +684,7 @@ body {
 
 .nodisplay {
   display: none !important;
-  transition: display 500ms;
+  opacity: 0;
 }
 
 .clear_both {
@@ -708,7 +718,11 @@ body {
 .size100 {
   display: inline-block;
   min-height: 420px;
+  height: 415px;
+  width: 570px !important;
   vertical-align: top;
+  margin-top: 5px;
+  margin-bottom: 30px;
 }
 
 .size50 {
@@ -724,6 +738,23 @@ body {
   padding: 10px;
   top: 0;
   width: 550px;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  opacity: 1;
+  visibility: visible;
+}
+
+.exam_section_right.nodisplay {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.size100 .exam_section_right {
+  min-height: 415px;
+}
+
+.size100 .exam_section_right {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .exam_section_right::after {
@@ -815,6 +846,7 @@ display: block;
   border-top-right-radius: 5px;
   box-shadow: 0 5px 9px #888;
   color: var(--dark);
+  font-size: 1.7em;
   outline: none;
   padding: 4px 6px;
   text-decoration: none;
@@ -876,8 +908,8 @@ display: block;
 }
 
 .buttonRefraction_selected {
-  background-color: #fffe06;
-  border: var(--red);
+  background-color: var(--warning) !important;
+  border: var(--dark);
 }
 
 .tools input[type="button"] {
@@ -917,6 +949,12 @@ display: block;
   position: relative;
 }
 
+.tools {
+  width: 400px;
+  margin: 0 auto;
+  padding: 13px;
+}
+
 .color_indicator {
   border: 1pt solid #c0c0c0;
   border-bottom: var(--white);
@@ -944,7 +982,7 @@ display: block;
 }
 
 #tabs {
-  line-height: normal;
+  font-size: 0.55rem;
   margin: 0 auto;
   width: 95%;
 }
@@ -1269,7 +1307,6 @@ textarea.EXTTEXT {
   background-color: var(--warning);
   cursor: pointer;
   text-decoration: none;
-
 }
 
 .closeButton_4 {
@@ -1299,6 +1336,22 @@ textarea.EXTTEXT {
 }
 
 .closeButton_5:hover {
+  background-color: var(--warning);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.closeButton_6 {
+  display: inline-block;
+  float: right;
+  font-size: 12px;
+  padding: 0 5px;
+  position: absolute;
+  right: 118px;
+  top: 8px;
+}
+
+.closeButton_6:hover {
   background-color: var(--warning);
   cursor: pointer;
   text-decoration: none;
@@ -1529,6 +1582,25 @@ input {
 
 .Draw_class {
   padding: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.size100 .Draw_class {
+  min-height: 450px;
+}
+
+.Draw_class > div[id$="_canvas"] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.Draw_class canvas {
+  flex: 1;
+  display: block;
 }
 
 .navbar-custom {
@@ -1695,6 +1767,7 @@ a:focus {
   padding-top: 22px;
   text-align: left;
   width: 140px;
+  z-index: 99 !important;
 }
 
 #right-panel div span {
@@ -1926,6 +1999,11 @@ a:focus {
 li .handle {
   display: inline-block;
   padding: 0.4em;
+  margin-right: 0.3em;
+  cursor: move;
+  color: #0066cc;
+  font-size: 1em;
+  vertical-align: middle;
 }
 
 .ui-selecting {
@@ -1940,7 +2018,12 @@ li .handle {
   background: #def;
   font-size: 0.9em;
   margin: 5px;
-  padding-left: 5px;
+  padding: 5px;
+}
+
+#build_DX_list li {
+  position: relative;
+  list-style-position: inside;
 }
 
 .fake-textarea-disabled-4 {
@@ -2166,6 +2249,10 @@ View.php
   text-align: center;
 }
 
+.jscolor input[type="text"] {
+  margin: 26px 2px 0 !important;
+}
+
 #LayerVision {
   border: 1px solid var(--dark);
   float: left;
@@ -2175,7 +2262,7 @@ View.php
 }
 
 #tabs {
-  font-size: 1.0em;
+  font-size: 0.5em;
 }
 
 #tabs_vision {
@@ -2655,6 +2742,10 @@ textarea[name=COMMENTS_W] {
   size: 0.6em;
   width: 85%;
   z-index: 100;
+  resize: both;
+  overflow: auto;
+  min-height: 3em;
+  min-width: 10em;
 }
 
 div[name=QP_11] {
@@ -2761,8 +2852,11 @@ div[name=prior_selector] {
 }
 
 #EXT_left_1,
+#DOT_EXT_left_1,
 #ANTSEG_left_1,
+#DOT_ANTSEG_left_1,
 #RETINA_left_1,
+#DOT_RETINA_left_1,
 #NEURO_left_1,
 #PRIORS_EXT_left_1,
 #PRIORS_ANTSEG_left_1,
@@ -2777,8 +2871,11 @@ div[name=prior_selector] {
 }
 
 #EXT_left_1 table:nth-of-type(1),
+#DOT_EXT_left_1 table:nth-of-type(1),
 #ANTSEG_left_1 table:nth-of-type(1),
+#DOT_ANTSEG_left_1 table:nth-of-type(1),
 #RETINA_left_1 table:nth-of-type(1),
+#DOT_RETINA_left_1 table:nth-of-type(1),
 #PRIORS_EXT_left_1 table:nth-of-type(1),
 #PRIORS_ANTSEG_left_1 table:nth-of-type(1),
 #PRIORS_RETINA_left_1 table:nth-of-type(1) {
@@ -2811,10 +2908,13 @@ div[name=prior_selector] {
 }
 
 #EXT_left_1 table:nth-of-type(2),
+#DOT_EXT_left_1 table:nth-of-type(2),
 #PRIORS_EXT_left_1 table:nth-of-type(2),
 #ANTSEG_left_1 table:nth-of-type(2),
+#DOT_ANTSEG_left_1 table:nth-of-type(2),
 #PRIORS_ANTSEG_left_1 table:nth-of-type(2),
 #RETINA_left_1 table:nth-of-type(2),
+#DOT_RETINA_left_1 table:nth-of-type(2),
 #PRIORS_RETINA_left_1 table:nth-of-type(2) {
   clear: both;
   float: right;
@@ -2825,6 +2925,7 @@ div[name=prior_selector] {
 }
 
 #RETINA_left_1 table:nth-of-type(3),
+#DOT_RETINA_left_1 table:nth-of-type(3),
 #PRIORS_RETINA_left_1 table:nth-of-type(3) {
   clear: both;
   float: right;
@@ -2834,6 +2935,7 @@ div[name=prior_selector] {
 }
 
 #RETINA_left_1 table:nth-of-type(4),
+#DOT_RETINA_left_1 table:nth-of-type(4),
 #PRIORS_RETINA_left_1 table:nth-of-type(4) {
     clear: both;
     float: right;
@@ -3027,4 +3129,69 @@ input[type="checkbox"] {
 #SDRETINA_olddrawing .borderShadow {
     min-width: 1040px;
     min-height: 500px;
+}
+
+/* PMSFH cards container - masonry layout */
+.pmsfh-container {
+  column-count: 3;
+  column-gap: 10px;
+  width: 100%;
+  margin: 12px 0 24px 0;
+  padding-bottom: 18px;
+  position: relative;
+  display: block;
+}
+
+/* Individual PMSFH card */
+.pmsfh-card {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 5px;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid var(--dark);
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.075);
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  padding: 4px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  min-height: 80px;
+}
+
+.pmsfh-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08);
+}
+
+/* Ensure internal tables fit and don't double up borders */
+.pmsfh-card .PMSFH_table {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+  position: relative;
+}
+
+.pmsfh-card .PMSFH_header {
+  width: 100%;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+  position: relative;
+}
+
+.pmsfh-card .PMSFH_header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #800020;
+}
+
+.pmsfh-card .PMSFH_header td {
+  min-width: 0;
 }

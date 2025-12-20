@@ -60,7 +60,134 @@ if (!($id ?? '')) {
 $encounter = $_REQUEST['encounter'] ?? '';
 
 $AJAX_PREFS = $_REQUEST['AJAX_PREFS'] ?? '';
-if ($encounter == "" && !$id && !$AJAX_PREFS && (($_REQUEST['mode'] != "retrieve") or ($_REQUEST['mode'] == "show_PDF"))) {
+
+if (($_REQUEST['action'] ?? '') == 'check_dot_phrase') {
+    $phrase = $_REQUEST['phrase'];
+    $list_id = 'dot_phrases_' . $_SESSION['authUserID'];
+    $query = "SELECT count(*) as count FROM list_options WHERE list_id = ? AND option_id = ?";
+    $res = sqlQuery($query, [$list_id, $phrase]);
+    echo json_encode(['exists' => ($res['count'] > 0)]);
+    exit;
+}
+
+if (($_REQUEST['action'] ?? '') == 'save_dot_phrase') {
+    $phrase = $_REQUEST['phrase'];
+    $values = $_REQUEST['values']; // JSON string
+    $list_id = 'dot_phrases_' . $_SESSION['authUserID'];
+
+    // Check if exists
+    $query = "SELECT count(*) as count FROM list_options WHERE list_id = ? AND option_id = ?";
+    $res = sqlQuery($query, [$list_id, $phrase]);
+
+    if ($res['count'] > 0) {
+        $query = "UPDATE list_options SET notes = ? WHERE list_id = ? AND option_id = ?";
+        sqlQuery($query, [$values, $list_id, $phrase]);
+    } else {
+        $query = "INSERT INTO list_options (list_id, option_id, title, notes, activity) VALUES (?, ?, ?, ?, 1)";
+        sqlQuery($query, [$list_id, $phrase, $phrase, $values]);
+    }
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+if (($_REQUEST['action'] ?? '') == 'get_user_dot_phrases') {
+    $list_id = 'dot_phrases_' . $_SESSION['authUserID'];
+    $query = "SELECT option_id, notes FROM list_options WHERE list_id = ? AND activity = 1";
+    $records = \OpenEMR\Common\Database\QueryUtils::fetchRecords($query, [$list_id]);
+    $phrases = [];
+    foreach ($records as $row) {
+        $phrases[$row['option_id']] = json_decode((string) $row['notes'], true);
+    }
+    echo json_encode($phrases);
+    exit;
+}
+
+if (($_REQUEST['action'] ?? '') == 'save_dot_phrases') {
+    $phrases = json_decode((string) $_REQUEST['phrases'], true);
+    $list_id = 'dot_phrases_' . $_SESSION['authUserID'];
+
+    // 1. Get all existing keys for this user to track deletions
+    $existing_keys = [];
+    $records = \OpenEMR\Common\Database\QueryUtils::fetchRecords("SELECT option_id FROM list_options WHERE list_id = ?", [$list_id]);
+    foreach ($records as $row) {
+        $existing_keys[] = $row['option_id'];
+    }
+
+    // 2. Upsert submitted phrases
+    foreach ($phrases as $key => $value) {
+        $valStr = is_string($value) ? $value : json_encode($value);
+
+        // Check if exists (optimization: check against $existing_keys array?)
+        // Keeping SQL check for safety/concurrency, but we could use the array.
+        $query = "SELECT count(*) as count FROM list_options WHERE list_id = ? AND option_id = ?";
+        $res = sqlQuery($query, [$list_id, $key]);
+
+        if ($res['count'] > 0) {
+            $query = "UPDATE list_options SET notes = ? WHERE list_id = ? AND option_id = ?";
+            sqlQuery($query, [$valStr, $list_id, $key]);
+        } else {
+            $query = "INSERT INTO list_options (list_id, option_id, title, notes, activity) VALUES (?, ?, ?, ?, 1)";
+            sqlQuery($query, [$list_id, $key, $key, $valStr]);
+        }
+
+        // Mark as processed (remove from existing_keys)
+        $idx = array_search($key, $existing_keys);
+        if ($idx !== false) {
+            unset($existing_keys[$idx]);
+        }
+    }
+
+    // 3. Delete phrases that were not in the submission
+    foreach ($existing_keys as $del_key) {
+        $query = "DELETE FROM list_options WHERE list_id = ? AND option_id = ?";
+        sqlQuery($query, [$list_id, $del_key]);
+    }
+
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+if (($_REQUEST['action'] ?? '') == 'get_dot_phrases') {
+    $user_id = $_REQUEST['user_id'];
+    $list_id = 'dot_phrases_' . $user_id;
+    $query = "SELECT option_id, notes FROM list_options WHERE list_id = ? AND activity = 1";
+    $res = sqlStatement($query, [$list_id]);
+    $phrases = [];
+    while ($row = sqlFetchArray($res)) {
+        $val = $row['notes'];
+        $decoded = json_decode((string) $val, true);
+        $phrases[$row['option_id']] = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : $val;
+    }
+    echo json_encode($phrases);
+    exit;
+}
+
+if (($_REQUEST['action'] ?? '') == 'dot_phrase') {
+    $code = $_REQUEST['code'];
+    $query = "SELECT title FROM list_options WHERE list_id = 'dot_codes' AND option_id = ?";
+    $res = sqlQuery($query, [$code]);
+    if ($res['title']) {
+        echo $res['title'];
+    }
+    exit;
+}
+
+if (($_REQUEST['action'] ?? '') == 'get_dot_phrase') {
+    $phrase = $_REQUEST['phrase'] ?? '';
+    if ($phrase) {
+        $query = "SELECT title FROM list_options WHERE list_id = 'dot_phrases' AND option_id = ?";
+        $result = sqlQuery($query, [$phrase]);
+
+        if ($result) {
+            echo json_encode(['found' => true, 'expansion' => $result['title']]);
+        } else {
+            echo json_encode(['found' => false]);
+        }
+    } else {
+        echo json_encode(['found' => false]);
+    }
+    exit;
+}if ($encounter == "" && !$id && !$AJAX_PREFS && (($_REQUEST['mode'] ?? '') != "retrieve" or ($_REQUEST['mode'] ?? '') == "show_PDF") && ($_REQUEST['action'] ?? '') != 'save_signature') {
     echo "Sorry Charlie..."; //should lead to a database of errors for explanation.
     exit;
 }
@@ -232,15 +359,27 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
 // Could do ALL preferences this way instead of the modified extract above...
 // mdsupport - user_settings prefix
     $uspfx = "EyeFormSettings_";
-    $setting_tabs_left = prevSetting($uspfx, 'setting_tabs_left', 'setting_tabs_left', '0');
-    $setting_HPI = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
-    $setting_PMH = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
-    $setting_ANTSEG = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
-    $setting_RETINA = prevSetting($uspfx, 'setting_RETINA', 'setting_RETINA', '1');
-    $setting_SDRETINA = prevSetting($uspfx, 'setting_SDRETINA', 'setting_SDRETINA', '1');
-    $setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
-    $setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
-    $setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
+    $setting_tabs_left = $_REQUEST['setting_tabs_left'] ?? prevSetting($uspfx, 'setting_tabs_left', 'setting_tabs_left', '0');
+    $setting_HPI = $_REQUEST['setting_HPI'] ?? prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
+    $setting_PMH = $_REQUEST['setting_PMH'] ?? prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
+    $setting_ANTSEG = $_REQUEST['setting_ANTSEG'] ?? prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
+    $setting_RETINA = $_REQUEST['setting_RETINA'] ?? prevSetting($uspfx, 'setting_RETINA', 'setting_RETINA', '1');
+    $setting_SDRETINA = $_REQUEST['setting_SDRETINA'] ?? prevSetting($uspfx, 'setting_SDRETINA', 'setting_SDRETINA', '1');
+    $setting_EXT = $_REQUEST['setting_EXT'] ?? prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
+    $setting_NEURO = $_REQUEST['setting_NEURO'] ?? prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
+    $setting_IMPPLAN = $_REQUEST['setting_IMPPLAN'] ?? prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
+
+    // Save the settings to user preferences
+    setUserSetting($uspfx . 'setting_tabs_left', $setting_tabs_left);
+    setUserSetting($uspfx . 'setting_HPI', $setting_HPI);
+    setUserSetting($uspfx . 'setting_PMH', $setting_PMH);
+    setUserSetting($uspfx . 'setting_ANTSEG', $setting_ANTSEG);
+    setUserSetting($uspfx . 'setting_RETINA', $setting_RETINA);
+    setUserSetting($uspfx . 'setting_SDRETINA', $setting_SDRETINA);
+    setUserSetting($uspfx . 'setting_EXT', $setting_EXT);
+    setUserSetting($uspfx . 'setting_NEURO', $setting_NEURO);
+    setUserSetting($uspfx . 'setting_IMPPLAN', $setting_IMPPLAN);
+
     echo "Prefs set";
     die();
 }
@@ -266,6 +405,13 @@ if ($encounter == "") {
 $form_id = $_REQUEST['form_id'] ?? '';
 $zone = $_REQUEST['zone'] ?? '';
 
+// Handle copy/retrieve requests BEFORE lock checking - READ-ONLY users can always retrieve updates
+// But only if this is explicitly a copy request (has both 'copy' and 'zone' parameters)
+if (($_REQUEST['copy'] ?? '') && ($_REQUEST['zone'] ?? '')) {
+    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], ($_SESSION['ID'] ?? ''), $pid);
+    exit;
+}
+
 $providerID = findProvider($pid, $encounter);
 if ($providerID == '0') {
     $providerID = $userauthorized;//who is the default provider?
@@ -289,8 +435,8 @@ if (($_REQUEST['unlock'] ?? null) === '1') {
     exit;
 } elseif (($_REQUEST['acquire_lock'] ?? null) === "1") {
     //we are taking over the form's active state, others will go read-only
-    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=? where id=?";//" and LOCKEDBY=?";
-    $result = sqlQuery($query, [$_REQUEST['uniqueID'], $form_id ]);
+    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=? where id=?";
+    $result = sqlQuery($query, [$_SESSION['authUserID'], $form_id]);
     $query = "SELECT LOCKEDDATE from form_eye_locking WHERE ID=?";
     $lock = sqlQuery($query, [$form_id]);
     echo $lock['LOCKEDDATE'];
@@ -299,34 +445,23 @@ if (($_REQUEST['unlock'] ?? null) === '1') {
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
     $lock = sqlQuery($query, [$form_id]);
-    if (($lock['LOCKED'] ?? '') && ($_REQUEST['uniqueID'] != $lock['LOCKEDBY'])) {
-        // This session not the owner or it is not new so it is locked
-        // Did the user send a demand to take ownership?
-        if ($lock['LOCKEDBY'] != $_REQUEST['ownership']) {
-            //tell them they are locked out by another user now
-            echo "Code 400";
-            // or return a JSON encoded string with current LOCK ID?
-            // echo "Sorry Charlie, you get nothing since this is locked...  No save for you!";
-            exit;
-        } elseif ($lock['LOCKEDBY'] == $_REQUEST['ownership']) {
-            // then they are taking ownership - all others get locked...
-            // new LOCKEDBY becomes our uniqueID LOCKEDBY
-            $_REQUEST['LOCKED'] = '1';
-            $_REQUEST['LOCKEDBY'] = $_REQUEST['uniqueID'];
-            //update table
-            $query = "update form_eye_locking set LOCKED=?,LOCKEDBY=? where id=?";
-            sqlQuery($query, ['1', $_REQUEST['LOCKEDBY'], $form_id]);
-            //go on to save what we want...
-        }
-    } elseif (!($lock['LOCKED'] ?? '')) { // it is not locked yet
+    // Check if locked by someone other than current user
+    if (($lock['LOCKED'] ?? '') && ($_SESSION['authUserID'] != $lock['LOCKEDBY'])) {
+        // Form is locked by another user - deny save
+        $lock_holder = sqlQuery("SELECT fname, lname FROM users WHERE id = ?", [$lock['LOCKEDBY']]);
+        $lock_user_name = ($lock_holder) ? $lock_holder['fname'] . ' ' . $lock_holder['lname'] : 'Unknown User';
+        echo "Code 400|" . $lock_user_name;
+        exit;
+    } elseif (!($lock['LOCKED'] ?? '')) {
+        // Form is not locked yet - acquire lock for current user
         $_REQUEST['LOCKED'] = '1';
+        $_REQUEST['LOCKEDBY'] = $_SESSION['authUserID'];
         $query = "update form_eye_locking set LOCKED=?,LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";
-        sqlQuery($query, ['1', ($_REQUEST['LOCKEDBY'] ?? ''), $form_id]);
-        //go on to save what we want...
-    }
-
-    if (!($_REQUEST['LOCKEDBY'] ?? '')) {
-        $_REQUEST['LOCKEDBY'] = random_int(0, mt_getrandmax());
+        sqlQuery($query, ['1', $_SESSION['authUserID'], $form_id]);
+    } else {
+        // Form is locked by current user - allow save
+        $_REQUEST['LOCKED'] = '1';
+        $_REQUEST['LOCKEDBY'] = $_SESSION['authUserID'];
     }
 }
 
@@ -387,9 +522,6 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         echo report_header($pid);
         include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
         call_user_func($form_name . "_report", $pid, $form_encounter, $N, $form_id);
-        if ($printable) {
-            echo "" . xl('Signature') . ": _______________________________<br />";
-        }
         ?>
       </div> <!-- end of report_custom DIV -->
 
@@ -547,6 +679,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             exit;
         } else {
             if ($form_type == 'ROS') { //ROS
+                // AI NOTE: Fixed missing ROSENDOCRINE parameter in SQL query (2025-12-16)
                 $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?,pid=? where id=?";
                 sqlStatement($query, [$_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $_REQUEST['ROSCOMMENTS'],$pid, $form_id]);
                 $PMSFH = build_PMSFH($pid);
@@ -799,18 +932,37 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         echo "Pharmacy updated";
         exit;
     }
-    /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
+
+
+    /* END CODE to DEAL WITH PMSFH/ISUUE_TYPES  */
     //Update the visit status for this appointment (from inside the Coding Engine)
     //we also have to update the flow board...  They are not linked automatically.
     //Flow board counts items for each events so we need to insert new item and update total for the event, via pc_eid...
     if (($_REQUEST['action'] ?? '') == 'new_appt_status') {
         if ($_POST['new_status']) {
+            // DEBUG LOGGING
+            error_log("EYE_MAG: Updating status. PID: " . ($_POST['pid'] ?? 'N/A') . " Date: " . ($_POST['visit_date'] ?? 'N/A') . " Status: " . $_POST['new_status'] . " pc_eid: " . ($_POST['pc_eid'] ?? 'N/A'));
+
             //make sure visit_date is in YYYY-MM-DD format
-            $Vdated = new DateTime($_POST['visit_date']);
-            $Vdate = $Vdated->format('Y-m-d');
+            try {
+                $Vdated = new DateTime($_POST['visit_date']);
+                $Vdate = $Vdated->format('Y-m-d');
+                error_log("EYE_MAG: Parsed date to: " . $Vdate);
+            } catch (Exception $e) {
+                error_log("EYE_MAG: Invalid date format: " . $_POST['visit_date'] . " Error: " . $e->getMessage());
+                echo "Invalid date";
+                exit;
+            }
+
             //get eid
             $sql = "select * from patient_tracker where  `pid` = ? and `apptdate`=?";
             $tracker = sqlFetchArray(sqlStatement($sql, [$_POST['pid'], $Vdate]));
+            error_log("EYE_MAG: tracker id: " . ($tracker['id'] ?? 'NOT FOUND'));
+            if (!$tracker) {
+                error_log("EYE_MAG: No tracker found for pid=" . $_POST['pid'] . " apptdate=" . $Vdate);
+                echo "No tracker";
+                exit;
+            }
             sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?", [($tracker['lastseq'] + 1), $tracker['id']]);
             #Add a tracker item.
             $sql = "INSERT INTO `patient_tracker_element` " .
@@ -818,7 +970,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 "VALUES (?,NOW(),?,?,?,?)";
             sqlStatement($sql, [$tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)]);
             $sql = "UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?";
-            sqlStatement($sql, [$_POST['new_status'], $tracker['eid']]);
+            error_log("EYE_MAG: Updating pc_apptstatus=" . $_POST['new_status'] . " WHERE pc_eid=" . $_POST['pc_eid']);
+            sqlStatement($sql, [$_POST['new_status'], $_POST['pc_eid']]);
+            error_log("EYE_MAG: Status update complete");
             echo "saved";
             exit;
         }
@@ -1144,6 +1298,13 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             //get the last 3 encounters with refraction data, not Wear data, and display all that encounters Rx/W data.
             $sql = "SELECT id,date FROM form_eye_refraction WHERE
                     pid=? AND id < ? AND
+
+
+
+
+
+
+
                     (MRODVA <> '' OR
                       MROSVA <> '' OR
                       ARODVA <> '' OR
@@ -1180,12 +1341,13 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
  */
 
 if ($_REQUEST['canvas'] ?? '') {
-    if (!$pid || !$encounter || !$zone || !$_POST["imgBase64"]) {
+    $canvas_zone = $_REQUEST['canvas'] ?? '';
+    if (!$pid || !$encounter || !$canvas_zone || !($_POST["imgBase64"] ?? '')) {
         exit;
     }
 
     $side = "OU";
-    $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
+    $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $canvas_zone . "_VIEW";
     $filename = $base_name . ".jpg";
 
     // we receive a canvas: adding or replacing this image
@@ -1202,16 +1364,17 @@ if ($_REQUEST['canvas'] ?? '') {
         foreach (glob($file) as $file_to_delete) {
             unlink($file_to_delete);
         }
-        $query = "select id from categories where name like 'Drawings%'";
-        $result = sqlStatement($query);
-        $ID = sqlFetchArray($result);
-        $category_id = $ID['id'];//we need to know where to store this new one.
-
         $sql = "DELETE from categories_to_documents where document_id = ?";
         sqlQuery($sql, [$ans1['id']]);
         $sql = "DELETE from documents where id = ?";
         sqlQuery($sql, [$ans1['id']]);
     }
+
+    // Get the Drawings category for storing new document
+    $query = "select id from categories where name like 'Drawings%'";
+    $result = sqlStatement($query);
+    $ID = sqlFetchArray($result);
+    $category_id = $ID['id'];
 
     $type = "image/jpeg"; // all our canvases are this type
     $data = $_POST["imgBase64"];
@@ -1219,7 +1382,12 @@ if ($_REQUEST['canvas'] ?? '') {
     $data = base64_decode($data);
     $size = strlen($data);
 
-    $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $_SESSION['authUserID'], $pid, $category_id);
+    // Write data to a temp file
+    $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/';
+    $temp_filename = $tmpdir . $filename;
+    file_put_contents($temp_filename, $data);
+
+    $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $_SESSION['authUserID'], $pid, $category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, [$encounter, $doc_id]);
@@ -1228,9 +1396,48 @@ if ($_REQUEST['canvas'] ?? '') {
     exit;
 }
 
-if ($_REQUEST['copy']) {
-    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], ($_SESSION['ID'] ?? ''), $pid);
-    return;
+// Save Signature Image
+if (($_REQUEST['action'] ?? '') == 'save_signature') {
+    $data = $_POST['image'];
+    // Expecting data:image/jpeg;base64,... or data:image/png;base64,...
+    if (preg_match('/^data:image\/(\w+);base64,/', (string) $data, $type)) {
+        $data = substr((string) $data, strpos((string) $data, ',') + 1);
+        $type = strtolower($type[1]); // jpg, png, gif
+
+        if (!in_array($type, [ 'jpg', 'jpeg', 'gif', 'png' ])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid image type']);
+            exit;
+        }
+
+        $data = base64_decode($data);
+        if ($data === false) {
+            echo json_encode(['success' => false, 'message' => 'Base64 decode failed']);
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Did not match data URI with image data']);
+        exit;
+    }
+
+    // Always save as jpg for consistency with report.php
+    $file = __DIR__ . "/images/sign_" . $_SESSION['authUserID'] . ".jpg";
+
+    // If it's PNG, we might want to convert to JPG to ensure white background instead of transparent black
+    if ($type == 'png') {
+        $image = imagecreatefromstring($data);
+        $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
+        imagealphablending($bg, true);
+        imagecopy($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        imagejpeg($bg, $file, 90);
+        imagedestroy($bg);
+    } else {
+        file_put_contents($file, $data);
+    }
+
+    echo json_encode(['success' => true]);
+    exit;
 }
 
 function QuotedOrNull($fld)

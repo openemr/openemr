@@ -165,7 +165,7 @@ textarea.ACT {
 }
 
 label {
-  font-size: 1em;
+  font-size: 1.05em;
 }
 
 .bigger {
@@ -406,6 +406,15 @@ input[type="text"].refraction {
   padding-left: 180px; /* Equal to width of new image */
   width: 180px; /* Width of new image */
 }
+
+/* Compact exam row: allow up to 4 sections per row (25% each) in HTML view */
+.exam-row.compact { display:flex; flex-wrap:wrap; gap:8px; }
+.exam-row.compact .exam-section { box-sizing:border-box; flex: 0 0 25%; max-width:25%; min-width:150px; }
+.exam-row.compact .exam-section .exam-section-title { margin:0 0 6px 0; font-size:1.05em; }
+.exam-row.exam-section { width:50%}
+/* Ensure visual-fields inner grid keeps its small squares */
+.fields-grid .vf-grid td { padding:0; }
+
 /* All in one selector */
 /*
 #AmslerOD {
@@ -461,7 +470,7 @@ input[type="text"].refraction {
 
 th {
   color: #000;
-  font-size: 1rem;
+  font-size: 1.08rem;
   text-align: center;
 }
 
@@ -482,6 +491,8 @@ body {
      */
   text-align: center;
   width: 100%;
+  /* Base font-size for the report to make text more legible */
+  font-size: 16px;
 }
 
 #form_container {
@@ -556,8 +567,6 @@ textarea.EXTTEXT {
   font-size: 1em;
   height: 0.4in;
   max-height: 0.5in;
-  max-width: 1in;
-  /*narrow_textarea*/
   width: 1in;
 }
 
@@ -732,7 +741,7 @@ textarea.ANTSEGTEXT {
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
   font-family: Arial, sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   height: 18px;
   line-height: 12px;
@@ -791,7 +800,7 @@ textarea.ANTSEGTEXT {
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
   font-family: Arial, Serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   line-height: 12px;
   margin: 2px auto;
@@ -1202,25 +1211,158 @@ input[type="text"].fullscreen {
 }
 
 .QP_block_outer {
-  background-color: #fff;
-  float: left;
-  font-size: 1em;
-  margin: 3px auto;
-  padding: 5px 8px;
+  background: #fff;
+  /* Remove float; these are flex children in the compact row */
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-width: 48mm; /* match visual-acuity min-width for consistency */
+  max-width: 200px;
+  /* increase PMSFH panel font-size so PMH/POH columns match report scale */
+  font-size: 1.08em;
+  margin: 6px 4px;
+  padding: 0;
   text-align: left;
-  /*  height:2.5in; */
-  width: 1.97in;
+  /* Bootstrap 5-like card styling to match exam sections */
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.075);
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.QP_block_outer:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08);
 }
 
 .QP_block {
-  background-color: #fff;
-  float: left;
-  font-size: 1em;
-  margin: 3px auto;
-  padding: 5px 8px;
+  background: #fff;
+  /* Remove float; these are flex children in the compact row */
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-width: 48mm; /* match visual-acuity min-width for consistency */
+  max-width: 200px;
+  font-size: 1.08em;
+  margin: 6px 4px;
+  padding: 0;
   text-align: left;
-  /*   height:2.4in; */
-  width: 1.97in;
+  /* Bootstrap 5-like card styling */
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.075);
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.QP_block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08);
+}
+
+/* Style PMSFH headers to exactly match exam-section-title */
+.PMSFH_header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 8px 12px;
+  margin: 0;
+  width: 100%;
+  display: block; /* override any table cell behavior */
+}
+
+.PMSFH_header td {
+  padding: 0;
+  vertical-align: middle;
+}
+
+.PMSFH_header span.left {
+  font-weight: 700;
+  font-size: 1.02em; /* match exam-section-title font-size */
+  color: #212529;
+}
+
+/* Card body padding for PMSFH content inside the table wrapper */
+.QP_block_outer .table.PMSFH_table,
+.QP_block .table.PMSFH_table {
+  padding: 8px 12px 12px 12px;
+  margin: 0;
+}
+
+/* Override the parent table/td width constraint for PMSFH */
+table:has(.pmsfh-cards-container) {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+td:has(.pmsfh-cards-container) {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+/* PMSFH cards container - masonry layout */
+.pmsfh-cards-container {
+  column-count: 4;
+  column-gap: 10px;
+  width: 100%;
+  margin: 12px 0 24px 0;
+  padding-bottom: 18px;
+  position: relative;
+  display: block;
+}
+
+/* Thin, low-frequency curved divider below PMSFH row */
+.pmsfh-cards-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 2px;             /* thin bar */
+  background-color: #e5e9ef; /* lighter, subtle */
+  border-radius: 2px;      /* soft ends */
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Individual PMSFH card */
+.pmsfh-card {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 5px;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.075);
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.pmsfh-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08);
+}
+
+/* PMSFH card header - centered, matching exam-section-title */
+.pmsfh-card-header {
+  display: block;
+  font-weight: 700;
+  font-size: 1.02em;
+  margin: 0;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  color: #212529;
+  text-align: left;
+}
+
+/* PMSFH card body - content area with padding */
+.pmsfh-card-body {
+  padding: 8px 12px 12px 12px;
+  flex: 1 1 auto;
+  text-align: left;
 }
 
 .QP {
@@ -1558,11 +1700,6 @@ dd:last-of-type {
   position: relative;
 }
 
-li .handle {
-  display: inline-block;
-  padding: 0.4em;
-}
-
 .ui-selecting {
   background: var(--warning);
 }
@@ -1745,13 +1882,13 @@ input[type="text"] {
 }
 
 .report_exam_group {
-  font-size: 11px;
+  font-size: 12px;
   max-width: 450px;
   text-align: center;
 }
 
 .report_section {
-  font-size: 11px;
+  font-size: 12px;
   margin: 0 auto;
   padding: 5px;
   text-align: center;
@@ -1761,3 +1898,797 @@ form_header span {
   color: #000;
   display: unset;
 }
+
+/* New grid styles for report rendering */
+.acuity-grid th,
+.pressure-grid th,
+.pupil-grid th {
+  background: transparent;
+  font-weight: 600;
+}
+
+.acuity-grid td,
+.pressure-grid td,
+.pupil-grid td {
+  padding: 6px 8px;
+  border: 0;
+  vertical-align: middle;
+}
+
+.vf-grid td {
+  /* preserve vertical spacing but remove horizontal padding so
+     filled (dark) VF squares sit flush horizontally */
+  padding: 4px 0;
+}
+
+/* Vitals grid styling to match the other compact exam sections */
+.vitals-grid th {
+  background: transparent;
+  font-weight: 600;
+}
+.vitals-grid td {
+  padding: 6px 8px;
+  border: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+.vitals-grid td:first-child { text-align:left; font-weight:600; }
+
+/* Visual fields box styling */
+.field-box {
+  display: inline-block;
+  width: 8mm;
+  height: 8mm;
+  vertical-align: middle;
+  box-sizing: border-box;
+  background: transparent;
+  margin: 0;
+}
+.field-box.filled { background: #000 !important; }
+.field-box.empty { background: transparent !important; }
+.vf-grid td { text-align: center; }
+
+.motility-grid {
+  display: flex;
+  /* stack label above diagram so the presence of the label doesn't
+     shrink the diagram width; center them for symmetry */
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.additional-findings .findings-grid {
+  display: block;
+  width: 100%;
+}
+
+/* Each finding-row is a 3-column grid: Label | OD | OS. This avoids relying on display:contents.
+   The motility block spans all columns. */
+.additional-findings .finding-row {
+  display: grid;
+  /* Use a fixed label column so the OD/OS value columns sit closer together
+     and don't get pushed to the far right by a flexible label. */
+  grid-template-columns: 140px 110px 110px;
+  gap: 6px 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.additional-findings .finding-row > .finding-label { grid-column: 1 / 2; text-align: left; padding: 2px 4px; }
+.additional-findings .finding-row > .finding-value { text-align: center; padding: 2px 4px; }
+
+/* Slightly increase finding label/value sizes */
+.additional-findings .finding-row > .finding-label { font-size: 1.03em; }
+.additional-findings .finding-row > .finding-value { font-size: 1.03em; }
+
+/* Header row styling inside Additional Findings */
+.additional-findings .finding-row.header-row .header-col { font-weight:700 !important; text-align:center; }
+
+/* Full-width finding rows (single value) should center the value across the two value columns */
+.additional-findings .finding-row.full-width > .finding-label { grid-column: 1 / 2; }
+.additional-findings .finding-row.full-width > .finding-value { grid-column: 2 / 4; text-align: center; }
+
+/* Motility block should span full width of the findings grid */
+.additional-findings .motility-block { grid-column: 1 / 4; padding: 6px 0 8px 0; }
+.additional-findings .motility-block .exam-section-title {
+  margin: 0 0 6px 0;
+  font-size: 0.95em;
+  font-weight: 700;
+  background: transparent;
+  border-bottom: none;
+  padding: 0;
+}
+
+/* Ensure values remain non-bold inside additional findings */
+.additional-findings .finding-value { font-weight: normal !important; }
+
+.motility-diagram {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 140px; /* default diagram size */
+  height: 88px; /* default height */
+  position: relative;
+}
+
+/* Force both OD/OS motility diagrams inside Additional Findings to the
+   same smaller width so they visually match (left vs right). */
+.additional-findings .finding-row > .finding-value .motility-diagram,
+.additional-findings .motility-grid .motility-diagram {
+  /* make diagrams smaller and force consistent sizing */
+  width: 100px !important;
+  height: 78px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  margin: 0 auto !important;
+  background-size: 85% !important; /* shrink internal crosshair rendering */
+}
+
+.additional-findings .finding-row .eye-label { text-align: center; font-weight:600; }
+
+.additional-findings .mot { text-align: center; width: 16px; height: 14px; display:inline-block; font-size: 0.75em; color: #111; font-weight: 700; }
+
+.mot { text-align: center; width: 20px; height: 16px; display:inline-block; font-size: 0.85em; color: #111; font-weight: 700; }
+
+/* Make mot numbers slightly larger now that base font increased */
+.mot { font-size: 1.0em !important; }
+
+/* Position mot numbers absolutely over the motility diagram so they sit
+  on the outer edge of the crosshair lines. We target the 3x3 grid
+  positions using nth-child selectors. Coordinates are percentages so
+  they scale with diagram size. */
+.motility-diagram { position: relative; }
+.motility-diagram .mot { position: absolute; display: block; width: auto; height: auto; padding: 0 2px; background: transparent; transform: translate(-50%, -50%); }
+
+/* Uniform column positions (left/center/right) */
+.motility-diagram .mot:nth-child(1) { left: 28%; }
+.motility-diagram .mot:nth-child(2) { left: 50%; }
+.motility-diagram .mot:nth-child(3) { left: 72%; }
+
+/* Row vertical positions: top row, middle row slightly above the horizontal line, bottom row slightly below */
+.motility-diagram .motility-row:nth-child(1) .mot { top: 18%; }
+.motility-diagram .motility-row:nth-child(2) .mot { top: 46%; }
+.motility-diagram .motility-row:nth-child(3) .mot { top: 82%; }
+
+/* Make report groups full width to avoid stacking in narrow containers */
+.report_exam_group { max-width: 100%; }
+
+/* Compact exam row - flexbox with wrap so cards flow and fill available space */
+.exam-row.compact {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Bootstrap-5-like card styling for exam sections */
+.exam-row.compact .exam-section {
+  flex: 1 1 45%;
+  min-width: 300px;
+  max-width: 50%;
+  box-sizing: border-box;
+  padding: 0; /* header + body will provide padding */
+  background: #fff;
+  border-radius: 0.5rem; /* bs5 card radius */
+  border: 1px solid #e9ecef; /* bs5 card border */
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.075); /* subtle bs5 shadow */
+  overflow: hidden; /* clips header to border-radius - no gap around header */
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 54px;
+  min-width: 0; /* allow flex children to shrink properly */
+}
+/* Order exam sections: External(1), Ant Seg(2), Retina(3), Additional Findings(4) */
+.exam-row.compact .external-exam { order: 1; }
+.exam-row.compact .external-exam-image { order: 2; }
+.exam-row.compact .anterior-segment { order: 3; }
+.exam-row.compact .anterior-segment-image { order: 4; }
+.exam-row.compact .retina-exam { order: 5; }
+.exam-row.compact .retina-image { order: 6; }
+.exam-row.compact .additional-findings { order: 7; }
+.exam-row.compact .neuro-image { order: 8; }
+
+/* Make External, Anterior Segment, Retina cards (and their drawings) same size */
+.exam-row.compact .external-exam,
+.exam-row.compact .external-exam-image,
+.exam-row.compact .anterior-segment,
+.exam-row.compact .anterior-segment-image,
+.exam-row.compact .retina-exam,
+.exam-row.compact .retina-image {
+  min-height: 220px;
+  flex: 0 0 calc(50% - 6px);
+}
+
+.exam-row.compact .exam-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,0.08);
+}
+/* Legacy class names - for non-centered rows only */
+.exam-row.compact:not(.centered) .visual-acuity { flex: 0 0 30%; min-width: 48mm; max-width:140px; }
+.exam-row.compact:not(.centered) .intraocular-pressures { flex: 0 0 16%; min-width: 32mm; max-width:175px;}
+.exam-row.compact:not(.centered) .visual-fields { flex: 0 0 14%; min-width: 36mm;max-width: 190px; }
+.exam-row.compact:not(.centered) .pupils { flex: 0 0 32%; }
+
+/* Amsler: make it a card so it aligns with other exam sections and can sit
+  in the compact row. Keep image sizing in mm for print consistency. */
+.exam-row.compact .amsler { flex: 0 0 8%; min-width: 38mm; display: flex; flex-direction: column; max-width: 190px;}
+.exam-row.compact .amsler #divId { width: 38mm; height: 38mm; padding-left: 0; padding-top: 4px; margin: 6px auto; background-size: contain; background-position: center; }
+
+/* Pupil card for non-centered rows: allow the pupils card to expand if needed */
+.exam-row.compact:not(.centered) .pupils { flex: 0 0 32%; min-width: 55mm; }
+.exam-row.compact:not(.centered) .pupils table { table-layout: auto; }
+.exam-row.compact:not(.centered) .pupils td:nth-child(2) { white-space: nowrap; min-width: 25mm; }
+
+/* Visual Fields plus-sign display - match motility diagram size */
+.visual-fields .vf-table {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+.visual-fields .vf-eye-label {
+  text-align: center;
+  font-weight: bold;
+  text-decoration: underline;
+  padding: 0 8px 4px 8px;
+}
+.visual-fields .vf-spacer {
+  width: 16px;
+}
+.visual-fields .vf-plus {
+  display: inline-block;
+  position: relative;
+  width: 60px;
+  height: 48px;
+}
+.visual-fields .vf-row {
+  display: flex;
+  justify-content: center;
+}
+.visual-fields .vf-quad {
+  display: inline-block;
+  width: 28px;
+  height: 22px;
+  border: none;
+  margin: 1px;
+}
+/* Pie-shaped quadrants - curved outer edges */
+/* Top-left quadrant (position 1) */
+.visual-fields .vf-row:first-child .vf-quad:first-child {
+  border-top-left-radius: 100%;
+}
+/* Top-right quadrant (position 2) */
+.visual-fields .vf-row:first-child .vf-quad:last-child {
+  border-top-right-radius: 100%;
+}
+/* Bottom-left quadrant (position 3) */
+.visual-fields .vf-row:last-child .vf-quad:first-child {
+  border-bottom-left-radius: 100%;
+}
+/* Bottom-right quadrant (position 4) */
+.visual-fields .vf-row:last-child .vf-quad:last-child {
+  border-bottom-right-radius: 100%;
+}
+/* Normal quadrant = white */
+.visual-fields .vf-normal {
+  background: #fff;
+}
+/* Defect quadrant = black */
+.visual-fields .vf-defect {
+  background: #000;
+}
+/* Draw the plus sign cross lines between quadrants */
+.visual-fields .vf-plus::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #888;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.visual-fields .vf-plus::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #888;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* patient icon: right-justified 100px */
+.patient-icon { float: right; width:100px; height:100px; object-fit:cover; border-radius:6px; border:1px solid #e0e0e0; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+
+/* Card header/title styling - light gray background spanning full width */
+.exam-section-title {
+  display: block;
+  font-weight: 700;
+  font-size: 12px;
+  margin: 0;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  color: #212529;
+  text-align: center;
+}
+
+/* Ensure h4 elements used as titles have no browser default margin */
+h4.exam-section-title {
+  margin: 0;
+}
+
+/* Section titles used on larger report sections */
+.report-section-title { font-size: 1.15em; font-weight: 700; margin: 0 0 8px 0; }
+
+/* Card body inside exam-section */
+.exam-section .card-body {
+  display: block;
+}
+
+/* Ensure all cards in a single compact row match height
+   - container aligns items to stretch
+   - card body grows to fill available space so headers stay compact
+*/
+.exam-row.compact { align-items: stretch; }
+.exam-row.compact .exam-section { flex: 1 1 0; display: flex; flex-direction: column; }
+.exam-row.compact .exam-section .card-body { flex: 1 1 auto; }
+
+/* Provide a printable page-size layout (A4 portrait by default) and
+   make the form container match a physical page for consistent print/PDF output.
+   Adjust margins or use Letter if you prefer US Letter sized pages. */
+@page { size: A4 portrait; margin: 12mm; }
+
+/* Prefer specific container sizing rather than forcing global body behavior */
+#form_container {
+  max-width: 210mm; /* A4 width */
+  min-height: 297mm; /* A4 height */
+  margin: 12mm auto 0; /* center on screen and for print */
+  box-sizing: border-box;
+}
+
+/* Print-specific adjustments */
+@media print {
+  body { background: #fff; color: #000; }
+  /* prevent cards splitting across pages if possible */
+  .exam-section, .exam-row.compact { page-break-inside: avoid; break-inside: avoid; }
+  /* tighten spacing for print */
+  .exam-row.compact { gap: 8px; }
+}
+
+/* Screen preview: show a subtle page outline so it looks like a printed piece */
+.report-preview {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* Use a two-up flex layout for exam cards in compact rows so two cards
+   sit side-by-side (50% each). Keep images inside the card but do not
+   force a card to expand to full width when an image exists. */
+/* Ensure this rule is authoritative (use !important where necessary)
+   because other generic '.exam-row.compact' rules use !important. */
+/* NOTE: This applies to .report_exam_group containers, NOT the .centered header row */
+.report_exam_group.exam-row.compact:not(.centered) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0 !important; /* no gaps between cards by default */
+  justify-content: flex-start !important; /* cards align left, don't spread out */
+  align-items: flex-start !important; /* cards don't stretch vertically */
+  width: 100% !important;
+}
+
+/* Target direct children (either .exam-section or .exam-card) so legacy
+   markup still receives the two-up layout. Use box-sizing so padding/border
+   won't break the 50% sizing. */
+/* Force children to be exactly half the container width (two-up layout).
+   Use !important to override earlier flex rules. */
+/* NOTE: This applies to .report_exam_group containers, NOT the .centered header row */
+.report_exam_group.exam-row.compact:not(.centered) > .exam-section,
+.report_exam_group.exam-row.compact:not(.centered) > .exam-card {
+  box-sizing: border-box;
+  flex: 0 0 50% !important;
+  flex-grow: 0 !important; /* never grow beyond 50% */
+  width: 50% !important;
+  max-width: 50% !important;
+  min-width: 0 !important; /* allow the card to shrink below its content width when needed */
+  overflow: hidden !important; /* prevent child content from overflowing and pushing layout */
+  padding: 8px;
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.05);
+}
+
+/* Centered header row (Visual Acuities, IOPs, VF, Motility, Pupils) -
+   variable widths based on content, same heights, stable margins, centered.
+   Use high specificity to override the base .exam-row.compact rules. */
+.report_exam_group.exam-row.compact.centered {
+  display: flex !important;
+  flex-wrap: nowrap !important; /* keep all cards on ONE row */
+  justify-content: center !important;
+  align-items: stretch !important; /* same height for all cards */
+  gap: 6px !important; /* tighter horizontal spacing between cards */
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+}
+.report_exam_group.exam-row.compact.centered > .exam-section {
+  flex: 0 0 auto !important; /* width based on content */
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.05);
+  font-size: 12px !important;
+  overflow: hidden !important;
+}
+/* Remove fixed widths - let cards fit their content */
+/* Consistent padding for all centered row cards */
+.report_exam_group.exam-row.compact.centered table { width: auto !important; margin: 0 auto !important; }
+.report_exam_group.exam-row.compact.centered .card-body { padding: 6px 10px !important; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
+/* Standardize table row heights so OD/OS dividers align across cards */
+.report_exam_group.exam-row.compact.centered table th,
+.report_exam_group.exam-row.compact.centered table td { vertical-align: top !important; }
+
+/* Fields, Motility, Amsler - unified OD/OS header and data layout */
+.report_exam_group.exam-row.compact.centered .visual-fields .card-body > table,
+.report_exam_group.exam-row.compact.centered .motility .card-body > table,
+.report_exam_group.exam-row.compact.centered .amsler .card-body > table {
+  border-collapse: collapse !important;
+}
+.report_exam_group.exam-row.compact.centered .visual-fields .card-body > table > tbody > tr:first-child > td,
+.report_exam_group.exam-row.compact.centered .motility .card-body > table > tbody > tr:first-child > td,
+.report_exam_group.exam-row.compact.centered .amsler .card-body > table > tbody > tr:first-child > td {
+  height: 20px !important;
+  font-weight: bold !important;
+  text-decoration: underline !important;
+  text-align: center !important;
+  vertical-align: bottom !important;
+  padding-bottom: 4px !important;
+}
+/* Simple value text (Full to CF OU, D&V Full OU, Round and Reactive) - pad top to align with first data row below OD/OS header */
+.report_exam_group.exam-row.compact.centered .simple-value {
+  display: block;
+  margin-top: 20px;
+}
+/* Vitals row cards - same teal header style but smaller padding */
+.report_exam_group.exam-row.compact.centered .exam-section-title { 
+  padding: 4px 10px !important; 
+  font-size: 12px !important; 
+}
+/* Visual Acuities card - make wider */
+.report_exam_group.exam-row.compact.centered .visual-acuities { min-width: 180px !important; }
+/* Remove vertical border from .report_vitals tables in centered row */
+.report_exam_group.exam-row.compact.centered .report_vitals {
+  border-right: none !important;
+  float: none !important;
+  min-height: 0 !important;
+  font-size: 12px !important;
+}
+/* Normalize fonts in Pupils tables to match other cards */
+.report_exam_group.exam-row.compact.centered .pupils .report_vitals th,
+.report_exam_group.exam-row.compact.centered .pupils .report_vitals td,
+.report_exam_group.exam-row.compact.centered .pupils-dim .report_vitals th,
+.report_exam_group.exam-row.compact.centered .pupils-dim .report_vitals td {
+  font-size: 12px !important;
+}
+/* Pupils and Pupils: Dim - remove borders around OD/OS column only */
+.report_exam_group.exam-row.compact.centered .pupils .report_vitals td:first-child,
+.report_exam_group.exam-row.compact.centered .pupils-dim .report_vitals td:first-child {
+  border: none !important;
+}
+/* Pupils panels with table - add padding to align OD row with Fields/Motility midline */
+.report_exam_group.exam-row.compact.centered .pupils .card-body:has(.report_vitals),
+.report_exam_group.exam-row.compact.centered .pupils-dim .card-body:has(.report_vitals) {
+  padding-top: 16px !important;
+}
+
+/* Visual Fields - align with Motility and other cards */
+.report_exam_group.exam-row.compact.centered .visual-fields .vf-table {
+  height: auto !important;
+}
+.report_exam_group.exam-row.compact.centered .visual-fields .vf-table tr {
+  height: auto !important;
+}
+.report_exam_group.exam-row.compact.centered .visual-fields .vf-eye-label {
+  height: auto !important;
+  vertical-align: bottom !important;
+  padding-bottom: 4px !important;
+}
+.report_exam_group.exam-row.compact.centered .visual-fields .vf-plus {
+  margin: 0 !important;
+}
+
+/* Normalize font sizes inside compact exam cards so non-bold text is consistent */
+.report_exam_group.exam-row.compact:not(.centered) > .exam-section,
+.report_exam_group.exam-row.compact:not(.centered) > .exam-card,
+.report_exam_group.exam-row.compact:not(.centered) > .exam-section .report_section,
+.report_exam_group.exam-row.compact:not(.centered) > .exam-card .report_section {
+  font-size: 12px !important;
+  color: #111;
+}
+.report_exam_group.exam-row.compact:not(.centered) .report_section td { font-weight: normal !important; }
+
+/* External exam: ensure Right / Center / Left columns display bold text
+   even when global compact card rules tone down weights. */
+.report_exam_group.exam-row.compact .report_section tr:first-child td {
+  /* Header row (Right / center blank / Left) should be bold */
+  font-weight: 700 !important;
+}
+
+/* Center column labels (Conj, Cornea, A/C, etc.) should be bold; keep side value columns normal */
+.report_exam_group.exam-row.compact .report_section td:nth-child(2) {
+  font-weight: 700 !important;
+}
+
+/* Keep images constrained to the card area */
+.report_exam_group.exam-row.compact > .exam-section img,
+.report_exam_group.exam-row.compact > .exam-card img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Make the Impression/Plan section look like a card when present */
+.impplan-exam {
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,0.05);
+  padding: 8px;
+  margin: 10px 0;
+}
+
+/* Small screens: stack cards full width */
+@media (max-width: 800px) {
+  .report_exam_group.exam-row.compact > .exam-section,
+  .report_exam_group.exam-row.compact > .exam-card { flex-basis: 100% !important; width: 100% !important; }
+}
+
+/* Make the card content layout neater */
+.exam-row.compact .exam-section .vitals-grid td .vitals-value,
+.exam-row.compact .exam-section .acuity-grid td .value,
+.exam-row.compact .exam-section .pressure-grid td .value {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 1.05em;
+  color: #111;
+}
+
+/* Reduce visual noise by toning down borders and adding spacing */
+.exam-row.compact .exam-section { border: 1px solid #f0f0f0; background: linear-gradient(180deg,#fff,#fbfbfb); }
+
+
+/* Denser table rows */
+.exam-row.compact table { font-size: 0.92em; }
+
+/* Make the VF boxes slightly larger on high-density screens */
+.field-box { width:8mm; height:8mm; }
+
+/* Numeric/value styling for vitals and pressures */
+.vitals-value {
+  font-weight: 700;
+  font-size: 1.05em;
+  color: #111;
+  display: inline-block;
+}
+.acuities {
+  text-align:center;
+  padding:4px 8px;
+}
+
+/* Image cards: separate cards for drawings that sit next to their clinical partner */
+.exam-image-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* title spans full width */
+  justify-content: flex-start;
+}
+.exam-image-card .exam-section-title {
+  width: 100%;
+  text-align: center;
+}
+.exam-image-card .card-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  padding: 8px;
+}
+.exam-image-card img {
+  width: 300px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Ensure clinical and image cards are equal 50% width and do NOT stretch */
+.report_exam_group.exam-row.compact:not(.centered) > .exam-section {
+  flex: 0 0 calc(50% - 6px) !important;
+  width: calc(50% - 6px) !important;
+  max-width: calc(50% - 6px) !important;
+  flex-grow: 0 !important; /* prevent stretching to fill row */
+  padding: 0 !important; /* no padding on card - header spans full width */
+  overflow: hidden !important; /* clips header to border-radius */
+  min-height: 225px !important;
+}
+
+/* Remove the only-child rule - cards should always stay 50% width */
+
+/* === Alternate Cover Test (ACT) section styles === */
+.alternate-cover-test {
+  /* flex: 1 1 100% !important; */
+  /* width: 100% !important; */
+  /* max-width: 100% !important; */
+}
+
+.act-grid {
+  /* display: inline-block;  Flex item now */
+  vertical-align: top;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  flex: 0 0 calc(50% - 12px);
+  max-width: calc(50% - 12px);
+}
+
+.act-table {
+  position: relative;
+  text-align: center;
+  font-size: 12px;
+  margin: 0 auto;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.act-table table {
+  border-collapse: collapse;
+}
+
+.act-header {
+  background-color: #2d6775;
+  border-bottom: 1px solid #000;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  height: 24px;
+  padding: 3px 12px;
+  border-radius: 0; /* Radius handled by container */
+}
+
+.act-cell {
+  height: 40px;
+  width: 48px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 11px;
+  border: 1px solid #ccc;
+}
+
+/* Remove outer borders from the grid cells to create an "internal borders only" look */
+
+/* Top row: remove top border */
+.act-table table tr:first-child .act-cell {
+  border-top: none !important;
+}
+
+/* Bottom row: remove bottom border */
+.act-table table tr:last-child .act-cell {
+  border-bottom: none !important;
+}
+
+/* Rows 1 & 2: Remove left border from the first act-cell (2nd child) */
+.act-table table tr:not(:last-child) .act-cell:nth-child(2) {
+  border-left: none !important;
+}
+
+/* Rows 1 & 2: Remove right border from the last act-cell (4th child) */
+.act-table table tr:not(:last-child) .act-cell:nth-child(4) {
+  border-right: none !important;
+}
+
+/* Row 3: Remove left border from the first act-cell (1st child) */
+.act-table table tr:last-child .act-cell:first-child {
+  border-left: none !important;
+}
+
+/* Row 3: Remove right border from the last act-cell (5th child) */
+.act-table table tr:last-child .act-cell:last-child {
+  border-right: none !important;
+}
+
+.act-label-r, .act-label-l {
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px;
+}
+
+.rotate-left {
+  transform: rotate(-90deg);
+  opacity: 0.6;
+}
+
+.rotate-right {
+  transform: rotate(90deg);
+  opacity: 0.6;
+}
+
+/* === Impression/Plan section styles === */
+.impplan-section {
+  flex: 1 1 50% !important;
+}
+
+.impplan-image-card {
+  flex: 1 1 50% !important;
+}
+
+.impplan-item {
+  margin-bottom: 12px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.impplan-number {
+  font-weight: bold;
+}
+
+.impplan-details {
+  padding-left: 18px;
+  margin-top: 4px;
+  text-align: left;
+}
+
+.impplan-orders {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Ensure Additional Findings and Retina sections match height and align properly */
+.report_exam_group.exam-row.compact {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+}
+
+.report_exam_group.exam-row.compact:not(.centered) > .exam-section.retina-additional-match {
+  display: flex !important;
+  flex-direction: column !important;
+  /* Removed height: auto !important to allow align-items: stretch to work */
+}
+
+.report_exam_group.exam-row.compact:not(.centered) > .exam-section.retina-additional-match .card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  flex: 1 1 auto !important;
+}
+

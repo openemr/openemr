@@ -19,6 +19,7 @@ var canvasPic = new Array();
 var zone;
 var cPushArray = new Array();
 var cStep = new Array();
+var canvasModified = new Array(); // Track if user has actually drawn on the canvas
 
 function InitThis(zone)
 {
@@ -84,6 +85,7 @@ function drawImage(zone)
 function Draw(x, y, isDown,zone)
 {
     if (isDown) {
+        canvasModified[zone] = true; // User is actually drawing
         ctx[zone].beginPath();
         ctx[zone].strokeStyle = $('#selColor_' + zone).val();
         ctx[zone].lineWidth = $('#selWidth_' + zone).val();
@@ -153,11 +155,13 @@ function cBlank(zone)
     //each canvas on your page must be initialized
     // add this to your own forms/js files where HPI is replaced with your canvas Identifier
     // myCanvas_HPI --> myCanvas_YOURIDENTIFIER
-InitThis('HPI');
-InitThis('PMH');
-InitThis('EXT');
-InitThis('ANTSEG');
-InitThis('RETINA');
-InitThis('SDRETINA');
-InitThis('NEURO');
-InitThis('IMPPLAN');
+$(document).ready(function() {
+    InitThis('HPI');
+    InitThis('PMH');
+    InitThis('EXT');
+    InitThis('ANTSEG');
+    InitThis('RETINA');
+    InitThis('SDRETINA');
+    InitThis('NEURO');
+    InitThis('IMPPLAN');
+});

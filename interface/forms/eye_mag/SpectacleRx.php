@@ -273,7 +273,7 @@ if ($_REQUEST['dispensed'] ?? '') {
 
         <?php Header::setupHeader(['opener', 'pure', 'jscolor']); ?>
 
-        <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+        <link rel="stylesheet" href="../../forms/<?php echo (!empty($form_folder) ? $form_folder : 'eye_mag'); ?>/css/style.css" type="text/css">
 
         <style>
             .title {
@@ -553,7 +553,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                 if ($adds) {
                                                     ?>
                                                                 <td><?php echo xlt('ADD'); ?></td>
-                                                        <?php }
+                                                <?php }
                                                 ?>
                                                     </tr>
                                                     <tr>
@@ -567,7 +567,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                         if ($adds) {
                                                             ?>
                                                                 <td><?php echo text($row['ODADD']); ?></td>
-                                                            <?php } ?>
+                                                        <?php } ?>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2" class="text-right align-middle font-weight-bold">
@@ -607,7 +607,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                                         if ($adds) {
                                                             ?>
                                                                 <td><?php echo xlt('ADD'); ?></td>
-                                                            <?php }
+                                                        <?php }
                                                         ?>
                                                     </tr>
                                                     <tr>
@@ -675,7 +675,7 @@ if ($_REQUEST['dispensed'] ?? '') {
 <html>
 <head>
     <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css">
+    <link rel="stylesheet" href="../../forms/<?php echo (!empty($form_folder) ? $form_folder : 'eye_mag'); ?>/css/style.css">
 
     <style>
         .title {
@@ -1146,7 +1146,8 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                     <td colspan="4" class="left"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) {
-                                        echo "(" . text($CTLMANUFACTUREROD) . ")";} ?></td>
+                                        echo "(" . text($CTLMANUFACTUREROD) . ")";
+                                                                 } ?></td>
                                 </tr>
                                 <tr class="bold">
                                     <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1158,7 +1159,7 @@ if ($REFTYPE == "CTL") {
                                 if ($adds) {
                                     ?>
                                             <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
-                                        <?php } ?>
+                                <?php } ?>
                                 </tr>
                                 <tr>
                                     <td><input type=text id="CTLODSPH" name="CTLODSPH" value="<?php echo attr($ODSPH); ?>">
@@ -1176,7 +1177,7 @@ if ($REFTYPE == "CTL") {
                                         ?>
                                             <td><input type=text id="CTLODADD" name="CTLODADD" value="<?php echo attr($ODADD); ?>">
                                             </td>
-                                        <?php } ?>
+                                    <?php } ?>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Quantity:'); ?></td>
@@ -1193,7 +1194,8 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                     <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
-                                        echo "(" . text($CTLMANUFACTUREROS) . ")";} ?></td>
+                                        echo "(" . text($CTLMANUFACTUREROS) . ")";
+                                                                 } ?></td>
                                 </tr>
                                 <tr class="bold" style="line-height:0.3em;font-size:0.6em;">
                                     <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1205,7 +1207,7 @@ if ($REFTYPE == "CTL") {
                                     if ($adds) {
                                         ?>
                                             <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
-                                        <?php } ?>
+                                    <?php } ?>
                                 </tr>
                                 <tr>
                                     <td><input type=text id="CTLOSSPH" name="CTLOSSPH" value="<?php echo attr($OSSPH); ?>">
@@ -1222,7 +1224,7 @@ if ($REFTYPE == "CTL") {
                                     if ($adds) {
                                         ?>
                                             <td><input type=text id="CTLOSADD" name="CTLOSADD" value="<?php echo attr($OSADD); ?>"></td>
-                                        <?php } ?>
+                                    <?php } ?>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Quantity:'); ?></td>

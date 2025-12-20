@@ -19,6 +19,9 @@
 
     $providerID = $_REQUEST['providerID'];
 
+    // Set proper Content-Type for JavaScript
+    header('Content-Type: application/javascript; charset=utf-8');
+
 ?>
 var prior_field;
 var prior_text;
@@ -113,7 +116,8 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection, fill_action, Co
  */
 function submit_form(action) {
     var url = "../../forms/eye_mag/save.php?sub=1&mode=update&id=" + $("#form_id").val();
-    if ($("#COPY_SECTION").value == "READONLY") return;
+    // Don't submit if in READ-ONLY mode (check both "READONLY" and "READONLY-{formid}" patterns)
+    if ($("#COPY_SECTION").val() == "READONLY" || $("#COPY_SECTION").val().match(/^READONLY-/)) return;
     formData = $("form#eye_mag").serialize();
     if (formData =='') return;
     $("#menustate").val('0');
@@ -123,8 +127,14 @@ function submit_form(action) {
            url    : url,
            data   : formData //,           dataType: "json"
            }).done(function(result) {
-                   if (result == 'Code 400') {
-                   code_400(); //Not the owner: read-only mode or take ownership
+                   if (result.startsWith('Code 400')) {
+                       // Extract lock holder name if provided: "Code 400|John Smith"
+                       var lock_holder = '';
+                       var parts = result.split('|');
+                       if (parts.length > 1) {
+                           lock_holder = parts[1];
+                       }
+                       code_400(lock_holder); //Not the owner: read-only mode or take ownership
                    } else {
                        // ACTIVE chart.
                        // Coding engine returns any positive Clinical findings.
@@ -139,17 +149,21 @@ function submit_form(action) {
  *  The form is locked (fields disabled) and they enter the READ-ONLY mode.
  *  In READ-ONLY mode the form is refreshed every 15 seconds showing changes made by the user with write privileges.
  */
-function code_400() {
+function code_400(lock_holder_name) {
         //User lost ownership.  Just watching now...
         //now we should get every variable and update the form, every 15 seconds...
     $("#active_flag").html(" READ-ONLY ");
     toggle_active_flags("off");
-    alert("Another user has taken control of this form.\rEntering READ-ONLY mode.");
+    var message = "Another user has taken control of this form.\rEntering READ-ONLY mode.";
+    if (lock_holder_name) {
+        message = lock_holder_name + " is now editing this form.\rEntering READ-ONLY mode.";
+    }
+    alert(message);
     update_READONLY();
     this_form_id = $("#form_id").val();
     $("#COPY_SECTION").val("READONLY");
     update_chart = setInterval(function() {
-                               if ($("#chart_status").value == "on") { clearInterval(update_chart); }
+                               if ($("#chart_status").val() == "on") { clearInterval(update_chart); }
                                update_READONLY();
                                }, 15000);
 }
@@ -167,6 +181,71 @@ function parseDate(input) {
     return new Date(parts[0], parts[1]-1, parts[2]); // months are 0-based
 }
 /*
+ *  Function to toggle chart state (ACTIVE <-> READ-ONLY)
+ *  - If you own the lock: toggle UI state, keep lock
+ *  - If you don't own the lock and trying to go ACTIVE: acquire the lock
+ */
+function toggle_chart_state() {
+    var locked = $("#LOCKED").val();
+    var locked_by = $("#LOCKEDBY").val();
+    var authUserID = $('#authUserID').val();
+    var is_owner = (locked_by == authUserID);
+    
+    console.log('toggle_chart_state: is_owner=' + is_owner + ', chart_status=' + $("#chart_status").val() + ', locked_by=' + locked_by);
+    
+    if ($("#chart_status").val() == "on") {
+        // Currently ACTIVE, toggle to READ-ONLY
+        console.log('Toggling from ACTIVE to READ-ONLY');
+        // Release the lock so others can edit
+        unlock();
+        toggle_active_flags("off");
+        $("#COPY_SECTION").val("READONLY");
+        clearInterval(update_chart);
+        update_chart = setInterval(function() {
+            if ($("#chart_status").val() == "on") { clearInterval(update_chart); }
+            console.log('Polling update_READONLY');
+            update_READONLY();
+        }, 15000);
+    } else {
+        // Currently READ-ONLY, try to toggle to ACTIVE
+        console.log('Attempting to toggle from READ-ONLY to ACTIVE');
+        if (is_owner) {
+            // You already own the lock, just switch UI
+            console.log('You own the lock, switching to ACTIVE');
+            clearInterval(update_chart);
+            toggle_active_flags("on");
+        } else {
+            // You don't own the lock, try to acquire it
+            console.log('You do not own the lock, attempting to acquire it');
+            var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
+            top.restoreSession();
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'acquire_lock': '1',
+                    'uniqueID': authUserID,
+                    'locked_by': locked_by,
+                    'form_id': $("#form_id").val()
+                }
+            }).done(function(d) {
+                console.log('Toggle acquire_lock success, response=' + d);
+                $("#LOCKEDBY").val(authUserID);
+                $("#LOCKEDDATE").val(d);
+                clearInterval(update_chart);
+                // Clear the warning message and set UI to ACTIVE
+                $("#warning").find('h4').text('');
+                toggle_active_flags("on");
+                console.log('After toggle acquire: chart_status=' + $("#chart_status").val());
+            }).fail(function(e) {
+                console.error('Toggle acquire_lock failed:', e);
+                alert('Failed to acquire lock. You may not have permission to edit this form.');
+            });
+        }
+    }
+}
+
+/*
  *  Function to check locked state
  */
 function check_lock(modify) {
@@ -177,7 +256,7 @@ function check_lock(modify) {
     } else{
         var locked_date= new Date('2000-01-01');
     }
-    var uniqueID = $('#uniqueID').val();
+    var authUserID = $('#authUserID').val();  // Use actual user ID instead of random uniqueID
 
     var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
     clearInterval(update_chart);
@@ -188,28 +267,34 @@ function check_lock(modify) {
     var interval = locked_date.setTime(locked_date.getTime() + (60*60*1000));//locked timestamp + 1 hour
     if (modify=='1') {
         if ($("#chart_status").val() == "on") {
-            unlock();
+            // This branch is no longer used - toggle now calls toggle_chart_state()
+            console.log('check_lock: Currently ACTIVE, about to toggle to READ-ONLY');
             toggle_active_flags("off");
             update_chart = setInterval(function() {
-                                       if ($("#chart_status").val() == "on") { clearInterval(update_chart);}
+                                       if ($("#chart_status").val() == "on") { clearInterval(update_chart); }
+                                       console.log('Polling update_READONLY');
                                        update_READONLY();
                                        }, 15000);
-            if ($("#chart_status").value == "on") { clearInterval(update_chart); }
         } else {
+            console.log('check_lock: Currently READ-ONLY, acquiring lock');
             top.restoreSession();
             $.ajax({
                    type   : 'POST',
                    url    : url,
                    data   : {
                    'acquire_lock'  : '1',
-                   'uniqueID'      : uniqueID,
+                   'uniqueID'      : authUserID,
                    'form_id'       : $("#form_id").val(),
                    'locked_by'     : $("#LOCKEDBY").val()
                    }
                    }).done(function(d) {
-                           $("#LOCKEDBY").val(uniqueID);
-                           toggle_active_flags("on");
+                           console.log('acquire_lock success, response=' + d);
+                           $("#LOCKEDBY").val(authUserID);
+                           $("#LOCKEDDATE").val(d);
                            clearInterval(update_chart);
+                           toggle_active_flags("on");
+                           }).fail(function(e) {
+                           console.error('acquire_lock failed:', e);
                            });
         }
     } else if (locked =='1' && (interval < now_time)) { //it was locked more than an hour ago, take ownership quietly
@@ -219,44 +304,55 @@ function check_lock(modify) {
                url    : url,
                data   : {
                  'acquire_lock'  : '1',
-                 'uniqueID'      : uniqueID, //this user is becoming the new owner
+                 'uniqueID'      : authUserID, //this user is becoming the new owner
                  'locked_by'     : locked_by, //this is the old owner
                  'form_id'       : $("#form_id").val()
                }
                }).done(function(d) {
-                       $("#LOCKEDBY").val(uniqueID);
+                       $("#LOCKEDBY").val(authUserID);
                        $("#LOCKEDDATE").val(d);
                        toggle_active_flags("on");
                        }
                        );
-    } else if (locked =='1' && locked_by >'' && (uniqueID != locked_by)) {
+    } else if (locked =='1' && locked_by >'' && (authUserID != locked_by)) {
             //form is locked by someone else, less than an hour ago...
-        $("#active_flag").html(" READ-ONLY ");
         if (confirm('\tLOCKED by another user:\t\n\tSelect OK to take ownership or\t\n\tCANCEL to enter READ-ONLY mode.\t')) {
+            console.log('User confirmed takeover of lock');
             top.restoreSession();
             $.ajax({
                    type   : 'POST',
                    url    : url,
                    data     : {
                    'acquire_lock'  : '1',
-                   'uniqueID'      : uniqueID, //this user is becoming the new owner
+                   'uniqueID'      : authUserID, //this user is becoming the new owner
                    'locked_by'     : locked_by, //this is the old owner
                    'form_id'       : $("#form_id").val()
                    }
                    }).done(function(d) {
-                           $("#LOCKEDBY").val(uniqueID);
+                           console.log('Takeover successful, response=' + d);
+                           $("#LOCKEDBY").val(authUserID);
+                           $("#LOCKEDDATE").val(d);
+                           clearInterval(update_chart);
+                           // Clear the warning message and set UI to ACTIVE
+                           $("#warning").find('h4').text('');
+                           console.log('About to call toggle_active_flags("on")');
                            toggle_active_flags("on");
+                           console.log('After toggle_active_flags("on"), chart_status=' + $("#chart_status").val() + ', icon=' + $("#active_icon").html());
                            }
                            );
         } else {
                 //User selected "Cancel" -- ie. doesn't want ownership.  Just watching...
+            console.log('User selected READ-ONLY mode from popup');
+            // DO NOT unlock - keep the lock in place so other users can't grab it
+            // Just enter READ-ONLY UI mode and poll for updates
+            $("#active_flag").html(" READ-ONLY ");
             toggle_active_flags("off");
+            $("#COPY_SECTION").trigger('change');
             update_chart = setInterval(function() {
-                                       $("#COPY_SECTION").trigger('change');
                                        if ($("#chart_status").val() == "on") { clearInterval(update_chart);}
                                        update_READONLY();
                                        }, 15000);
-            if ($("#chart_status").value == "on") { clearInterval(update_chart); }
+            if ($("#chart_status").val() == "on") { clearInterval(update_chart); }
 
         }
     }
@@ -268,9 +364,10 @@ function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
     top.restoreSession();
+    var webroot = '<?php echo $GLOBALS['webroot']; ?>';
     $.ajax({
            type: "POST",
-           url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val(),
+           url: webroot + "/interface/forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val()+"&pid="+$("#pid").val()+"&encounter="+$("#encounter").val(),
            data: {
            imgBase64     : dataURL,  //this contains the canvas + new strokes, the sketch.js foreground
            'zone'        : zone,
@@ -322,21 +419,25 @@ function update_PREFS() {
             'PREFS_IMPPLAN_RIGHT'   : $('#PREFS_IMPPLAN_DRAW').val(),
             'PREFS_KB'              : $('#PREFS_KB').val(),
             'PREFS_TOOLTIPS'        : $('#PREFS_TOOLTIPS').val(),
-            'setting_tabs_left'     : $('#setting_tabs_left').val(),
-            'setting_HPI'           : $('#setting_HPI').val(),
-            'setting_PMH'           : $('#setting_PMH').val(),
-            'setting_EXT'           : $('#setting_EXT').val(),
-            'setting_ANTSEG'        : $('#setting_ANTSEG').val(),
-            'setting_RETINA'        : $('#setting_RETINA').val(),
-            'setting_SDRETINA'      : $('#setting_SDRETINA').val(),
-            'setting_NEURO'         : $('#setting_NEURO').val(),
-            'setting_IMPPLAN'       : $('#setting_IMPPLAN').val(),
+            'setting_tabs_left'     : ($('#setting_tabs_left').val() !== undefined && $('#setting_tabs_left').val() !== '') ? $('#setting_tabs_left').val() : '0',
+            'setting_HPI'           : ($('#setting_HPI').val() !== undefined && $('#setting_HPI').val() !== '') ? $('#setting_HPI').val() : '1',
+            'setting_PMH'           : ($('#setting_PMH').val() !== undefined && $('#setting_PMH').val() !== '') ? $('#setting_PMH').val() : '1',
+            'setting_EXT'           : ($('#setting_EXT').val() !== undefined && $('#setting_EXT').val() !== '') ? $('#setting_EXT').val() : '1',
+            'setting_ANTSEG'        : ($('#setting_ANTSEG').val() !== undefined && $('#setting_ANTSEG').val() !== '') ? $('#setting_ANTSEG').val() : '1',
+            'setting_RETINA'        : ($('#setting_RETINA').val() !== undefined && $('#setting_RETINA').val() !== '') ? $('#setting_RETINA').val() : '1',
+            'setting_SDRETINA'      : ($('#setting_SDRETINA').val() !== undefined && $('#setting_SDRETINA').val() !== '') ? $('#setting_SDRETINA').val() : '1',
+            'setting_NEURO'         : ($('#setting_NEURO').val() !== undefined && $('#setting_NEURO').val() !== '') ? $('#setting_NEURO').val() : '1',
+            'setting_IMPPLAN'       : ($('#setting_IMPPLAN').val() !== undefined && $('#setting_IMPPLAN').val() !== '') ? $('#setting_IMPPLAN').val() : '1',
         };
         top.restoreSession();
         $.ajax({
                type     : 'POST',
                url      : url,
-               data     : formData
+               data     : formData,
+               success  : function(response) {
+               },
+               error    : function(jqXHR, textStatus, errorThrown) {
+               }
                });
 
 }
@@ -344,7 +445,8 @@ function update_PREFS() {
  *  Function to unlock the form - remove temporary lock at DB level.
  */
 function unlock() {
-    var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
+    var webroot = '<?php echo $GLOBALS['webroot']; ?>';
+    var url = webroot + "/interface/forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
     var formData = {
         'action'           : "unlock",
         'unlock'           : "1",
@@ -354,14 +456,17 @@ function unlock() {
         'form_id'          : $("#form_id").val()
     };
     top.restoreSession();
+    // Use synchronous AJAX to ensure it completes
     $.ajax({
-           type     : 'POST',
-           url          : url,
-           data     : formData }).done(function(o) {
-                                           $("#warning").removeClass("nodisplay");
-                                           $('#LOCKEDBY').val('');
-                                           $('#chart_status').val('off');
-                                           });
+        type     : 'POST',
+        url          : url,
+        data     : formData,
+        async    : false
+    }).done(function(o) {
+        // Clear lock info from form
+        $('#LOCKEDBY').val('');
+        // Don't manipulate warning here - let toggle_active_flags handle it
+    });
 }
 /*
  *  Function to fax this visit report to someone.
@@ -437,7 +542,15 @@ function alter_issue2(issue_number,issue_type,index) {
             $('iframe').contents().find('#form_active' ).prop("checked",false);
         }
     }
+    // Open all four panels
+    $("#HPI_left").removeClass('nodisplay');
+    $("#HPI_right").removeClass('nodisplay');
+    $("#PMH_left").removeClass('nodisplay');
+    $("#PMH_right").removeClass('nodisplay');
+    HPI_sync_heights();
+
     var location = $("#PMH_left").offset().top -55;
+    window.location.hash = '#PMH_anchor';
     $root.animate({scrollTop: location }, "slow");
 }
 function showArray(arr) {
@@ -615,7 +728,17 @@ function populate_GFS(result) {
  *  and the CHRONIC fields.
  */
 function populate_form(result) {
-    obj = JSON.parse(result);
+    try {
+        // If result is already an object (from AJAX with dataType: 'json'), don't parse it
+        if (typeof result === 'string') {
+            obj = JSON.parse(result);
+        } else {
+            obj = result;
+        }
+    } catch(e) {
+        console.error('populate_form: Error parsing result:', e, result);
+        return;
+    }
     $("#QP_PMH").html(obj.PMH_panel);
     if ($('#PMH_right').height() > $('#PMH_left').height()) {
         $('#PMH_left').height($('#PMH_right').height());
@@ -624,6 +747,8 @@ function populate_form(result) {
     build_IMPPLAN(obj.IMPPLAN_items);
     build_Chronics(obj);
     build_DX_list(obj); //build the list of DXs to show in the Impression/Plan Builder
+    // Now that form is refreshed, restore collapse/expand state from saved preferences
+    show_by_setting();
 }
 /*
  *  Function to auto-fill CHRONIC fields
@@ -796,6 +921,7 @@ function show_DRAW() {
     hide_PRIORS();
     hide_left();
     hide_KB();
+    hide_DOT();
     show_right();
 
     $("#HPI_right").addClass('canvas');
@@ -823,6 +949,12 @@ function show_TEXT() {
     hide_QP();
     hide_DRAW();
     hide_PRIORS();
+    hide_DOT();
+
+    // Override for PMH: Show Right (Panels), Hide Left (Iframe)
+    $("#PMH_left").addClass('nodisplay');
+    $("#PMH_right").removeClass('nodisplay');
+
     if ($("#PREFS_CLINICAL").val() !='1') {
             // we want to show text_only which are found on left half
         $("#PREFS_CLINICAL").val('1');
@@ -843,10 +975,25 @@ function show_PRIORS() {
     hide_DRAW();
     $("#EXT_right").addClass("PRIORS_color");
     show_TEXT();
-    show_right();
+    hide_DOT();
+    // For PRIORS mode, ensure size50 on all zones to show both left and right panels
+    $("#HPI_1").removeClass("size100").addClass("size50");
+    $("#PMH_1").removeClass("size100").addClass("size50");
+    $("#EXT_1").removeClass("size100").addClass("size50");
+    $("#ANTSEG_1").removeClass("size100").addClass("size50");
+    $("#NEURO_1").removeClass("size100").addClass("size50");
+    $("#RETINA_1").removeClass("size100").addClass("size50");
+    $("#IMPPLAN_1").removeClass("size100").addClass("size50");
+    // Show all right panels for PRIORS display
+    $("#HPI_right").removeClass('nodisplay');
+    $("#PMH_right").removeClass('nodisplay');
+    $("#EXT_right").removeClass('nodisplay');
+    $("#ANTSEG_right").removeClass('nodisplay');
+    $("#NEURO_right").removeClass('nodisplay');
+    $("#RETINA_right").removeClass('nodisplay');
+    $("#SDRETINA_right").removeClass('nodisplay');
+    $("#IMPPLAN_right").removeClass('nodisplay');
     hide_QP();
-    $("#QP_HPI").removeClass('nodisplay');
-    $("#QP_PMH").removeClass('nodisplay');
     $("#HPI_right").addClass('canvas');
     $("#PMH_right").addClass('canvas');
     $("#IMPPLAN_right").addClass('canvas');
@@ -870,6 +1017,7 @@ function show_QP() {
     hide_DRAW();
     hide_PRIORS();
     hide_KB();
+    hide_DOT();
     show_TEXT();
     show_right();
     show_left();
@@ -884,6 +1032,11 @@ function show_QP() {
     $(".QP_class").removeClass('nodisplay');
     $(".QP_class2").removeClass('nodisplay');
     $("#PREFS_EXAM").val('QP');
+    // Set all zones to QP display preference
+    var zones = ["HPI","PMH","EXT","ANTSEG","RETINA","SDRETINA","NEURO","IMPPLAN"];
+    for (i = 0; i < zones.length; ++i) {
+        $("#PREFS_"+zones[i]+"_RIGHT").val('QP');
+    }
     update_PREFS();
 }
 /*
@@ -891,12 +1044,37 @@ function show_QP() {
  */
 function show_DRAW_section(zone) {
     $("#QP_"+zone).addClass('nodisplay');
+    $("#DOT_"+zone).addClass('nodisplay');
     $("#"+zone+"_left").removeClass('nodisplay');
     $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
     $("#Draw_"+zone).addClass('canvas');
     $("#Draw_"+zone).removeClass('nodisplay');
     $("#PREFS_"+zone+"_DRAW").val(1);
     update_PREFS();
+}
+/*
+ * Function to display only one DOT panel of one section.
+ */
+function show_DOT_section(zone) {
+   $("#QP_"+zone).addClass('nodisplay');
+   $("#Draw_"+zone).addClass('nodisplay');
+   $("#"+zone+"_left").removeClass('nodisplay');
+   $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
+   $("#DOT_"+zone).addClass('canvas');
+   $("#DOT_"+zone).removeClass('nodisplay');
+
+   // Mirroring logic: Copy values from clinical fields to DOT fields
+   $("#DOT_"+zone).find("input[id^='DOT_'], textarea[id^='DOT_']").each(function() {
+       var dotId = this.id;
+       var sourceId = dotId.replace(/^DOT_/, '');
+       var sourceElement = document.getElementById(sourceId);
+       if (sourceElement) {
+           $(this).val($(sourceElement).val());
+       }
+   });
+
+   $("#PREFS_"+zone+"_RIGHT").val('DOT');
+   // update_PREFS(); // Caller handles saving (e.g. button click)
 }
 /*
  * Function to display only one PRIORS panel of one section.
@@ -918,6 +1096,10 @@ function show_PRIORS_section(section,newValue) {
            data     : formData,
            success   : function(result) {
                 $("#PRIORS_" + section + "_left_text").html(result);
+                // Also show the PRIORS right panel for this section
+                $("#PRIORS_" + section + "_right").removeClass('nodisplay');
+                $("#QP_" + section).addClass('nodisplay');
+                $("#Draw_" + section).addClass('nodisplay');
            }
            });
 }
@@ -948,16 +1130,22 @@ function replace_CANVAS(zone, url) {
  * Function to show one of the Quick Picks section on the right side of its section.
  */
 function show_QP_section(zone,scroll) {
-    $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
-    $("#QP_"+zone).removeClass('nodisplay');
-    $("#DRAW_"+zone).addClass('nodisplay');
-    $("#"+zone+"_left").removeClass('nodisplay');
-    $("#PREFS_"+zone+"_RIGHT").val('QP');
-    if (!scroll) {
-        scroll = zone;
-        scrollTo(zone+"_left");
+    try {
+        $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
+        $("#QP_"+zone).removeClass('nodisplay');
+        $("#Draw_"+zone).addClass('nodisplay');
+        $("#DOT_"+zone).addClass('nodisplay');
+        $("#"+zone+"_left").removeClass('nodisplay');
+        $("#PREFS_"+zone+"_RIGHT").val('QP');
+
+        if (!scroll) {
+            scroll = zone;
+            scrollTo(zone+"_left");
+        }
+    } catch(e) {
+        console.error('show_QP_section error for zone ' + zone + ':', e);
     }
-   }
+}
 /*
  * Function to hide all the DRAW panels of every section.
  */
@@ -982,6 +1170,12 @@ function hide_QP() {
     $(".QP_class").addClass('nodisplay');
     $(".QP_class2").addClass('nodisplay');
     $("[name$='_right']").removeClass('canvas');
+}
+/*
+ * Function to hide all the DOT panels of every section.
+ */
+function hide_DOT() {
+    $(".DOT_class").addClass('nodisplay');
 }
 /*
  * Function to hide all the TEXT panels of every section.
@@ -1206,15 +1400,24 @@ function check_exam_detail() {
 function build_DX_list(obj) {
     var out = "";
     var diagnosis;
-    $( "#build_DX_list" ).empty();
-        //add in inc_FIELDCODES culled from the datafields
-    if (typeof obj.PMSFH === "undefined") return;
-    if (typeof obj.Clinical === "undefined") submit_form('obj.clinical is undefined');
+
+    //add in inc_FIELDCODES culled from the datafields
+    if (typeof obj.PMSFH === "undefined") {
+        return;
+    }
+    if (typeof obj.Clinical === "undefined") {
+        console.warn('obj.Clinical is undefined - initializing as empty object');
+        obj.Clinical = {};
+    }
     if (!obj.PMSFH['POH']  && !obj.PMSFH['PMH'] && !obj.Clinical) {
         out = '<br /><span class="bold">The Past Ocular History (POH) and Past Medical History (PMH) are negative and no diagnosis was auto-generated from the clinical findings.</span><br /><br />Update the chart to activate the Builder.<br />';
         $( "#build_DX_list" ).html(out);
         return;
     }
+
+    // Only clear the list if we're actually going to rebuild it with data
+    $( "#build_DX_list" ).empty();
+
     build_IMPPLAN(obj.IMPPLAN_items);
     if ($('#inc_PE').is(':checked') && obj.Clinical) {
         $.each(obj.Clinical, function(key, value) {
@@ -1254,17 +1457,35 @@ function build_DX_list(obj) {
         //add in inc_FIELDCODES culled from the datafields
     if (out !="") {
         rebuild_IMP($( "#build_DX_list" ));
-        $( "#build_DX_list" )
-        .html(out).sortable({ handle: ".handle",stop: function(event, ui){ rebuild_IMP($( "#build_DX_list" )) } })
-        .selectable({ filter: "li", cancel: ".handle",stop: function(event, ui){ rebuild_IMP($( "#build_DX_list" )) } })
-        .find( "li" )
+        // First, set the HTML content
+        $( "#build_DX_list" ).html(out);
+
+        // Then apply classes and handlers to the list items
+        var liElements = $( "#build_DX_list" ).find( "li" );
+        liElements
         .addClass( "ui-corner-all  ui-selected" )
         .dblclick(function(){
                   rebuild_IMP($( "#build_DX_list" ));
                   $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
-                  })
-            //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle '><i class='fas fa-arrows-alt fa-1'></i></div>" );
+                  });
+
+        liElements.prepend( "<div class='handle'><i class='fas fa-arrows-alt'></i></div>" );
+
+        // Finally, initialize jQuery UI with a small delay to ensure it's ready
+        setTimeout(function() {
+            if (typeof $( "#build_DX_list" ).sortable === 'function') {
+                $( "#build_DX_list" ).sortable({
+                    handle: ".handle",
+                    helper: "clone",
+                    appendTo: "body",
+                    revert: "invalid",
+                    stop: function(event, ui){ rebuild_IMP($( "#build_DX_list" )) }
+                });
+            }
+            if (typeof $( "#build_DX_list" ).selectable === 'function') {
+                $( "#build_DX_list" ).selectable({ filter: "li", cancel: ".handle", stop: function(event, ui){ rebuild_IMP($( "#build_DX_list" )) } });
+            }
+        }, 50);
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1757,28 +1978,60 @@ function build_CODING_list() {
  * Function to make the form fields inactive or active depending on the form's state (Active vs. READ-ONLY)
  */
 function toggle_active_flags(new_state) {
-    if (($("#chart_status").val() == "off") || (new_state == "on")) {
-            //  we are read-only and we want to go active.
-        $("#chart_status").val("on");
-        $("#active_flag").html(" Active Chart ");
-        $("#active_icon").html("<i class='fa fa-toggle-on'></i>");
-        $("#warning").addClass("nodisplay");
-        $('input, select, textarea, a').removeAttr('disabled');
-        $('input, textarea').removeAttr('readonly');
+    console.log('toggle_active_flags called with new_state=' + new_state + ', current chart_status=' + $("#chart_status").val());
+
+    // If explicit state is provided, set to that state; otherwise toggle
+    if (new_state === "on" || new_state === "off") {
+        // Explicit state provided
+        console.log('Setting to ' + (new_state === "on" ? 'ACTIVE' : 'READ-ONLY'));
+        if (new_state === "on") {
+            $("#chart_status").val("on");
+            $("#active_flag").html(" Active Chart ");
+            $("#active_icon").html("<i class='fa fa-toggle-on'></i>");
+            $("#warning").addClass("nodisplay").hide();
+            $("#COPY_SECTION").val("");  // Clear COPY_SECTION when going ACTIVE
+            $('input, select, textarea, a').removeAttr('disabled');
+            $('input, textarea').removeAttr('readonly');
+        } else {
+            $("#chart_status").val("off");
+            $("#active_flag").html(" READ-ONLY ");
+            $("#active_icon").html("<i class='fa fa-toggle-off'></i>");
+            $("#warning").removeClass("nodisplay").show();
+            // Update warning message to generic READ-ONLY message
+            $("#warning").find('h4').text('<?php echo xlt('Warning'); ?>! ' + '<?php echo xlt('Form is in READ-ONLY mode'); ?>.');
+            $('input, select, textarea, a').attr('disabled', 'disabled');
+            $('input, textarea').attr('readonly', 'readonly');
+            this_form_id = $("#form_id").val();
+            $("#COPY_SECTION").val("READONLY-"+this_form_id);
+        }
     } else {
+        // No state provided, toggle current state
+        if ($("#chart_status").val() == "off") {
+            //  we are read-only and we want to go active.
+            console.log('Toggling from READ-ONLY to ACTIVE');
+            $("#chart_status").val("on");
+            $("#active_flag").html(" Active Chart ");
+            $("#active_icon").html("<i class='fa fa-toggle-on'></i>");
+            $("#warning").addClass("nodisplay").hide();
+            $("#COPY_SECTION").val("");  // Clear COPY_SECTION when going ACTIVE
+            $('input, select, textarea, a').removeAttr('disabled');
+            $('input, textarea').removeAttr('readonly');
+        } else {
             //else clicking this means we want to go from active to read-only
-        $("#chart_status").val("off");
-        $("#active_flag").html(" READ-ONLY ");
-        $("#active_icon").html("<i class='fa fa-toggle-off'></i>");
-        $("#warning").removeClass("nodisplay");
-            //we should tell the form fields to be disabled. should already be...
-        $('input, select, textarea, a').attr('disabled', 'disabled');
-        $('input, textarea').attr('readonly', 'readonly');
-            //need to also disable Ductions and Versions, PRIORS, Quicks Picks and Drawing!!! AND IMPPLAN area.
-            //Either way a save in READ-ONLY mode fails - just returns this pop_up again, without saving...
-        this_form_id = $("#form_id").val();
-        $("#COPY_SECTION").val("READONLY-"+this_form_id);
+            console.log('Toggling from ACTIVE to READ-ONLY');
+            $("#chart_status").val("off");
+            $("#active_flag").html(" READ-ONLY ");
+            $("#active_icon").html("<i class='fa fa-toggle-off'></i>");
+            $("#warning").removeClass("nodisplay").show();
+            // Update warning message to generic READ-ONLY message
+            $("#warning").find('h4').text('<?php echo xlt('Warning'); ?>! ' + '<?php echo xlt('Form is in READ-ONLY mode'); ?>.');
+            $('input, select, textarea, a').attr('disabled', 'disabled');
+            $('input, textarea').attr('readonly', 'readonly');
+            this_form_id = $("#form_id").val();
+            $("#COPY_SECTION").val("READONLY-"+this_form_id);
+        }
     }
+    console.log('After toggle_active_flags: chart_status=' + $("#chart_status").val());
 }
 /*
  * Function to update a form in READ-ONLY mode with any data added by the Active version of this form_id/encounter form
@@ -1786,23 +2039,17 @@ function toggle_active_flags(new_state) {
 function update_READONLY() {
     var data = {
         'action'      : 'retrieve',
-        'copy'        : 'READONLY',
-        'zone'        : 'READONLY',
+        'copy'        : 'ALL',
+        'zone'        : 'ALL',
         'copy_to'     : $("#form_id").val(),
         'copy_from'   : $("#form_id").val(),
         'pid'         : $("#pid").val()
     };
-        //we are going to update the whole form
-        //Imagine you are watching on your browser while the tech adds stuff in another room on another computer.
-        //We are not ready to actively chart, just looking to see how far along our staff is...
-        //or maybe just looking ahead to see the who's being worked up in the next room?
-        //Either way, we are looking at a record that at present will be disabled/we cannot change...
-        // yet it is updating every 10-15 seconds if another user is making changes.
     top.restoreSession();
     $.ajax({
            type   : 'POST',
            dataType : 'json',
-           url      :  "../../forms/eye_mag/save.php?copy=READONLY",
+           url      :  "../../forms/eye_mag/save.php?copy=ALL",
            data   : data,
            success  : function(result) {
            $.map(result, function(valhere, keyhere) {
@@ -1863,7 +2110,11 @@ function update_READONLY() {
                  }
                  }
                  });
-           }});
+           },
+           error: function(jqXHR, textStatus, errorThrown) {
+               console.error('Failed to retrieve READ-ONLY updates:', textStatus);
+           }
+    });
 }
 function dopopup(url) {
     window.open(url, 'clinical', 'width=fullscreen,height=fullscreen,resizable=1,scrollbars=1,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
@@ -1891,21 +2142,14 @@ function openDocumentNewTab(doc_id) {
 }
 
 function HPI_sync_heights() {
-    if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height() ) ||
-         ($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
-    {
-        if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
-            heights = $('#PMSFH_block_1').height();
-        } else {
-            heights = $('#PMSFH_block_2').height();
-        }
+    var pmsfhHeight = $('.pmsfh-container').height();
+    if (pmsfhHeight > $('#PMH_left').height()) {
+        heights = pmsfhHeight;
         $('#PMH_left').height(heights);
         $('#PMH_right').height(heights)
         $('#PMH_1').height(heights+20);
-    } else if ( $("#PMH_2").hasClass('nodisplay') ) {
-        $('#PMH_1').height($('#HPI_1').height());
     } else {
-        $('#PMH_1').height($('#PMH_2').height());
+        $('#PMH_1').height($('#HPI_1').height());
     }
 }
 /**
@@ -2204,39 +2448,60 @@ function getTimeStamp() {
 function show_by_setting() {
     // set display functions for Draw panel appearance
     // for each DRAW area, if the value AREA_DRAW = 1, show it.
-    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","SDRETINA","NEURO","IMPPLAN"];
     for (index = '0'; index < zones.length; ++index) {
         if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
             show_DRAW_section(zones[index]);
         } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
             show_QP_section(zones[index],'1');
+        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DOT') {
+            show_DOT_section(zones[index]);
         }
     }
     var tabs_left = $("#setting_tabs_left").val();
     if (typeof tabs_left ==undefined) exit;
-    var arrSet = ["HPI","PMH","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+    var arrSet = ["HPI","PMH","EXT","ANTSEG","RETINA","SDRETINA","NEURO","IMPPLAN"];
     sLen = arrSet.length;
+    var anyCollapsed = false;  // Track if any zone is collapsed
     for (i = 0; i < sLen; i++) {
         var value = $("#setting_"+arrSet[i]).val();
-        if (typeof value !== undefined && value !='1') {
+        if (value !== undefined && value !== null && value != '1') {
             $('#tabs-left-'+arrSet[i]).addClass('ui-state-default');
             $("#setting_"+arrSet[i]).val('0');
             $("#"+arrSet[i]+'_1').addClass('nodisplay');
-            $("#setting_"+arrSet[i]).val('0');
+            // Don't count SDRETINA collapse status for tabs_left decision
+            if (arrSet[i] != 'SDRETINA') {
+                anyCollapsed = true;
+            }
         } else {
             $("#setting_"+arrSet[i]).val('1');
         }
     }
-    if (tabs_left == '0') {
+    // If no zones are collapsed (all are expanded), hide tabs_left and set preference to '0'
+    if (!anyCollapsed) {
+        $("#tabs_left").addClass('nodisplay');
+        $("#setting_tabs_left").val('0');
+    } else if (tabs_left == '0') {
         $("#tabs_left").addClass('nodisplay');
     } else {
         $("#tabs_left").removeClass('nodisplay');
     }
     show_left();
+    // For SDRETINA: respect both display mode (PREFS_SDRETINA_RIGHT) and collapse state (setting_SDRETINA)
+    // But only apply collapse state on initial load via show_by_setting()
+    // Button clicks handle the immediate UI changes
     if ($("#PREFS_SDRETINA_RIGHT").val() == 'DRAW') {
-        $("#SDRETINA_1").removeClass('nodisplay');
-        $("#SDRETINA_right").removeClass('nodisplay').addClass('canvas');
-        $("#Draw_SDRETINA").removeClass('nodisplay');
+        // Only collapse on initial load if setting says so
+        var sdretina_setting = $("#setting_SDRETINA").val();
+        if (sdretina_setting == '0') {
+            $("#SDRETINA_1").addClass('nodisplay');
+            $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
+            $("#Draw_SDRETINA").addClass('nodisplay');
+        } else {
+            $("#SDRETINA_1").removeClass('nodisplay');
+            $("#SDRETINA_right").removeClass('nodisplay').addClass('canvas');
+            $("#Draw_SDRETINA").removeClass('nodisplay');
+        }
     } else {
         $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
         $("#Draw_SDRETINA").addClass('nodisplay');
@@ -2249,7 +2514,69 @@ function show_by_setting() {
 }
 
 $(function () {
-                  check_lock();
+                  // Check if the form is already locked by another user (server determined this on page load)
+                  var locked = $("#LOCKED").val();
+                  var locked_by = $("#LOCKEDBY").val();
+                  var authUserID = $('#authUserID').val();
+                  var locked_by_name = $("#LOCKEDBY_NAME").val();
+
+                  console.log('Page load check_lock: locked=' + locked + ', locked_by=' + locked_by + ', authUserID=' + authUserID + ', locked_by_name=' + locked_by_name);
+
+                  // If form is locked and not by us, prompt for read-only mode
+                  if (locked == '1' && locked_by > '' && authUserID != locked_by) {
+                      // Form is already locked by another user, show warning and enter read-only
+                      console.log('Form locked by another user, prompting for action');
+                      var popup_msg = '\tLOCKED by ' + locked_by_name + ':\t\n\tSelect OK to take ownership or\t\n\tCANCEL to enter READ-ONLY mode.\t';
+                      if (confirm(popup_msg)) {
+                          // User wants ownership - acquire the lock directly
+                          console.log('User chose to take ownership, acquiring lock');
+                          var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
+                          top.restoreSession();
+                          $.ajax({
+                              type: 'POST',
+                              url: url,
+                              data: {
+                                  'acquire_lock': '1',
+                                  'uniqueID': authUserID,
+                                  'locked_by': locked_by,
+                                  'form_id': $("#form_id").val()
+                              }
+                          }).done(function(d) {
+                              console.log('Page load takeover successful, response=' + d);
+                              $("#LOCKEDBY").val(authUserID);
+                              $("#LOCKEDDATE").val(d);
+                              clearInterval(update_chart);
+                              // Clear the warning message and set UI to ACTIVE
+                              $("#warning").find('h4').text('');
+                              toggle_active_flags("on");
+                              console.log('After takeover: chart_status=' + $("#chart_status").val());
+                          }).fail(function(e) {
+                              console.error('Page load takeover failed:', e);
+                          });
+                      } else {
+                          // User wants read-only mode
+                          console.log('User chose READ-ONLY mode');
+                          // DO NOT unlock - keep the lock in place so other users can't grab it
+                          // Just enter READ-ONLY UI mode and poll for updates
+                          toggle_active_flags("off");
+                          $("#COPY_SECTION").val("READONLY");
+                          var update_chart = setInterval(function() {
+                              if ($("#chart_status").val() == "on") { clearInterval(update_chart); }
+                              update_READONLY();
+                          }, 15000);
+                      }
+                  } else if (locked == '1' && locked_by > '' && authUserID == locked_by) {
+                      // This user owns the lock - ensure UI shows ACTIVE
+                      console.log('This user owns the lock, setting to ACTIVE');
+                      $("#chart_status").val("on");
+                      $("#active_flag").html(" Active Chart ");
+                      $("#active_icon").html("<i class='fa fa-toggle-on'></i>");
+                      $("#warning").addClass("nodisplay").hide();
+                      $('input, select, textarea, a').removeAttr('disabled');
+                      $('input, textarea').removeAttr('readonly');
+                  }
+                  // If form is not locked, this user now owns it (server already set LOCKEDBY = authUserID)
+                  // No polling needed unless we're in READ-ONLY mode
 
                   var allPanels = $('.building_blocks > dd').hide();
                   var allPanels2 = $('.building_blocks2 > dd').hide();
@@ -2496,11 +2823,11 @@ $(function () {
                   $(".Draw_class").addClass('nodisplay');
                   $(".PRIORS_class").addClass('nodisplay');
                   $(window).on("resize", function() {
-                                   if (window.innerWidth >'900') {
+                                   if (window.innerWidth > 900) {
                                    $("#refraction_width").css("width","900px");
                                    $("#LayerVision2").css("padding","4px");
                                    }
-                                   if (window.innerWidth >'1300') {
+                                   if (window.innerWidth > 1300) {
                                    $("#refraction_width").css("width","1300px");
                                    //$("#first").css("width","1300px");
                                    }
@@ -2514,28 +2841,28 @@ $(function () {
                   var hash_tag = '<i class="fa fa-minus"></i>';
                   var index;
                   // display any stored MOTILITY values
-                  $("#MOTILITY_RS").value = parseInt($("#MOTILITY_RS").val());
+                  $("#MOTILITY_RS").val(parseInt($("#MOTILITY_RS").val()));
                   if ($("#MOTILITY_RS").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RS").val()); ++index) {
                   $("#MOTILITY_RS_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_RI").value = parseInt($("#MOTILITY_RI").val());
+                  $("#MOTILITY_RI").val(parseInt($("#MOTILITY_RI").val()));
                   if ($("#MOTILITY_RI").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RI").val()); ++index) {
                   $("#MOTILITY_RI_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LS").value = parseInt($("#MOTILITY_LS").val());
+                  $("#MOTILITY_LS").val(parseInt($("#MOTILITY_LS").val()));
                   if ($("#MOTILITY_LS").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LS").val()); ++index) {
                   $("#MOTILITY_LS_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LI").value = parseInt($("#MOTILITY_LI").val());
+                  $("#MOTILITY_LI").val(parseInt($("#MOTILITY_LI").val()));
                   if ($("#MOTILITY_LI").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LI").val()); ++index) {
@@ -2543,56 +2870,56 @@ $(function () {
                   }
                   }
 
-                  $("#MOTILITY_RRSO").value = parseInt($("#MOTILITY_RRSO").val());
+                  $("#MOTILITY_RRSO").val(parseInt($("#MOTILITY_RRSO").val()));
                   if ($("#MOTILITY_RRSO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RRSO").val()); ++index) {
                   $("#MOTILITY_RRSO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_RRIO").value = parseInt($("#MOTILITY_RRIO").val());
+                  $("#MOTILITY_RRIO").val(parseInt($("#MOTILITY_RRIO").val()));
                   if ($("#MOTILITY_RRIO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RRIO").val()); ++index) {
                   $("#MOTILITY_RRIO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_RLIO").value = parseInt($("#MOTILITY_RLIO").val());
+                  $("#MOTILITY_RLIO").val(parseInt($("#MOTILITY_RLIO").val()));
                   if ($("#MOTILITY_RLIO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RLIO").val()); ++index) {
                   $("#MOTILITY_RLIO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_RLSO").value = parseInt($("#MOTILITY_RLSO").val());
+                  $("#MOTILITY_RLSO").val(parseInt($("#MOTILITY_RLSO").val()));
                   if ($("#MOTILITY_RLSO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RLSO").val()); ++index) {
                   $("#MOTILITY_RLSO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LRSO").value = parseInt($("#MOTILITY_LRSO").val());
+                  $("#MOTILITY_LRSO").val(parseInt($("#MOTILITY_LRSO").val()));
                   if ($("#MOTILITY_LRSO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LRSO").val()); ++index) {
                   $("#MOTILITY_LRSO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LRIO").value = parseInt($("#MOTILITY_LRIO").val());
+                  $("#MOTILITY_LRIO").val(parseInt($("#MOTILITY_LRIO").val()));
                   if ($("#MOTILITY_LRIO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LRIO").val()); ++index) {
                   $("#MOTILITY_LRIO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LLSO").value = parseInt($("#MOTILITY_LLSO").val());
+                  $("#MOTILITY_LLSO").val(parseInt($("#MOTILITY_LLSO").val()));
                   if ($("#MOTILITY_LLSO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LLSO").val()); ++index) {
                   $("#MOTILITY_LLSO_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LLIO").value = parseInt($("#MOTILITY_LLIO").val());
+                  $("#MOTILITY_LLIO").val(parseInt($("#MOTILITY_LLIO").val()));
                   if ($("#MOTILITY_LLIO").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LLIO").val()); ++index) {
@@ -2601,28 +2928,28 @@ $(function () {
                   }
 
                   var hash_tag = '<i class="fa fa-minus rotate-left"></i>';
-                  $("#MOTILITY_LR").value = parseInt($("#MOTILITY_LR").val());
+                  $("#MOTILITY_LR").val(parseInt($("#MOTILITY_LR").val()));
                   if ($("#MOTILITY_LR").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LR").val()); ++index) {
                   $("#MOTILITY_LR_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_LL").value = parseInt($("#MOTILITY_LL").val());
+                  $("#MOTILITY_LL").val(parseInt($("#MOTILITY_LL").val()));
                   if ($("#MOTILITY_LL").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LL").val()); ++index) {
                   $("#MOTILITY_LL_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_RR").value = parseInt($("#MOTILITY_RR").val());
+                  $("#MOTILITY_RR").val(parseInt($("#MOTILITY_RR").val()));
                   if ($("#MOTILITY_RR").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RR").val()); ++index) {
                   $("#MOTILITY_RR_"+index).html(hash_tag);
                   }
                   }
-                  $("#MOTILITY_RL").value = parseInt($("#MOTILITY_RL").val());
+                  $("#MOTILITY_RL").val(parseInt($("#MOTILITY_RL").val()));
                   if ($("#MOTILITY_RL").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RL").val()); ++index) {
@@ -2864,7 +3191,7 @@ $(function () {
                                                        $("#"+menuitem).css("color","#fff"); /*#262626;*/
                                                        $("#"+menuitem).css("text-decoration","none");
                                                        });
-                  $("#right-panel-link, #close-panel-bt,#right-panel-link_2").on('click', function() {
+                  $("#right-panel-link, #close-panel-bt, #right-panel-link_2").on('click', function() {
                                                                                     if ($("#PREFS_PANEL_RIGHT").val() =='1') {
                                                                                     $("#PREFS_PANEL_RIGHT").val('0');
                                                                                     } else {
@@ -2947,7 +3274,6 @@ $(function () {
                                     show_PRIORS_section("RETINA",newValue);
                                     show_PRIORS_section("NEURO",newValue);
                                     show_PRIORS_section("IMPPLAN",newValue);
-                                    scrollTo("EXT_left");
                                 } else {
                                     show_PRIORS_section(new_section[1],newValue);
                                 }
@@ -3238,7 +3564,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                               $("[name^='NEURO_ACT_zone']").removeClass('eye_button_selected');
                                               $("#NEURO_ACT_zone_"+ newValue).addClass("eye_button_selected");
                                               $("#PREFS_ACT_SHOW").val(newValue);
-                                              update_PREFS;
+                                              update_PREFS();
                                               $("#ACT_tab_"+newValue).trigger('click');
                                               });
                   $("#NEURO_side").on("change", function() {
@@ -3301,7 +3627,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                            var strab = $("#NEURO_value").val() + ' '+ $("#NEURO_side").val() + $("#NEURO_ACT_strab").val();
 
                                            $("#ACT"+number+zone).val(strab).css("background-color","#F0F8FF");
-
+                                           submit_form("eye_mag");
 
                                            });
 
@@ -3803,7 +4129,7 @@ $("body").on("click","[name^='old_canvas']", function() {
 
 
                   $("#EXAM_DRAW, #BUTTON_DRAW_menu, #PANEL_DRAW").on("click", function() {
-                                                                        if ($("#PREFS_CLINICAL").value !='0') {
+                                                                        if ($("#PREFS_CLINICAL").val() !='0') {
                                                                         show_right();
                                                                         $("#PREFS_CLINICAL").val('0');
                                                                         update_PREFS();
@@ -3818,15 +4144,20 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                                         show_DRAW();
                                                                         });
                   $("#EXAM_QP,#PANEL_QP").on("click", function() {
-                                                if ($("#PREFS_CLINICAL").value !='0') {
+                                                if ($("#PREFS_CLINICAL").val() !='0') {
                                                 $("#PREFS_CLINICAL").val('0');
                                                 update_PREFS();
                                                 }
-                                                if ($("#PREFS_EXAM").value != 'QP') {
+                                                if ($("#PREFS_EXAM").val() != 'QP') {
                                                 $("#PREFS_EXAM").val('QP');
                                                 $("#EXAM_QP").addClass('button_selected');
                                                 $("#EXAM_DRAW").removeClass('button_selected');
                                                 $("#EXAM_TEXT").removeClass('button_selected');
+                                                // Set all zones to QP display
+                                                var zones = ["HPI","PMH","EXT","ANTSEG","RETINA","SDRETINA","NEURO","IMPPLAN"];
+                                                for (i = 0; i < zones.length; ++i) {
+                                                    $("#PREFS_"+zones[i]+"_RIGHT").val('QP');
+                                                }
                                                 update_PREFS();
                                                 }
                                                 HPI_sync_heights();
@@ -3842,11 +4173,12 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     hide_QP();
                                                     hide_PRIORS();
                                                     hide_right();
-                                                    show_TEXT();
+                                                    // Set all zones to TEXT mode (PREFS_*_RIGHT = 0)
+                                                    var zones = ["HPI","PMH","EXT","ANTSEG","RETINA","SDRETINA","NEURO","IMPPLAN"];
                                                     for (index = '0'; index < zones.length; ++index) {
-                                                    $("#PREFS_"+zones[index]+"_RIGHT").val(0);
+                                                        $("#PREFS_"+zones[index]+"_RIGHT").val('0');
                                                     }
-                                                    update_PREFS();
+                                                    show_TEXT();
 
                                                     $("#EXAM_DRAW").removeClass('button_selected');
                                                     $("#EXAM_QP").removeClass('button_selected');
@@ -3856,14 +4188,25 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("[id^='BUTTON_TEXT_']").on("click", function() {
                                                   var zone = this.id.match(/BUTTON_TEXT_(.*)/)[1];
                                                   if (zone != "menu") {
+                                                  // Only hide the right panel for THIS zone, not all zones
                                                   $("#"+zone+"_right").addClass('nodisplay');
                                                   $("#"+zone+"_left").removeClass('display');
                                                   $("#"+zone+"_left_text").removeClass('display');
+                                                  // Hide draw for this zone
+                                                  $("#Draw_"+zone).addClass('nodisplay');
                                                   $("#PREFS_"+zone+"_RIGHT").val(0);
+                                                  // Also expand the zone by setting its collapse preference to '1'
+                                                  if ($("#setting_"+zone).length) {
+                                                      $("#setting_"+zone).val('1');
                                                   }
-                                                  show_TEXT();
-                                                  scrollTo("EXT_left");
+                                                  update_PREFS();
+                                                  // Scroll to this specific zone, not hardcoded EXT
+                                                  if ($("#"+zone+"_left").length > 0) {
+                                                      scrollTo(zone+"_left");
+                                                  }
+                                                  }
                                                   });
+
                   $("[id^='BUTTON_TEXTD_']").on("click", function() {
                                                    var zone = this.id.match(/BUTTON_TEXTD_(.*)/)[1];
                                                    if (zone != "menu") {
@@ -3878,10 +4221,15 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                                                        $("#LayerTechnical_sections_1").css("clear","both");
                                                      } else {
+                                                       // Just hide the right panel, don't collapse the zone
                                                        $("#"+zone+"_right").addClass('nodisplay');
-                                                       $("#PREFS_"+zone+"_RIGHT").val(1);
+                                                       // Don't change collapse state - just hide the display
+                                                       $("#PREFS_"+zone+"_RIGHT").val('0');
                                                      }
-                                                     scrollTo(zone+"_left");
+                                                     // Only scroll if the left panel exists (SDRETINA doesn't have one)
+                                                     if ($("#"+zone+"_left").length > 0) {
+                                                         scrollTo(zone+"_left");
+                                                     }
                                                      update_PREFS();
                                                    }
                                                   });
@@ -4080,7 +4428,15 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
                                                   if (zone =="ALL") {
                                                   } else {
-                                                  if ($('#PREFS_'+zone+'_RIGHT').val() =="DRAW") {
+                                                  var currentPref = $('#PREFS_'+zone+'_RIGHT').val();
+                                                  // Check if zone is collapsed for ALL zones (not just SDRETINA)
+                                                  var isCollapsed = ($("#setting_"+zone).val() == '0');
+                                                  // Check if the right panel is actually visible
+                                                  var isVisible = !$("#"+zone+"_right").hasClass('nodisplay');
+
+                                                  // If already in DRAW mode AND not collapsed AND visible, close it
+                                                  // If collapsed or hidden, always open it (expand)
+                                                  if (currentPref == "DRAW" && !isCollapsed && isVisible) {
                                                     $('#BUTTON_TEXTD_'+zone).trigger("click");//closes draw
                                                     update_PREFS();
                                                     //maybe this should revert to last right panel state (qp,text)?');
@@ -4089,44 +4445,73 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   $("#"+zone+"_1").removeClass('nodisplay');
                                                   $("#"+zone+"_right").addClass('canvas').removeClass('nodisplay');
                                                   $("#QP_"+zone).addClass('nodisplay');
+                                                  $("#DOT_"+zone).addClass('nodisplay');
                                                   $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                   $("#Draw_"+zone).removeClass('nodisplay');
                                                   $("#PREFS_"+zone+"_RIGHT").val('DRAW');
-
+                                                  // Also expand the zone by setting its collapse preference to '1'
+                                                  if ($("#setting_"+zone).length) {
+                                                      $("#setting_"+zone).val('1');
+                                                  }
                                                   update_PREFS();
                                                   //scrollTo(zone+"_left");
                                                   }
                                                   });
+
+                  // Legacy DOT panel handlers removed
+                  /*
+                  $("[id^='BUTTON_DOT_']:not([id$='_CLOSE'])").on("click", function() { ... });
+                  $("[id^='BUTTON_DOT_'][id$='_CLOSE']").on("click", function(e) { ... });
+                  */
+
                   $("[id^='BUTTON_QP_']").on("click", function() {
                                                 var zone = this.id.match(/BUTTON_QP_(.*)$/)[1].replace(/_\d*/,'');
+
                                                 if (zone =='IMPPLAN2') {
                                                   $('#IMP_start_acc').slideDown();
                                                   zone='IMPPLAN';
                                                 }
-                                                if (($("#PREFS_"+zone+"_RIGHT").val() =='QP')&&(zone !='IMPPLAN')) {
+                                                // Check if QP section is currently visible
+                                                if (($("#QP_"+zone).is(':visible'))&&(zone !='IMPPLAN')) {
+                                                  // QP is already visible, so close it
                                                   $('#BUTTON_TEXTD_'+zone).trigger("click");
                                                   return;
                                                 }
+                                                // Expand the zone if it's collapsed
+                                                $("#"+zone+"_1").removeClass('nodisplay');
                                                 $("#PRIORS_"+zone+"_left_text").addClass('nodisplay');
                                                 $("#Draw_"+zone).addClass('nodisplay');
+                                                $("#DOT_"+zone).addClass('nodisplay');
                                                 show_QP_section(zone, '1');
                                                 $("#PREFS_"+zone+"_RIGHT").val('QP');
+                                                // Also expand the zone by setting its collapse preference to '1'
+                                                if ($("#setting_"+zone).length) {
+                                                    $("#setting_"+zone).val('1');
+                                                }
 
                                                 if ((zone == 'PMH')||(zone == 'HPI')) {
                                                     if ($('#HPI_right').css('display') == 'none') {
+                                                        $("#HPI_1").removeClass('nodisplay');
                                                         $("#Draw_HPI").addClass('nodisplay');
                                                         show_QP_section('HPI', '1');
                                                         $("#PREFS_HPI_RIGHT").val('QP');
+                                                        if ($("#setting_HPI").length) {
+                                                            $("#setting_HPI").val('1');
+                                                        }
                                                     }
                                                 }
 
                                                 HPI_sync_heights();
                                                 if (zone == 'HPI') {
                                                     if ($('#PMH_right').css('display') == 'none') {
+                                                        $("#PMH_1").removeClass('nodisplay');
                                                         $("#PRIORS_PMH_left_text").addClass('nodisplay');
                                                         $("#Draw_PMH").addClass('nodisplay');
                                                         show_QP_section('PMH','1');
                                                         $("#PREFS_PMH_RIGHT").val('QP');
+                                                        if ($("#setting_PMH").length) {
+                                                            $("#setting_PMH").val('1');
+                                                        }
                                                     }
                                                     if ($('#PMH_right').height() > $('#PMH_left').height()) {
                                                         $('#PMH_left').height($('#PMH_right').height());
@@ -4153,12 +4538,22 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
                   $('#EXAM_KB').css('display', 'block');
-                  $('#EXAM_KB').draggable();
-                  $('#IMP').droppable({ drop: dragto_IMPPLAN } );
-                  $('#IMPPLAN_zone').droppable({ drop: dragto_IMPPLAN_zone } );
-                  $('#IMPPLAN_text').droppable({ drop: dragto_IMPPLAN_zone } );
+                  if (typeof $('#EXAM_KB').draggable === 'function') {
+                      $('#EXAM_KB').draggable();
+                  }
+                  if (typeof $('#IMP').droppable === 'function') {
+                      $('#IMP').droppable({ drop: dragto_IMPPLAN } );
+                  }
+                  if (typeof $('#IMPPLAN_zone').droppable === 'function') {
+                      $('#IMPPLAN_zone').droppable({ drop: dragto_IMPPLAN_zone } );
+                  }
+                  if (typeof $('#IMPPLAN_text').droppable === 'function') {
+                      $('#IMPPLAN_text').droppable({ drop: dragto_IMPPLAN_zone } );
+                  }
 
-                  $('[id^="PLANS"]').draggable(  { cursor: 'move', revert: true });
+                  if (typeof $('[id^="PLANS"]').draggable === 'function') {
+                      $('[id^="PLANS"]').draggable(  { cursor: 'move', revert: true });
+                  }
                   $('[id^="PLAN_"]').height( $(this).scrollHeight );
 
                   /*  Sorting of diagnoses in IMP/PLAN right panel builds IMP_order[] array.
@@ -4250,12 +4645,15 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                             }
                                                           });
                   $('#IMP_start_acc').slideDown();
-                  $('[id^=inc_]').on('click', function() {
+                  $('[id^=inc_]').on('click change', function() {
                                         build_DX_list(obj);
                                         });
 
-                  $('#active_flag').on('click', function() { check_lock('1'); });
-                  $('#active_icon').on('click', function() { check_lock('1'); });
+                  $(document).on('click', '#active_flag', function() { check_lock('1'); });
+                  $(document).on('click', '#active_icon, #active_icon i', function(e) { 
+                      e.stopPropagation();
+                      toggle_chart_state(); 
+                  });
 
                   $("input,textarea,text,checkbox").on("change", function(){
                                                            $(this).css("background-color","#F0F8FF");
@@ -4355,9 +4753,13 @@ $("body").on("click","[name^='old_canvas']", function() {
                          });
                   $('#visit_codes').on('change', function() {
                                            var data_all = $(this).val();
-                                           var data = data_all.match(/^(.*)\|(.*)\|/);
-                                           visit_code = data[2];
-                                           visit_type = data[1];
+                                           if (data_all && typeof data_all === 'string') {
+                                               var data = data_all.match(/^(.*)\|(.*)\|/);
+                                               if (data) {
+                                                   visit_code = data[2];
+                                                   visit_type = data[1];
+                                               }
+                                           }
                                            });
                   $('[name="visit_modifier"]').on('click', function () {
                     var item = this.id.match(/visit_mod_(.*)/)[1];
@@ -4376,16 +4778,20 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $('[id^="tabs-left-"]').on('click', function () {
                         var item = this.id.match(/tabs-left-(.*)/)[1];
                         var value = $("#setting_"+item).val();
+                        console.log('tabs-left click: item=' + item + ', current value=' + value);
                         if (value !='1') {
                             $("#setting_"+item).val('1');
+                            console.log('  -> Expanding ' + item + ', new value=' + $("#setting_"+item).val());
                             $(this).removeClass('ui-state-default');
                             $('#'+ item +'_1').removeClass('nodisplay');
                             menu_select(item);
                         } else {
                             $("#setting_"+item).val('0');
+                            console.log('  -> Collapsing ' + item + ', new value=' + $("#setting_"+item).val());
                             $(this).addClass('ui-state-default');
                             $('#'+ item +'_1').addClass('nodisplay');
                         }
+                        console.log('Calling update_PREFS for setting_' + item);
                         update_PREFS();
                   });
 
@@ -4433,6 +4839,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#setting_"+item).val('0');
                         $("#"+item+'_1').addClass('nodisplay');
                         $("#tabs_left").removeClass('nodisplay');
+                        $("#setting_tabs_left").val('1');
                         update_PREFS();
                     });
 
@@ -4440,14 +4847,34 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  $(this).css("background-color","#ffff99");
                                                  });
                 $( document ).ready(function() {
-                    show_by_setting();
-                    build_IMPPLAN(obj.IMPPLAN_items);
+                    refresh_page();
+                    // Load fresh data from server via AJAX to populate both DX list and IMPPLAN panels
+                    // show_by_setting() will be called after AJAX completes in populate_form()
+                    var webroot = '<?php echo $GLOBALS['webroot']; ?>';
+                    $.ajax({
+                        type: 'GET',
+                        url: webroot + '/interface/forms/eye_mag/view.php?refresh=page&id=' + $('#form_id').val() + '&pid=' + $('#pid').val(),
+                        dataType: 'json'
+                    }).done(function(result) {
+                        console.log('AJAX refresh=page successful, calling populate_form', result);
+                        populate_form(result);
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX refresh=page failed:', textStatus, errorThrown, jqXHR);
+                    });
                 });
-                  //This listener no longer works in tabs because of the new tab wrapper.
-                  $(window).bind('onbeforeunload', function(){
-                    alert('Closing time');
-                    if ($('#chart_status').val()=="on") {
+                  // Release lock on page unload as fallback
+                  var unlockOnce = false;
+                  $(window).on('pagehide unload beforeunload', function(){
+                    if (!unlockOnce && $('#chart_status').val()=="on") {
+                        unlockOnce = true;
                         unlock();
                     }
                   });
+
+                  // Also expose a global function for the parent to call before closing
+                  window.releaseFormLock = function() {
+                    if ($('#chart_status').val()=="on") {
+                        unlock();
+                    }
+                  };
                 });

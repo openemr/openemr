@@ -14,18 +14,33 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+function taskman_main_log($msg): void
+{
+    $logFile = __DIR__ . '/taskman_debug.log';
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] TASKMAN: $msg\n", FILE_APPEND);
+}
+
+taskman_main_log("Starting taskman.php");
+
+ini_set('memory_limit', '512M');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+
+
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
 // larry :: hack add for command line version
-if (!$_SERVER['REQUEST_URI']) {
+if (!isset($_SERVER['REQUEST_URI'])) {
     $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 }
 
-if (!$_SERVER['SERVER_NAME']) {
+if (!isset($_SERVER['SERVER_NAME'])) {
     $_SERVER['SERVER_NAME'] = 'localhost';
 }
 
-if (!$_SERVER['HTTP_HOST']) {
+if (!isset($_SERVER['HTTP_HOST'])) {
     $_SERVER['HTTP_HOST'] = 'default'; //need to figure out how to do this for non-default installs
 }
 
@@ -35,21 +50,27 @@ if (php_sapi_name() === 'cli') {
     // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
     $sessionAllowWrite = true;
 }
-require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("php/" . $form_name . "_functions.php");
-require_once($srcdir . "/../controllers/C_Document.class.php");
-require_once($srcdir . "/documents.php");
 
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/report.inc.php");
-require_once("php/taskman_functions.php");
-require_once("report.php");
+try {
+    require_once(__DIR__ . "/../../globals.php");
+    require_once("$srcdir/api.inc.php");
+    require_once("$srcdir/forms.inc.php");
+    require_once("php/" . $form_name . "_functions.php");
+    require_once($srcdir . "/../controllers/C_Document.class.php");
+    require_once($srcdir . "/documents.php");
 
-
+    require_once("$srcdir/patient.inc.php");
+    require_once("$srcdir/options.inc.php");
+    require_once("$srcdir/lists.inc.php");
+    require_once("$srcdir/report.inc.php");
+    require_once("php/taskman_functions.php");
+    require_once("report.php");
+} catch (\Throwable $e) {
+    taskman_main_log("Fatal Error during includes: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+    http_response_code(500);
+    echo "Internal Server Error: " . $e->getMessage();
+    exit;
+}
 
 /**
  *
@@ -85,29 +106,37 @@ $PDF_OUTPUT = '1';
 // If this is a request to make a task, make it.
 $ajax_req = $_REQUEST;
 
-if ($_REQUEST['action'] == 'make_task') {
-    make_task($ajax_req);
-}
+taskman_main_log("Action: " . ($_REQUEST['action'] ?? 'none'));
 
-if ($_REQUEST['action'] == 'show_task') {
-    show_task($ajax_req);
-}
-
-// Get the list of Tasks and process them one-by-one
-// unless this is a call from the web, then just do the task at hand
-// or should the web not do these at all, leave them to the background processor?
-
-
-$query  = "SELECT * FROM form_taskman where PATIENT_ID=? AND (COMPLETED is NULL or COMPLETED != '1')  order by REQ_DATE";
-$result = sqlStatement($query, [$ajax_req['pid']]);
-while ($task = sqlFetchArray($result)) {
-    $send = process_tasks($task);
+try {
     if ($_REQUEST['action'] == 'make_task') {
-        echo json_encode($send);
-        exit;
+        make_task($ajax_req);
     }
-}
 
-$send['comments'] = "Nothing new to do!";
-echo json_encode($send);
-        exit;
+    if ($_REQUEST['action'] == 'show_task') {
+        show_task($ajax_req);
+    }
+
+    // Get the list of Tasks and process them one-by-one
+    // unless this is a call from the web, then just do the task at hand
+    // or should the web not do these at all, leave them to the background processor?
+
+    $query  = "SELECT * FROM form_taskman where PATIENT_ID=? AND (COMPLETED is NULL or COMPLETED != '1')  order by REQ_DATE";
+    $result = sqlStatement($query, [$ajax_req['pid']]);
+    while ($task = sqlFetchArray($result)) {
+        $send = process_tasks($task);
+        if ($_REQUEST['action'] == 'make_task') {
+            echo json_encode($send);
+            exit;
+        }
+    }
+
+    $send['comments'] = "Nothing new to do!";
+    echo json_encode($send);
+    exit;
+} catch (\Throwable $e) {
+    taskman_main_log("Fatal Error during execution: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+    http_response_code(500);
+    echo "Internal Server Error: " . $e->getMessage();
+    exit;
+}

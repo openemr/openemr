@@ -31,17 +31,74 @@ $display     = $_REQUEST['display'] ?? null;
 $pid         = $_REQUEST['pid'] ?? '';
 $refresh     = $_REQUEST['refresh'] ?? null;
 
-if (!empty($_REQUEST['url'])) {
-    header('Location: ' . $_REQUEST['url']);
-    exit;
-}
-
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
 $result = sqlStatement($query, [$_SESSION['authUserID']]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     ${$LOCATION} = text($prefs['GOVALUE']);
+}
+// Ensure all preference variables exist even if not in database
+if (!isset($RETINA_RIGHT)) {
+    $RETINA_RIGHT = '';
+}
+if (!isset($SDRETINA_RIGHT)) {
+    $SDRETINA_RIGHT = '';
+}
+if (!isset($PMH_RIGHT)) {
+    $PMH_RIGHT = '';
+}
+if (!isset($HPI_RIGHT)) {
+    $HPI_RIGHT = '';
+}
+if (!isset($EXT_RIGHT)) {
+    $EXT_RIGHT = '';
+}
+if (!isset($ANTSEG_RIGHT)) {
+    $ANTSEG_RIGHT = '';
+}
+if (!isset($NEURO_RIGHT)) {
+    $NEURO_RIGHT = '';
+}
+if (!isset($IMPPLAN_RIGHT)) {
+    $IMPPLAN_RIGHT = '';
+}
+if (!isset($ACT_VIEW)) {
+    $ACT_VIEW = '';
+}
+if (!isset($HPI_VIEW)) {
+    $HPI_VIEW = '';
+}
+if (!isset($EXT_VIEW)) {
+    $EXT_VIEW = '';
+}
+if (!isset($ANTSEG_VIEW)) {
+    $ANTSEG_VIEW = '';
+}
+if (!isset($RETINA_VIEW)) {
+    $RETINA_VIEW = '';
+}
+if (!isset($SDRETINA_VIEW)) {
+    $SDRETINA_VIEW = '';
+}
+if (!isset($NEURO_VIEW)) {
+    $NEURO_VIEW = '';
+}
+if (!isset($ACT_SHOW)) {
+    $ACT_SHOW = '';
+}
+if (!isset($EXAM)) {
+    $EXAM = '';
+}
+error_log("EYE_FORM: Loaded EXAM preference = " . $EXAM);
+if (!isset($PANEL_RIGHT)) {
+    $PANEL_RIGHT = '';
+}
+if (!isset($KB_VIEW)) {
+    $KB_VIEW = '';
+}
+if (!isset($TOOLTIPS)) {
+    $TOOLTIPS = '';
 }
 // These settings are sticky user preferences linked to a given page.
 // Could do ALL preferences this way instead of the modified extract above...
@@ -94,6 +151,10 @@ $query10 = "select  *,form_encounter.date as encounter_date
                     forms.pid=form_eye_locking.pid and
                     forms.form_id =? ";
 
+$LOCKED = '';
+$LOCKEDBY = '';
+$LOCKEDDATE = '';
+
 $encounter_data = sqlQuery($query10, [$id]);
 @extract($encounter_data);
 $id = $form_id;
@@ -145,13 +206,35 @@ $warning = 'nodisplay';
 $uniqueID = mt_rand();
 $warning_text = 'READ-ONLY mode.';
 
-if (!$LOCKED || !$LOCKEDBY) { //no one else has write privs.
-    $LOCKEDBY = $uniqueID;
+// Check if this user already owns the lock
+$is_owner = ($LOCKEDBY === $_SESSION['authUserID']);
+
+// Only acquire lock if form is not already locked by someone
+if (!$LOCKED || !$LOCKEDBY) {
+    // Form is unlocked, current user acquires it
+    $LOCKEDBY = $_SESSION['authUserID'];
     $LOCKED = '1';
-} else {
-    //warning.  This form is locked by another user.
+    $is_owner = true;
+    // Update database with the new lock
+    $lock_query = "UPDATE form_eye_locking SET LOCKED='1', LOCKEDBY=?, LOCKEDDATE=NOW() WHERE id=?";
+    sqlQuery($lock_query, [$_SESSION['authUserID'], $id]);
+} elseif (!$is_owner) {
+    // Form is already locked by someone else - show warning with lock holder info
     $warning = ""; //remove nodisplay class
     $take_ownership = $uniqueID;
+    // Get the name of the user who locked the form
+    $lock_user_query = "SELECT fname, lname FROM users WHERE id = ?";
+    $lock_user = sqlQuery($lock_user_query, [$LOCKEDBY]);
+    $lock_user_name = ($lock_user) ? $lock_user['fname'] . ' ' . $lock_user['lname'] : 'Unknown User';
+    // Convert LOCKEDDATE to client timezone
+    if ($LOCKEDDATE) {
+        $lock_time = new DateTime($LOCKEDDATE, new DateTimeZone('UTC'));
+        $lock_time->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        $formatted_date = $lock_time->format('M d, Y @ h:i A');
+    } else {
+        $formatted_date = 'Unknown Time';
+    }
+    $warning_text = "LOCKED by $lock_user_name since $formatted_date. Enter READ-ONLY mode or take ownership.";
 }
 
 /**
@@ -161,6 +244,13 @@ if (!$LOCKED || !$LOCKEDBY) { //no one else has write privs.
 $dated = new DateTime($encounter_data['encounter_date']);
 $dated = $dated->format('Y-m-d');
 $visit_date = oeFormatShortDate($dated);
+
+// Fetch current appointment status
+$query_status = "SELECT pc_eid, pc_apptstatus FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_eventDate = ? ORDER BY pc_startTime DESC LIMIT 1";
+$res_status = sqlStatement($query_status, [$pid, $dated]);
+$row_status = sqlFetchArray($res_status);
+$current_appt_status = $row_status['pc_apptstatus'] ?? '';
+$pc_eid = $row_status['pc_eid'] ?? '';
 
 if (!$form_id && !$encounter) {
     echo text($encounter) . "-" . text($form_id) . xlt('No encounter...');
@@ -185,8 +275,39 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="author" content="OpenEMR: Ophthalmology" />
 
 
-      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart', 'fontawesome' ]); ?>
+        <link rel="stylesheet" href="../../forms/<?php echo (!empty($form_folder) ? $form_folder : 'eye_mag'); ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+        <script>
+        // Passive listener shim: makes certain high-frequency events passive by default
+        (function(){
+          var passiveEvents = ['touchstart','touchend','touchcancel','wheel'];
+          var orig = EventTarget.prototype.addEventListener;
+          EventTarget.prototype.addEventListener = function(type, listener, options){
+            try {
+              if (passiveEvents.indexOf(type) > -1) {
+                if (options === undefined) {
+                  options = {passive:true};
+                } else if (typeof options === 'boolean') {
+                  options = {passive:true, capture:options};
+                } else if (typeof options === 'object' && !("passive" in options)) {
+                  options = Object.assign({passive:true}, options);
+                }
+              }
+            } catch(e) { /* ignore */ }
+            return orig.call(this, type, listener, options);
+          };
+        })();
+        </script>
+        <script src="../../forms/eye_mag/js/dotphrases.js"></script>
+        <script>
+        // Substitution map for dot phrase placeholders
+        window.eyeMagSubst = {
+            PID: <?php echo json_encode($pid); ?>,
+            ENC: <?php echo json_encode($encounter_data['encounter'] ?? ''); ?>,
+            DATE: <?php echo json_encode($dated); ?>,
+            PROVIDER: <?php echo json_encode(trim(($prov_data['fname'] ?? '') . ' ' . ($prov_data['lname'] ?? ''))); ?>
+        };
+        </script>
 
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
@@ -261,6 +382,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>">
               <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
               <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
+              <input type="hidden" name="pc_eid" id="pc_eid" value="<?php echo attr($pc_eid); ?>">
               <input type="hidden" name="visit_date" id="visit_date" value="<?php echo attr($encounter_date); ?>">
               <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?php echo attr($VA ?? ''); ?>">
               <input type="hidden" name="PREFS_W" id="PREFS_W" value="<?php echo attr($W ?? ''); ?>">
@@ -275,34 +397,50 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?php echo attr($ADDITIONAL ?? ''); ?>">
               <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?php echo attr($CLINICAL ?? ''); ?>">
               <input type="hidden" name="PREFS_IOP" id="PREFS_IOP" value="<?php echo attr($IOP ?? ''); ?>">
-              <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?php echo attr($EXAM ?? ''); ?>">
+              <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?php echo attr($EXAM); ?>">
               <input type="hidden" name="PREFS_CYL" id="PREFS_CYL" value="<?php echo attr($CYLINDER ?? ''); ?>">
-              <input type="hidden" name="PREFS_HPI_VIEW" id="PREFS_HPI_VIEW" value="<?php echo attr($HPI_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_EXT_VIEW" id="PREFS_EXT_VIEW" value="<?php echo attr($EXT_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_ANTSEG_VIEW" id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_RETINA_VIEW" id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_SDRETINA_VIEW" id="PREFS_SDRETINA_VIEW" value="<?php echo attr($SDRETINA_VIEW ?? '1'); ?>">
-              <input type="hidden" name="PREFS_NEURO_VIEW" id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_ACT_VIEW" id="PREFS_ACT_VIEW" value="<?php echo attr($ACT_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_PMH_RIGHT" id="PREFS_PMH_RIGHT" value="<?php echo attr($PMH_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_HPI_RIGHT" id="PREFS_HPI_RIGHT" value="<?php echo attr($HPI_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_EXT_RIGHT" id="PREFS_EXT_RIGHT" value="<?php echo attr($EXT_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_ANTSEG_RIGHT" id="PREFS_ANTSEG_RIGHT" value="<?php echo attr($ANTSEG_RIGHT ?? ''); ?>">
+              <input type="hidden" name="PREFS_HPI_VIEW" id="PREFS_HPI_VIEW" value="<?php echo attr($HPI_VIEW); ?>">
+              <input type="hidden" name="PREFS_EXT_VIEW" id="PREFS_EXT_VIEW" value="<?php echo attr($EXT_VIEW); ?>">
+              <input type="hidden" name="PREFS_ANTSEG_VIEW" id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW); ?>">
+              <input type="hidden" name="PREFS_RETINA_VIEW" id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW); ?>">
+              <input type="hidden" name="PREFS_SDRETINA_VIEW" id="PREFS_SDRETINA_VIEW" value="<?php echo attr($SDRETINA_VIEW); ?>">
+              <input type="hidden" name="PREFS_NEURO_VIEW" id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW); ?>">
+              <input type="hidden" name="PREFS_ACT_VIEW" id="PREFS_ACT_VIEW" value="<?php echo attr($ACT_VIEW); ?>">
+              <input type="hidden" name="PREFS_PMH_RIGHT" id="PREFS_PMH_RIGHT" value="<?php echo attr($PMH_RIGHT); ?>">
+              <input type="hidden" name="PREFS_HPI_RIGHT" id="PREFS_HPI_RIGHT" value="<?php echo attr($HPI_RIGHT); ?>">
+              <input type="hidden" name="PREFS_EXT_RIGHT" id="PREFS_EXT_RIGHT" value="<?php echo attr($EXT_RIGHT); ?>">
+              <input type="hidden" name="PREFS_ANTSEG_RIGHT" id="PREFS_ANTSEG_RIGHT" value="<?php echo attr($ANTSEG_RIGHT); ?>">
               <input type="hidden" name="PREFS_RETINA_RIGHT" id="PREFS_RETINA_RIGHT" value="<?php echo attr($RETINA_RIGHT ?? ''); ?>">
               <input type="hidden" name="PREFS_SDRETINA_RIGHT" id="PREFS_SDRETINA_RIGHT" value="<?php echo attr($SDRETINA_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_NEURO_RIGHT" id="PREFS_NEURO_RIGHT" value="<?php echo attr($NEURO_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_IMPPLAN_RIGHT" id="PREFS_IMPPLAN_RIGHT" value="<?php echo attr($IMPPLAN_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_PANEL_RIGHT" id="PREFS_PANEL_RIGHT" value="<?php echo attr($PANEL_RIGHT ?? ''); ?>">
-              <input type="hidden" name="PREFS_KB" id="PREFS_KB" value="<?php echo attr($KB_VIEW ?? ''); ?>">
-              <input type="hidden" name="PREFS_TOOLTIPS" id="PREFS_TOOLTIPS" value="<?php echo attr($TOOLTIPS ?? ''); ?>">
+              <input type="hidden" name="PREFS_NEURO_RIGHT" id="PREFS_NEURO_RIGHT" value="<?php echo attr($NEURO_RIGHT); ?>">
+              <?php
+              // Load dot phrases from list_options table (new storage)
+                $list_id = 'dot_phrases_' . $_SESSION['authUserID'];
+                $query = "SELECT option_id, notes FROM list_options WHERE list_id = ? AND activity = 1";
+                $phrases_records = \OpenEMR\Common\Database\QueryUtils::fetchRecords($query, [$list_id]);
+                $phrases = [];
+                foreach ($phrases_records as $row) {
+                    $val = $row['notes'];
+                    $decoded = json_decode((string) $val, true);
+                    $phrases[$row['option_id']] = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : $val;
+                }
+                $DOTPHRASES_USER = json_encode($phrases);
+                ?>
+              <input type="hidden" name="DOTPHRASES_USER" id="DOTPHRASES_USER" value="<?php echo attr($DOTPHRASES_USER); ?>">
+              <input type="hidden" name="PREFS_IMPPLAN_RIGHT" id="PREFS_IMPPLAN_RIGHT" value="<?php echo attr($IMPPLAN_RIGHT); ?>">
+              <input type="hidden" name="PREFS_PANEL_RIGHT" id="PREFS_PANEL_RIGHT" value="<?php echo attr($PANEL_RIGHT); ?>">
+              <input type="hidden" name="PREFS_KB" id="PREFS_KB" value="<?php echo attr($KB_VIEW); ?>">
+              <input type="hidden" name="PREFS_TOOLTIPS" id="PREFS_TOOLTIPS" value="<?php echo attr($TOOLTIPS); ?>">
               <input type="hidden" name="ownership" id="ownership" value="<?php echo attr($ownership ?? ''); ?>">
-              <input type="hidden" name="PREFS_ACT_SHOW"  id="PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW ?? ''); ?>">
+              <input type="hidden" name="PREFS_ACT_SHOW"  id="PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
               <input type="hidden" name="COPY_SECTION"  id="COPY_SECTION" value="">
               <input type="hidden" name="UNDO_ID"  id="UNDO_ID" value="<?php echo attr($UNDO_ID ?? ''); ?>">
-              <input type="hidden" name="LOCKEDBY" id="LOCKEDBY" value="<?php echo attr($LOCKEDBY ?? ''); ?>">
-              <input type="hidden" name="LOCKEDDATE" id="LOCKEDDATE" value="<?php echo attr($LOCKEDDATE ?? ''); ?>">
+              <input type="hidden" name="LOCKEDBY" id="LOCKEDBY" value="<?php echo attr($LOCKEDBY); ?>">
+              <input type="hidden" name="LOCKEDDATE" id="LOCKEDDATE" value="<?php echo attr($LOCKEDDATE); ?>">
               <input type="hidden" name="LOCKED"  id="LOCKED" value="<?php echo attr($LOCKED ?? ''); ?>">
+              <input type="hidden" name="LOCKEDBY_NAME" id="LOCKEDBY_NAME" value="<?php echo attr($lock_user_name ?? ''); ?>">
               <input type="hidden" name="uniqueID" id="uniqueID" value="<?php echo attr($uniqueID ?? ''); ?>">
+              <input type="hidden" name="authUserID" id="authUserID" value="<?php echo attr($_SESSION['authUserID'] ?? ''); ?>">
               <input type="hidden" name="chart_status" id="chart_status" value="on">
               <input type="hidden" name="finalize"  id="finalize" value="0">
                 <input type='hidden' name='setting_tabs_left' id='setting_tabs_left' value='<?php echo attr($setting_tabs_left); ?>'>
@@ -334,7 +472,10 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="HPI_left_text" class="TEXT_class">
                         <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the HPI Canvas'); ?>" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
                         <i class="closeButton_3 fa fa-database" title="<?php echo xla('Open/Close the detailed HPI panel'); ?>" id="BUTTON_QP_HPI" name="BUTTON_QP_HPI"></i>
-                        <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes."); ?>"></i>
+                        <i class="closeButton_4 fa fa-bullseye fa-2x" id="BUTTON_DOT" title="<?php echo xla('Build a dot phrase from populated fields (Ctrl+.)'); ?>" onclick="showDialog(); event.stopPropagation();"></i>
+                        <i class="closeButton_5 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes."); ?>"></i>
+                              <!-- Dot Phrase Builder Modal moved to end of file -->
+
                           <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Minimize this panel'); ?>" id="BUTTON_TAB_HPI" name="BUTTON_TAB_HPI"></i>
 
                           <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
@@ -376,12 +517,16 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <textarea name="HPI1" id="HPI1" class="HPI_text" tabindex="21"><?php echo text($HPI1); ?></textarea>
                                       <br />
                                     </td>
-                                    <td class="top pad10"><span id="CHRONIC_HELP" title="<?php echo xla('Chronic/Inactive Problems') . ":&nbsp\n" . xla('document 3 and their status to reach the detailed HPI level') . "&nbsp\n";
-                                    echo "PMH items flagged as Chronic with a comment regarding status will automatically appear here.";?>"><?php echo xlt('Chronic Problems') ?>:</span>
-                                      <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC1</div>
-                                      <textarea name="CHRONIC1" id="CHRONIC1" class="HPI_text chronic_HPI" tabindex="22"><?php echo text($CHRONIC1); ?></textarea>
-                                      <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC2</div><textarea name="CHRONIC2" id="CHRONIC2" class="HPI_text chronic_HPI" tabindex="23"><?php echo text($CHRONIC2); ?></textarea>
-                                      <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC3</div><textarea name="CHRONIC3" id="CHRONIC3" class="HPI_text chronic_HPI" tabindex="24"><?php echo text($CHRONIC3); ?></textarea>
+                                    <td class="top pad10"><span id="CHRONIC_HELP" title="<?php
+                                            echo xla('Chronic/Inactive Problems');
+                                            echo ':&nbsp\n' . xla('document 3 and their status to reach the detailed HPI level') . '&nbsp\n';
+                                            echo 'PMH items flagged as Chronic with a comment regarding status will automatically appear here.';
+                                    ?>">
+                                        <?php echo xlt('Chronic Problems'); ?>:</span>
+                                        <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC1</div>
+                                        <textarea name="CHRONIC1" id="CHRONIC1" class="HPI_text chronic_HPI" tabindex="22"><?php echo text($CHRONIC1); ?></textarea>
+                                        <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC2</div><textarea name="CHRONIC2" id="CHRONIC2" class="HPI_text chronic_HPI" tabindex="23"><?php echo text($CHRONIC2); ?></textarea>
+                                        <span class="kb_off"><br /></span><div class="kb kb_right">CHRONIC3</div><textarea name="CHRONIC3" id="CHRONIC3" class="HPI_text chronic_HPI" tabindex="24"><?php echo text($CHRONIC3); ?></textarea>
                                     </td>
                                   </tr>
                                   <tr>
@@ -736,7 +881,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     <!-- end    PMH Left -->
                     <!-- start  PMH Right -->
                     <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
-                      <a class="nodisplay left_PMSFH_tab" id="right-panel-link" href="#right-panel">
+                      <a class="nodisplay left_PMSFH_tab" id="right-panel-link_2" href="#right-panel">
                         <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/PMSFHx.png">
                       </a>
                       <?php display_draw_section("PMH", $encounter, $pid); ?>
@@ -2001,7 +2146,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div id="EXT_left_text" class="TEXT_class">
                           <i class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('External Draw Panel'); ?>" id="BUTTON_DRAW_EXT" name="BUTTON_DRAW_EXT"></i>
                           <i class="closeButton_3 fa fa-database" title="<?php echo xla('Quick Picks'); ?>" id="BUTTON_QP_EXT" name="BUTTON_QP_EXT"></i>
-                          <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and Codes"); ?>"></i>
+                          <i class="closeButton_4 fa fa-bullseye fa-2x" title="<?php echo xla('Build a dot phrase from External section'); ?>" id="BUTTON_DOT_EXT" name="BUTTON_DOT_EXT" onclick="showSectionDialog('EXT_left', 'EXT'); event.stopPropagation();"></i>
+                          <i class="closeButton_5 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and Codes"); ?>"></i>
                             <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close External Exam panels'); ?>" id="BUTTON_TAB_EXT" name="BUTTON_TAB_EXT"></i>
                             <b><?php echo xlt('External Exam'); ?>:</b><div class="kb kb_left" title="<?php echo xla("External Exam Default Values"); ?>"><?php echo text('DEXT'); ?>
 
@@ -2189,7 +2335,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div id="PRIORS_EXT_left_text" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS">
                             <i class="fa fa-spinner fa-spin"></i>
                         </div>
-                          <div id="QP_EXT" name="QP_EXT" class="QP_class">
+
+                        <div id="QP_EXT" name="QP_EXT" class="QP_class">
                               <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix ?? ''); ?>">
 
                               <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
@@ -2241,8 +2388,9 @@ if ($refresh and $refresh != 'fullscreen') {
                     <div class="TEXT_class" id="ANTSEG_left_text">
                       <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the Anterior Segment drawing panel'); ?>" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
                       <i class="closeButton_3 fa fa-database"title="<?php echo xla('Open/Close the Anterior Segment Exam Quick Picks panel'); ?>" id="BUTTON_QP_ANTSEG" name="BUTTON_QP_ANTSEG"></i>
-                      <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
-                        <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Ant Seg panels'); ?>" id="BUTTON_TAB_ANTSEG" name="BUTTON_TAB_ANTSEG"></i>
+                      <i class="closeButton_4 fa fa-bullseye fa-2x" title="<?php echo xla('Build a dot phrase from Anterior Segment section'); ?>" id="BUTTON_DOT_ANTSEG" name="BUTTON_DOT_ANTSEG" onclick="showSectionDialog('ANTSEG_left', 'ANTSEG'); event.stopPropagation();"></i>
+                      <i class="closeButton_5 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
+                      <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Ant Seg panels'); ?>" id="BUTTON_TAB_ANTSEG" name="BUTTON_TAB_ANTSEG"></i>
                         <b><?php echo xlt('Anterior Segment'); ?>:</b><div class="kb kb_left" title="<?php echo xla("Anterior Segment Default Values"); ?>"><?php echo text('DAS'); ?></div><br />
                       <div id="ANTSEG_left_1" class="text_clinical">
                         <table>
@@ -2304,7 +2452,8 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                 <input type="text" class="float-right" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php
                                 if ($DIL_MEDS) {
-                                    echo attr($DIL_MEDS); }
+                                    echo attr($DIL_MEDS);
+                                }
                                 ?>" placeholder="Time"/>
                                 <br />
                                 <?php
@@ -2455,13 +2604,15 @@ if ($refresh and $refresh != 'fullscreen') {
                       </div>
                     </div>
                   </div>
-                  <div id="ANTSEG_right" name=="ANTSEG_right" class="exam_section_right borderShadow text_clinical ">
+                  <div id="ANTSEG_right" name="ANTSEG_right" class="exam_section_right borderShadow text_clinical ">
+                        <?php display_draw_section("ANTSEG", $encounter, $pid); ?>
                       <div id="PRIORS_ANTSEG_left_text" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">
                                       <i class="fa fa-spinner fa-spin"></i>
                       </div>
-                        <?php display_draw_section("ANTSEG", $encounter, $pid); ?>
+
                       <div id="QP_ANTSEG" name="QP_ANTSEG" class="QP_class">
                           <input type="hidden" id="ANTSEG_prefix" name="ANTSEG_prefix" value="">
+                          <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
                           <div class="qp10">
                               <span  class="eye_button eye_button_selected" id="ANTSEG_prefix_off" name="ANTSEG_prefix_off"  onclick="$('#ANTSEG_prefix').val('off').trigger('change');"><?php echo xlt('Off'); ?> </span>
                               <span  class="eye_button" id="ANTSEG_defaults" name="ANTSEG_defaults"><?php echo xlt('Defaults'); ?></span>
@@ -2491,10 +2642,10 @@ if ($refresh and $refresh != 'fullscreen') {
                               <span class="eye_button" id="ANTSEG_prefix_clear" name="ANTSEG_prefix_clear" title="<?php echo xla('This will clear the data from all Anterior Segment Exam fields'); ?>" onclick="$('#ANTSEG_prefix').val('clear').trigger('change');"><?php echo xlt('clear'); ?></span>
 
                           </div>
-                          <div class="QP_block borderShadow text_clinical " >
+                          <div id="ANTSEG_QP_block1" name="ANTSEG_QP_block1" class="QP_block borderShadow text_clinical" >
+
                             <?php echo $QP_ANTSEG = display_QP("ANTSEG", $provider_id); ?>
                           </div>
-                          <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
                       </div>
                   </div>
                 </div>
@@ -2506,12 +2657,12 @@ if ($refresh and $refresh != 'fullscreen') {
                     <span class="anchor" id="RETINA_anchor"></span>
                     <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text">
                         <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the Retina drawing panel'); ?>" id="BUTTON_DRAW_RETINA" name="BUTTON_DRAW_RETINA"></span>
+                        <i class="closeButton_4 fa fa-bullseye fa-2x" title="<?php echo xla('Build a dot phrase from Retina section'); ?>" id="BUTTON_DOT_RETINA" name="BUTTON_DOT_RETINA" onclick="showSectionDialog('RETINA_left', 'RETINA'); event.stopPropagation();"></i>
                         <i class="closeButton_3 fa fa-database"title="<?php echo xla('Open/Close the Retinal Exam Quick Picks panel'); ?>" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
-                        <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
+                        <i class="closeButton_5 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
                         <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Post Seg panels'); ?>" id="BUTTON_TAB_RETINA" name="BUTTON_TAB_RETINA"></i>
-                        <span class="bold"><?php echo xlt('Retina'); ?>:</b>
+                        <span class="bold"><?php echo xlt('Retina'); ?>:</span>
                             <div class="kb kb_left" title="<?php echo xla("Retina Default Values"); ?>"><?php echo text('DRET'); ?></div>&nbsp;
-                        </span>
                         <span class="TEXT_class">
                             <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php
                             if ($DIL_RISKS == 'on') {
@@ -2568,7 +2719,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             <table>
                                 <tr>
                                     <td>
-                                        <span class="ui-button ui-corner-all" id="BUTTON_DRAW_SDRETINA" name="BUTTON_DRAW_SDRETINA"><?php echo xlt('Scleral Depression'); ?></span>
+                                        <span class="ui-button ui-corner-all" id="BUTTON_DRAW_SDRETINA" name="BUTTON_DRAW_SDRETINA"><?php echo xlt('Peripheral'); ?></span>
                                     </td>
                                 </tr>
                             </table>
@@ -2681,11 +2832,12 @@ if ($refresh and $refresh != 'fullscreen') {
                   </div>
 
                   <div id="RETINA_right" name="RETINA_right" class="exam_section_right borderShadow text_clinical">
+                    <?php display_draw_section("RETINA", $encounter, $pid); ?>
                     <div id="PRIORS_RETINA_left_text"
                          name="PRIORS_RETINA_left_text"
                          class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
-                    <?php display_draw_section("RETINA", $encounter, $pid); ?>
+
                     <div id="QP_RETINA" name="QP_RETINA" class="QP_class">
                       <input type="hidden" id="RETINA_prefix" name="RETINA_prefix" value="" />
                       <div class="qp10">
@@ -2726,7 +2878,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <div id="SDRETINA_1" name="SDRETINA_1" class="clear_both size50">
                     <span class="anchor" id="SDRETINA_anchor" name="SDRETINA_anchor"></span>
                     <div id="SDRETINA_right" name="SDRETINA_right" class="borderShadow text_clinical nodisplay">
-                          <H2><?php echo xlt('Scleral Depression Retinal Drawing'); ?></H2>
+                          <H2><?php echo xlt('Peripheral Retinal Drawing'); ?></H2>
 
                           <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_SDRETINA" name="BUTTON_TEXTD_SDRETINA" value="1"></span>
 
@@ -3539,17 +3691,18 @@ if ($refresh and $refresh != 'fullscreen') {
                 <div class="size50 clear_both" id="IMPPLAN_1">
                   <div id="IMPPLAN_left" name="IMPPLAN_left" class="clear_both exam_section_left borderShadow">
                       <span class="anchor" id="IMPPLAN_anchor"></span>
-                      <a class="closeButton_5 far fa-file-pdf"
-                         title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>"
-                         onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
-                         href="JavaScript:void(0);">
-
-                      </a>
-                      <span class="closeButton_2 fa fa-paint-brush" id="BUTTON_DRAW_IMPPLAN" title="<?php echo xla('Open/Close the Imp/Plan drawing panel'); ?>"  name="BUTTON_DRAW_IMPPLAN"></span>
-                      <i class="closeButton_3 fa fa-database" title="<?php echo xla('Show the Impression/Plan Builder panel'); ?>" id="BUTTON_QP_IMPPLAN" name="BUTTON_QP_IMPPLAN"></i>
-                      <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
-                      <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Imp/Plan panels'); ?>" id="BUTTON_TAB_IMPPLAN" name="BUTTON_TAB_IMPPLAN"></i>
-                      <div id="IMPPLAN_left_text" name="IMPPLAN_left_text">
+                      <div id="IMPPLAN_left_text" name="IMPPLAN_left_text" class="TEXT_class">
+                          <a class="closeButton_6 far fa-file-pdf"
+                             title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>"
+                             onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
+                             href="JavaScript:void(0);">
+                          </a>
+                          <!-- <i class="closeButton_7 fas fa-file-signature" style="position:absolute; top:0px; right:150px; cursor:pointer; color:blue;" title="<?php echo xla('Setup Signature'); ?>" onclick="showSignatureModal(); event.stopPropagation();"></i> -->
+                          <span class="closeButton_2 fa fa-paint-brush" id="BUTTON_DRAW_IMPPLAN" title="<?php echo xla('Open/Close the Imp/Plan drawing panel'); ?>"  name="BUTTON_DRAW_IMPPLAN"></span>
+                          <i class="closeButton_4 fa fa-bullseye fa-2x" title="<?php echo xla('Build a dot phrase from Impression/Plan section'); ?>" id="BUTTON_DOT_IMPPLAN" name="BUTTON_DOT_IMPPLAN" onclick="showSectionDialog('IMPPLAN_left', 'ALL'); event.stopPropagation();"></i>
+                          <i class="closeButton_3 fa fa-database" title="<?php echo xla('Show the Impression/Plan Builder panel'); ?>" id="BUTTON_QP_IMPPLAN" name="BUTTON_QP_IMPPLAN"></i>
+                          <i class="closeButton_5 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
+                          <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Imp/Plan panels'); ?>" id="BUTTON_TAB_IMPPLAN" name="BUTTON_TAB_IMPPLAN"></i>
                           <b><?php echo xlt('Impression/Plan'); ?>:</b><div class="kb kb_left"><?php echo xlt('IMP{{impression}}'); ?></div>
                           <div id="IMPPLAN_blank" name="IMPPLAN_blank" class="HPI_text">
                               <br />
@@ -3566,7 +3719,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   echo xlt('How-to Build the Impression/Plan') . ':';
                                   echo '</span><ol>';
                                   echo '<li>' . xlt('Manually type into the New DX box above.') . '<br />' . xlt('The *Tab* key creates each entry.') . '</li>';
-                                  echo '<span class"bold" style="margin-left:-5px;">' . xlt('or utilize the Impression/Plan Builder') . '</span>';
+                                  echo '<span class="bold" style="margin-left:-5px;">' . xlt('or utilize the Impression/Plan Builder') . '</span>';
                                   echo '<li>' . xlt('Drag a DX over by its handle') . ':&nbsp;<i class="fas fa-arrows-alt"></i></li>';
                                   echo '<li>' . xlt('Double click on a DX\'s handle') . ':&nbsp;<i class="fas fa-arrows-alt"></i></li>';
                                   echo '<li>' . xlt('Multi-select desired DX(s) and click the') . ' <i class="fa fa-reply"></i> ' . xlt('icon') . '</li>';
@@ -3827,8 +3980,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                       <tr>
                                                             <?php
 
-                                                              $counter = '0';
-                                                              $count = '0';
+                                                              $counter = 0;
+                                                              $col_count = 0;
                                                               $arrTESTS = explode("|", $Resource ?? ''); //form_eye_mag:Resource = billable things (not visit code) performed today
                                                               $query = "select * from list_options where list_id=? and activity='1' order by seq";
                                                               $TODO_data = sqlStatement($query, ["Eye_todo_done_" . $provider_id]);
@@ -3879,49 +4032,46 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                 */
 
                                                                 echo '<br />' . xlt('Justify Dx') . ':
-
-                                      <span class="TESTS_justify indent20" id="TEST_' . $counter . '_justify"></span>
-                                      </div>
-                                     ';
-
-                                                                $count++;
-                                                                $counter++;
-                                                                if ($count == "3") {
-                                                                    echo '</td><tr>';
-                                                                    $count = '0';
-                                                                } else {
-                                                                    echo "</td>";
+                                                    <span class="TESTS_justify indent20" id="TEST_' . $counter . '_justify"></span>
+                                                    </div>';
+                                                                echo '</td>';
+                                                                $col_count++;
+                                                                if ($col_count >= 3) {
+                                                                    echo '</tr><tr>';
+                                                                    $col_count = 0;
                                                                 }
+                                                                $counter++;
                                                             }
-
                                                             ?>
-                                                          </td>
                                                       </tr>
-                                                  </table>
-                                                  <br />
+                                      </table>
                                               </td>
                                           </tr>
                                       </table>
                                       <table style="width:100%;padding-top:10px;vertical-align:top;">
                                           <tr>
-                                              <td style="width:40%;">
+                                              <td style="width:40%; padding-left:15px; vertical-align:top;">
                                                   <b><u><?php echo xlt('Appt{{Abbreviation for appointment}}') . " " . xlt('Status') . " / " . xlt('Flow Board'); ?>:</u></b><br />
                                                   <div class="indent20">
-                                                      <input type="radio" name="visit_status" id="checked_out" value=">" /><label for="checked_out"> <b>></b> <?php echo xlt('Checked Out'); ?></label>
-                                                      <br />
-                                                      <input type="radio" name="visit_status" id="coded" value="$" /><label for="coded"> <b>$</b>&nbsp;<?php echo xlt('Coding complete'); ?></label>
-                                                      <br />
-                                                      <input type="radio" name="visit_status" id="send_notes" value="}" /><label for="send_notes"> <b>}</b> <?php echo xlt('Send Notes'); ?></label>
+                                                      <input type="radio" name="visit_status" id="checked_out" value=">" <?php if ($current_appt_status == '>') {
+                                                            echo 'checked';
+                                                                                                                         } ?> /><label for="checked_out"> <b>></b> <?php echo xlt('Checked Out'); ?></label><br />
+                                                      <input type="radio" name="visit_status" id="coded" value="$" <?php if ($current_appt_status == '$') {
+                                                            echo 'checked';
+                                                                                                                   } ?> /><label for="coded"> <b>$</b>&nbsp;<?php echo xlt('Coding complete'); ?></label><br />
+                                                      <input type="radio" name="visit_status" id="send_notes" value="}" <?php if ($current_appt_status == '}') {
+                                                            echo 'checked';
+                                                                                                                        } ?> /><label for="send_notes"> <b>}</b> <?php echo xlt('Send Notes'); ?></label>
                                                   </div>
                                               </td>
-                                              <td style="padding-left:15px;vertical-align:text-top;text-left">
+                                              <td style="padding-left:15px;vertical-align:top;text-align:left">
                                                   <div class="widget text-center">
                                                       <b><u><?php echo xlt('Process');
-                                                                  echo " " . xlt('Billing'); ?>:</b></u><br />
+                                                            echo " " . xlt('Billing'); ?>:</b></u><br />
                                                       <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
                                                       <button id="open_fee_sheet"
-                                                              onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet');" href="JavaScript:void(0);"
-                                                              tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
+                                                          onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet');" href="JavaScript:void(0);"
+                                                          tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>
                                                   </div>
                                               </td>
@@ -4021,7 +4171,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
                                 <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($found ?? null) < (empty($PLAN_arr) ? 0 : count($PLAN_arr))) {
-                                    echo $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS']; } ?></textarea>
+                                    echo $PLAN_arr[count($PLAN_arr) - 1]['ORDER_DETAILS'];
+                                                  } ?></textarea>
                                           </td>
                                       </tr>
                                   </table>
@@ -4106,18 +4257,24 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td>
                                                   <span id="pcp_phone"><?php echo text($pcp_data['phonew1'] ?? ''); ?></span>
                                                   <span id="pcp_phonew2"><?php if ($pcp_data['phonew2'] ?? '') {
-                                                        echo "<br />" . text($pcp_data['phonew2']);} ?>
+                                                        echo "<br />" . text($pcp_data['phonew2']);
+                                                                         } ?>
                                                   </span>
                                               </td>
                                               <td>
                                                   <span id="ref_phone"><?php echo text($ref_data['phonew1'] ?? ''); ?></span>
                                                   <span id="ref_phonew2"><?php if ($pcp_data['phonew2'] ?? null) {
-                                                        echo "<br />" . text($pcp_data['phonew2']);} ?>
+                                                        echo "<br />" . text($pcp_data['phonew2']);
+                                                                         } ?>
                                                   </span>
                                               </td>
                                           </tr>
                                           <tr>
-                                              <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
+                                              <td class="bold top"><?php echo xlt('Fax'); ?>:
+                                                  <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/forms/eye_mag/help_fax_config.php" target="_faxhelp" title="<?php echo xla('Fax Configuration Help'); ?>">
+                                                      <i class="fa fa-info-circle"></i>
+                                                  </a>
+                                              </td>
                                               <td class="bold">
                                                     <?php
                                                     if (($pcp_data['fax'] ?? null) > '') {
@@ -4409,7 +4566,7 @@ if ($refresh and $refresh != 'fullscreen') {
     </script>
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
-    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>&v=<?php echo time(); ?>"></script>
     <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">
@@ -4440,6 +4597,78 @@ if ($refresh and $refresh != 'fullscreen') {
         ?>
       </div>
     </div>
+    <!-- Import Dot Phrases Dialog -->
+    <div id="importPhrasesDialog" title="<?php echo xla('Import Dot Phrases'); ?>" class="nodisplay">
+        <p><?php echo xlt('Select a user to import phrases from'); ?>:</p>
+        <select id="importUserSelect" class="form-control">
+            <option value=""><?php echo xlt('-- Select User --'); ?></option>
+            <?php
+            $res = sqlStatement("SELECT id, username, fname, lname FROM users WHERE active=1 AND id != ? ORDER BY lname, fname", [$_SESSION['authUserID']]);
+            while ($row = sqlFetchArray($res)) {
+                echo "<option value='" . attr($row['id']) . "'>" . text($row['lname'] . ", " . $row['fname'] . " (" . $row['username'] . ")") . "</option>";
+            }
+            ?>
+        </select>
+        <br>
+        <button type="button" id="btnImportPhrases" class="btn btn-primary"><?php echo xlt('Import'); ?></button>
+    </div>
+    <script>
+    $(function() {
+        $("#importPhrasesDialog").dialog({
+            autoOpen: false,
+            modal: true,
+            width: 400
+        });
+
+        $("#btnImportPhrases").click(function() {
+            var userId = $("#importUserSelect").val();
+            if (!userId) {
+                alert("<?php echo xla('Please select a user'); ?>");
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '../../forms/eye_mag/save.php',
+                data: {
+                    action: 'get_dot_phrases',
+                    user_id: userId
+                },
+                success: function(response) {
+                    try {
+                        var phrases = JSON.parse(response);
+                        if (Object.keys(phrases).length === 0) {
+                            alert("<?php echo xla('No phrases found for this user'); ?>");
+                            return;
+                        }
+
+                        if (confirm("<?php echo xla('Found'); ?> " + Object.keys(phrases).length + " <?php echo xla('phrases. Merge them into your phrases? Existing phrases with same name will be overwritten.'); ?>")) {
+                            if (window.eyeMagImportPhrases) {
+                                window.eyeMagImportPhrases(JSON.stringify(phrases), true); // true = merge
+
+                                // Manually trigger save to server
+                                var allPhrases = window.eyeMagUserPhrases;
+                                $.ajax({
+                                   type: 'POST',
+                                   url: '../../forms/eye_mag/save.php',
+                                   data: {
+                                       action: 'save_dot_phrases',
+                                       phrases: JSON.stringify(allPhrases)
+                                   }
+                                });
+
+                                alert("<?php echo xla('Phrases imported and saved successfully'); ?>");
+                                $("#importPhrasesDialog").dialog("close");
+                            }
+                        }
+                    } catch(e) {
+                        alert("<?php echo xla('Error importing phrases'); ?>");
+                    }
+                }
+            });
+        });
+    });
+    </script>
     <script>
       $('#left-panel-link').panelslider({side: 'left', clickClose: false, duration: 600, easingOpen: 'easeInBack', easingClose: 'easeOutBack'});
       $('#right-panel-link').panelslider({side: 'right', clickClose: false, duration: 600, easingOpen: 'easeInBack', easingClose: 'easeOutBack'});
@@ -4466,5 +4695,745 @@ if ($refresh and $refresh != 'fullscreen') {
             });
         });
     </script>
-  </body>
+    <script>
+    // Initialize the fieldSelectionState variable to track checkbox states.
+    (function(){
+      var form = document.getElementById('eye_mag');
+      var fieldSelectionState = {}; // Track selected fields
+      if (!form) return;
+
+      // Add event listener for the Select All checkbox to toggle all visible fields and update the selection state.
+      var selectAll = document.getElementById('dotPhraseSelectAll');
+      if (selectAll) {
+        selectAll.addEventListener('change', function(){
+          var checked = this.checked;
+          var checkboxes = document.querySelectorAll('#dotPhraseFieldList .dpField');
+          checkboxes.forEach(function(cb){
+            cb.checked = checked;
+            var id = cb.getAttribute('data-field');
+            fieldSelectionState[id] = checked;
+          });
+        });
+      }
+      // Section-specific builder triggers (delegated, ensures buttons defined later still work)
+    })();
+
+                                // Listen for changes in form fields to update the modal list dynamically
+                                document.getElementById('eye_mag').addEventListener('input', function(e){
+                                  // Check if modal is open first
+                                  var dlg = document.getElementById('dotPhraseBuilderDialog');
+                                  if (!dlg || dlg.classList.contains('nodisplay')) return;
+
+                                  var t = e.target;
+                                  if (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && t.type === 'text')) {
+                                    var cell = document.getElementById('dp-val-' + t.id);
+                                    if (cell) {
+                                      cell.innerText = (t.value||'').replace(/\s+/g,' ').slice(0,80);
+                                    }
+                                  }
+                                });    $(function() {
+        // Legacy section save handlers removed
+    });
+    </script>
+                                <!-- Dot Phrase Builder Modal -->
+                              <style>
+                                #dotPhraseBuilderDialog.ui-draggable-dragging {
+                                  box-shadow: 5px 5px 9px #dad7d7 !important;
+                                }
+                              </style>
+                              <div id="dotPhraseBuilderDialog" class="borderShadow nodisplay" style="text-align:center; font-size:1.2em; position:fixed; z-index:2000; width:640px; background:var(--white); padding-bottom:18px;">
+                                <span class="closeButton fa fa-times" id="CLOSE_dotPhraseBuilderDialog"></span>
+                                <span class="BAR2_kb" style="cursor:move; display:block;"><b><?php echo xlt('Dot Phrases'); ?></b></span>
+                                <div style="margin-bottom:6px; padding: 10px; text-align:left; font-size:1rem;">
+                                  <label for="dotPhraseKey"><b><?php echo xlt('Dot Key'); ?>:</b></label>
+                                  <input type="text" id="dotPhraseKey" style="width:140px" placeholder=".newphrase" />
+                                  &nbsp;&nbsp;
+                                  <label for="dotPhraseMode"><b><?php echo xlt('Mode'); ?>:</b></label>
+                                  <select id="dotPhraseMode">
+                                    <option value="single"><?php echo xlt('Single'); ?></option>
+                                    <option value="multi"><?php echo xlt('Multi-Field'); ?></option>
+                                  </select>
+                                  &nbsp;&nbsp;
+                                  <span id="dotPhraseZoneGroup">
+                                  <label for="dotPhraseZoneFilter"><b><?php echo xlt('Zone'); ?>:</b></label>
+                                  <select id="dotPhraseZoneFilter">
+                                    <option value="ALL"><?php echo xlt('All'); ?></option>
+                                    <option value="HPI">HPI</option>
+                                    <option value="EXT">EXT</option>
+                                    <option value="ANTSEG">ANTSEG</option>
+                                    <option value="RETINA">RETINA</option>
+                                    <!-- <option value="IMPPLAN">IMPPLAN</option> -->
+                                  </select>
+                                  </span>
+                                </div>
+                                <div id="dotPhraseSingleWrap" style="display:none">
+                                  <textarea id="dotPhraseSingleText" style="width:100%;min-height:60px;max-height:140px;overflow-y:auto;resize:none;" placeholder="<?php echo xla('Type the text to insert when this phrase expands'); ?>"></textarea>
+                                </div>
+                                <div id="dotPhraseMultiWrap">
+                                  <div style="padding-bottom: 5px; text-align: left;">
+                                      <label><input type="checkbox" id="dotPhraseSelectAll"> <b><?php echo xlt('Select All'); ?></b></label>
+                                  </div>
+                                  <div style="max-height:260px;overflow:auto;border:1px solid #ccc;padding:6px;border-radius:4px" id="dotPhraseFieldList"></div>
+                                </div>
+                                <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                                  <button type="button" id="dotPhraseSave" class="btn btn-primary"><?php echo xlt('Save'); ?></button>
+                                  <button type="button" id="dotPhraseManage" class="btn"><?php echo xlt('Manage'); ?></button>
+                                  <button type="button" id="dotPhraseImport" class="btn"><?php echo xlt('Import'); ?></button>
+                                </div>
+                                <div id="dotPhraseManagePanel" style="display:none;margin-top:10px;border-top:1px solid #ddd;padding-top:8px">
+                                  <b><?php echo xlt('Your Phrases'); ?>:</b>
+                                  <div style="margin: 5px 0;">
+                                      <input type="text" id="dotPhraseSearch" class="form-control input-sm" placeholder="<?php echo xla('Search phrases...'); ?>" style="width: 50%;">
+                                  </div>
+                                  <div id="dotPhraseList"></div>
+                                  <div id="dotPhrasePagination" style="margin-top: 5px; text-align: center; display: flex; justify-content: center; gap: 5px; align-items: center;"></div>
+                                </div>
+                              </div>
+                              <script>
+                              (function(){
+                                function getForm() { return document.getElementById('eye_mag'); }
+                                
+                                function zoneOf(el){
+                                  var c = el.closest('#HPI_left,#EXT_left,#ANTSEG_left,#RETINA_left,#IMPPLAN_left');
+                                  if (!c) return 'OTHER';
+                                  var id = c.id||'';
+                                  if (id.indexOf('HPI_left')===0) return 'HPI';
+                                  if (id.indexOf('EXT_left')===0) return 'EXT';
+                                  if (id.indexOf('ANTSEG_left')===0) return 'ANTSEG';
+                                  if (id.indexOf('RETINA_left')===0) return 'RETINA';
+                                  if (id.indexOf('IMPPLAN_left')===0) return 'IMPPLAN';
+                                  return 'OTHER';
+                                }
+                                function gatherFields(zone) {
+                                  var form = getForm();
+                                  if (!form) return [];
+                                  var nodes = form.querySelectorAll('textarea,input[type="text"]');
+                                  var out = [];
+                                  nodes.forEach(function(n){
+                                    if (n.id && n.id.indexOf('DOT_') === 0) return; // Exclude DOT_ fields
+                                    var v = n.value.trim();
+                                    if (v.length) {
+                                      var z = zoneOf(n);
+                                      if (!zone || zone==='ALL' || z===zone) out.push({id:n.id,name:n.name||n.id,value:v,zone:z});
+                                    }
+                                  });
+                                  return out;
+                                }
+                                function displayNameFor(id) {
+                                  try {
+                                    var lbl = document.querySelector('label[for="'+id+'"]');
+                                    if (lbl && lbl.textContent.trim()) return lbl.textContent.trim();
+                                    var el = document.getElementById(id);
+                                    if (el) {
+                                      if (el.getAttribute('title')) return el.getAttribute('title');
+                                      if (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL') {
+                                        var t = el.previousElementSibling.textContent.trim();
+                                        if (t) return t;
+                                      }
+                                    }
+                                  } catch(e) {}
+                                  return id;
+                                }
+                                function buildList(zone) {
+                                  var container = document.getElementById('dotPhraseFieldList');
+                                  if (!container) return;
+                                  container.innerHTML='';
+                                  // Reset Select All checkbox when list is rebuilt
+                                  var selectAll = document.getElementById('dotPhraseSelectAll');
+                                  if (selectAll) selectAll.checked = false;
+
+                                  var data = gatherFields(zone);
+                                  if (!data.length) { container.innerHTML = '<em><?php echo xlt('No populated fields found'); ?></em>'; return; }
+                                  
+                                  var table = document.createElement('table');
+                                  table.style.width = '100%';
+                                  table.style.borderCollapse = 'collapse';
+                                  table.style.fontSize = '0.9em';
+                                  
+                                  data.forEach(function(f){
+                                    var row = document.createElement('tr');
+                                    row.style.borderBottom = '1px solid #eee';
+                                    
+                                    var val = (f.value||'').replace(/\s+/g,' ').slice(0,80);
+                                    var name = displayNameFor(f.id);
+                                    
+                                    var tdCheck = document.createElement('td');
+                                    tdCheck.style.width = '24px';
+                                    tdCheck.style.verticalAlign = 'middle';
+                                    
+                                    var chk = document.createElement('input');
+                                    chk.type = 'checkbox';
+                                    chk.className = 'dpField';
+                                    chk.setAttribute('data-field', f.id);
+                                    if (fieldSelectionState[f.id]) chk.checked = true;
+                                    chk.addEventListener('change', function(){ fieldSelectionState[f.id] = this.checked; });
+                                    
+                                    tdCheck.appendChild(chk);
+                                    
+                                    var tdName = document.createElement('td');
+                                    tdName.style.textAlign = 'left';
+                                    tdName.style.whiteSpace = 'nowrap';
+                                    tdName.style.paddingRight = '10px';
+                                    tdName.style.verticalAlign = 'middle';
+                                    tdName.innerHTML = '<b>'+name+'</b>';
+                                    
+                                    var tdVal = document.createElement('td');
+                                    tdVal.id = 'dp-val-' + f.id;
+                                    tdVal.style.textAlign = 'left';
+                                    tdVal.style.whiteSpace = 'nowrap';
+                                    tdVal.style.color = '#555';
+                                    tdVal.style.verticalAlign = 'middle';
+                                    tdVal.innerText = val;
+                                    
+                                    row.appendChild(tdCheck);
+                                    row.appendChild(tdName);
+                                    row.appendChild(tdVal);
+                                    table.appendChild(row);
+                                  });
+                                  container.appendChild(table);
+                                }
+                                function syncModeUI(){
+                                  var mode = document.getElementById('dotPhraseMode').value;
+                                  var singleWrap = document.getElementById('dotPhraseSingleWrap');
+                                  var multiWrap = document.getElementById('dotPhraseMultiWrap');
+                                  var zoneSel = document.getElementById('dotPhraseZoneFilter');
+                                  var zoneGrp = document.getElementById('dotPhraseZoneGroup');
+                                  if (mode==='single') {
+                                    singleWrap.style.display='block';
+                                    multiWrap.style.display='none';
+                                    if (zoneSel) zoneSel.style.display='none';
+                                    if (zoneGrp) zoneGrp.style.display='none';
+                                  } else {
+                                    singleWrap.style.display='none';
+                                    multiWrap.style.display='block';
+                                    if (zoneSel) zoneSel.style.display='';
+                                    if (zoneGrp) zoneGrp.style.display='';
+                                    // When switching to multi mode (including during Edit), rebuild the field list
+                                    try { buildList(zoneSel && zoneSel.value ? zoneSel.value : 'ALL'); } catch(e) {}
+                                  }
+                                }
+                                function showDialog(){
+                                  try {
+                                    fieldSelectionState = {}; // Reset selection state
+                                    document.getElementById('dotPhraseMode').value='single';
+                                    document.getElementById('dotPhraseZoneFilter').value='ALL';
+                                    buildList('ALL');
+                                    var dlg = document.getElementById('dotPhraseBuilderDialog');
+                                    if (dlg) {
+                                        dlg.classList.remove('nodisplay');
+                                        if (window.jQuery) {
+                                            var $dlg = $(dlg);
+                                            var w = $(window);
+                                            // Force layout recalc before measuring
+                                            $dlg.css('display', 'block');
+                                            $dlg.css({
+                                                top: Math.max(26, ((w.height() - $dlg.outerHeight()) / 2)) + "px",
+                                                left: Math.max(0, ((w.width() - $dlg.outerWidth()) / 2)) + "px"
+                                            });
+                                            if ($dlg.draggable) $dlg.draggable({ handle: '.BAR2_kb' });
+                                        }
+                                    }
+                                    syncModeUI();
+                                  } catch(e) { console.error('showDialog error:', e); }
+                                }
+                                window.showDialog = showDialog;
+
+                                function collectSectionFields(sectionId) {
+                                  const container = document.getElementById(sectionId);
+                                  if (!container) return [];
+                                  const inputs = container.querySelectorAll('input[type="text"], textarea, input[type="checkbox"], input[type="radio"], select');
+                                  const filled = [];
+                                  inputs.forEach(el => {
+                                    if (!el.id) return;
+                                    if (el.id.indexOf('DOT_') === 0) return; // Exclude DOT_ fields
+                                    if (el.tagName === 'TEXTAREA' || el.type === 'text') {
+                                      if ((el.value || '').trim().length) filled.push({ id: el.id, value: el.value });
+                                    } else if (el.type === 'checkbox' || el.type === 'radio') {
+                                      if (el.checked) filled.push({ id: el.id, value: el.value || 'on' });
+                                    } else if (el.tagName === 'SELECT') {
+                                      if (el.value && (el.value + '').length) filled.push({ id: el.id, value: el.value });
+                                    }
+                                  });
+                                  return filled;
+                                }
+
+                                function showSectionDialog(sectionId, zoneName) {
+                                  try {
+                                    console.log('showSectionDialog called for:', sectionId, zoneName);
+                                    fieldSelectionState = {}; // Reset selection state
+                                    document.getElementById('dotPhraseMode').value='multi';
+                                    document.getElementById('dotPhraseZoneFilter').value=zoneName||'ALL';
+                                    syncModeUI();
+                                    var container = document.getElementById('dotPhraseFieldList');
+                                    if (container) {
+                                        container.innerHTML='';
+                                        // Reset Select All checkbox
+                                        var selectAll = document.getElementById('dotPhraseSelectAll');
+                                        if (selectAll) selectAll.checked = false;
+
+                                        var fields = collectSectionFields(sectionId);
+                                        if (!fields.length) container.innerHTML = '<em><?php echo xlt('No populated fields found'); ?></em>';
+                                        
+                                        var table = document.createElement('table');
+                                        table.style.width = '100%';
+                                        table.style.borderCollapse = 'collapse';
+                                        table.style.fontSize = '0.9em';
+
+                                        fields.forEach(function(f){
+                                            var row = document.createElement('tr');
+                                            row.style.borderBottom = '1px solid #eee';
+                                            
+                                            var val = (f.value||'').replace(/\s+/g,' ').slice(0,80);
+                                            var name = displayNameFor(f.id);
+                                            
+                                            var tdCheck = document.createElement('td');
+                                            tdCheck.style.width = '24px';
+                                            tdCheck.style.verticalAlign = 'middle';
+                                            
+                                            var chk = document.createElement('input');
+                                            chk.type = 'checkbox';
+                                            chk.className = 'dpField';
+                                            chk.setAttribute('data-field', f.id);
+                                            if (fieldSelectionState[f.id]) chk.checked = true;
+                                            chk.addEventListener('change', function(){ fieldSelectionState[f.id] = this.checked; });
+                                            
+                                            tdCheck.appendChild(chk);
+                                            
+                                            var tdName = document.createElement('td');
+                                            tdName.style.textAlign = 'left';
+                                            tdName.style.whiteSpace = 'nowrap';
+                                            tdName.style.paddingRight = '10px';
+                                            tdName.style.verticalAlign = 'middle';
+                                            tdName.innerHTML = '<b>'+name+'</b>';
+                                            
+                                            var tdVal = document.createElement('td');
+                                            tdVal.id = 'dp-val-' + f.id;
+                                            tdVal.style.textAlign = 'left';
+                                            tdVal.style.whiteSpace = 'nowrap';
+                                            tdVal.style.color = '#555';
+                                            tdVal.style.verticalAlign = 'middle';
+                                            tdVal.innerText = val;
+                                            
+                                            row.appendChild(tdCheck);
+                                            row.appendChild(tdName);
+                                            row.appendChild(tdVal);
+                                            table.appendChild(row);
+                                        });
+                                        container.appendChild(table);
+                                    }
+                                    
+                                    var dlg = document.getElementById('dotPhraseBuilderDialog');
+                                    if (dlg) {
+                                        dlg.classList.remove('nodisplay');
+                                        if (window.jQuery) {
+                                            var $dlg = $(dlg);
+                                            var w = $(window);
+                                            // Force layout recalc before measuring
+                                            $dlg.css('display', 'block');
+                                            $dlg.css({
+                                                top: Math.max(26, ((w.height() - $dlg.outerHeight()) / 2)) + "px",
+                                                left: Math.max(0, ((w.width() - $dlg.outerWidth()) / 2)) + "px"
+                                            });
+                                            if ($dlg.draggable) $dlg.draggable({ handle: '.BAR2_kb' });
+                                        }
+                                    }
+                                    syncModeUI();
+                                  } catch(e) { console.error('showSectionDialog error:', e); }
+                                }
+                                window.showSectionDialog = showSectionDialog;
+
+                                // Section-specific builder triggers (delegated, ensures buttons defined later still work)
+                                $(document).on('click', function(e){
+                                  const t = e.target;
+                                  // Check for menu item click (which might be on the <a> or <li>)
+                                  if (t.closest && t.closest('#menu_Dot_Phrases')) {
+                                      e.preventDefault();
+                                      showDialog();
+                                  }
+                                });
+
+                                // Note: Button click handlers are now inline (onclick) to ensure reliability.
+                                
+                                document.addEventListener('keydown', function(e){
+                                  if ((e.ctrlKey || e.metaKey) && e.key === '.') { e.preventDefault(); showDialog(); }
+                                });
+                                function savePhrase(){
+                                  var key = document.getElementById('dotPhraseKey').value.trim();
+                                  if (!key) { alert('<?php echo xlt('Enter a dot phrase key'); ?>'); return; }
+                                  if (key.charAt(0) !== '.') key = '.'+key;
+
+                                  // Check for duplicates
+                                  if (window.eyeMagUserPhrases && window.eyeMagUserPhrases[key.toLowerCase()]) {
+                                      if (!confirm('<?php echo xla("Phrase"); ?> ' + key + ' <?php echo xla("already exists. Overwrite?"); ?>')) {
+                                          return;
+                                      }
+                                  }
+
+                                  var mode = document.getElementById('dotPhraseMode').value;
+                                  if (mode === 'single') {
+                                    var text = document.getElementById('dotPhraseSingleText').value || '';
+                                    if (!text.trim()) { alert('<?php echo xlt('Enter text for the single-field phrase'); ?>'); return; }
+                                    if (window.eyeMagAddDotPhrase) {
+                                        window.eyeMagAddDotPhrase(key, text);
+                                        persistUserPhrase(key, text);
+                                        if (window.updateDotPhrases) { window.updateDotPhrases(); }
+                                    }
+                                  } else {
+                                    var selectedIds = Object.keys(fieldSelectionState).filter(function(id){ return fieldSelectionState[id]; });
+                                    if (!selectedIds.length) { alert('<?php echo xlt('Select at least one field'); ?>'); return; }
+                                    var obj = {};
+                                    selectedIds.forEach(function(id){
+                                        var el = document.getElementById(id);
+                                        if (el && el.value.trim()) {
+                                            obj[id] = el.value.trim();
+                                        }
+                                    });
+                                    
+                                    if (Object.keys(obj).length === 0) { alert('<?php echo xlt('Selected fields are empty'); ?>'); return; }
+
+                                    if (window.eyeMagAddDotPhraseObject) {
+                                        window.eyeMagAddDotPhraseObject(key, obj);
+                                        persistUserPhrase(key, obj);
+                                        if (window.updateDotPhrases) { window.updateDotPhrases(); }
+                                    }
+                                  }
+                                  $('#dotPhraseBuilderDialog').addClass('nodisplay');
+                                }
+                                document.getElementById('CLOSE_dotPhraseBuilderDialog').addEventListener('click', function(){ $('#dotPhraseBuilderDialog').addClass('nodisplay'); });
+                                document.getElementById('dotPhraseSave').addEventListener('click', savePhrase);
+                                document.getElementById('dotPhraseSingleText').addEventListener('input', function(){
+                                    this.style.height = 'auto';
+                                    this.style.height = (this.scrollHeight) + 'px';
+                                });
+                                document.getElementById('dotPhraseMode').addEventListener('change', syncModeUI);
+                                document.getElementById('dotPhraseZoneFilter').addEventListener('change', function(){ buildList(this.value); });
+                                document.getElementById('dotPhraseManage').addEventListener('click', function(){
+                                  var panel = document.getElementById('dotPhraseManagePanel');
+                                  panel.style.display = panel.style.display==='none' ? 'block' : 'none';
+                                  if (panel.style.display==='block') refreshManageList();
+                                });
+                                document.getElementById('dotPhraseImport').addEventListener('click', function(){
+                                  openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/manage_dot_phrases.php', '<?php echo xla('Manage Dot Phrases'); ?>');
+                                  return false;
+                                });
+                                var manageListState = { page: 1, pageSize: 5, search: '' };
+                                document.getElementById('dotPhraseSearch').addEventListener('input', function(e){
+                                    manageListState.search = e.target.value.toLowerCase();
+                                    manageListState.page = 1;
+                                    refreshManageList();
+                                });
+
+                                function refreshManageList(){
+                                  var list = document.getElementById('dotPhraseList');
+                                  var pagination = document.getElementById('dotPhrasePagination');
+                                  list.innerHTML='';
+                                  pagination.innerHTML='';
+                                  
+                                  var singles = (window.eyeMagListDotPhrases? window.eyeMagListDotPhrases():{});
+                                  var objects = (window.eyeMagListDotPhraseObjects? window.eyeMagListDotPhraseObjects():{});
+                                  
+                                  var allItems = [];
+                                  
+                                  Object.keys(singles).forEach(function(k){
+                                      if (typeof singles[k] === 'object') return;
+                                      allItems.push({
+                                          key: k,
+                                          type: 'single',
+                                          content: singles[k],
+                                          preview: singles[k]
+                                      });
+                                  });
+                                  
+                                  Object.keys(objects).forEach(function(k){
+                                      var obj = objects[k];
+                                      var values = [];
+                                      if (obj) {
+                                          for (var key in obj) { if (obj.hasOwnProperty(key)) values.push(obj[key]); }
+                                      }
+                                      var content = values.join(' ');
+                                      allItems.push({
+                                          key: k,
+                                          type: 'multi',
+                                          content: content,
+                                          preview: content,
+                                          raw: obj
+                                      });
+                                  });
+                                  
+                                  var term = manageListState.search;
+                                  var filtered = allItems.filter(function(item){
+                                      if (!term) return true;
+                                      return item.key.toLowerCase().indexOf(term) >= 0 || item.content.toLowerCase().indexOf(term) >= 0;
+                                  });
+                                  
+                                  filtered.sort(function(a,b){ return a.key.localeCompare(b.key); });
+                                  
+                                  var totalPages = Math.ceil(filtered.length / manageListState.pageSize);
+                                  if (manageListState.page > totalPages) manageListState.page = totalPages || 1;
+                                  if (manageListState.page < 1) manageListState.page = 1;
+                                  
+                                  var start = (manageListState.page - 1) * manageListState.pageSize;
+                                  var end = start + manageListState.pageSize;
+                                  var pageItems = filtered.slice(start, end);
+                                  
+                                  var table = document.createElement('table');
+                                  table.style.width = '100%';
+                                  table.style.borderCollapse = 'collapse';
+                                  
+                                  function truncate(str) {
+                                      if (!str) return '';
+                                      var words = str.split(/\s+/);
+                                      if (words.length > 20) {
+                                          return words.slice(0, 20).join(' ') + '...';
+                                      }
+                                      return str;
+                                  }
+
+                                  pageItems.forEach(function(item){
+                                    var tr = document.createElement('tr');
+                                    tr.style.borderBottom = '1px solid #eee';
+                                    
+                                    var tdName = document.createElement('td');
+                                    tdName.innerHTML = '<code>'+item.key+'</code>';
+                                    tdName.style.padding = '2px';
+                                    tdName.style.textAlign = 'left';
+                                    
+                                    var tdPreview = document.createElement('td');
+                                    tdPreview.innerText = truncate(item.preview);
+                                    tdPreview.style.color = '#555';
+                                    tdPreview.style.padding = '2px';
+                                    tdPreview.style.fontSize = '0.9em';
+                                    tdPreview.style.textAlign = 'left';
+                                    
+                                    var tdActions = document.createElement('td');
+                                    tdActions.style.textAlign = 'right';
+                                    tdActions.style.whiteSpace = 'nowrap';
+                                    tdActions.style.padding = '2px';
+                                    
+                                    if (item.type === 'single') {
+                                        tdActions.innerHTML = '<button data-k="'+item.key+'" class="dpEdit btn btn-xs"><?php echo xlt('Edit'); ?></button> <button data-k="'+item.key+'" class="dpDelete btn btn-xs"><?php echo xlt('Delete'); ?></button>';
+                                    } else {
+                                        tdActions.innerHTML = '<button data-k="'+item.key+'" class="dpEditM btn btn-xs"><?php echo xlt('Edit'); ?></button> <button data-k="'+item.key+'" class="dpDeleteM btn btn-xs"><?php echo xlt('Delete'); ?></button>';
+                                    }
+                                    
+                                    tr.appendChild(tdName);
+                                    tr.appendChild(tdPreview);
+                                    tr.appendChild(tdActions);
+                                    table.appendChild(tr);
+                                  });
+                                  
+                                  list.appendChild(table);
+                                  
+                                  if (totalPages > 1) {
+                                      var btnPrev = document.createElement('button');
+                                      btnPrev.className = 'btn btn-xs';
+                                      btnPrev.innerText = '<?php echo xlt('Prev'); ?>';
+                                      btnPrev.disabled = manageListState.page === 1;
+                                      btnPrev.onclick = function(){ manageListState.page--; refreshManageList(); };
+                                      
+                                      var spanInfo = document.createElement('span');
+                                      spanInfo.innerText = ' ' + manageListState.page + ' / ' + totalPages + ' ';
+                                      spanInfo.style.fontSize = '0.9em';
+                                      
+                                      var btnNext = document.createElement('button');
+                                      btnNext.className = 'btn btn-xs';
+                                      btnNext.innerText = '<?php echo xlt('Next'); ?>';
+                                      btnNext.disabled = manageListState.page === totalPages;
+                                      btnNext.onclick = function(){ manageListState.page++; refreshManageList(); };
+                                      
+                                      pagination.appendChild(btnPrev);
+                                      pagination.appendChild(spanInfo);
+                                      pagination.appendChild(btnNext);
+                                  }
+
+                                  list.querySelectorAll('.dpDelete').forEach(function(b){ b.addEventListener('click', function(){ if (window.eyeMagDeleteDotPhrase) { window.eyeMagDeleteDotPhrase(this.getAttribute('data-k')); refreshManageList(); syncPhrasesToServer(); }}); });
+                                  list.querySelectorAll('.dpDeleteM').forEach(function(b){ b.addEventListener('click', function(){ if (window.eyeMagDeleteDotPhraseObject) { window.eyeMagDeleteDotPhraseObject(this.getAttribute('data-k')); refreshManageList(); syncPhrasesToServer(); }}); });
+                                  list.querySelectorAll('.dpEdit').forEach(function(b){ b.addEventListener('click', function(){ var k=this.getAttribute('data-k'); var all=window.eyeMagListDotPhrases?window.eyeMagListDotPhrases():{}; var txt=all[k]||''; document.getElementById('dotPhraseKey').value=k; document.getElementById('dotPhraseMode').value='single'; document.getElementById('dotPhraseSingleText').value=txt; syncModeUI(); }); });
+                                  list.querySelectorAll('.dpEditM').forEach(function(b){ b.addEventListener('click', function(){ var k=this.getAttribute('data-k'); var all=window.eyeMagListDotPhraseObjects?window.eyeMagListDotPhraseObjects():{}; var obj=all[k]||{}; document.getElementById('dotPhraseKey').value=k; document.getElementById('dotPhraseMode').value='multi'; syncModeUI(); buildList('ALL');
+                                    var toCheck = Object.keys(obj||{});
+                                    document.querySelectorAll('.dpField').forEach(function(c){ var id=c.getAttribute('data-field'); c.checked = toCheck.indexOf(id)>=0; });
+                                  }); });
+                                }
+                                function syncPhrasesToServer() {
+                                  try {
+                                    var stored = localStorage.getItem('eyeMagUserPhrases');
+                                    var data = stored ? JSON.parse(stored) : {};
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '../../forms/eye_mag/save.php',
+                                        data: {
+                                            action: 'save_dot_phrases',
+                                            phrases: JSON.stringify(data)
+                                        },
+                                        success: function(res){
+                                            try {
+                                                var result = JSON.parse(res);
+                                                if (result.success) {
+                                                    console.log('Phrases synced to server successfully');
+                                                } else {
+                                                    console.error('Server returned error:', result);
+                                                }
+                                            } catch(e) {
+                                                console.error('Failed to parse server response:', e);
+                                            }
+                                        },
+                                        error: function(jqXHR, textStatus, errorThrown){
+                                            console.error('AJAX error syncing phrases to server:', textStatus, errorThrown);
+                                            alert('<?php echo xla('Warning: Phrases may not have been saved to server'); ?>');
+                                        }
+                                    });
+                                  } catch(e) { console.error(e); }
+                                }
+                                function persistUserPhrase(key,val){
+                                  try {
+                                    // 1. Update LocalStorage (for offline/backup)
+                                    var stored = localStorage.getItem('eyeMagUserPhrases');
+                                    var data = stored ? JSON.parse(stored) : {};
+                                    data[key.toLowerCase()] = val;
+                                    localStorage.setItem('eyeMagUserPhrases', JSON.stringify(data));
+                                    window.eyeMagUserPhrases = data; // keep runtime in sync
+
+                                    // 2. Save to Server (Persistent Storage) - async, but doesn't block expansion
+                                    syncPhrasesToServer();
+                                  } catch(e) { console.error('persistUserPhrase error:', e); }
+                                }
+                              })();
+                              </script>
+
+<!-- Signature Modal -->
+<div id="signatureModal" class="modal" style="display:none; position:fixed; z-index:10001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+  <div class="modal-content" style="background-color:#fefefe; margin:10% auto; padding:20px; border:1px solid #888; width:500px; border-radius:8px;">
+    <span class="closeButton fa fa-times" onclick="document.getElementById('signatureModal').style.display='none'" style="float:right; cursor:pointer;"></span>
+    <h2><?php echo xlt('Setup Signature'); ?></h2>
+    
+    <div class="tab" style="overflow: hidden; text-align: center; min-height: auto !important;">
+      <button class="tablinks active" onclick="openSignTab(event, 'SignDraw')" style="background-color: #ccc; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px;"><?php echo xlt('Draw'); ?></button>
+      <button class="tablinks" onclick="openSignTab(event, 'SignType')" style="background-color: inherit; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; font-size: 17px;"><?php echo xlt('Type'); ?></button>
+    </div>
+
+    <div id="SignDraw" class="tabcontent" style="display:block; border: none;">
+      <p><?php echo xlt('Draw your signature below:'); ?></p>
+      <div style="border: 1px solid #ccc; display: inline-block;">
+          <canvas id="signature-pad" width="450" height="150"></canvas>
+      </div>
+      <br>
+      <button type="button" class="btn btn-default btn-sm" onclick="signaturePad.clear()"><?php echo xlt('Clear'); ?></button>
+    </div>
+
+    <div id="SignType" class="tabcontent" style="display:none; border: none;">
+      <p><?php echo xlt('Type your name:'); ?></p>
+      <input type="text" id="typeSignatureInput" class="form-control" style="width:100%; margin-bottom:10px;" placeholder="<?php echo xla('John Doe, MD'); ?>">
+      <div style="border: 1px solid #ccc; display: inline-block; background: white;">
+          <canvas id="type-pad" width="450" height="150"></canvas>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; text-align: right;">
+        <button type="button" class="btn btn-primary" onclick="saveSignature()"><?php echo xlt('Save Signature'); ?></button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('signatureModal').style.display='none'"><?php echo xlt('Cancel'); ?></button>
+    </div>
+  </div>
+</div>
+
+<script src="<?php echo attr($GLOBALS['webroot']); ?>/portal/sign/assets/signature_pad.umd.js"></script>
+<script>
+var signaturePad;
+
+function showSignatureModal() {
+    document.getElementById('signatureModal').style.display = 'block';
+    var canvas = document.getElementById('signature-pad');
+    if (!signaturePad) {
+        // Ensure SignaturePad is loaded
+        if (typeof SignaturePad === 'undefined') {
+            console.error('SignaturePad library not loaded');
+            alert(<?php echo json_encode(xl('Signature library missing. Please contact support.')); ?>);
+            return;
+        }
+        signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)'
+        });
+    }
+    signaturePad.clear();
+    updateTypeCanvas();
+    
+    // Default to Draw tab
+    document.querySelector('.tablinks').click();
+}
+
+function openSignTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinks[i].style.backgroundColor = "inherit";
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+    evt.currentTarget.style.backgroundColor = "#ccc";
+}
+
+document.getElementById('typeSignatureInput').addEventListener('input', updateTypeCanvas);
+
+function updateTypeCanvas() {
+    var text = document.getElementById('typeSignatureInput').value;
+    var canvas = document.getElementById('type-pad');
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.font = "40px 'Brush Script MT', cursive"; 
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width/2, canvas.height/2);
+}
+
+function saveSignature() {
+    var dataURL;
+    var drawTab = document.getElementById('SignDraw');
+    
+    if (drawTab.style.display !== 'none') {
+        if (signaturePad.isEmpty()) {
+            alert(<?php echo json_encode(xl('Please provide a signature first.')); ?>);
+            return;
+        }
+        dataURL = signaturePad.toDataURL('image/png');
+    } else {
+        var canvas = document.getElementById('type-pad');
+        dataURL = canvas.toDataURL('image/png');
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '../../forms/eye_mag/save.php',
+        data: {
+            action: 'save_signature',
+            image: dataURL
+        },
+        success: function(res) {
+            try {
+                var result = JSON.parse(res);
+                if (result.success) {
+                    alert(<?php echo json_encode(xl('Signature saved successfully!')); ?>);
+                    document.getElementById('signatureModal').style.display = 'none';
+                } else {
+                    alert(<?php echo json_encode(xl('Error saving signature: ')); ?> + result.message);
+                }
+            } catch(e) {
+                console.error(e);
+                alert(<?php echo json_encode(xl('Error parsing server response.')); ?>);
+            }
+        },
+        error: function() {
+            alert(<?php echo json_encode(xl('Error communicating with server.')); ?>);
+        }
+    });
+}
+</script>
+</body>
 </html>

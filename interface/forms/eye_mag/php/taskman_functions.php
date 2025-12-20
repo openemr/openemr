@@ -23,11 +23,19 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 $facilityService = new FacilityService();
 
+function taskman_debug_log($msg): void
+{
+    $logFile = __DIR__ . '/../taskman_debug.log';
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $msg\n", FILE_APPEND);
+}
+
 /**
  *  This function creates a task as a record in the form_taskman DB_table.
  */
 function make_task($ajax_req): void
 {
+    taskman_debug_log("Entering make_task");
     global $send;
 
     $from_id    = $ajax_req['from_id'];
@@ -47,6 +55,11 @@ function make_task($ajax_req): void
 
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
     $task = sqlQuery($sql, [$from_id,$to_id,$patient_id,$enc]);
+
+    if ($task) {
+        $task['to_name'] = $to_data['fname'] . ' ' . $to_data['lname'];
+        $task['to_fax'] = $to_data['fax'];
+    }
 
     if (!empty($task['COMPLETED_DATE'])) {
         $dated = new DateTime($task['COMPLETED_DATE']);
@@ -69,7 +82,7 @@ function make_task($ajax_req): void
     } elseif (($task['ID'] ?? '') && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
-                                    onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+                                    onclick=\"openNewForm('" . attr($GLOBALS['webroot']) . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                     title='" . xla('View the Summary Report sent to') .
                                             text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) . "'>
 								    <i class='far fa-file-pdf fa-fw'></i>
@@ -113,6 +126,13 @@ function make_task($ajax_req): void
 function process_tasks($task)
 {
     global $send;
+
+    // Fetch recipient details since they aren't in the task table
+    $query = "SELECT * FROM users WHERE id=?";
+    $to_data = sqlQuery($query, [$task['TO_ID']]);
+    $task['to_name'] = $to_data['fname'] . ' ' . $to_data['lname'];
+    $task['to_fax'] = $to_data['fax'];
+
     /**
      *  First see if the doc_ID exists
      *  if not we need to create this
@@ -128,7 +148,7 @@ function process_tasks($task)
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
-        $send['DOC_link'] = "<a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+        $send['DOC_link'] = "<a onclick=\"openNewForm('" . attr($GLOBALS['webroot']) . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                 href=\"JavaScript:void(0);\"
                                 title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
                                 text($task['COMPLETED_DATE']) . ". " . xla('Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
@@ -181,6 +201,8 @@ function update_taskman($task, $action, $value): void
 function deliver_document($task)
 {
     global $facilityService;
+    taskman_debug_log("Entering deliver_document");
+
     $facility_data  = $facilityService->getPrimaryBillingLocation();
 
     $query          = "SELECT * FROM users WHERE id=?";
@@ -190,34 +212,80 @@ function deliver_document($task)
         $from_name .= ", " . $from_data['suffix'];
     }
     $from_fax       = preg_replace("/[^0-9]/", "", (string) $facility_data['fax']);
-    $email_sender   = $GLOBALS['patient_reminder_sender_email'];
+
+    // Use SMTP User as the sender email
+    $email_sender = $GLOBALS['SMTP_USER'];
+
+    if (empty($email_sender)) {
+         $email_sender = $facility_data['email'] ?? 'noreply@' . ($_SERVER['SERVER_NAME'] ?? 'localhost');
+         taskman_debug_log("Warning: SMTP User global not set. Using fallback: $email_sender");
+    } else {
+         taskman_debug_log("Using SMTP User as sender: $email_sender");
+    }
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
 
     $mail           = new MyMailer();
 
-    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
-    //consider using admin email = Notification Email Address
-    //this must be a fax server approved From: address
-    $file_to_attach = preg_replace('/^file:\/\//', "", (string) $task['DOC_url']);
-    $file_name      = preg_replace('/^.*\//', "", (string) $task['DOC_url']);
+    // Auto-fix for Port 465 (Implicit SSL) if user forgot to set 'ssl' in Globals
+    if (($GLOBALS['SMTP_PORT'] == 465) && empty($GLOBALS['SMTP_SECURE'])) {
+        $mail->SMTPSecure = 'ssl';
+    }
+
+    $fax_domain = $GLOBALS['hylafax_server'] ?? '';
+    if (empty($fax_domain)) {
+        taskman_debug_log("Error: hylafax_server global not set.");
+        error_log("Taskman Error: hylafax_server global not set.", 0);
+        return false;
+    }
+
+    $to_email       = $to_fax . "@" . $fax_domain;
+    taskman_debug_log("Sending fax to email: $to_email");
+
+    // Retrieve document content using Document class to handle encryption/storage abstraction
+    $doc_id = $task['DOC_ID'];
+    try {
+        $doc = new Document($doc_id);
+        $file_content = $doc->get_data();
+    } catch (\Exception $e) {
+        taskman_debug_log("CRITICAL ERROR: Failed to retrieve document data: " . $e->getMessage());
+        error_log("Taskman Error: Failed to retrieve document data: " . $e->getMessage(), 0);
+        return false;
+    }
+
+    if ($file_content === false) {
+        taskman_debug_log("CRITICAL ERROR: Document data is empty or invalid for Doc ID: $doc_id");
+        return false;
+    }
+
+    $file_name = preg_replace('/^.*\//', "", (string) $task['DOC_url']);
+
+    // Ensure the attachment filename ends in .pdf
+    if (strlen((string) $file_name) < 4 || strcasecmp(substr((string) $file_name, -4), '.pdf') != 0) {
+        $file_name .= ".pdf";
+    }
+
+    taskman_debug_log("Attaching document ID: $doc_id (Size: " . strlen($file_content) . " bytes)");
 
     $mail->AddReplyTo($email_sender, $from_name);
     $mail->SetFrom($email_sender, $from_name);
     $mail->AddAddress($to_email);
     if ($from_fax == '') {
+        taskman_debug_log("Taskman Error: No from_fax value found");
         error_log("Taskman Error: No from_fax value found", 0);
         exit();
     }
     $mail->Subject = $from_fax;
     $mail->Body = ' ';
-    $mail->AddAttachment($file_to_attach, $file_name);
+    $mail->AddStringAttachment($file_content, $file_name);
     if ($mail->Send()) {
+        taskman_debug_log("NO ERROR: email sent to " . $to_email);
         error_log("NO ERROR: email sent to " . $to_email, '0');
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
+        taskman_debug_log("EMAIL ERROR: " . $email_status);
         error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
         return false;
     }
@@ -246,10 +314,6 @@ function make_document($task)
     global $facilityService;
     global $web_root, $webserver_root;
 
-    /**
-     * We want to store the current PDF version of this task.
-     */
-
     $facility_data  = $facilityService->getPrimaryBillingLocation();
 
     $query          = "SELECT * FROM users WHERE id=?";
@@ -258,8 +322,6 @@ function make_document($task)
     if (!empty($from_data['suffix'])) {
         $from_name .= ", " . $from_data['suffix'];
     }
- //   $from_fax       = preg_replace("/[^0-9]/", "", $facility_data['fax']);
- //   $email_sender   = $GLOBALS['patient_reminder_sender_email'];
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_name        = $to_data['fname'] . " " . $to_data['lname'];
@@ -273,58 +335,19 @@ function make_document($task)
     $query          = "SELECT * FROM patient_data where pid=?";
     $patientData    = sqlQuery($query, [$task['PATIENT_ID']]);
     $pt_name        = $patientData['fname'] . ' ' . $patientData['lname'];
-
+    $pid            = $task['PATIENT_ID'];
     $encounter      = $task['ENC_ID'];
 
- //   $mail           = new MyMailer();
-    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
-
-    $query = "select  *,form_encounter.date as encounter_date
-
-               from forms,form_encounter,form_eye_base,
-                form_eye_hpi,form_eye_ros,form_eye_vitals,
-                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
-                form_eye_external, form_eye_antseg,form_eye_postseg,
-                form_eye_neuro,form_eye_locking
-                    where
-                    forms.deleted != '1'  and
-                    forms.formdir='eye_mag' and
-                    forms.encounter=form_encounter.encounter  and
-                    forms.form_id=form_eye_base.id and
-                    forms.form_id=form_eye_hpi.id and
-                    forms.form_id=form_eye_ros.id and
-                    forms.form_id=form_eye_vitals.id and
-                    forms.form_id=form_eye_acuity.id and
-                    forms.form_id=form_eye_refraction.id and
-                    forms.form_id=form_eye_biometrics.id and
-                    forms.form_id=form_eye_external.id and
-                    forms.form_id=form_eye_antseg.id and
-                    forms.form_id=form_eye_postseg.id and
-                    forms.form_id=form_eye_neuro.id and
-                    forms.form_id=form_eye_locking.id and
-                    forms.encounter =? and
-                    forms.pid=?";
-
-    $encounter_data = sqlQuery($query, [$encounter,$task['PATIENT_ID']]);
-    @extract($encounter_data);
-    $providerID     = getProviderIdOfEncounter($encounter);
-    $providerNAME   = getProviderName($providerID);
-    $dated          = new DateTime($encounter_date);//encounter_date comes from the @extract above
-    $dated          = $dated->format('Y/m/d');
-    $visit_date     = oeFormatShortDate($dated);
-    $pid            = $task['PATIENT_ID'];
+    // Get encounter date
+    $query = "SELECT date FROM form_encounter WHERE encounter=?";
+    $enc_res = sqlQuery($query, [$encounter]);
+    $dated = new DateTime($enc_res['date']);
+    $visit_date = oeFormatShortDate($dated->format('Y-m-d'));
 
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $task['PATIENT_ID'];
 
-    // So far we make A "Report", one per encounter, and "Faxes", as many as we need per encounter.
-    // So delete any prior report if that is what we are doing. and replace it.
-    // If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to
-    //  always remake it?  For now, REMAKE IT...
-
     if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
-        $category_name  = "Communication%"; //Faxes are stored in the Documents->Eye Module->Communication-Eye category.
-        // Do we need to translate this?
-        // $category_name = xl('Communication');
+        $category_name  = "Communication%";
         $query          = "select id from categories where name  like ?";
         $ID             = sqlQuery($query, [$category_name]);
         $category_id    = $ID['id'];
@@ -339,232 +362,261 @@ function make_document($task)
         $query          = "select id from categories where name like ?";
         $ID             = sqlQuery($query, [$category_name]);
         $category_id    = $ID['id'];
-
         $filename       = "Report_" . $encounter . ".pdf";
-        foreach (glob($filepath . '/' . $filename) as $file) {
-            unlink($file);
-        }
-
-        $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-        sqlQuery($sql, ["%" . $filename]);
-        $sql = "DELETE from documents where documents.url like ?";
-        sqlQuery($sql, ["%" . $filename]);
     }
 
     $config_mpdf = Config_Mpdf::getConfigMpdf();
-    $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
-        $pdf->SetDirectionality('rtl');
+
+    // Suppress warnings during PDF generation
+    $old_level = error_reporting(0);
+
+    try {
+        $pdf = new mPDF($config_mpdf);
+    } catch (\Throwable $e) {
+        taskman_debug_log("Failed to instantiate mPDF: " . $e->getMessage());
+        error_reporting($old_level);
+        throw $e;
     }
 
-    ob_start();
-    ?><html>
+    $html = '
+    <html>
     <head>
-        <TITLE><?php echo xlt('Taskman: Documents in openEMR'); ?></TITLE>
         <style>
-            .wrapper {
-                margin:20px;
+            body { font-family: sans-serif; font-size: 11pt; }
+            .header-box { 
+                border: 2px solid #000; 
+                padding: 15px; 
+                margin-bottom: 20px; 
+                background-color: #f5f5f5;
             }
-            .col1 {
-                font-weight:bold;
-                width:100px;
-                padding:10px;
-                text-align:right;
+            h1 { text-align: center; margin: 0; padding-bottom: 10px; border-bottom: 2px solid #000; font-size: 24pt; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            td { padding: 8px; vertical-align: top; }
+            .label { font-weight: bold; width: 15%; text-align: right; padding-right: 10px; color: #333; }
+            .value { width: 35%; border-bottom: 1px solid #ccc; }
+            .full-width { width: 100%; }
+            .comments-box { 
+                border: 1px solid #000; 
+                padding: 15px; 
+                min-height: 200px; 
+                margin-top: 10px;
+                background-color: #fff;
             }
-            .col2 {
-                width:375px;
-                padding:10px;
+            .footer { 
+                margin-top: 40px; 
+                font-size: 8pt; 
+                text-align: justify; 
+                border-top: 1px solid #000;
+                padding-top: 10px;
+                color: #555;
             }
+            .facility-info { text-align: center; margin-top: 10px; font-size: 10pt; }
         </style>
-        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
     </head>
     <body>
-    <?php
-    if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
-        ?>
-        <div class='wrapper'>
-        <?php echo report_header($task['PATIENT_ID'], 'PDF'); ?>
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <hr />
-            <table style="margin-left:150px;" cellspacing="20">
-                <tr>
-                <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;"><?php echo xlt('From'); ?>:</td>
-                    <td style="width:375px; padding:10px;">
-                    <?php echo text($from_name); ?><br />
-
-                    </td>
-                </tr>
-                <tr>
-                <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;"><?php echo xlt('Address'); ?>:</td>
-                    <td style="width:375px; padding:10px;">
-                    <?php if ($from_data['name']) {
-                        echo text($from_data['name']) . "<br />";
-                    } ?>
-                    <?php echo text($from_data['street']); ?><br />
-                    <?php echo text($from_data['city']); ?>, <?php echo text($from_data['state']) . " " . text($from_data['zip']); ?>
-                        <br />
-                    </td>
-                </tr>
-                <tr>
-                    <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;">
-                    <?php echo xlt('Phone'); ?>:
-                    </td>
-                    <td style="width:375px; padding:10px;">
-                    <?php echo text($from_data['phonew1']); ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;">
-                    <?php echo xlt('Fax'); ?>:
-                    </td>
-                <td style="width:375px; padding:10px;"><?php echo text($from_data['fax']); ?><br />
-                    </td>
-                </tr>
-                <tr>
-                <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;"><?php echo xlt('To{{Destination}}'); ?>:</td>
-                <td style="width:375px; padding:10px;"><?php echo text($to_name); ?></td>
-                </tr>
-                <tr>
-                <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;"><?php echo xlt('Address'); ?>:</td>
-                    <td style="width:375px;padding:10px;">
-                    <?php echo text($to_data['street']) . "<br />
-				 			" . text($to_data['city']) . ", " . text($to_data['state']) . " " . text($to_data['zip']); ?>
-                            <br />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;">
-                            <?php echo xlt('Phone'); ?>:
-                        </td>
-                        <td style="width:375px;padding:10px;">
-                            <?php echo text($to_data['phonew1']); ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;">
-                            <?php echo xlt('Fax'); ?>:
-                        </td>
-                        <td style="width:375px;padding:10px;">
-                            <?php echo text($to_data['fax']); ?>
-                        </td>
-                    </tr>
-                    <tr><td colspan="2"><br /><hr /></td></tr>
-                    <tr>
-                        <td style="font-weight:bold;
-                            width:100px;
-                            padding:10px;
-                            text-align:right;">
-                            <?php echo xlt('Comments'); ?>:
-                        </td>
-                        <td style="width:375px;padding:10px;"><?php echo xlt('Report of visit'); ?>: <?php echo text($pt_name); ?> on <?php echo text($visit_date); ?>
-                        </td>
-                    </tr>
-            </table>
+        <div class="header-box">
+            <h1>FAX COVER SHEET</h1>
+            <div class="facility-info">
+                <strong>' . text($facility_data['name']) . '</strong><br>
+                ' . text($facility_data['street']) . '<br>
+                ' . text($facility_data['city']) . ', ' . text($facility_data['state']) . ' ' . text($facility_data['zip']) . '<br>
+                Phone: ' . text($facility_data['phone']) . ' | Fax: ' . text($facility_data['fax']) . '
+            </div>
         </div>
-        <?php
-        echo '<pagebreak resetpagenum="1" pagenumstyle="1" suppress="off" />';
-    }
 
-    narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
-    ?>
+        <table>
+            <tr>
+                <td class="label">To:</td>
+                <td class="value">' . text($to_name) . '</td>
+                <td class="label">From:</td>
+                <td class="value">' . text($from_name) . '</td>
+            </tr>
+            <tr>
+                <td class="label">Fax:</td>
+                <td class="value">' . text($to_data['fax']) . '</td>
+                <td class="label">Date:</td>
+                <td class="value">' . date('F j, Y') . '</td>
+            </tr>
+            <tr>
+                <td class="label">Phone:</td>
+                <td class="value">' . text($to_data['phonew1']) . '</td>
+                <td class="label">Pages:</td>
+                <td class="value">1 (including cover)</td>
+            </tr>
+            <tr>
+                <td class="label">Re:</td>
+                <td class="value" colspan="3">Patient Report: ' . text($pt_name) . ' (DOB: ' . text($patientData['DOB']) . ')</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 25px;">
+            <strong>Comments:</strong>
+            <div class="comments-box">
+                <p>Report of visit for <strong>' . text($pt_name) . '</strong> on <strong>' . text($visit_date) . '</strong>.</p>
+                <p>Please find the attached medical records.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <strong>CONFIDENTIALITY NOTICE:</strong> The information contained in this facsimile message is privileged and confidential information intended only for the use of the individual or entity named above. If the reader of this message is not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please immediately notify us by telephone and return the original message to us at the above address via the U.S. Postal Service.
+        </div>
     </body>
-    </html>
-    <?php
-    $content = ob_get_clean();
+    </html>';
 
-    $header = '<!--mpdf
+    // Write the Cover Sheet
+    $pdf->WriteHTML($html);
 
-<htmlpageheader name="letterheader">
-    <div style="border-bottom: 1px solid #000000; font-size: 9pt; text-align: center; padding-top: 3mm; font-family: sans-serif; ">
-         From: ' . text($facility_data['name']) . '   on {DATE F j, Y}  Medical Report: ' . text($pt_name) . ' --- HIPAA-protected ----
-    </div>
-</htmlpageheader>
+    // --- Clinical Content Generation ---
 
-<htmlpagefooter name="letterfooter2">
-    <div style="border-top: 1px solid #000000; font-size: 7pt; text-align: center; font-family: sans-serif; ">
-         Created: {DATE m-j-Y} --- Page {PAGENO} of {nbpg} ---  Medical Report: ' . text($pt_name) . ' --- HIPAA-protected ----  ' . text($facility_data['name']) . '
-    </div>
-</htmlpagefooter>
-mpdf-->
+    // 1. Fetch Form ID
+    $query = "SELECT form_id FROM forms WHERE encounter = ? AND formdir = 'eye_mag' AND deleted = 0 LIMIT 1";
+    $formData = sqlQuery($query, [$encounter]);
+    $form_id = $formData['form_id'] ?? 0;
 
-<style>
-    @page {
-        footer: html_letterfooter2;
-        background-color: white;
+    taskman_debug_log("Taskman: Encounter $encounter has Form ID: $form_id");
+
+    if ($form_id) {
+        // Add a new page for clinical data
+        $pdf->AddPage();
+
+        // Fetch Provider Data
+        $providerID = getProviderIdOfEncounter($encounter);
+        $providerNAME = getProviderName($providerID);
+
+        // Fetch HPI Data
+        $query = "SELECT CC1, CC2, CC3, HPI1 FROM form_eye_hpi WHERE id = ?";
+        $hpiData = sqlQuery($query, [$form_id]);
+
+        $clinical_html = '
+        <style>
+            body { font-family: sans-serif; font-size: 11pt; }
+            .letter-header { text-align: center; margin-bottom: 30px; }
+            .letter-date { text-align: right; margin-bottom: 20px; }
+            .recipient-block { margin-bottom: 20px; }
+            .re-block { font-weight: bold; margin-bottom: 20px; }
+            .salutation { margin-bottom: 15px; }
+            .body-text { margin-bottom: 15px; line-height: 1.4; }
+            .section-title { font-weight: bold; text-decoration: underline; margin-top: 15px; margin-bottom: 5px; }
+            .item-block { margin-bottom: 10px; margin-left: 10px; }
+            .item-title { font-weight: bold; }
+            .item-detail { margin-left: 15px; font-style: italic; }
+            .closing { margin-top: 40px; }
+            .signature { font-weight: bold; margin-top: 40px; }
+        </style>
+        
+        <div class="letter-header">
+            <h2>' . text($facility_data['name']) . '</h2>
+            <div>' . text($facility_data['street']) . '</div>
+            <div>' . text($facility_data['city']) . ', ' . text($facility_data['state']) . ' ' . text($facility_data['zip']) . '</div>
+            <div>Phone: ' . text($facility_data['phone']) . ' | Fax: ' . text($facility_data['fax']) . '</div>
+        </div>
+
+        <div class="letter-date">' . date('F j, Y') . '</div>
+
+        <div class="recipient-block">
+            ' . text($to_name) . '<br>
+            Fax: ' . text($to_data['fax']) . '
+        </div>
+
+        <div class="re-block">
+            RE: ' . text($pt_name) . '<br>
+            DOB: ' . text($patientData['DOB']) . '<br>
+            Date of Visit: ' . text($visit_date) . '
+        </div>
+
+        <div class="salutation">Dear ' . text($to_name) . ',</div>
+
+        <div class="body-text">
+            It was a pleasure to see ' . text($pt_name) . ' in our office on ' . text($visit_date) . '. 
+            Below is a summary of the examination.
+        </div>';
+
+        // Chief Complaint Section
+        $clinical_html .= '<div class="section-title">Chief Complaint:</div>';
+        if (!empty($hpiData['CC1'])) {
+            $clinical_html .= '<div class="item-block">1. ' . text($hpiData['CC1']) . '</div>';
+        }
+        if (!empty($hpiData['CC2'])) {
+            $clinical_html .= '<div class="item-block">2. ' . text($hpiData['CC2']) . '</div>';
+        }
+        if (!empty($hpiData['CC3'])) {
+            $clinical_html .= '<div class="item-block">3. ' . text($hpiData['CC3']) . '</div>';
+        }
+
+        // HPI Section
+        if (!empty($hpiData['HPI1'])) {
+             $clinical_html .= '<div class="section-title">History of Present Illness:</div>';
+             $clinical_html .= '<div class="body-text">' . text($hpiData['HPI1']) . '</div>';
+        }
+
+        // Impression/Plan Section
+        $query = "SELECT * FROM form_eye_mag_impplan WHERE form_id=? AND pid=? ORDER BY IMPPLAN_order ASC";
+        $impplan_result = sqlStatement($query, [$form_id, $pid]);
+
+        if (sqlNumRows($impplan_result) > 0) {
+            $clinical_html .= '<div class="section-title">Impression/Plan:</div>';
+            while ($row = sqlFetchArray($impplan_result)) {
+                $clinical_html .= '<div class="item-block">';
+                $clinical_html .= '<span class="item-title">' . ($row['IMPPLAN_order'] + 1) . '. ' . text($row['title']) . '</span>';
+
+                $code_text = '';
+                if ($row['codetext']) {
+                    $code_text = text($row['codetext']);
+                } elseif ($row['code'] && !preg_match('/Code/', (string) $row['code'])) {
+                    $code_text = ($row['codetype'] ? $row['codetype'] . ": " : "") . $row['code'];
+                }
+
+                if ($code_text) {
+                    $clinical_html .= '<div class="item-detail">' . $code_text . '</div>';
+                }
+
+                if ($row['plan']) {
+                    $plan_text = str_replace(["\r\n", "\n", "\r"], "<br />", $row['plan']);
+                    $clinical_html .= '<div class="item-detail" style="font-style: normal;">' . $plan_text . '</div>';
+                }
+                $clinical_html .= '</div>';
+            }
+        }
+
+        // Orders Section
+        $query = "SELECT * FROM form_eye_mag_orders WHERE form_id=? AND pid=? ORDER BY id ASC";
+        $orders_result = sqlStatement($query, [$form_id, $pid]);
+
+        if (sqlNumRows($orders_result) > 0) {
+            $clinical_html .= '<div class="section-title">Orders / Next Visit:</div>';
+            while ($row = sqlFetchArray($orders_result)) {
+                $clinical_html .= '<div class="item-block">' . text($row['ORDER_DETAILS']) . '</div>';
+            }
+        }
+
+        $clinical_html .= '
+        <div class="closing">
+            Sincerely,<br><br><br>
+            <strong>' . text($providerNAME) . '</strong><br>
+            ' . text($facility_data['name']) . '
+        </div>';
+
+        $pdf->WriteHTML($clinical_html);
     }
-  ';
 
-    if (($task['DOC_TYPE'] == 'Fax') || ($task['DOC_TYPE'] == 'Fax-resend')) {
-            //make the fax coversheet light blue just because we can
-        $header .= '
-    @page :first {
-        resetpagenum: 0;
-        background-color: azure;
-        footer: _blank;
-    }
-    ';
-    }
-
-    $header .= '
-    @page letterhead  {
-        header: letterheader;
-        footer: _blank;
-        resetpagenum: 0;
-        background-color: white;
-    }
-    .letter {
-        page-break-before: always;
-        page: letterhead;
-    }
-</style>';
-
-    $stylesheet = file_get_contents('/var/www/localhost/htdocs/openemr/interface/forms/eye_mag/css/report.css');
-
-    //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
-    $pdf->WriteHTML($header);
-    $pdf->writeHTML($content);
-
-    $temp_filename = tempnam($GLOBALS['temporary_files_dir'], "oer");
+    $temp_filename = tempnam(sys_get_temp_dir(), 'fax_pdf_');
     $pdf->Output($temp_filename, 'F');
+
+    // Restore error reporting
+    error_reporting($old_level);
 
     $type = "application/pdf";
     $size = filesize($temp_filename);
     $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $task['FROM_ID'], $task['PATIENT_ID'], $category_id, '', 1, true);
-    unlink($temp_filename);
+
+    if (file_exists($temp_filename)) {
+        unlink($temp_filename);
+    }
 
     $task['DOC_ID'] = $return['doc_id'];
-    $task['DOC_url'] = $filepath . '/' . $filename;
-    $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
+    // Use the actual URL returned by the document system to ensure we have the correct filename (e.g. if renamed)
+    $task['DOC_url'] = $return['url'];
+    $sql = "UPDATE documents set encounter_id=? where id=?";
     sqlQuery($sql, [$encounter,$task['DOC_ID']]);
 
     return $task;
