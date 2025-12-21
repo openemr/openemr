@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRx.php Redirect to NewCrop pages.
+ * interface/eRx.php Redirect to Ensora eRx pages.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -46,7 +46,7 @@ $eRxPage->setAuthUserId(array_key_exists_default('authUserID', $_SESSION))
 ?>
 <html>
     <head>
-        <title><?php echo xlt('New Crop'); ?></title>
+        <title><?php echo xlt('Ensora eRx'); ?></title>
     </head>
     <body>
 <?php

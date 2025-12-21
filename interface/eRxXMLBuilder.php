@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxXMLBuilder.php Functions for building NewCrop XML.
+ * interface/eRxXMLBuilder.php Functions for building Ensora eRx XML.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
