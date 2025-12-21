@@ -144,7 +144,7 @@ if ($appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
-        $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
         $appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
@@ -178,7 +178,7 @@ if ($past_appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
-        $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
         $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
@@ -343,7 +343,7 @@ $styleArray = collectStyles();
 $isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
-$twig = (new TwigContainer('', $globalsBag->getKernel()))->getTwig();
+$twig = (new TwigContainer('', $globalsBag->get('kernel')))->getTwig();
 try {
     $healthSnapshot = [
         'immunizationRecords' => $immunRecords,
@@ -351,7 +351,7 @@ try {
     ];
     $patientReportEvent = new PatientReportFilterEvent();
     $patientReportEvent->setDataElement('healthSnapshot', $healthSnapshot);
-    $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
+    $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
     $data = [
         'user' => $user,
         'whereto' => ($_SESSION['whereto'] ?? null) ?: ($whereto ?? '#quickstart-card'),
