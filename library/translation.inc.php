@@ -65,83 +65,88 @@ if (!(function_exists('xl'))) {
 //    xl_document_category()
 //    xl_appt_category()
 //
-// Added 5-09 by BM for translation of list labels (when applicable)
-// Only translates if the $GLOBALS['translate_lists'] is set to true.
+/**
+ * Conditionally translates list labels based on global setting
+ * 
+ * Only translates if $GLOBALS['translate_lists'] is set to true.
+ * Added 5-09 by BM.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated or original string
+ */
 function xl_list_label(string $constant): string
 {
-    if ($GLOBALS['translate_lists']) {
-        // TRANSLATE
-        return xl($constant);
-    } else {
-        // DO NOT TRANSLATE
-        return $constant;
-    }
+    return $GLOBALS['translate_lists'] ? xl($constant) : $constant;
 }
-// Added 5-09 by BM for translation of layout labels (when applicable)
-// Only translates if the $GLOBALS['translate_layout'] is set to true.
+
+/**
+ * Conditionally translates layout labels based on global setting
+ * 
+ * Only translates if $GLOBALS['translate_layout'] is set to true.
+ * Added 5-09 by BM.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated or original string
+ */
 function xl_layout_label(string $constant): string
 {
-    if ($GLOBALS['translate_layout']) {
-        // TRANSLATE
-        return xl($constant);
-    } else {
-        // DO NOT TRANSLATE
-        return $constant;
-    }
+    return $GLOBALS['translate_layout'] ? xl($constant) : $constant;
 }
-// Added 6-2009 by BM for translation of access control group labels
-//  (when applicable)
-// Only translates if the $GLOBALS['translate_gacl_groups'] is set to true.
+
+/**
+ * Conditionally translates access control group labels based on global setting
+ * 
+ * Only translates if $GLOBALS['translate_gacl_groups'] is set to true.
+ * Added 6-2009 by BM.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated or original string
+ */
 function xl_gacl_group(string $constant): string
 {
-    if ($GLOBALS['translate_gacl_groups']) {
-        // TRANSLATE
-        return xl($constant);
-    } else {
-        // DO NOT TRANSLATE
-        return $constant;
-    }
+    return $GLOBALS['translate_gacl_groups'] ? xl($constant) : $constant;
 }
-// Added 6-2009 by BM for translation of patient form (notes) titles
-//  (when applicable)
-// Only translates if the $GLOBALS['translate_form_titles'] is set to true.
+
+/**
+ * Conditionally translates patient form (notes) titles based on global setting
+ * 
+ * Only translates if $GLOBALS['translate_form_titles'] is set to true.
+ * Added 6-2009 by BM.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated or original string
+ */
 function xl_form_title(string $constant): string
 {
-    if ($GLOBALS['translate_form_titles']) {
-        // TRANSLATE
-        return xl($constant);
-    } else {
-        // DO NOT TRANSLATE
-        return $constant;
-    }
+    return $GLOBALS['translate_form_titles'] ? xl($constant) : $constant;
 }
-//
-// Added 6-2009 by BM for translation of document categories
-//  (when applicable)
-// Only translates if the $GLOBALS['translate_document_categories'] is set to true.
+
+/**
+ * Conditionally translates document categories based on global setting
+ * 
+ * Only translates if $GLOBALS['translate_document_categories'] is set to true.
+ * Added 6-2009 by BM.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated or original string
+ */
 function xl_document_category(string $constant): string
 {
-    if ($GLOBALS['translate_document_categories']) {
-        // TRANSLATE
-        return xl($constant);
-    } else {
-        // DO NOT TRANSLATE
-        return $constant;
-    }
+    return $GLOBALS['translate_document_categories'] ? xl($constant) : $constant;
 }
-//
-// Added 6-2009 by BM for translation of appointment categories
-//  (when applicable)
-// Only translates if the $GLOBALS['translate_appt_categories'] is set to true.
+
+/**
+ * Conditionally translates appointment categories based on global setting
+ * 
+ * Only translates if $GLOBALS['translate_appt_categories'] is set to true.
+ * Added 6-2009 by BM.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated or original string
+ */
 function xl_appt_category(string $constant): string
 {
-    if ($GLOBALS['translate_appt_categories']) {
-        // TRANSLATE
-        return xl($constant);
-    } else {
-        // DO NOT TRANSLATE
-        return $constant;
-    }
+    return $GLOBALS['translate_appt_categories'] ? xl($constant) : $constant;
 }
 // ---------------------------------------------------------------------------
 
