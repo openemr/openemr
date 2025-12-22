@@ -1,13 +1,17 @@
 <?php
 
-// Translation function
-// This is the translation engine
-//
-// Note there are cases in installation where this function has already been
-//  declared, so check to ensure has not been declared yet.
-//
+/**
+ * Translation function - the translation engine for OpenEMR
+ * 
+ * Translates a given constant string into the current session language.
+ * Note: In some installation scenarios this function may already be declared,
+ * so we check to ensure it hasn't been declared yet.
+ *
+ * @param string $constant The text constant to translate
+ * @return string The translated string
+ */
 if (!(function_exists('xl'))) {
-    function xl($constant)
+    function xl(string $constant): string
     {
         if (!empty($GLOBALS['temp_skip_translations'])) {
             return $constant;
@@ -21,7 +25,7 @@ if (!(function_exists('xl'))) {
         // convert new lines to spaces and remove windows end of lines
         $patterns =  ['/\n/','/\r/'];
         $replace =  [' ',''];
-        $constant = preg_replace($patterns, $replace, $constant ?? '');
+        $constant = preg_replace($patterns, $replace, $constant);
         // second, attempt translation
         $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
         "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
@@ -63,7 +67,7 @@ if (!(function_exists('xl'))) {
 //
 // Added 5-09 by BM for translation of list labels (when applicable)
 // Only translates if the $GLOBALS['translate_lists'] is set to true.
-function xl_list_label($constant)
+function xl_list_label(string $constant): string
 {
     if ($GLOBALS['translate_lists']) {
         // TRANSLATE
@@ -75,7 +79,7 @@ function xl_list_label($constant)
 }
 // Added 5-09 by BM for translation of layout labels (when applicable)
 // Only translates if the $GLOBALS['translate_layout'] is set to true.
-function xl_layout_label($constant)
+function xl_layout_label(string $constant): string
 {
     if ($GLOBALS['translate_layout']) {
         // TRANSLATE
@@ -88,7 +92,7 @@ function xl_layout_label($constant)
 // Added 6-2009 by BM for translation of access control group labels
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_gacl_groups'] is set to true.
-function xl_gacl_group($constant)
+function xl_gacl_group(string $constant): string
 {
     if ($GLOBALS['translate_gacl_groups']) {
         // TRANSLATE
@@ -101,7 +105,7 @@ function xl_gacl_group($constant)
 // Added 6-2009 by BM for translation of patient form (notes) titles
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_form_titles'] is set to true.
-function xl_form_title($constant)
+function xl_form_title(string $constant): string
 {
     if ($GLOBALS['translate_form_titles']) {
         // TRANSLATE
@@ -115,7 +119,7 @@ function xl_form_title($constant)
 // Added 6-2009 by BM for translation of document categories
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_document_categories'] is set to true.
-function xl_document_category($constant)
+function xl_document_category(string $constant): string
 {
     if ($GLOBALS['translate_document_categories']) {
         // TRANSLATE
@@ -129,7 +133,7 @@ function xl_document_category($constant)
 // Added 6-2009 by BM for translation of appointment categories
 //  (when applicable)
 // Only translates if the $GLOBALS['translate_appt_categories'] is set to true.
-function xl_appt_category($constant)
+function xl_appt_category(string $constant): string
 {
     if ($GLOBALS['translate_appt_categories']) {
         // TRANSLATE
