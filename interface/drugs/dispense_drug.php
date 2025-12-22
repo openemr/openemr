@@ -189,7 +189,7 @@ generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form
 generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']) .
 ' ' .
 generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) .
-"\n" . sprintf('%s %s %s %s %s', xl('Lot'), $row['lot_number'], xl('Exp'), $row['expiration'], "\n") .
+sprintf("\n%s %s %s %s\n", xl('Lot'), $row['lot_number'], xl('Exp'), $row['expiration']) .
 sprintf('%s %s %s', xl('NDC'), $row['ndc_number'], $row['manufacturer']);
 
 // if ($row['refills']) {
