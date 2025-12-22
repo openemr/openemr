@@ -106,26 +106,18 @@ rsort($datapoints);
 function unitsWt($wt)
 {
     global $isMetric;
-    if ($isMetric) {
-        //convert to metric
-        return sprintf('%s %s', number_format(($wt * 0.45359237), 2, '.', ''), xl('kg'));
-    } else {
-    //keep US
-        return sprintf('%s %s', number_format($wt, 2), xl('lb'));
-    }
+    return $isMetric
+        ? sprintf('%s %s', number_format(($wt * 0.45359237), 2, '.', ''), xl('kg'))
+        : sprintf('%s %s', number_format($wt, 2), xl('lb'));
 }
 
 // convert to applicable length units from Config Locale
 function unitsDist($dist)
 {
     global $isMetric;
-    if ($isMetric) {
-        //convert to metric
-        return sprintf('%s %s', number_format(($dist * 2.54), 2, '.', ''), xl('cm'));
-    } else {
-        //keep US
-        return sprintf('%s %s', number_format($dist, 2), xl('in'));
-    }
+    return $isMetric
+        ? sprintf('%s %s', number_format(($dist * 2.54), 2, '.', ''), xl('cm'))
+        : sprintf('%s %s', number_format($dist, 2), xl('in'));
 }
 
 // convert vitals service data to US values for graphing

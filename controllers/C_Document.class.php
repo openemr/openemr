@@ -965,11 +965,7 @@ class C_Document extends Controller
                 $changefailed = !$d->change_patient($new_patient_id);
 
                 $this->_state = false;
-                if (!$changefailed) {
-                    $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl('successfully.'));
-                } else {
-                    $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl('Failed.'));
-                }
+                $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl($changefailed ? 'Failed.' : 'successfully.'));
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
