@@ -108,10 +108,10 @@ function unitsWt($wt)
     global $isMetric;
     if ($isMetric) {
         //convert to metric
-        return (number_format(($wt * 0.45359237), 2, '.', '') . ' ' . xl('kg'));
+        return sprintf('%s %s', number_format(($wt * 0.45359237), 2, '.', ''), xl('kg'));
     } else {
     //keep US
-        return number_format($wt, 2) . ' ' . xl('lb');
+        return sprintf('%s %s', number_format($wt, 2), xl('lb'));
     }
 }
 
@@ -121,10 +121,10 @@ function unitsDist($dist)
     global $isMetric;
     if ($isMetric) {
         //convert to metric
-        return (number_format(($dist * 2.54), 2, '.', '') . ' ' . xl('cm'));
+        return sprintf('%s %s', number_format(($dist * 2.54), 2, '.', ''), xl('cm'));
     } else {
         //keep US
-        return number_format($dist, 2)  . ' ' . xl('in');
+        return sprintf('%s %s', number_format($dist, 2), xl('in'));
     }
 }
 

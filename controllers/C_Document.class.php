@@ -947,7 +947,7 @@ class C_Document extends Controller
         //move to new category
         if (is_numeric($new_category_id) && is_numeric($document_id)) {
             $sql = "UPDATE categories_to_documents set category_id = ? where document_id = ?";
-            $messages .= xl('Document moved to new category') . ' \'' . $this->tree->_id_name[$new_category_id]['name']  . '\' ' . xl('successfully.') . "\n";
+            $messages .= sprintf("%s '%s' %s\n", xl('Document moved to new category'), $this->tree->_id_name[$new_category_id]['name'], xl('successfully.'));
             //echo $sql;
             $this->tree->_db->Execute($sql, [$new_category_id, $document_id]);
         }
@@ -960,15 +960,15 @@ class C_Document extends Controller
 
             if (!$result || $result->EOF) {
                 //patient id does not exist
-                $messages .= xl('Document could not be moved to patient id') . ' \'' . $new_patient_id  . '\' ' . xl('because that id does not exist.') . "\n";
+                $messages .= sprintf("%s '%s' %s\n", xl('Document could not be moved to patient id'), $new_patient_id, xl('because that id does not exist.'));
             } else {
                 $changefailed = !$d->change_patient($new_patient_id);
 
                 $this->_state = false;
                 if (!$changefailed) {
-                    $messages .= xl('Document moved to patient id') . ' \'' . $new_patient_id  . '\' ' . xl('successfully.') . "\n";
+                    $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl('successfully.'));
                 } else {
-                    $messages .= xl('Document moved to patient id') . ' \'' . $new_patient_id  . '\' ' . xl('Failed.') . "\n";
+                    $messages .= sprintf("%s '%s' %s\n", xl('Document moved to patient id'), $new_patient_id, xl('Failed.'));
                 }
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
