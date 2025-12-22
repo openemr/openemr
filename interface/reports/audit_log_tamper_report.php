@@ -232,7 +232,7 @@ $check_sum = isset($_GET['check_sum']);
 
             //translate comments
             $patterns =  ['/^success/','/^failure/','/ encounter/'];
-            $replace =  [ xl('success'), xl('failure'), xl('encounter', '', ' ')];
+            $replace =  [ xl('success'), xl('failure'), ' ' . xl('encounter')];
 
             $checkSumOld = $iter['checksum'];
             if (empty($checkSumOld)) {

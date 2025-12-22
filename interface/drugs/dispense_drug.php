@@ -189,8 +189,8 @@ generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form
 generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']) .
 ' ' .
 generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) .
-"\n" . xl('Lot', '', '', ' ') . $row['lot_number'] . xl('Exp', '', ' ', ' ') . $row['expiration'] . "\n" .
-xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
+"\n" . xl('Lot') . ' ' . $row['lot_number'] . ' ' . xl('Exp') . ' ' . $row['expiration'] . "\n" .
+xl('NDC') . ' ' . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
 // if ($row['refills']) {
 //  // Find out how many times this prescription has been filled/refilled.
