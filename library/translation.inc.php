@@ -1,16 +1,16 @@
 <?php
 
-/**
- * Translation function - the translation engine for OpenEMR
- * 
- * Translates a given constant string into the current session language.
- * Note: In some installation scenarios this function may already be declared,
- * so we check to ensure it hasn't been declared yet.
- *
- * @param string $constant The text constant to translate
- * @return string The translated string
- */
 if (!(function_exists('xl'))) {
+    /**
+     * Translation function - the translation engine for OpenEMR
+     * 
+     * Translates a given constant string into the current session language.
+     * Note: In some installation scenarios this function may already be declared,
+     * so we check to ensure it hasn't been declared yet.
+     *
+     * @param string $constant The text constant to translate
+     * @return string The translated string
+     */
     function xl(string $constant): string
     {
         if (!empty($GLOBALS['temp_skip_translations'])) {
