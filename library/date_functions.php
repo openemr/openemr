@@ -25,13 +25,13 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     // name the day of the week for different languages
     $day = (int) date("w", $strtime); // 0 sunday -> 6 saturday
 
-    $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    static $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     $dow = xl($days[$day]);
 
     // name of the month in different languages
     $month = (int) date('m', $strtime);
 
-    $months = [
+    static $months = [
         1 => 'January',
         2 => 'February',
         3 => 'March',
