@@ -1,149 +1,77 @@
 <?php
 
-// ============================================================
-// dateformat
-//
-// return a formated string for date
-// @args:   string (date string), boolean (include day of week)
-//              (it uses $_SESSION['language_choice'] )
-// @return: $date_string (string) - formated string
-// Cristian Navalici lemonsoftware at gmail dot com
-//
-// For Hebrew must be implemented a special calendar functions
-//
-// 10.07.2007 - dateformat accepts now an argument
-// ============================================================
-
-function dateformat($strtime = '', $with_dow = false)
+/**
+ * Format a date string according to the user's language preference.
+ *
+ * Returns a formatted date string based on the user's language choice stored in
+ * $_SESSION['language_choice']. The format varies by language and can optionally
+ * include the day of the week.
+ *
+ * @param string|int $strtime Unix timestamp or date string. If empty, uses current time.
+ * @param bool $with_dow Whether to include the day of the week in the output.
+ * @return string The formatted date string.
+ *
+ * @author Cristian Navalici lemonsoftware at gmail dot com
+ * @note For Hebrew, displays English calendar, NOT Jewish calendar
+ * @note Last modified 10.07.2007 - dateformat accepts now an argument
+ */
+function dateformat(string|int $strtime = '', bool $with_dow = false): string
 {
-
-// without an argument, display current date
+    // without an argument, display current date
     if (!$strtime) {
         $strtime = strtotime('now');
     }
 
-// string date is formed by
-// $dow + date(day) + $nom + date(year) or similar
-
-// name the day of the week for different languages
+    // name the day of the week for different languages
     $day = date("w", $strtime); // 0 sunday -> 6 saturday
 
-    switch ($day) {
-        case 0:
-            $dow = xl('Sunday');
-            break;
-        case 1:
-            $dow = xl('Monday');
-            break;
-        case 2:
-            $dow = xl('Tuesday');
-            break;
-        case 3:
-            $dow = xl('Wednesday');
-            break;
-        case 4:
-            $dow = xl('Thursday');
-            break;
-        case 5:
-            $dow = xl('Friday');
-            break;
-        case 6:
-            $dow = xl('Saturday');
-            break;
-    }
+    $dow = match ((int)$day) {
+        0 => xl('Sunday'),
+        1 => xl('Monday'),
+        2 => xl('Tuesday'),
+        3 => xl('Wednesday'),
+        4 => xl('Thursday'),
+        5 => xl('Friday'),
+        6 => xl('Saturday'),
+    };
 
-// name of the month in different languages
+    // name of the month in different languages
     $month = (int) date('m', $strtime);
 
-    switch ($month) {
-        case 1:
-            $nom = xl('January');
-            break;
-        case 2:
-            $nom = xl('February');
-            break;
-        case 3:
-            $nom = xl('March');
-            break;
-        case 4:
-            $nom = xl('April');
-            break;
-        case 5:
-            $nom = xl('May');
-            break;
-        case 6:
-            $nom = xl('June');
-            break;
-        case 7:
-            $nom = xl('July');
-            break;
-        case 8:
-            $nom = xl('August');
-            break;
-        case 9:
-            $nom = xl('September');
-            break;
-        case 10:
-            $nom = xl('October');
-            break;
-        case 11:
-            $nom = xl('November');
-            break;
-        case 12:
-            $nom = xl('December');
-            break;
-    }
+    $nom = match ($month) {
+        1 => xl('January'),
+        2 => xl('February'),
+        3 => xl('March'),
+        4 => xl('April'),
+        5 => xl('May'),
+        6 => xl('June'),
+        7 => xl('July'),
+        8 => xl('August'),
+        9 => xl('September'),
+        10 => xl('October'),
+        11 => xl('November'),
+        12 => xl('December'),
+    };
 
-// Date string format
-// First, get current language title
+    // Date string format
+    // First, get current language title
     $languageTitle = getLanguageTitle($_SESSION['language_choice']);
-    switch ($languageTitle) {
+    $dt = match ($languageTitle) {
         // standard english first
-        case getLanguageTitle(1):
-            $dt = date("F j, Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow, $dt";
-            }
-            break;
-        case "Swedish":
-            $dt = date("Y", $strtime) . " $nom " . date("d", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-        case "Spanish":
-        case "Spanish (Spain)":
-        case "Spanish (Latin American)":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-        case "German":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-        case "Dutch":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow $dt";
-            }
-            break;
-            // hebrew (israel) , display english NOT jewish calendar
-        case "Hebrew":
-            $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow, $dt";
-            }
-            break;
-            // default case
-        default:
-            $dt = "$nom " . date("d", $strtime) . ", " . date("Y", $strtime);
-            if ($with_dow) {
-                $dt = "$dow, $dt";
-            }
+        getLanguageTitle(1) => date("F j, Y", $strtime),
+        "Swedish" => date("Y", $strtime) . " $nom " . date("d", $strtime),
+        "Spanish", "Spanish (Spain)", "Spanish (Latin American)" => date("d", $strtime) . " $nom " . date("Y", $strtime),
+        "German" => date("d", $strtime) . " $nom " . date("Y", $strtime),
+        "Dutch" => date("d", $strtime) . " $nom " . date("Y", $strtime),
+        "Hebrew" => date("d", $strtime) . " $nom " . date("Y", $strtime), // display english NOT jewish calendar
+        default => "$nom " . date("d", $strtime) . ", " . date("Y", $strtime),
+    };
+
+    if ($with_dow) {
+        $dt = match ($languageTitle) {
+            getLanguageTitle(1), "Hebrew" => "$dow, $dt",
+            default => "$dow $dt",
+        };
     }
 
     return $dt;
