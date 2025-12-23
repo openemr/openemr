@@ -13,7 +13,7 @@ if (!(function_exists('xl'))) {
      */
     function xl(string $constant): string
     {
-        if (!empty($GLOBALS['temp_skip_translations'])) {
+        if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
             return $constant;
         }
 
