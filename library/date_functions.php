@@ -23,22 +23,23 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     }
 
     // name the day of the week for different languages
-    $day = date("w", $strtime); // 0 sunday -> 6 saturday
+    $day = (int) date("w", $strtime); // 0 sunday -> 6 saturday
 
-    $dow = match ($day) {
-        '0' => xl('Sunday'),
-        '1' => xl('Monday'),
-        '2' => xl('Tuesday'),
-        '3' => xl('Wednesday'),
-        '4' => xl('Thursday'),
-        '5' => xl('Friday'),
-        '6' => xl('Saturday'),
-    };
+    $days = [
+        xl('Sunday'),
+        xl('Monday'),
+        xl('Tuesday'),
+        xl('Wednesday'),
+        xl('Thursday'),
+        xl('Friday'),
+        xl('Saturday'),
+    ];
+    $dow = $days[$day];
 
     // name of the month in different languages
     $month = (int) date('m', $strtime);
 
-    $nom = match ($month) {
+    $months = [
         1 => xl('January'),
         2 => xl('February'),
         3 => xl('March'),
@@ -51,7 +52,8 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
         10 => xl('October'),
         11 => xl('November'),
         12 => xl('December'),
-    };
+    ];
+    $nom = $months[$month];
 
     // Date string format
     // First, get current language title
