@@ -55,26 +55,26 @@ class Database
         // require __DIR__ . '/../../library/sqlconf.php';
         $sqlconf = $bag->get('sqlconf');
         if (empty($sqlconf)) {
-            throw new LogicException('sqlconf empty or missing. Was interface/globals.php included?');
+            throw new LogicException(
+                'sqlconf empty or missing. Was interface/globals.php included?'
+            );
         }
         // replicate the same ssl cert detection in a compatible format
 
         $connParams = [
             'driver' => 'pdo_mysql',
-            'user' => $sqlconf['login'],
-            'password' => $sqlconf['pass'],
             'dbname' => $sqlconf['dbase'],
             'host' => $sqlconf['host'],
-            'charset' => $sqlconf['db_encoding'],
             'port' => $sqlconf['port'],
+            'user' => $sqlconf['login'],
+            'password' => $sqlconf['pass'],
+            'charset' => $sqlconf['db_encoding'],
         ];
 
         $siteDir = $bag->getString('OE_SITE_DIR');
         $options = self::inferSslOptions($siteDir);
-
         $connParams['driverOptions'] = $options;
 
-        // if ssl, provide
         return $connParams;
     }
 
@@ -129,7 +129,7 @@ class Database
     private function query(string $sql, array $bindings = []): Result
     {
         // TODO: middleware for logging, performance metrics, etc.
-        error_log($sql);
+        // error_log($sql);
 
         $stmt = $this->connection->prepare($sql);
         foreach ($bindings as $i => $binding) {
