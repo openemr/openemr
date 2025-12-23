@@ -25,35 +25,27 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     // name the day of the week for different languages
     $day = (int) date("w", $strtime); // 0 sunday -> 6 saturday
 
-    $days = [
-        xl('Sunday'),
-        xl('Monday'),
-        xl('Tuesday'),
-        xl('Wednesday'),
-        xl('Thursday'),
-        xl('Friday'),
-        xl('Saturday'),
-    ];
-    $dow = $days[$day];
+    $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    $dow = xl($days[$day]);
 
     // name of the month in different languages
     $month = (int) date('m', $strtime);
 
     $months = [
-        1 => xl('January'),
-        2 => xl('February'),
-        3 => xl('March'),
-        4 => xl('April'),
-        5 => xl('May'),
-        6 => xl('June'),
-        7 => xl('July'),
-        8 => xl('August'),
-        9 => xl('September'),
-        10 => xl('October'),
-        11 => xl('November'),
-        12 => xl('December'),
+        1 => 'January',
+        2 => 'February',
+        3 => 'March',
+        4 => 'April',
+        5 => 'May',
+        6 => 'June',
+        7 => 'July',
+        8 => 'August',
+        9 => 'September',
+        10 => 'October',
+        11 => 'November',
+        12 => 'December',
     ];
-    $nom = $months[$month];
+    $nom = xl($months[$month]);
 
     // Date string format
     // First, get current language title
