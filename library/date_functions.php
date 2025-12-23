@@ -25,14 +25,14 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     // name the day of the week for different languages
     $day = date("w", $strtime); // 0 sunday -> 6 saturday
 
-    $dow = match ((int)$day) {
-        0 => xl('Sunday'),
-        1 => xl('Monday'),
-        2 => xl('Tuesday'),
-        3 => xl('Wednesday'),
-        4 => xl('Thursday'),
-        5 => xl('Friday'),
-        6 => xl('Saturday'),
+    $dow = match ($day) {
+        '0' => xl('Sunday'),
+        '1' => xl('Monday'),
+        '2' => xl('Tuesday'),
+        '3' => xl('Wednesday'),
+        '4' => xl('Thursday'),
+        '5' => xl('Friday'),
+        '6' => xl('Saturday'),
     };
 
     // name of the month in different languages
@@ -68,10 +68,11 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     };
 
     if ($with_dow) {
-        $dt = match ($languageTitle) {
-            getLanguageTitle(1), "Hebrew" => "$dow, $dt",
-            default => "$dow $dt",
+        $separator = match ($languageTitle) {
+            getLanguageTitle(1), "Hebrew" => ", ",
+            default => " ",
         };
+        $dt = "$dow$separator$dt";
     }
 
     return $dt;
