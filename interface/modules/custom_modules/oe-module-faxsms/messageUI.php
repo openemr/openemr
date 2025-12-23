@@ -19,17 +19,15 @@ require_once(__DIR__ . "/../../../globals.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
 $assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
-$title = $service == "1" ? xlt('RingCentral') : '';
-$title = $service == "2" ? xlt('Twilio SMS') : $title;
-$title = $service == "3" ? xlt('etherFAX') : $title;
-$title = $service == "4" ? xlt('Email') : $title;
-$title = $service == "6" ? xlt('SignalWire Fax') : $title;
+$serviceEnum = ServiceType::tryFrom($service);
+$title = $serviceEnum?->getTranslatedDisplayName() ?? '';
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>
 <!DOCTYPE html>

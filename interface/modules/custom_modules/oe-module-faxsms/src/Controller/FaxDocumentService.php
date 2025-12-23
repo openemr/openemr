@@ -14,7 +14,9 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
-use Exception;
+use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
+use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 
 class FaxDocumentService
 {
@@ -48,7 +50,7 @@ class FaxDocumentService
      * @param int $patientId Patient ID (0 for unassigned)
      * @param string $mimeType MIME type of document
      * @return array Result with document_id and media_path
-     * @throws Exception
+     * @throws FaxDocumentException
      */
     public function storeFaxDocument(
         string $faxSid,
@@ -59,7 +61,7 @@ class FaxDocumentService
     ): array {
         try {
             $timestamp = date('YmdHis');
-            $extension = $this->getExtensionFromMimeType($mimeType);
+            $extension = FileUtils::getExtensionFromMimeType($mimeType, 'pdf');
             $filename = "fax_{$faxSid}_{$timestamp}.{$extension}";
             
             // Determine storage location
@@ -85,7 +87,7 @@ class FaxDocumentService
                 );
                 
                 if (!empty($error)) {
-                    throw new Exception("Failed to create document: {$error}");
+                    throw new FaxDocumentException("Failed to create document: {$error}");
                 }
                 
                 // Set document name
@@ -117,7 +119,7 @@ class FaxDocumentService
                     'patient_id' => 0
                 ];
             }
-        } catch (Exception $e) {
+        } catch (FaxDocumentException $e) {
             error_log("FaxDocumentService: Error storing fax document: " . $e->getMessage());
             throw $e;
         }
@@ -129,7 +131,8 @@ class FaxDocumentService
      * @param string $faxSid Fax SID
      * @param int $patientId Patient ID to assign to
      * @return array Result with success status
-     * @throws Exception
+     * @throws FaxDocumentException
+     * @throws FaxNotFoundException
      */
     public function assignFaxToPatient(string $faxSid, int $patientId): array
     {
@@ -141,17 +144,17 @@ class FaxDocumentService
             );
             
             if (empty($fax)) {
-                throw new Exception("Fax not found: {$faxSid}");
+                throw new FaxNotFoundException("Fax not found: {$faxSid}");
             }
             
             if (!empty($fax['patient_id'])) {
-                throw new Exception("Fax already assigned to patient " . $fax['patient_id']);
+                throw new FaxDocumentException("Fax already assigned to patient " . $fax['patient_id']);
             }
             
             // Read the file from unassigned directory
             $mediaPath = $fax['media_path'];
             if (empty($mediaPath) || !file_exists($mediaPath)) {
-                throw new Exception("Fax media file not found: {$mediaPath}");
+                throw new FaxDocumentException("Fax media file not found: {$mediaPath}");
             }
             
             $mediaContent = file_get_contents($mediaPath);
@@ -186,7 +189,7 @@ class FaxDocumentService
                 'message' => 'Fax successfully assigned to patient',
                 'document_id' => $result['document_id']
             ];
-        } catch (Exception $e) {
+        } catch (FaxDocumentException | FaxNotFoundException $e) {
             error_log("FaxDocumentService: Error assigning fax to patient: " . $e->getMessage());
             throw $e;
         }
@@ -290,30 +293,12 @@ class FaxDocumentService
             
             error_log("FaxDocumentService: Deleted fax {$faxSid}");
             return true;
-        } catch (Exception $e) {
+        } catch (FaxDocumentException $e) {
             error_log("FaxDocumentService: Error deleting fax: " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Get file extension from MIME type
-     *
-     * @param string $mimeType
-     * @return string
-     */
-    private function getExtensionFromMimeType(string $mimeType): string
-    {
-        $map = [
-            'application/pdf' => 'pdf',
-            'image/tiff' => 'tif',
-            'image/tif' => 'tif',
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png'
-        ];
-        
-        return $map[$mimeType] ?? 'pdf';
-    }
 
     /**
      * Format phone number for display

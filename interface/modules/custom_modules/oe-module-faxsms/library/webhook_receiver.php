@@ -7,7 +7,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    SignalWire Integration
- * @copyright Copyright (c) 2024
+ * @copyright Copyright (c) 2025
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +22,7 @@ $_GET['site'] = $_GET['site'] ?? 'default';
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 
 // Capture raw input first (can only be read once)
@@ -29,20 +30,6 @@ $rawInput = file_get_contents('php://input');
 
 // Get site ID from query parameter
 $siteId = $_SESSION['site_id'] ?? $_GET['site'] ?? 'default';
-
-// Log all incoming webhook data for debugging
-error_log("=== SignalWire Webhook START ===");
-error_log("Site: {$siteId}");
-error_log("Method: " . $_SERVER['REQUEST_METHOD']);
-error_log("Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'not set'));
-error_log("POST Data: " . json_encode($_POST, JSON_PRETTY_PRINT));
-error_log("GET Data: " . json_encode($_GET, JSON_PRETTY_PRINT));
-error_log("POST Count: " . count($_POST));
-error_log("Raw Input Length: " . strlen($rawInput));
-if (!empty($rawInput)) {
-    error_log("Raw Input: " . $rawInput);
-}
-error_log("=== SignalWire Webhook END ===");
 
 // Handle JSON payloads (SignalWire sends JSON for some webhooks)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
@@ -52,14 +39,14 @@ if (strpos($contentType, 'application/json') !== false && !empty($rawInput)) {
         // Check if this is a SWML execute callback with fax data in vars
         if (isset($jsonData['call']) && isset($jsonData['vars'])) {
             $vars = $jsonData['vars'];
-            
+
             // Check if fax was received (SWML execute sends fax data in vars)
             if (isset($vars['receive_fax_document'])) {
                 error_log("SignalWire Webhook: SWML execute callback with fax data detected");
                 error_log("SignalWire Webhook: Fax document URL: " . $vars['receive_fax_document']);
                 error_log("SignalWire Webhook: Fax result: " . ($vars['receive_fax_result'] ?? 'unknown'));
                 error_log("SignalWire Webhook: Fax pages: " . ($vars['receive_fax_pages'] ?? 'unknown'));
-                
+
                 // Map SWML vars to standard fax webhook format for processing
                 $_POST = [
                     'FaxSid' => $jsonData['call']['call_id'] ?? uniqid('fax_'),
@@ -146,8 +133,8 @@ try {
     if ($existingFax) {
         // Update existing fax with new status
         sqlStatement(
-            "UPDATE oe_faxsms_queue 
-             SET status = ?, details_json = ?, date = NOW() 
+            "UPDATE oe_faxsms_queue
+             SET status = ?, details_json = ?, date = NOW()
              WHERE job_id = ? AND site_id = ?",
             [$status, json_encode($faxData), $faxSid, $siteId]
         );
@@ -155,8 +142,8 @@ try {
     } else {
         // Insert new fax
         sqlStatement(
-            "INSERT INTO oe_faxsms_queue 
-             (job_id, calling_number, called_number, status, direction, details_json, site_id, date, receive_date) 
+            "INSERT INTO oe_faxsms_queue
+             (job_id, calling_number, called_number, status, direction, details_json, site_id, date, receive_date)
              VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
             [
                 $faxSid,
@@ -180,8 +167,8 @@ try {
     http_response_code(200);
     header('Content-Type: application/xml');
     echo '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
-    
-} catch (Exception $e) {
+
+} catch (Throwable $e) {
     error_log("Error processing SignalWire webhook: " . $e->getMessage());
     http_response_code(500);
     exit('Internal server error');
@@ -229,45 +216,46 @@ function downloadAndStoreFaxMedia(
             return;
         }
 
-        // Download the fax media with authentication
+        // Download the fax media with authentication using oeHttp
         // SignalWire files.signalwire.com requires Bearer token, not Basic auth
-        $ch = curl_init($mediaUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        // Check if URL is from files.signalwire.com (requires Bearer token)
-        if (strpos($mediaUrl, 'files.signalwire.com') !== false) {
-            // Use Bearer token authentication for SignalWire file downloads
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $apiToken
-            ]);
-            error_log("SignalWire Webhook: Using Bearer token auth for files.signalwire.com");
-        } else {
-            // Use Basic authentication for API endpoints
-            curl_setopt($ch, CURLOPT_USERPWD, "$projectId:$apiToken");
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        }
-        
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        
-        $mediaContent = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
+        try {
+            $httpRequest = oeHttp::newArgs(oeHttp::client());
 
-        if ($httpCode !== 200 || empty($mediaContent)) {
-            error_log("SignalWire Webhook: Failed to download fax media: HTTP {$httpCode}, Error: {$curlError}");
+            // Set up headers based on URL type
+            if (strpos($mediaUrl, 'files.signalwire.com') !== false) {
+                // Use Bearer token authentication for SignalWire file downloads
+                $httpRequest->usingHeaders([
+                    'Authorization' => 'Bearer ' . $apiToken
+                ]);
+                error_log("SignalWire Webhook: Using Bearer token auth for files.signalwire.com");
+            } else {
+                // Use Basic authentication for API endpoints
+                $httpRequest->setOptions([
+                    'auth' => [$projectId, $apiToken]
+                ]);
+            }
+
+            $response = $httpRequest->get($mediaUrl);
+            $httpCode = $response->status();
+            $mediaContent = $response->body();
+            $contentType = $response->header('Content-Type') ?? 'application/pdf';
+
+            if ($httpCode !== 200 || empty($mediaContent)) {
+                error_log("SignalWire Webhook: Failed to download fax media: HTTP {$httpCode}");
+                return;
+            }
+
+            error_log("SignalWire Webhook: Downloaded fax media {$faxSid}, size: " . strlen($mediaContent) . " bytes, type: {$contentType}");
+        } catch (Exception $e) {
+            error_log("SignalWire Webhook: HTTP request failed: " . $e->getMessage());
             return;
         }
-
-        error_log("SignalWire Webhook: Downloaded fax media {$faxSid}, size: " . strlen($mediaContent) . " bytes, type: {$contentType}");
 
         // Try to find patient by phone number if not assigned
         if ($patientId === 0) {
             $faxService = new FaxDocumentService($siteId);
             $patientId = $faxService->findPatientByPhone($fromNumber);
-            
+
             if ($patientId > 0) {
                 error_log("SignalWire Webhook: Auto-matched fax {$faxSid} to patient {$patientId}");
             }
@@ -285,8 +273,8 @@ function downloadAndStoreFaxMedia(
 
         // Update queue with storage info
         sqlStatement(
-            "UPDATE oe_faxsms_queue 
-             SET patient_id = ?, document_id = ?, media_path = ? 
+            "UPDATE oe_faxsms_queue
+             SET patient_id = ?, document_id = ?, media_path = ?
              WHERE job_id = ? AND site_id = ?",
             [
                 $result['patient_id'],

@@ -252,44 +252,29 @@ abstract class AppDispatch
     static function getServiceInstance($type)
     {
         $s = self::getServiceType();
-        if ($type == 'sms') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 1:
-                    return new RCFaxClient();
-                    break;
-                case 2:
-                    return new TwilioSMSClient();
-                case 5:
-                    return new ClickatellSMSClient();
-            }
-        } elseif ($type == 'fax') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 1:
-                    return new RCFaxClient();
-                    break;
-                case 3:
-                    return new EtherFaxActions();
-                case 6:
-                    return new SignalWireClient();
-            }
-        } elseif ($type == 'email') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 4:
-                    return new EmailClient();
-            }
-        } elseif ($type == 'voice') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 6:
-                    return new VoiceClient();
-            }
+
+        $factoryMap = [
+            'sms' => [
+                1 => fn() => new RCFaxClient(),
+                2 => fn() => new TwilioSMSClient(),
+                5 => fn() => new ClickatellSMSClient(),
+            ],
+            'fax' => [
+                1 => fn() => new RCFaxClient(),
+                3 => fn() => new EtherFaxActions(),
+                6 => fn() => new SignalWireClient(),
+            ],
+            'email' => [
+                4 => fn() => new EmailClient(),
+            ],
+            'voice' => [
+                6 => fn() => new VoiceClient(),
+            ],
+        ];
+
+        $factory = $factoryMap[$type][$s] ?? null;
+        if (is_callable($factory)) {
+            return $factory();
         }
 
         http_response_code(404);
@@ -403,7 +388,7 @@ abstract class AppDispatch
             $projectId = $this->getRequest('project_id');
             $apiToken = $this->getRequest('api_token');
             $faxNumber = $this->formatPhoneForSave($this->getRequest('fax_number'));
-            
+
             $setup = array(
                 'username' => "$username",
                 'extension' => "$ext",
@@ -582,8 +567,8 @@ abstract class AppDispatch
                 'space_url' => '',
                 'project_id' => '',
                 'api_token' => '',
-                'fax_number' => '',
-            );
+                'fax_number' => ''
+            ];
             return $credentials;
         } else {
             $credentials = $credentials['credentials'];
@@ -616,11 +601,7 @@ abstract class AppDispatch
      */
     public function validEmail($email): bool
     {
-        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
+        return ValidationUtils::isValidEmail($email);
     }
 
     /**

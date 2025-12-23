@@ -10,8 +10,8 @@ This file provides guidance to WARP (warp.dev) when working with the OpenEMR Fax
 - **Fax Providers**: etherFAX, RingCentral Fax, SignalWire Fax
 - **Email**: Email reminder/notification system
 
-**Version**: 5.0.0  
-**License**: GPL-3.0  
+**Version**: 5.0.0
+**License**: GPL-3.0
 **Authors**: Jerry Padgett, Stephen Nielson
 
 ## Architecture
@@ -102,7 +102,7 @@ abstract function fetchReminderCount(): string|bool;
 Each vendor has its own controller class extending `AppDispatch`:
 
 - **TwilioSMSClient.php** - Twilio SMS API integration
-- **RCFaxClient.php** - RingCentral Fax/SMS API integration  
+- **RCFaxClient.php** - RingCentral Fax/SMS API integration
 - **EtherFaxActions.php** - etherFAX API integration
 - **SignalWireClient.php** - SignalWire Fax API integration
 - **EmailClient.php** - Email notification system
@@ -128,7 +128,7 @@ MenuEvent::MENU_UPDATE
 PatientReportEvent::ACTIONS_RENDER_POST
 PatientReportEvent::JAVASCRIPT_READY_POST
 
-// Documents  
+// Documents
 PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR
 PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG
 
@@ -182,7 +182,7 @@ CREATE TABLE oe_faxsms_queue (
   receive_date DATETIME,
   deleted INT(1) DEFAULT 0,
   calling_number TINYTEXT,                -- From number
-  called_number TINYTEXT,                 -- To number  
+  called_number TINYTEXT,                 -- To number
   mime TINYTEXT,                          -- Content type
   details_json LONGTEXT,                  -- JSON details from vendor
   KEY (uid, receive_date)
@@ -233,7 +233,7 @@ $encrypted = $crypto->encryptStandard(json_encode($credentials));
 
 Minimum ACL for module features:
 - **SMS/Fax Management**: `['patients', 'docs']`
-- **Setup Services**: `['admin', 'docs']`  
+- **Setup Services**: `['admin', 'docs']`
 - **Notifications**: `['admin', 'demo']`
 
 Verify ACL in controllers:
@@ -251,7 +251,7 @@ To add a new SMS or Fax vendor:
 ```php
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-class NewVendorClient extends AppDispatch 
+class NewVendorClient extends AppDispatch
 {
     public function authenticate(): bool { /* ... */ }
     public function sendFax(): string|bool { /* ... */ }
@@ -302,7 +302,7 @@ Features:
 
 Modal dialog for selecting recipient and sending messages:
 - Patient search
-- Provider search  
+- Provider search
 - Direct number entry
 - Document attachment
 - Preview before send
@@ -326,11 +326,11 @@ Runs appointment reminder notifications via:
 To integrate with OpenEMR's background services:
 
 ```sql
-INSERT INTO background_services (name, title, active, running, next_run, 
-    execute_interval, function, require_once, sort_order) 
-VALUES ('FaxSMS_Notifications', 'FaxSMS Appointment Notifications', 1, 0, NOW(), 
-    3600, 'send_faxsms_notifications', 
-    '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php', 
+INSERT INTO background_services (name, title, active, running, next_run,
+    execute_interval, function, require_once, sort_order)
+VALUES ('FaxSMS_Notifications', 'FaxSMS Appointment Notifications', 1, 0, NOW(),
+    3600, 'send_faxsms_notifications',
+    '/interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php',
     100);
 ```
 
@@ -446,7 +446,7 @@ This is required for CLI scripts and background services.
 Module auto-creates "FAX" category in `categories` table on installation:
 
 ```sql
-INSERT INTO categories (name, value, parent, aco_spec) 
+INSERT INTO categories (name, value, parent, aco_spec)
 VALUES ('FAX', '', 1, 'patients|docs');
 ```
 
@@ -454,7 +454,7 @@ Received faxes are stored as patient documents under this category.
 
 ### File Storage
 
-- **Fax Documents**: Stored in `sites/<site>/documents/<patient>/` 
+- **Fax Documents**: Stored in `sites/<site>/documents/<patient>/`
 - **Temporary Uploads**: Uses OpenEMR's temp directory system
 - **MIME Types**: Supports TIFF, PDF, JPEG, PNG
 
@@ -500,31 +500,31 @@ dlgopen(url, dialogName, modalSize, height, allowResize, title, options);
 ### View Module Status
 ```bash
 mysql -u local_openemr -p 5qy3xkMjP4A2US1u7Qv -e "
-  SELECT mod_name, mod_directory, enabled, mod_ui_active 
-  FROM modules 
+  SELECT mod_name, mod_directory, enabled, mod_ui_active
+  FROM modules
   WHERE mod_directory = 'oe-module-faxsms';"
 ```
 
 ### Check Globals
 ```bash
 mysql -u local_openemr -p 5qy3xkMjP4A2US1u7Qv -e "
-  SELECT gl_name, gl_value 
-  FROM globals 
+  SELECT gl_name, gl_value
+  FROM globals
   WHERE gl_name LIKE 'oefax%' OR gl_name LIKE 'oesms%' OR gl_name = 'oe_enable_email';"
 ```
 
 ### View Credentials (Encrypted)
 ```bash
 mysql -u local_openemr -p 5qy3xkMjP4A2US1u7Qv -e "
-  SELECT id, auth_user, vendor, updated 
+  SELECT id, auth_user, vendor, updated
   FROM module_faxsms_credentials;"
 ```
 
 ### Check Message Queue
 ```bash
 mysql -u local_openemr -p 5qy3xkMjP4A2US1u7Qv -e "
-  SELECT id, account, job_id, date, calling_number, called_number 
-  FROM oe_faxsms_queue 
+  SELECT id, account, job_id, date, calling_number, called_number
+  FROM oe_faxsms_queue
   ORDER BY date DESC LIMIT 20;"
 ```
 
@@ -670,5 +670,5 @@ When working on this module:
 
 ---
 
-**Last Updated**: December 2024  
+**Last Updated**: December 2025
 **For**: OpenEMR 7.0.3 / oe-module-faxsms v5.0.0
