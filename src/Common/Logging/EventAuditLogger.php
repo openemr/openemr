@@ -692,8 +692,10 @@ MSG;
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
-        $sql = "INSERT INTO extended_log ( date, event, user, recipient, patient_id, description) " .
-            "VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = <<<'SQL'
+        INSERT INTO extended_log (date, event, user, recipient, patient_id, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+        SQL;
         $values = [
             $dates,
             $event,
@@ -719,7 +721,15 @@ MSG;
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
-        $sql = 'UPDATE extended_log SET event = ?, date = ?, recipient = ?, description = ? WHERE id = ?';
+        $sql = <<<'SQL'
+        UPDATE extended_log
+        SET
+            event = ?,
+            date = ?,
+            recipient = ?,
+            description = ?
+        WHERE id = ?
+        SQL;
         $values = [
             $event,
             $dates,
