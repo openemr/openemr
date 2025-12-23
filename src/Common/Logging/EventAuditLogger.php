@@ -16,6 +16,7 @@ namespace OpenEMR\Common\Logging;
 
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use Waryway\PhpTraitsLibrary\Singleton;
 
 class EventAuditLogger
@@ -806,7 +807,7 @@ MSG;
         ];
         sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = sqlGetLastInsertId();
+        $last_log_id = QueryUtils::getLastInsertId();
         $checksumGenerate = hash('sha3-512', implode('', $logEntry));
         if (!empty($api)) {
             // api log
