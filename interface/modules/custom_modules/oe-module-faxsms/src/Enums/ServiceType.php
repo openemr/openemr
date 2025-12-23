@@ -6,7 +6,7 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    SignalWire Integration
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2025
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
