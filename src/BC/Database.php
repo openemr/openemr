@@ -9,6 +9,9 @@ use Doctrine\DBAL\{
     DriverManager,
     Result,
 };
+use LogicException;
+use OpenEMR\Core\OEGlobalsBag;
+use PDO;
 
 /**
  * Transitional wrapper for database operations (see library/sql.inc.php)
@@ -36,6 +39,11 @@ class Database
         return self::$instance;
     }
 
+    /**
+     * This is private to force access through `instance()`. Future
+     * DBAL-related integration should use its connection directly, rather than
+     * go through this backwards-compatibility layer.
+     */
     private function __construct(
         private Connection $connection,
     ) {
@@ -43,8 +51,12 @@ class Database
 
     private static function readLegacyConfig(): array
     {
+        $bag = OEGlobalsBag::getInstance(true);
         // require __DIR__ . '/../../library/sqlconf.php';
-        global $sqlconf;
+        $sqlconf = $bag->get('sqlconf');
+        if (empty($sqlconf)) {
+            throw new LogicException('sqlconf empty or missing. Was interface/globals.php included?');
+        }
         // replicate the same ssl cert detection in a compatible format
 
         $connParams = [
@@ -57,8 +69,45 @@ class Database
             'port' => $sqlconf['port'],
         ];
 
+        $siteDir = $bag->getString('OE_SITE_DIR');
+        $options = self::inferSslOptions($siteDir);
+
+        $connParams['driverOptions'] = $options;
+
         // if ssl, provide
         return $connParams;
+    }
+
+    /**
+     * Inspects the filesystem for MySQL certificate files in
+     * OE_SITE_DIR/documents/certificates and, if present, returns PDO SSL
+     * options to use them.
+     *
+     * @param string $siteDir The currently-active site directory (OE_SITE_DIR,
+     * typically speaking).
+     *
+     * @return array<PDO::MYSQL_*, string>
+     */
+    private static function inferSslOptions(string $siteDir): array
+    {
+        $options = [];
+
+        $certDir = sprintf('%s/documents/certificates', $siteDir);
+        $caFile = sprintf('%s/mysql-ca', $certDir);
+        $cert = sprintf('%s/mysql-cert', $certDir);
+        $key = sprintf('%s/mysql-key', $certDir);
+        if (file_exists($caFile)) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
+        }
+        if (file_exists($cert) || file_exists($key)) {
+            if (!file_exists($cert) || !file_exists($key)) {
+                throw new LogicException('MySQL cert or key file missing. You need both or neither.');
+            }
+            $options[PDO::MYSQL_ATTR_SSL_CERT] = $cert;
+            $options[PDO::MYSQL_ATTR_SSL_KEY] = $key;
+        }
+
+        return $options;
     }
 
     /**
@@ -74,6 +123,9 @@ class Database
         return $row;
     }
 
+    /**
+     * Performs a SELECT statement and returns the result
+     */
     private function query(string $sql, array $bindings = []): Result
     {
         // TODO: middleware for logging, performance metrics, etc.
