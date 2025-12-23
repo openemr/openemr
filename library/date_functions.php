@@ -50,15 +50,14 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     // Date string format
     // First, get current language title
     $languageTitle = getLanguageTitle($_SESSION['language_choice']);
+    $day_num = date("d", $strtime);
+    $year = date("Y", $strtime);
     $dt = match ($languageTitle) {
         // standard english first
         getLanguageTitle(1) => date("F j, Y", $strtime),
-        "Swedish" => date("Y", $strtime) . " $nom " . date("d", $strtime),
-        "Spanish", "Spanish (Spain)", "Spanish (Latin American)" => date("d", $strtime) . " $nom " . date("Y", $strtime),
-        "German" => date("d", $strtime) . " $nom " . date("Y", $strtime),
-        "Dutch" => date("d", $strtime) . " $nom " . date("Y", $strtime),
-        "Hebrew" => date("d", $strtime) . " $nom " . date("Y", $strtime), // display english NOT jewish calendar
-        default => "$nom " . date("d", $strtime) . ", " . date("Y", $strtime),
+        "Swedish" => "$year $nom $day_num",
+        "Spanish", "Spanish (Spain)", "Spanish (Latin American)", "German", "Dutch", "Hebrew" => "$day_num $nom $year",
+        default => "$nom $day_num, $year",
     };
 
     if ($with_dow) {
