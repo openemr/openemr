@@ -358,7 +358,7 @@ $fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $mimetype = 'application/octet-stream';
-$ext = strtolower(array_pop(explode('.', (string) $filename)));
+$ext = strtolower(array_pop(explode('.', (string) $form_filename)));
 if ('dotx' == $ext) {
     // PHP does not seem to recognize this type.
     $mimetype = 'application/msword';
