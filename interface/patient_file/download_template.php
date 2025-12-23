@@ -357,44 +357,35 @@ $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 $fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
-$mimetype = 'application/octet-stream';
+$default_mimetype = 'application/octet-stream';
 $ext = strtolower(array_pop(explode('.', (string) $form_filename)));
-if ('dotx' == $ext) {
-    // PHP does not seem to recognize this type.
-    $mimetype = 'application/msword';
-} elseif (function_exists('finfo_open')) {
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimetype = finfo_file($finfo, $templatepath);
-    finfo_close($finfo);
-} elseif (function_exists('mime_content_type')) {
-    $mimetype = mime_content_type($templatepath);
-} else {
-    if ('doc'  == $ext) {
-        $mimetype = 'application/msword'                             ;
-    } elseif ('dot'  == $ext) {
-        $mimetype = 'application/msword'                             ;
-    } elseif ('htm'  == $ext) {
-        $mimetype = 'text/html'                                      ;
-    } elseif ('html' == $ext) {
-        $mimetype = 'text/html'                                      ;
-    } elseif ('odt'  == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    } elseif ('ods'  == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ;
-    } elseif ('ott'  == $ext) {
-        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    } elseif ('pdf'  == $ext) {
-        $mimetype = 'application/pdf'                                ;
-    } elseif ('ppt'  == $ext) {
-        $mimetype = 'application/vnd.ms-powerpoint'                  ;
-    } elseif ('ps'   == $ext) {
-        $mimetype = 'application/postscript'                         ;
-    } elseif ('rtf'  == $ext) {
-        $mimetype = 'application/rtf'                                ;
-    } elseif ('txt'  == $ext) {
-        $mimetype = 'text/plain'                                     ;
-    } elseif ('xls'  == $ext) {
-        $mimetype = 'application/vnd.ms-excel'                       ;
+$doc_to_mimetype = [
+    'doc'  => 'application/msword',
+    'dot'  => 'application/msword',
+    'dotx' => 'application/msword',
+    'htm'  => 'text/html',
+    'html' => 'text/html',
+    'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
+    'odt'  => 'application/vnd.oasis.opendocument.text',
+    'ott'  => 'application/vnd.oasis.opendocument.text',
+    'pdf'  => 'application/pdf',
+    'ppt'  => 'application/vnd.ms-powerpoint',
+    'ps'   => 'application/postscript',
+    'rtf'  => 'application/rtf',
+    'txt'  => 'text/plain',
+    'xls'  => 'application/vnd.ms-excel',
+];
+$mimetype = $doc_to_mimetype[$ext] ?? $default_mimetype;
+
+// PHP does not seem to recognize 'dotx'
+// so we don't let it override that type.
+if ($ext != 'dotx') {
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimetype = finfo_file($finfo, $templatepath);
+        finfo_close($finfo);
+    } elseif (function_exists('mime_content_type')) {
+        $mimetype = mime_content_type($templatepath);
     }
 }
 
