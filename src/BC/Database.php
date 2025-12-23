@@ -34,15 +34,9 @@ class Database
 
     private static function readLegacyConfig(): array
     {
-        error_log(__METHOD__);
-        // error_log(isset($sqlconf) ? 'sc exist' : 'no exust');
         // require __DIR__ . '/../../library/sqlconf.php';
         global $sqlconf;
-        error_log(isset($sqlconf) ? 'sc exist' : 'no exust');
-        // error_log(print_r(array_keys(get_defined_vars()), true));
-        error_log(print_r($sqlconf, true));
         // replicate the same ssl cert detection in a compatible format
-        // return $sqlconf;
 
         $connParams = [
             'driver' => 'pdo_mysql',
@@ -84,8 +78,5 @@ class Database
         return $stmt->executeQuery();
     }
 
-    // private static function fromGlobals(array $globals): Database
-    // {
-    // }
     public function c(): Connection { return $this->connection; }
 }
