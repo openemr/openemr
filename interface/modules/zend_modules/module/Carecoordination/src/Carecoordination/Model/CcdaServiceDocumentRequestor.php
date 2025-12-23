@@ -27,6 +27,13 @@ class CcdaServiceDocumentRequestor
     public function socket_get($data)
     {
         $this->getSystemLogger()->debug("Calling CcdaServiceDocumentRequestor::socket_get");
+        // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
+        // we're local service
+        if ($GLOBALS['ccda_alt_service_enable'] > 0) {
+        } else {
+            $this->getSystemLogger()->errorLogCaller("C-CDA Service is not enabled in Global Settings");
+            throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
+        }
         $output = "";
         $system = new System();
 
@@ -40,50 +47,45 @@ class CcdaServiceDocumentRequestor
         $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get server active: " . var_export($server_active, true));
         if ($server_active === false) {
             $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get starting local ccda service");
-            // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
-            if ($GLOBALS['ccda_alt_service_enable'] > 0) { // we're local service
-                $path = $GLOBALS['fileroot'] . "/ccdaservice";
-                if (IS_WINDOWS) {
-                    // node server is quite with errors(hidden process) so we'll do redirect of tty
-                    // to generally Windows/Temp.
-                    $redirect_errors = " > " .
-                        $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
-                    $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
-                    $pipeHandle = popen("start /B " . $cmd, "r");
-                    if ($pipeHandle === false) {
-                        throw new CcdaServiceConnectionException("Failed to start local ccdaservice");
-                    }
-                    if (pclose($pipeHandle) === -1) {
-                        $this->getSystemLogger()->errorLogCaller("Failed to close pipehandle for ccdaservice");
-                    }
-                } else {
-                    $command = 'node';
-                    if (!$system->command_exists($command)) {
-                        if ($system->command_exists('nodejs')) {
-                            // older or custom Ubuntu systems that have nodejs rather than node command
-                            $command = 'nodejs';
-                        } else {
-                            $this->getSystemLogger()->errorLogCaller("Node is not installed on the system.  Connection failed");
-                            throw new CcdaServiceConnectionException('Connection Failed.');
-                        }
-                    }
-                    $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
-                    exec($cmd . " > /dev/null &");
+            $path = $GLOBALS['fileroot'] . "/ccdaservice";
+            if (IS_WINDOWS) {
+                // node server is quite with errors(hidden process) so we'll do redirect of tty
+                // to generally Windows/Temp.
+                $redirect_errors = " > " .
+                    $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
+                $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
+                $pipeHandle = popen("start /B " . $cmd, "r");
+                if ($pipeHandle === false) {
+                    throw new CcdaServiceConnectionException("Failed to start local ccdaservice");
                 }
-                sleep(5); // give cpu a rest
-                $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get attempting connection again after starting service");
-                // now try to connect to the server
-                $result = socket_connect($socket, "127.0.0.1", 6661);
-                if ($result === false) {
-                    $errorCode = socket_last_error($socket);
-                    $errorMsg = socket_strerror($errorCode);
-                    $this->getSystemLogger()->errorLogCaller("Socket connection error $errorCode: $errorMsg");
-                    throw new CcdaServiceConnectionException("Connection Failed: $errorMsg");
+                if (pclose($pipeHandle) === -1) {
+                    $this->getSystemLogger()->errorLogCaller("Failed to close pipehandle for ccdaservice");
                 }
             } else {
-                $this->getSystemLogger()->errorLogCaller("C-CDA Service is not enabled in Global Settings");
-                throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
+                $command = 'node';
+                if (!$system->command_exists($command)) {
+                    if ($system->command_exists('nodejs')) {
+                        // older or custom Ubuntu systems that have nodejs rather than node command
+                        $command = 'nodejs';
+                    } else {
+                        $this->getSystemLogger()->errorLogCaller("Node is not installed on the system.  Connection failed");
+                        throw new CcdaServiceConnectionException('Connection Failed.');
+                    }
+                }
+                $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
+                exec($cmd . " > /dev/null &");
             }
+            sleep(5); // give cpu a rest
+            $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get attempting connection again after starting service");
+            // now try to connect to the server
+            $result = socket_connect($socket, "127.0.0.1", 6661);
+            if ($result === false) {
+                $errorCode = socket_last_error($socket);
+                $errorMsg = socket_strerror($errorCode);
+                $this->getSystemLogger()->errorLogCaller("Socket connection error $errorCode: $errorMsg");
+                throw new CcdaServiceConnectionException("Connection Failed: $errorMsg");
+            }
+
         }
         // add file separator character for server end of message
         $data = $data . chr(28) . chr(28);

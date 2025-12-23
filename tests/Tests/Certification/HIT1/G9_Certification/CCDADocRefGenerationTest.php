@@ -114,23 +114,6 @@ class CCDADocRefGenerationTest extends TestCase {
         return $xml;
     }
 
-    // Chat.GPT generated function to canonicalize XML for comparison
-    private function canonicalizeXml(string $xml): string
-    {
-        $dom = new \DOMDocument();
-
-        // Prevent whitespace from becoming text nodes
-        $dom->preserveWhiteSpace = false;
-        $dom->formatOutput = false;
-
-        if (!$dom->loadXML($xml, LIBXML_NOBLANKS)) {
-            throw new \RuntimeException('Invalid XML');
-        }
-
-        // Canonical XML (C14N 1.0)
-        return $dom->C14N();
-    }
-
     private function updateRootIds(\DOMDocument $updatedDomXMLContent, \DOMDocument $domXMLExpectedContent)
     {
         // TODO: We need to figure out why we are generating unique identifiers for these fields that change on
