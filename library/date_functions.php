@@ -56,7 +56,12 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
         // standard english first
         getLanguageTitle(1) => date("F j, Y", $strtime),
         "Swedish" => "$year $nom $day_num",
-        "Spanish", "Spanish (Spain)", "Spanish (Latin American)", "German", "Dutch", "Hebrew" => "$day_num $nom $year",
+        "Dutch",
+        "German",
+        "Hebrew",
+        "Spanish",
+        "Spanish (Latin American)",
+        "Spanish (Spain)" => "$day_num $nom $year",
         default => "$nom $day_num, $year",
     };
 
