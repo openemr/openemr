@@ -23,9 +23,9 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__  . '/../../custom/code_types.inc.php');
@@ -53,7 +53,7 @@ class BaseService implements BaseServiceInterface
     ];
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
@@ -85,12 +85,12 @@ class BaseService implements BaseServiceInterface
         return $this->session;
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->eventDispatcher;
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->eventDispatcher = $dispatcher;
     }

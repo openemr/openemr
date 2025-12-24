@@ -24,7 +24,7 @@ use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\FHIR\Config\ServerConfig;
 
 // not sure I really like this here... it seems like some of this
@@ -39,7 +39,7 @@ class SmartLaunchController
     const CLIENT_APP_REQUIRED_LAUNCH_SCOPE = 'launch';
     const CLIENT_APP_STANDALONE_LAUNCH_SCOPE = 'launch/patient';
 
-    public function __construct(private readonly ?EventDispatcher $dispatcher = null)
+    public function __construct(private readonly ?EventDispatcherInterface $dispatcher = null)
     {
     }
 

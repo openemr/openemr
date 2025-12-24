@@ -454,7 +454,7 @@ services:
   mariadb-old:
     restart: always
     image: mariadb:11.4
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: ['mariadbd','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
