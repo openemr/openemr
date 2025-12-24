@@ -3,6 +3,7 @@
 ## [7.0.4](https://github.com/openemr/openemr/milestone/17?closed=1) - 2025-12-23
 
 ### Added
+-  New Dashboard Context Manager ([#9644](https://github.com/openemr/openemr/issues/9644))
 -  EHI Export export with new tables and fields ([#9509](https://github.com/openemr/openemr/issues/9509))
 -  SMART on FHIR V2.2.0 - support new scope syntax for granular permissions ([#8639](https://github.com/openemr/openemr/issues/8639))
 -  Upgrade USPS address verification to latest API ([#7815](https://github.com/openemr/openemr/issues/7815))
@@ -11,6 +12,7 @@
 -  openemr api documentation ([#9827](https://github.com/openemr/openemr/issues/9827))
 -  pt pay invoice via onetime token ([#8079](https://github.com/openemr/openemr/issues/8079))
 -  support for redis sentinel via predis, step 1 of 2 ([#8410](https://github.com/openemr/openemr/pull/8410))
+-  search and add external providers with nppes npi api ([#9276](https://github.com/openemr/openemr/issues/9276))
 
 
 ### Fixed
@@ -58,7 +60,6 @@
 - Missing couchdb volume causes rsync error during openemr startup in development-easy-light setup ([#8593](https://github.com/openemr/openemr/issues/8593))
 - Missing support for tests Specimen collection USCDI v5 ([#9000](https://github.com/openemr/openemr/issues/9000))
 - Multiple FHIR services missing or not passing $puuidBind parameter for patient compartment security ([#9160](https://github.com/openemr/openemr/issues/9160))
-- New Dashboard Context Manager ([#9644](https://github.com/openemr/openemr/issues/9644))
 - Persisted Data Not Saving Integer 0/False Values in ORDataObject ([#9629](https://github.com/openemr/openemr/issues/9629))
 - Portal History form Family diagnosis code session error ([#9621](https://github.com/openemr/openemr/issues/9621))
 - Portal Phreezable controller causing errors ([#9727](https://github.com/openemr/openemr/issues/9727))
