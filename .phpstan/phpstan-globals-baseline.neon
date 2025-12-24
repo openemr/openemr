@@ -2486,7 +2486,7 @@ parameters:
       path: ../library/templates/telecom_form.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 8
+      count: 9
       path: ../library/translation.inc.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess

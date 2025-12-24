@@ -666,6 +666,13 @@ $GLOBALS_METADATA = [
             xl('This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)')
         ],
 
+        'disable_translation' => [
+            xl('Disable Translation Engine'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Completely disable the translation engine. When enabled, xl() returns the input string unchanged. Use this for English-only deployments to eliminate translation overhead.')
+        ],
+
         'translate_layout' => [
             xl('Translate Layouts'),
             'bool',                           // data type
