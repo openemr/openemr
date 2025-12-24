@@ -112,3 +112,7 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+#IfNotIndex lang_definitions lang_cons
+CREATE INDEX `lang_cons` ON `lang_definitions` (`lang_id`, `cons_id`);
+#EndIf
