@@ -132,7 +132,7 @@ class CDADocumentService extends BaseService
         $content = $result->getContent();
         unset($result);
 
-        if (str_starts_with($content, 'ERROR:')) {
+        if (str_starts_with((string) $content, 'ERROR:')) {
             (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
             throw new Exception(xlt("Error generating CCDA") . ": " . $content);
         }

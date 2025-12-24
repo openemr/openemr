@@ -55,7 +55,7 @@ $_SESSION['site_id'] ??= 'default';
 session_write_close();
 
 $action = $_REQUEST['action'] ?? '';
-$pid = $pid ?? 0;
+$pid ??= 0;
 
 try {
     $cdaService = new CDADocumentService();
