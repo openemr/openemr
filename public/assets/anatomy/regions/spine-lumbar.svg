@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lumbar Spine Region Detail - Interactive Anatomy Selector
+  Level 2: Shows vertebrae, discs, and muscles of the lumbar spine
+  @package   OpenEMR
+  @author    Dang Tran <tqvdang@msn.com>
+  @copyright Copyright (c) 2025 Dang Tran
+  @license   GNU General Public License 3
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 550" width="400" height="550">
+  <title>Lumbar Spine Anatomy</title>
+  <defs>
+    <style>
+      .bone { fill: #fff9c4; stroke: #8d6e63; stroke-width: 1.5; }
+      .disc { fill: #b3e5fc; stroke: #0277bd; stroke-width: 1.5; }
+      .muscle { fill: #ffcdd2; stroke: #c62828; stroke-width: 1; }
+      .nerve { fill: #e1bee7; stroke: #7b1fa2; stroke-width: 2; }
+      .region { cursor: pointer; transition: all 0.2s ease; }
+      .region:hover { filter: brightness(1.1); stroke-width: 3; }
+      .label { font-family: Arial, sans-serif; font-size: 11px; fill: #333; pointer-events: none; }
+      .title-label { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #1976d2; }
+      .vertebra-label { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #5d4037; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="200" y="25" text-anchor="middle" class="title-label">Lumbar Spine / Cột sống thắt lưng</text>
+
+  <!-- Vertebrae and Discs -->
+  <g id="spine-structure">
+    <!-- L1 Vertebra -->
+    <g id="l1-group" transform="translate(0, 40)">
+      <path d="M130 20 L270 20 L285 50 L280 80 L120 80 L115 50 Z"
+            class="bone region"
+            data-region="l1_vertebra"
+            data-structure-type="bone"
+            data-drill-down="false"/>
+      <rect x="180" y="10" width="40" height="80" rx="5"
+            class="bone"
+            style="fill: #ffecb3;"/>
+      <text x="100" y="55" class="vertebra-label">L1</text>
+      <text x="310" y="55" class="label">Đốt sống L1</text>
+    </g>
+
+    <!-- L1-L2 Disc -->
+    <ellipse cx="200" cy="135" rx="55" ry="12"
+             class="disc region"
+             data-region="l1_l2_disc"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="270" y="140" class="label">L1-L2 Disc</text>
+
+    <!-- L2 Vertebra -->
+    <g id="l2-group" transform="translate(0, 110)">
+      <path d="M125 20 L275 20 L290 50 L285 80 L115 80 L110 50 Z"
+            class="bone region"
+            data-region="l2_vertebra"
+            data-structure-type="bone"
+            data-drill-down="false"/>
+      <rect x="175" y="10" width="50" height="80" rx="5"
+            class="bone"
+            style="fill: #ffecb3;"/>
+      <text x="95" y="55" class="vertebra-label">L2</text>
+      <text x="310" y="55" class="label">Đốt sống L2</text>
+    </g>
+
+    <!-- L2-L3 Disc -->
+    <ellipse cx="200" cy="205" rx="60" ry="12"
+             class="disc region"
+             data-region="l2_l3_disc"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="275" y="210" class="label">L2-L3 Disc</text>
+
+    <!-- L3 Vertebra -->
+    <g id="l3-group" transform="translate(0, 180)">
+      <path d="M120 20 L280 20 L295 50 L290 80 L110 80 L105 50 Z"
+            class="bone region"
+            data-region="l3_vertebra"
+            data-structure-type="bone"
+            data-drill-down="false"/>
+      <rect x="170" y="10" width="60" height="80" rx="5"
+            class="bone"
+            style="fill: #ffecb3;"/>
+      <text x="90" y="55" class="vertebra-label">L3</text>
+      <text x="315" y="55" class="label">Đốt sống L3</text>
+    </g>
+
+    <!-- L3-L4 Disc -->
+    <ellipse cx="200" cy="275" rx="65" ry="12"
+             class="disc region"
+             data-region="l3_l4_disc"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="280" y="280" class="label">L3-L4 Disc</text>
+
+    <!-- L4 Vertebra -->
+    <g id="l4-group" transform="translate(0, 250)">
+      <path d="M115 20 L285 20 L300 50 L295 80 L105 80 L100 50 Z"
+            class="bone region"
+            data-region="l4_vertebra"
+            data-structure-type="bone"
+            data-drill-down="false"/>
+      <rect x="165" y="10" width="70" height="80" rx="5"
+            class="bone"
+            style="fill: #ffecb3;"/>
+      <text x="85" y="55" class="vertebra-label">L4</text>
+      <text x="320" y="55" class="label">Đốt sống L4</text>
+    </g>
+
+    <!-- L4-L5 Disc -->
+    <ellipse cx="200" cy="345" rx="70" ry="12"
+             class="disc region"
+             data-region="l4_l5_disc"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="285" y="350" class="label">L4-L5 Disc</text>
+
+    <!-- L5 Vertebra -->
+    <g id="l5-group" transform="translate(0, 320)">
+      <path d="M110 20 L290 20 L305 50 L300 80 L100 80 L95 50 Z"
+            class="bone region"
+            data-region="l5_vertebra"
+            data-structure-type="bone"
+            data-drill-down="false"/>
+      <rect x="160" y="10" width="80" height="80" rx="5"
+            class="bone"
+            style="fill: #ffecb3;"/>
+      <text x="80" y="55" class="vertebra-label">L5</text>
+      <text x="325" y="55" class="label">Đốt sống L5</text>
+    </g>
+
+    <!-- L5-S1 Disc -->
+    <ellipse cx="200" cy="415" rx="75" ry="12"
+             class="disc region"
+             data-region="l5_s1_disc"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="290" y="420" class="label">L5-S1 Disc</text>
+
+    <!-- Sacrum (top portion) -->
+    <path d="M105 430 L295 430 L270 480 L130 480 Z"
+          class="bone region"
+          data-region="sacrum"
+          data-structure-type="bone"
+          data-drill-down="false"
+          style="fill: #ffe0b2;"/>
+    <text x="200" y="460" text-anchor="middle" class="label">Sacrum / Xương cùng</text>
+  </g>
+
+  <!-- Muscles Layer -->
+  <g id="muscles-layer" data-layer="muscle">
+    <!-- Erector Spinae (left) -->
+    <path d="M80 50 L100 50 L95 420 L75 420 Z"
+          class="muscle region"
+          data-region="erector_spinae_left"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+    <text x="20" y="200" class="label" style="writing-mode: tb;">Erector Spinae</text>
+
+    <!-- Erector Spinae (right) -->
+    <path d="M300 50 L320 50 L325 420 L305 420 Z"
+          class="muscle region"
+          data-region="erector_spinae_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+
+    <!-- Multifidus (left) -->
+    <path d="M100 60 L115 60 L110 410 L95 410 Z"
+          class="muscle region"
+          data-region="multifidus_left"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #e57373;"/>
+
+    <!-- Multifidus (right) -->
+    <path d="M285 60 L300 60 L305 410 L290 410 Z"
+          class="muscle region"
+          data-region="multifidus_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #e57373;"/>
+  </g>
+
+  <!-- Nerve Roots Layer -->
+  <g id="nerves-layer" data-layer="nerve">
+    <!-- L1 Nerve -->
+    <path d="M270 85 Q290 90 310 85" class="nerve region"
+          data-region="l1_nerve"
+          data-structure-type="nerve"
+          data-drill-down="false"
+          style="fill: none;"/>
+
+    <!-- L2 Nerve -->
+    <path d="M275 155 Q295 160 315 155" class="nerve region"
+          data-region="l2_nerve"
+          data-structure-type="nerve"
+          data-drill-down="false"
+          style="fill: none;"/>
+
+    <!-- L3 Nerve -->
+    <path d="M280 225 Q300 230 320 225" class="nerve region"
+          data-region="l3_nerve"
+          data-structure-type="nerve"
+          data-drill-down="false"
+          style="fill: none;"/>
+
+    <!-- L4 Nerve -->
+    <path d="M285 295 Q305 300 325 295" class="nerve region"
+          data-region="l4_nerve"
+          data-structure-type="nerve"
+          data-drill-down="false"
+          style="fill: none;"/>
+
+    <!-- L5 Nerve -->
+    <path d="M290 365 Q310 370 330 365" class="nerve region"
+          data-region="l5_nerve"
+          data-structure-type="nerve"
+          data-drill-down="false"
+          style="fill: none;"/>
+    <text x="340" y="370" class="label" style="fill: #7b1fa2;">Nerve Roots</text>
+    <text x="340" y="383" class="label" style="fill: #7b1fa2;">Rễ thần kinh</text>
+  </g>
+
+  <!-- Legend -->
+  <g id="legend" transform="translate(50, 495)">
+    <text x="0" y="0" class="label" style="font-weight: bold;">Legend / Chú thích:</text>
+    <rect x="0" y="10" width="15" height="12" class="bone"/>
+    <text x="20" y="20" class="label">Vertebra / Đốt sống</text>
+    <rect x="120" y="10" width="15" height="12" class="disc"/>
+    <text x="140" y="20" class="label">Disc / Đĩa đệm</text>
+    <rect x="220" y="10" width="15" height="12" class="muscle"/>
+    <text x="240" y="20" class="label">Muscle / Cơ</text>
+    <line x1="0" y1="42" x2="15" y2="42" class="nerve" style="stroke-width: 3;"/>
+    <text x="20" y="45" class="label">Nerve / Thần kinh</text>
+  </g>
+</svg>

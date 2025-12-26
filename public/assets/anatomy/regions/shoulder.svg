@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Shoulder Region Detail - Interactive Anatomy Selector
+  Level 2: Shows muscles, bones, and joints of the shoulder
+  @package   OpenEMR
+  @author    Dang Tran <tqvdang@msn.com>
+  @copyright Copyright (c) 2025 Dang Tran
+  @license   GNU General Public License 3
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 450" width="500" height="450">
+  <title>Shoulder Anatomy</title>
+  <defs>
+    <style>
+      .bone { fill: #fff9c4; stroke: #8d6e63; stroke-width: 1.5; }
+      .muscle { fill: #ffcdd2; stroke: #c62828; stroke-width: 1; }
+      .joint { fill: #c8e6c9; stroke: #2e7d32; stroke-width: 1.5; }
+      .tendon { fill: #f0f4c3; stroke: #827717; stroke-width: 1; }
+      .ligament { fill: #b2dfdb; stroke: #00695c; stroke-width: 1; }
+      .region { cursor: pointer; transition: all 0.2s ease; }
+      .region:hover { filter: brightness(1.1); stroke-width: 3; }
+      .label { font-family: Arial, sans-serif; font-size: 11px; fill: #333; pointer-events: none; }
+      .title-label { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #1976d2; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="250" y="25" text-anchor="middle" class="title-label">Shoulder Anatomy / Giải phẫu vai</text>
+
+  <!-- Bones Layer -->
+  <g id="bones-layer" data-layer="bone">
+    <!-- Clavicle -->
+    <path d="M100 100 Q180 80 250 95 Q280 100 300 110"
+          class="bone region"
+          data-region="clavicle_right"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="200" y="75" class="label">Clavicle / Xương đòn</text>
+
+    <!-- Scapula (Shoulder Blade) -->
+    <path d="M320 120 L380 180 L370 320 L300 350 L280 280 L290 200 Z"
+          class="bone region"
+          data-region="scapula_right"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="340" y="250" class="label">Scapula / Xương bả vai</text>
+
+    <!-- Acromion -->
+    <path d="M280 110 L320 100 L340 120 L320 140 L290 130 Z"
+          class="bone region"
+          data-region="acromion_right"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="305" y="95" class="label">Acromion / Mỏm cùng vai</text>
+
+    <!-- Humeral Head -->
+    <circle cx="250" cy="160" r="45"
+            class="bone region"
+            data-region="humerus_head_right"
+            data-structure-type="bone"
+            data-drill-down="false"/>
+    <text x="250" y="165" text-anchor="middle" class="label">Humeral Head</text>
+    <text x="250" y="178" text-anchor="middle" class="label">Chỏm xương cánh tay</text>
+
+    <!-- Humerus Shaft -->
+    <path d="M220 200 L280 200 L275 400 L225 400 Z"
+          class="bone region"
+          data-region="humerus_shaft_right"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="250" y="350" text-anchor="middle" class="label">Humerus / Xương cánh tay</text>
+  </g>
+
+  <!-- Joints Layer -->
+  <g id="joints-layer" data-layer="joint">
+    <!-- Glenohumeral Joint -->
+    <ellipse cx="260" cy="155" rx="20" ry="25"
+             class="joint region"
+             data-region="glenohumeral_right"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="185" y="140" class="label">Glenohumeral Joint</text>
+    <text x="185" y="153" class="label">Khớp ổ chảo-cánh tay</text>
+
+    <!-- Acromioclavicular Joint -->
+    <ellipse cx="305" cy="110" rx="12" ry="10"
+             class="joint region"
+             data-region="acromioclavicular_right"
+             data-structure-type="joint"
+             data-drill-down="false"/>
+    <text x="310" y="130" class="label">AC Joint / Khớp cùng vai-đòn</text>
+  </g>
+
+  <!-- Muscles Layer -->
+  <g id="muscles-layer" data-layer="muscle">
+    <!-- Deltoid -->
+    <path d="M180 110 C150 130 130 180 140 230 L180 250 L220 200 L280 200 L320 250 L360 230
+             C370 180 350 130 320 110 Q250 90 180 110"
+          class="muscle region"
+          data-region="deltoid_right"
+          data-structure-type="muscle"
+          data-drill-down="false"/>
+    <text x="250" y="135" text-anchor="middle" class="label">Deltoid / Cơ delta</text>
+
+    <!-- Supraspinatus -->
+    <path d="M290 100 L340 95 L360 110 L370 140 L340 150 L300 140 Z"
+          class="muscle region"
+          data-region="supraspinatus_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+    <text x="400" y="125" class="label">Supraspinatus</text>
+    <text x="400" y="138" class="label">Cơ trên gai</text>
+
+    <!-- Infraspinatus -->
+    <path d="M310 150 L370 145 L380 200 L375 260 L340 270 L310 230 Z"
+          class="muscle region"
+          data-region="infraspinatus_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+    <text x="400" y="200" class="label">Infraspinatus</text>
+    <text x="400" y="213" class="label">Cơ dưới gai</text>
+
+    <!-- Subscapularis (shown partially) -->
+    <path d="M280 160 L290 180 L285 220 L260 230 L250 200 Z"
+          class="muscle region"
+          data-region="subscapularis_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #e57373;"/>
+    <text x="85" y="195" class="label">Subscapularis</text>
+    <text x="85" y="208" class="label">Cơ dưới vai</text>
+
+    <!-- Teres Minor -->
+    <path d="M310 240 L345 235 L355 280 L340 300 L315 285 Z"
+          class="muscle region"
+          data-region="teres_minor_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+    <text x="400" y="270" class="label">Teres Minor</text>
+    <text x="400" y="283" class="label">Cơ tròn nhỏ</text>
+
+    <!-- Teres Major -->
+    <path d="M300 295 L340 305 L350 350 L320 365 L295 340 Z"
+          class="muscle region"
+          data-region="teres_major_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #e57373;"/>
+    <text x="400" y="335" class="label">Teres Major</text>
+    <text x="400" y="348" class="label">Cơ tròn lớn</text>
+
+    <!-- Biceps (Long Head) -->
+    <path d="M235 175 L250 175 L255 250 L260 350 L240 350 L235 250 Z"
+          class="muscle region"
+          data-region="biceps_long_right"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef5350;"/>
+    <text x="85" y="270" class="label">Biceps Long Head</text>
+    <text x="85" y="283" class="label">Đầu dài cơ nhị đầu</text>
+
+    <!-- Trapezius (Upper) -->
+    <path d="M100 60 L200 50 L300 60 L340 90 L320 100 L200 85 L100 100 Z"
+          class="muscle region"
+          data-region="trapezius_upper"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ffab91;"/>
+    <text x="200" y="42" text-anchor="middle" class="label">Upper Trapezius / Cơ thang trên</text>
+  </g>
+
+  <!-- Tendons Layer -->
+  <g id="tendons-layer" data-layer="tendon">
+    <!-- Supraspinatus Tendon -->
+    <path d="M300 135 Q280 140 270 150"
+          class="tendon region"
+          data-region="supraspinatus_tendon_right"
+          data-structure-type="tendon"
+          data-drill-down="false"
+          style="fill: none; stroke-width: 4;"/>
+    <text x="85" y="135" class="label">Supraspinatus Tendon</text>
+
+    <!-- Biceps Tendon -->
+    <path d="M245 120 L248 175"
+          class="tendon region"
+          data-region="biceps_tendon_right"
+          data-structure-type="tendon"
+          data-drill-down="false"
+          style="fill: none; stroke-width: 4;"/>
+    <text x="85" y="150" class="label">Biceps Tendon / Gân cơ nhị đầu</text>
+  </g>
+
+  <!-- Ligaments Layer -->
+  <g id="ligaments-layer" data-layer="ligament">
+    <!-- Coracoclavicular Ligament -->
+    <path d="M270 95 L285 120"
+          class="ligament region"
+          data-region="coracoclavicular_lig"
+          data-structure-type="ligament"
+          data-drill-down="false"
+          style="fill: none; stroke-width: 3;"/>
+
+    <!-- Acromioclavicular Ligament -->
+    <path d="M295 100 L315 105"
+          class="ligament region"
+          data-region="acromioclavicular_lig"
+          data-structure-type="ligament"
+          data-drill-down="false"
+          style="fill: none; stroke-width: 3;"/>
+  </g>
+
+  <!-- Legend -->
+  <g id="legend" transform="translate(20, 380)">
+    <text x="0" y="0" class="label" style="font-weight: bold;">Legend / Chú thích:</text>
+    <rect x="0" y="10" width="15" height="12" class="bone"/>
+    <text x="20" y="20" class="label">Bone / Xương</text>
+    <rect x="100" y="10" width="15" height="12" class="muscle"/>
+    <text x="120" y="20" class="label">Muscle / Cơ</text>
+    <rect x="200" y="10" width="15" height="12" class="joint"/>
+    <text x="220" y="20" class="label">Joint / Khớp</text>
+    <rect x="300" y="10" width="15" height="12" class="tendon"/>
+    <text x="320" y="20" class="label">Tendon / Gân</text>
+    <rect x="400" y="10" width="15" height="12" class="ligament"/>
+    <text x="420" y="20" class="label">Ligament / Dây chằng</text>
+  </g>
+</svg>

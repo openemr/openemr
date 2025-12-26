@@ -160,6 +160,14 @@ if ($viewmode == 'update') {
                 </div>
             </div>
 
+            <!-- Anatomical Region Selection (Interactive Body Diagram) -->
+            <?php
+            // Prepare form data for anatomy panel
+            $formData = $obj ?? [];
+            $formData['language_preference'] = $obj['language_preference'] ?? 'vi';
+            include(__DIR__ . '/anatomy-panel.php');
+            ?>
+
             <!-- Functional Goals -->
             <div class="bilingual-group">
                 <h4><?php echo xlt('Functional Goals'); ?> / Mục tiêu chức năng</h4>

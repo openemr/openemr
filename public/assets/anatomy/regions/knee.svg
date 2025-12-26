@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Knee Region Detail - Interactive Anatomy Selector
+  Level 2: Shows muscles, bones, ligaments of the knee
+  @package   OpenEMR
+  @author    Dang Tran <tqvdang@msn.com>
+  @copyright Copyright (c) 2025 Dang Tran
+  @license   GNU General Public License 3
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 500" width="450" height="500">
+  <title>Knee Anatomy</title>
+  <defs>
+    <style>
+      .bone { fill: #fff9c4; stroke: #8d6e63; stroke-width: 1.5; }
+      .muscle { fill: #ffcdd2; stroke: #c62828; stroke-width: 1; }
+      .joint { fill: #c8e6c9; stroke: #2e7d32; stroke-width: 1.5; }
+      .tendon { fill: #f0f4c3; stroke: #827717; stroke-width: 1; }
+      .ligament { fill: #b2dfdb; stroke: #00695c; stroke-width: 2; }
+      .meniscus { fill: #e1bee7; stroke: #7b1fa2; stroke-width: 1.5; }
+      .region { cursor: pointer; transition: all 0.2s ease; }
+      .region:hover { filter: brightness(1.1); stroke-width: 3; }
+      .label { font-family: Arial, sans-serif; font-size: 11px; fill: #333; pointer-events: none; }
+      .title-label { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #1976d2; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="225" y="25" text-anchor="middle" class="title-label">Knee Anatomy (Front View) / Giải phẫu đầu gối</text>
+
+  <!-- Bones Layer -->
+  <g id="bones-layer" data-layer="bone">
+    <!-- Femur (Distal) -->
+    <path d="M175 50 L275 50 L290 120 L300 180 L280 200 L170 200 L150 180 L160 120 Z"
+          class="bone region"
+          data-region="femur_distal_right"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="225" y="90" text-anchor="middle" class="label">Femur / Xương đùi</text>
+
+    <!-- Femoral Condyles -->
+    <ellipse cx="190" cy="200" rx="40" ry="30"
+             class="bone region"
+             data-region="femoral_condyle_medial"
+             data-structure-type="bone"
+             data-drill-down="false"/>
+    <ellipse cx="260" cy="200" rx="40" ry="30"
+             class="bone region"
+             data-region="femoral_condyle_lateral"
+             data-structure-type="bone"
+             data-drill-down="false"/>
+    <text x="130" y="205" class="label">Medial Condyle</text>
+    <text x="295" y="205" class="label">Lateral Condyle</text>
+
+    <!-- Patella -->
+    <ellipse cx="225" cy="210" rx="35" ry="40"
+             class="bone region"
+             data-region="patella_right"
+             data-structure-type="bone"
+             data-drill-down="false"/>
+    <text x="225" y="215" text-anchor="middle" class="label">Patella</text>
+    <text x="225" y="228" text-anchor="middle" class="label">Xương bánh chè</text>
+
+    <!-- Tibia (Proximal) -->
+    <path d="M160 260 L290 260 L295 300 L300 380 L280 450 L170 450 L150 380 L155 300 Z"
+          class="bone region"
+          data-region="tibia_proximal_right"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="225" y="350" text-anchor="middle" class="label">Tibia / Xương chày</text>
+
+    <!-- Tibial Plateau -->
+    <path d="M165 260 L285 260 L280 280 L170 280 Z"
+          class="bone region"
+          data-region="tibial_plateau"
+          data-structure-type="bone"
+          data-drill-down="false"/>
+    <text x="225" y="275" text-anchor="middle" class="label" style="font-size: 9px;">Tibial Plateau</text>
+
+    <!-- Fibula Head -->
+    <ellipse cx="310" cy="290" rx="20" ry="25"
+             class="bone region"
+             data-region="fibula_head_right"
+             data-structure-type="bone"
+             data-drill-down="false"/>
+    <text x="335" y="295" class="label">Fibula Head</text>
+    <text x="335" y="308" class="label">Chỏm xương mác</text>
+  </g>
+
+  <!-- Ligaments Layer -->
+  <g id="ligaments-layer" data-layer="ligament">
+    <!-- ACL (Anterior Cruciate Ligament) -->
+    <path d="M200 200 L250 260"
+          class="ligament region"
+          data-region="acl_right"
+          data-structure-type="ligament"
+          data-drill-down="false"
+          style="stroke-width: 6; fill: none;"/>
+    <text x="60" y="235" class="label" style="fill: #00695c; font-weight: bold;">ACL</text>
+    <text x="60" y="248" class="label">Dây chằng chéo trước</text>
+
+    <!-- PCL (Posterior Cruciate Ligament) -->
+    <path d="M250 200 L200 260"
+          class="ligament region"
+          data-region="pcl_right"
+          data-structure-type="ligament"
+          data-drill-down="false"
+          style="stroke-width: 6; fill: none; stroke: #004d40;"/>
+    <text x="60" y="265" class="label" style="fill: #004d40; font-weight: bold;">PCL</text>
+    <text x="60" y="278" class="label">Dây chằng chéo sau</text>
+
+    <!-- MCL (Medial Collateral Ligament) -->
+    <path d="M160 180 L155 280"
+          class="ligament region"
+          data-region="mcl_right"
+          data-structure-type="ligament"
+          data-drill-down="false"
+          style="stroke-width: 5; fill: none;"/>
+    <text x="60" y="180" class="label" style="fill: #00695c; font-weight: bold;">MCL</text>
+    <text x="60" y="193" class="label">Dây chằng bên trong</text>
+
+    <!-- LCL (Lateral Collateral Ligament) -->
+    <path d="M290 180 L295 280"
+          class="ligament region"
+          data-region="lcl_right"
+          data-structure-type="ligament"
+          data-drill-down="false"
+          style="stroke-width: 5; fill: none;"/>
+    <text x="350" y="180" class="label" style="fill: #00695c; font-weight: bold;">LCL</text>
+    <text x="350" y="193" class="label">Dây chằng bên ngoài</text>
+  </g>
+
+  <!-- Menisci Layer -->
+  <g id="menisci-layer" data-layer="joint">
+    <!-- Medial Meniscus -->
+    <path d="M170 250 Q185 235 200 250 Q185 265 170 250"
+          class="meniscus region"
+          data-region="medial_meniscus_right"
+          data-structure-type="joint"
+          data-drill-down="false"
+          style="stroke-width: 3;"/>
+    <text x="60" y="300" class="label" style="fill: #7b1fa2;">Medial Meniscus</text>
+    <text x="60" y="313" class="label">Sụn chêm trong</text>
+
+    <!-- Lateral Meniscus -->
+    <path d="M250 250 Q265 235 280 250 Q265 265 250 250"
+          class="meniscus region"
+          data-region="lateral_meniscus_right"
+          data-structure-type="joint"
+          data-drill-down="false"
+          style="stroke-width: 3;"/>
+    <text x="350" y="250" class="label" style="fill: #7b1fa2;">Lateral Meniscus</text>
+    <text x="350" y="263" class="label">Sụn chêm ngoài</text>
+  </g>
+
+  <!-- Tendons Layer -->
+  <g id="tendons-layer" data-layer="tendon">
+    <!-- Patellar Tendon -->
+    <path d="M210 250 L215 300 L235 300 L240 250"
+          class="tendon region"
+          data-region="patellar_tendon_right"
+          data-structure-type="tendon"
+          data-drill-down="false"/>
+    <text x="350" y="280" class="label">Patellar Tendon</text>
+    <text x="350" y="293" class="label">Gân bánh chè</text>
+
+    <!-- Quadriceps Tendon -->
+    <path d="M205 50 L210 170 L240 170 L245 50"
+          class="tendon region"
+          data-region="quadriceps_tendon_right"
+          data-structure-type="tendon"
+          data-drill-down="false"/>
+    <text x="60" y="110" class="label">Quadriceps Tendon</text>
+    <text x="60" y="123" class="label">Gân cơ tứ đầu</text>
+  </g>
+
+  <!-- Muscles Layer -->
+  <g id="muscles-layer" data-layer="muscle">
+    <!-- Quadriceps (Vastus Medialis) -->
+    <path d="M140 50 L175 50 L170 150 L140 160 Z"
+          class="muscle region"
+          data-region="vastus_medialis"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+    <text x="60" y="80" class="label">Vastus Medialis</text>
+
+    <!-- Quadriceps (Vastus Lateralis) -->
+    <path d="M275 50 L310 50 L310 160 L280 150 Z"
+          class="muscle region"
+          data-region="vastus_lateralis"
+          data-structure-type="muscle"
+          data-drill-down="false"
+          style="fill: #ef9a9a;"/>
+    <text x="350" y="80" class="label">Vastus Lateralis</text>
+  </g>
+
+  <!-- Legend -->
+  <g id="legend" transform="translate(60, 420)">
+    <text x="0" y="0" class="label" style="font-weight: bold;">Legend / Chú thích:</text>
+    <rect x="0" y="10" width="15" height="12" class="bone"/>
+    <text x="20" y="20" class="label">Bone / Xương</text>
+    <rect x="100" y="10" width="15" height="12" class="ligament"/>
+    <text x="120" y="20" class="label">Ligament / Dây chằng</text>
+    <rect x="230" y="10" width="15" height="12" class="meniscus"/>
+    <text x="250" y="20" class="label">Meniscus / Sụn chêm</text>
+    <rect x="0" y="35" width="15" height="12" class="tendon"/>
+    <text x="20" y="45" class="label">Tendon / Gân</text>
+    <rect x="100" y="35" width="15" height="12" class="muscle"/>
+    <text x="120" y="45" class="label">Muscle / Cơ</text>
+  </g>
+</svg>

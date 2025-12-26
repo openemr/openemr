@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Body Full Front View - Interactive Anatomy Selector
+  @package   OpenEMR
+  @author    Dang Tran <tqvdang@msn.com>
+  @copyright Copyright (c) 2025 Dang Tran
+  @license   GNU General Public License 3
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700">
+  <title>Human Body - Front View</title>
+  <defs>
+    <style>
+      .body-outline { fill: #f5e6d3; stroke: #8b7355; stroke-width: 1.5; }
+      .region { fill: transparent; stroke: transparent; cursor: pointer; transition: fill 0.2s ease; }
+      .region:hover { fill: rgba(76, 175, 80, 0.3); stroke: #4CAF50; stroke-width: 2; }
+      .label { font-family: Arial, sans-serif; font-size: 10px; fill: #333; pointer-events: none; opacity: 0; }
+      .region:hover + .label { opacity: 1; }
+    </style>
+  </defs>
+
+  <!-- Body outline (background) -->
+  <g id="body-outline">
+    <!-- Head -->
+    <ellipse cx="200" cy="55" rx="40" ry="50" class="body-outline"/>
+    <!-- Neck -->
+    <rect x="185" y="100" width="30" height="25" class="body-outline"/>
+    <!-- Torso -->
+    <path d="M140 125 L260 125 L275 320 L125 320 Z" class="body-outline"/>
+    <!-- Left arm -->
+    <path d="M140 130 L110 135 L85 240 L75 340 L95 345 L115 260 L130 180 L140 155" class="body-outline"/>
+    <!-- Right arm -->
+    <path d="M260 130 L290 135 L315 240 L325 340 L305 345 L285 260 L270 180 L260 155" class="body-outline"/>
+    <!-- Left hand -->
+    <ellipse cx="80" cy="365" rx="18" ry="28" class="body-outline"/>
+    <!-- Right hand -->
+    <ellipse cx="320" cy="365" rx="18" ry="28" class="body-outline"/>
+    <!-- Pelvis/Hips -->
+    <path d="M125 320 L275 320 L290 380 L110 380 Z" class="body-outline"/>
+    <!-- Left leg -->
+    <path d="M130 380 L165 380 L175 550 L180 680 L140 680 L145 550 L120 380" class="body-outline"/>
+    <!-- Right leg -->
+    <path d="M235 380 L270 380 L280 380 L255 550 L260 680 L220 680 L225 550 L235 380" class="body-outline"/>
+  </g>
+
+  <!-- Clickable regions -->
+  <g id="clickable-regions">
+    <!-- Head -->
+    <ellipse cx="200" cy="55" rx="42" ry="52" class="region"
+             data-region="head_front"
+             data-drill-down="true"
+             data-svg-file="regions/head.svg"/>
+
+    <!-- Neck -->
+    <rect x="182" y="98" width="36" height="30" class="region"
+          data-region="neck_front"
+          data-drill-down="true"
+          data-svg-file="regions/neck.svg"/>
+
+    <!-- Right Shoulder -->
+    <ellipse cx="275" cy="145" rx="30" ry="25" class="region"
+             data-region="shoulder_right"
+             data-drill-down="true"
+             data-svg-file="regions/shoulder.svg"/>
+
+    <!-- Left Shoulder -->
+    <ellipse cx="125" cy="145" rx="30" ry="25" class="region"
+             data-region="shoulder_left"
+             data-drill-down="true"
+             data-svg-file="regions/shoulder.svg"/>
+
+    <!-- Chest -->
+    <rect x="145" y="130" width="110" height="80" rx="10" class="region"
+          data-region="chest"
+          data-drill-down="true"
+          data-svg-file="regions/chest.svg"/>
+
+    <!-- Right Upper Arm -->
+    <path d="M280 165 L300 180 L315 260 L295 270 L280 210 Z" class="region"
+          data-region="upper_arm_right"
+          data-drill-down="true"
+          data-svg-file="regions/upper-arm.svg"/>
+
+    <!-- Left Upper Arm -->
+    <path d="M120 165 L100 180 L85 260 L105 270 L120 210 Z" class="region"
+          data-region="upper_arm_left"
+          data-drill-down="true"
+          data-svg-file="regions/upper-arm.svg"/>
+
+    <!-- Right Elbow -->
+    <ellipse cx="308" cy="280" rx="18" ry="22" class="region"
+             data-region="elbow_right"
+             data-drill-down="true"
+             data-svg-file="regions/elbow.svg"/>
+
+    <!-- Left Elbow -->
+    <ellipse cx="92" cy="280" rx="18" ry="22" class="region"
+             data-region="elbow_left"
+             data-drill-down="true"
+             data-svg-file="regions/elbow.svg"/>
+
+    <!-- Right Forearm -->
+    <path d="M300 295 L320 310 L325 350 L305 355 L295 315 Z" class="region"
+          data-region="forearm_right"
+          data-drill-down="true"
+          data-svg-file="regions/forearm.svg"/>
+
+    <!-- Left Forearm -->
+    <path d="M100 295 L80 310 L75 350 L95 355 L105 315 Z" class="region"
+          data-region="forearm_left"
+          data-drill-down="true"
+          data-svg-file="regions/forearm.svg"/>
+
+    <!-- Right Wrist -->
+    <ellipse cx="318" cy="360" rx="12" ry="15" class="region"
+             data-region="wrist_right"
+             data-drill-down="true"
+             data-svg-file="regions/wrist.svg"/>
+
+    <!-- Left Wrist -->
+    <ellipse cx="82" cy="360" rx="12" ry="15" class="region"
+             data-region="wrist_left"
+             data-drill-down="true"
+             data-svg-file="regions/wrist.svg"/>
+
+    <!-- Right Hand -->
+    <ellipse cx="320" cy="390" rx="20" ry="35" class="region"
+             data-region="hand_right"
+             data-drill-down="true"
+             data-svg-file="regions/hand.svg"/>
+
+    <!-- Left Hand -->
+    <ellipse cx="80" cy="390" rx="20" ry="35" class="region"
+             data-region="hand_left"
+             data-drill-down="true"
+             data-svg-file="regions/hand.svg"/>
+
+    <!-- Abdomen -->
+    <rect x="145" y="215" width="110" height="100" rx="10" class="region"
+          data-region="abdomen"
+          data-drill-down="true"
+          data-svg-file="regions/abdomen.svg"/>
+
+    <!-- Right Hip -->
+    <ellipse cx="255" cy="355" rx="35" ry="30" class="region"
+             data-region="hip_right"
+             data-drill-down="true"
+             data-svg-file="regions/hip.svg"/>
+
+    <!-- Left Hip -->
+    <ellipse cx="145" cy="355" rx="35" ry="30" class="region"
+             data-region="hip_left"
+             data-drill-down="true"
+             data-svg-file="regions/hip.svg"/>
+
+    <!-- Right Thigh -->
+    <path d="M235 385 L270 385 L265 480 L240 480 Z" class="region"
+          data-region="thigh_right"
+          data-drill-down="true"
+          data-svg-file="regions/thigh.svg"/>
+
+    <!-- Left Thigh -->
+    <path d="M130 385 L165 385 L160 480 L135 480 Z" class="region"
+          data-region="thigh_left"
+          data-drill-down="true"
+          data-svg-file="regions/thigh.svg"/>
+
+    <!-- Right Knee -->
+    <ellipse cx="252" cy="505" rx="22" ry="28" class="region"
+             data-region="knee_right"
+             data-drill-down="true"
+             data-svg-file="regions/knee.svg"/>
+
+    <!-- Left Knee -->
+    <ellipse cx="148" cy="505" rx="22" ry="28" class="region"
+             data-region="knee_left"
+             data-drill-down="true"
+             data-svg-file="regions/knee.svg"/>
+
+    <!-- Right Lower Leg -->
+    <path d="M240 530 L265 530 L262 620 L242 620 Z" class="region"
+          data-region="lower_leg_right"
+          data-drill-down="true"
+          data-svg-file="regions/lower-leg.svg"/>
+
+    <!-- Left Lower Leg -->
+    <path d="M135 530 L160 530 L158 620 L138 620 Z" class="region"
+          data-region="lower_leg_left"
+          data-drill-down="true"
+          data-svg-file="regions/lower-leg.svg"/>
+
+    <!-- Right Ankle -->
+    <ellipse cx="252" cy="640" rx="16" ry="20" class="region"
+             data-region="ankle_right"
+             data-drill-down="true"
+             data-svg-file="regions/ankle.svg"/>
+
+    <!-- Left Ankle -->
+    <ellipse cx="148" cy="640" rx="16" ry="20" class="region"
+             data-region="ankle_left"
+             data-drill-down="true"
+             data-svg-file="regions/ankle.svg"/>
+
+    <!-- Right Foot -->
+    <ellipse cx="252" cy="675" rx="22" ry="18" class="region"
+             data-region="foot_right"
+             data-drill-down="true"
+             data-svg-file="regions/foot.svg"/>
+
+    <!-- Left Foot -->
+    <ellipse cx="148" cy="675" rx="22" ry="18" class="region"
+             data-region="foot_left"
+             data-drill-down="true"
+             data-svg-file="regions/foot.svg"/>
+  </g>
+</svg>

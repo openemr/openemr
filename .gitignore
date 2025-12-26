@@ -10,6 +10,7 @@ node_modules
 /public/assets/*
 /public/themes/*
 !/public/assets/modified
+!/public/assets/anatomy
 /.docs/.out/*
 
 # ccda service build

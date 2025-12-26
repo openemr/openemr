@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Body Full Back View - Interactive Anatomy Selector
+  @package   OpenEMR
+  @author    Dang Tran <tqvdang@msn.com>
+  @copyright Copyright (c) 2025 Dang Tran
+  @license   GNU General Public License 3
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700">
+  <title>Human Body - Back View</title>
+  <defs>
+    <style>
+      .body-outline { fill: #f5e6d3; stroke: #8b7355; stroke-width: 1.5; }
+      .spine-line { fill: none; stroke: #d4b896; stroke-width: 2; stroke-dasharray: 5,3; }
+      .region { fill: transparent; stroke: transparent; cursor: pointer; transition: fill 0.2s ease; }
+      .region:hover { fill: rgba(76, 175, 80, 0.3); stroke: #4CAF50; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <!-- Body outline (background) -->
+  <g id="body-outline">
+    <!-- Head -->
+    <ellipse cx="200" cy="55" rx="40" ry="50" class="body-outline"/>
+    <!-- Neck -->
+    <rect x="185" y="100" width="30" height="25" class="body-outline"/>
+    <!-- Torso -->
+    <path d="M140 125 L260 125 L275 320 L125 320 Z" class="body-outline"/>
+    <!-- Spine indication -->
+    <path d="M200 105 L200 315" class="spine-line"/>
+    <!-- Left arm -->
+    <path d="M140 130 L110 135 L85 240 L75 340 L95 345 L115 260 L130 180 L140 155" class="body-outline"/>
+    <!-- Right arm -->
+    <path d="M260 130 L290 135 L315 240 L325 340 L305 345 L285 260 L270 180 L260 155" class="body-outline"/>
+    <!-- Left hand -->
+    <ellipse cx="80" cy="365" rx="18" ry="28" class="body-outline"/>
+    <!-- Right hand -->
+    <ellipse cx="320" cy="365" rx="18" ry="28" class="body-outline"/>
+    <!-- Pelvis/Hips -->
+    <path d="M125 320 L275 320 L290 380 L110 380 Z" class="body-outline"/>
+    <!-- Left leg -->
+    <path d="M130 380 L165 380 L175 550 L180 680 L140 680 L145 550 L120 380" class="body-outline"/>
+    <!-- Right leg -->
+    <path d="M235 380 L270 380 L280 380 L255 550 L260 680 L220 680 L225 550 L235 380" class="body-outline"/>
+  </g>
+
+  <!-- Clickable regions (Back view specific) -->
+  <g id="clickable-regions">
+    <!-- Head (back) -->
+    <ellipse cx="200" cy="55" rx="42" ry="52" class="region"
+             data-region="head_back"
+             data-drill-down="true"
+             data-svg-file="regions/head-back.svg"/>
+
+    <!-- Cervical Spine -->
+    <rect x="185" y="100" width="30" height="40" rx="5" class="region"
+          data-region="cervical_spine"
+          data-drill-down="true"
+          data-svg-file="regions/spine-cervical.svg"/>
+
+    <!-- Right Shoulder (back) -->
+    <ellipse cx="275" cy="145" rx="30" ry="25" class="region"
+             data-region="shoulder_right_back"
+             data-drill-down="true"
+             data-svg-file="regions/shoulder-back.svg"/>
+
+    <!-- Left Shoulder (back) -->
+    <ellipse cx="125" cy="145" rx="30" ry="25" class="region"
+             data-region="shoulder_left_back"
+             data-drill-down="true"
+             data-svg-file="regions/shoulder-back.svg"/>
+
+    <!-- Thoracic Spine -->
+    <rect x="185" y="140" width="30" height="90" rx="5" class="region"
+          data-region="thoracic_spine"
+          data-drill-down="true"
+          data-svg-file="regions/spine-thoracic.svg"/>
+
+    <!-- Upper Back (Right) -->
+    <path d="M215 140 L260 135 L265 230 L215 230 Z" class="region"
+          data-region="upper_back_right"
+          data-drill-down="true"
+          data-svg-file="regions/upper-back.svg"/>
+
+    <!-- Upper Back (Left) -->
+    <path d="M185 140 L140 135 L135 230 L185 230 Z" class="region"
+          data-region="upper_back_left"
+          data-drill-down="true"
+          data-svg-file="regions/upper-back.svg"/>
+
+    <!-- Lumbar Spine -->
+    <rect x="185" y="230" width="30" height="70" rx="5" class="region"
+          data-region="lumbar_spine"
+          data-drill-down="true"
+          data-svg-file="regions/spine-lumbar.svg"/>
+
+    <!-- Lower Back (Right) -->
+    <path d="M215 235 L265 240 L270 300 L215 300 Z" class="region"
+          data-region="lower_back_right"
+          data-drill-down="true"
+          data-svg-file="regions/lower-back.svg"/>
+
+    <!-- Lower Back (Left) -->
+    <path d="M185 235 L135 240 L130 300 L185 300 Z" class="region"
+          data-region="lower_back_left"
+          data-drill-down="true"
+          data-svg-file="regions/lower-back.svg"/>
+
+    <!-- Sacrum -->
+    <path d="M175 300 L225 300 L220 340 L180 340 Z" class="region"
+          data-region="sacrum"
+          data-drill-down="true"
+          data-svg-file="regions/sacrum.svg"/>
+
+    <!-- Right Triceps -->
+    <path d="M280 165 L300 180 L315 260 L295 270 L280 210 Z" class="region"
+          data-region="triceps_right"
+          data-drill-down="true"
+          data-svg-file="regions/upper-arm-back.svg"/>
+
+    <!-- Left Triceps -->
+    <path d="M120 165 L100 180 L85 260 L105 270 L120 210 Z" class="region"
+          data-region="triceps_left"
+          data-drill-down="true"
+          data-svg-file="regions/upper-arm-back.svg"/>
+
+    <!-- Right Elbow (back) -->
+    <ellipse cx="308" cy="280" rx="18" ry="22" class="region"
+             data-region="elbow_right_back"
+             data-drill-down="true"
+             data-svg-file="regions/elbow-back.svg"/>
+
+    <!-- Left Elbow (back) -->
+    <ellipse cx="92" cy="280" rx="18" ry="22" class="region"
+             data-region="elbow_left_back"
+             data-drill-down="true"
+             data-svg-file="regions/elbow-back.svg"/>
+
+    <!-- Right Forearm (back) -->
+    <path d="M300 295 L320 310 L325 350 L305 355 L295 315 Z" class="region"
+          data-region="forearm_right_back"
+          data-drill-down="true"
+          data-svg-file="regions/forearm-back.svg"/>
+
+    <!-- Left Forearm (back) -->
+    <path d="M100 295 L80 310 L75 350 L95 355 L105 315 Z" class="region"
+          data-region="forearm_left_back"
+          data-drill-down="true"
+          data-svg-file="regions/forearm-back.svg"/>
+
+    <!-- Right Hand (back) -->
+    <ellipse cx="320" cy="390" rx="20" ry="35" class="region"
+             data-region="hand_right_back"
+             data-drill-down="true"
+             data-svg-file="regions/hand-back.svg"/>
+
+    <!-- Left Hand (back) -->
+    <ellipse cx="80" cy="390" rx="20" ry="35" class="region"
+             data-region="hand_left_back"
+             data-drill-down="true"
+             data-svg-file="regions/hand-back.svg"/>
+
+    <!-- Right Gluteal -->
+    <ellipse cx="240" cy="365" rx="35" ry="30" class="region"
+             data-region="gluteal_right"
+             data-drill-down="true"
+             data-svg-file="regions/gluteal.svg"/>
+
+    <!-- Left Gluteal -->
+    <ellipse cx="160" cy="365" rx="35" ry="30" class="region"
+             data-region="gluteal_left"
+             data-drill-down="true"
+             data-svg-file="regions/gluteal.svg"/>
+
+    <!-- Right Hamstring -->
+    <path d="M235 395 L270 395 L265 510 L240 510 Z" class="region"
+          data-region="hamstring_right"
+          data-drill-down="true"
+          data-svg-file="regions/hamstring.svg"/>
+
+    <!-- Left Hamstring -->
+    <path d="M130 395 L165 395 L160 510 L135 510 Z" class="region"
+          data-region="hamstring_left"
+          data-drill-down="true"
+          data-svg-file="regions/hamstring.svg"/>
+
+    <!-- Right Popliteal (behind knee) -->
+    <ellipse cx="252" cy="520" rx="18" ry="20" class="region"
+             data-region="popliteal_right"
+             data-drill-down="true"
+             data-svg-file="regions/knee-back.svg"/>
+
+    <!-- Left Popliteal (behind knee) -->
+    <ellipse cx="148" cy="520" rx="18" ry="20" class="region"
+             data-region="popliteal_left"
+             data-drill-down="true"
+             data-svg-file="regions/knee-back.svg"/>
+
+    <!-- Right Calf -->
+    <path d="M240 540 L265 540 L262 630 L242 630 Z" class="region"
+          data-region="calf_right"
+          data-drill-down="true"
+          data-svg-file="regions/calf.svg"/>
+
+    <!-- Left Calf -->
+    <path d="M135 540 L160 540 L158 630 L138 630 Z" class="region"
+          data-region="calf_left"
+          data-drill-down="true"
+          data-svg-file="regions/calf.svg"/>
+
+    <!-- Right Achilles -->
+    <ellipse cx="252" cy="650" rx="12" ry="18" class="region"
+             data-region="achilles_right"
+             data-drill-down="true"
+             data-svg-file="regions/achilles.svg"/>
+
+    <!-- Left Achilles -->
+    <ellipse cx="148" cy="650" rx="12" ry="18" class="region"
+             data-region="achilles_left"
+             data-drill-down="true"
+             data-svg-file="regions/achilles.svg"/>
+
+    <!-- Right Heel -->
+    <ellipse cx="252" cy="680" rx="18" ry="15" class="region"
+             data-region="heel_right"
+             data-drill-down="true"
+             data-svg-file="regions/heel.svg"/>
+
+    <!-- Left Heel -->
+    <ellipse cx="148" cy="680" rx="18" ry="15" class="region"
+             data-region="heel_left"
+             data-drill-down="true"
+             data-svg-file="regions/heel.svg"/>
+  </g>
+</svg>

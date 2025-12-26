@@ -1,0 +1,580 @@
+/**
+ * Anatomy Selector Styles
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Dang Tran <tqvdang@msn.com>
+ * @copyright Copyright (c) 2025 Dang Tran
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/* Main wrapper */
+.anatomy-selector-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 500px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Header */
+.anatomy-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.anatomy-view-selector {
+    display: flex;
+    gap: 8px;
+}
+
+.view-btn {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.view-btn:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.view-btn.active {
+    background: #2196f3;
+    color: #fff;
+    border-color: #1976d2;
+}
+
+.view-btn i {
+    margin-right: 6px;
+}
+
+/* Breadcrumb */
+.anatomy-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.breadcrumb-item {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-item:hover:not(.current) {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.breadcrumb-item.home {
+    font-weight: 600;
+}
+
+.breadcrumb-item.current {
+    color: #1976d2;
+    font-weight: 600;
+    cursor: default;
+}
+
+.anatomy-breadcrumb .fa-chevron-right {
+    font-size: 10px;
+    color: #999;
+}
+
+/* Main content area */
+.anatomy-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* SVG container */
+.anatomy-svg-container {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.anatomy-svg-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 20px;
+}
+
+.anatomy-svg-wrapper svg {
+    max-width: 100%;
+    max-height: 100%;
+    transition: transform 0.3s ease;
+    transform-origin: center center;
+}
+
+/* SVG region styles */
+.anatomy-svg-wrapper svg [data-region] {
+    cursor: pointer;
+    transition: fill 0.2s ease, opacity 0.2s ease, stroke-width 0.2s ease;
+}
+
+.anatomy-svg-wrapper svg [data-region]:hover {
+    stroke: #333;
+    stroke-width: 2px;
+}
+
+.anatomy-svg-wrapper svg [data-region].selected {
+    stroke: #1976d2;
+    stroke-width: 3px;
+}
+
+/* Loading state */
+.anatomy-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #666;
+    font-size: 16px;
+}
+
+.anatomy-loading .fa-spinner {
+    font-size: 32px;
+    color: #2196f3;
+}
+
+/* Error state */
+.anatomy-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #d32f2f;
+    text-align: center;
+    padding: 40px;
+}
+
+.anatomy-error .fa-exclamation-triangle {
+    font-size: 48px;
+}
+
+.anatomy-error p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.anatomy-error small {
+    color: #666;
+}
+
+/* Zoom controls */
+.anatomy-zoom-controls {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 4px;
+}
+
+.zoom-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.zoom-btn:hover {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+/* Side panel */
+.anatomy-side-panel {
+    width: 280px;
+    border-left: 1px solid #ddd;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Layers section */
+.anatomy-layers {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.anatomy-layers h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: #555;
+}
+
+.layer-toggle input {
+    margin: 0;
+}
+
+.layer-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Selections section */
+.anatomy-selections {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.anatomy-selections h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.selections-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 100px;
+}
+
+.no-selection {
+    color: #999;
+    font-size: 13px;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.selection-item {
+    position: relative;
+    padding: 10px 12px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border-left: 4px solid #2196f3;
+}
+
+.selection-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.selection-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: #333;
+}
+
+.selection-type {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.selection-details {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: #666;
+}
+
+.remove-selection {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    color: #999;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.remove-selection:hover {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+/* Selection actions */
+.selections-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+    margin-top: 12px;
+}
+
+.selections-actions .btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+/* Tooltip */
+.anatomy-tooltip {
+    position: absolute;
+    background: rgba(33, 33, 33, 0.9);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 10000;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Finding dialog */
+.anatomy-finding-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+}
+
+.finding-dialog-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    min-width: 360px;
+    max-width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.finding-dialog-content h4 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+    border-bottom: 2px solid #2196f3;
+    padding-bottom: 12px;
+}
+
+.finding-dialog-content .form-group {
+    margin-bottom: 16px;
+}
+
+.finding-dialog-content label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.finding-dialog-content input[type="range"] {
+    width: 100%;
+}
+
+.finding-dialog-content textarea {
+    width: 100%;
+    resize: vertical;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: flex-end;
+}
+
+.dialog-actions .btn {
+    min-width: 100px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .anatomy-content {
+        flex-direction: column;
+    }
+
+    .anatomy-side-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #ddd;
+        max-height: 40%;
+    }
+
+    .anatomy-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .anatomy-view-selector {
+        width: 100%;
+    }
+
+    .view-btn {
+        flex: 1;
+    }
+
+    .anatomy-breadcrumb {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 4px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .anatomy-selector-wrapper {
+        background: #1e1e1e;
+        border-color: #333;
+    }
+
+    .anatomy-header {
+        background: #2d2d2d;
+        border-color: #333;
+    }
+
+    .view-btn {
+        background: #333;
+        border-color: #444;
+        color: #eee;
+    }
+
+    .view-btn:hover {
+        background: #404040;
+        border-color: #2196f3;
+    }
+
+    .view-btn.active {
+        background: #2196f3;
+        border-color: #1976d2;
+    }
+
+    .anatomy-svg-container {
+        background: #252525;
+    }
+
+    .anatomy-side-panel {
+        background: #1e1e1e;
+        border-color: #333;
+    }
+
+    .anatomy-layers,
+    .anatomy-selections {
+        border-color: #333;
+    }
+
+    .anatomy-layers h4,
+    .anatomy-selections h4 {
+        color: #eee;
+    }
+
+    .layer-toggle {
+        color: #ccc;
+    }
+
+    .selection-item {
+        background: #2d2d2d;
+    }
+
+    .selection-name {
+        color: #eee;
+    }
+
+    .selection-details {
+        color: #999;
+    }
+
+    .finding-dialog-content {
+        background: #2d2d2d;
+    }
+
+    .finding-dialog-content h4 {
+        color: #eee;
+    }
+
+    .finding-dialog-content label {
+        color: #ccc;
+    }
+}
+
+/* Print styles */
+@media print {
+    .anatomy-selector-wrapper {
+        border: none;
+    }
+
+    .anatomy-header,
+    .anatomy-zoom-controls,
+    .anatomy-layers,
+    .selections-actions {
+        display: none !important;
+    }
+
+    .anatomy-side-panel {
+        border: none;
+        page-break-inside: avoid;
+    }
+
+    .selection-item {
+        page-break-inside: avoid;
+    }
+}
