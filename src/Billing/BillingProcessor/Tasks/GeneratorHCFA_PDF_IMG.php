@@ -48,7 +48,7 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
         $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
         $hcfa_image = $GLOBALS['images_static_absolute'] . "/cms1500.png";
         $this->appendToLog($log);
-        $alines = explode("\014", $lines); // form feeds may separate pages
+        $alines = explode("\014", (string) $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
             if ($this->createNewPage) {
                 $this->pdf->ezNewPage();
@@ -57,10 +57,10 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
             $this->pdf->addPngFromFile("$hcfa_image", 0, 0, 612, 792);
-            $this->pdf->ezText($tmplines, 12, array(
+            $this->pdf->ezText($tmplines, 12, [
                 'justification' => 'left',
                 'leading' => 12
-            ));
+            ]);
         }
     }
 }

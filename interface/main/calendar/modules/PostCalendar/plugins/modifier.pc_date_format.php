@@ -39,11 +39,7 @@ function smarty_modifier_pc_date_format($string, $format = null, $default_date =
     }
 
     if ($string != '') {
-        if (is_string($string)) {
-            $timestamp = strtotime($string);
-        } else {
-            $timestamp = smarty_make_timestamp($string);
-        }
+        $timestamp = is_string($string) ? strtotime($string) : smarty_make_timestamp($string);
 
         return strftime($format, $timestamp);
     } elseif (isset($default_date) && $default_date != '') {

@@ -54,9 +54,9 @@ class ExportUtility
         $worksheet->getStyle($current_column . $current_row)->getFont()->setName('Arial');
 
         // default to no columns
-        $fields = array ();
-        $columns = array ();
-        $is_numeric = array ();
+        $fields =  [];
+        $columns =  [];
+        $is_numeric =  [];
         $fieldmap_exists = false;
 
         $current_row = 3;
@@ -67,12 +67,12 @@ class ExportUtility
         if (isset($objects [0])) {
             try {
                 // see if there is a fieldmap for this object
-                $fields = $phreezer->GetFieldMaps(get_class($objects [0]));
+                $fields = $phreezer->GetFieldMaps($objects [0]::class);
                 $fieldmap_exists = true;
 
                 // these are the columns we'll use for enumeration from here on
                 $columns = array_keys($fields);
-            } catch (Exception $ex) {
+            } catch (Exception) {
                 // no fieldmaps exist, so use the reflection class instead
                 $reflect = new ReflectionClass($objects [0]);
                 $publicAttributes = $reflect->getProperties(ReflectionProperty::IS_PUBLIC);

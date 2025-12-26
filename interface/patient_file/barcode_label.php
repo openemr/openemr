@@ -25,12 +25,12 @@ $patdata = sqlQuery("SELECT " .
   "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
   "p.street, p.city, p.state, p.postal_code, p.pid " .
   "FROM patient_data AS p " .
-  "WHERE p.pid = ? LIMIT 1", array($pid));
+  "WHERE p.pid = ? LIMIT 1", [$pid]);
 
 
 
 $today = date('m/d/Y');
-$dob   = substr($patdata['DOB'], 5, 2) . "/" . Substr($patdata['DOB'], 8, 2) . "/" . Substr($patdata['DOB'], 0, 4);
+$dob   = substr((string) $patdata['DOB'], 5, 2) . "/" . Substr((string) $patdata['DOB'], 8, 2) . "/" . Substr((string) $patdata['DOB'], 0, 4);
 
 
 
@@ -105,14 +105,14 @@ if ($GLOBALS['barcode_label_type'] == '12') {   // datamatrix
 //            ALLOCATE FPDF RESSOURCE
 // -------------------------------------------------- //
 
-$pdf = new eFPDF('P', 'mm', array(102,252)); // set the orentation, unit of measure and size of the page
+$pdf = new eFPDF('P', 'mm', [102,252]); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
 
 // -------------------------------------------------- //
 //                      BARCODE
 // -------------------------------------------------- //
 
-$data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, array('code' => $code), $width, $height);
+$data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, ['code' => $code], $width, $height);
 $pdf->SetFont('Arial', 'B', $fontSize);
 $pdf->SetTextColor(0, 0, 0);
 $len = $pdf->GetStringWidth($data['hri']);

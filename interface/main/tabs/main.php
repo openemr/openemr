@@ -341,7 +341,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     // Below code block is to prepare certain elements for deciding what links to show on the menu
     // prepare newcrop globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", array($_SESSION['authUser']));
+        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
         if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
             $GLOBALS['newcrop_user_role_erxadmin'] = 1;
@@ -375,7 +375,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
-    <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
+    <?php $userQuery = sqlQuery("select * from users where username = ?", [$_SESSION['authUser']]); ?>
 
     <script>
         <?php
@@ -384,7 +384,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             $visible = "true";
             foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || strpos($_unsafe_url, $fileroot) !== 0) {
+                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, (string) $fileroot)) {
                     unset($_SESSION['default_open_tabs'][$i]);
                     continue;
                 }
@@ -428,7 +428,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     if (isset($_SESSION['app1'])) {
         $rs = sqlquery(
             "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-            array('apps', $_SESSION['app1'])
+            ['apps', $_SESSION['app1']]
         );
         if ($rs['app_url'] != "main/main_screen.php") {
             echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
@@ -467,7 +467,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             ?>
         </nav>
         <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>
-        <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
+        <div class="body_title pt-1" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}"></div>
         <div class="mainFrames d-flex flex-row" id="mainFrames_div">
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>

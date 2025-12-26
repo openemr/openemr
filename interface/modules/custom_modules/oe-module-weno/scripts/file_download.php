@@ -26,12 +26,12 @@ $pharmacyDownloadService = new DownloadWenoPharmacies();
 $pharmacyService = new PharmacyService();
 $wenoLog = new WenoLogService();
 
-$data = array(
+$data = [
     "UserEmail" => $weno_username,
     "MD5Password" => md5($weno_password),
     "ExcludeNonWenoTest" => "N",
     "Daily" => $_GET['daily'] ?? 'N'
-);
+];
 
 $logMessage = "User Initiated Daily Pharmacy Update";
 if ($data['Daily'] == 'N') {
@@ -48,7 +48,7 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
 
-$fileUrl = $baseurl . "?useremail=" . urlencode($weno_username) . "&data=" . urlencode($encrypted);
+$fileUrl = $baseurl . "?useremail=" . urlencode((string) $weno_username) . "&data=" . urlencode($encrypted);
 $storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
 $path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
 

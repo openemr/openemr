@@ -16,6 +16,8 @@
 
 namespace OpenEMR\Services\Search;
 
+use OpenEMR\Services\CodeTypesService;
+
 class SearchFieldStatementResolver
 {
     const MAX_NESTED_LEVEL = 10;
@@ -231,10 +233,31 @@ class SearchFieldStatementResolver
                 }
             // if we have other modifiers we would handle them here
             } else {
-                $clauses[] = $searchField->getField() . ' = ?';
+                $codeTypesService = new CodeTypesService();
+
                 // TODO: adunsulag when we better understand Token's we will improve this process of how we resolve the token
                 // field to its representative bound value
-                $searchFragment->addBoundValue($value->getCode());
+                if ($codeTypesService->systemHasMultipleCodeTypes($value->getSystem())) {
+                    // for example FHIRCodeSystemConstants::SNOMED_CT maps to 'SNOMED', 'SNOMED-CT', 'SNOMED-PR' inside OpenEMR
+                    // TODO: adunsulag it may require more db normalization to improve performance here but for now this will work
+                    $codes = $codeTypesService->getAllOpenEMRCodesForSystemAndCode(
+                        $value->getSystem(),
+                        $value->getCode()
+                    );
+                    $placeholders = implode(',', array_fill(0, count($codes), '?'));
+                    $clauses[] = $searchField->getField() . ' IN (' . $placeholders . ')';
+                }
+                else {
+                    $clauses[] = $searchField->getField() . ' = ?';
+                    $code = $codeTypesService->getOpenEMRCodeForSystemAndCode(
+                        $value->getSystem(),
+                        $value->getCode()
+                    );
+                    $codes = [$code];
+                }
+                foreach ($codes as $code) {
+                    $searchFragment->addBoundValue($code);
+                }
             }
         }
 
@@ -263,20 +286,18 @@ class SearchFieldStatementResolver
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
         foreach ($values as $value) {
-            if ($modifier === 'prefix') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue($value . "%");
-            } else if ($modifier === 'contains') {
-                array_push($clauses, $searchField->getField() . ' LIKE ?');
-                $searchFragment->addBoundValue('%' . $value . '%');
-            } else if ($modifier === 'exact') {
-                // not we may want to grab the specific table collation here in order to improve performance
-                // and avoid db casting...
-                array_push($clauses, "BINARY " . $searchField->getField() . ' = ?');
-                $searchFragment->addBoundValue($value);
-            } else if ($modifier == SearchModifier::NOT_EQUALS_EXACT) {
-                array_push($clauses, "BINARY " . $searchField->getField() . ' != ?');
-                $searchFragment->addBoundValue($value);
+            $result = match ($modifier) {
+                SearchModifier::PREFIX => [$searchField->getField() . ' LIKE ?', $value . '%'],
+                SearchModifier::SUFFIX => [$searchField->getField() . ' LIKE ?', '%' . $value],
+                SearchModifier::CONTAINS => [$searchField->getField() . ' LIKE ?', '%' . $value . '%'],
+                SearchModifier::EXACT => ["BINARY " . $searchField->getField() . ' = ?', $value],
+                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $searchField->getField() . ' != ?', $value],
+                default => null,
+            };
+            if ($result !== null) {
+                [$clause, $bound] = $result;
+                $clauses[] = $clause;
+                $searchFragment->addBoundValue($bound);
             }
         }
         if (count($clauses) > 1) {

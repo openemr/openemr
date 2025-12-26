@@ -16,13 +16,18 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 interface BaseServiceInterface
 {
-    public function getEventDispatcher(): EventDispatcher;
+    public function getEventDispatcher(): EventDispatcherInterface;
 
-    public function setEventDispatcher(EventDispatcher $dispatcher);
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher);
+
+    public function setSession(SessionInterface $session): void;
+
+    public function getSession(): ?SessionInterface;
 
     public function getTable();
 

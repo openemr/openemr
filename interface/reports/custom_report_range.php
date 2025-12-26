@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__file__) . "/../globals.php");
+require_once(__DIR__ . "/../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
@@ -48,10 +48,10 @@ if (empty($_POST['start']) || empty($_POST['end'])) {
 
 //Patient related stuff
 if (!empty($_POST["form_patient"])) {
-    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+    $form_patient = $_POST['form_patient'] ?? '';
 }
 
-$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+$form_pid = $_POST['form_pid'] ?? '';
 if (empty($form_patient)) {
     $form_pid = '';
 }
@@ -268,7 +268,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
     <?php
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
@@ -292,7 +292,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
     $iCounter = 0;
     if (empty($newpatient)) {
-        $newpatient = array();
+        $newpatient = [];
     }
 
     foreach ($newpatient as $patient) {
@@ -321,7 +321,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         print "<div id='superbill_billingdata'>";
         print "<h1>" . xlt('Billing Information') . ":</h1>";
         if (!empty($patient)) {
-            $billings = array();
+            $billings = [];
             echo "<table class='table w-100'>";
             echo "<tr>";
             echo "<td class='bold' width='10%'>" . xlt('Date') . "</td>";
@@ -332,13 +332,13 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = 0.00;
             //foreach ($patient as $be) {
 
-            $ta = explode(":", $patient);
+            $ta = explode(":", (string) $patient);
             $billing = getPatientBillingEncounter($pids[$iCounter], $ta[1]);
 
             $billings[] = $billing;
             foreach ($billing as $b) {
                 // grab the date to reformat it in the output
-                $bdate = strtotime($b['date']);
+                $bdate = strtotime((string) $b['date']);
 
                 echo "<tr>\n";
                 echo "<td class='text' style='font-size: 0.8em'>" . text(oeFormatShortDate(date("Y-m-d", $bdate))) . "<BR>" . date("h:i a", $bdate) . "</td>";

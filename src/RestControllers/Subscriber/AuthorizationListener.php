@@ -19,6 +19,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
@@ -35,7 +36,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class AuthorizationListener implements EventSubscriberInterface
 {
-    private SystemLogger $logger;
+    private LoggerInterface $logger;
     public static function getSubscribedEvents(): array
     {
         return [
@@ -65,13 +66,13 @@ class AuthorizationListener implements EventSubscriberInterface
         return $this->globalsBag;
     }
 
-    public function setLogger(SystemLogger $logger): void
+    public function setLogger(LoggerInterface $logger): void
     {
         // This method is intended to set the logger for the authorization listener.
         // Implementation details would depend on the specific requirements of the application.
         $this->logger = $logger;
     }
-    public function getLogger(): SystemLogger
+    public function getLogger(): LoggerInterface
     {
         // This method is intended to return the logger for the authorization listener.
         // Implementation details would depend on the specific requirements of the application.
@@ -201,26 +202,9 @@ class AuthorizationListener implements EventSubscriberInterface
      * @param ScopeEntity $scope The scope to match against
      * @return void
      */
-    private function updateRequestWithConstraints(HttpRestRequest $request, ScopeEntity $scope): void
+    private function updateRequestWithConstraints(HttpRestRequest $request, ScopeEntity $endpointScope): void
     {
-        $scopeEntities = $request->getAllContainedScopesForScopeEntity($scope);
-        $constraints = [];
-
-        foreach ($scopeEntities as $scopeEntity) {
-            // Check if this scope entity matches or is contained by the given scope
-            $scope->addScopePermissions($scopeEntity);
-        }
-        $constraints = $scope->getPermissions()->getConstraints();
-        if (!empty($constraints)) {
-            // Merge constraints with existing query parameters
-            $request->query->add($constraints);
-            $logValues = [
-                'scope' => $scope->getIdentifier(),
-                'constraints' => $constraints,
-                'mergedQuery' => $request->query->all()
-            ];
-            $this->getLogger()->debug("Updated request with scope constraints", $logValues);
-        }
+        $request->setRequestRequiredScope($endpointScope);
     }
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void

@@ -19,22 +19,15 @@ use Twig\Environment;
 class TeleHealthFrontendSettingsController
 {
     /**
-     * @var Environment The twig environment
+     * @param string $assetPath
+     * @param Environment $twig The twig environment
+     * @param TelehealthGlobalConfig $config
      */
-    private $twig;
-
-    /**
-     * @var TelehealthGlobalConfig
-     */
-    private $config;
-
-    private string $assetPath;
-
-    public function __construct(string $assetPath, Environment $twig, TelehealthGlobalConfig $config)
-    {
-        $this->assetPath = $assetPath;
-        $this->twig = $twig;
-        $this->config = $config;
+    public function __construct(
+        private readonly string $assetPath,
+        private readonly Environment $twig,
+        private readonly TelehealthGlobalConfig $config
+    ) {
     }
 
     public function renderFrontendSettings($isPatient = true)
@@ -42,7 +35,7 @@ class TeleHealthFrontendSettingsController
         $assetPath = $this->assetPath;
         // strip off the assets, and public folder to get to the base of our module directory
         // assetPath is a url path but dirname still operates fine on both / and \ characters so we are fine here.
-        $modulePath = dirname(dirname($assetPath)) . "/"; // make sure to end with a path
+        $modulePath = dirname($assetPath, 2) . "/"; // make sure to end with a path
         $data = [
             'settings' => [
                 'translations' => $this->getTranslationSettings()

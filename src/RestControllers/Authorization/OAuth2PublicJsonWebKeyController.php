@@ -9,11 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class OAuth2PublicJsonWebKeyController
 {
-    private string $publicKeyPath;
-
-    public function __construct(string $publicKeyPath)
+    public function __construct(private readonly string $publicKeyPath)
     {
-        $this->publicKeyPath = $publicKeyPath;
         // Constructor can be used for dependency injection if needed
     }
 
@@ -48,6 +45,6 @@ class OAuth2PublicJsonWebKeyController
 
     public function base64url_encode($input): string
     {
-        return rtrim(strtr(base64_encode($input), '+/', '-_'), '=');
+        return rtrim(strtr(base64_encode((string) $input), '+/', '-_'), '=');
     }
 }

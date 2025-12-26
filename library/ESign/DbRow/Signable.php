@@ -31,27 +31,23 @@ require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
 {
-    private $_signatures = array();
-    protected $_tableId = null;
-    protected $_tableName = null;
+    private $_signatures = [];
     private $_verification = null;
 
-    public function __construct($tableId, $tableName)
+    public function __construct(protected $_tableId, protected $_tableName)
     {
-        $this->_tableId = $tableId;
-        $this->_tableName = $tableName;
         $this->_verification = new Utils_Verification();
     }
 
     public function getSignatures()
     {
-        $this->_signatures = array();
+        $this->_signatures = [];
 
         $statement = "SELECT E.id, E.tid, E.table, E.uid, U.fname, U.lname, U.suffix, U.valedictory, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
         $statement .= "JOIN users U ON E.uid = U.id ";
         $statement .= "WHERE E.tid = ? AND E.table = ? ";
         $statement .= "ORDER BY E.datetime ASC";
-        $result = sqlStatement($statement, array( $this->_tableId, $this->_tableName ));
+        $result = sqlStatement($statement, [ $this->_tableId, $this->_tableName ]);
 
         while ($row = sqlFetchArray($result)) {
             $signature = new Signature(
@@ -88,7 +84,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
         $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-        $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
+        $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ]);
         $hash = null;
         if ($row && isset($row['hash'])) {
             $hash = $row['hash'];
@@ -112,7 +108,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement = "SELECT E.is_lock FROM esign_signatures E ";
         $statement .= "WHERE E.tid = ? AND E.table = ? AND is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1 ";
-        $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
+        $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ]);
         if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
             return true;
         }
@@ -135,13 +131,13 @@ abstract class DbRow_Signable implements SignableIF
         $hash = $this->_verification->hash($this->getData());
 
         // Crate a hash of the signature data itself. This is the same data as Signature::getData() method
-        $signature = array(
+        $signature = [
             $this->_tableId,
             $this->_tableName,
             $userId,
             $isLock,
             $hash,
-            $amendment );
+            $amendment ];
         $signatureHash = $this->_verification->hash($signature);
 
         // Append the hash of the signature data to the insert array before we insert

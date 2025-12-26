@@ -1,0 +1,121 @@
+{
+    "timestamp": "2025-11-20 19:28:17",
+    "environment": {
+        "database": "mysql",
+        "openemr_url": "http:\/\/openemr\/apis\/default"
+    },
+    "summary": {
+        "total": 15,
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0,
+        "success_rate": "100%"
+    },
+    "tests": [
+        {
+            "number": 1,
+            "name": "1. Vietnamese Medical Terms Table",
+            "status": "PASS",
+            "details": "Found 40 terms",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 2,
+            "name": "2. PT Assessment Bilingual Table",
+            "status": "PASS",
+            "details": "Table exists, 5 records",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 3,
+            "name": "3. PT Exercise Prescriptions Table",
+            "status": "PASS",
+            "details": "Table exists, 6 records",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 4,
+            "name": "4. PT Treatment Plans Table",
+            "status": "PASS",
+            "details": "Table exists, 0 records",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 5,
+            "name": "5. PT Outcome Measures Table",
+            "status": "PASS",
+            "details": "Table exists, 5 records",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 6,
+            "name": "6. Vietnamese Collation",
+            "status": "PASS",
+            "details": "Table using utf8mb4_vietnamese_ci",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 7,
+            "name": "7. Translation Functions",
+            "status": "PASS",
+            "details": "get_vietnamese_term('pain') = 'pain'",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 8,
+            "name": "8. Vietnamese PT Widget Registration",
+            "status": "PASS",
+            "details": "Widget infrastructure present",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 9,
+            "name": "9. UTF-8 Vietnamese Support",
+            "status": "PASS",
+            "details": "Found Vietnamese characters: S\u1ee9c m\u1ea1nh c\u01a1",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 10,
+            "name": "10. Vietnamese PT Service Classes",
+            "status": "PASS",
+            "details": "Found 8 service classes",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 11,
+            "name": "11. Vietnamese PT Controllers",
+            "status": "PASS",
+            "details": "Found 8 controller classes",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 12,
+            "name": "12. Vietnamese PT Forms",
+            "status": "PASS",
+            "details": "Found 4 PT form directories",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 13,
+            "name": "13. Assessment Table Structure",
+            "status": "PASS",
+            "details": "Bilingual fields present",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 14,
+            "name": "14. Vietnamese PT Validators",
+            "status": "PASS",
+            "details": "Found 4 validator classes",
+            "timestamp": "2025-11-20 19:28:17"
+        },
+        {
+            "number": 15,
+            "name": "15. UTF-8MB4 Support",
+            "status": "PASS",
+            "details": "Database using utf8mb4",
+            "timestamp": "2025-11-20 19:28:17"
+        }
+    ]
+}

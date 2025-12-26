@@ -62,7 +62,7 @@ function doOnetimeInvoiceRequest(): void
         'expiry_interval' => "P14D",
         'text_message' => $message,
         'html_message' => "",
-        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($_SESSION['site_id']) . "&landOn=MakePayment",
+        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $_SESSION['site_id']) . "&landOn=MakePayment",
         'phone' => $patient['phone'] ?? '',
         'email' => $patient['email'] ?? '',
         'actions' => [
@@ -92,7 +92,7 @@ function doOnetimeDocumentRequest(): void
             throw new Exception(xlt("Error! Not authorised. You must be an authorised portal user or admin."));
         }
     }
-    $details = json_decode($service->getRequest('details'), true);
+    $details = json_decode((string) $service->getRequest('details'), true);
     $content = $service->getRequest('comments');
     $ot_pid = $details['pid'] ?? $service->getRequest('form_pid');
     if (!empty($ot_pid)) {

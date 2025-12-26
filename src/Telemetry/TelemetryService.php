@@ -12,6 +12,7 @@ namespace OpenEMR\Telemetry;
 
 use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Services\VersionService;
@@ -28,22 +29,15 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
 
-    protected TelemetryRepository $repository;
-    protected VersionServiceInterface $versionService;
-    protected SystemLogger $logger;
-
     /**
      * TelemetryService constructor.
      *
      * @param ?TelemetryRepository $repository
      * @param ?VersionServiceInterface $versionService
-     * @param ?SystemLogger $logger
+     * @param ?LoggerInterface $logger
      */
-    public function __construct(?TelemetryRepository $repository = null, ?VersionServiceInterface $versionService = null, ?SystemLogger $logger = null)
+    public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?LoggerInterface $logger = new SystemLogger())
     {
-        $this->repository = $repository ?? new TelemetryRepository();
-        $this->versionService = $versionService ?? new VersionService();
-        $this->logger = $logger ?? new SystemLogger();
     }
 
     /**
@@ -186,7 +180,7 @@ class TelemetryService
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
-            $responseData = json_decode($response, true);
+            $responseData = json_decode((string) $response, true);
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report
             } else {
@@ -216,11 +210,7 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        if (!empty($GLOBALS['webroot'])) {
-            $normalized = preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path);
-        } else {
-            $normalized = $path;
-        }
+        $normalized = !empty($GLOBALS['webroot']) ? preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 
@@ -259,11 +249,12 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",

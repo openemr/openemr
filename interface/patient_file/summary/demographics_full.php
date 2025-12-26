@@ -42,10 +42,6 @@ if (!$pid) {
 
 $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
-
-$relSvc = new DemographicsRelatedPersonsService(); // defaults to 3 related persons
-$relSvc->mergeIntoResult((int)$pid, $result);      // adds related* keys/values into $result
-
 // Check authorization.
 if ($pid) {
     // Create and fire the patient demographics update event
@@ -63,7 +59,7 @@ if ($pid) {
         die(xlt('You are not authorized to access this squad.'));
     }
 } else {
-    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write', 'addonly'))) {
+    if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
         die(xlt('Adding demographics is not authorized.'));
     }
 }
@@ -73,7 +69,7 @@ $CPR = 4; // cells per row
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'common', 'select2', 'erx']);
+    <?php Header::setupHeader(['datetime-picker','datetime-picker-translated', 'common', 'select2', 'erx']);
     ?>
     <title><?php echo xlt('Edit Current Patient'); ?></title>
 
@@ -265,14 +261,17 @@ $CPR = 4; // cells per row
             top.restoreSession();
             var f = document.demographics_form;
 
-            dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
-                '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
-                '&city=' + encodeURIComponent(f.form_city.value) +
-                '&state=' + encodeURIComponent(f.form_state.value) +
-                '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0, 5)) +
-                '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5, 9))
-                , '_blank', 400, 150, '', xl('Address Verify'));
+            var params = new URLSearchParams({
+                address1: f.form_street.value,
+                address2: f.form_street_line_2.value,
+                city: f.form_city.value,
+                state: f.form_state.value,
+                zip5: f.form_postal_code.value.substring(0, 5),
+                zip4: f.form_postal_code.value.substring(5, 9)
+            });
 
+            dlgopen('../../practice/address_verify.php?' + params.toString(),
+                '_blank', 400, 150, '', xl('Address Verify'));
             return false;
         }
 
@@ -412,7 +411,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-    <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
+        <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
         onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0; ?>,event,'DEM',constraints)">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type='hidden' name='mode' value='save' />
@@ -551,7 +550,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 "ORDER BY group_id, seq");
             while ($mfrow = sqlFetchArray($mfres)) {
                 $field_id = $mfrow['field_id'];
-                if (strpos($field_id, 'em_') === 0) {
+                if (str_starts_with((string) $field_id, 'em_')) {
                     continue;
                 }
 
@@ -606,7 +605,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
-            <?php if ($GLOBALS['usps_webtools_enable']) { ?>
+            <?php if ($GLOBALS['usps_apiv3_client_id']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>

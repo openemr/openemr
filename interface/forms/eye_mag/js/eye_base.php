@@ -264,13 +264,18 @@ function check_lock(modify) {
 /*
  * Function to save a canvas by zone
  */
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
+    const params = new URLSearchParams({
+        canvas: zone,
+        id: $("#form_id").val()
+    });
     top.restoreSession();
     $.ajax({
            type: "POST",
-           url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val(),
+           url: "../../forms/eye_mag/save.php?" + params.toString(),
            data: {
            imgBase64     : dataURL,  //this contains the canvas + new strokes, the sketch.js foreground
            'zone'        : zone,
@@ -282,6 +287,7 @@ function submit_canvas(zone) {
            }).done(function(o) {
                    });
 }
+// AI-generated code end
 /*
  *  Function to update the user's preferences
  */
@@ -924,18 +930,26 @@ function show_PRIORS_section(section,newValue) {
 /**
  *  Function to display a canvas/drawing from a prior visit.
  */
-
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
-    var result = base+'/controller.php?document&retrieve&patient_id='+pid+'&document_id='+newValue+'&as_file=false';
-    var cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
-    var filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
+    const params = new URLSearchParams({
+        document: '',
+        retrieve: '',
+        patient_id: pid,
+        document_id: newValue,
+        as_file: 'false'
+    });
+    const result = base + '/controller.php?' + params.toString();
+    const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
+    const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
     $("#"+zone+"_canvas").addClass('nodisplay');
     $("#"+zone+"_olddrawing").html(filler);
     $("#"+zone+"_olddrawing").removeClass('nodisplay');
 }
+// AI-generated code end
 
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
@@ -1874,13 +1888,27 @@ function goto_url(url) {
     location.href = R;
 }
 //is this used anywhere?  Looks like it should be deleted...
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openImage() {
-    dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
+    const params = new URLSearchParams({
+        document: '',
+        retrieve: '',
+        patient_id: '3',
+        document_id: '10',
+        as_file: 'false'
+    });
+    dlgopen(base + '/controller.php?' + params.toString(), '_blank', 600, 475);
 }
+// AI-generated code end
 
 // Called to open a document in another tab for this encounter.
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openDocumentNewTab(doc_id) {
-    var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
+    const params = new URLSearchParams({
+        formname: formdir,
+        id: formid
+    });
+    const url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
         location.href = url;
@@ -1889,6 +1917,7 @@ function openDocumentNewTab(doc_id) {
     }
     return false;
 }
+// AI-generated code end
 
 function HPI_sync_heights() {
     if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height() ) ||
@@ -3426,7 +3455,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
-                                            $result = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $result = sqlStatement($query, ["Eye_defaults_$providerID"]);
 
                                             $list = sqlFetchArray($result);
                                             $SEQ = $list['seq'] ?? '';
@@ -3440,7 +3469,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
-                                                $add_fields = array();
+                                                $add_fields = [];
                                                 $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
@@ -3457,14 +3486,14 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
 
-                                                sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                sqlStatement($query, ["Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq]);
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES " . $parameters;
                                                 sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data = sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
@@ -3475,7 +3504,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             }
                                             function startsWith($str, $needle)
                                             {
-                                                return substr($str, 0, strlen($needle)) === $needle;
+                                                return str_starts_with((string) $str, (string) $needle);
                                             }
                                             ?>
                                             submit_form("eye_mag");

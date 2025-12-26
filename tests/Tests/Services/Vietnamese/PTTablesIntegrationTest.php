@@ -165,30 +165,30 @@ class PTTablesIntegrationTest extends TestCase
 
         $exerciseData = [
             'patient_id' => 1,
-            'exercise_name' => 'Cat-Cow Stretch Test',
+            'assessment_id' => 1,
+            'therapist_id' => 1,
+            'exercise_name_en' => 'Cat-Cow Stretch Test',
             'exercise_name_vi' => 'Động tác mèo-bò test',
-            'description' => 'Spinal mobility exercise',
-            'description_vi' => 'Bài tập linh hoạt cột sống',
-            'sets_prescribed' => 3,
-            'reps_prescribed' => '10-15',
-            'duration_minutes' => 10,
-            'frequency_per_week' => 5,
-            'intensity_level' => 'moderate',
-            'instructions' => 'Start on hands and knees',
+            'exercise_category' => 'mobility',
+            'instructions_en' => 'Start on hands and knees',
             'instructions_vi' => 'Bắt đầu ở tư thế quỳ',
-            'start_date' => date('Y-m-d'),
-            'prescribed_by' => 1
+            'sets_prescribed' => 3,
+            'reps_prescribed' => 10,
+            'frequency_per_week' => 5,
+            'difficulty_level' => 'beginner',
+            'prescribed_date' => date('Y-m-d H:i:s'),
+            'start_date' => date('Y-m-d')
         ];
 
         $stmt = self::$dbConnection->prepare("
             INSERT INTO pt_exercise_prescriptions
-            (patient_id, exercise_name, exercise_name_vi, description, description_vi,
-             sets_prescribed, reps_prescribed, duration_minutes, frequency_per_week,
-             intensity_level, instructions, instructions_vi, start_date, prescribed_by)
+            (patient_id, assessment_id, therapist_id, exercise_name_en, exercise_name_vi, exercise_category,
+             instructions_en, instructions_vi, sets_prescribed, reps_prescribed, frequency_per_week,
+             difficulty_level, prescribed_date, start_date)
             VALUES
-            (:patient_id, :exercise_name, :exercise_name_vi, :description, :description_vi,
-             :sets_prescribed, :reps_prescribed, :duration_minutes, :frequency_per_week,
-             :intensity_level, :instructions, :instructions_vi, :start_date, :prescribed_by)
+            (:patient_id, :assessment_id, :therapist_id, :exercise_name_en, :exercise_name_vi, :exercise_category,
+             :instructions_en, :instructions_vi, :sets_prescribed, :reps_prescribed, :frequency_per_week,
+             :difficulty_level, :prescribed_date, :start_date)
         ");
 
         $result = $stmt->execute($exerciseData);
@@ -222,26 +222,28 @@ class PTTablesIntegrationTest extends TestCase
 
         $outcomeData = [
             'patient_id' => 1,
-            'measure_type' => 'Pain Scale',
-            'measure_name' => 'VAS',
+            'assessment_id' => 1,
+            'therapist_id' => 1,
+            'measure_name_en' => 'Pain Scale',
             'measure_name_vi' => 'Thang đo đau VAS',
-            'score_value' => 6.5,
-            'max_score' => 10.0,
-            'interpretation' => 'Moderate pain',
+            'measure_type' => 'pain',
+            'raw_score' => 6.5,
+            'percentage_score' => 65.0,
+            'interpretation_en' => 'Moderate pain',
             'interpretation_vi' => 'Đau mức độ trung bình',
-            'measurement_date' => date('Y-m-d'),
-            'measured_by' => 1
+            'unit_of_measure' => 'points',
+            'measurement_date' => date('Y-m-d H:i:s')
         ];
 
         $stmt = self::$dbConnection->prepare("
             INSERT INTO pt_outcome_measures
-            (patient_id, measure_type, measure_name, measure_name_vi,
-             score_value, max_score, interpretation, interpretation_vi,
-             measurement_date, measured_by)
+            (patient_id, assessment_id, therapist_id, measure_name_en, measure_name_vi, measure_type,
+             raw_score, percentage_score, interpretation_en, interpretation_vi, unit_of_measure,
+             measurement_date)
             VALUES
-            (:patient_id, :measure_type, :measure_name, :measure_name_vi,
-             :score_value, :max_score, :interpretation, :interpretation_vi,
-             :measurement_date, :measured_by)
+            (:patient_id, :assessment_id, :therapist_id, :measure_name_en, :measure_name_vi, :measure_type,
+             :raw_score, :percentage_score, :interpretation_en, :interpretation_vi, :unit_of_measure,
+             :measurement_date)
         ");
 
         $result = $stmt->execute($outcomeData);
@@ -258,7 +260,7 @@ class PTTablesIntegrationTest extends TestCase
         $retrieved = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         $this->assertEquals($outcomeData['measure_name_vi'], $retrieved['measure_name_vi']);
-        $this->assertEquals($outcomeData['score_value'], $retrieved['score_value']);
+        $this->assertEquals($outcomeData['raw_score'], $retrieved['raw_score']);
     }
 
     /**

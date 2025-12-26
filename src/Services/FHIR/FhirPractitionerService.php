@@ -9,12 +9,14 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -34,7 +36,9 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner';
     /**
      * @var PractitionerService
      */
@@ -84,7 +88,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         $practitionerResource = new FHIRPractitioner();
 
@@ -111,52 +115,60 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             $narrativeText .= ' ' . $dataRecord['lname'];
         }
         // why in some cases are users with an empty name... that seems so wierd but we have them so we are supporting them.
-        if (empty(trim($narrativeText))) {
+        if (empty(trim((string) $narrativeText))) {
             $practitionerResource->addName(UtilsService::createDataMissingExtension());
         } else {
-            $text = array(
+            $text = [
                 'status' => 'generated',
                 'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
-            );
+            ];
             $practitionerResource->setText($text);
 
             $practitionerResource->addName(UtilsService::createHumanNameFromRecord($dataRecord));
         }
-        $address = UtilsService::createAddressFromRecord($dataRecord);
+        $address = UtilsService::createAddressFromRecord([
+            'street' => $dataRecord['street'] ?? null,
+            'postal_code' => $dataRecord['zip'] ?? null,
+            'city' => $dataRecord['city'] ?? null,
+            'state' => $dataRecord['state'] ?? null,
+            'country_code' => $dataRecord['country_code'] ?? null,
+            // we don't have a period start for our address so we're going for when the record was last updated
+            'period_start' => $dataRecord['last_updated'] ?? null,
+        ]);
         if (isset($address)) {
             $practitionerResource->addAddress($address);
         }
 
         if (!empty($dataRecord['phone'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phone'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonew1'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonew1'],
                 'use' => 'work'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['phonecell'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'phone',
                 'value' => $dataRecord['phonecell'],
                 'use' => 'mobile'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['email'])) {
-            $practitionerResource->addTelecom(array(
+            $practitionerResource->addTelecom([
                 'system' => 'email',
                 'value' => $dataRecord['email'],
                 'use' => 'home'
-            ));
+            ]);
         }
 
         if (!empty($dataRecord['npi'])) {
@@ -187,8 +199,8 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
         }
 
-        $data = array();
-        $data['uuid'] = (string)$fhirResource->getId() ?? null;
+        $data = [];
+        $data['uuid'] = (string)$fhirResource->getId();
 
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
@@ -198,7 +210,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                     break;
                 }
             }
-            $data['lname'] = (string)$name->getFamily() ?? null;
+            $data['lname'] = (string)$name->getFamily();
 
             $given = $name->getGiven() ?? [];
             // we cast due to the way FHIRString works
@@ -229,24 +241,22 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 }
             }
 
-            $lineValues = array_map(function ($val) {
-                return (string)$val;
-            }, $activeAddress->getLine() ?? []);
+            $lineValues = array_map(fn($val): string => (string)$val, $activeAddress->getLine() ?? []);
             $data['street'] = implode("\n", $lineValues) ?? null;
-            $data['zip'] = (string)$activeAddress->getPostalCode() ?? null;
-            $data['city'] = (string)$activeAddress->getCity() ?? null;
-            $data['state'] = (string)$activeAddress->getState() ?? null;
+            $data['zip'] = (string)$activeAddress->getPostalCode();
+            $data['city'] = (string)$activeAddress->getCity();
+            $data['state'] = (string)$activeAddress->getState();
         }
 
         $telecom = $fhirResource->getTelecom();
         if (!empty($telecom)) {
             foreach ($telecom as $contactPoint) {
-                $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
+                $systemValue = (string)$contactPoint->getSystem();
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
                     $data[$systemValue] = $contactValue;
                 } else if ($systemValue == "phone") {
-                    $use = (string)$contactPoint->getUse() ?? "work";
+                    $use = (string)$contactPoint->getUse();
                     $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
@@ -257,7 +267,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
         foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
-                $data['npi'] = (string)$identifier->getValue() ?? null;
+                $data['npi'] = (string)$identifier->getValue();
             }
         }
 
@@ -298,11 +308,10 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      *
-     * @param array openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - NOT USED
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult
      */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, true);
     }
@@ -314,10 +323,8 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

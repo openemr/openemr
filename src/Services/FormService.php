@@ -28,8 +28,8 @@ class FormService
     ) {
 
         global $attendant_type;
-        $arraySqlBind = array();
-        $sql = "select " . escape_sql_column_name(process_cols_escape($cols), array('forms')) . " from forms where encounter = ? and deleted = 0 ";
+        $arraySqlBind = [];
+        $sql = "select " . escape_sql_column_name(process_cols_escape($cols), ['forms']) . " from forms where encounter = ? and deleted = 0 ";
         array_push($arraySqlBind, $encounter);
         if (!empty($name)) {
             $sql .= "and form_name=? ";
@@ -85,7 +85,7 @@ class FormService
         }
 
         //print_r($_SESSION['therapy_group']);die;
-        $arraySqlBind = array();
+        $arraySqlBind = [];
         $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir, therapy_group_id) values (";
         if ($date == "NOW()") {
@@ -129,7 +129,7 @@ class FormService
         $acoSpec = QueryUtils::fetchSingleValue(
             "SELECT aco_spec FROM registry WHERE directory = ?",
             'aco_spec',
-            array($formDir)
+            [$formDir]
         );
         $permission = explode('|', ($acoSpec ?? ''));
         return AclMain::aclCheckCore($permission[0], $permission[1] ?? null);

@@ -184,18 +184,14 @@ if (
         CsrfUtils::csrfNotVerified();
     }
 
-    if (($_POST['form_save'] ?? '') == 'Save as New') {
-        $ins_id = '';
-    } else {
-        $ins_id = $_POST['form_id'];
-    }
+    $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
     $ins_name = $_POST['form_name'];
 
     if ($ins_id) {
        // sql for updating could go here if this script is enhanced to support
        // editing of existing insurance companies.
         $insuranceCompany->update(
-            array(
+            [
             'name' => $ins_name,
             'attn' => $_POST['form_attn'],
             'cms_id' => $_POST['form_cms_id'],
@@ -212,12 +208,12 @@ if (
             'phone' => $_POST['form_phone'],
             'foreign_id' => $ins_id,
             'cqm_sop' => $_POST['form_cqm_sop']
-            ),
+            ],
             $ins_id
         );
     } else {
         $ins_id = $insuranceCompany->insert(
-            array(
+            [
                 'name' => $ins_name,
                 'attn' => $_POST['form_attn'],
                 'cms_id' => $_POST['form_cms_id'],
@@ -234,7 +230,7 @@ if (
                 'phone' => $_POST['form_phone'],
                 'foreign_id' => $ins_id,
                 'cqm_sop' => $_POST['form_cqm_sop']
-            )
+            ]
         );
     }
 
@@ -252,9 +248,10 @@ if (
     echo "</script></body></html>\n";
     exit();
 } else {
-    $ins_co = (new InsuranceCompanyService())->getOneById($_GET['ins']) ?? null;
-    $ins_co_address = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
-    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($_GET['ins']) ?? null;
+    $ins_id = $_GET['ins'] ?? null;
+    $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
+    $ins_co_address = (new AddressService())->getOneByForeignId($ins_id) ?? null;
+    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;
 }
 
  // Query x12_partners.

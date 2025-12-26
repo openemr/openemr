@@ -20,8 +20,66 @@
 
 namespace OpenEMR\Services\SDOH;
 
-class HistorySdohService
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\BaseService;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Validators\ProcessingResult;
+
+class HistorySdohService extends BaseService
 {
+    public const TABLE_NAME = "form_history_sdoh";
+
+
+
+    const CODE_FOOD_INSECURITY_SCT = '733423003';
+    const CODE_FOOD_INSECURITY_ICD10CM = 'Z59.41';
+    const CODE_HOUSING_INSTABILITY_SCT = '105531004'; // Housing unsatisfactory (finding)
+    const CODE_HOUSING_ICD10CM = 'Z59.819'; // Housing instability, housed, unspecified
+    const CODE_TRANSPORTATION_INSECURITY_SCT = '713458007';
+    const CODE_TRANSPORTATION_ICD10CM = 'Z59.82';
+    const CODE_UTILITIES_INSECURITY_ICD10CM = 'Z59.12'; // Inadequate housing utilities
+    const CODE_INTERPERSONAL_SAFETY_SCT = '706892001';
+    const CODE_INTERPERSONAL_ICD10CM = 'Z65.8'; // Other specified problems related to psychosocial circumstances
+    const CODE_FINANCIAL_STRAIN_SCT = '1184702004';
+    const CODE_FINANCIAL_ICD10CM = 'Z59.86';
+    const CODE_SOCIAL_ISOLATION_SCT = '105412007';
+    const CODE_SOCIAL_ICD10CM = 'Z60.2'; // Problems related to living alone
+    const CODE_CHILDCARE_NEEDS_ICD10CM = 'Z60.8'; // Other problems related to social environment
+    const CODE_CHILDCARE_DIFFICULTY_SCT = '55607006'; // Difficulty finding daycare services (finding)
+
+    const CODE_INTERPERSONAL_VICTIM_SCT = '706893006'; // Victim of intimate partner abuse (finding)
+    const CODE_FINANCIAL_INCOME_INSUFFICIENT_SCT = '423656007'; // Income insufficient to meet financial needs (finding)
+    const CODE_SOCIAL_ISOLATION_SCT_ALT = '422650009'; // Social isolation (finding)
+
+    const CODE_DIGITAL_ACCESS_ICD10CM = 'Z60.9'; // Problem related to social environment, unspecified
+    const CODE_DIGITAL_ACCESS_DIFFICULTY_SCT = '55607006'; // Difficulty accessing digital technology (finding)
+
+    const SOCIAL_HISTORY_CODES = [
+        self::CODE_FOOD_INSECURITY_ICD10CM, self::CODE_FOOD_INSECURITY_SCT
+        , self::CODE_HOUSING_ICD10CM, self::CODE_HOUSING_INSTABILITY_SCT
+        , self::CODE_TRANSPORTATION_ICD10CM, self::CODE_TRANSPORTATION_INSECURITY_SCT
+        , self::CODE_UTILITIES_INSECURITY_ICD10CM
+        , self::CODE_INTERPERSONAL_ICD10CM, self::CODE_INTERPERSONAL_SAFETY_SCT, self::CODE_INTERPERSONAL_VICTIM_SCT
+        , self::CODE_FINANCIAL_ICD10CM, self::CODE_FINANCIAL_STRAIN_SCT, self::CODE_FINANCIAL_INCOME_INSUFFICIENT_SCT
+        , self::CODE_SOCIAL_ICD10CM, self::CODE_SOCIAL_ISOLATION_SCT, self::CODE_SOCIAL_ISOLATION_SCT_ALT
+        , self::CODE_CHILDCARE_NEEDS_ICD10CM, self::CODE_CHILDCARE_DIFFICULTY_SCT
+        , self::CODE_DIGITAL_ACCESS_ICD10CM, self::CODE_DIGITAL_ACCESS_DIFFICULTY_SCT
+    ];
+
+    public function __construct()
+    {
+        parent::__construct(self::TABLE_NAME);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'puuid', 'euuid', 'created_by_uuid', 'updated_by_uuid'];
+    }
+
     /**
      * USCDI v3 compliant mapping for SDOH domains to ICD-10-CM Health Concern codes
      * These codes are appropriate for Health Concern <value> elements in C-CDA
@@ -35,13 +93,13 @@ class HistorySdohService
         return [
             'food_insecurity' => [
                 'snomed' => [
-                    'code' => '733423003',
+                    'code' => self::CODE_FOOD_INSECURITY_SCT,
                     'display' => 'Food insecurity (finding)',
                     'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code' => 'Z59.41',
+                    'code' => self::CODE_FOOD_INSECURITY_ICD10CM,
                     'display' => 'Food insecurity',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -53,7 +111,7 @@ class HistorySdohService
             'housing_instability' => [
                 // 'snomed' => [ 'code' => '105531004', 'display' => 'Housing unsatisfactory (finding)', 'system' => $SNOMED_OID, 'system_name' => 'SNOMED CT' ],
                 'icd10' => [
-                    'code' => 'Z59.819',
+                    'code' => self::CODE_HOUSING_ICD10CM,
                     'display' => 'Housing instability, housed, unspecified',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -62,13 +120,13 @@ class HistorySdohService
 
             'transportation_insecurity' => [
                 'snomed' => [
-                    'code' => '713458007',
+                    'code' => self::CODE_TRANSPORTATION_INSECURITY_SCT,
                     'display' => 'Lack of access to transportation (finding)',
                     'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code' => 'Z59.82',
+                    'code' => self::CODE_TRANSPORTATION_ICD10CM,
                     'display' => 'Transportation insecurity',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -79,7 +137,7 @@ class HistorySdohService
                 // No single, broadly-used SNOMED finding for general “utility insecurity” yet.
                 // (Specifics like “Inadequate water supply (441987004)” exist but are too narrow.)
                 'icd10' => [
-                    'code' => 'Z59.12',
+                    'code' => self::CODE_UTILITIES_INSECURITY_ICD10CM,
                     'display' => 'Inadequate housing utilities',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -88,13 +146,13 @@ class HistorySdohService
             // “Interpersonal safety concern” → use a safety/violence-risk finding when available.
             'interpersonal_safety' => [
                 'snomed' => [
-                    'code' => '706892001',
+                    'code' => self::CODE_INTERPERSONAL_SAFETY_SCT,
                     'display' => 'At risk of intimate partner abuse (finding)',
                     'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code' => 'Z65.8',
+                    'code' => self::CODE_INTERPERSONAL_ICD10CM,
                     'display' => 'Other specified problems related to psychosocial circumstances',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -103,13 +161,13 @@ class HistorySdohService
 
             'financial_strain' => [
                 'snomed' => [
-                    'code' => '1184702004',
+                    'code' => self::CODE_FINANCIAL_STRAIN_SCT,
                     'display' => 'Financial insecurity (finding)',
                     'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code' => 'Z59.86',
+                    'code' => self::CODE_FINANCIAL_ICD10CM,
                     'display' => 'Financial insecurity',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -118,13 +176,13 @@ class HistorySdohService
 
             'social_isolation' => [
                 'snomed' => [
-                    'code' => '105412007',
+                    'code' => self::CODE_SOCIAL_ISOLATION_SCT,
                     'display' => 'Social isolation (finding)',
                     'system' => $SNOMED_OID,
                     'system_name' => 'SNOMED CT',
                 ],
                 'icd10' => [
-                    'code' => 'Z60.2',
+                    'code' => self::CODE_FINANCIAL_ICD10CM,
                     'display' => 'Problems related to living alone',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -135,7 +193,7 @@ class HistorySdohService
             'childcare_needs' => [
                 // 'snomed' => [ 'code' => '671461000124109', 'display' => 'Unable to obtain childcare due to limited financial resources (finding)', 'system' => $SNOMED_OID, 'system_name' => 'SNOMED CT' ],
                 'icd10' => [
-                    'code' => 'Z60.8',
+                    'code' => self::CODE_CHILDCARE_NEEDS_ICD10CM,
                     'display' => 'Other problems related to social environment',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -145,7 +203,7 @@ class HistorySdohService
             // concept is universally adopted yet (local extensions exist). Use ICD-10 catch-all.
             'digital_access' => [
                 'icd10' => [
-                    'code' => 'Z60.9',
+                    'code' => self::CODE_DIGITAL_ACCESS_ICD10CM,
                     'display' => 'Problem related to social environment, unspecified',
                     'system' => $ICD10_OID,
                     'system_name' => 'ICD-10-CM',
@@ -219,16 +277,8 @@ class HistorySdohService
         ];
     }
 
-    /**
-     * Updated concernsFromCurrentAssessment method with USCDI v3 compliant codes
-     */
-    public static function concernsFromCurrentAssessmentV3(int $pid): array
+    public static function concernsFromAssessmentV3(array $row): array
     {
-        // Pull latest assessment row
-        $row = sqlQuery(
-            "SELECT * FROM `form_history_sdoh` WHERE `pid` = ? ORDER BY COALESCE(`updated_at`,`created_at`) DESC LIMIT 1",
-            [$pid]
-        );
         if (empty($row)) {
             return [];
         }
@@ -299,11 +349,24 @@ class HistorySdohService
                 'assessment' => 'SDOH',
                 'encounter' => (string)$encId,
                 'extension' => base64_encode($site . $encId),
-                'sha_extension' => sha1($site . '|sdoh_concern|' . $pid . '|' . $col . '|' . $assessDt),
+                'sha_extension' => sha1($site . '|sdoh_concern|' . $row['pid'] . '|' . $col . '|' . $assessDt),
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * Updated concernsFromCurrentAssessment method with USCDI v3 compliant codes
+     */
+    public static function concernsFromCurrentAssessmentV3(int $pid): array
+    {
+        // Pull latest assessment row
+        $row = sqlQuery(
+            "SELECT * FROM `form_history_sdoh` WHERE `pid` = ? ORDER BY COALESCE(`updated_at`,`created_at`) DESC LIMIT 1",
+            [$pid]
+        );
+        return self::concernsFromAssessmentV3($row);
     }
 
     /**
@@ -342,6 +405,67 @@ class HistorySdohService
             return $cc;
         }
         return '';
+    }
+
+    public function update(int $rec_id, array $data): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+        try {
+            if (empty($rec_id)) {
+                $processingResult->setValidationMessages([
+                    'id' => 'Record ID is required for update.'
+                ]);
+            }
+            // TODO: validation could be done here
+            $saveEvent = $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_PRE_SAVE);
+            if (!empty($saveEvent->getSaveData())) {
+                $data = $saveEvent->getSaveData();
+            }
+            unset($data['updated_at']);
+            $columns = $this->buildUpdateColumns($data, ['null_value' => null]);
+            $sql = "UPDATE `" . self::TABLE_NAME . "` SET " . $columns['set'] . ", updated_at = NOW() WHERE `id` = ?";
+            $columns['bind'][] = $rec_id;
+
+            QueryUtils::sqlStatementThrowException($sql, $columns['bind']);
+            $saveEvent = $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_POST_SAVE);
+            if (!empty($saveEvent->getSaveData())) {
+                $data = $saveEvent->getSaveData();
+            }
+            $data['uuid'] = UuidRegistry::uuidToString($data['uuid']);
+            $processingResult->addData($data);
+        } catch (SqlQueryException $e) {
+            $processingResult->addInternalError($e->getMessage());
+        }
+        return $processingResult;
+    }
+
+    public function insert(array $data): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+        try {
+            // TODO: validation could be done here
+            $saveEvent = $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_PRE_SAVE);
+            if (!empty($saveEvent->getSaveData())) {
+                $data = $saveEvent->getSaveData();
+            }
+            if (empty($data['uuid'])) {
+                $data['uuid'] = (new UuidRegistry(self::TABLE_NAME))->createUuid();
+            }
+            $columns = $this->buildInsertColumns($data, ['null_value' => null]);
+            $sql = "INSERT INTO `" . self::TABLE_NAME . "` SET " . $columns['set'] . " , `created_at` = NOW(), `updated_at` = NOW() ";
+
+            $insertId = QueryUtils::sqlInsert($sql, $columns['bind']);
+            $data['id'] = $insertId;
+            $saveEvent = $this->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $data), ServiceSaveEvent::EVENT_POST_SAVE);
+            if (!empty($saveEvent->getSaveData())) {
+                $data = $saveEvent->getSaveData();
+            }
+            $data['uuid'] = UuidRegistry::uuidToString($data['uuid']);
+            $processingResult->addData($data);
+        } catch (SqlQueryException $e) {
+            $processingResult->addInternalError($e->getMessage());
+        }
+        return $processingResult;
     }
 
     /**
@@ -454,7 +578,7 @@ class HistorySdohService
                 'subject' => ['reference' => 'Patient/' . $pid],
             ];
             if ($when) {
-                $goal['startDate'] = substr($when, 0, 10);
+                $goal['startDate'] = substr((string) $when, 0, 10);
             }
 
             $target = [];
@@ -465,7 +589,7 @@ class HistorySdohService
                 $target['detailCodeableConcept'] = $spec['target'];
             }
             if ($due) {
-                $target['dueDate'] = substr($due, 0, 10);
+                $target['dueDate'] = substr((string) $due, 0, 10);
             }
 
             $goal['target'] = [$target];
@@ -473,6 +597,24 @@ class HistorySdohService
             $out[] = $goal;
         }
         return $out;
+    }
+
+    /**
+     * @return string[] Map of SDOH domains to list_options list names
+     */
+    public static function getListMapForDomains(): array
+    {
+        return [
+            'food_insecurity'           => 'sdoh_food_insecurity_risk',
+            'housing_instability'       => 'sdoh_housing_worry',
+            'transportation_insecurity' => 'sdoh_transportation_barrier',
+            'utilities_insecurity'      => 'sdoh_utilities_shutoff',
+            'interpersonal_safety'      => 'sdoh_ipv_yesno',
+            'financial_strain'          => 'sdoh_financial_strain',
+            'social_isolation'          => 'sdoh_social_isolation_freq',
+            'childcare_needs'           => 'sdoh_childcare_needs',
+            'digital_access'            => 'sdoh_digital_access',
+        ];
     }
 
     /**
@@ -572,7 +714,7 @@ class HistorySdohService
                 'authoredOn' => substr($when, 0, 10),
             ];
             if ($due) {
-                $sr['occurrenceDateTime'] = substr($due, 0, 10);
+                $sr['occurrenceDateTime'] = substr((string) $due, 0, 10);
             }
             $out[] = $sr;
         }
@@ -629,10 +771,10 @@ class HistorySdohService
                 $suffix[] = "reason: $reason";
             }
             if ($include_due && !empty($sr['occurrenceDateTime'])) {
-                $suffix[] = "due: " . substr($sr['occurrenceDateTime'], 0, 10);
+                $suffix[] = "due: " . substr((string) $sr['occurrenceDateTime'], 0, 10);
             }
             if ($include_when && !empty($sr['authoredOn'])) {
-                $suffix[] = "ordered: " . substr($sr['authoredOn'], 0, 10);
+                $suffix[] = "ordered: " . substr((string) $sr['authoredOn'], 0, 10);
             }
 
             $line = trim($bullet . ' ' . implode(' ', $parts));
@@ -744,10 +886,10 @@ class HistorySdohService
                 $suffix[] = "measure: $tMeasure";
             }
             if ($due !== '') {
-                $suffix[] = "due: " . substr($due, 0, 10);
+                $suffix[] = "due: " . substr((string) $due, 0, 10);
             }
             if ($start !== '') {
-                $suffix[] = "start: " . substr($start, 0, 10);
+                $suffix[] = "start: " . substr((string) $start, 0, 10);
             }
 
             $line = trim($bullet . ' ' . implode(' ', $parts));
@@ -773,16 +915,16 @@ class HistorySdohService
             return '';
         }
         // URIs
-        if (strpos($s, '113883.6.96') !== false || strpos($s, 'snomed') !== false) {
+        if (str_contains($s, '113883.6.96') || str_contains($s, 'snomed')) {
             return 'SNOMED CT';
         }
-        if (strpos($s, '113883.6.1') !== false || strpos($s, 'loinc') !== false) {
+        if (str_contains($s, '113883.6.1') || str_contains($s, 'loinc')) {
             return 'LOINC';
         }
-        if (strpos($s, '113883.6.90') !== false || strpos($s, 'icd10') !== false) {
+        if (str_contains($s, '113883.6.90') || str_contains($s, 'icd10')) {
             return 'ICD10-CM';
         }
-        if (strpos($s, 'omb') !== false) {
+        if (str_contains($s, 'omb')) {
             return 'OMB';
         }
         // Names/prefix
@@ -825,14 +967,14 @@ class HistorySdohService
                     $txt = (string)($j['display'] ?? ($rec['description'] ?? $rec['codetext'] ?? ''));
                     return [$code, $this->normalizeSystemName($type), $txt];
                 }
-            } elseif (strpos($c, ':') !== false) {
+            } elseif (str_contains($c, ':')) {
                 // 2) codes "SYS:CODE"
                 [$pref, $cv] = explode(':', $c, 2);
                 return [trim($cv), $this->mapPrefixToType($pref), (string)($rec['description'] ?? $rec['codetext'] ?? '')];
             }
         }
         // 3) code "SYS:CODE"
-        if (!empty($rec['code']) && is_string($rec['code']) && strpos($rec['code'], ':') !== false) {
+        if (!empty($rec['code']) && is_string($rec['code']) && str_contains($rec['code'], ':')) {
             [$pref, $cv] = explode(':', $rec['code'], 2);
             return [trim($cv), $this->mapPrefixToType($pref), (string)($rec['codetext'] ?? $rec['description'] ?? '')];
         }
@@ -1025,7 +1167,7 @@ class HistorySdohService
         if (empty($goals['goals'])) {
             return null;
         }
-        return json_decode($goals['goals'], true);
+        return json_decode((string) $goals['goals'], true);
     }
 
     private function ccText($cc): string
@@ -1291,5 +1433,69 @@ class HistorySdohService
             'LOINC' => 'http://loinc.org'
         ];
         return $map[$short] ?? $short;
+    }
+
+    /**
+     * @param ISearchField[]|string[] $openEMRSearchParameters
+     * @param bool $andCondition
+     * @return ProcessingResult
+     */
+    public function search($openEMRSearchParameters = [], $isAndCondition = true): ProcessingResult
+    {
+        try {
+            $selectColumns = "SELECT o.*
+                    , p.puuid
+                    , enc.euuid
+                    , cu.created_by_uuid
+                    , uu.updated_by_uuid ";
+            // Join to get display and codes for each domain option
+            $join = "
+                    FROM form_history_sdoh o
+                    JOIN (
+                        select pid AS patient_id,
+                               uuid AS puuid
+                        FROM patient_data
+                   ) p ON o.pid = p.patient_id
+                   LEFT JOIN (
+                       select encounter AS eid,
+                              uuid AS euuid
+                       FROM form_encounter
+                   ) enc ON o.encounter = enc.eid
+                   LEFT JOIN (
+                          select id AS cuid,
+                                uuid AS created_by_uuid
+                            FROM users
+                     ) cu ON o.created_by = cu.cuid
+                     LEFT JOIN (
+                              select id AS updated_by_id,
+                                  uuid AS updated_by_uuid
+                             FROM users
+                        ) uu ON o.updated_by = uu.updated_by_id ";
+            $optionCodes = self::getListMapForDomains();
+            // add the additional pregnancy fields
+            $optionCodes['pregnancy_status'] = 'pregnancy_status';
+            $optionCodes['pregnancy_intent'] = 'pregnancy_intent';
+            foreach ($optionCodes as $col => $listId) {
+                $selectColumns .= ", lo_{$col}.{$col}_display, lo_{$col}.{$col}_codes ";
+                $join .= " LEFT JOIN (
+                        SELECT codes AS {$col}_codes
+                        , title AS {$col}_display
+                        , option_id AS option_id
+                        , list_id
+                        FROM list_options
+                    ) lo_{$col} ON (o.{$col} = lo_{$col}.option_id AND lo_{$col}.list_id = '{$listId}') ";
+            }
+            $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters, $isAndCondition);
+            $sql = $selectColumns . $join . $whereClause->getFragment();
+            $results = QueryUtils::fetchRecords($sql, $whereClause->getBoundValues());
+            $processingResult = new ProcessingResult();
+            foreach ($results as $record) {
+                $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
+            }
+        } catch (SqlQueryException $exception) {
+            $processingResult = new ProcessingResult();
+            $processingResult->addInternalError($exception->getMessage());
+        }
+        return $processingResult;
     }
 }

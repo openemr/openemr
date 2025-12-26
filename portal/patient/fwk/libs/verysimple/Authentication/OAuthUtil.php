@@ -38,11 +38,11 @@ class OAuthUtil
      */
     public static function SignUrl($url, $method, $key, $secret, $params = null, $body = null, $signature_method = 'HMAC_SHA1')
     {
-        $options = array (
+        $options =  [
                 'consumer_key' => $key,
                 'consumer_secret' => $secret
-        );
-        $params = $params ? $params : array ();
+        ];
+        $params = $params ?: [];
 
         OAuthStore::instance("2Leg", $options);
 

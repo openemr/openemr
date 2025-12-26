@@ -73,7 +73,7 @@ class AuthorizationGrantFlowTest extends TestCase
         // set our site_addr_oath so we use it properly
         $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
         $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
-        list($clientIdentifier, $clientSecret) = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
+        [$clientIdentifier, $clientSecret] = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
 
         // now test the authorization flow
         $session = $this->getMockSession();
@@ -151,7 +151,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $clientRepository = new ClientRepository();
         $clientEntity = $clientRepository->getClientEntity($clientIdentifier);
         $clientRepository->saveIsEnabled($clientEntity, true);
-        return array($clientIdentifier, $clientSecret);
+        return [$clientIdentifier, $clientSecret];
     }
 
     /**

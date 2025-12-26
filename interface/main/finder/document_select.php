@@ -84,7 +84,7 @@ foreach ($searchResult as $docResult) {
 <html>
 <head>
     <?php Header::setupHeader(['common', 'opener']); ?>
-    <title><?php echo htmlspecialchars(xl('Document Finder'), ENT_NOQUOTES); ?></title>
+    <title><?php echo htmlspecialchars((string) xl('Document Finder'), ENT_NOQUOTES); ?></title>
 
     <style>
         form {
@@ -149,12 +149,12 @@ foreach ($searchResult as $docResult) {
                 <?php endif; ?>
             </div>
             <div class="form-row">
-                <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('Search by name:'), ENT_NOQUOTES); ?></label>
+                <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars((string) xl('Search by name:'), ENT_NOQUOTES); ?></label>
                 <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12'
                        value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>'
                        title='<?php echo xla('Any part of the document name'); ?>' />
                 <div class="col">
-                    <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
+                    <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars((string) xl('Search'), ENT_QUOTES); ?>' />
                     <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
                 </div>
             </div>
@@ -163,24 +163,24 @@ foreach ($searchResult as $docResult) {
     </div>
 
     <?php if (! isset($_REQUEST['searchparm'])) : ?>
-        <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
+        <div id="searchstatus"><?php echo htmlspecialchars((string) xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
     <?php elseif (! is_countable($result)) : ?>
-        <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
+        <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars((string) xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
         </div>
     <?php elseif (count($result) >= $MAX_RECORDS) : ?>
-        <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('More records found than could be displayed. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
+        <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars((string) xl('More records found than could be displayed. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
     <?php elseif (count($result) < $MAX_RECORDS) : ?>
-        <div id="searchstatus" class="alert alert-success rounded-0"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
+        <div id="searchstatus" class="alert alert-success rounded-0"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars((string) xl('records found.'), ENT_NOQUOTES); ?></div>
     <?php endif; ?>
 
     <?php if (isset($result)) : ?>
         <table class="table table-sm">
             <thead id="searchResultsHeader" class="head">
             <tr>
-                <th class="srName"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></th>
-                <th class="srCategory"><?php echo htmlspecialchars(xl('Category'), ENT_NOQUOTES); ?></th> <!-- (CHEMED) Search by phone number -->
-                <th class="srDate"><?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?></th>
-                <th class="srID"><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></th>
+                <th class="srName"><?php echo htmlspecialchars((string) xl('Name'), ENT_NOQUOTES); ?></th>
+                <th class="srCategory"><?php echo htmlspecialchars((string) xl('Category'), ENT_NOQUOTES); ?></th> <!-- (CHEMED) Search by phone number -->
+                <th class="srDate"><?php echo htmlspecialchars((string) xl('Date'), ENT_NOQUOTES); ?></th>
+                <th class="srID"><?php echo htmlspecialchars((string) xl('ID'), ENT_NOQUOTES); ?></th>
             </tr>
             </thead>
             <tbody id="searchResults">

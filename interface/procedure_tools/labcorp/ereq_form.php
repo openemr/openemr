@@ -57,7 +57,7 @@ STYLES;
         $account_facility = $procedure['account_facility'];
         $facility = sqlQuery("SELECT * FROM facility f WHERE f.id=?", [$account_facility]);
         $location = sqlQueryNoLog("SELECT f.facility_code FROM users as u " .
-            "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($procedure['provider_id']));
+            "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", [$procedure['provider_id']]);
 
         $account = $facility['facility_code'];
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
@@ -71,8 +71,8 @@ STYLES;
         $pdfContent .= '<table>';
 
         if (!empty($procedure['date_collected'])) {
-            $collection_date = date("m/d/Y", strtotime($procedure['date_collected']));
-            $collection_time = date("H:i", strtotime($procedure['date_collected']));
+            $collection_date = date("m/d/Y", strtotime((string) $procedure['date_collected']));
+            $collection_time = date("H:i", strtotime((string) $procedure['date_collected']));
         } else {
             $collection_date = '';
             $collection_time = '';
@@ -135,11 +135,11 @@ STYLES;
         $pdfContent .= '<tr>';
         $pdfContent .= '<td class="width50">';
         $page = getPatientAgeYMD($patient['DOB']);
-        $ageformat = explode(' ', $page['ageinYMD']);
+        $ageformat = explode(' ', (string) $page['ageinYMD']);
         $pdfContent .= '<table>';
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">Patient Name:</td><td style="width:64%;padding-left:8px;">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Gender:</td><td style="padding-left:8px;">' . text($patient['sex']) . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime($patient['DOB'])) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime((string) $patient['DOB'])) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Age:</td><td style="padding-left:8px;">' . str_replace('y', '', text($ageformat[0])) . '/' . text(str_replace('m', '', $ageformat[1])) . '/' . text(str_replace('d', '', $ageformat[2])) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Patient Address:</td><td style="padding-left:8px;">' . text($patient['street']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . text($patient['city']) . ', ' . text($patient['state']) . ' ' . text($patient['postal_code']) . '</td></tr>';
@@ -164,8 +164,8 @@ STYLES;
         $proc_order = sqlNumRows($proc_sql);
         $procedure_right = floor($proc_order / 2);
         $procedure_left = $proc_order - $procedure_right;
-        $all_procedures = array();
-        $all_diagnoses = array();
+        $all_procedures = [];
+        $all_diagnoses = [];
 
         if (!empty($procedure['order_diagnosis'])) {
             $all_diagnoses[] = $procedure['order_diagnosis'];
@@ -186,7 +186,7 @@ STYLES;
         for ($i = 0; $i < $procedure_left; $i++) {
             $pdfContent .= '<tr>';
             $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
-            $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
+            $temp_diag = explode(";", (string) $all_procedures[$i]['diagnoses']);
             foreach ($temp_diag as $sub_diag) {
                 $all_diagnoses[] = $sub_diag;
             }
@@ -208,7 +208,7 @@ STYLES;
         for ($i = $procedure_left; $i < $proc_order; $i++) {
             $pdfContent .= '<tr>';
             $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
-            $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
+            $temp_diag = explode(";", (string) $all_procedures[$i]['diagnoses']);
             foreach ($temp_diag as $sub_diag) {
                 $all_diagnoses[] = $sub_diag;
             }
@@ -243,11 +243,11 @@ STYLES;
                 "AND q.procedure_code = ? AND q.question_code = a.question_code " .
                 "WHERE a.procedure_order_id = ? AND a.procedure_order_seq = ? " .
                 "ORDER BY q.seq, a.answer_seq",
-                array($procedure['lab_id'], $all_procedures[$i]['procedure_code'], $form_id, $all_procedures[$i]['procedure_order_seq'])
+                [$procedure['lab_id'], $all_procedures[$i]['procedure_code'], $form_id, $all_procedures[$i]['procedure_order_seq']]
             );
             foreach ($aoe_list as $aoe_data) {
                 if ($aoe_data['question_code']) {
-                    if (stripos($all_procedures[$i]['procedure_name'], 'PAP') !== false) {
+                    if (stripos((string) $all_procedures[$i]['procedure_name'], 'PAP') !== false) {
                         if ($aoe_data['answer']) {
                             $aoe_pap .= '<tr><td style="width:36%;text-align:right;">' . text($aoe_data['question_text']) . ':</td><td style="width:64%;padding-left:8px;">' . text($aoe_data['answer']) . '</td></tr>';
                             $pap_proc = 'AOE Test: ' . $all_procedures[$i]['procedure_code'];
@@ -259,7 +259,7 @@ STYLES;
                     }
                     if ($aoe_data['question_code'] == 'BLSRCE') {
                         $ans = "";
-                        switch (trim($aoe_data['answer'])) {
+                        switch (trim((string) $aoe_data['answer'])) {
                             case 'V':
                                 $ans = "Venous";
                                 break;
@@ -273,7 +273,7 @@ STYLES;
                     }
                     if ($aoe_data['question_code'] == 'BLPURP') {
                         $ans = "";
-                        switch (trim($aoe_data['answer'])) {
+                        switch (trim((string) $aoe_data['answer'])) {
                             case 'I':
                                 $ans = "Initial";
                                 break;
@@ -346,7 +346,7 @@ STYLES;
         $pdfContent .= '<table class="cor-edi-main-table" style="margin-bottom:6px;">';
         $pdfContent .= '<tbody>';
         $pdfContent .= '<tr>';
-        $race = array("declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1);
+        $race = ["declne_to_specfy" => 9, "amer_ind_or_alaska_native" => 3, "Asian" => 4, "black_or_afri_amer" => 2, "native_hawai_or_pac_island" => 5, "white" => 1];
         $hispanic = empty($patient['ethnicity']) ? "9" : null;
         $hispanic = ($patient['ethnicity'] === "hisp_or_latin" && empty($hispanic)) ? 1 : 2;
         $pdfContent .= '<td style="padding-left:8px;" colspan="2"><b>Blood Lead Information: </b></td>';
@@ -378,13 +378,9 @@ STYLES;
         // need to remove the code system prefix
         $codesOnlyArray = [];
         foreach ($all_diagnoses as $diagnosis) {
-            $splitCode = explode(":", $diagnosis);
+            $splitCode = explode(":", (string) $diagnosis);
             if (!empty($splitCode)) {
-                if (!empty($splitCode[1])) {
-                    $codesOnlyArray[] = $splitCode[1];
-                } else {
-                    $codesOnlyArray[] = $splitCode;
-                }
+                $codesOnlyArray[] = !empty($splitCode[1]) ? $splitCode[1] : $splitCode;
             }
         }
         for ($i = 0; $i < 8; $i++) {
@@ -401,7 +397,7 @@ STYLES;
 
         $primary = sqlQuery("SELECT i.*,ic.name,ic.id FROM insurance_data i join insurance_companies ic ON i.provider=ic.id WHERE i.pid=? and i.type='primary' ORDER BY i.date DESC LIMIT 1", [$pid]);
         $billtype = "Unknown";
-        switch (trim($procedure['billing_type'])) {
+        switch (trim((string) $procedure['billing_type'])) {
             case 'T':
                 $billtype = "Third Party";
                 break;
@@ -754,9 +750,9 @@ STYLES;
         $mpdfData = $mpdf->Output($filename, "S");
 
 // register the new document
-        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("LabCorp"));
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ["LabCorp"]);
         if (!$category['id']) {
-            $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array('Lab Report'));
+            $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", ['Lab Report']);
         }
         $DOCUMENT_CATEGORY = $category['id'];
 
@@ -770,7 +766,7 @@ STYLES;
         $documentationOf = "$unique";
         sqlStatement(
             "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
-            array($documentationOf, $form_id, $d->id)
+            [$documentationOf, $form_id, $d->id]
         );
     } catch (Exception $e) {
         echo "Message: " . $e->getMessage();

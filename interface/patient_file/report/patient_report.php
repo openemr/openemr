@@ -76,17 +76,17 @@ function show_date_fun(){
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 <?php
-$arrOeUiSettings = array(
+$arrOeUiSettings = [
     'heading_title' => xl('Patient Reports'),
     'include_patient_name' => true,
     'expandable' => false,
-    'expandable_files' => array(),//all file names need suffix _xpd
+    'expandable_files' => [],//all file names need suffix _xpd
     'action' => "",//conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => true,
     'help_file_name' => "report_dashboard_help.php"
-);
+];
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
@@ -298,7 +298,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php
                                         // get issues
                                         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-                                        "ORDER BY type, begdate", array($pid));
+                                        "ORDER BY type, begdate", [$pid]);
                                         $lasttype = "";
                                         while ($prow = sqlFetchArray($pres)) {
                                             if ($lasttype != $prow['type']) {
@@ -322,10 +322,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             $rowid = $prow['id'];
-                                            $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
+                                            $disptitle = trim((string) $prow['title']) ? $prow['title'] : "[Missing Title]";
 
                                             $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
-                                            "pid = ? AND list_id = ?", array($pid, $rowid));
+                                            "pid = ? AND list_id = ?", [$pid, $rowid]);
 
                                             echo "    <tr class='text'>\n";
                                             echo "     <td>&nbsp;</td>\n";
@@ -375,12 +375,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         "forms.pid = ? AND form_encounter.pid = ? AND " .
                                         "form_encounter.encounter = forms.encounter " .
                                         " AND forms.deleted=0 " . // --JRM--
-                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", array($pid, $pid));
+                                        "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", [$pid, $pid]);
                                         $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
-                                        $html_strings = array();
-                                        $registry_form_name = array();
+                                        $html_strings = [];
+                                        $registry_form_name = [];
                                         while ($result2 = sqlFetchArray($res2)) {
-                                            array_push($registry_form_name, trim($result2['name']));
+                                            array_push($registry_form_name, trim((string) $result2['name']));
                                         }
 
                                         while ($result = sqlFetchArray($res)) {
@@ -393,7 +393,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             }
                                                         }
                                                     }
-                                                    $html_strings = array();
+                                                    $html_strings = [];
                                                     echo "</div>\n"; // end DIV encounter_forms
                                                     echo "</div>\n\n";  //end DIV encounter_data
                                                     echo "<br />";
@@ -409,16 +409,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 // show encounter reason, not just 'New Encounter'
                                                 // trim to a reasonable length for display purposes --cfapress
                                                 $maxReasonLength = 20;
-                                                if (strlen($result["reason"]) > $maxReasonLength) {
+                                                if (strlen((string) $result["reason"]) > $maxReasonLength) {
                                                     // The default encoding for this mb_substr() call is set near top of globals.php
-                                                    $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
+                                                    $result['reason'] = mb_substr((string) $result['reason'], 0, $maxReasonLength) . " ... ";
                                                 }
                                                 echo text($result["reason"]) .
-                                                " (" . text(date("Y-m-d", strtotime($result["date"]))) .
+                                                " (" . text(date("Y-m-d", strtotime((string) $result["date"]))) .
                                                 ")\n";
                                                 echo "<div class='encounter_forms'>\n";
                                             } else {
-                                                $form_name = trim($result["form_name"]);
+                                                $form_name = trim((string) $result["form_name"]);
                                                 //if form name is not in registry, look for the closest match by
                                                 // finding a registry name which is  at the start of the form name.
                                                 //this is to allow for forms to put additional helpful information
@@ -433,13 +433,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
                                                 if (!$form_name_found_flag) {
                                                     foreach ($registry_form_name as $var) {
-                                                        if (strpos($form_name, $var) == 0) {
+                                                        if (str_starts_with($form_name, $var)) {
                                                             $form_name = $var;
                                                         }
                                                     }
                                                 }
                                                 if (empty($html_strings[$form_name]) || !is_array($html_strings[$form_name])) {
-                                                    $html_strings[$form_name] = array();
+                                                    $html_strings[$form_name] = [];
                                                 }
                                                 array_push($html_strings[$form_name], "<input type='checkbox' " .
                                                     " name='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'" .
@@ -488,7 +488,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
                                     "WHERE po.patient_id = ? " .
                                     "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-                                    array($pid)
+                                    [$pid]
                                 );
                                 while ($row = sqlFetchArray($res)) {
                                     $poid = $row['procedure_order_id'];
@@ -501,7 +501,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $opres = sqlStatement(
                                         "SELECT procedure_code, procedure_name FROM procedure_order_code " .
                                         "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
-                                        array($poid)
+                                        [$poid]
                                     );
                                     while ($oprow = sqlFetchArray($opres)) {
                                         $tmp = $oprow['procedure_name'];
@@ -531,7 +531,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                                 "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
                                 "d.foreign_id = ? AND d.deleted = 0";
-                        $result = $db->Execute($sql, array($pid));
+                        $result = $db->Execute($sql, [$pid]);
                         if ($db->ErrorMsg()) {
                             echo $db->ErrorMsg();
                         }

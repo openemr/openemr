@@ -16,6 +16,7 @@ namespace OpenEMR\RestControllers\FHIR;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -28,14 +29,14 @@ class FhirQuestionnaireRestController
     /**
      * @var FhirResourcesService
      */
-    private FhirResourcesService $fhirService;
+    private readonly FhirResourcesService $fhirService;
 
-    public function __construct(private readonly SystemLogger $logger, private readonly FhirQuestionnaireService $questionnaireResourceService)
+    public function __construct(private readonly LoggerInterface $logger, private readonly FhirQuestionnaireService $questionnaireResourceService)
     {
         $this->fhirService = new FhirResourcesService();
     }
 
-    public function getSystemLogger(): SystemLogger
+    public function getSystemLogger(): LoggerInterface
     {
         return $this->logger;
     }
@@ -114,7 +115,7 @@ class FhirQuestionnaireRestController
     private function getAll(array $searchParams, ?string $puuidBind = null): FHIRBundle
     {
         $processingResult = $this->questionnaireResourceService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

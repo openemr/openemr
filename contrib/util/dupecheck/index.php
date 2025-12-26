@@ -140,21 +140,12 @@ if ($parameters['go'] == "Go") {
 
     // for EACH patient in OpenEMR find potential matches
     $sqlstmt = "select id, pid, fname, lname, dob, sex, ss from patient_data";
-    switch ($parameters['sortby']) {
-        case 'dob':
-            $orderby = " ORDER BY dob";
-            break;
-        case 'sex':
-            $orderby = " ORDER BY sex";
-            break;
-        case 'ssn':
-            $orderby = " ORDER BY ss";
-            break;
-        case 'name':
-        default:
-            $orderby = " ORDER BY lname, fname";
-            break;
-    }
+    $orderby = match ($parameters['sortby']) {
+        'dob' => " ORDER BY dob",
+        'sex' => " ORDER BY sex",
+        'ssn' => " ORDER BY ss",
+        default => " ORDER BY lname, fname",
+    };
 
     $sqlstmt .= $orderby;
     if ($parameters['limit']) {
@@ -167,7 +158,7 @@ if ($parameters['go'] == "Go") {
             continue;
         }
 
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $sqlstmt = "select id, pid, fname, lname, dob, sex, ss " .
                     " from patient_data where ";
         $sqland = "";

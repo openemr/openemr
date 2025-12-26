@@ -31,13 +31,13 @@ class BaseController extends AbstractActionController
      * path to file after base pass from ModuleconfigController
      * @var array
      */
-    protected $jsFiles = array(
+    protected $jsFiles = [
         //jquery
         '/jquery/dist/jquery.min.js',
         //bootstrap
         '/bootstrap/dist/js/bootstrap.bundle.min.js',
 
-    );
+    ];
 
     protected Listener $translate;
 
@@ -45,10 +45,10 @@ class BaseController extends AbstractActionController
      * path to file after base pass from ModuleconfigController
      * @var array
      */
-    protected $cssFiles = array(
+    protected $cssFiles = [
         //bootstrap
         '/bootstrap/dist/css/bootstrap.min.css',
-    );
+    ];
 
     public function __construct()
     {
@@ -111,8 +111,8 @@ class BaseController extends AbstractActionController
      */
     protected function getPostParamsArray()
     {
-        $putParams = array();
-        parse_str($this->getRequest()->getContent(), $putParams);
+        $putParams = [];
+        parse_str((string) $this->getRequest()->getContent(), $putParams);
         return $putParams;
     }
     /**

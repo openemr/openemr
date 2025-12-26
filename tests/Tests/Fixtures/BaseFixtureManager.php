@@ -22,16 +22,11 @@ abstract class BaseFixtureManager
 {
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
-
-    private $fileName;
-    private $tableName;
     private $hasInstalledFixtured;
     private $fixtures;
 
-    public function __construct($fileName = "", $tableName = "")
+    public function __construct(private $fileName = "", private $tableName = "")
     {
-        $this->fileName = $fileName;
-        $this->tableName = $tableName;
         $this->hasInstalledFixtured = false;
     }
 
@@ -102,7 +97,7 @@ abstract class BaseFixtureManager
 
         foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
-            $sqlBinds = array();
+            $sqlBinds = [];
 
             foreach ($fixture as $field => $fieldValue) {
                 if (is_array($fieldValue) && $this->isForeignReference($fieldValue)) {

@@ -40,7 +40,6 @@ use OpenEMR\Common\Forms\FormReportRenderer;
 
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -54,19 +53,12 @@ if ($attendant_type == 'gid') {
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, array('view', 'write'))) {
+if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write'])) {
     echo xlt("access not allowed");
     exit();
 }
 
-if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
-/**
- * @var EventDispatcher
- */
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-} else {
-    throw new Exception("Could not get EventDispatcher from kernel", 1);
-}
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 // instantiate the locator at the beginning so our file caching can be re-used.
 $formLocator = new FormLocator();
 ?>
@@ -95,7 +87,7 @@ if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
 <?php
 // If the user requested attachment of any orphaned procedure orders, do it.
 if (!empty($_GET['attachid'])) {
-    $attachid = explode(',', $_GET['attachid']);
+    $attachid = explode(',', (string) $_GET['attachid']);
     foreach ($attachid as $aid) {
         $aid = intval($aid);
         if (!$aid) {
@@ -104,13 +96,13 @@ if (!empty($_GET['attachid'])) {
         $tmp = sqlQuery(
             "SELECT COUNT(*) AS count FROM procedure_order WHERE " .
             "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
-            array($aid, $pid)
+            [$aid, $pid]
         );
         if (!empty($tmp['count'])) {
             sqlStatement(
                 "UPDATE procedure_order SET encounter_id = ? WHERE " .
                 "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
-                array($encounter, $aid, $pid)
+                [$encounter, $aid, $pid]
             );
             addForm($encounter, "Procedure Order", $aid, "procedure_order", $pid, $userauthorized);
         }
@@ -291,7 +283,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 "FROM procedure_order WHERE " .
                 "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
                 "ORDER BY procedure_order_id",
-                array($pid)
+                [$pid]
             );
             echo "  // Ask about attaching orphaned orders to this encounter.\n";
             echo "  var attachid = '';\n";
@@ -316,23 +308,29 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         <?php } ?>
     });
 
+    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete link.
     function deleteme() {
-        dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
+        const params = new URLSearchParams({
+            encounterid: <?php echo js_escape($encounter); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        });
+        dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 200, '', '', {
             allowResize: false,
             allowDrag: true,
         });
         return false;
     }
+    // AI-generated code end
 
     // create new follow-up Encounter.
     function createFollowUpEncounter() {
 
         <?php
-        $result = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", array(
+        $result = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", [
             $_SESSION['pid'],
             $encounter
-        ));
+        ]);
         $encounterId = (!empty($result['parent_encounter_id'])) ? $result['parent_encounter_id'] : $result['id'];
         ?>
         var data = {encounterId: '<?php echo attr($encounterId); ?>', mode: 'follow_up_encounter'};
@@ -548,13 +546,13 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
         $menuArray = $menuEvent->getMenuData();
         $reg = getFormsByCategory();
-        $sensitivity = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($GLOBALS["encounter"] ?? null))['sensitivity'] ?? null;
+        $sensitivity = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$GLOBALS["encounter"] ?? null])['sensitivity'] ?? null;
         $pass_sens = true;
         if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
             $pass_sens = false;
         }
         foreach ($reg as $item) {
-            $tmp = explode('|', $item['aco_spec']);
+            $tmp = explode('|', (string) $item['aco_spec']);
             if ($pass_sens) {
                 if (!empty($tmp[1])) {
                     if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
@@ -613,7 +611,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     });
 
     $dateres = getEncounterDateByEncounter($encounter);
-    $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
+    $encounter_date = date("Y-m-d", strtotime((string) $dateres["date"]));
     $providerIDres = getProviderIdOfEncounter($encounter);
     $providerNameRes = getProviderName($providerIDres, false);
 
@@ -651,12 +649,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         <div class='encounter-summary-container'>
             <?php
             $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-            if ($dispatcher instanceof EventDispatcher) {
-                $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
-                $event->setGroupId($groupId ?? null);
-                $event->setPid($pid ?? null);
-                $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
-            }
+            $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+            $event->setGroupId($groupId ?? null);
+            $event->setPid($pid ?? null);
+            $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
             ?>
             <div class='encounter-summary-column'>
                 <div>
@@ -666,7 +662,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     $pc_catid = fetchCategoryIdByEncounter($encounter);
                     $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
                     if ($postCalendarCategoryACO) {
-                        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                        $postCalendarCategoryACO = explode('|', (string) $postCalendarCategoryACO);
                         $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
                         $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
                     } else { // if no aco is set for category
@@ -815,7 +811,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             $docs_list = getDocumentsByEncounter($pid, $_SESSION['encounter']);
         } else {
             // already doesn't exist document for therapy groups
-            $docs_list = array();
+            $docs_list = [];
         }
         if (!empty($docs_list) && count($docs_list) > 0) {
             ?>
@@ -828,18 +824,18 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     // Get notes for this document.
                     $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
         FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
-                    $noteData = sqlQuery($queryString, array($doc_iter['id']));
+                    $noteData = sqlQuery($queryString, [$doc_iter['id']]);
                     $note = '';
                     if ($noteData) {
-                        $notes = array();
-                        $notes = explode("|", $noteData['docNotes']);
-                        $dates = explode("|", $noteData['docDates']);
+                        $notes = [];
+                        $notes = explode("|", (string) $noteData['docNotes']);
+                        $dates = explode("|", (string) $noteData['docDates']);
                         for ($i = 0, $iMax = count($notes); $i < $iMax; $i++) {
                             $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
                         }
                     }
                     ?>
-                    <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename($doc_iter['name'])); ?></a>
+                    <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename((string) $doc_iter['name'])); ?></a>
                     <?php if ($note != '') { ?>
                         <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png" /></a>
                     <?php } ?>
@@ -870,17 +866,17 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
                 $aco_spec = false;
 
-                if (substr($formdir, 0, 3) == 'LBF') {
+                if (str_starts_with((string) $formdir, 'LBF')) {
                     // Skip LBF forms that we are not authorized to see.
                     $lrow = sqlQuery(
                         "SELECT grp_aco_spec " .
                         "FROM layout_group_properties WHERE " .
                         "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
-                        array($formdir)
+                        [$formdir]
                     );
                     if (!empty($lrow)) {
                         if (!empty($lrow['grp_aco_spec'])) {
-                            $aco_spec = explode('|', $lrow['grp_aco_spec']);
+                            $aco_spec = explode('|', (string) $lrow['grp_aco_spec']);
                             if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                                 continue;
                             }
@@ -890,7 +886,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     // Skip non-LBF forms that we are not authorized to see.
                     $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
                     if (!empty($tmp['aco_spec'])) {
-                        $aco_spec = explode('|', $tmp['aco_spec']);
+                        $aco_spec = explode('|', (string) $tmp['aco_spec']);
                         if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                             continue;
                         }
@@ -898,7 +894,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 }
 
                 // $form_info = getFormInfoById($iter['id']);
-                $form_class_list = (strtolower(substr($iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
+                $form_class_list = (strtolower(substr((string) $iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
                 echo '<div id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" title="' . xla("Edit Form") . '" class="form-holder ' . $form_class_list . '">';
 
                 $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
@@ -962,7 +958,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
                 }
 
-                if (substr($formdir, 0, 3) == 'LBF') {
+                if (str_starts_with((string) $formdir, 'LBF')) {
                     // A link for a nice printout of the LBF
                     echo "<a target='_blank' " .
                         "href='$rootdir/forms/LBF/printable.php?" .
@@ -1012,12 +1008,10 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         }
 
         $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-        if ($dispatcher instanceof EventDispatcher) {
-            $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
-            $event->setGroupId($groupId ?? null);
-            $event->setPid($pid ?? null);
-            $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
-        }
+        $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+        $event->setGroupId($groupId ?? null);
+        $event->setPid($pid ?? null);
+        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
         ?>
 
     </div> <!-- end large encounter_forms DIV -->

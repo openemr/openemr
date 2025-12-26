@@ -62,10 +62,10 @@ class CharacterEncodingTest extends TestCase
         $text = "Đau cơ xương khớp";
 
         // mb_strlen counts characters
-        $this->assertEquals(18, mb_strlen($text), "Character count should be 18");
+        $this->assertEquals(17, mb_strlen($text), "Character count should be 17");
 
         // strlen counts bytes (Vietnamese chars are 2-3 bytes each)
-        $this->assertGreaterThan(18, strlen($text), "Byte length should be greater than character count");
+        $this->assertGreaterThan(17, strlen($text), "Byte length should be greater than character count");
     }
 
     /**
@@ -91,14 +91,19 @@ class CharacterEncodingTest extends TestCase
     {
         $originalText = "Phục hồi chức năng";
 
-        // Test that common sanitization doesn't break Vietnamese
-        $sanitized = filter_var($originalText, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        // Test that htmlspecialchars preserves Vietnamese characters (better than deprecated FILTER_SANITIZE_STRING)
+        $sanitized = htmlspecialchars($originalText, ENT_QUOTES, 'UTF-8');
 
-        $this->assertStringContainsString(
-            'ủ',
+        // The original text and sanitized text should be identical for Vietnamese without special HTML chars
+        $this->assertEquals(
+            $originalText,
             $sanitized,
-            "Sanitization should preserve Vietnamese characters"
+            "htmlspecialchars should preserve Vietnamese characters when no HTML chars present"
         );
+
+        // Verify both contain Vietnamese text patterns
+        $this->assertStringContainsString('ch', $sanitized, "Sanitized text should contain Vietnamese word 'chức'");
+        $this->assertTrue(mb_check_encoding($sanitized, 'UTF-8'), "Sanitized text should be valid UTF-8");
     }
 
     /**

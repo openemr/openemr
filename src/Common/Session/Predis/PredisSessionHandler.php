@@ -16,28 +16,18 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use Predis\Client;
 use SessionHandlerInterface;
 
 class PredisSessionHandler implements SessionHandlerInterface
 {
-    private Client $redis;
-    private int $ttl;
-    private int $lockTimeout;
-    private int $waitTimeout;
-    private int $waitInterval;
-
     private ?string $currentSessionId = null;
 
-    private SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(Client $redis, int $ttl, int $lockTimeout = 60, int $waitTimeout = 70, int $waitInterval = 150000)
+    public function __construct(private readonly Client $redis, private readonly int $ttl, private readonly int $lockTimeout = 60, private readonly int $waitTimeout = 70, private readonly int $waitInterval = 150000)
     {
-        $this->redis = $redis;
-        $this->ttl = $ttl;
-        $this->lockTimeout = $lockTimeout;
-        $this->waitTimeout = $waitTimeout;
-        $this->waitInterval = $waitInterval;
         $this->logger = new SystemLogger();
     }
 
@@ -85,7 +75,7 @@ class PredisSessionHandler implements SessionHandlerInterface
         // Read session data
         $data = $this->redis->get($sessionKey);
         $this->logger->debug("PredisSessionHandler read session data");
-        return $data ? $data : '';
+        return $data ?: '';
     }
 
     public function write(string $sessionId, string $data): bool

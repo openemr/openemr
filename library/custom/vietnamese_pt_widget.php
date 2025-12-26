@@ -22,6 +22,9 @@ use OpenEMR\Services\VietnamesePT\PTTreatmentPlanService;
  *
  * @param int $patient_id The patient ID
  * @return string HTML output for the widget
+ *
+ * AI-ENHANCED CODE - START
+ * Enhanced with quick stats and recent activity by Claude Code on 2025-11-22
  */
 function renderVietnamesePTWidget($patient_id)
 {
@@ -51,6 +54,32 @@ function renderVietnamesePTWidget($patient_id)
     $plansResult = $planService->getActivePlans($patient_id);
     $plans = $plansResult->hasErrors() ? [] : $plansResult->getData();
 
+    // Calculate quick stats
+    $totalAssessments = count($assessmentsResult->hasErrors() ? [] : $assessmentsResult->getData());
+    $totalExercises = count($exercisesResult->hasErrors() ? [] : $exercisesResult->getData());
+    $activeExercises = count($exercises);
+    $activePlans = count($plans);
+
+    // Get latest pain level from most recent assessment
+    $latestPainLevel = null;
+    if (!empty($assessments) && isset($assessments[0]['pain_level'])) {
+        $latestPainLevel = intval($assessments[0]['pain_level']);
+    }
+
+    // Check for overdue follow-ups (plans active > 8 weeks)
+    $overdueCount = 0;
+    $currentDate = new DateTime();
+    foreach ($plans as $plan) {
+        if (!empty($plan['start_date'])) {
+            $startDate = new DateTime($plan['start_date']);
+            $weeksDiff = $currentDate->diff($startDate)->days / 7;
+            $expectedDuration = !empty($plan['estimated_duration_weeks']) ? intval($plan['estimated_duration_weeks']) : 8;
+            if ($weeksDiff > $expectedDuration) {
+                $overdueCount++;
+            }
+        }
+    }
+
     ob_start();
     ?>
     <div class="vietnamese-pt-widget card mb-3">
@@ -60,6 +89,65 @@ function renderVietnamesePTWidget($patient_id)
             </h5>
         </div>
         <div class="card-body">
+            <!-- Quick Stats Section -->
+            <div class="pt-quick-stats mb-4">
+                <div class="row text-center">
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <div class="stat-box border rounded p-2 bg-light">
+                            <div class="stat-number text-primary" style="font-size: 24pt; font-weight: bold;">
+                                <?php echo text($totalAssessments); ?>
+                            </div>
+                            <div class="stat-label text-muted" style="font-size: 9pt;">
+                                <?php echo xlt('Total Assessments'); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <div class="stat-box border rounded p-2 bg-light">
+                            <div class="stat-number text-success" style="font-size: 24pt; font-weight: bold;">
+                                <?php echo text($activeExercises); ?>
+                            </div>
+                            <div class="stat-label text-muted" style="font-size: 9pt;">
+                                <?php echo xlt('Active Exercises'); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <div class="stat-box border rounded p-2 bg-light">
+                            <div class="stat-number text-info" style="font-size: 24pt; font-weight: bold;">
+                                <?php echo text($activePlans); ?>
+                            </div>
+                            <div class="stat-label text-muted" style="font-size: 9pt;">
+                                <?php echo xlt('Active Plans'); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-2">
+                        <div class="stat-box border rounded p-2 <?php echo $overdueCount > 0 ? 'bg-warning' : 'bg-light'; ?>">
+                            <div class="stat-number <?php echo $overdueCount > 0 ? 'text-danger' : 'text-secondary'; ?>" style="font-size: 24pt; font-weight: bold;">
+                                <?php echo text($overdueCount); ?>
+                            </div>
+                            <div class="stat-label text-muted" style="font-size: 9pt;">
+                                <?php echo xlt('Overdue Follow-ups'); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Pain Level Indicator -->
+                <?php if ($latestPainLevel !== null): ?>
+                <div class="alert alert-<?php echo $latestPainLevel <= 3 ? 'success' : ($latestPainLevel <= 6 ? 'warning' : 'danger'); ?> mt-3 mb-3 py-2">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <i class="fa fa-heartbeat"></i> <strong><?php echo xlt('Latest Pain Level'); ?>:</strong>
+                        </div>
+                        <div class="col-4 text-right">
+                            <span style="font-size: 18pt; font-weight: bold;"><?php echo text($latestPainLevel); ?>/10</span>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
             <!-- Recent Assessments -->
             <div class="mb-3">
                 <h6 class="border-bottom pb-2">
@@ -193,3 +281,5 @@ function vietnamese_pt_widget_hook($patient_id)
 {
     echo renderVietnamesePTWidget($patient_id);
 }
+
+/* AI-ENHANCED CODE - END */

@@ -25,16 +25,12 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_form_nav_close($args = array()): void
+function smarty_function_pc_form_nav_close($args = []): void
 {
     extract($args);
     unset($args);
 
-    if (_SETTING_OPEN_NEW_WINDOW || isset($print)) {
-        $target = 'target="csCalendar"';
-    } else {
-        $target = '';
-    }
+    $target = _SETTING_OPEN_NEW_WINDOW || isset($print) ? 'target="csCalendar"' : '';
 
     if (!defined('_PC_FORM_DATE')) {
         $Date = postcalendar_getDate();

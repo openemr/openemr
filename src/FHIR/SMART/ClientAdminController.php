@@ -29,12 +29,13 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -52,13 +53,6 @@ class ClientAdminController
     const TOKEN_TOOLS_ACTION = 'token-tools';
     const PARSE_TOKEN_ACTION = "parse-token";
 
-    private string $actionURL;
-
-    /**
-     * @var ClientRepository
-     */
-    private ClientRepository $clientRepo;
-
     const CSRF_TOKEN_NAME = 'ClientAdminController';
     const SCOPE_PREVIEW_DISPLAY = 6;
 
@@ -68,10 +62,6 @@ class ClientAdminController
 
     private Environment $twig;
 
-    private SessionInterface $session;
-
-    private OEGlobalsBag $globalsBag;
-
     private Kernel $kernel;
 
     private AccessTokenRepository $accessTokenRepository;
@@ -80,19 +70,15 @@ class ClientAdminController
 
     /**
      * ClientAdminController constructor.
-     * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
+     * @param ClientRepository $clientRepo The repository object that let's us retrieve OAUTH2 EntityClient objects
      * @param string $actionURL The URL that we will send requests back to
      */
-    public function __construct(OEGlobalsBag $globalsBag, SessionInterface $session, ClientRepository $repo, string $actionURL)
+    public function __construct(private OEGlobalsBag $globalsBag, private SessionInterface $session, private ClientRepository $clientRepo, private string $actionURL)
     {
-        $this->globalsBag = $globalsBag;
-        $this->session = $session;
-        $this->kernel = $globalsBag->get('kernel');
-        $this->clientRepo = $repo;
-        $this->actionURL = $actionURL;
-        $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $actionURL, self::CSRF_TOKEN_NAME);
+        $this->kernel = $this->globalsBag->get('kernel');
+        $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
-        $this->webroot = $globalsBag->get('web_root');
+        $this->webroot = $this->globalsBag->get('web_root');
     }
 
     public function setTwig(Environment $twig)
@@ -236,10 +222,10 @@ class ClientAdminController
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      * @throws Exception
      */
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->kernel->getEventDispatcher();
     }
@@ -318,7 +304,7 @@ class ClientAdminController
     private function getAccessTokenRepository(): AccessTokenRepository
     {
         if (!isset($this->accessTokenRepository)) {
-            $this->accessTokenRepository = new AccessTokenRepository($this->globalsBag, $this->session);
+            $this->accessTokenRepository = new AccessTokenRepository(new ServerConfig(), $this->session);
         }
         return $this->accessTokenRepository;
     }
@@ -330,7 +316,7 @@ class ClientAdminController
         $accessTokens = $accessTokenRepository->getActiveTokensForUser($clientId, $user_id) ?? [];
         foreach ($accessTokens as $token) {
             try {
-                $token['scope'] = json_decode($token['scope'], true, 512, JSON_THROW_ON_ERROR);
+                $token['scope'] = json_decode((string) $token['scope'], true, 512, JSON_THROW_ON_ERROR);
                 $result[] = $token;
             } catch (JsonException $exception) {
                 (new SystemLogger())->error("Failed to json_decode api_token scope column. "
@@ -620,15 +606,15 @@ class ClientAdminController
      * @param array $options
      * @return string
      */
-    private function getActionUrl($action, array $options = array()): string
+    private function getActionUrl($action, array $options = []): string
     {
         if (is_array($action)) {
             $action = implode("/", $action);
         }
-        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($this->getCSRFToken());
+        $url = $this->actionURL . "?action=" . urlencode((string) $action) . "&csrf_token=" . urlencode($this->getCSRFToken());
         if (!empty($options['queryParams'])) {
             foreach ($options['queryParams'] as $key => $param) {
-                $url .= "&" . urlencode($key) . "=" . urlencode($param);
+                $url .= "&" . urlencode((string) $key) . "=" . urlencode((string) $param);
             }
         }
 

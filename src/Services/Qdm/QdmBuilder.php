@@ -130,7 +130,7 @@ class QdmBuilder
         return $models;
     }
 
-    public function _action_generate_models()
+    public function _action_generate_models(): never
     {
         $generator = new Generator();
         $generator->execute();

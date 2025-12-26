@@ -2,12 +2,13 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,7 +23,6 @@ use PHPUnit\Framework\Attributes\Test;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(FhirAllergyIntoleranceService::class)]
 class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 {
     /**
@@ -61,6 +61,9 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installAllergyIntoleranceFixtures();
         $this->fhirService = new FhirAllergyIntoleranceService(self::$apiBaseURL);
+        // surpress logging below critical level as that's part of the tests.
+        $systemLogger = new SystemLogger(Level::Critical);
+        $this->fhirService->setSystemLogger($systemLogger);
     }
 
     protected function tearDown(): void
@@ -123,10 +126,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $select = "SELECT `lists`.`pid`,`patient_data`.`uuid` FROM `lists` INNER JOIN `patient_data` ON `patient_data`.`pid` = "
          . "`lists`.`pid` WHERE `type`='allergy' and `patient_data`.`pubpid` LIKE ? LIMIT 2";
         $records = QueryUtils::fetchTableColumn($select, 'uuid', [$pubpid]);
-        $uuids = array_map(function ($v) {
-            return UuidRegistry::uuidToString($v);
-        }, $records);
-        list($uuidPatient1, $uuidPatient2) = $uuids;
+        $uuids = array_map(UuidRegistry::uuidToString(...), $records);
+        [$uuidPatient1, $uuidPatient2] = $uuids;
 
         // replace any values that we will use for searching
         $parameterValue = str_replace(":uuid1", $uuidPatient1, $parameterValue);

@@ -28,7 +28,7 @@ if ($_GET["mode"] == "new") {
         'patient_id' => $_POST['pid'],
         'encounter_id' => $_POST['encounter'],
         'assessment_date' => date('Y-m-d H:i:s'),
-        'therapist_id' => $_POST['therapist_id'],
+        'therapist_id' => $_POST['therapist_id'] ?? $_SESSION['authUserID'],
         'chief_complaint_vi' => $_POST['chief_complaint_vi'] ?? '',
         'chief_complaint_en' => $_POST['chief_complaint_en'] ?? '',
         'pain_level' => $_POST['pain_level'] ?? null,
@@ -59,6 +59,9 @@ if ($_GET["mode"] == "new") {
                 1
             );
         }
+    } else {
+        error_log("Vietnamese PT Assessment insert failed: " . print_r($result->getValidationMessages(), true));
+        die("Error saving assessment: " . implode(", ", $result->getValidationMessages()));
     }
 } elseif ($_GET["mode"] == "update") {
     $data = [
@@ -77,7 +80,12 @@ if ($_GET["mode"] == "new") {
         'status' => $_POST['status'] ?? 'completed'
     ];
 
-    $service->update($_GET["id"], $data);
+    $result = $service->update($_GET["id"], $data);
+
+    if ($result->hasErrors()) {
+        error_log("Vietnamese PT Assessment update failed: " . print_r($result->getValidationMessages(), true));
+        die("Error updating assessment: " . implode(", ", $result->getValidationMessages()));
+    }
 }
 
 formHeader("Redirecting....");

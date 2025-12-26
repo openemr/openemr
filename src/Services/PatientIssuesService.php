@@ -14,8 +14,12 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -33,7 +37,7 @@ class PatientIssuesService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid'];
+        return ['uuid', 'reporting_source_uuid'];
     }
 
     public function getOneById($issueId)
@@ -79,6 +83,19 @@ class PatientIssuesService extends BaseService
         }
 
         return $whiteListDict;
+    }
+
+    public function getActiveIssues(int $pid): ProcessingResult
+    {
+        $notEnded = new TokenSearchField('enddate', [new TokenSearchValue(null)]);
+        $notEnded->setModifier(SearchModifier::MISSING);
+        $futureEndDate = new DateSearchField('enddate', ['gt' . date(DATE_ATOM)]);
+        $isActive = new CompositeSearchField('active_issues', [], false);
+        $isActive->addChild($notEnded);
+        $isActive->addChild($futureEndDate);
+        // values are string for TokenSearchField
+        $patientByPid = new TokenSearchField('pid', [(string)$pid]);
+        return $this->search(['active_issues' => $isActive, 'pid' => $patientByPid]);
     }
 
     public function updateIssue($issueRecord)
@@ -132,7 +149,7 @@ class PatientIssuesService extends BaseService
                     . 'medication = 0 where patient_id = ? '
                     . " and upper(trim(drug)) = ? "
                     . ' and medication = 1',
-                    array($issueRecord['pid'], strtoupper($title))
+                    [$issueRecord['pid'], strtoupper((string) $title)]
                 );
             }
             $whiteListDict['medication'] = $medication;
@@ -149,6 +166,7 @@ class PatientIssuesService extends BaseService
         }
     }
 
+    // TODO: @adunsulag can this be merged with the search in ConditionService or move things to a common base class?
     public function search($search, $isAndCondition = true)
     {
         $sql = "SELECT lists.*
@@ -159,17 +177,32 @@ class PatientIssuesService extends BaseService
                 ,medications.drug_dosage_instructions
                 ,medications.request_intent
                 ,medications.request_intent_title
+                ,medications.medication_adherence_information_source
+                ,medications.medication_adherence
+                ,medications.medication_adherence_date_asserted
+                ,medications.is_primary_record
+                ,medications.reporting_source_record_id
+                ,medications.reporting_source_uuid
+                ,medications.reporting_source_type
                 FROM lists
                 LEFT JOIN (
                     SELECT
-                       id AS lists_medication_id
+                       lists_medication.id AS lists_medication_id
                        ,list_id
                         ,usage_category
                         ,usage_category_title
                         ,drug_dosage_instructions
                         ,request_intent
                         ,request_intent_title
+                        ,medication_adherence_information_source
+                        ,medication_adherence
+                        ,medication_adherence_date_asserted
+                        ,is_primary_record
+                        ,reporting_source_record_id
+                        ,users.uuid AS reporting_source_uuid
+                        ,'user' AS reporting_source_type
                     FROM lists_medication
+                    LEFT JOIN users ON users.id = lists_medication.reporting_source_record_id
                 ) medications ON medications.list_id = lists.id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
@@ -191,7 +224,10 @@ class PatientIssuesService extends BaseService
     {
         $record = parent::createResultRecordFromDatabaseResult($row);
         if (!empty($record['lists_medication_id'])) {
-            $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title', 'drug_dosage_instructions'];
+            $extractKeys = ['usage_category', 'usage_category_title', 'request_intent', 'request_intent_title'
+                , 'drug_dosage_instructions', 'medication_adherence_information_source', 'medication_adherence'
+                , 'medication_adherence_date_asserted', 'is_primary_record'
+                , 'reporting_source_record_id', 'reporting_source_uuid', 'reporting_source_type'];
             $record['medication'] = [
                 'id' => $row['lists_medication_id']
                 ,'erx_source' => $row['erx_source']
@@ -206,14 +242,90 @@ class PatientIssuesService extends BaseService
         return $record;
     }
 
-    public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues)
+    public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues, ?int $userCreatorId = null): void
     {
-        sqlStatement("DELETE FROM issue_encounter WHERE " .
-            "pid = ? AND encounter = ?", array($pid, $encounter));
-        if (!empty($issues)) {
-            foreach ($issues as $issue) {
-                $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
-                sqlStatement($query, array($pid, $issue, $encounter));
+        $issues = array_combine($issues, $issues);
+        $records = QueryUtils::fetchRecords("SELECT * FROM issue_encounter WHERE "
+            . "pid = ? AND encounter = ?", [$pid, $encounter]);
+        foreach ($records as $record) {
+            if (!isset($issues[$record['list_id']])) {
+                // issue no longer linked to this encounter, so remove it
+                $this->unlinkIssueFromEncounter($pid, $encounter, $record['list_id']);
+            }
+            unset($issues[$record['list_id']]);
+        }
+        // now add any remaining issues
+        foreach ($issues as $issue) {
+            $this->linkIssueToEncounter($pid, $encounter, $issue, $userCreatorId);
+        }
+    }
+
+    /**
+     * Link an issue to an encounter.  If the linkage already exists, do nothing but return the linkage uuid.
+     * @param string $pid The patient pid from patient_data.pid
+     * @param string $encounter The encounter id from form_encounter.encounter
+     * @param string $issueId The issue id from lists.id
+     * @param int|null $userCreatorId The user id of the user creating the linkage, defaults to the current user if null
+     * @param int $resolved Optional resolved flag, defaults to 0 (whether the issue was resolved during this encounter)
+     * @return string The UUID of the created linkage, or the uuid of the linkage if the linkage already exists
+     */
+    public function linkIssueToEncounter(string $pid, string $encounter, string $issueId, ?int $userCreatorId = null, int $resolved = 0): string
+    {
+        $uuid = QueryUtils::fetchSingleValue("SELECT uuid AS count FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ? AND list_id = ?", 'uuid', [$pid, $encounter, $issueId]);
+        if (!empty($uuid)) {
+            return $uuid; // already connected
+        }
+        $userCreatorId ??= $_SESSION['authUserID'];
+        $uuid = UuidRegistry::getRegistryForTable("issue_encounter")->createUuid();
+        $query = "INSERT INTO issue_encounter ( `uuid`, pid, list_id, encounter, resolved, created_by, updated_by) VALUES (?,?,?,?,?,?,?)";
+        QueryUtils::sqlInsert($query, [$uuid, $pid, $issueId, $encounter, $resolved,$userCreatorId,$userCreatorId]);
+        return $uuid;
+    }
+
+    public function unlinkIssueFromEncounter(string $pid, string $encounter, string $issueId)
+    {
+        // TODO: @adunsulag should we actually have a status flag on the linkage and set it to inactive instead of deleting the linkage?
+        // this would preserve historical data, and we could have a purge job to remove old inactive linkages after some time period if needed
+        QueryUtils::sqlStatementThrowException("DELETE FROM uuid_registry WHERE uuid IN (SELECT uuid FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ? AND list_id = ?)", [$pid, $encounter, $issueId]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ? AND list_id = ?", [$pid, $encounter, $issueId]);
+    }
+
+    /**
+     * Replace all the patient encounter issues for a patient.
+     * @param int $pid The patient pid from patient_data.pid
+     * @param array $encountersByListId An associative array where the key is the issue id and the value is an array of encounter ids that need to be linked to the issue
+     * @param int|null $userCreatorId The user id of the user creating the linkages, defaults to the current user if null
+     * @return void
+     */
+    public function replacePatientEncounterIssues(int $pid, array $encountersByListId, ?int $userCreatorId = null): void
+    {
+        // get all the issues
+        // loop through each issue, if it has encounters in encountersByListId then call replaceIssuesForEncounter
+        // otherwise call replaceIssuesForEncounter with empty array to clear out any existing linkages
+        // existing linkages not in encountersByListId will be removed
+        $encounterIssues = QueryUtils::fetchRecords("SELECT list_id,encounter,pid FROM issue_encounter WHERE pid = ?", [$pid]);
+        foreach ($encounterIssues as $issue) {
+            $issueId = $issue['list_id'];
+            if (!isset($encountersByListId[$issueId])) {
+                $this->unlinkIssueFromEncounter($pid, $issue['encounter'], $issue['list_id']);
+            } else {
+                $index = array_search($issue['encounter'], $encountersByListId[$issueId]);
+                if ($index !== false) {
+                    $encountersByListId[$issueId][$index] = null; // empty it out
+                } else {
+                    $this->unlinkIssueFromEncounter($pid, $issue['encounter'], $issue['list_id']);
+                }
+            }
+        }
+        // add any remaining encounters for each issue
+        foreach ($encountersByListId as $listId => $encounters) {
+            foreach ($encounters as $encounter) {
+                if (!empty($encounter)) {
+                    $this->linkIssueToEncounter($pid, $encounter, $listId, $userCreatorId);
+                }
             }
         }
     }

@@ -14,12 +14,8 @@ class CommonTest extends TestCase
     {
         $pieces = ['apple', 'banana', 'cherry'];
         $funcs = [
-            function ($value) {
-                return strtoupper($value);
-            },
-            function ($value) {
-                return substr($value, 0, 3);
-            }
+            fn($value) => strtoupper((string) $value),
+            fn($value): string => substr((string) $value, 0, 3)
         ];
         $result = Common::implode_funcs('!', $pieces, $funcs);
         $this->assertEquals('APP!BAN!CHE', $result);

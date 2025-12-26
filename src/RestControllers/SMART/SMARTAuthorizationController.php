@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -38,45 +39,20 @@ use Twig\Environment;
 class SMARTAuthorizationController
 {
     /**
-     * @var SystemLogger
+     * @var LoggerInterface
      */
-    private SystemLogger $logger;
-
-    /**
-     * The base URL of the oauth2 url
-     * @var string
-     */
-    private string $authBaseFullURL;
-
-    /**
-     * The oauth2 endpoint url to send to once smart authorization is complete.
-     * @var string
-     */
-    private string $smartFinalRedirectURL;
-
-    /**
-     * The directory that the oauth template files can be included from
-     * @var string
-     */
-    private string $oauthTemplateDir;
-
-    /**
-     * @var Environment The twig template engine
-     */
-    private Environment $twig;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var EventDispatcherInterface
      */
-    private EventDispatcherInterface $dispatcher;
-
-    private SessionInterface $session;
+    private readonly EventDispatcherInterface $dispatcher;
 
     private PatientContextSearchController $patientContextSearchController;
 
     private ClientRepository $clientRepository;
 
-    private OEGlobalsBag $globalsBag;
+    private readonly OEGlobalsBag $globalsBag;
 
     private LogoService $logoService;
 
@@ -99,25 +75,20 @@ class SMARTAuthorizationController
      * TODO: @adunsulag this constructor has a lot of parameters, we should look at refactoring this to use a configuration object or reduce the scope of what this class does.
      * @param SessionInterface $session The session interface to use for storing session data.
      * @param OEHttpKernel $kernel The OpenEMR kernel to use for getting the system logger and event dispatcher.
-     * @param $authBaseFullURL
-     * @param $smartFinalRedirectURL string The URL that should be redirected to once all SMART authorizations are complete.
-     * @param $oauthTemplateDir string The directory that the oauth template files can be included from.
+     * @param string $authBaseFullURL The base URL of the oauth2 url
+     * @param string $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
+     * @param string $oauthTemplateDir The directory that the oauth template files can be included from.
      * @param Environment $twig The twig template engine to use for rendering pages.
- */
+     */
     public function __construct(
-        SessionInterface $session,
+        private readonly SessionInterface $session,
         OEHttpKernel $kernel,
-        $authBaseFullURL,
-        string $smartFinalRedirectURL,
-        string $oauthTemplateDir,
-        Environment $twig
+        private readonly string $authBaseFullURL,
+        private readonly string $smartFinalRedirectURL,
+        private readonly string $oauthTemplateDir,
+        private readonly Environment $twig
     ) {
-        $this->session = $session;
         $this->logger = $kernel->getSystemLogger();
-        $this->authBaseFullURL = $authBaseFullURL;
-        $this->smartFinalRedirectURL = $smartFinalRedirectURL;
-        $this->oauthTemplateDir = $oauthTemplateDir;
-        $this->twig = $twig;
         $this->dispatcher = $kernel->getEventDispatcher();
         $this->globalsBag = $kernel->getGlobalsBag();
     }
@@ -202,7 +173,7 @@ class SMARTAuthorizationController
      */
     public function needSMARTAuthorization(): bool
     {
-        if (empty($this->session->get('puuid')) && str_contains($this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
+        if (empty($this->session->get('puuid')) && str_contains((string) $this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
             $this->logger->debug(
                 "AuthorizationController->userLogin() SMART app request for patient context ",
                 ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid')]
@@ -315,6 +286,7 @@ class SMARTAuthorizationController
                     , 'lname' => $searchParams['lname'] ?? ''
                     , 'mname' => $searchParams['mname'] ?? ''
                     , 'redirect' => $redirect
+                    , 'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $this->session)
                 ]
             );
         } catch (AccessDeniedException $error) {
@@ -328,10 +300,12 @@ class SMARTAuthorizationController
         } catch (Exception $error) {
             // error occurred, no patients found just display the screen with an error message
             $error_message = "There was a server error in loading patients.  Contact your system administrator for assistance";
-            $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
+            $this->logger->error("AuthorizationController->patientSelect() Exception thrown", [
+                'exception' => $error->getMessage()
+                ,'trace' => $error->getTraceAsString()]);
             return $this->renderTwigPage(
                 'oauth2/authorize/patient-select',
-                "smart/patient-select.html.twig",
+                "oauth2/patient-select.html.twig",
                 [
                     'patients' => $patients
                     , 'hasMore' => $hasMore
@@ -439,7 +413,7 @@ class SMARTAuthorizationController
     public function smartAppStyles(): ResponseInterface
     {
         $cssTheme = $this->globalsBag->get('css_header');
-        $baseCssTheme = basename($cssTheme);
+        $baseCssTheme = basename((string) $cssTheme);
         $parts = explode(".", $baseCssTheme);
         $coreTheme = !empty($parts[0]) ? $parts[0] : "style_light";
         $logoService = $this->getLogoService();

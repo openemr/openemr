@@ -27,6 +27,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -40,13 +41,26 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
      */
     use FhirServiceBaseEmptyTrait;
 
-    private QuestionnaireService $service;
+    private ?QuestionnaireService $service;
 
 
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
         $this->service = new QuestionnaireService();
+    }
+
+    public function getQuestionnaireService(): QuestionnaireService
+    {
+        if (!isset($this->service)) {
+            $this->service = new QuestionnaireService();
+        }
+        return $this->service;
+    }
+
+    public function setQuestionnaireService(QuestionnaireService $service): void
+    {
+        $this->service = $service;
     }
 
     /**
@@ -79,11 +93,11 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
      * @param bool $encode
      * @return FHIRQuestionnaire
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false): FHIRQuestionnaire
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRQuestionnaire
     {
         try {
             // parse the json data in dataRecord questionnaire
-            $innerData = json_decode($dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
+            $innerData = json_decode((string) $dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
             // we have to handle the item properties as Questionnaire only adds data arrays instead of
             // actual object values
             if (!empty($innerData['item'])) {
@@ -138,6 +152,10 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         ];
     }
 
+    /**
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
+     */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->service->search($openEMRSearchParameters);

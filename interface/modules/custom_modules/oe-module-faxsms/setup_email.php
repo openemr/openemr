@@ -18,7 +18,7 @@ use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 $emailSetup = new EmailClient();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $credentials = array(
+    $credentials = [
         'sender_name' => $_POST['sender_name'],
         'sender_email' => $_POST['sender_email'],
         'notification_email' => $_POST['notification_email'],
@@ -30,12 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'smtp_security' => $_POST['smtp_security'],
         'notification_hours' => $_POST['notification_hours'],
         'email_message' => $_POST['email_message']
-    );
+    ];
     $emailSetup->saveEmailSetup($credentials);
 }
 
 $credentials = $emailSetup->getEmailSetup();
-if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_message']) < 10) {
+if (empty($credentials['email_message'] ?? '') || strlen((string) $credentials['email_message']) < 10) {
     $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
 }
 

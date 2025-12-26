@@ -33,13 +33,13 @@ if (!empty($_POST)) {
     }
 }
 
-$comarr = array('allow_sms' => xl('Allow SMS'),'allow_voice' => xl('Allow Voice Message'),'allow_mail' => xl('Allow Mail Message'),'allow_email' => xl('Allow Email'));
+$comarr = ['allow_sms' => xl('Allow SMS'),'allow_voice' => xl('Allow Voice Message'),'allow_mail' => xl('Allow Mail Message'),'allow_email' => xl('Allow Email')];
 
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $type = $_POST["type"] ?? '';
-$facility = isset($_POST['facility']) ? $_POST['facility'] : '';
+$facility = $_POST['facility'] ?? '';
 $patient_id = trim($_POST["patient_id"] ?? '');
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
@@ -219,7 +219,7 @@ $communication = trim($_POST["communication"] ?? '');
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <span class='title'>
-<?php echo htmlspecialchars(xl('Report - Clinical'), ENT_NOQUOTES); ?>
+<?php echo htmlspecialchars((string) xl('Report - Clinical'), ENT_NOQUOTES); ?>
 </span>
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
@@ -439,7 +439,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <!-- end of parameters -->
 <?php
 // SQL scripts for the various searches
-$sqlBindArray = array();
+$sqlBindArray = [];
 if (!empty($_POST['form_refresh'])) {
     $sqlstmt = "select
                 concat(pd.fname, ' ', pd.lname) AS patient_name,
@@ -449,7 +449,7 @@ if (!empty($_POST['form_refresh'])) {
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
                 REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-    if (!empty($form_diagnosis)) {
+    if (!empty($form_diagnosis) || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $sqlstmt .= ",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
@@ -506,7 +506,7 @@ if (!empty($_POST['form_refresh'])) {
     $sqlstmt .= " from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 
-    if (!empty($form_diagnosis)) {
+    if (!empty($form_diagnosis) || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
     }
 
@@ -547,7 +547,7 @@ if (!empty($_POST['form_refresh'])) {
 
 //where
       $whr_stmt = "where 1=1";
-    if (!empty($form_diagnosis)) {
+    if (!empty($form_diagnosis) || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
         $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
         array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
@@ -569,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
 
     if ($type == 'Procedure') {
          $whr_stmt .= " AND po.date_ordered >= ? AND po.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(po.date_ordered) <= ?";
-             array_push($sqlBindArray, substr($sql_date_from, 0, 10), substr($sql_date_to, 0, 10), date("Y-m-d"));
+             array_push($sqlBindArray, substr((string) $sql_date_from, 0, 10), substr((string) $sql_date_to, 0, 10), date("Y-m-d"));
     }
 
     if ($type == "Service Codes") {
@@ -671,6 +671,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 // order by
+    $odrstmt = "";
     if (!empty($_POST['form_pt_name'])) {
         $odrstmt .= ",patient_name";
     }
@@ -702,11 +703,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
 
-    if (empty($odrstmt)) {
-        $odrstmt = " ORDER BY patient_id";
-    } else {
-        $odrstmt = " ORDER BY " . ltrim($odrstmt, ",");
-    }
+    $odrstmt = empty($odrstmt) ? " ORDER BY patient_id" : " ORDER BY " . ltrim($odrstmt, ",");
 
     if ($type == 'Medical History') {
         $sqlstmt = "select * from (" . $sqlstmt . " " . $whr_stmt . " " . $odrstmt . ",history_data_date desc) a group by patient_id";
@@ -727,7 +724,7 @@ if (!empty($_POST['form_refresh'])) {
     <br />
     <div id = "report_results">
 
-        <?php $pidarr = array();
+        <?php $pidarr = [];
         while ($row = sqlFetchArray($result)) { ?>
     <table class='border-0' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: tahoma;">
         <tr bgcolor="#CCCCCC" style="font-size:15px;">
@@ -760,9 +757,9 @@ if (!empty($_POST['form_refresh'])) {
                 <td><?php echo text($row['patient_name']); ?>&nbsp;</td>
                 <td> <?php echo text($row['patient_id']); ?>&nbsp;</td>
                 <td> <?php echo text($row['patient_age']); ?>&nbsp;</td>
-                                <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'sex'), $row['patient_sex']); ?>&nbsp;</td>
-                <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'race'), $row['patient_race']); ?>&nbsp;</td>
-                               <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'ethnicity'), $row['patient_ethinic']); ?>&nbsp;</td>
+                                <td> <?php echo generate_display_field(['data_type' => '1','list_id' => 'sex'], $row['patient_sex']); ?>&nbsp;</td>
+                <td> <?php echo generate_display_field(['data_type' => '1','list_id' => 'race'], $row['patient_race']); ?>&nbsp;</td>
+                               <td> <?php echo generate_display_field(['data_type' => '1','list_id' => 'ethnicity'], $row['patient_ethinic']); ?>&nbsp;</td>
                                <td <?php
                                 if (strlen($communication) == 0 || (!empty($_POST['communication_check']))) {
                                     ?> colspan='5' <?php
@@ -817,10 +814,10 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                             <tr class='bg-white' align="">
                 <?php
-                $rx_route =  generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']) ;
-                $rx_form = generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['hform']) ;
-                $rx_interval = generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row['hinterval']) ;
-                $rx_units =   generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['hunit']);
+                $rx_route =  generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) ;
+                $rx_form = generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['hform']) ;
+                $rx_interval = generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['hinterval']) ;
+                $rx_units =   generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['hunit']);
                 ?>
              <td> <?php echo text(oeFormatShortDate($row['prescriptions_date_modified'])); ?>&nbsp;</td>
                 <td><?php echo text($row['drug']); ?></td>
@@ -858,7 +855,7 @@ if (!empty($_POST['form_refresh'])) {
                             <tr class='bg-white'>
                 <td> <?php echo text(oeFormatShortDate($row['procedure_result_date'])); ?>&nbsp;</td>
                                 <td> <?php echo text($row['procedure_result_facility']); ?>&nbsp;</td>
-                                <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'proc_unit'), $row['procedure_result_units']); ?>&nbsp;</td>
+                                <td> <?php echo generate_display_field(['data_type' => '1','list_id' => 'proc_unit'], $row['procedure_result_units']); ?>&nbsp;</td>
                                  <td> <?php echo text($row['procedure_result_result']); ?>&nbsp;</td>
                                  <td> <?php echo text($row['procedure_result_range']); ?>&nbsp;</td>
                                  <td> <?php echo text($row['procedure_result_abnormal']); ?>&nbsp;</td>
@@ -889,7 +886,7 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                             <tr class='bg-white'>
                     <?php
-                                    $procedure_type_standard_code_arr = explode(':', $row['procedure_type_standard_code']);
+                                    $procedure_type_standard_code_arr = explode(':', (string) $row['procedure_type_standard_code']);
                                     $procedure_type_standard_code = $procedure_type_standard_code_arr[1];
                     ?>
                                   <!-- Procedure -->
@@ -897,8 +894,8 @@ if (!empty($_POST['form_refresh'])) {
                                   <td> <?php echo text($procedure_type_standard_code); ?>&nbsp;</td>
                                   <td> <?php echo text($row['procedure_name']); ?>&nbsp;</td>
                                   <td> <?php echo text($row['procedure_order_encounter']); ?>&nbsp;</td>
-                                  <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'ord_priority'), $row['procedure_order_order_priority']); ?>&nbsp;</td>
-                                  <td> <?php echo generate_display_field(array('data_type' => '1','list_id' => 'ord_status'), $row['procedure_order_order_status']); ?>&nbsp;</td>
+                                  <td> <?php echo generate_display_field(['data_type' => '1','list_id' => 'ord_priority'], $row['procedure_order_order_priority']); ?>&nbsp;</td>
+                                  <td> <?php echo generate_display_field(['data_type' => '1','list_id' => 'ord_status'], $row['procedure_order_order_status']); ?>&nbsp;</td>
                                   <td> <?php echo text($row['procedure_order_patient_instructions']); ?>&nbsp;</td>
                                   <td> <?php echo text($row['procedure_order_activity']); ?>&nbsp;</td>
                                   <td colspan='3'> <?php echo text($row['procedure_order_control_id']); ?>&nbsp;</td>
@@ -922,10 +919,10 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
                 <tr class='bg-white'>
                     <?php
-                    $tmp_t = explode('|', $row['history_data_tobacco']);
-                    $tmp_a = explode('|', $row['history_data_alcohol']);
-                    $tmp_d = explode('|', $row['history_data_recreational_drugs']);
-                    $his_tobac =  generate_display_field(array('data_type' => '1','list_id' => 'smoking_status'), $tmp_t[3]);
+                    $tmp_t = explode('|', (string) $row['history_data_tobacco']);
+                    $tmp_a = explode('|', (string) $row['history_data_alcohol']);
+                    $tmp_d = explode('|', (string) $row['history_data_recreational_drugs']);
+                    $his_tobac =  generate_display_field(['data_type' => '1','list_id' => 'smoking_status'], $tmp_t[3]);
                     ?>
                 <td> <?php echo text(oeFormatShortDate($row['history_data_date'])); ?>&nbsp;</td>
                                 <td> <?php
@@ -1023,7 +1020,7 @@ if (!empty($_POST['form_refresh'])) {
                         <td>
                         <?php
                         if ($row["amount_administered"] > 0) {
-                            echo text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
+                            echo text($row["amount_administered"]) . " " . generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['amount_administered_unit']);
                         } else {
                             echo "&nbsp;";
                         }
@@ -1032,7 +1029,7 @@ if (!empty($_POST['form_refresh'])) {
                       </td>
 
                       <td>
-                        <?php echo generate_display_field(array('data_type' => '1','list_id' => 'proc_body_site'), $row['administration_site']); ?>
+                        <?php echo generate_display_field(['data_type' => '1','list_id' => 'proc_body_site'], $row['administration_site']); ?>
                       </td>
 
                       <td colspan="7">

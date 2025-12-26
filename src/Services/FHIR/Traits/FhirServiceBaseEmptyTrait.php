@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 trait FhirServiceBaseEmptyTrait
@@ -23,9 +24,8 @@ trait FhirServiceBaseEmptyTrait
     }
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
+     * @param array<string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
@@ -34,7 +34,7 @@ trait FhirServiceBaseEmptyTrait
         return $processingResult;
     }
 
-    public function parseFhirResource($fhirResource = array())
+    public function parseFhirResource($fhirResource = [])
     {
         return;
     }
@@ -48,12 +48,12 @@ trait FhirServiceBaseEmptyTrait
     {
         return;
     }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
+    public function createProvenanceResource($dataRecord = [], $encode = false)
     {
         return;
     }
 
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    public function parseOpenEMRRecord($dataRecord = [], $encode = false)
     {
         return null;
     }

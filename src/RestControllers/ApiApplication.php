@@ -10,6 +10,7 @@ use OpenEMR\RestControllers\Subscriber\TelemetryListener;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
 use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
@@ -37,21 +38,18 @@ class ApiApplication
 
     private int $responseMode = self::RESPONSE_MODE_SEND;
 
-    private EventDispatcher $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
-    private string $webroot;
-
-    public function __construct(string $webroot = "")
+    public function __construct(private string $webroot = "")
     {
-        $this->webroot = $webroot;
     }
 
-    public function setDispatcher(EventDispatcher $dispatcher)
+    public function setDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getDispatcher()
+    public function getDispatcher(): EventDispatcherInterface
     {
         if (!isset($this->dispatcher)) {
             $this->dispatcher = new EventDispatcher();

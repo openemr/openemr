@@ -124,7 +124,7 @@ class pnHTML
      * @access private
      * @var string $header
      */
-    var $header;
+    public $header;
 
     /**
      * The pending HTML output
@@ -132,7 +132,7 @@ class pnHTML
      * @access private
      * @var string $output
      */
-    var $output;
+    public $output;
 
     /**
      * Return output?
@@ -140,7 +140,7 @@ class pnHTML
      * @access private
      * @var integer $return
      */
-    var $return;
+    public $return;
 
     /**
      * Parse text for output?
@@ -148,7 +148,7 @@ class pnHTML
      * @access private
      * @var integer $parse
      */
-    var $parse;
+    public $parse;
 
     /**
      * Current tab index value
@@ -156,7 +156,7 @@ class pnHTML
      * @access private
      * @var integer $tabindex
      */
-    var $tabindex;
+    public $tabindex;
 
     /**
      * File upload mode
@@ -165,7 +165,7 @@ class pnHTML
      * @since 1.13 - 2002/01/23
      * @var integer $fileupload
      */
-    var $fileupload;
+    public $fileupload;
 
     /*==============================================================================*
      |                             Methods: Base                                    |
@@ -177,7 +177,7 @@ class pnHTML
      */
     function __construct()
     {
-        $this->header = array ();
+        $this->header =  [];
         $this->output = '';
         $this->return = _PNH_KEEPOUTPUT;
         $this->parse = _PNH_PARSEINPUT;
@@ -347,11 +347,7 @@ class pnHTML
     function EndPage()
     {
         global $index;
-        if (pnVarCleanFromInput('module')) {
-            $index = 0;
-        } else {
-            $index = 1;
-        }
+        $index = pnVarCleanFromInput('module') ? 0 : 1;
 
         ob_start();
         print '</td></tr></table>';

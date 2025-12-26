@@ -83,7 +83,7 @@ if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 // Set up default configuration settings
-$installSettings = array();
+$installSettings = [];
 $installSettings['iuser']                    = 'admin';
 $installSettings['iuname']                   = 'Administrator';
 $installSettings['iuserpass']                = 'pass';
@@ -104,7 +104,9 @@ $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
-for ($i = 1; $i < count($argv); $i++) {
+$argc ??= 0;
+$argv ??= [];
+for ($i = 1; $i < $argc; $i++) {
     $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];
@@ -112,7 +114,7 @@ for ($i = 1; $i < count($argv); $i++) {
 }
 
 // Convert BLANK settings to empty
-$tempInstallSettings = array();
+$tempInstallSettings = [];
 foreach ($installSettings as $setting => $value) {
     if ($value == "BLANK") {
         $value = '';

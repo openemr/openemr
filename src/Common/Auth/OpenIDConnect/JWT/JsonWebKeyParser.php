@@ -23,12 +23,9 @@ class JsonWebKeyParser
 {
     use CryptTrait;
 
-    private $publicKeyLocation;
-
-    public function __construct($oaEncryptionKey, $publicKeyLocation)
+    public function __construct($oaEncryptionKey, private $publicKeyLocation)
     {
         $this->setEncryptionKey($oaEncryptionKey);
-        $this->publicKeyLocation = $publicKeyLocation;
     }
 
     public function parseRefreshToken($rawToken)
@@ -39,7 +36,7 @@ class JsonWebKeyParser
         $refreshTokenData = null;
         $refreshToken = $this->decrypt($rawToken);
         $refreshTokenData = \json_decode($refreshToken, true);
-        $result = array(
+        $result = [
             'active' => true,
             'status' => 'active',
             'scope' => $refreshTokenData['scopes'],
@@ -47,7 +44,7 @@ class JsonWebKeyParser
             'sub' => $refreshTokenData['user_id'],
             'jti' => $refreshTokenData['refresh_token_id'],
             'client_id' => $refreshTokenData['client_id'] ?? '' // should always be there since we use it in the renewal
-        );
+        ];
         if ($refreshTokenData['expire_time'] < \time()) {
             $result['active'] = false;
             $result['status'] = 'expired';
@@ -69,15 +66,16 @@ class JsonWebKeyParser
         // Attempt to parse the JWT
         $token = $configuration->parser()->parse($rawToken);
         // defaults
-        $result = array(
+        $result = [
             'active' => true,
             'status' => 'active',
             'scope' => implode(" ", $token->claims()->get('scopes')),
             'exp' => $token->claims()->get('exp'),
             'sub' => $token->claims()->get('sub'), // user_id
             'jti' => $token->claims()->get('jti'),
-            'aud' => $token->claims()->get('aud')
-        );
+            'aud' => $token->claims()->get('aud'),
+            'iss' => $token->claims()->get('iss'),
+        ];
 
         // Attempt to validate the JWT
         $validator = $configuration->validator();
@@ -86,7 +84,7 @@ class JsonWebKeyParser
                 $result['active'] = false;
                 $result['status'] = 'failed_verification';
             }
-        } catch (Exception $exception) {
+        } catch (Exception) {
             $result['active'] = false;
             $result['status'] = 'invalid_signature';
         }
@@ -107,12 +105,8 @@ class JsonWebKeyParser
             throw new \InvalidArgumentException("Token cannot be empty");
         }
         // determine if access or refresh.
-        $access_parts = explode(".", $rawToken);
-        if (count($access_parts) === 3) {
-            $token_hint = 'access_token';
-        } else {
-            $token_hint = 'refresh_token';
-        }
+        $access_parts = explode(".", (string) $rawToken);
+        $token_hint = count($access_parts) === 3 ? 'access_token' : 'refresh_token';
         return $token_hint;
     }
 }

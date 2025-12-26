@@ -22,13 +22,11 @@ class FhirCoverageRestController
 {
     private $fhirCoverage;
     private $fhirService;
-    private $fhirValidationService;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirCoverage = new FhirCoverageService();
-        $this->fhirValidationService = new FhirValidationService();
     }
 
     /**
@@ -41,7 +39,7 @@ class FhirCoverageRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirCoverage->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

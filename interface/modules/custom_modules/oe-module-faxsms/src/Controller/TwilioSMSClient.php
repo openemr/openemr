@@ -64,7 +64,7 @@ class TwilioSMSClient extends AppDispatch
      */
     public function fetchSMSList($uiDateRangeFlag = true): false|string|null
     {
-        return $this->_getPending($uiDateRangeFlag);
+        return $this->_getPending();
     }
 
     /**
@@ -90,20 +90,16 @@ class TwilioSMSClient extends AppDispatch
         $from = $from ?: $this->getRequest('from');
         $message = $message ?: $this->getRequest('comments');
 
-        if (empty($from)) {
-            $from = $this->formatPhone($this->credentials['smsNumber']);
-        } else {
-            $from = $this->formatPhone($from);
-        }
+        $from = empty($from) ? $this->formatPhone($this->credentials['smsNumber']) : $this->formatPhone($from);
         $toPhone = $this->formatPhone($toPhone);
         try {
             $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
             $message = $twilio->messages->create(
                 $toPhone,
-                array(
+                [
                     "body" => text($message),
                     "from" => attr($from)
-                )
+                ]
             );
         } catch (Exception $e) {
             $message = $e->getMessage();
@@ -119,12 +115,8 @@ class TwilioSMSClient extends AppDispatch
     public function formatPhone($number): string
     {
         // this is u.s only. need E-164
-        $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
-            $n = '+' . $n;
-        } else {
-            $n = '+1' . $n;
-        }
+        $n = preg_replace('/[^0-9]/', '', (string) $number);
+        $n = stripos((string) $n, '1') === 0 ? '+' . $n : '+1' . $n;
         return $n;
     }
 
@@ -141,7 +133,7 @@ class TwilioSMSClient extends AppDispatch
         if (!$this->sid || !$this->authToken) {
             return 0;
         }
-        list($s, $v) = $acl;
+        [$s, $v] = $acl;
         return $this->verifyAcl($s, $v);
     }
 
@@ -160,8 +152,8 @@ class TwilioSMSClient extends AppDispatch
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01Z';
             $timeTo = 'T23:59:59Z';
-            $dateFrom = trim($dateFrom) . $timeFrom;
-            $dateTo = trim($dateTo) . $timeTo;
+            $dateFrom = trim((string) $dateFrom) . $timeFrom;
+            $dateTo = trim((string) $dateTo) . $timeTo;
 
             try {
                 $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
@@ -172,7 +164,7 @@ class TwilioSMSClient extends AppDispatch
             } catch (Exception $e) {
                 $message = $e->getMessage();
                 $emsg = xlt('Report to Administration');
-                return json_encode(array('error' => $message . " : " . $emsg));
+                return json_encode(['error' => $message . " : " . $emsg]);
             }
 
             $responseMsgs = [];
@@ -211,7 +203,7 @@ class TwilioSMSClient extends AppDispatch
         } catch (Exception $e) {
             $message = $e->getMessage();
             $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
-            echo json_encode(array('error' => $responseMsgs));
+            echo json_encode(['error' => $responseMsgs]);
             exit();
         }
         if (empty($responseMsgs)) {
@@ -228,13 +220,13 @@ class TwilioSMSClient extends AppDispatch
     {
         $id = $this->getRequest('uid');
         $query = "SELECT * FROM users WHERE id = ?";
-        $result = sqlStatement($query, array($id));
-        $u = array();
+        $result = sqlStatement($query, [$id]);
+        $u = [];
         foreach ($result as $row) {
             $u[] = $row;
         }
         $u = $u[0];
-        $r = array($u['fname'], $u['lname'], $u['fax'], $u['facility']);
+        $r = [$u['fname'], $u['lname'], $u['fax'], $u['facility']];
 
         return json_encode($r);
     }
@@ -250,8 +242,8 @@ class TwilioSMSClient extends AppDispatch
 
         try {
             $query = "SELECT notification_log.* FROM notification_log WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ?";
-            $res = sqlStatement($query, array($fromDate, $toDate));
-            $row = array();
+            $res = sqlStatement($query, [$fromDate, $toDate]);
+            $row = [];
             $cnt = 0;
             while ($nrow = sqlFetchArray($res)) {
                 $row[] = $nrow;

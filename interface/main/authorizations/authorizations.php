@@ -26,7 +26,7 @@ use OpenEMR\Core\Header;
 // increase to a high number to make the mini frame more useful.
 $N = 50;
 
-$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", array($_SESSION['authUser']));
+$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", [$_SESSION['authUser']]);
 $see_auth = $atemp['see_auth'];
 
 $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
@@ -39,10 +39,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
     $retVal = getProviderId($_SESSION['authUser']);
     EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
-    sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
-    sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
-    sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));
-    sqlStatement("update transactions set authorized=1 where pid=?", array($_GET["pid"]));
+    sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);
+    sqlStatement("update forms set authorized=1 where pid=?", [$_GET["pid"]]);
+    sqlStatement("update pnotes set authorized=1 where pid=?", [$_GET["pid"]]);
+    sqlStatement("update transactions set authorized=1 where pid=?", [$_GET["pid"]]);
 }
 ?>
 <html>
@@ -98,7 +98,7 @@ if ($imauthorized && $see_auth > 1) {
         $res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
         "from billing LEFT JOIN users as u on billing.user = u.id where " .
         "billing.authorized = 0 and billing.activity = 1 and " .
-        "groupname = ?", array($groupname))
+        "groupname = ?", [$groupname])
     ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result1[$iter] = $row;
@@ -107,7 +107,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result1) {
             foreach ($result1 as $iter) {
                 $authorize[$iter["pid"]]["billing"] .= "<span class='text'>" .
-                text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["code_text"] . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -116,7 +116,7 @@ if ($imauthorized && $see_auth > 1) {
 //fetch transaction information:
     if (
         $res = sqlStatement("select * from transactions where " .
-        "authorized = 0 and groupname = ?", array($groupname))
+        "authorized = 0 and groupname = ?", [$groupname])
     ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result2[$iter] = $row;
@@ -125,7 +125,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result2) {
             foreach ($result2 as $iter) {
                 $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" .
-                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -135,7 +135,7 @@ if ($imauthorized && $see_auth > 1) {
           //fetch pnotes information:
         if (
             $res = sqlStatement("select * from pnotes where authorized = 0 and " .
-            "groupname = ?", array($groupname))
+            "groupname = ?", [$groupname])
         ) {
             for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result3[$iter] = $row;
@@ -144,7 +144,7 @@ if ($imauthorized && $see_auth > 1) {
             if ($result3) {
                 foreach ($result3 as $iter) {
                     $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" .
-                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                    text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                     "</span><br />\n";
                 }
             }
@@ -154,7 +154,7 @@ if ($imauthorized && $see_auth > 1) {
 //fetch forms information:
     if (
         $res = sqlStatement("select * from forms where authorized = 0 and " .
-        "groupname = ?", array($groupname))
+        "groupname = ?", [$groupname])
     ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result4[$iter] = $row;
@@ -163,7 +163,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result4) {
             foreach ($result4 as $iter) {
                 $authorize[$iter["pid"]]["forms"] .= "<span class='text'>" .
-                text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
+                text($iter["form_name"] . " " . date("n/j/Y", strtotime((string) $iter["date"]))) .
                 "</span><br />\n";
             }
         }
@@ -218,7 +218,7 @@ if ($imauthorized && $see_auth > 1) {
             // Don't use sqlQuery because there might be no match.
             $providerName = sqlFetchArray(sqlStatement(
                 "select lname from users where id = ?",
-                array($name['providerID'])
+                [$name['providerID']]
             ));
 
             echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Provider') . ":</span><span class='text'><br />" .

@@ -22,18 +22,13 @@ class UserUpdatedEvent extends Event
      */
     const EVENT_HANDLE = 'user.updated';
 
-    private $dataBeforeUpdate;
-    private $newUserData;
-
     /**
      * UserUpdatedEvent constructor.
      * @param $dataBeforeUpdate
      * @param $newUserData
      */
-    public function __construct($dataBeforeUpdate, $newUserData)
+    public function __construct(private $dataBeforeUpdate, private $newUserData)
     {
-        $this->dataBeforeUpdate = $dataBeforeUpdate;
-        $this->newUserData = $newUserData;
     }
 
     /**

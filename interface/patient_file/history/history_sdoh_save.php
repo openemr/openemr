@@ -16,8 +16,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\SDOH\HistorySdohService;
+use OpenEMR\Common\Logging\SystemLogger;
 
-$pid = (int)($_GET['pid'] ?? 0);
+$pid = (int)$_SESSION['pid'];
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
     CsrfUtils::csrfNotVerified();
@@ -26,8 +27,14 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     die(xlt("Not authorized"));
 }
 
+if (empty($pid)) {
+    // we should never hit this if the app is used correctly.
+    die(xlt("No patient selected"));
+}
+
 $instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
 $declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
+$logger = new SystemLogger();
 
 // --- Functional sub-observations -> JSON (disability_scale)
 $dscale = $_POST['dscale'] ?? [];
@@ -47,7 +54,7 @@ $data['instrument_score'] = $instrument_score;
 $data['declined_flag'] = $declined_flag;
 
 // Optional convenience metric for reporting dashboards
-$data['positive_domain_count'] = \OpenEMR\Services\SDOH\HistorySdohService::countPositiveDomains($_POST);
+$data['positive_domain_count'] = HistorySdohService::countPositiveDomains($_POST);
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
@@ -110,10 +117,9 @@ $data = [
     // Pregnancy
     'pregnancy_status' => $clean('pregnancy_status'),
     'pregnancy_edd' => $dateOrNull('pregnancy_edd'),
-    'pregnancy_gravida' => $intOrNull('pregnancy_gravida'),
-    'pregnancy_para' => $intOrNull('pregnancy_para'),
     'postpartum_status' => $clean('postpartum_status'),
     'postpartum_end' => $dateOrNull('postpartum_end'),
+    'pregnancy_intent' => $clean('pregnancy_intent'),
 
     // Care plan
     'goals' => $goalsSave,
@@ -126,47 +132,43 @@ $data = [
     'hunger_q1' => $clean('hunger_q1'),
     'hunger_q2' => $clean('hunger_q2'),
     'hunger_score' => $clean('hunger_score'),
+    'pid' => $pid,
+    'updated_by' => $uid,
 ];
 
-if ($rec_id) {
-    // UPDATE existing
-    $setSql = [];
-    $params = [];
-    foreach ($data as $col => $val) {
-        $setSql[] = "`$col` = ?";
-        $params[] = $val;
+try {
+    $sdohService = new HistorySdohService();
+    if ($rec_id) {
+        $data['updated_by'] = $uid;
+        $result = $sdohService->update($rec_id, $data);
+        if (!$result->isValid()) {
+            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+        }
+        $id = $rec_id;
+    } else {
+        // we only set encounter on new records.
+        $data['encounter'] = $encounter ?? null;
+        $data['created_by'] = $uid;
+        $result = $sdohService->insert($data);
+        if (!$result->isValid()) {
+            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            throw new Exception("Failed to insert sdoh record.");
+        } else {
+            $id = $result->getFirstDataResult()['id'];
+        }
     }
-    $params[] = $uid;  // updated_by
-    $params[] = $rec_id;
-    $params[] = $pid;
-
-    $sql = "UPDATE form_history_sdoh
-            SET " . implode(", ", $setSql) . ", updated_by = ?, updated_at = NOW()
-            WHERE id = ? AND pid = ?";
-    sqlStatement($sql, $params);
-    $id = $rec_id;
-} else {
-    // INSERT new
-    $cols = "`pid`" . ($encounter ? ",`encounter`" : "");
-    $qs = "?" . ($encounter ? ",?" : "");
-    $params = [$pid];
-    if ($encounter) {
-        $params[] = $encounter;
-    }
-
-    foreach ($data as $col => $val) {
-        $cols .= ",`$col`";
-        $qs .= ",?";
-        $params[] = $val;
-    }
-    $cols .= ",`created_by`,`updated_by`";
-    $qs .= ",?,?";
-    $params[] = $uid;
-    $params[] = $uid;
-
-    $id = sqlInsert("INSERT INTO form_history_sdoh ($cols) VALUES ($qs)", $params);
+    // TODO: not sure we need to do this here but it doesn't hurt.
+    UuidRegistry::createMissingUuidsForTables(['form_history_sdoh']);
+    // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
+    // Return to demographics (or wherever you prefer)
+    // Redirect to health concerns selection page
+    $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_health_concerns.php"
+        . "?pid=" . urlencode((string) $pid)
+        . "&sdoh_id=" . urlencode((string) $id);
+    header("Location: $redirectUrl");
+} catch (Exception $e) {
+    $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
+    die(xlt("Error saving SDOH record."));
 }
-UuidRegistry::createMissingUuidsForTables(['form_history_sdoh']);
-// Return to demographics (or wherever you prefer)
-header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode($pid));
+//header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid));
 exit;

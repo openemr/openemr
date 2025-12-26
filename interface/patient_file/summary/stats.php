@@ -153,10 +153,10 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $list = [];
             $rxArr = [];
             while ($row = sqlFetchArray($res)) {
-                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                $row['unit'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_units'], $row['unit']);
+                $row['form'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_form'], $row['form']);
+                $row['route'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_route'], $row['route']);
+                $row['interval'] = generate_display_field(['data_type' => '1', 'list_id' => 'drug_interval'], $row['interval']);
                 $unit = ($row['size'] > 0) ? text($row['size']) . " " . $row['unit'] : "";
                 $row['unit'] = $unit;
                 $rxArr[] = $row;
@@ -245,7 +245,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
         if (sqlNumRows($dres) > 0 && $need_head) {
             $formRows = [];
             while ($row = sqlFetchArray($dres)) {
-                list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
+                [$completed, $start_date, $template_name] = explode('|', (string) $row['value'], 3);
                 $formRows['startDate'] = $start_date;
                 $formRws['templateName'] = $template_name;
                 $formRows['id'] = $row['id'];
@@ -282,16 +282,16 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
-            $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+            $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
-                $row['field'] = htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
+                $row['field'] = htmlspecialchars((string) xl($row['cvx_text']), ENT_NOQUOTES);
             } else {
-                $row['field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'immunizations'), $row['immunization_id']);
+                $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
             }
         }
 
-        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode($row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken()));
+        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode((string) CsrfUtils::collectCsrfToken()));
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";

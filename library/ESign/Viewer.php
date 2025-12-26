@@ -37,6 +37,7 @@ class Viewer extends Abstract_Model
     public $formDir;
     public $signatures;
     public $verified;
+    public $form;
 
     public function __construct(?array $args = null)
     {

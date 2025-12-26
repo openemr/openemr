@@ -53,9 +53,9 @@ if ($PDF_OUTPUT) {
 
 $CPR = 4; // cells per row
 
-$prow = array();
-$erow = array();
-$irow = array();
+$prow = [];
+$erow = [];
+$irow = [];
 
 if ($patientid) {
     $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -72,7 +72,7 @@ if ($patientid) {
 }
 
 // Load array of properties for this layout and its groups.
-$grparr = array();
+$grparr = [];
 getLayoutProperties('DEM', $grparr);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -220,7 +220,7 @@ function end_row(): void
 function end_group(): void
 {
     global $last_group;
-    if (strlen($last_group) > 0) {
+    if (strlen((string) $last_group) > 0) {
         end_row();
         echo " </table>\n";
         echo "</div>\n";
@@ -246,8 +246,8 @@ while ($frow = sqlFetchArray($fres)) {
     $list_id    = $frow['list_id'];
     $currvalue  = '';
 
-    if (strpos($field_id, 'em_') === 0) {
-        $tmp = substr($field_id, 3);
+    if (str_starts_with((string) $field_id, 'em_')) {
+        $tmp = substr((string) $field_id, 3);
         if (isset($erow[$tmp])) {
             $currvalue = $erow[$tmp];
         }
@@ -258,7 +258,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
   // Handle a data category (group) change.
-    if (strcmp($this_group, $last_group) != 0) {
+    if (strcmp((string) $this_group, (string) $last_group) != 0) {
         end_group();
 
         // if (strlen($last_group) > 0) echo "<br />\n";
@@ -267,7 +267,7 @@ while ($frow = sqlFetchArray($fres)) {
         // nasty html2pdf bug. When a table overflows to the next page, vertical
         // positioning for whatever follows it is off and can cause overlap.
         // TODO - now use mPDF, so should test if still need this fix
-        if (strlen($last_group) > 0) {
+        if (strlen((string) $last_group) > 0) {
             echo "</nobreak><br /><div><table><tr><td>&nbsp;</td></tr></table></div><br />\n";
         }
 
@@ -352,7 +352,7 @@ end_group();
 
 // Ending the last nobreak section for html2pdf.
 // TODO - now use mPDF, so should test if still need this fix
-if (strlen($last_group) > 0) {
+if (strlen((string) $last_group) > 0) {
     echo "</nobreak>\n";
 }
 ?>

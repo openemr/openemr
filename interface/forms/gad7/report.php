@@ -39,7 +39,7 @@ function gad7_report($pid, $encounter, $cols, $id): void
         print "<table><tr>";
         foreach ($data as $key => $value) {
 // include scores_array and total for backward compatibility
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key ==  "activity" || $key == "date" || $value == "" || $key == "scores_array" || $key == "total" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" || $key == "scores_array" || $key == "total" || $value == "0000-00-00 00:00:00") {
                 continue;
             }
             if ($key == "difficulty") {
@@ -57,17 +57,11 @@ function gad7_report($pid, $encounter, $cols, $id): void
             }
         }
         // print the total
-        switch (intdiv($gad7_total, 5)) {
-            case 0:
-                $exp = $str_score_analysis[0];
-                break;
-            case 1:
-            case 2:
-                $exp = $str_score_analysis[5];
-                break;
-            default:
-                $exp = $str_score_analysis[15];
-        }
+        $exp = match (intdiv($gad7_total, 5)) {
+            0 => $str_score_analysis[0],
+            1, 2 => $str_score_analysis[5],
+            default => $str_score_analysis[15],
+        };
 
           print "<td><span class=bold>" . text($str_issues["total"]) . ": </span><span class=text>" . text($gad7_total) . " - " . text($exp) . "</span></td>";
     }

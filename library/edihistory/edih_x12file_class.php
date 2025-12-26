@@ -71,15 +71,15 @@ class edih_x12_file
     private $isx12 = false;
     private $hasGS = false;
     private $hasST = false;
-    private $message = array();
-    private $delimiters = array();
-    private $segments = array();
-    private $envelopes = array();
+    private $message = [];
+    private $delimiters = [];
+    private $segments = [];
+    private $envelopes = [];
     //
     private $constructing = false;
     //
-    private $gstype_ar = array('HB' => '271', 'HS' => '270', 'HR' => '276', 'HN' => '277',
-                            'HI' => '278', 'HP' => '835', 'FA' => '999', 'HC' => '837');
+    private $gstype_ar = ['HB' => '271', 'HS' => '270', 'HR' => '276', 'HN' => '277',
+                            'HI' => '278', 'HP' => '835', 'FA' => '999', 'HC' => '837'];
     //
     function __construct($file_path = '', $mk_segs = true, $text = false)
     {
@@ -142,7 +142,7 @@ class edih_x12_file
     private function edih_file_text($file_text, $type = false, $delimiters = false, $segments = false)
     {
         //
-        $ret_ar = array();
+        $ret_ar = [];
         if (!$file_text || is_string($file_text) == false) {
             $this->message[] = 'edih_file_text(): invalid argument';
             return $ret_ar;
@@ -176,13 +176,9 @@ class edih_x12_file
         return $ret_ar;
     }
 
-    /*
-     *  functions to return properties
+    /**
+     * functions to return properties
      */
-    public function classname()
-    {
-        return get_class($this);
-    }
     public function edih_filepath()
     {
         return $this->filepath;
@@ -268,7 +264,7 @@ class edih_x12_file
     public function edih_gs_type($gs01)
     {
         $tpky = strtoupper($gs01);
-        return ( isset($this->gstype_ar[$tpky]) ) ? $this->gstype_ar[$tpky] : false;
+        return $this->gstype_ar[$tpky] ?? false;
     }
 
     /**
@@ -304,7 +300,7 @@ class edih_x12_file
         if (class_exists('finfo')) {
             $finfo = new finfo(FILEINFO_MIME);
             $mimeinfo = $finfo->buffer($ftxt);
-            if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
+            if (!str_starts_with($mimeinfo, 'text/plain; charset=us-ascii')) {
                 $this->message[] = 'edih_x12_scan: ' . text($this->filename) . ' : invalid mime info: <br />' . text($mimeinfo);
                 //
                 return $hasval;
@@ -322,7 +318,7 @@ class edih_x12_file
 
         $hasval = 'ov'; // valid
         // check for required segments ISA GS ST; assume segment terminator is last character
-        if (substr($ftxt, 0, 3) === 'ISA') {
+        if (str_starts_with($ftxt, 'ISA')) {
             $hasval = 'ovi';
             $de = substr($ftxt, 3, 1);
             $dt = substr($ftxt, -1);
@@ -348,20 +344,20 @@ class edih_x12_file
     public function edih_x12_type($file_text = '')
     {
         $tpstr = '';
-        $tp_tmp = array();
+        $tp_tmp = [];
         $f_text = '';
-        $delims = array();
+        $delims = [];
         $delimarg = '';
-        $dt = ( isset($this->delimiters['t']) ) ? $this->delimiters['t'] : '';
-        $de = ( isset($this->delimiters['e']) ) ? $this->delimiters['e'] : '';
+        $dt = $this->delimiters['t'] ?? '';
+        $de = $this->delimiters['e'] ?? '';
         //
         if ($file_text) {
             // For when '_x12_' function is called with file contents as argument
             if (!$this->constructing) {
                 $vars = $this->edih_file_text($file_text, false, true, false);
                 $f_text = $file_text;
-                $dt = ( isset($vars['delimiters']['t']) ) ? $vars['delimiters']['t'] : '';
-                $de = ( isset($vars['delimiters']['e']) ) ? $vars['delimiters']['e'] : '';
+                $dt = $vars['delimiters']['t'] ?? '';
+                $de = $vars['delimiters']['e'] ?? '';
             } elseif ($this->text) {
                 // called in initial construction, delimiters already created if x12 file
                 $f_text =& $this->text;
@@ -374,8 +370,8 @@ class edih_x12_file
                 $f_text =& $file_text;
                 if (!$dt) {
                     $delims = $this->edih_x12_delimiters(substr($f_text, 0, 126));
-                    $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
-                    $de = ( isset($delims['e']) ) ? $delims['e'] : '';
+                    $dt = $delims['t'] ?? '';
+                    $de = $delims['e'] ?? '';
                 }
             }
 
@@ -391,12 +387,12 @@ class edih_x12_file
         } elseif (count($this->segments)) {
             // No argument and no envelopes, so scan segments
             if (!$de) {
-                $de = substr(reset($this->segments), 3, 1);
+                $de = substr((string) reset($this->segments), 3, 1);
             }
 
             foreach ($this->segments as $seg) {
-                if (strncmp($seg, 'GS' . $de, 3) == 0) {
-                    $gs_ar = explode($de, $seg);
+                if (strncmp((string) $seg, 'GS' . $de, 3) == 0) {
+                    $gs_ar = explode($de, (string) $seg);
                     if (array_key_exists($gs_ar[1], $this->gstype_ar)) {
                         //$tp_tmp[] = $this->gstype_ar[$gs_ar[1]];
                         $tp_tmp[] = $gs_ar[1];
@@ -415,7 +411,7 @@ class edih_x12_file
         if ($f_text) {
             // use regular expression instead of strpos($f_text, $dt.'GS'.$de)
             $pcrepattern = '/GS\\' . $de . '(?:HB|HS|HR|HI|HN|HP|FA|HC)\\' . $de . '/';
-            $pr = preg_match_all($pcrepattern, $f_text, $matches, PREG_OFFSET_CAPTURE);
+            $pr = preg_match_all($pcrepattern, (string) $f_text, $matches, PREG_OFFSET_CAPTURE);
             //
             if ($pr && count($matches)) {
                 foreach ($matches as $m) {
@@ -490,16 +486,12 @@ class edih_x12_file
     public function edih_x12_delimiters($isa_str110 = '')
     {
         //
-        $delim_ar = array();
-        if (!$isa_str110 && $this->text) {
-            $isa_str = substr($this->text, 0, 106);
-        } else {
-            $isa_str = trim($isa_str110);
-        }
+        $delim_ar = [];
+        $isa_str = !$isa_str110 && $this->text ? substr((string) $this->text, 0, 106) : trim($isa_str110);
 
         $isalen = strlen($isa_str);
         if ($isalen >= 106) {
-            if (substr($isa_str, 0, 3) != 'ISA') {
+            if (!str_starts_with($isa_str, 'ISA')) {
                 // not the starting characters
                 $this->message[] = 'edih_x12_delimiters: text does not begin with ISA';
                 return $delim_ar;
@@ -529,7 +521,7 @@ class edih_x12_file
                 }
 
                 if ($delim_ct == 12) {
-                    if (strpos($s, '501') === false) {
+                    if (!str_contains($s, '501')) {
                         $dr = '';
                     }
                 }
@@ -559,7 +551,7 @@ class edih_x12_file
         }
 
         //
-        $delim_ar = array('t' => $dt, 'e' => $de, 's' => $ds, 'r' => $dr);
+        $delim_ar = ['t' => $dt, 'e' => $de, 's' => $ds, 'r' => $dr];
         //
         return $delim_ar;
     }
@@ -589,12 +581,12 @@ class edih_x12_file
     public function edih_x12_envelopes($file_text = '')
     {
         // produce an array of envelopes and positions
-        $env_ar = array();
+        $env_ar = [];
         $de = '';
         if ($file_text) {
             // presume need for file scan and delimiters
             $vars = $this->edih_file_text($file_text, false, true, true);
-            $segment_ar = (isset($vars['segments']) ) ? $vars['segments'] : array();
+            $segment_ar = $vars['segments'] ?? [];
             $de = (isset($vars['delimiters']) ) ? $vars['delimiters']['e'] : '';
             //$segment_ar = $this->edih_x12_segments($file_text);
             if (empty($segment_ar) || !$de) {
@@ -606,7 +598,7 @@ class edih_x12_file
             if (isset($this->delimiters['e'])) {
                 $de = $this->delimiters['e'];
             } else {
-                $de = (substr(reset($segment_ar), 0, 3) == 'ISA') ? substr(reset($segment_ar), 3, 1) : '';
+                $de = (str_starts_with((string) reset($segment_ar), 'ISA')) ? substr((string) reset($segment_ar), 3, 1) : '';
             }
         } else {
             $this->message[] = 'edih_x12_envelopes: no text or segments';
@@ -644,9 +636,9 @@ class edih_x12_file
         $trncd = '2';
         //$id278 = false;
         $ta1_icn = '';
-        $seg_ar = array();
+        $seg_ar = [];
         // the segment IDs we look for
-        $chk_segs = array('ISA', 'GS' . $de, 'TA1', 'ST' . $de, 'BHT', 'HL' . $de, 'TRN', 'CLP', 'CLM', 'SE' . $de, 'GE' . $de, 'IEA');
+        $chk_segs = ['ISA', 'GS' . $de, 'TA1', 'ST' . $de, 'BHT', 'HL' . $de, 'TRN', 'CLP', 'CLM', 'SE' . $de, 'GE' . $de, 'IEA'];
         //
         for ($i = $seg_first; $i < $seg_ct; $i++) {
             // counters
@@ -654,7 +646,7 @@ class edih_x12_file
             $st_segs_ct++;
             //
             $seg_text = $segment_ar[$i];
-            $sn = substr($seg_text, 0, 4);
+            $sn = substr((string) $seg_text, 0, 4);
             // skip over segments that are not envelope boundaries or identifiers
             if (!in_array(substr($sn, 0, 3), $chk_segs)) {
                 continue;
@@ -662,7 +654,7 @@ class edih_x12_file
 
             // create the structure array
             if (strncmp($sn, 'ISA' . $de, 4) == 0) {
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 $icn = trim($seg_ar[13]);
                 //
                 $env_ar['ISA'][$icn]['start'] = strval($i - 1);
@@ -679,7 +671,7 @@ class edih_x12_file
 
             //
             if (strncmp($sn, 'GS' . $de, 3) == 0) {
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 $gs_start = strval($i - 1);
                 $gsn = $seg_ar[6];
                 // GS06 could be used to id 997/999 response, if truly unique
@@ -707,7 +699,7 @@ class edih_x12_file
 
             // expect 999 TA1 before ST
             if (strncmp($sn, 'TA1' . $de, 4) == 0) {
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 if (isset($seg_ar[1]) && $seg_ar[1]) {
                     $ta1_icn = $seg_ar[1];
                 } else {
@@ -720,7 +712,7 @@ class edih_x12_file
 
             //
             if (strncmp($sn, 'ST' . $de, 3) == 0) {
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 $stn = $seg_ar[2];
                 $st_type = $seg_ar[1];
                 $st_start = strval($i);
@@ -734,10 +726,10 @@ class edih_x12_file
                 $env_ar['ST'][$st_ct]['icn'] = $icn;
                 $env_ar['ST'][$st_ct]['type'] = $seg_ar[1];
                 $env_ar['ST'][$st_ct]['trace'] = '0';
-                $env_ar['ST'][$st_ct]['acct'] = array();
-                $env_ar['ST'][$st_ct]['bht03'] = array();
+                $env_ar['ST'][$st_ct]['acct'] = [];
+                $env_ar['ST'][$st_ct]['bht03'] = [];
                 // GS file id FA can be 999 or 997
-                if ($gs_fid != $st_type && strpos($st_type, '99') === false) {
+                if ($gs_fid != $st_type && !str_contains($st_type, '99')) {
                     $this->message[] = "edih_x12_envelopes: ISA " . text($icn) . ", GS " . text($gsn . " " . $gs_fid) . " ST " . text($stn . " " . $st_type) . " type mismatch" . PHP_EOL;
                 }
 
@@ -749,7 +741,7 @@ class edih_x12_file
             if (strpos('|270|271|276|277|278', $st_type)) {
                 //
                 if (strncmp($sn, 'BHT' . $de, 4) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (isset($seg_ar[2])) {
                         $trncd = ($seg_ar[2] == '13') ? '1' : '2';
                         // 13 = request, otherwise assume response
@@ -765,7 +757,7 @@ class edih_x12_file
                 }
 
                 if (strncmp($sn, 'HL' . $de, 3) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (isset($seg_ar[3]) && $seg_ar[3]) {
                         $chk_trn = ( strpos('|22|23|PT', $seg_ar[3]) ) ? true : false;
                     } else {
@@ -776,9 +768,9 @@ class edih_x12_file
                 }
 
                 if ($chk_trn && strncmp($sn, 'TRN' . $de, 4) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (isset($seg_ar[1]) && $seg_ar[1] == $trncd) {
-                        $env_ar['ST'][$st_ct]['acct'][] = (isset($seg_ar[2])) ? $seg_ar[2] : '';
+                        $env_ar['ST'][$st_ct]['acct'][] = $seg_ar[2] ?? '';
                         $chk_trn = false;
                     } else {
                         $this->message[] = 'edih_x12_envelopes: missing TRN02 type identifier element';
@@ -791,25 +783,21 @@ class edih_x12_file
             //
             if ($st_type == '835') {
                 if (strncmp($sn, 'TRN' . $de, 4) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (!isset($seg_ar[2]) || !isset($seg_ar[3])) {
                         $this->message[] = 'error in 835 TRN segment ' . text($seg_text);
                     }
 
-                    $env_ar['ST'][$st_ct]['trace'] = (isset($seg_ar[2])) ? $seg_ar[2] : "";
+                    $env_ar['ST'][$st_ct]['trace'] = $seg_ar[2] ?? "";
                     // to match OpenEMR billing parse file name
-                    if (isset($seg_ar[4])) {
-                        $env_ar['GS'][$gs_ct]['srcid'] = $seg_ar[4];
-                    } else {
-                        $env_ar['GS'][$gs_ct]['srcid'] = (isset($seg_ar[3])) ? $seg_ar[3] : "";
-                    }
+                    $env_ar['GS'][$gs_ct]['srcid'] = $seg_ar[4] ?? $seg_ar[3] ?? "";
 
                     //
                     continue;
                 }
 
                 if (strncmp($sn, 'CLP' . $de, 4) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (isset($seg_ar[1])) {
                         $env_ar['ST'][$st_ct]['acct'][] = $seg_ar[1];
                     } else {
@@ -823,7 +811,7 @@ class edih_x12_file
             //
             if ($st_type == '837') {
                 if (strncmp($sn, 'BHT' . $de, 4) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (isset($seg_ar[3]) && $seg_ar[3]) {
                         $env_ar['ST'][$st_ct]['bht'][] = $seg_ar[3];
                     } else {
@@ -833,7 +821,7 @@ class edih_x12_file
 
                 //
                 if (strncmp($sn, 'CLM' . $de, 4) == 0) {
-                    $seg_ar = explode($de, $seg_text);
+                    $seg_ar = explode($de, (string) $seg_text);
                     if (isset($seg_ar[1])) {
                         $env_ar['ST'][$st_ct]['acct'][] = $seg_ar[1];
                     } else {
@@ -850,7 +838,7 @@ class edih_x12_file
                 $id278 = false;
                 $chk_trn = false;
                 //
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 $se_num = $seg_ar[2];
                 $env_ar['ST'][$st_ct]['count'] = strval($seg_ar[1]);
                 // 999 case: expect TA1 before ST, so capture batch icn here
@@ -875,7 +863,7 @@ class edih_x12_file
 
             //
             if (strncmp($sn, 'GE' . $de, 3) == 0) {
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 $env_ar['GS'][$gs_ct]['count'] = $i - $gs_start - 1;
                 $env_ar['GS'][$gs_ct]['stcount'] = trim($seg_ar[1]);  // ST count
                 $gs_st_ct += $seg_ar[1];
@@ -895,7 +883,7 @@ class edih_x12_file
 
             //
             if (strncmp($sn, 'IEA' . $de, 4) == 0) {
-                $seg_ar = explode($de, $seg_text);
+                $seg_ar = explode($de, (string) $seg_text);
                 $env_ar['ISA'][$icn]['count'] = $isa_segs_ct;
                 $env_ar['ISA'][$icn]['gscount'] = $seg_ar[1];
                 $iea_ct++;
@@ -939,21 +927,21 @@ class edih_x12_file
      */
     public function edih_x12_segments($file_text = '')
     {
-        $ar_seg = array();
+        $ar_seg = [];
         // do verifications
         if ($file_text) {
             if (!$this->constructing) {
                 // need to validate file
                 $vars = $this->edih_file_text($file_text, false, true, false);
                 $f_str = $file_text;
-                $dt = ( isset($vars['delimiters']['t']) ) ? $vars['delimiters']['t'] : '';
+                $dt = $vars['delimiters']['t'] ?? '';
             } else {
                 $f_str = $file_text;
                 if (isset($this->delimiters['t'])) {
                     $dt = $this->delimiters['t'];
                 } else {
                     $delims = $this->edih_x12_delimiters(substr($f_str, 0, 126));
-                    $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
+                    $dt = $delims['t'] ?? '';
                 }
             }
         } elseif ($this->text) {
@@ -961,8 +949,8 @@ class edih_x12_file
             if (isset($this->delimiters['t'])) {
                 $dt = $this->delimiters['t'];
             } else {
-                $delims = $this->edih_x12_delimiters(substr($f_str, 0, 126));
-                $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
+                $delims = $this->edih_x12_delimiters(substr((string) $f_str, 0, 126));
+                $dt = $delims['t'] ?? '';
             }
         } else {
             $this->message[] = 'edih_x12_segments: no file text';
@@ -983,10 +971,10 @@ class edih_x12_file
         // could test this against simple $segments = explode($dt, $f_str)
         while ($moresegs) {
             // extract each segment from the file text
-            $seg_end = strpos($f_str, $dt, $seg_pos);
-            $seg_text = substr($f_str, $seg_pos, $seg_end - $seg_pos);
+            $seg_end = strpos((string) $f_str, (string) $dt, $seg_pos);
+            $seg_text = substr((string) $f_str, $seg_pos, $seg_end - $seg_pos);
             $seg_pos = $seg_end + 1;
-            $moresegs = strpos($f_str, $dt, $seg_pos);
+            $moresegs = strpos((string) $f_str, (string) $dt, $seg_pos);
             $seg_ct++;
             // we trim in case there are line or carriage returns
             $ar_seg[$seg_ct] = trim($seg_text);
@@ -1013,7 +1001,7 @@ class edih_x12_file
     public function edih_x12_transaction($clm01, $stn = '', $filetext = '')
     {
         //
-        $ret_ar = array();
+        $ret_ar = [];
         //
         if (!$clm01) {
             $this->message[] = 'edih_x12_transaction: invalid argument';
@@ -1023,14 +1011,14 @@ class edih_x12_file
         //
         $de = '';
         $tp = '';
-        $seg_ar = array();
-        $env_ar = array();
+        $seg_ar = [];
+        $env_ar = [];
         // select the data to search
         if ($filetext && !$this->constructing) {
             $vars = $this->edih_file_text($filetext, true, true, true);
-            $tp = ( isset($vars['type']) ) ? $vars['type'] : $tp;
-            $de = ( isset($vars['delimiters']['e']) ) ? $vars['delimiters']['e'] : $de;
-            $seg_ar = ( isset($vars['segments']) ) ? $vars['segments'] : $seg_ar;
+            $tp = $vars['type'] ?? $tp;
+            $de = $vars['delimiters']['e'] ?? $de;
+            $seg_ar = $vars['segments'] ?? $seg_ar;
             //$env_ar = $vars['envelopes'];  // probably faster without envelopes in this case
         } elseif (count($this->segments)) {
             // default created object
@@ -1038,17 +1026,17 @@ class edih_x12_file
             if (count($this->delimiters)) {
                 $de = $this->delimiters['e'];
             } else {
-                $de = (substr(reset($segment_ar), 0, 3) == 'ISA') ? substr(reset($segment_ar), 3, 1) : '';
+                $de = (str_starts_with((string) reset($segment_ar), 'ISA')) ? substr((string) reset($segment_ar), 3, 1) : '';
             }
 
-            $tp = ($this->type) ? $this->type : $this->edih_x12_type();
+            $tp = $this->type ?: $this->edih_x12_type();
             $env_ar = ( isset($this->envelopes['ST']) ) ? $this->envelopes : $env_ar;
         } elseif ($this->text) {
             // object with file text, but no processing
             $tp = $this->edih_x12_type();
             $seg_ar = ( $tp ) ? $this->edih_x12_segments() : $seg_ar;
             if (count($seg_ar)) {
-                $de = substr(reset($seg_ar), 3, 1);
+                $de = substr((string) reset($seg_ar), 3, 1);
             }
         } else {
             $this->message[] = 'edih_x12_transaction: invalid search data';
@@ -1067,19 +1055,19 @@ class edih_x12_file
 
         //array('HB'=>'271', 'HS'=>'270', 'HR'=>'276', 'HI'=>'278',
         //      'HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
-        if (substr($tp, 0, 5) == 'mixed') {
-            $tp = substr($tp, -2);
+        if (str_starts_with((string) $tp, 'mixed')) {
+            $tp = substr((string) $tp, -2);
         }
 
-        if (!strpos('|HB|271|HS|270|HR|276|HI|278|HN|277|HP|835|FA|999|HC|837', $tp)) {
+        if (!strpos('|HB|271|HS|270|HR|276|HI|278|HN|277|HP|835|FA|999|HC|837', (string) $tp)) {
             $this->message[] = 'edih_x12_transaction: wrong edi type for transaction search ' . text($tp);
             return $ret_ar;
         }
 
         $idx = 0;
         $is_found = false;
-        $slice = array();
-        $srch_ar = array();
+        $slice = [];
+        $srch_ar = [];
         $sl_idx = 0;
         // there may be several in same ST envelope with the same $clm01, esp. 835
         // we will get each set of relevant transaction segments in foreach() below
@@ -1110,12 +1098,12 @@ class edih_x12_file
 
         // verify we have type
         if ($srch_ar[0]['type'] == 'NA' || !$srch_ar[0]['type']) {
-            $this->edih_message('edih_x12_transaction(): invalid file type ' . text($srch_ar[0]['type']));
+            $this->edih_message();
             return $ret_ar;
         }
 
         // segments we check
-        $test_id = array('TRN','CLM','CLP','ST' . $de,'BHT','REF','LX' . $de,'PLB','SE' . $de);
+        $test_id = ['TRN','CLM','CLP','ST' . $de,'BHT','REF','LX' . $de,'PLB','SE' . $de];
         //
         foreach ($srch_ar as $srch) {
             $idx = $srch['start'] - 1;      // align index to segments array offset
@@ -1127,7 +1115,7 @@ class edih_x12_file
             foreach ($srch['array'] as $seg) {
                 $idx++;
                 //
-                $test_str = substr($seg, 0, 3);
+                $test_str = substr((string) $seg, 0, 3);
                 if (!in_array($test_str, $test_id, true)) {
                     continue;
                 }
@@ -1135,9 +1123,9 @@ class edih_x12_file
                 //
                 // the opening ST segment should be in each search array,
                 // so type and search values can be determined here.
-                if (strncmp($seg, 'ST' . $de, 3) == 0) {
-                    $stseg = explode($de, $seg);
-                    $type = ($type) ? $type : $stseg[1];
+                if (strncmp((string) $seg, 'ST' . $de, 3) == 0) {
+                    $stseg = explode($de, (string) $seg);
+                    $type = $type ?: $stseg[1];
                     //
                     $idval = ( strpos('|HN|277|HB|271', $type) ) ? 'TRN' . $de . '2' . $de . $clm01 : '';
                     $idval = ( strpos('|HR|276|HS|270', $type) ) ? 'TRN' . $de . '1' . $de . $clm01 : $idval;
@@ -1154,8 +1142,8 @@ class edih_x12_file
                 // these types use the BHT segment to begin transactions
                 if (strpos('|HI|278|HN|277|HR|276|HB|271|HS|270|HC|837', $type)) {
                     //
-                    if (strncmp($seg, 'BHT' . $de, 4) === 0) {
-                        $bht_seg = explode($de, $seg);
+                    if (strncmp((string) $seg, 'BHT' . $de, 4) === 0) {
+                        $bht_seg = explode($de, (string) $seg);
                         $bht_pos = $idx;
                         //$bht_pos = $key;
                         if ($is_found && isset($slice[$sl_idx]['start'])) {
@@ -1173,7 +1161,7 @@ class edih_x12_file
                     }
 
                     //
-                    if (strncmp($seg, $idval, $idlen) === 0) {
+                    if (strncmp((string) $seg, $idval, $idlen) === 0) {
                         // matched by clm01 identifier (idval)
                         $is_found = true;
                         $slice[$sl_idx]['start'] = $bht_pos;
@@ -1183,8 +1171,8 @@ class edih_x12_file
 
                 //
                 if ($type == 'HP' || $type == '835') {
-                    if (strncmp($seg, 'CLP' . $de, 4) === 0) {
-                        if (strncmp($seg, $idval, $idlen) === 0) {
+                    if (strncmp((string) $seg, 'CLP' . $de, 4) === 0) {
+                        if (strncmp((string) $seg, $idval, $idlen) === 0) {
                             if ($is_found && isset($slice[$sl_idx]['start'])) {
                                 $slice[$sl_idx]['count'] = $idx - $slice[$sl_idx]['start'];
                                 //$slice[$sl_idx]['count'] = $key - $slice[$sl_idx]['start'];
@@ -1208,7 +1196,7 @@ class edih_x12_file
 
                     // LX segment is often used to group claim payment information
                     // we do not capture TS3 or TS2 segments in the transaction
-                    if (strncmp($seg, 'LX' . $de, 3) === 0) {
+                    if (strncmp((string) $seg, 'LX' . $de, 3) === 0) {
                         if ($is_found && isset($slice[$sl_idx]['start'])) {
                             $slice[$sl_idx]['count'] = $idx - $slice[$sl_idx]['start'];
                             //$slice[$sl_idx]['count'] = $key - $slice[$sl_idx]['start'];
@@ -1221,7 +1209,7 @@ class edih_x12_file
 
                     // PLB segment is part of summary/trailer in 835
                     // not part of the preceeding transaction
-                    if (strncmp($seg, 'PLB' . $de, 4) === 0) {
+                    if (strncmp((string) $seg, 'PLB' . $de, 4) === 0) {
                         if ($is_found && isset($slice[$sl_idx]['start'])) {
                             $slice[$sl_idx]['count'] = $idx - $slice[$sl_idx]['start'];
                             //$slice[$sl_idx]['count'] = $key - $slice[$sl_idx]['start'];
@@ -1234,7 +1222,7 @@ class edih_x12_file
                 }
 
                 // SE will always mark end of transaction segments
-                if (strncmp($seg, 'SE' . $de, 3) === 0) {
+                if (strncmp((string) $seg, 'SE' . $de, 3) === 0) {
                     if ($is_found && isset($slice[$sl_idx]['start'])) {
                         $slice[$sl_idx]['count'] = $idx - $slice[$sl_idx]['start'];
                         //$slice[$sl_idx]['count'] = $key - $slice[$sl_idx]['start'];
@@ -1269,8 +1257,8 @@ class edih_x12_file
     public function edih_get_segment($segmentID, $srchStr = '', $seg_array = '')
     {
         //
-        $ret_ar = array();
-        $seg_ar = array();
+        $ret_ar = [];
+        $seg_ar = [];
         $segid = ( strlen($segmentID) ) ? trim($segmentID) : '';
         //
         $srch = ( strlen($srchStr) ) ? $srchStr : '';
@@ -1282,8 +1270,8 @@ class edih_x12_file
         }
 
         //
-        $de = ( isset($this->delimiters['e']) ) ? $this->delimiters['e'] : '';
-        $dt = ( isset($this->delimiters['t']) ) ? $this->delimiters['t'] : '';
+        $de = $this->delimiters['e'] ?? '';
+        $dt = $this->delimiters['t'] ?? '';
         //
         // segment array from edih_x12_transaction() is two dimension
         if (is_array($seg_array) && count($seg_array)) {
@@ -1298,9 +1286,9 @@ class edih_x12_file
             $seg_ar = $this->segments;
         } elseif ($this->text) {
             if (!$de) {
-                $delims = $this->edih_x12_delimiters(substr($this->text, 0, 126));
-                $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
-                $de = ( isset($delims['e']) ) ? $delims['e'] : '';
+                $delims = $this->edih_x12_delimiters(substr((string) $this->text, 0, 126));
+                $dt = $delims['t'] ?? '';
+                $de = $delims['e'] ?? '';
             }
 
             if (!$de || !$dt) {
@@ -1313,12 +1301,12 @@ class edih_x12_file
             $seg_pos = 1;
             $see_pos = 2;
             while ($seg_pos) {
-                $seg_pos = strpos($this->text, $segsrch, $seg_pos);
-                $see_pos = strpos($this->text, $dt, $seg_pos + 1);
+                $seg_pos = strpos((string) $this->text, $segsrch, $seg_pos);
+                $see_pos = strpos((string) $this->text, (string) $dt, $seg_pos + 1);
                 if ($seg_pos) {
-                    $segstr =  trim(substr($this->text, $seg_pos, $see_pos - $seg_pos), $dt);
+                    $segstr =  trim(substr((string) $this->text, $seg_pos, $see_pos - $seg_pos), $dt);
                     if ($srch) {
-                        if (strpos($segstr, $srch) !== false) {
+                        if (str_contains($segstr, $srch)) {
                             $ret_ar[] = $segstr;
                         }
                     } else {
@@ -1334,9 +1322,9 @@ class edih_x12_file
         if (count($seg_ar)) {
             $cmplen = strlen($segid . $de);
             foreach ($seg_ar as $key => $seg) {
-                if (strncmp($seg, $segid . $de, $cmplen) === 0) {
+                if (strncmp((string) $seg, $segid . $de, $cmplen) === 0) {
                     if ($srch) {
-                        if (strpos($seg, $srch) !== false) {
+                        if (str_contains((string) $seg, $srch)) {
                             $ret_ar[$key] = $seg;
                         }
                     } else {
@@ -1372,7 +1360,7 @@ class edih_x12_file
     function edih_x12_slice($arg_array, $file_text = '')
     {
         //
-        $ret_ar = array();
+        $ret_ar = [];
         $f_str = '';
         // see what we have
         if (!is_array($arg_array) || !count($arg_array)) {
@@ -1387,9 +1375,9 @@ class edih_x12_file
             $vars = $this->edih_file_text($file_text, true, true, false);
             if (is_array($vars) && count($vars)) {
                 $f_str = $file_text;
-                $dt = ( isset($vars['delimiters']['t']) ) ? $vars['delimiters']['t'] : '';
-                $de = ( isset($vars['delimiters']['e']) ) ? $vars['delimiters']['e'] : '';
-                $ft = ( isset($vars['type']) ) ?  $vars['type'] : '';
+                $dt = $vars['delimiters']['t'] ?? '';
+                $de = $vars['delimiters']['e'] ?? '';
+                $ft = $vars['type'] ?? '';
                 //$seg_ar = ( isset($vars['segments']) ) ? $vars['segments'] : '';
                 //$env_ar = $this->edih_x12_envelopes($f_str);
             } else {
@@ -1439,7 +1427,7 @@ class edih_x12_file
         }
 
         //
-        if ($trace && strpos('|HP|FA', $ft) === false) {
+        if ($trace && !str_contains('|HP|FA', (string) $ft)) {
             $this->message[] = 'edih_x12_slice() incorrect type [' . text($ft) . '] for trace';
             return $ret_ar;
         }
@@ -1448,7 +1436,7 @@ class edih_x12_file
         if ($f_str) {
             $srchstr = '';
             if ($icn) {
-                $icnpos =  strpos($f_str, $de . $icn . $de);
+                $icnpos =  strpos((string) $f_str, $de . $icn . $de);
                 if ($icnpos === false) {
                     // $icn not found
                     $this->message[] = 'edih_x12_slice() did not find ISA13 ' . text($icn);
@@ -1458,41 +1446,41 @@ class edih_x12_file
                 } elseif ($icnpos < 106) {
                     $isapos = 0;
                 } else {
-                    $isapos = strrpos($f_str, $dt . 'ISA' . $de, ($icnpos - strlen($f_str))) + 1;
+                    $isapos = strrpos((string) $f_str, $dt . 'ISA' . $de, ($icnpos - strlen((string) $f_str))) + 1;
                 }
 
-                $ieapos = strpos($f_str, $de . $icn . $dt, $isapos);
-                $ieapos = strpos($f_str, $dt, $ieapos) + 1;
-                $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $isapos + 2) + 1 : 0;
+                $ieapos = strpos((string) $f_str, $de . $icn . $dt, $isapos);
+                $ieapos = strpos((string) $f_str, (string) $dt, $ieapos) + 1;
+                $segidx = ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $isapos + 2) + 1 : 0;
                 //
-                $srchstr = substr($f_str, $isapos, $ieapos - $isapos);
+                $srchstr = substr((string) $f_str, $isapos, $ieapos - $isapos);
             }
 
             if ($gsn) {
-                $srchstr = ($srchstr) ? $srchstr : $f_str;
-                $gspos =  strpos($srchstr, $de . $gsn . $de);
+                $srchstr = $srchstr ?: $f_str;
+                $gspos =  strpos((string) $srchstr, $de . $gsn . $de);
                 if ($gspos === false) {
                     // $gsn not found
                     $this->message[] = 'edih_x12_slice() did not find GS06 ' . text($gsn);
                     return $ret_ar;
                 } else {
-                    $gspos = strrpos(substr($srchstr, 0, $gspos), $dt) + 1;
+                    $gspos = strrpos(substr((string) $srchstr, 0, $gspos), (string) $dt) + 1;
                 }
 
-                $gepos = strpos($srchstr, $dt . 'GE' . $dt, $gspos);
-                $gepos = strpos($srchstr, $dt, $gepos + 1) + 1;
-                $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $gspos + 2) + 1 : 0;
+                $gepos = strpos((string) $srchstr, $dt . 'GE' . $dt, $gspos);
+                $gepos = strpos((string) $srchstr, (string) $dt, $gepos + 1) + 1;
+                $segidx = ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $gspos + 2) + 1 : 0;
                 //
-                $srchstr = substr($srchstr, $gspos, $gepos - $gspos);
+                $srchstr = substr((string) $srchstr, $gspos, $gepos - $gspos);
             }
 
             if ($stn) {
-                $srchstr = ($srchstr) ? $srchstr : $f_str;
+                $srchstr = $srchstr ?: $f_str;
                 $sttp = $this->gstype_ar[$ft];
                 $seg_st = $dt . 'ST' . $de . $sttp . $de . $stn   ;
                 $seg_se = $dt . 'SE' . $de;
                 // $segpos = 1;
-                $stpos = strpos($srchstr, $seg_st);
+                $stpos = strpos((string) $srchstr, $seg_st);
                 if ($stpos === false) {
                     // $stn not found
                     $this->message[] = 'edih_x12_slice() did not find ST02 ' . text($stn);
@@ -1501,16 +1489,16 @@ class edih_x12_file
                     $stpos += 1;
                 }
 
-                $sepos = strpos($srchstr, $seg_se, $stpos);
-                $sepos = strpos($srchstr, $dt, $sepos + 1);
-                $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $stpos + 2) + 1 : 0;
+                $sepos = strpos((string) $srchstr, $seg_se, $stpos);
+                $sepos = strpos((string) $srchstr, (string) $dt, $sepos + 1);
+                $segidx = ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $stpos + 2) + 1 : 0;
                 //
-                $srchstr = substr($srchstr, $stpos, $sepos - $stpos);
+                $srchstr = substr((string) $srchstr, $stpos, $sepos - $stpos);
             }
 
             if ($trace) {
                 //
-                $trpos = strpos($f_str, $de . $trace);
+                $trpos = strpos((string) $f_str, $de . $trace);
                 if ($trpos === false) {
                     // $icn not found
                     $this->message[] = 'edih_x12_slice() did not find trace ' . text($trace);
@@ -1519,12 +1507,12 @@ class edih_x12_file
 
                 $sttp = $this->gstype_ar[$ft];
                 $seg_st = $dt . 'ST' . $de . $sttp . $de;
-                $stpos = strrpos($f_str, $seg_st, ($trpos - strlen($f_str)));
-                $sepos = strpos($f_str, $dt . 'SE' . $de, $stpos);
-                $sepos = strpos($f_str, $dt, $sepos + 1);
+                $stpos = strrpos((string) $f_str, $seg_st, ($trpos - strlen((string) $f_str)));
+                $sepos = strpos((string) $f_str, $dt . 'SE' . $de, $stpos);
+                $sepos = strpos((string) $f_str, (string) $dt, $sepos + 1);
                 //
-                $segidx =  ($prskeys) ? substr_count($f_str, $dt, 0, $st_pos + 2) + 1 : 0;
-                $srchstr = substr($f_str, $stpos + 1, $sepos - $stpos);
+                $segidx =  ($prskeys) ? substr_count((string) $f_str, (string) $dt, 0, $st_pos + 2) + 1 : 0;
+                $srchstr = substr((string) $f_str, $stpos + 1, $sepos - $stpos);
             }
 
             // if we have a match, the $srchstr should have the desired segments

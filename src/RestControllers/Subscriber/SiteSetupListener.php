@@ -155,7 +155,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $eventDispatcher = $event->getKernel()->getEventDispatcher();
             $globalsBag = $event->getKernel()->getGlobalsBag();
         }
-        $globalsBag = require_once(__DIR__ . "./../../../interface/globals.php");
+        $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
         // now that globals are setup, setup our centralized logger that will respect the global settings
         if ($event->getKernel() instanceof OEHttpKernel) {
             $event->getKernel()->setSystemLogger(new SystemLogger());
@@ -196,6 +196,6 @@ class SiteSetupListener implements EventSubscriberInterface
     private function checkForOauth2Request(HttpRestRequest $request): bool
     {
         $path = $request->getBasePath();
-        return str_ends_with($path, "/oauth2/");
+        return str_ends_with($path, "/oauth2");
     }
 }

@@ -76,3 +76,8 @@ sites/default/documents/logs_and_misc/methods/sevena
 sites/default/documents/logs_and_misc/methods/sevenb
 sites/*/documents/logs_and_misc/methods/sevena
 sites/*/documents/logs_and_misc/methods/sevenb
+
+# Test artifacts
+test-results/
+.playwright-mcp/
+docker/development-easy/test-screenshots/

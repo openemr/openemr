@@ -32,7 +32,7 @@ use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Exception;
 
 class TeleHealthVideoRegistrationController
@@ -49,31 +49,17 @@ class TeleHealthVideoRegistrationController
      */
     private $logger;
 
-    /**
-     * @var TeleHealthProviderRepository
-     */
-    private $providerRepository;
-
-
-    /**
-     * @var TeleHealthRemoteRegistrationService
-     */
-    private $remoteService;
-
-    public function __construct(TeleHealthRemoteRegistrationService $remoteService, TeleHealthProviderRepository $repo)
+    public function __construct(private readonly TeleHealthRemoteRegistrationService $remoteService, private readonly TeleHealthProviderRepository $providerRepository)
     {
-//        $this->userRepository = new TeleHealthUserRepository();
-        $this->remoteService = $remoteService;
-        $this->providerRepository = $repo;
         $this->logger = new SystemLogger();
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
-        $eventDispatcher->addListener(PatientCreatedEvent::EVENT_HANDLE, [$this, 'onPatientCreatedEvent']);
-        $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, [$this, 'onPatientUpdatedEvent']);
-        $eventDispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, [$this, 'onUserCreatedEvent']);
-        $eventDispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, [$this, 'onUserUpdatedEvent']);
+        $eventDispatcher->addListener(PatientCreatedEvent::EVENT_HANDLE, $this->onPatientCreatedEvent(...));
+        $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, $this->onPatientUpdatedEvent(...));
+        $eventDispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, $this->onUserCreatedEvent(...));
+        $eventDispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, $this->onUserUpdatedEvent(...));
     }
 
     public function getUserRepository()

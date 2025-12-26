@@ -64,7 +64,7 @@ class AppBasePortalController extends PortalController
      */
     protected function SimpleObjectParams()
     {
-        return array('camelCase' => true);
+        return ['camelCase' => true];
     }
 
     /**
@@ -99,16 +99,16 @@ class AppBasePortalController extends PortalController
         $err = new stdClass();
         $err->success = false;
         $err->message = $message;
-        $err->errors = array();
+        $err->errors = [];
 
         if ($errors != null) {
             foreach ($errors as $key => $val) {
-                $err->errors[lcfirst($key)] = $val;
+                $err->errors[lcfirst((string) $key)] = $val;
             }
         }
 
         if ($exception) {
-            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1));
+            $err->stackTrace = explode("\n#", substr((string) $exception->getTraceAsString(), 1));
         }
 
         @header('HTTP/1.1 401 Unauthorized');

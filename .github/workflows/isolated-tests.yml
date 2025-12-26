@@ -17,6 +17,10 @@ on:
     - master
     - rel-*
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   isolated-tests:
     runs-on: ubuntu-24.04
@@ -28,11 +32,12 @@ jobs:
         - '8.3'
         - '8.4'
         - '8.5'
+        - '8.6'
 
     name: PHP ${{ matrix.php-version }} - Isolated Tests
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -49,7 +54,7 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Composer Cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
@@ -80,29 +85,55 @@ jobs:
 
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit.xml
+        flags: isolated,php${{ matrix.php-version }}
+        report_type: test_results
+
+    - name: Hide test results from subsequent uploads
+      if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
+      run: mv junit.xml junit.saved-test-data
+
+    - name: Unhide test results for GitHub upload
+      if: ${{ !cancelled() && hashFiles('junit.saved-test-data') != '' }}
+      run: mv junit.saved-test-data junit.xml
+
+    - name: Upload JUnit test results to GitHub
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: junit-isolated-tests-php-${{ matrix.php-version }}
+        path: junit.xml
 
     - name: Check if coverage files exist
-      if: ${{ (success() || failure()) }}
+      if: ${{ !cancelled() }}
       id: check-files
       run: |
         echo "clover_exists=$(test -f clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
         echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
 
-    - name: Upload coverage reports
-      if: ${{ steps.check-files.outputs.clover_exists == 'true' && steps.check-files.outputs.html_exists == 'true' && (success() || failure()) }}
-      uses: actions/upload-artifact@v4
+    - name: Upload clover coverage report to GitHub
+      if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
+      uses: actions/upload-artifact@v6
       with:
-        name: coverage-isolated-tests-php-${{ matrix.php-version }}
+        name: coverage-clover-isolated-tests-php-${{ matrix.php-version }}
         path: |
           clover.xml
-          htmlcov/
+
+    - name: Upload html coverage report to GitHub
+      if: ${{ steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: coverage-html-isolated-tests-php-${{ matrix.php-version }}
+        path: |
+          htmlcov
 
     - name: Upload coverage reports to Codecov
-      if: ${{ steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
+        flags: isolated,php${{ matrix.php-version }}

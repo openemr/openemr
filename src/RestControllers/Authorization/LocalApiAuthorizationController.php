@@ -8,6 +8,7 @@ use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -18,7 +19,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
 {
     private UserService $userService;
 
-    public function __construct(private readonly SystemLogger $logger, private readonly OEGlobalsBag $globalsBag)
+    public function __construct(private readonly LoggerInterface $logger, private readonly OEGlobalsBag $globalsBag)
     {
     }
 

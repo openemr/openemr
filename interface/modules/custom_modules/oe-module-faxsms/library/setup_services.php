@@ -87,7 +87,7 @@ if ($_POST['form_save_permissions'] ?? null) {
     $primary_user_id = $_POST['primary_user'] ?? null;
 
     // Handle primary user reset (when value is "0" or empty)
-    $reset_primary = ($primary_user_id === '0' || $primary_user_id === '' || $primary_user_id === null);
+    $reset_primary = (in_array($primary_user_id, ['0', '', null], true));
 
     while ($user = sqlFetchArray($users_result)) {
         $user_id = $user['id'];
@@ -512,7 +512,7 @@ $vendors = $boot->getVendorGlobals();
                             </span>
                             </div>
                             <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
-                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst($selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
+                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string) $selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
                                     <li><strong><?php echo xlt('Execution Run Interval'); ?>: </strong><?php echo text($currentStatus[$selectedService]['execute_interval']) . ' ' . xlt('Minutes'); ?></li>

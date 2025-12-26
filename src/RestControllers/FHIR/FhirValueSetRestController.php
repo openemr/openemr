@@ -20,8 +20,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirValueSetRestController
 {
-    private FhirResourcesService $fhirService;
-    private FhirValueSetService $fhirResourceService;
+    private readonly FhirResourcesService $fhirService;
+    private readonly FhirValueSetService $fhirResourceService;
 
     public function __construct()
     {
@@ -49,7 +49,7 @@ class FhirValueSetRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirResourceService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

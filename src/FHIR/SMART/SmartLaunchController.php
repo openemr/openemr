@@ -24,7 +24,7 @@ use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\FHIR\Config\ServerConfig;
 
 // not sure I really like this here... it seems like some of this
@@ -39,19 +39,13 @@ class SmartLaunchController
     const CLIENT_APP_REQUIRED_LAUNCH_SCOPE = 'launch';
     const CLIENT_APP_STANDALONE_LAUNCH_SCOPE = 'launch/patient';
 
-    /**
-     * @var EventDispatcher
-     */
-    private $dispatcher;
-
-    public function __construct(?EventDispatcher $dispatcher = null)
+    public function __construct(private readonly ?EventDispatcherInterface $dispatcher = null)
     {
-        $this->dispatcher = $dispatcher;
     }
 
     public function registerContextEvents()
     {
-        $this->dispatcher->addListener(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, [$this, 'renderPatientSmartLaunchSection']);
+        $this->dispatcher->addListener(RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, $this->renderPatientSmartLaunchSection(...));
     }
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
@@ -103,7 +97,7 @@ class SmartLaunchController
     public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, $launchText = "Launch")
     {
         $launchCode = $launchToken->serialize();
-        $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $launchParams = "?launch=" . urlencode((string) $launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
         ?>
         <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
                             data-intent="<?php echo attr(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG); ?>"
@@ -163,7 +157,7 @@ class SmartLaunchController
             $launchCode->setAppointmentUuid($appointmentUuid);
         }
         $serializedCode = $launchCode->serialize();
-        $launchParams = "?launch=" . urlencode($serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $launchParams = "?launch=" . urlencode((string) $serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
         $redirectUrl = $client->getLaunchUri($launchParams);
         header("Location: " . $redirectUrl);
         exit;

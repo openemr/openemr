@@ -66,7 +66,8 @@ class VietnameseScriptTest extends TestCase
             'test-vietnamese',
             'search',
             'check-schema',
-            'help'
+            'analyze',
+            'validate'
         ];
 
         foreach ($expectedFunctions as $function) {

@@ -66,28 +66,28 @@ class Installer
         // Installation variables
         // For a good explanation of these variables, see documentation in
         //   the contrib/util/installScripts/InstallerAuto.php file.
-        $this->iuser                    = isset($cgi_variables['iuser']) ? ($cgi_variables['iuser']) : '';
-        $this->iuserpass                = isset($cgi_variables['iuserpass']) ? ($cgi_variables['iuserpass']) : '';
-        $this->iuname                   = isset($cgi_variables['iuname']) ? ($cgi_variables['iuname']) : '';
-        $this->iufname                  = isset($cgi_variables['iufname']) ? ($cgi_variables['iufname']) : '';
-        $this->igroup                   = isset($cgi_variables['igroup']) ? ($cgi_variables['igroup']) : '';
-        $this->i2faEnable               = isset($cgi_variables['i2faenable']) ? ($cgi_variables['i2faenable']) : '';
-        $this->i2faSecret               = isset($cgi_variables['i2fasecret']) ? ($cgi_variables['i2fasecret']) : '';
-        $this->server                   = isset($cgi_variables['server']) ? ($cgi_variables['server']) : ''; // mysql server (usually localhost)
-        $this->loginhost                = isset($cgi_variables['loginhost']) ? ($cgi_variables['loginhost']) : ''; // php/apache server (usually localhost)
-        $this->port                     = isset($cgi_variables['port']) ? ($cgi_variables['port']) : '';
-        $this->root                     = isset($cgi_variables['root']) ? ($cgi_variables['root']) : '';
-        $this->rootpass                 = isset($cgi_variables['rootpass']) ? ($cgi_variables['rootpass']) : '';
-        $this->login                    = isset($cgi_variables['login']) ? ($cgi_variables['login']) : '';
-        $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
-        $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname']) : '';
-        $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
-        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : 'default'; // set to default if not set in order for install script to work correctly
-        $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';
-        $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
-        $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
-        $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
-        $this->new_theme                = isset($cgi_variables['new_theme']) ? ($cgi_variables['new_theme']) : '';
+        $this->iuser                    = $cgi_variables['iuser'] ?? '';
+        $this->iuserpass                = $cgi_variables['iuserpass'] ?? '';
+        $this->iuname                   = $cgi_variables['iuname'] ?? '';
+        $this->iufname                  = $cgi_variables['iufname'] ?? '';
+        $this->igroup                   = $cgi_variables['igroup'] ?? '';
+        $this->i2faEnable               = $cgi_variables['i2faenable'] ?? '';
+        $this->i2faSecret               = $cgi_variables['i2fasecret'] ?? '';
+        $this->server                   = $cgi_variables['server'] ?? ''; // mysql server (usually localhost)
+        $this->loginhost                = $cgi_variables['loginhost'] ?? ''; // php/apache server (usually localhost)
+        $this->port                     = $cgi_variables['port'] ?? '';
+        $this->root                     = $cgi_variables['root'] ?? '';
+        $this->rootpass                 = $cgi_variables['rootpass'] ?? '';
+        $this->login                    = $cgi_variables['login'] ?? '';
+        $this->pass                     = $cgi_variables['pass'] ?? '';
+        $this->dbname                   = $cgi_variables['dbname'] ?? '';
+        $this->collate                  = $cgi_variables['collate'] ?? '';
+        $this->site                     = $cgi_variables['site'] ?? 'default'; // set to default if not set in order for install script to work correctly
+        $this->source_site_id           = $cgi_variables['source_site_id'] ?? '';
+        $this->clone_database           = $cgi_variables['clone_database'] ?? '';
+        $this->no_root_db_access        = $cgi_variables['no_root_db_access'] ?? ''; // no root access to database. user/privileges pre-configured
+        $this->development_translations = $cgi_variables['development_translations'] ?? '';
+        $this->new_theme                = $cgi_variables['new_theme'] ?? '';
         $this->custom_globals           = isset($cgi_variables['custom_globals']) ? json_decode($cgi_variables['custom_globals'], true) : [];
         // Make this true for IPPF.
         $this->ippf_specific = false;
@@ -460,7 +460,7 @@ class Installer
         while (!$this->atEndOfFile($fd)) {
             $line = $this->getLine($fd, 1024);
             $line = rtrim($line);
-            if ($line === "" || substr($line, 0, 2) === "--" || substr($line, 0, 1) === "#") {
+            if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
                 continue;
             }
 
@@ -522,9 +522,7 @@ class Installer
             'v_database' => $v_database,
             'v_acl' => $v_acl
         ]);
-        $update_parts = array_map(function ($field) use ($version_fields) {
-            return sprintf("%s = '%s'", $field, $version_fields[$field]);
-        }, array_keys($version_fields));
+        $update_parts = array_map(fn($field): string => sprintf("%s = '%s'", $field, $version_fields[$field]), array_keys($version_fields));
 
         // Join the parts with commas
         $update_sql = "UPDATE version SET " . implode(", ", $update_parts);
@@ -565,7 +563,6 @@ class Installer
 
         $hash = password_hash($this->iuserpass, PASSWORD_DEFAULT);
         $escapedHash = $this->escapeSql($hash);
-        /** @phpstan-ignore empty.variable */
         if (empty($hash)) {
             // Something is seriously wrong
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
@@ -782,8 +779,8 @@ $config = 1; /////////////
         /** @phpstan-ignore variable.undefined */
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
+                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                if (is_array($fldtype) || !str_starts_with((string) $fldtype, 'm_')) {
                     $this->writeGlobal($fldid, $flddef, 0, true);
                 }
             }
@@ -838,7 +835,7 @@ $config = 1; /////////////
                 continue;
             }
 
-            $global_value = isset($global_config['value']) ? $global_config['value'] : '';
+            $global_value = $global_config['value'] ?? '';
             $global_index = isset($global_config['index']) ? intval($global_config['index']) : 0;
 
             if (!$this->writeGlobal($global_name, $global_value, $global_index, false)) {
@@ -1083,21 +1080,21 @@ $config = 1; /////////////
 
         // Set permissions for administrators.
         $gacl->add_acl(
-            array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-                'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
-                'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-                'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
-                'lists' => array('default','state','country','language','ethrace'),
-                'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
-                'sensitivities' => array('normal', 'high'),
-                'nationnotes' => array('nn_configure'),
-                'patientportal' => array('portal'),
-                'menus' => array('modle'),
-                'groups' => array('gadd','gcalendar','glog','gdlog','gm')
-            ),
+            [
+                'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+                'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
+                'lists' => ['default','state','country','language','ethrace'],
+                'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
+                'sensitivities' => ['normal', 'high'],
+                'nationnotes' => ['nn_configure'],
+                'patientportal' => ['portal'],
+                'menus' => ['modle'],
+                'groups' => ['gadd','gcalendar','glog','gdlog','gm']
+            ],
             null,
-            array($admin),
+            [$admin],
             null,
             null,
             1,
@@ -1109,11 +1106,11 @@ $config = 1; /////////////
 
         // Set permissions for physicians.
         $gacl->add_acl(
-            array(
-                'patients' => array('pat_rep')
-            ),
+            [
+                'patients' => ['pat_rep']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1123,11 +1120,11 @@ $config = 1; /////////////
         );
         // xl('Things that physicians can only read')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1137,11 +1134,11 @@ $config = 1; /////////////
         );
         // xl('Things that physicians can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1151,17 +1148,17 @@ $config = 1; /////////////
         );
         // xl('Things that physicians can read and partly modify')
         $gacl->add_acl(
-            array(
-                'acct' => array('disc', 'rep'),
-                'admin' => array('drugs'),
-                'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-                'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
-                    'disclosure', 'rx', 'amendment', 'lab'),
-                'sensitivities' => array('normal', 'high'),
-                'groups' => array('gcalendar','glog')
-            ),
+            [
+                'acct' => ['disc', 'rep'],
+                'admin' => ['drugs'],
+                'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+                'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
+                    'disclosure', 'rx', 'amendment', 'lab'],
+                'sensitivities' => ['normal', 'high'],
+                'groups' => ['gcalendar','glog']
+            ],
             null,
-            array($doc),
+            [$doc],
             null,
             null,
             1,
@@ -1173,11 +1170,11 @@ $config = 1; /////////////
 
         // Set permissions for clinicians.
         $gacl->add_acl(
-            array(
-                'patients' => array('pat_rep')
-            ),
+            [
+                'patients' => ['pat_rep']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1187,13 +1184,13 @@ $config = 1; /////////////
         );
         // xl('Things that clinicians can only read')
         $gacl->add_acl(
-            array(
-                'encounters' => array('notes', 'relaxed'),
-                'patients' => array('demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
-                'sensitivities' => array('normal')
-            ),
+            [
+                'encounters' => ['notes', 'relaxed'],
+                'patients' => ['demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'],
+                'sensitivities' => ['normal']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1203,11 +1200,11 @@ $config = 1; /////////////
         );
         // xl('Things that clinicians can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1217,14 +1214,14 @@ $config = 1; /////////////
         );
         // xl('Things that clinicians can read and partly modify')
         $gacl->add_acl(
-            array(
-                'admin' => array('drugs'),
-                'encounters' => array('auth', 'coding', 'notes'),
-                'patients' => array('appt'),
-                'groups' => array('gcalendar', 'glog')
-            ),
+            [
+                'admin' => ['drugs'],
+                'encounters' => ['auth', 'coding', 'notes'],
+                'patients' => ['appt'],
+                'groups' => ['gcalendar', 'glog']
+            ],
             null,
-            array($clin),
+            [$clin],
             null,
             null,
             1,
@@ -1236,11 +1233,11 @@ $config = 1; /////////////
 
         // Set permissions for front office staff.
         $gacl->add_acl(
-            array(
-                'patients' => array('alert')
-            ),
+            [
+                'patients' => ['alert']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1250,11 +1247,11 @@ $config = 1; /////////////
         );
         // xl('Things that front office can only read')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1264,11 +1261,11 @@ $config = 1; /////////////
         );
         // xl('Things that front office can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1278,12 +1275,12 @@ $config = 1; /////////////
         );
         // xl('Things that front office can read and partly modify')
         $gacl->add_acl(
-            array(
-                'patients' => array('appt', 'demo'),
-                'groups' => array('gcalendar')
-            ),
+            [
+                'patients' => ['appt', 'demo'],
+                'groups' => ['gcalendar']
+            ],
             null,
-            array($front),
+            [$front],
             null,
             null,
             1,
@@ -1295,11 +1292,11 @@ $config = 1; /////////////
 
         // Set permissions for back office staff.
         $gacl->add_acl(
-            array(
-                'patients' => array('alert')
-            ),
+            [
+                'patients' => ['alert']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1309,11 +1306,11 @@ $config = 1; /////////////
         );
         // xl('Things that back office can only read')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1323,11 +1320,11 @@ $config = 1; /////////////
         );
         // xl('Things that back office can read and enter but not modify')
         $gacl->add_acl(
-            array(
-                'placeholder' => array('filler')
-            ),
+            [
+                'placeholder' => ['filler']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1337,14 +1334,14 @@ $config = 1; /////////////
         );
         // xl('Things that back office can read and partly modify')
         $gacl->add_acl(
-            array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-                'admin' => array('practice', 'superbill'),
-                'encounters' => array('auth_a', 'coding_a', 'date_a'),
-                'patients' => array('appt', 'demo')
-            ),
+            [
+                'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+                'admin' => ['practice', 'superbill'],
+                'encounters' => ['auth_a', 'coding_a', 'date_a'],
+                'patients' => ['appt', 'demo']
+            ],
             null,
-            array($back),
+            [$back],
             null,
             null,
             1,
@@ -1356,21 +1353,21 @@ $config = 1; /////////////
 
         // Set permissions for Emergency Login.
         $gacl->add_acl(
-            array(
-                'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-                'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
-                'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-                'inventory' => array('lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'),
-                'lists' => array('default','state','country','language','ethrace'),
-                'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
-                'sensitivities' => array('normal', 'high'),
-                'nationnotes' => array('nn_configure'),
-                'patientportal' => array('portal'),
-                'menus' => array('modle'),
-                'groups' => array('gadd','gcalendar','glog','gdlog','gm')
-            ),
+            [
+                'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
+                'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
+                'lists' => ['default','state','country','language','ethrace'],
+                'patients' => ['appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'],
+                'sensitivities' => ['normal', 'high'],
+                'nationnotes' => ['nn_configure'],
+                'patientportal' => ['portal'],
+                'menus' => ['modle'],
+                'groups' => ['gadd','gcalendar','glog','gdlog','gm']
+            ],
             null,
-            array($breakglass),
+            [$breakglass],
             null,
             null,
             1,
@@ -1445,7 +1442,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
@@ -1689,9 +1686,9 @@ $config = 1; /////////////
     protected function initialize_dumpfile_list(): array
     {
         if ($this->clone_database) {
-            $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
+            $this->dumpfiles = [ $this->get_backup_filename() => 'clone database' ];
         } else {
-            $dumpfiles = array( $this->main_sql => 'Main' );
+            $dumpfiles = [ $this->main_sql => 'Main' ];
             if (! empty($this->development_translations)) {
                 // Use the online development translation set
                 $dumpfiles[ $this->devel_translation_sql ] = "Online Development Language Translations (utf8)";
@@ -1789,11 +1786,7 @@ $config = 1; /////////////
      */
     protected function get_backup_filename(): string
     {
-        if (stristr(PHP_OS, 'WIN')) {
-            $backup_file = 'C:/windows/temp/setup_dump.sql';
-        } else {
-            $backup_file = '/tmp/setup_dump.sql';
-        }
+        $backup_file = stristr(PHP_OS, 'WIN') ? 'C:/windows/temp/setup_dump.sql' : '/tmp/setup_dump.sql';
 
         return $backup_file;
     }
@@ -1838,9 +1831,7 @@ $config = 1; /////////////
     public function listThemes(): array
     {
         $themes_img_dir = "public/images/stylesheets/";
-        $arr_themes_img = array_values(array_filter($this->scanDir($themes_img_dir), function ($item) {
-            return $item[0] !== '.';
-        }));
+        $arr_themes_img = array_values(array_filter($this->scanDir($themes_img_dir), fn($item): bool => $item[0] !== '.'));
         return $arr_themes_img;
     }
 
@@ -1850,7 +1841,7 @@ $config = 1; /////////////
         $dot = strpos($theme_file_name, '.');
         $theme_value = substr($theme_file_name, $under_score, ($dot - $under_score));
         $theme_title = ucwords(str_replace("_", " ", $theme_value));
-        return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
+        return ['theme_value' => $theme_value, 'theme_title' => $theme_title];
     }
 
     /**
@@ -2073,7 +2064,7 @@ SETHLP;
      */
     protected function cryptoGenClassExists(): bool
     {
-        return class_exists('OpenEMR\Common\Crypto\CryptoGen');
+        return class_exists(\OpenEMR\Common\Crypto\CryptoGen::class);
     }
 
     /**

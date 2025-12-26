@@ -37,9 +37,7 @@ class AllergyIntoleranceValidator extends BaseValidator
                 $context->optional('enddate')->datetime('Y-m-d H:i:s');
                 $context->optional('comments');
                 $context->required("puuid", "Patient UUID")->callback(
-                    function ($value) {
-                        return $this->validateId("uuid", "patient_data", $value, true);
-                    }
+                    fn($value) => $this->validateId("uuid", "patient_data", $value, true)
                 );
             }
         );
@@ -57,9 +55,7 @@ class AllergyIntoleranceValidator extends BaseValidator
                     }
                 );
                 // additional euuid validation
-                $context->required("uuid", "Allergy UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "lists", $value, true);
-                })->uuid();
+                $context->required("uuid", "Allergy UUID")->callback(fn($value) => $this->validateId("uuid", "lists", $value, true))->uuid();
             }
         );
     }

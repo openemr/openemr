@@ -41,7 +41,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     }
     $admin = sqlQueryNoLog(
         "SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
-        array($_SESSION['authUserID'])
+        [$_SESSION['authUserID']]
     );
     define('ADMIN_USERNAME', $admin['user_name']);
     define('IS_DASHBOARD', $_SESSION['authUser']);

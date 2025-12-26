@@ -5,7 +5,6 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -19,7 +18,6 @@ use PHPUnit\Framework\Attributes\Test;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-#[CoversClass(FacilityService::class)]
 class FacilityServiceTest extends TestCase
 {
     /**
@@ -150,7 +148,7 @@ class FacilityServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->facilityService->getAll(array("facility_npi" => "0123456789"));
+        $actualResult = $this->facilityService->getAll(["facility_npi" => "0123456789"]);
         $this->assertNotNull($actualResult);
         $this->assertEquals(2, count($actualResult->getData()));
 

@@ -45,7 +45,7 @@ $group_list = $templateService->fetchDefaultGroups();
 // for empty lists
 $none_message = xlt("Nothing to show for current actions.");
 // init status array
-$audit_status_blank = array(
+$audit_status_blank = [
     'audit_id' => null,
     'pid' => null,
     'create_date' => null,
@@ -80,7 +80,7 @@ $audit_status_blank = array(
     'action_user' => null,
     'action_taken_time' => null,
     'checksum' => null,
-);
+];
 
 $searchTerm = '';
 if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
@@ -391,6 +391,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(2000).then(rtn => {
@@ -417,6 +418,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -439,6 +441,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -583,7 +586,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                     foreach ($category_list as $option_category) {
-                        if (stripos($option_category['option_id'], 'repository') !== false) {
+                        if (stripos((string) $option_category['option_id'], 'repository') !== false) {
                             continue;
                         }
                         if ($category === $option_category['option_id']) {
@@ -614,10 +617,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         <!--<label class='font-weight-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
                         <?PHP
                         $searchTerm = '';
-                        $ppt = array(
+                        $ppt = [
                             ['pid' => '0', 'ptname' => 'All Patients'],
                             ['pid' => '-1', 'ptname' => 'Repository'],
-                        );
+                        ];
                         if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $searchTerm = $_GET['search_term'] ?? $_GET['search'];
                         }
@@ -626,7 +629,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                         }
                         $auth = '';
                         if (!empty($_REQUEST['persist_checks'])) {
-                            $persist_checks = json_decode($_REQUEST['persist_checks'], true);
+                            $persist_checks = json_decode((string) $_REQUEST['persist_checks'], true);
                             if (is_array($persist_checks)) {
                                 foreach ($persist_checks as $pt) {
                                     foreach ($ppt as $k => $pc) {
@@ -728,8 +731,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <!-- Repository -->
             <div class='row'>
-                <div class='col col-12'>
-                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse' role='button'>
+                    <div class="h5"><i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
                         <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
                             <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
@@ -767,7 +770,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $notify_flag = false;
                             $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                             foreach ($category_list as $option_category) {
-                                if (stripos($option_category['option_id'], 'repository') !== false) {
+                                if (stripos((string) $option_category['option_id'], 'repository') !== false) {
                                     continue;
                                 }
                                 if ($this_cat === $option_category['option_id']) {
@@ -799,7 +802,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                             echo "</td>";
                             echo "<td>" . text($file['size']) . "</td>";
-                            echo "<td>" . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . "</td>";
+                            echo "<td>" . text(date('m/d/Y H:i:s', strtotime((string) $file['modified_date']))) . "</td>";
                             echo "</tr>";
                             ?>
                             <?php
@@ -908,7 +911,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $template_id = $file['id'];
                             echo '<tr>';
                             /*echo "<td><input type='checkbox' class='form-check-inline' id='send' name='send' value='" . attr($template_id) . "' /></td>";*/
-                            echo '<td>' . text(ucwords($cat)) . '</td><td>';
+                            echo '<td>' . text(ucwords((string) $cat)) . '</td><td>';
                             echo '<button id="templateEdit' . attr($template_id) .
                                 '" class="btn btn-sm btn-outline-primary" onclick="templateEdit(' . attr_js($template_id) . ')" type="button">' . text($file['template_name']) . '</button>';
                             if ($authUploadTemplates) {
@@ -916,7 +919,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                     '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')" type="button">' . xlt('Delete') . '</button>';
                             }
                             echo '<td>' . text($file['size']) . '</td>';
-                            echo '<td>' . text(date('m/d/Y H:i:s', strtotime($file['modified_date']))) . '</td>';
+                            echo '<td>' . text(date('m/d/Y H:i:s', strtotime((string) $file['modified_date']))) . '</td>';
                             echo '</tr>';
                             ?>
                             <?php
@@ -933,8 +936,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <div class='row'>
                 <div class='col col-12'>
-                    <div class='h5'>
-                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#assigned_collapse' role='button' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
+                    <div class='h5' data-toggle='collapse' data-target='#assigned_collapse' role='button'>
+                        <i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
                     </div>
                 </div>
                 <!-- Assigned table -->
@@ -998,18 +1001,10 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
                                 $action_status = '';
                                 if ($next_due > 1) {
-                                    if ($audit_status['denial_reason'] === 'In Review') {
-                                        $action_status = xl('Scheduled but Needs Review');
-                                    } else {
-                                        $action_status = xl('Scheduled');
-                                    }
+                                    $action_status = $audit_status['denial_reason'] === 'In Review' ? xl('Scheduled but Needs Review') : xl('Scheduled');
                                     $next_due = date('m/d/Y', $next_due);
                                 } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
-                                    if ($audit_status['denial_reason'] === 'In Review') {
-                                        $action_status = xl('In audit. Needs Review');
-                                    } else {
-                                        $action_status = xl('Recurring');
-                                    }
+                                    $action_status = $audit_status['denial_reason'] === 'In Review' ? xl('In audit. Needs Review') : xl('Recurring');
                                     $next_due = xl('Active');
                                 } elseif ($next_due === 0) {
                                     $action_status = xl('Completed');
@@ -1017,7 +1012,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
                                     $next_due = xl('Active');
                                 }
-                                echo '<tr><td>' . text(ucwords($cat)) . '</td>';
+                                echo '<tr><td>' . text(ucwords((string) $cat)) . '</td>';
                                 echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
                                 echo '<td>' .
                                     '<button type="button" id="patientEdit' . attr($template_id) .

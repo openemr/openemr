@@ -33,8 +33,8 @@ class CdaValidateDocuments
         $this->externalValidatorUrl = null;
         if ($this->externalValidatorEnabled) {
             // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim($GLOBALS['mdht_conformance_server'] ?? null) ?: '';
-            if (substr($this->externalValidatorUrl, -1) !== '/') {
+            $this->externalValidatorUrl = trim((string) ($GLOBALS['mdht_conformance_server'] ?? null)) ?: '';
+            if (!str_ends_with($this->externalValidatorUrl, '/')) {
                 $this->externalValidatorUrl .= '/';
             }
 
@@ -76,13 +76,13 @@ class CdaValidateDocuments
             return [];
         }
         // translate result to our common render array
-        $results = array(
+        $results = [
             'errorCount' => $result['resultsMetaData']["resultMetaData"][0]["count"],
             'warningCount' => 0,
             'ignoredCount' => 0,
-        );
+        ];
         foreach ($result['ccdaValidationResults'] as $r) {
-            $results['errors'][] = array(
+            $results['errors'][] = [
                 'type' => 'error',
                 'test' => $r['type'],
                 'description' => $r['description'],
@@ -90,7 +90,7 @@ class CdaValidateDocuments
                 'path' => $r['xPath'],
                 'context' => $r['type'],
                 'xml' => '',
-            );
+            ];
         }
         return $results;
     }
@@ -157,10 +157,10 @@ class CdaValidateDocuments
     {
         $service = $this->startValidationService();
         $reply = [];
-        $headers = array(
+        $headers = [
             "Content-Type: application/xml",
             "Accept: application/json",
-        );
+        ];
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'http://127.0.0.1?type=' . attr_url($type));
         curl_setopt($ch, CURLOPT_POST, true);
@@ -193,10 +193,10 @@ class CdaValidateDocuments
             return $reply;
         }
 
-        $headers = array(
+        $headers = [
             "Content-Type: multipart/form-data",
             "Accept: application/json",
-        );
+        ];
         $post_url = $this->externalValidatorUrl;
         // I know there's a better way to do this but, not seeing it just now.
         $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
@@ -211,11 +211,12 @@ class CdaValidateDocuments
             'curesUpdate' => true,
             'ccdaFile' => $file
         ];
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $post_url);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -227,11 +228,11 @@ class CdaValidateDocuments
         $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         if (empty($response) || $status !== '200') {
             $reply['resultsMetaData']["resultMetaData"][0]["count"] = 1;
-            $reply['ccdaValidationResults'][] = array(
+            $reply['ccdaValidationResults'][] = [
                 'description' => xlt('Validation Request failed') .
                     ': Error ' . (curl_error($ch) ?: xlt('Unknown')) . ' ' .
                     xlt('Request Status') . ':' . $status
-            );
+            ];
         }
         curl_close($ch);
         if ($status == '200') {
@@ -275,12 +276,12 @@ class CdaValidateDocuments
      */
     private function validateSchematron($xml, $type = 'ccda')
     {
-        $results = array(
+        $results = [
             'errorCount' => 0,
             'warningCount' => 0,
             'ignoredCount' => 0,
             'errors' => []
-        );
+        ];
         try {
             $result = $this->schematronValidateDocument($xml, $type);
         } catch (Exception $e) {
@@ -312,7 +313,7 @@ class CdaValidateDocuments
                 $error_str .= "Fatal Error $error->code: ";
                 break;
         }
-        $error_str .= trim($error->message);
+        $error_str .= trim((string) $error->message);
         $error_str .= " on line $error->line\n";
 
         return $error_str;
@@ -343,7 +344,7 @@ class CdaValidateDocuments
     public function saveValidationLog($docId, $log)
     {
         $content = json_encode($log ?? []);
-        sqlStatement("UPDATE `documents` SET `document_data` = ? WHERE `id` = ?", array($content, $docId));
+        sqlStatement("UPDATE `documents` SET `document_data` = ? WHERE `id` = ?", [$content, $docId]);
     }
 
     /**
@@ -352,7 +353,7 @@ class CdaValidateDocuments
      */
     public function fetchValidationLog($audit_id)
     {
-        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?", array($audit_id))['document_data'];
+        $log = sqlQuery("SELECT `document_data` FROM `documents` WHERE `audit_master_id` = ?", [$audit_id])['document_data'];
         return json_decode($log ?? [], true);
     }
 }

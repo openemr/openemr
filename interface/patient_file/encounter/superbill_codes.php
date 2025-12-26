@@ -34,9 +34,9 @@ if (isset($mode)) {
     }
 
     if ($mode == "add") {
-        if (strtolower($type) == "copay") {
+        if (strtolower((string) $type) == "copay") {
             BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
-        } elseif (strtolower($type) == "other") {
+        } elseif (strtolower((string) $type) == "other") {
             BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
         } else {
             BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
@@ -72,10 +72,10 @@ if (isset($mode)) {
 <?php
 $res = sqlStatement("select * from codes where superbill = 1 order by code_type, code, code_text");
 
-$codes = array();
+$codes = [];
 echo " <tr>\n";
 foreach ($code_types as $key => $value) {
-    $codes[$key] = array();
+    $codes[$key] = [];
     echo "  <th class='text-left'>" . text($key) . " Codes</th>\n";
 }
 

@@ -22,6 +22,7 @@ require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -35,14 +36,14 @@ $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
 
 $date             = (isset($_POST['form_date']))            ? DateToYYYYMMDD($_POST['form_date']) : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? DateToYYYYMMDD($_POST['form_onset_date']) : '';
-$sensitivity      = (isset($_POST['form_sensitivity']))     ? $_POST['form_sensitivity'] : '';
-$pc_catid         = (isset($_POST['pc_catid']))             ? $_POST['pc_catid'] : '';
-$facility_id      = (isset($_POST['facility_id']))          ? $_POST['facility_id'] : '';
-$billing_facility = (isset($_POST['billing_facility']))     ? $_POST['billing_facility'] : '';
-$reason           = (isset($_POST['reason']))               ? $_POST['reason'] : '';
-$mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
-$referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
-$pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+$sensitivity      = $_POST['form_sensitivity'] ?? '';
+$pc_catid         = $_POST['pc_catid'] ?? '';
+$facility_id      = $_POST['facility_id'] ?? '';
+$billing_facility = $_POST['billing_facility'] ?? '';
+$reason           = $_POST['reason'] ?? '';
+$mode             = $_POST['mode'] ?? '';
+$referral_source  = $_POST['form_referral_source'] ?? '';
+$pos_code         = $_POST['pos_code'] ?? '';
 $counselors       = (isset($_POST['counselors']) && is_array($_POST['counselors']))  ?  implode(', ', $_POST['counselors']) : $provider_id;
 
 
@@ -51,7 +52,7 @@ $facility = $facilityresult['name'];
 
 if ($mode == 'new') {
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
-    $encounter = generate_id();
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Therapy Group Encounter",
@@ -95,7 +96,7 @@ if ($mode == 'new') {
     );
 } elseif ($mode == 'update') {
     $id = $_POST["id"];
-    $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", array($id));
+    $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", [$id]);
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         die(xlt("You are not authorized to see this encounter."));
     }
@@ -103,7 +104,7 @@ if ($mode == 'new') {
     $encounter = $result['encounter'];
     // See view.php to allow or disallow updates of the encounter date.
     $datepart = "";
-    $sqlBindArray = array();
+    $sqlBindArray = [];
     if (AclMain::aclCheckCore('encounters', 'date_a')) {
         $datepart = "date = ?, ";
         $sqlBindArray[] = $date;
@@ -141,7 +142,7 @@ if ($mode == 'new') {
     die("Unknown mode '" . text($mode) . "'");
 }
 
-$normalurl = "patient_file/encounter/encounter_top.php?set_encounter=" . urlencode($encounter);
+$normalurl = "patient_file/encounter/encounter_top.php?set_encounter=" . urlencode((string) $encounter);
 
 $nexturl = $normalurl;
 
@@ -159,7 +160,7 @@ if (is_array($_POST['issues'])) {
 }*/
 
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe " .
-    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array($group_id));
+    " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", [$group_id]);
 ?>
 <html>
 <body>
@@ -173,7 +174,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
             while ($rowresult4 = sqlFetchArray($result4)) {
                 ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;
-    EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+    EncounterDateArray[Count]=<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
     CalendarCategoryArray[Count]=<?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
             Count++;
                 <?php

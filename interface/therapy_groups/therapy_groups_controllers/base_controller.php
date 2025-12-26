@@ -35,7 +35,7 @@ class BaseController
      * @param $template view name
      * @param array $data variables for injection into view
      */
-    protected function loadView($template, $data = array())
+    protected function loadView($template, $data = []): never
     {
 
         $template = __DIR__ . '/../' . self::VIEW_FOLDER . '/' . $template . '.php';
@@ -52,7 +52,7 @@ class BaseController
     protected function loadModel($name)
     {
         if (!isset($this->$name)) {
-            require(__DIR__ . '/../' . self::MODEL_FOLDER . '/' . strtolower($name) . '_model.php');
+            require(__DIR__ . '/../' . self::MODEL_FOLDER . '/' . strtolower((string) $name) . '_model.php');
             $this->$name = new $name();
         }
 

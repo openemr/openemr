@@ -19,8 +19,8 @@ use OpenEMR\Services\FHIR\FhirResourcesService;
 
 class FhirAppointmentRestController
 {
-    private FhirAppointmentService $fhirAppointmentService;
-    private FhirResourcesService $fhirService;
+    private readonly FhirAppointmentService $fhirAppointmentService;
+    private readonly FhirResourcesService $fhirService;
 
     public function __construct(HttpRestRequest $request)
     {
@@ -50,7 +50,7 @@ class FhirAppointmentRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirAppointmentService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
+        $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),

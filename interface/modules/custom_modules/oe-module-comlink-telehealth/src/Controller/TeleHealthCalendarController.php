@@ -25,13 +25,11 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\AppointmentService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class TeleHealthCalendarController
 {
-    private $logger;
-    private $assetPath;
     /**
      * @var The database record if of the currently logged in user
      */
@@ -47,33 +45,37 @@ class TeleHealthCalendarController
      */
     private $apptService;
 
+    private readonly TeleHealthProviderRepository $teleHealthProviderRepository;
+
     /**
-     * @var Environment Twig container
+     * @param TelehealthGlobalConfig $config
+     * @param Environment $twig Twig container
+     * @param SystemLogger $logger
+     * @param mixed $assetPath
+     * @param mixed $loggedInUserId
      */
-    private $twig;
-
-    private TeleHealthProviderRepository $healthProviderRepository;
-
-    public function __construct(TelehealthGlobalConfig $config, Environment $twig, SystemLogger $logger, $assetPath, $loggedInUserId)
-    {
-        $this->twig = $twig;
-        $this->logger = $logger;
-        $this->assetPath = $assetPath;
+    public function __construct(
+        TelehealthGlobalConfig $config,
+        private readonly Environment $twig,
+        private readonly SystemLogger $logger,
+        private $assetPath,
+        $loggedInUserId
+    ) {
         $this->loggedInUserId = $loggedInUserId;
         $this->calendarEventCategoryRepository = new CalendarEventCategoryRepository();
         $this->teleHealthProviderRepository = new TeleHealthProviderRepository($this->logger, $config);
 //        $this->apptService = new AppointmentService();
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
-        $eventDispatcher->addListener(CalendarUserGetEventsFilter::EVENT_NAME, [$this, 'filterTelehealthCalendarEvents']);
-        $eventDispatcher->addListener(ScriptFilterEvent::EVENT_NAME, [$this, 'addCalendarJavascript']);
-        $eventDispatcher->addListener(StyleFilterEvent::EVENT_NAME, [$this, 'addCalendarStylesheet']);
+        $eventDispatcher->addListener(CalendarUserGetEventsFilter::EVENT_NAME, $this->filterTelehealthCalendarEvents(...));
+        $eventDispatcher->addListener(ScriptFilterEvent::EVENT_NAME, $this->addCalendarJavascript(...));
+        $eventDispatcher->addListener(StyleFilterEvent::EVENT_NAME, $this->addCalendarStylesheet(...));
 
-        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_JAVASCRIPT, [$this, 'renderAppointmentJavascript']);
-        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderPatientValidationDiv']);
-        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderAppointmentsLaunchSessionButton']);
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_JAVASCRIPT, $this->renderAppointmentJavascript(...));
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, $this->renderPatientValidationDiv(...));
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, $this->renderAppointmentsLaunchSessionButton(...));
     }
 
     public function getAppointmentService()
@@ -147,9 +149,7 @@ class TeleHealthCalendarController
         $categories = $this->calendarEventCategoryRepository->getEventCategories();
         $categoryIds = array_keys($categories);
         $providers = $this->teleHealthProviderRepository->getEnabledProviders();
-        $providerIds = array_map(function ($provider) {
-            return intval($provider->getDbRecordId());
-        }, $providers);
+        $providerIds = array_map(fn($provider): int => intval($provider->getDbRecordId()), $providers);
 
         $jsAppointmentEventNames = [
             'appointmentSetEvent' => AppointmentJavascriptEventNames::APPOINTMENT_PATIENT_SET_EVENT
@@ -236,7 +236,7 @@ class TeleHealthCalendarController
     private function isAppointmentPageInclude($pageName, $scriptPath)
     {
         // make sure our script path is in calendar
-        return $pageName == "add_edit_event.php" && basename(dirname($scriptPath)) == 'calendar';
+        return $pageName == "add_edit_event.php" && basename(dirname((string) $scriptPath)) == 'calendar';
     }
 
     private function isCalendarPageInclude($pageName)

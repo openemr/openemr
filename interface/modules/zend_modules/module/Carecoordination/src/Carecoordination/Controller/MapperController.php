@@ -39,15 +39,15 @@ class MapperController extends AbstractActionController
         $folders    = $this->getMapperTable()->getDocuments();
         $ccda_saved = $this->getMapperTable()->getMappedFields(1);
 
-        $index      = new ViewModel(array(
-            'menu'                      => array('system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'),
+        $index      = new ViewModel([
+            'menu'                      => ['system_based_forms' => 'System Based Forms','layout_based_forms' => 'Layout Based Forms', 'database_tables' => 'Database Tables', 'folders' => 'Document Folders'],
             'sections'                  => $index,
             'system_based_forms'        => $forms,
             'layout_based_forms'        => $lbfforms,
             'database_tables'           => $table_list,
         'saved'         => $ccda_saved,
             'folders'                   => $folders,
-        ));
+        ]);
         return $index;
     }
 
@@ -58,7 +58,7 @@ class MapperController extends AbstractActionController
         $action     = $request->getPost('save');
         $tosave     = $request->getPost('tosave');
 
-        $components = explode('|***|', $tosave);
+        $components = explode('|***|', (string) $tosave);
         foreach ($components as $value) {
             $sections       = explode('|**|', $value);
             $component_name     = array_shift($sections);
@@ -79,8 +79,8 @@ class MapperController extends AbstractActionController
                         $form_type  = 1;
                     } elseif (substr($value_2, 0, 1) == 2) {
                         $value_2    = preg_replace('/^2\|/', '', $value_2);
-                        if (strpos($value_2, '|')) {
-                            $temp_1     = explode('|', $value_2);
+                        if (strpos((string) $value_2, '|')) {
+                            $temp_1     = explode('|', (string) $value_2);
                             $form_table = $form_dir = $temp_1[0];
                             $sub_id     = $temp_1[1];
                         } else {
@@ -90,8 +90,8 @@ class MapperController extends AbstractActionController
                         $form_type  = 2;
                     } elseif (substr($value_2, 0, 1) == 3) {
                         $value_2 = preg_replace('/^3\|/', '', $value_2);
-                        if (strpos($value_2, '|')) {
-                            $temp_1     = explode('|', $value_2);
+                        if (strpos((string) $value_2, '|')) {
+                            $temp_1     = explode('|', (string) $value_2);
                             $form_table = $form_dir = $temp_1[0];
                             $sub_id     = $temp_1[1];
                         } else {
@@ -105,16 +105,16 @@ class MapperController extends AbstractActionController
                         $form_type  = 3;
                     }
 
-                    $insert_id = $this->getMapperTable()->insertMaster(array(trim($component_name), trim($section_name), trim($form_dir), trim($form_type), trim($form_table), '1'));
+                    $insert_id = $this->getMapperTable()->insertMaster([trim($component_name), trim($section_name), trim((string) $form_dir), trim((string) $form_type), trim($form_table), '1']);
                     if ($sub_id) {
-                        $this->getMapperTable()->insertChild(array($insert_id,trim($sub_id)));
+                        $this->getMapperTable()->insertChild([$insert_id,trim($sub_id)]);
                     }
                 }
             }
         }
 
-        $this->getMapperTable()->updateExistingMappedFields(array($existing_id,1));
-        return $this->redirect()->toRoute('mapper', array('action' => 'index'));
+        $this->getMapperTable()->updateExistingMappedFields([$existing_id,1]);
+        return $this->redirect()->toRoute('mapper', ['action' => 'index']);
     }
 
     /**

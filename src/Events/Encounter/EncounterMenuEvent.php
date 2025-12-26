@@ -25,17 +25,14 @@ class EncounterMenuEvent extends Event
      */
     const MENU_RENDER = 'menu.render';
 
-    private $menu;
-
     /**
      * EncounterMenuEvent constructor takes a multidimensional array
      * of menu items.
      *
      * @param array $menu
      */
-    public function __construct(array $menu = [])
+    public function __construct(private array $menu = [])
     {
-        $this->menu = $menu;
     }
 
     /**

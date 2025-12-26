@@ -270,7 +270,7 @@ class InfernoSinglePatientAPITest extends TestCase
             throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
         }
     }
-    protected function assertResultsPassed(array $results, string $assertMessage, array $testIdsToSkipFailures = array()): void
+    protected function assertResultsPassed(array $results, string $assertMessage, array $testIdsToSkipFailures = []): void
     {
         foreach ($results as $result) {
             $failMessage = '';

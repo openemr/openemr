@@ -34,11 +34,11 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     exit;
 }
 
-$hidden_type_code = isset($_POST['hidden_type_code']) ? $_POST['hidden_type_code'] : '';
-$check_date = isset($_POST['check_date']) ? $_POST['check_date'] : '';
-$post_to_date = isset($_POST['post_to_date']) ? $_POST['post_to_date'] : '';
-$deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
-$type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
+$hidden_type_code = $_POST['hidden_type_code'] ?? '';
+$check_date = $_POST['check_date'] ?? '';
+$post_to_date = $_POST['post_to_date'] ?? '';
+$deposit_date = $_POST['deposit_date'] ?? '';
+$type_code = $_POST['type_code'] ?? '';
 
 //===============================================================================
 // This is called back by ParseERA::parseERA() if we are processing X12 835's.
@@ -51,9 +51,9 @@ function era_callback(&$out): void
 {
     global $where, $eracount, $eraname;
     ++$eracount;
-    $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
-    '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
+    $eraname = $out['gs_date'] . '_' . ltrim((string) $out['isa_control_number'], '0') .
+    '_' . ltrim((string) $out['payer_id'], '0');
+    [$pid, $encounter, $invnumber] = SLEOB::slInvoiceNumber($out);
     if ($pid && $encounter) {
         if ($where) {
             $where .= ' OR ';
@@ -70,9 +70,9 @@ if (!empty($_FILES['form_erafile']['size'])) {
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'];
     // Handle .zip extension if present.  Probably won't work on Windows.
-    if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+    if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
         rename($tmp_name, "$tmp_name.zip");
-        exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
+        exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg((string) $tmp_name));
         unlink("$tmp_name.zip");
     }
     $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
@@ -135,7 +135,18 @@ if (!empty($_FILES['form_erafile']['size'])) {
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
-         window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&post_to_date=' + encodeURIComponent(post_to_date) + '&deposit_date=' + encodeURIComponent(deposit_date) + '&original=original' + '&InsId=' + <?php echo js_url($hidden_type_code); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank');
+         // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
+         const params = new URLSearchParams({
+             eraname: <?php echo js_escape($eraname); ?>,
+             debug: debug,
+             paydate: paydate,
+             post_to_date: post_to_date,
+             deposit_date: deposit_date,
+             original: 'original',
+             InsId: <?php echo js_escape($hidden_type_code); ?>,
+             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+         });
+         window.open('sl_eob_process.php?' + params.toString(), '_blank');
          return false;
             <?php
         }
@@ -206,23 +217,23 @@ if (!empty($_FILES['form_erafile']['size'])) {
     //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
     //argument, containing one or more elements, the name of the current file is the first element, if there are linked
     // files they should be listed thereafter, please add _xpd suffix to the file name
-    $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
+    $arr_files_php = ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"];
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Payments'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["era_payments_xpd", "search_payments_xpd", "new_payment_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>

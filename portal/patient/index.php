@@ -64,7 +64,7 @@ try {
     // render it as JSON, otherwise attempt to render a friendly HTML page
 
     $url = RequestUtil::GetCurrentURL();
-    $isApiRequest = (strpos($url, 'api/') !== false);
+    $isApiRequest = (str_contains($url, 'api/'));
 
     if ($isApiRequest) {
         $result = new stdClass();

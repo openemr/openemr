@@ -15,12 +15,10 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
-    private CryptoGen $cryptoGen;
-    private string $encrypted;
+    private readonly string $encrypted;
 
-    public function __construct(CryptoGen $cryptoGen)
+    public function __construct(private readonly CryptoGen $cryptoGen)
     {
-        $this->cryptoGen = $cryptoGen;
         // Build the JSON data
         $jobJson = $this->buildJson();
         // Define encryption method and key
@@ -61,7 +59,7 @@ class WenoPharmaciesJson
         $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
-        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
+        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
         $storageLocation = $storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
         $path_to_extract = $storageLocation;
         $storeLocation .= "weno_pharmacy.zip";

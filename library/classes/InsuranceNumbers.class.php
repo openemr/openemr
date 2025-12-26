@@ -18,16 +18,15 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class InsuranceNumbers extends ORDataObject
 {
-        var $id;
-        var $provider_id;
-        var $insurance_company_name;
-        var $insurance_company_id;
-        var $provider_number;
-        var $rendering_provider_number;
-        var $group_number;
-        var $provider_number_type;
-        var $provider_number_type_array = array
-        (
+        public $provider_id;
+        public $insurance_company_name;
+        public $insurance_company_id;
+        public $provider_number;
+        public $rendering_provider_number;
+        public $group_number;
+        public $provider_number_type;
+        public $provider_number_type_array =
+        [
             ""   => "Unspecified",
             "0B" => "State License Number",
             "1A" => "Blue Cross Provider Number",
@@ -48,10 +47,10 @@ class InsuranceNumbers extends ORDataObject
             "U3" => "Unique Supplier Identification Number (USIN)",
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
-        );
-        var $rendering_provider_number_type;
-        var $rendering_provider_number_type_array = array
-        (
+        ];
+        public $rendering_provider_number_type;
+        public $rendering_provider_number_type_array =
+        [
             ""   => "Unspecified",
             "0B" => "State License Number",
             "1A" => "Blue Cross Provider Number",
@@ -67,17 +66,16 @@ class InsuranceNumbers extends ORDataObject
             "X4" => "Clinical Laboratory Improvement Amendment Number",
             "X5" => "State Industrial Accident Provider Number",
             "ZZ" => "Mutually Defined/Taxonomy"
-        );
+        ];
 
         /**
          * Constructor sets all Insurance attributes to their default value
          */
 
-        function __construct($id = "", $prefix = "")
+        function __construct(public $id = "", $prefix = "")
         {
-            $this->id = $id;
             $this->_table = "insurance_numbers";
-            if ($id != "") {
+            if ($this->id != "") {
                 $this->populate();
             }
         }
@@ -92,10 +90,10 @@ class InsuranceNumbers extends ORDataObject
 
         function insurance_numbers_factory($provider_id)
         {
-            $ins = array();
+            $ins = [];
             $sql = "SELECT id FROM "  . escape_table_name($this->_table) .
                 " WHERE provider_id = ? ORDER BY insurance_company_id";
-            $results = sqlStatementNoLog($sql, array($provider_id));
+            $results = sqlStatementNoLog($sql, [$provider_id]);
 
             while ($row = sqlFetchArray($results)) {
                     $ins[] = new InsuranceNumbers($row['id']);

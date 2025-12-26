@@ -29,11 +29,11 @@ if (!empty($_POST)) {
 
 // For each sorting option, specify the ORDER BY argument.
 //
-$ORDERHASH = array(
+$ORDERHASH = [
     'name' => 'd.name, d.drug_id',
     'act'  => 'd.active, d.name, d.drug_id',
     'con'  => 'd.consumable, d.name, d.drug_id',
-);
+];
 
 // Check permission for this report.
 $auth_drug_reports = $GLOBALS['inhouse_pharmacy'] && (
@@ -75,7 +75,7 @@ function checkReorder($drug_id, $min, $warehouse = '')
         "s.drug_id = ? AND " .
         "s.sale_date > DATE_SUB(NOW(), INTERVAL ? DAY) " .
         "AND s.pid != 0";
-    $binds = array($drug_id, $form_days);
+    $binds = [$drug_id, $form_days];
     if ($warehouse !== '') {
         $query .= " AND di.warehouse_id = ?";
         $binds[] = $warehouse;
@@ -88,7 +88,7 @@ function checkReorder($drug_id, $min, $warehouse = '')
       "di.drug_id = ? AND " .
       "(di.expiration IS NULL OR di.expiration > NOW()) AND " .
       "di.destroy_date IS NULL";
-    $binds = array($drug_id);
+    $binds = [$drug_id];
     if ($warehouse !== '') {
         $query .= " AND di.warehouse_id = ?";
         $binds[] = $warehouse;
@@ -144,7 +144,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
     $today = date('Y-m-d');
 
     $prodcond = '';
-    $prodbind = array();
+    $prodbind = [];
     if ($product_id) {
         $prodcond = "AND di.drug_id = ?";
         $prodbind[] = $product_id;
@@ -152,7 +152,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
 
     // This will be an array where key is date and value is quantity.
     // For each date key the value represents net quantity changes for that day.
-    $qtys = array();
+    $qtys = [];
 
     // Force it to have entries for the begin and end dates.
     $qtys[$today] = 0;
@@ -178,10 +178,10 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         "di.destroy_date IS NOT NULL AND di.destroy_date >= ? " .
         "$prodcond $extracond" .
         "GROUP BY di.destroy_date ORDER BY di.destroy_date",
-        array_merge(array($begdate), $prodbind, $extrabind)
+        array_merge([$begdate], $prodbind, $extrabind)
     );
     while ($row = sqlFetchArray($res)) {
-        $thisdate = substr($row['destroy_date'], 0, 10);
+        $thisdate = substr((string) $row['destroy_date'], 0, 10);
         if (!isset($qtys[$thisdate])) {
             $qtys[$thisdate] = 0;
         }
@@ -200,7 +200,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         "di.inventory_id = ds.inventory_id " .
         "$prodcond $extracond" .
         "GROUP BY ds.sale_date ORDER BY ds.sale_date",
-        array_merge(array($begdate), $prodbind, $extrabind)
+        array_merge([$begdate], $prodbind, $extrabind)
     );
     while ($row = sqlFetchArray($res)) {
         $thisdate = $row['sale_date'];
@@ -222,7 +222,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         "di.inventory_id = ds.xfer_inventory_id " .
         "$prodcond $extracond" .
         "GROUP BY ds.sale_date ORDER BY ds.sale_date",
-        array_merge(array($begdate), $prodbind, $extrabind)
+        array_merge([$begdate], $prodbind, $extrabind)
     );
     while ($row = sqlFetchArray($res)) {
         $thisdate = $row['sale_date'];
@@ -268,7 +268,7 @@ function write_report_line(&$row): void
     $emptyvalue = $form_action != 'export' ? '&nbsp;' : '';
     $drug_id = (int) $row['drug_id'];
     $on_hand = (int) $row['on_hand'];
-    $warehouse_id = isset($row['warehouse_id']) ? $row['warehouse_id'] : '';
+    $warehouse_id = $row['warehouse_id'] ?? '';
     $facility_id = empty($row['option_value']) ? '0' : $row['option_value'];
     $warnings = '';
 
@@ -285,7 +285,7 @@ function write_report_line(&$row): void
             "lo.option_value IS NOT NULL AND lo.option_value = ? AND " .
             "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
             "AND s.pid != 0 $fwcond";
-        $srow = sqlQuery($query, array_merge(array($drug_id, $facility_id), $fwbind));
+        $srow = sqlQuery($query, array_merge([$drug_id, $facility_id], $fwbind));
     } elseif ($form_details == 2) { // warehouse details
         $query = "SELECT " .
             "SUM(s.quantity) AS sale_quantity " .
@@ -298,7 +298,7 @@ function write_report_line(&$row): void
             "di.warehouse_id IS NOT NULL AND di.warehouse_id = ? AND " .
             "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
             "AND s.pid != 0 $fwcond";
-        $srow = sqlQuery($query, array_merge(array($drug_id, $warehouse_id), $fwbind));
+        $srow = sqlQuery($query, array_merge([$drug_id, $warehouse_id], $fwbind));
     } else {
         $srow = sqlQuery(
             "SELECT " .
@@ -311,7 +311,7 @@ function write_report_line(&$row): void
             "s.drug_id = ? AND " .
             "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
             "AND s.pid != 0 $fwcond",
-            array_merge(array($drug_id), $fwbind)
+            array_merge([$drug_id], $fwbind)
         );
     }
     $sale_quantity = $srow['sale_quantity'];
@@ -323,11 +323,11 @@ function write_report_line(&$row): void
     $extrabind = $fwbind;
     if ($form_details == 1) {
         $extracond = "AND lo.option_value IS NOT NULL AND lo.option_value = ?";
-        $extrabind = array($facility_id);
+        $extrabind = [$facility_id];
     }
     if ($form_details == 2) {
         $extracond = "AND di.warehouse_id = ?";
-        $extrabind = array($warehouse_id);
+        $extrabind = [$warehouse_id];
     }
     $min_sale = 1;
     if (!$row['allow_combining']) {
@@ -343,7 +343,7 @@ function write_report_line(&$row): void
             "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
             "AND s.pid != 0 " .
             "AND s.quantity > 0 $extracond",
-            array_merge(array($drug_id), $extrabind)
+            array_merge([$drug_id], $extrabind)
         );
         $min_sale = 0 + $sminrow['min_sale'];
     }
@@ -416,7 +416,7 @@ function write_report_line(&$row): void
         "di.on_hand < ? OR " .
         "di.expiration IS NOT NULL AND di.expiration < DATE_ADD(NOW(), INTERVAL " . escape_limit($gbl_expired_lot_warning_days) . " DAY) " .
         ") $extracond ORDER BY di.lot_number",
-        array_merge(array($drug_id, $min_sale), $extrabind)
+        array_merge([$drug_id, $min_sale], $extrabind)
     );
     // Generate warnings associated with individual lots.
     while ($irow = sqlFetchArray($ires)) {
@@ -425,7 +425,7 @@ function write_report_line(&$row): void
             addWarning(xl('Lot') . " '$lotno' " . xl('quantity seems unusable'));
         }
         if (!empty($irow['expiration'])) {
-            $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
+            $expdays = (int) ((strtotime((string) $irow['expiration']) - time()) / (60 * 60 * 24));
             if ($expdays <= 0) {
                 addWarning(xl('Lot') . " '$lotno' " . xl('has expired'));
             } elseif ($expdays <= $gbl_expired_lot_warning_days) {
@@ -460,12 +460,12 @@ function write_report_line(&$row): void
     }
 
     $relcodes = '';
-    $tmp = explode(';', $row['related_code']);
+    $tmp = explode(';', (string) $row['related_code']);
     foreach ($tmp as $codestring) {
         if ($codestring === '') {
             continue;
         }
-        list($codetype, $code) = explode(':', $codestring);
+        [$codetype, $code] = explode(':', $codestring);
         // For IPPF just the IPPFCM codes are wanted.
         if ($GLOBALS['ippf_specific'] && $codetype !== 'IPPFCM') {
             continue;
@@ -477,10 +477,10 @@ function write_report_line(&$row): void
     }
 
     $drug_form = empty($row['form']) ? '' : generate_display_field(
-        array(
+        [
             'data_type' => '1',
             'list_id' => 'drug_form'
-        ),
+        ],
         $row['form']
     );
 
@@ -574,14 +574,14 @@ $orderby = $ORDERHASH[$form_orderby];
 // Incoming form_warehouse, if not empty is in the form "warehouse/facility".
 // The facility part is an attribute used by JavaScript logic.
 $form_warehouse = $_REQUEST['form_warehouse'] ?? '';
-$tmp = explode('/', $form_warehouse);
+$tmp = explode('/', (string) $form_warehouse);
 $form_warehouse = $tmp[0];
 
 $mmtype = empty($GLOBALS['gbl_min_max_months']) ? xl('Units') : xl('Months');
 
 // Compute WHERE condition for filtering on facility/warehouse.
 $fwcond = '';
-$fwbind = array();
+$fwbind = [];
 if ($form_facility) {
     $fwcond .= " AND lo.option_value IS NOT NULL AND lo.option_value = ?";
     $fwbind[] = $form_facility;
@@ -831,11 +831,11 @@ table.mymaintable td, table.mymaintable th {
 
    <select name='form_consumable'><?php
     foreach (
-        array(
+        [
         '0' => xl('All Product Types'),
         '1' => xl('Consumable Only'),
         '2' => xl('Non-Consumable Only'),
-        ) as $key => $value
+        ] as $key => $value
     ) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $form_consumable) {
@@ -851,7 +851,7 @@ table.mymaintable td, table.mymaintable th {
 
     <?php
     echo "   <select name='form_details'>\n";
-    $tmparr = array(0 => xl('Summary'), 1 => xl('Facility Details'), 2 => xl('Warehouse Details'));
+    $tmparr = [0 => xl('Summary'), 1 => xl('Facility Details'), 2 => xl('Warehouse Details')];
     foreach ($tmparr as $key => $value) {
         echo "    <option value='" . attr($key) . "'";
         if ($key == $form_details) {
@@ -927,7 +927,7 @@ if ($form_action) { // if submit
     $encount = 0;
     $last_drug_id = '';
     $wrl_last_drug_id = '';
-    $warehouse_row = array('drug_id' => 0, 'warehouse_id' => '');
+    $warehouse_row = ['drug_id' => 0, 'warehouse_id' => ''];
 
     while ($row = sqlFetchArray($res)) {
         $drug_id = (int) $row['drug_id'];

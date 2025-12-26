@@ -7,23 +7,8 @@ use Twig\Environment;
 
 class ParticipantListService
 {
-    /**
-     * @var TeleHealthProvisioningService
-     */
-    private $provisioningService;
-
-    private $publicPathFQDN;
-
-    /**
-     * @var Environment
-     */
-    private $twig;
-
-    public function __construct(Environment $twig, TeleHealthProvisioningService $provisioningService, $publicPathFQDN)
+    public function __construct(private readonly Environment $twig, private readonly TeleHealthProvisioningService $provisioningService, private $publicPathFQDN)
     {
-        $this->provisioningService = $provisioningService;
-        $this->publicPathFQDN = $publicPathFQDN;
-        $this->twig = $twig;
     }
 
     public function getParticipantListWithInvitationsForAppointment($user, $session)

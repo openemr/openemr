@@ -21,6 +21,10 @@ if (php_sapi_name() !== 'cli') {
     die;
 }
 
+if (!isset($argv[4])) {
+    throw new RuntimeException("This script requires at least 4 arguments");
+}
+
 $_GET['site'] = $argv[1];
 $ignoreAuth = true;
 require_once __DIR__ . "/../../../interface/globals.php";
@@ -65,7 +69,7 @@ foreach ($records as $record) {
         ) {
             $sql = "INSERT INTO `fee_schedule` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `fee`, `effective_date`)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
-            sqlQuery($sql, array($insurance_company_id, $sched_plan, $sched_code, $sched_mod, $sched_type, $sched_fee, $effective_date));
+            sqlQuery($sql, [$insurance_company_id, $sched_plan, $sched_code, $sched_mod, $sched_type, $sched_fee, $effective_date]);
             if ($codes_sql['fee'] < $sched_fee) {
                 $ceil_fee = number_format(ceil($sched_fee), 2, '.', '');
                 echo "*** existing fee " . sprintf("%7.2f", $our_fee) . " for $our_code:$our_mod " .

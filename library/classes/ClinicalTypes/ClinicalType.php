@@ -25,15 +25,12 @@ abstract class ClinicalType
     const CHARACTERISTIC = 'Characteristic';
     const PHYSICAL_EXAM = 'PhysicalExam';
     const LAB_RESULT = 'LabResult';
-
-    private $_optionId;
     private $_title;
     private $_notes;
 
-    public function __construct($optionId)
+    public function __construct(private $_optionId)
     {
-        $this->_optionId = $optionId;
-        $result = $this->getListOptionById($optionId);
+        $result = $this->getListOptionById($this->_optionId);
         $this->_title = $result['title'] ?? '';
         $this->_notes = $result['notes'] ?? '';
     }
@@ -62,7 +59,7 @@ abstract class ClinicalType
 
     public function getListOptions()
     {
-        return array();
+        return [];
     }
 
     private function getListOptionById($id)
@@ -71,7 +68,7 @@ abstract class ClinicalType
                  "FROM `list_options` " .
                  "WHERE list_id = ? " .
                  "AND option_id = ? AND activity = 1";
-        $results = sqlStatement($query, array( $this->getListId(), $id ));
+        $results = sqlStatement($query, [ $this->getListId(), $id ]);
         $arr = sqlFetchArray($results);
         return $arr;
     }

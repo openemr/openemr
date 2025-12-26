@@ -46,7 +46,7 @@ use OpenEMR\Services\Search\SearchQueryConfig;
 // TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
 use OpenEMR\RestControllers\Config\RestConfig;
 
-return array(
+return [
     /**
      *  @OA\Get(
      *      path="/api/facility",
@@ -5807,7 +5807,9 @@ return array(
      *  )
      */
     "POST /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
-        $return = (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
+        $controller = new DocumentRestController();
+        $controller->setSession($request->getSession());
+        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document']);
 
         return $return;
     },
@@ -7285,5 +7287,320 @@ return array(
         $return = (new PrescriptionRestController())->getOne($uuid);
 
         return $return;
+    },
+
+    // ==================================================
+    // Vietnamese Physiotherapy Module REST Routes
+    // AI-generated integration for Vietnamese PT module
+    // ==================================================
+
+    /**
+     * Vietnamese PT Assessment Routes
+     */
+    "GET /api/vietnamese-pt/assessments" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/assessments/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/assessments" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/assessments/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/assessments/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentRestController())->delete($id);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/assessments/patient/:patientId" => function ($patientId, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentRestController())->getPatientAssessments($patientId);
+        return $return;
+    },
+
+    /**
+     * Vietnamese PT Exercise Prescription Routes
+     */
+    "GET /api/vietnamese-pt/exercises" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTExercisePrescriptionRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/exercises/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTExercisePrescriptionRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/exercises" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTExercisePrescriptionRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/exercises/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTExercisePrescriptionRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/exercises/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTExercisePrescriptionRestController())->delete($id);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/exercises/patient/:patientId" => function ($patientId, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTExercisePrescriptionRestController())->getPatientPrescriptions($patientId);
+        return $return;
+    },
+
+    /**
+     * Vietnamese PT Treatment Plan Routes
+     */
+    "GET /api/vietnamese-pt/treatment-plans" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTTreatmentPlanRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/treatment-plans/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTTreatmentPlanRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/treatment-plans" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTTreatmentPlanRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/treatment-plans/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTTreatmentPlanRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/treatment-plans/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTTreatmentPlanRestController())->delete($id);
+        return $return;
+    },
+
+    /**
+     * Vietnamese PT Outcome Measures Routes
+     */
+    "GET /api/vietnamese-pt/outcomes" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTOutcomeMeasuresRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/outcomes/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTOutcomeMeasuresRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/outcomes" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTOutcomeMeasuresRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/outcomes/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTOutcomeMeasuresRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/outcomes/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTOutcomeMeasuresRestController())->delete($id);
+        return $return;
+    },
+
+    /**
+     * Vietnamese Medical Terms Routes
+     */
+    "GET /api/vietnamese-pt/medical-terms" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseMedicalTermsRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/medical-terms/search/:term" => function ($term, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $language = $_GET['language'] ?? 'en';
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseMedicalTermsRestController())->search($term, $language);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/medical-terms/translate/:term" => function ($term, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $fromLanguage = $_GET['from'] ?? 'en';
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseMedicalTermsRestController())->translate($term, $fromLanguage);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/medical-terms/categories" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseMedicalTermsRestController())->getCategories();
+        return $return;
+    },
+
+    /**
+     * Vietnamese Translation Service Routes
+     */
+    "GET /api/vietnamese-pt/translations" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseTranslationRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/translations/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseTranslationRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/translations" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseTranslationRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/translations/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseTranslationRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/translations/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseTranslationRestController())->delete($id);
+        return $return;
+    },
+
+    /**
+     * Vietnamese Insurance (BHYT) Routes
+     */
+    "GET /api/vietnamese-pt/insurance" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseInsuranceRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/insurance/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseInsuranceRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/insurance" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseInsuranceRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/insurance/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseInsuranceRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/insurance/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\VietnameseInsuranceRestController())->delete($id);
+        return $return;
+    },
+
+    /**
+     * Vietnamese PT Assessment Template Routes
+     */
+    "GET /api/vietnamese-pt/assessment-templates" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentTemplateRestController())->getAll($_GET);
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/assessment-templates/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentTemplateRestController())->getOne($id);
+        return $return;
+    },
+
+    "POST /api/vietnamese-pt/assessment-templates" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentTemplateRestController())->post($data);
+        return $return;
+    },
+
+    "PUT /api/vietnamese-pt/assessment-templates/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentTemplateRestController())->put($id, $data);
+        return $return;
+    },
+
+    "DELETE /api/vietnamese-pt/assessment-templates/:id" => function ($id, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\PTAssessmentTemplateRestController())->delete($id);
+        return $return;
+    },
+
+    /**
+     * Vietnamese PT Health Check and Monitoring Routes
+     * AI-GENERATED: Added for production monitoring and health checks
+     */
+    "GET /api/vietnamese-pt/health" => function (HttpRestRequest $request) {
+        // No authorization required for health checks (public endpoint)
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\HealthCheckController())->getHealth();
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/health/detailed" => function (HttpRestRequest $request) {
+        // Require admin access for detailed health information
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\HealthCheckController())->getDetailedHealth();
+        return $return;
+    },
+
+    "GET /api/vietnamese-pt/version" => function (HttpRestRequest $request) {
+        // No authorization required for version information
+        $return = (new \OpenEMR\RestControllers\VietnamesePT\HealthCheckController())->getVersion();
+        return $return;
     }
-);
+    // End Vietnamese PT Routes
+];

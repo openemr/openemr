@@ -67,7 +67,7 @@ if (isset($_POST['mode'])) {
         $sql = BillingReport::returnOFXSql();
         $db = get_db();
         $results = $db->Execute($sql);
-        $billings = array();
+        $billings = [];
         if ($results->RecordCount() == 0) {
             echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
@@ -90,26 +90,26 @@ if (isset($_POST['mode'])) {
 }
 
 // global variables:
-$from_date = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
-$to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
-$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'all';
-$unbilled = isset($_POST['unbilled']) ? $_POST['unbilled'] : 'on';
-$my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '';
+$from_date = $_POST['from_date'] ?? date('Y-m-d');
+$to_date = $_POST['to_date'] ?? '';
+$code_type = $_POST['code_type'] ?? 'all';
+$unbilled = $_POST['unbilled'] ?? 'on';
+$my_authorized = $_POST["authorized"] ?? '';
 
 // This tells us if only encounters that appear to be missing a "25" modifier
 // are to be reported.
 $missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
-$left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : $GLOBALS['cms_left_margin_default'];
-$top_margin = isset($_POST["top_margin"]) ? $_POST["top_margin"] : $GLOBALS['cms_top_margin_default'];
+$left_margin = $_POST["left_margin"] ?? $GLOBALS['cms_left_margin_default'];
+$top_margin = $_POST["top_margin"] ?? $GLOBALS['cms_top_margin_default'];
 if ($left_margin + 0 === 20 && $top_margin + 0 === 24) {
 // defaults are flipped. No easy way to reset existing. Global defaults fixed.
     $left_margin = '24';
     $top_margin = '20';
 }
 if ($ub04_support) {
-    $left_ubmargin = isset($_POST["left_ubmargin"]) ? $_POST["left_ubmargin"] : $GLOBALS['left_ubmargin_default'];
-    $top_ubmargin = isset($_POST["top_ubmargin"]) ? $_POST["top_ubmargin"] : $GLOBALS['top_ubmargin_default'];
+    $left_ubmargin = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
+    $top_ubmargin = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
 }
 $ofrom_date = $from_date;
 $oto_date = $to_date;
@@ -577,17 +577,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     <!-- =============Included for Insurance ajax criteria==== -->
     <title><?php echo xlt('Billing Manager'); ?></title>
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => xl('Billing Manager'),
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => false,
-        'expandable_files' => array('billing_report_xpd'),//all file names need suffix _xpd
+        'expandable_files' => ['billing_report_xpd'],//all file names need suffix _xpd
         'action' => "conceal",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -612,15 +612,15 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // $TPSCriteriaDisplayMaster ==>It is the display on screen for the set of criteria.
                         // $TPSCriteriaKeyMaster ==>Corresponding database fields in the same order.
                         // $TPSCriteriaDataTypeMaster ==>Corresponding data type in the same order.
-                        $TPSCriteriaDisplayRadioMaster = array();
-                        $TPSCriteriaRadioKeyMaster = array();
-                        $TPSCriteriaQueryDropDownMaster = array();
-                        $TPSCriteriaQueryDropDownMasterDefault = array();
-                        $TPSCriteriaQueryDropDownMasterDefaultKey = array();
-                        $TPSCriteriaIncludeMaster = array();
+                        $TPSCriteriaDisplayRadioMaster = [];
+                        $TPSCriteriaRadioKeyMaster = [];
+                        $TPSCriteriaQueryDropDownMaster = [];
+                        $TPSCriteriaQueryDropDownMasterDefault = [];
+                        $TPSCriteriaQueryDropDownMasterDefaultKey = [];
+                        $TPSCriteriaIncludeMaster = [];
 
                     if ($daysheet) {
-                        $TPSCriteriaDisplayMaster = array(
+                        $TPSCriteriaDisplayMaster = [
                             xl("Date of Service"),
                             xl("Date of Entry"),
                             xl("Date of Billing"),
@@ -636,11 +636,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             xl("Last Level Billed"),
                             xl("X12 Partner"),
                             xl("User")
-                        );
+                        ];
                         $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
                         $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down,text";
                     } else {
-                        $TPSCriteriaDisplayMaster = array(
+                        $TPSCriteriaDisplayMaster = [
                             xl("Date of Service"),
                             xl("Date of Entry"),
                             xl("Date of Billing"),
@@ -655,50 +655,50 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             xl("Authorization Status"),
                             xl("Last Level Billed"),
                             xl("X12 Partner")
-                        );
+                        ];
                         $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
                         $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down";
                     }
                         // The below section is needed if there is any 'radio' or 'radio_like' type in the $TPSCriteriaDataTypeMaster
                         // $TPSCriteriaDisplayRadioMaster,$TPSCriteriaRadioKeyMaster ==>For each radio data type this pair comes.
                         // The key value 'all' indicates that no action need to be taken based on this.For that the key must be 'all'.Display value can be any thing.
-                        $TPSCriteriaDisplayRadioMaster[1] = array(
+                        $TPSCriteriaDisplayRadioMaster[1] = [
                             xl("All"),
                             xl("eClaims"),
                             xl("Paper")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[1] = "all,standard,hcfa"; // Key
-                        $TPSCriteriaDisplayRadioMaster[2] = array(
+                        $TPSCriteriaDisplayRadioMaster[2] = [
                             xl("All"),
                             xl("Insured"),
                             xl("Non-Insured")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[2] = "all,1,0"; // Key
-                        $TPSCriteriaDisplayRadioMaster[3] = array(
+                        $TPSCriteriaDisplayRadioMaster[3] = [
                             xl("All"),
                             xl("Coded"),
                             xl("Not Coded")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[3] = "all,not null,null"; // Key
-                        $TPSCriteriaDisplayRadioMaster[4] = array(
+                        $TPSCriteriaDisplayRadioMaster[4] = [
                             xl("All"),
                             xl("Unbilled"),
                             xl("Billed"),
                             xl("Denied")
-                        ); // Display Value
+                        ]; // Display Value
                         $TPSCriteriaRadioKeyMaster[4] = "all,0,1,7"; // Key
-                        $TPSCriteriaDisplayRadioMaster[5] = array(
+                        $TPSCriteriaDisplayRadioMaster[5] = [
                             xl("All"),
                             xl("Authorized"),
                             xl("Unauthorized")
-                        );
+                        ];
                         $TPSCriteriaRadioKeyMaster[5] = "%,1,0";
-                        $TPSCriteriaDisplayRadioMaster[6] = array(
+                        $TPSCriteriaDisplayRadioMaster[6] = [
                             xl("All"),
                             xl("None{{Insurance}}"),
                             xl("Ins 1"),
                             xl("Ins 2 or Ins 3")
-                        );
+                        ];
                         $TPSCriteriaRadioKeyMaster[6] = "all,0,1,2";
                         // The below section is needed if there is any 'query_drop_down' type in the $TPSCriteriaDataTypeMaster
                         $TPSCriteriaQueryDropDownMaster[1] = "SELECT name,id FROM x12_partners;";
@@ -848,45 +848,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             <input name='to_date' type='hidden' value="<?php echo attr($to_date); ?>" />
             <input name='from_date' type='hidden' value="<?php echo attr($from_date); ?>" />
             <?php
-            if ($my_authorized == "on") {
-                $my_authorized = "1";
-            } else {
-                $my_authorized = "%";
-            }
-            if ($unbilled == "on") {
-                $unbilled = "0";
-            } else {
-                $unbilled = "%";
-            }
+            $my_authorized = $my_authorized == "on" ? "1" : "%";
+            $unbilled = $unbilled == "on" ? "0" : "%";
             $list = BillingReport::getBillsListBetween("%");
             // don't query the whole encounter table if no criteria selected
 
             if (!isset($_POST["mode"])) {
-                if (!isset($_POST["from_date"])) {
-                    $from_date = date("Y-m-d");
-                } else {
-                    $from_date = $_POST["from_date"];
-                }
-                if (empty($_POST["to_date"])) {
-                    $to_date = '';
-                } else {
-                    $to_date = $_POST["to_date"];
-                }
-                if (!isset($_POST["code_type"])) {
-                    $code_type = "all";
-                } else {
-                    $code_type = $_POST["code_type"];
-                }
-                if (!isset($_POST["unbilled"])) {
-                    $unbilled = "on";
-                } else {
-                    $unbilled = $_POST["unbilled"];
-                }
-                if (!isset($_POST["authorized"])) {
-                    $my_authorized = "on";
-                } else {
-                    $my_authorized = $_POST["authorized"];
-                }
+                $from_date = !isset($_POST["from_date"]) ? date("Y-m-d") : $_POST["from_date"];
+                $to_date = empty($_POST["to_date"]) ? '' : $_POST["to_date"];
+                $code_type = !isset($_POST["code_type"]) ? "all" : $_POST["code_type"];
+                $unbilled = !isset($_POST["unbilled"]) ? "on" : $_POST["unbilled"];
+                $my_authorized = !isset($_POST["authorized"]) ? "on" : $_POST["authorized"];
             } else {
                 $from_date = $_POST["from_date"] ?? null;
                 $to_date = $_POST["to_date"] ?? null;
@@ -895,17 +867,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 $my_authorized = $_POST["authorized"] ?? null;
             }
 
-            if ($my_authorized == "on") {
-                $my_authorized = "1";
-            } else {
-                $my_authorized = "%";
-            }
+            $my_authorized = $my_authorized == "on" ? "1" : "%";
 
-            if ($unbilled == "on") {
-                $unbilled = "0";
-            } else {
-                $unbilled = "%";
-            }
+            $unbilled = $unbilled == "on" ? "0" : "%";
 
             if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
                 BillingReport::billCodesList($list);
@@ -950,6 +914,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                         $mmo_empty_mod = false;
                         $mmo_num_charges = 0;
+                        $encount = 0;
+                        $divPut = false;
 
                         foreach ($ret as $iter) {
                         // We include encounters here that have never been billed. However
@@ -961,10 +927,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     "encounter = ? AND " .
                                     "pid=? AND " .
                                     "activity = 1",
-                                    array(
+                                    [
                                     $iter['enc_encounter'],
                                     $iter['enc_pid']
-                                    )
+                                    ]
                                 );
                                 if ($res['count'] > 0) {
                                     continue;
@@ -983,13 +949,12 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     // This test handles the case where we are only listing encounters
                                     // that appear to have a missing "25" modifier.
                                     if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
-                                        if ($DivPut == 'yes') {
+                                        if ($divPut) {
                                             $lhtml .= '</div>';
-                                            $DivPut = 'no';
+                                            $divPut = false;
                                         }
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
                                         echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n\n";
-                                        $encount = $encount ?? null;
                                         ++$encount;
                                     }
                                 }
@@ -1009,10 +974,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         "encounter = ? AND " .
                                         "pid=? AND " .
                                         "activity = 1 AND authorized = 0",
-                                        array(
+                                        [
                                         $iter['enc_encounter'],
                                         $iter['enc_pid']
-                                        )
+                                        ]
                                     );
                                     if ($res['count'] > 0) {
                                         $skipping = true;
@@ -1021,7 +986,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     }
                                 }
                                 // Is there a MBO
-                                $mboid = sqlQuery("SELECT forms.form_id FROM forms WHERE forms.encounter = ? AND forms.authorized = 1 AND forms.formdir = 'misc_billing_options' AND forms.deleted != 1 LIMIT 1", array($iter['enc_encounter']));
+                                $mboid = sqlQuery("SELECT forms.form_id FROM forms WHERE forms.encounter = ? AND forms.authorized = 1 AND forms.formdir = 'misc_billing_options' AND forms.deleted != 1 LIMIT 1", [$iter['enc_encounter']]);
                                 $iter['mboid'] = $mboid ? attr($mboid['form_id']) : 0;
 
                                 $name = getPatientData($iter['enc_pid'], "fname, mname, lname, pubpid, billing_note, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -1035,20 +1000,20 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     "type='primary' AND " .
                                     "subscriber_lname IS NOT NULL AND " .
                                     "subscriber_lname != '' LIMIT 1",
-                                    array(
+                                    [
                                     $iter['enc_pid']
-                                    )
+                                    ]
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = ((($encount ?? null) & 1) ? "var(--light)" : "var(--gray300)");
+                                $bgcolor = (($encount & 1) ? "var(--light)" : "var(--gray300)");
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
                                 $oldcode = "";
 
                                 $ptname = $name['fname'] . " " . $name['lname'];
-                                $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
+                                $raw_encounter_date = date("Y-m-d", strtotime((string) $iter['enc_date']));
                                 $billing_note = $name['billing_note'];
                                 // Add Encounter Date to display with "To Encounter" button 2/17/09 JCH
                                 $lhtml .= "<span class='font-weight-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
@@ -1057,9 +1022,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $result4 = sqlStatement(
                                     "SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                                     " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC",
-                                    array(
+                                    [
                                     $iter['enc_pid']
-                                    )
+                                    ]
                                 );
                                 if (sqlNumRows($result4) > 0) {
                                     ;
@@ -1074,7 +1039,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 while ($rowresult4 = sqlFetchArray($result4)) {
                                     ?>
                                     EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
-                                    EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+                                    EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $rowresult4['date'])))); ?>;
                                     CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
                                     EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['billing_note']); ?>;
                                     Count++;
@@ -1117,10 +1082,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         "encounter_id = ? AND " .
                                         "patient_id=? " .
                                         "ORDER BY version DESC LIMIT 1",
-                                        array(
+                                        [
                                         $iter['enc_encounter'],
                                         $iter['enc_pid']
-                                        )
+                                        ]
                                     );
                                     $is_edited = ($c['status'] ?? null) ? 'btn-success' : 'btn-warning';
                                     $bname = ($c['status'] ?? null) ? xl('Reviewed') : xl('Review UB04');
@@ -1139,14 +1104,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
                                     $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' class='form-control'>";
 
-                                    $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
+                                    $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", [$iter['enc_encounter']])['last_level_closed'];
                                     $effective_insurances = getEffectiveInsurances($iter['pid'], $iter['enc_date']);
                                     $insuranceCount = count($effective_insurances ?? []);
 
                                     foreach ($effective_insurances as $key => $row) {
-                                        $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['name'];
-                                        $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['x12_default_partner_id'];
-                                        $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1) . $row['provider']) . "\"";
+                                        $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", [$row['provider']])['name'];
+                                        $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", [$row['provider']])['x12_default_partner_id'];
+                                        $lhtml .= "<option value=\"" . attr(substr((string) $row['type'], 0, 1) . $row['provider']) . "\"";
                                         if (
                                             $key == $last_level_closed
                                             || $insuranceCount == 1
@@ -1164,7 +1129,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "<select class='form-control' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
                                     $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                     foreach ($partners as $xid => $xname) {
-                                        if (empty(trim($xname))) {
+                                        if (empty(trim((string) $xname))) {
                                             continue;
                                         }
                                         $lhtml .= '<option label="' . attr($xname) . '" value="' . attr($xid) . '"';
@@ -1174,20 +1139,20 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         $lhtml .= '>' . text($xname) . '</option>';
                                     }
                                     $lhtml .= "</select></span>";
-                                    $DivPut = 'yes';
+                                    $divPut = true;
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                                         $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
                                     }
-                                    $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
+                                    $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr((string) $iter['date'], 0, 10))) . text(substr((string) $iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 
                                     $query = "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? ORDER BY version";
                                     $cres = sqlStatement(
                                         $query,
-                                        array(
+                                        [
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']
-                                        )
+                                        ]
                                     );
 
                                     $lastcrow = false;
@@ -1204,32 +1169,32 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                                         $irow = sqlQuery(
                                             $query,
-                                            array(
+                                            [
                                             $iter['enc_pid'],
                                             $crow['payer_id'],
                                             $raw_encounter_date,
                                             $raw_encounter_date
-                                            )
+                                            ]
                                         );
 
                                         if ($crow['bill_process']) {
-                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type'] ?? '') . " " . text($crow['target'] ?? '') . " " . xlt("billing to ") . text($irow['name'] ?? '');
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['bill_time'], 0, 10))) . text(substr((string) $crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type'] ?? '') . " " . text($crow['target'] ?? '') . " " . xlt("billing to ") . text($irow['name'] ?? '');
                                                 ++$lcount;
                                         } elseif ($crow['status'] < 6) {
                                             if ($crow['status'] > 1) {
-                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Marked as cleared");
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['bill_time'], 0, 10))) . text(substr((string) $crow['bill_time'], 10, 6)) . " " . xlt("Marked as cleared");
                                                 ++$lcount;
                                             } else {
-                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Re-opened");
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['bill_time'], 0, 10))) . text(substr((string) $crow['bill_time'], 10, 6)) . " " . xlt("Re-opened");
                                                 ++$lcount;
                                             }
                                         } elseif ($crow['status'] == 6) {
-                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been forwarded to next level.");
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['bill_time'], 0, 10))) . text(substr((string) $crow['bill_time'], 10, 6)) . " " . xlt("This claim has been forwarded to next level.");
                                             ++$lcount;
                                         } elseif ($crow['status'] == 7) {
-                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been denied.Reason:-");
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['bill_time'], 0, 10))) . text(substr((string) $crow['bill_time'], 10, 6)) . " " . xlt("This claim has been denied.Reason:-");
                                             if ($crow['process_file']) {
-                                                $code_array = explode(',', $crow['process_file']);
+                                                $code_array = explode(',', (string) $crow['process_file']);
                                                 foreach ($code_array as $code_value) {
                                                     $lhtml .= "<br />\n&nbsp;&nbsp;&nbsp;";
                                                     $reason_array = explode('_', $code_value);
@@ -1246,7 +1211,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
 
                                         if ($crow['process_time']) {
-                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                             ++$lcount;
                                         }
 
@@ -1272,7 +1237,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             // Collect info related to the missing modifiers test.
                             if ($iter['fee'] > 0) {
                                 ++$mmo_num_charges;
-                                $tmp = substr($iter['code'], 0, 3);
+                                $tmp = substr((string) $iter['code'], 0, 3);
                                 if (($tmp == '992' || $tmp == '993') && empty($iter['modifier'])) {
                                     $mmo_empty_mod = true;
                                 }
@@ -1293,7 +1258,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             $justify = "";
 
                             if ($iter['id'] && !empty($code_types[$iter['code_type']]['just'])) {
-                                $js = explode(":", $iter['justify']);
+                                $js = explode(":", (string) $iter['justify']);
                                 $counter = 0;
                                 foreach ($js as $j) {
                                     if (!empty($j)) {
@@ -1332,7 +1297,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             $rhtml .= "</span></td>\n";
                             $rhtml .= '<td width="100">&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
                             if ($iter['id']) {
-                                $rhtml .= text(oeFormatSDFT(strtotime($iter["date"])));
+                                $rhtml .= text(oeFormatSDFT(strtotime((string) $iter["date"])));
                             }
                             $rhtml .= "</span></td>\n";
 // This error message is generated if the authorized check box is not checked
@@ -1357,10 +1322,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $resMoneyGot = sqlStatement(
                                     "SELECT pay_amount AS PatientPay,date(post_time) AS date FROM ar_activity WHERE " .
                                     "pid = ? AND encounter = ? AND deleted IS NULL AND payer_type = 0 AND account_code = 'PCP'",
-                                    array(
+                                    [
                                         $iter['enc_pid'],
                                         $iter['enc_encounter']
-                                    )
+                                    ]
                                 );
 // new fees screen copay gives account_code='PCP'
                                 if (sqlNumRows($resMoneyGot) > 0) {
@@ -1387,7 +1352,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         $rhtml2 .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
                                         $rhtml2 .= "</span></td>\n";
                                         $rhtml2 .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
-                                        $rhtml2 .= text(oeFormatSDFT(strtotime($date)));
+                                        $rhtml2 .= text(oeFormatSDFT(strtotime((string) $date)));
                                         $rhtml2 .= "</span></td>\n";
                                         if ($iter['id'] && $iter['authorized'] != 1) {
                                             $rhtml2 .= "<td><span class='alert'>" . xlt("Note: This copay was entered against billing that has not been authorized. Please review status.") . "</span></td>\n";
@@ -1414,9 +1379,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 ++$rcount;
                             }
                             if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
-                                if ($DivPut == 'yes') {
+                                if ($divPut) {
                                     $lhtml .= '</div>';
-                                    $DivPut = 'no';
+                                    $divPut = false;
                                 }
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";

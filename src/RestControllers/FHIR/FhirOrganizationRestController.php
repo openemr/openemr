@@ -64,7 +64,7 @@ class FhirOrganizationRestController
     public function getAll($searchParams): Response
     {
         $processingResult = $this->fhirOrganizationService->getAll($searchParams);
-        $bundleEntries = array();
+        $bundleEntries = [];
         // TODO: adunsulag why isn't this work done in the fhirService->createBundle?
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [

@@ -5,7 +5,7 @@
  *
  * @package    OpenEMR
  * @link       https://www.open-emr.org
- * @author   Jerry Padget <sjpadgett@gmail.com>
+ * @author   Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -13,34 +13,55 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 
-class PatientAdvanceDirectiveService
+class PatientAdvanceDirectiveService extends BaseService
 {
+    use SystemLoggerAwareTrait;
+
+    public function __construct()
+    {
+        parent::__construct('documents');
+    }
+
     const ADVANCE_DIRECTIVE_TYPES = [
         'living_will' => 'Living Will',
         'durable_power_attorney' => 'Durable Power of Attorney',
         'dnr_order' => 'Do Not Resuscitate Order'
     ];
 
+    /*
+     * FROM valueset 2.16.840.1.113762.1.4.1115.41
+     */
     const LOINC_CODES = [
-        'Living Will' => [
-            'code' => '75320-2',
+        'Mental health Advance directives' => [
+            'code' => '104144-1',
             'system' => '2.16.840.1.113883.6.1',
-            'display' => 'Advance directive - living will'
+            'display' => 'Mental health Advance directives'
+        ],
+        'Living Will' => [
+            'code' => '86533-7',
+            'system' => '2.16.840.1.113883.6.1',
+            'display' => 'Patient Living will'
         ],
         'Durable Power of Attorney' => [
-            'code' => '75787-2',
+            'code' => '64298-3',
             'system' => '2.16.840.1.113883.6.1',
-            'display' => 'Advance directive - medical power of attorney'
+            'display' => 'Power of attorney'
         ],
         'Do Not Resuscitate Order' => [
-            'code' => '78823-2',
+            'code' => '84095-9',
             'system' => '2.16.840.1.113883.6.1',
-            'display' => 'Do not resuscitate order'
+            'display' => 'Do not resuscitate'
         ],
-        'default' => [
+        'Advance directive' => [
             'code' => '42348-3',
             'system' => '2.16.840.1.113883.6.1',
             'display' => 'Advance directive'
@@ -76,6 +97,137 @@ class PatientAdvanceDirectiveService
         return $result;
     }
 
+    public function getAdvancedDirectiveCodes() : array {
+        $codes = array_map(fn($codeMap) => FhirCodeSystemConstants::LOINC . "|" . $codeMap['code'], self::LOINC_CODES);
+        return $codes;
+
+    }
+
+    /**
+     * @param $openEMRSearchParameters
+     * @param $isAndCondition
+     * @return ProcessingResult
+     */
+    public function search($openEMRSearchParameters, $isAndCondition = true): ProcessingResult
+    {
+        $openEMRSearchParameters['deleted'] = new TokenSearchField('deleted', [new TokenSearchValue("0")]);
+        // ONLY advance directives
+        $openEMRSearchParameters['category_codes'] = new TokenSearchField('category_codes', $this->getAdvancedDirectiveCodes());
+        // we have to manually filter by document type since it's not a direct field
+        $docTypes = $openEMRSearchParameters['document_type'] ?? new TokenSearchField('document_types', []);
+        $documentTypes = array_map(fn(TokenSearchValue $value) => $value->getCode(), $docTypes->getValues());
+        unset($openEMRSearchParameters['document_type']);
+
+        $sql = "SELECT d.id, d.uuid, d.name, d.docdate, d.date, d.mimetype, d.url, d.hash,
+                       d.owner, d.revision, d.encounter_id, d.foreign_reference_id,
+                       c.category_name, c.category_id, c.category_codes,
+                       u.fname, u.lname, u.npi, u.owner_user_id, u.owner_uuid,
+                       u_authenticator.authenticator_uuid, u_authenticator.fname AS authenticator_fname,
+                       u_authenticator.lname AS authenticator_lname, u_authenticator.npi AS authenticator_npi,
+                       p.puuid,p.ad_reviewed, p.completed_ad,
+                       c.category_codes
+                FROM documents d
+                JOIN (
+                    SELECT
+                        pid
+                        ,uuid AS puuid
+                        ,ad_reviewed
+                        ,completed_ad
+                        ,advance_directive_user_authenticator
+                    FROM
+                        patient_data
+                ) p ON d.foreign_id = p.pid
+                LEFT JOIN categories_to_documents c2d ON d.id = c2d.document_id
+                LEFT JOIN (
+                    SELECT
+                        name as category_name, id as category_id, `codes` AS category_codes
+                    FROM
+                        categories c
+                ) c ON c2d.category_id = c.category_id
+                LEFT JOIN (
+                    SELECT
+                        fname
+                        ,lname
+                        ,npi
+                        ,uuid AS owner_uuid
+                        ,id AS owner_user_id
+                    FROM
+                        users
+                ) u ON d.owner = u.owner_user_id
+                LEFT JOIN (
+                    SELECT
+                        fname
+                        ,lname
+                        ,npi
+                        ,uuid AS authenticator_uuid
+                        ,id AS authenticator_user_id
+                    FROM
+                        users
+                ) u_authenticator ON p.advance_directive_user_authenticator = u_authenticator.authenticator_user_id AND u_authenticator.npi != '' AND u_authenticator.npi IS NOT NULL";
+
+        $additionalWhere = "";
+        $whereClause = FhirSearchWhereClauseBuilder::build($openEMRSearchParameters, $isAndCondition);
+        $sql .= $whereClause->getFragment() . " ORDER BY d.docdate DESC, d.date DESC";
+        $resultSet = QueryUtils::sqlStatementThrowException($sql, $whereClause->getBoundValues());
+        $processingResult = new ProcessingResult();
+        while($row = QueryUtils::fetchArrayFromResultSet($resultSet)) {
+            $docType = $this->determineAdvanceDirectiveType($row['name'], $row['category_name']);
+
+            // Filter by document types if specified
+            if ($documentTypes && !in_array($docType, $documentTypes)) {
+                continue;
+            }
+            $ownerUuid = $row['owner_uuid'] ? UuidRegistry::uuidToString($row['owner_uuid']) : null;
+
+            $document = [
+                'id' => (int)$row['id'],
+                'uuid' => UuidRegistry::uuidToString($row['uuid']),
+                'puuid' => UuidRegistry::uuidToString($row['puuid']),
+                'name' => $row['name'],
+                'type' => $docType,
+                'status' => $this->determineDocumentStatus($row),
+                'effective_date' => $row['docdate'] ?: substr((string) $row['date'], 0, 10),
+                'location' => $row['url'] ?: 'Electronic Health Record',
+                'mimetype' => $row['mimetype'],
+                'hash' => $row['hash'],
+                'category_name' => $row['category_name'],
+                'category_id' => $row['category_id'],
+                'category_codes' => $row['category_codes'],
+                'encounter_id' => $row['encounter_id'],
+                'foreign_reference_id' => $row['foreign_reference_id'],
+                'created_date' => $row['date'],
+                'last_modified' => $row['revision'],
+                'user_uuid' => $ownerUuid,
+                'user_npi' => $row['npi'],
+                'author' => [
+                    'user_id' => $row['owner_user_id'],
+                    'uuid' => $ownerUuid,
+                    'first_name' => $row['fname'],
+                    'last_name' => $row['lname'],
+                    'npi' => $row['npi']
+                ],
+                'provenance' => [
+                    'author_id' => $row['owner_user_id'],
+                    'uuid' => $ownerUuid,
+                    'time' => $row['revision']
+                ]
+            ];
+            if (isset($row['authenticator_uuid'])) {
+                $document['authenticator'] = [
+                    'uuid' => UuidRegistry::uuidToString($row['authenticator_uuid']),
+                    'first_name' => $row['authenticator_fname'],
+                    'last_name' => $row['authenticator_lname'],
+                    'npi' => $row['authenticator_npi'],
+                    'date_reviewed' => $row['ad_reviewed'],
+                    'completed_ad' => $row['completed_ad']
+                ];
+            }
+
+            $processingResult->addData($document);
+        }
+        return $processingResult;
+    }
+
     /**
      * Get advance directive documents from the documents table
      *
@@ -83,69 +235,14 @@ class PatientAdvanceDirectiveService
      * @param array|null $documentTypes Filter by specific document types
      * @return array Array of document data
      */
-    public function getAdvanceDirectiveDocuments($pid, $documentTypes = null)
+    public function getAdvanceDirectiveDocuments($pid, $documentTypes = null): array
     {
-        $sql = "SELECT d.id, d.uuid, d.name, d.docdate, d.date, d.mimetype, d.url, d.hash,
-                       d.owner, d.revision, d.encounter_id, d.foreign_reference_id,
-                       c.name as category_name, c.id as category_id,
-                       u.fname, u.lname, u.npi, u.id as owner_user_id
-                FROM documents d
-                LEFT JOIN categories_to_documents c2d ON d.id = c2d.document_id  
-                LEFT JOIN categories c ON c2d.category_id = c.id
-                LEFT JOIN users u ON d.owner = u.id
-                WHERE d.foreign_id = ? 
-                AND d.deleted = 0
-                AND (LOWER(d.name) LIKE '%living%will%' 
-                     OR LOWER(d.name) LIKE '%durable%power%attorney%'
-                     OR LOWER(d.name) LIKE '%do%not%resuscitate%'
-                     OR LOWER(c.name) LIKE '%do%not%resuscitate%'
-                     OR LOWER(c.name) LIKE '%living%will%'
-                     OR LOWER(c.name) LIKE '%power%attorney%')
-                ORDER BY d.docdate DESC, d.date DESC";
-
-        $documents = [];
-        $result = sqlStatement($sql, [$pid]);
-
-        while ($row = sqlFetchArray($result)) {
-            $docType = $this->determineAdvanceDirectiveType($row['name'], $row['category_name']);
-
-            // Filter by document types if specified
-            if ($documentTypes && !in_array($docType, $documentTypes)) {
-                continue;
-            }
-
-            $document = [
-                'id' => (int)$row['id'],
-                'uuid' => UuidRegistry::uuidToString($row['uuid']),
-                'name' => $row['name'],
-                'type' => $docType,
-                'status' => $this->determineDocumentStatus($row),
-                'effective_date' => $row['docdate'] ?: substr($row['date'], 0, 10),
-                'location' => $row['url'] ?: 'Electronic Health Record',
-                'mimetype' => $row['mimetype'],
-                'hash' => $row['hash'],
-                'category_name' => $row['category_name'],
-                'category_id' => $row['category_id'],
-                'encounter_id' => $row['encounter_id'],
-                'foreign_reference_id' => $row['foreign_reference_id'],
-                'created_date' => $row['date'],
-                'last_modified' => $row['revision'],
-                'author' => [
-                    'user_id' => $row['owner_user_id'],
-                    'first_name' => $row['fname'],
-                    'last_name' => $row['lname'],
-                    'npi' => $row['npi']
-                ],
-                'provenance' => [
-                    'author_id' => $row['owner_user_id'],
-                    'time' => $row['revision']
-                ]
-            ];
-
-            $documents[] = $document;
-        }
-
-        return $documents;
+        $searchParms = [
+            'pid' => new TokenSearchField('pid', (string)$pid)
+            ,'document_type' => new TokenSearchField('document_type', $documentTypes ?? [])
+        ];
+        $result = $this->search($searchParms);
+        return $result->getData();
     }
 
     /**
@@ -157,6 +254,18 @@ class PatientAdvanceDirectiveService
     public function generateObservationsFromDocuments($documents): array
     {
         $observations = [];
+        $listService = new ListService();
+        $optionId = $listService->getListOption('yes_no_unknown', 'yes');
+        if ( !$optionId ) {
+            $this->getSystemLogger()->error('List option "yes" not found in "yes_no_unknown" list.');
+            return $observations;
+        }
+        $codeTypesService = new CodeTypesService();
+        $parsedCode = $codeTypesService->parseCode($optionId['codes']);
+        if (empty($parsedCode['code'])) {
+            $this->getSystemLogger()->error('List option "yes" did not have a valid code to populate observations.');
+            return $observations;
+        }
 
         foreach ($documents as $document) {
             $loincCode = $this->getLoincCodeForDocumentType($document['type']);
@@ -169,9 +278,9 @@ class PatientAdvanceDirectiveService
                 'code' => $loincCode['code'],
                 'code_system' => $loincCode['system'],
                 'code_display' => $loincCode['display'],
-                'value_code' => 'LA33-6', // "Yes" - document exists
-                'value_display' => 'Yes',
-                'value_system' => '2.16.840.1.113883.6.1',
+                'value_code' => $parsedCode['code'], // "Yes" - document exists
+                'value_display' => $optionId['title'],
+                'value_system' => '2.16.840.1.113883.6.96',
                 'status' => 'completed',
                 'effective_date' => $document['effective_date'],
                 'document_reference' => $document['uuid'],
@@ -180,7 +289,7 @@ class PatientAdvanceDirectiveService
                 'document_name' => $document['name'],
                 'provenance' => $document['provenance']
             ];
-
+            $observation['authenticator'] = $document['authenticator'];
             $observations[] = $observation;
         }
 
@@ -258,24 +367,24 @@ class PatientAdvanceDirectiveService
         $category_lower = strtolower($category);
 
         // Check document name first
-        if (strpos($name_lower, 'living') !== false && strpos($name_lower, 'will') !== false) {
+        if (str_contains($name_lower, 'living') && str_contains($name_lower, 'will')) {
             return 'Living Will';
         }
-        if (strpos($name_lower, 'durable') !== false && strpos($name_lower, 'power') !== false) {
+        if (str_contains($name_lower, 'durable') && str_contains($name_lower, 'power')) {
             return 'Durable Power of Attorney';
         }
-        if (strpos($name_lower, 'dnr') !== false || strpos($name_lower, 'do not resuscitate') !== false) {
+        if (str_contains($name_lower, 'dnr') || str_contains($name_lower, 'do not resuscitate')) {
             return 'Do Not Resuscitate Order';
         }
 
         // Check category if name doesn't match
-        if (strpos($category_lower, 'living will') !== false) {
+        if (str_contains($category_lower, 'living will')) {
             return 'Living Will';
         }
-        if (strpos($category_lower, 'durable power of attorney') !== false) {
+        if (str_contains($category_lower, 'durable power of attorney')) {
             return 'Durable Power of Attorney';
         }
-        if (strpos($category_lower, 'do not resuscitate') !== false) {
+        if (str_contains($category_lower, 'do not resuscitate')) {
             return 'Do Not Resuscitate Order';
         }
 
@@ -712,12 +821,12 @@ class PatientAdvanceDirectiveService
         try {
             $dateTime = new \DateTime($date);
             return $dateTime->format('Y-m-d\TH:i:s\Z');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // If it's just a date, format as date only
             try {
                 $dateTime = new \DateTime($date);
                 return $dateTime->format('Y-m-d');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return $date; // Return as-is if can't parse
             }
         }

@@ -39,6 +39,7 @@ abstract class Abstract_Controller implements ViewableIF
     protected $_viewScript = null;
     protected $_viewer = null;
     protected $_request = null;
+    protected $_view = null;
 
     public function __construct(Request $request)
     {
@@ -104,6 +105,8 @@ abstract class Abstract_Controller implements ViewableIF
 
 class Request
 {
+    protected $_params = [];
+
     public function __construct()
     {
         $this->parseParams();
@@ -111,11 +114,7 @@ class Request
 
     public function getParam($key, $default = '')
     {
-        if (isset($this->_params[$key])) {
-            return $this->_params[$key];
-        }
-
-        return $default;
+        return $this->_params[$key] ?? $default;
     }
 
     protected function parseParams()
@@ -128,12 +127,13 @@ class Request
 
 class Response
 {
-    public $status = null;
-    public $message = null;
+    public $formId;
+    public $formDir;
+    public $encounterId;
+    public $locked;
+    public $editButtonHtml;
 
-    public function __construct($status, $message)
+    public function __construct(public $status, public $message)
     {
-        $this->status = $status;
-        $this->message = $message;
     }
 }

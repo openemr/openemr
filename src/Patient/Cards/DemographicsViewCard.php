@@ -22,13 +22,8 @@ class DemographicsViewCard extends CardModel
 
     private const CARD_ID = 'demographics';
 
-    private $patientData;
-    private $employerData;
-
-    public function __construct($patientData, $employerData, array $opts = [])
+    public function __construct(private $patientData, private $employerData, array $opts = [])
     {
-        $this->patientData = $patientData;
-        $this->employerData = $employerData;
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }

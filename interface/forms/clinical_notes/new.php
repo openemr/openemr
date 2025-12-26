@@ -30,6 +30,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientService;
 
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
@@ -38,7 +40,7 @@ $clinicalNotesService = new ClinicalNotesService();
 $alertMessage = '';
 if (empty($formid)) {
     $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'clinical_notes' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
-    $formid = sqlQuery($sql, array($_SESSION["pid"], $_SESSION["encounter"]))['form_id'] ?? 0;
+    $formid = sqlQuery($sql, [$_SESSION["pid"], $_SESSION["encounter"]])['form_id'] ?? 0;
     if (!empty($formid)) {
         $alertMessage = xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.");
     }
@@ -47,9 +49,7 @@ if (empty($formid)) {
 $clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
 $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
 $getDefaultValue = function ($items) {
-    $selectedItem = array_filter($items, function ($val) {
-        return $val['selected'];
-    });
+    $selectedItem = array_filter($items, fn($val) => $val['selected']);
     if (empty($selectedItem)) {
         return ''; // default to an empty value if there is no default option
     } else {
@@ -91,16 +91,21 @@ if ($formid) {
     ];
 }
 
+$patientService = new PatientService();
+$patient = $patientService->findByPid($_SESSION['pid']);
+$listService = new ListService();
+$resultCategories = $listService->getOptionsByListName('Observation_Types');
 $twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
 $t = $twig->getTwig();
 $viewArgs = [
     'clinical_notes_type' => $clinical_notes_type
+    ,'patientUuid' => UuidRegistry::uuidToString($patient['uuid'])
     ,'clinical_notes_category' => $clinical_notes_category
     ,'oemrUiSettings' =>  [
         'heading_title' => xl('Clinical Notes Form'),
         'include_patient_name' => false,
         'expandable' => true,
-        'expandable_files' => array(),//all file names need suffix _xpd
+        'expandable_files' => [],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link and back
@@ -113,6 +118,8 @@ $viewArgs = [
     ,'formid' => $formid
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
+    ,'csrfToken' => CsrfUtils::collectCsrfToken('api')
+    ,'resultCategories' => $resultCategories ?? []
 ];
 $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/new.php',

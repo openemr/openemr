@@ -54,7 +54,7 @@ function checkCreateCDB()
 {
     $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
-    $options = array();
+    $options = [];
     while ($globalsrow = sqlFetchArray($globalsres)) {
         $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
@@ -93,7 +93,7 @@ function updateBackgroundService($name, $active, $interval)
     //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
     $sql = 'UPDATE background_services SET active=?, '
         . 'next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?';
-    return sqlStatement($sql, array($active, $interval, $interval, $name));
+    return sqlStatement($sql, [$active, $interval, $interval, $name]);
 }
 
 /**
@@ -166,16 +166,12 @@ function checkBackgroundServices(): void
             if (in_array($grpname, $USER_SPECIFIC_TABS)) {
                 foreach ($grparr as $fldid => $fldarr) {
                     if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                        list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                        [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            if (empty(trim($_POST["form_$i"]))) {
-                                $fldvalue = '';
-                            } else {
-                                $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
-                            }
+                            $fldvalue = empty(trim((string)$_POST["form_$i"])) ? '' : $cryptoGen->encryptStandard(trim((string)$_POST["form_$i"]));
                         } elseif ($fldtype == "encrypted_hash") {
-                            $tmpValue = trim($_POST["form_$i"]);
+                            $tmpValue = trim((string)$_POST["form_$i"]);
                             if (empty($tmpValue)) {
                                 $fldvalue = '';
                             } else {
@@ -189,7 +185,7 @@ function checkBackgroundServices(): void
                             $fldvalue = trim($_POST["form_$i"] ?? '');
                         }
                         setUserSetting($label, $fldvalue, $_SESSION['authUserID'], false);
-                        if ($_POST["toggle_$i"] ?? '' == "YES") {
+                        if (($_POST["toggle_$i"] ?? '') == "YES") {
                             removeUserSetting($label);
                         }
 
@@ -241,34 +237,26 @@ function checkBackgroundServices(): void
         $i = 0;
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                 /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && substr($fldtype, 0, 2) == 'm_') {
+                if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
                     if (isset($_POST["form_$i"])) {
                         $fldindex = 0;
 
-                        sqlStatement("DELETE FROM globals WHERE gl_name = ?", array($fldid));
+                        sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
 
                         foreach ($_POST["form_$i"] as $fldvalue) {
-                            $fldvalue = trim($fldvalue);
-                            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array($fldid, $fldindex, $fldvalue));
+                            $fldvalue = trim((string)$fldvalue);
+                            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
                             ++$fldindex;
                         }
                     }
                 } else {
                     /* check value of single field. Don't update if the database holds the same value */
-                    if (isset($_POST["form_$i"])) {
-                        $fldvalue = trim($_POST["form_$i"]);
-                    } else {
-                        $fldvalue = "";
-                    }
+                    $fldvalue = isset($_POST["form_$i"]) ? trim($_POST["form_$i"]) : "";
 
                     if ($fldtype == 'encrypted') {
-                        if (empty(trim($fldvalue))) {
-                            $fldvalue = '';
-                        } else {
-                            $fldvalue = $cryptoGen->encryptStandard($fldvalue);
-                        }
+                        $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptStandard($fldvalue);
                     } elseif ($fldtype == 'encrypted_hash') {
                         $tmpValue = trim($fldvalue);
                         if (empty($tmpValue)) {
@@ -292,13 +280,13 @@ function checkBackgroundServices(): void
                         switch ($fldid) {
                             case 'first_day_week':
                                 // update PostCalendar config as well
-                                sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
+                                sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", [$fldvalue]);
                                 break;
                         }
 
                         // Replace old values
-                        sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', array($fldid));
-                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array($fldid, 0, $fldvalue));
+                        sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', [$fldid]);
+                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', [$fldid, 0, $fldvalue]);
                     } else {
                         //error_log("No need to update $fldid");
                     }
@@ -363,21 +351,25 @@ function checkBackgroundServices(): void
           width: 100%;
         }
       }
+
+      .striped .row.form-group:nth-child(even) {
+        background: var(--light);
+      }
     </style>
     <?php
     $heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Configuration");
 
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => $heading_title,
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array("edit_globals_xpd"),//all file names need suffix _xpd
+        'expandable_files' => ["edit_globals_xpd"],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => false,
         'help_file_name' => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     $serverConfig = new ServerConfig();
     $apiUrl = $serverConfig->getInternalBaseApiUrl();
@@ -412,11 +404,7 @@ function checkBackgroundServices(): void
                             </div>
                             <div class="input-group col-sm-4 oe-pull-away p-0">
                                 <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
-                                if (!$userMode) {
-                                    $placeholder = xla('Search configuration');
-                                } else {
-                                    $placeholder = xla('Search user settings');
-                                }
+                                $placeholder = !$userMode ? xla('Search configuration') : xla('Search user settings');
                                 ?>
                                 <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo(!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
                                 <span class="input-group-append">
@@ -447,7 +435,7 @@ function checkBackgroundServices(): void
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
                                         echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
-                                        echo "<div class=''>";
+                                        echo '<div class="striped">';
                                         $addendum = $grpname == 'Appearance' ? ' (*' . xl("need to logout/login after changing these settings") . ')' : '';
                                         echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>" . xlt($grpname) . " &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) . "</div></div>";
                                         echo "<div class='clearfix'></div>";
@@ -462,7 +450,7 @@ function checkBackgroundServices(): void
 
                                         foreach ($grparr as $fldid => $fldarr) {
                                             if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
-                                                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                                                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
 
                                                 // if the setting defines field options for our global setting we grab it, otherwise we default empty
                                                 $fldoptions = $fldarr[4] ?? [];
@@ -471,7 +459,7 @@ function checkBackgroundServices(): void
                                                 $srch_cl = '';
                                                 $highlight_search = false;
 
-                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), $_POST['srch_desc']) !== false)) {
+                                                if (!empty($_POST['srch_desc']) && (stristr(($fldname . $flddesc), (string)$_POST['srch_desc']) !== false)) {
                                                     $srch_cl = ' srch';
                                                     $srch_item++;
                                                     $highlight_search = true;
@@ -480,8 +468,8 @@ function checkBackgroundServices(): void
                                                 // Most parameters will have a single value, but some will be arrays.
                                                 // Here we cater to both possibilities.
                                                 $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
-                                                    "gl_name = ? ORDER BY gl_index", array($fldid));
-                                                $glarr = array();
+                                                    "gl_name = ? ORDER BY gl_index", [$fldid]);
+                                                $glarr = [];
                                                 while ($glrow = sqlFetchArray($glres)) {
                                                     $glarr[] = $glrow;
                                                 }
@@ -493,7 +481,7 @@ function checkBackgroundServices(): void
                                                 $userSetting = "";
                                                 $settingDefault = "checked='checked'";
                                                 if ($userMode) {
-                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authUserID'], "global:" . $fldid));
+                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", [$_SESSION['authUserID'], "global:" . $fldid]);
                                                     $userSetting = $userSettingArray['setting_value'] ?? '';
                                                     $globalValue = $fldvalue;
                                                     if (!empty($userSettingArray)) {
@@ -538,11 +526,7 @@ function checkBackgroundServices(): void
                                                     echo "  </select>\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_BOOL) {
                                                     if ($userMode) {
-                                                        if ($globalValue == 1) {
-                                                            $globalTitle = xlt('Checked');
-                                                        } else {
-                                                            $globalTitle = xlt('Not Checked');
-                                                        }
+                                                        $globalTitle = $globalValue == 1 ? xlt('Checked') : xlt('Not Checked');
                                                     }
                                                     echo "  <input type='checkbox' class='checkbox' name='form_$i' id='form_$i' value='1'";
                                                     if ($fldvalue) {
@@ -657,7 +641,7 @@ function checkBackgroundServices(): void
                                                         $hiddenList[] = $row['gl_value'];
                                                     }
                                                     // The list of cards to hide. For now add to array new cards.
-                                                    $res = array(
+                                                    $res = [
                                                         ['card_abrev' => '', 'card_name' => xlt('None or Reset')],
                                                         ['card_abrev' => attr('card_allergies'), 'card_name' => xlt('Allergies')],
                                                         ['card_abrev' => attr('card_amendments'), 'card_name' => xlt('Amendments')],
@@ -668,9 +652,11 @@ function checkBackgroundServices(): void
                                                         ['card_abrev' => attr('card_medication'), 'card_name' => xlt('Medications')],
                                                         ['card_abrev' => 'card_prescriptions', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
                                                         ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')],
-                                                        ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')]
-                                                    );
-                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='11'>\n";
+                                                        ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')],
+                                                        ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences')],
+                                                        ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences')],
+                                                    ];
+                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {
@@ -688,7 +674,7 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
+                                                    echo "  <input type='text' class='form-control' data-jscolor='' name='form_$i' id='form_$i' " .
                                                         "maxlength='15' value='" . attr($fldvalue) . "' />" .
                                                         "<input type='button' value='" . xla('Default') . "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_VISIT_CATEGORY) {
@@ -725,7 +711,7 @@ function checkBackgroundServices(): void
                                                     $dh = opendir($themedir);
                                                     if ($dh) {
                                                         // Collect styles
-                                                        $styleArray = array();
+                                                        $styleArray = [];
                                                         while (false !== ($tfname = readdir($dh))) {
                                                             // Only show files that contain tabs_style_ or style_ as options
                                                             if ($fldtype == 'tabs_css') {

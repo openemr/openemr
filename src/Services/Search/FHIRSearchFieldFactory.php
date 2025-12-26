@@ -24,24 +24,18 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 class FHIRSearchFieldFactory
 {
     /**
-     * @var FhirSearchParameterDefinition[];
-     */
-    private $resourceSearchParameters;
-
-    /**
      * @var FhirUrlResolver
      */
     private $fhirUrlResolver;
 
     /**
      * FHIRSearchFieldFactory constructor.
-     * @param FhirSearchParameterDefinition[] $searchFieldDefinitions
+     * @param FhirSearchParameterDefinition[] $resourceSearchParameters
      * @throws \InvalidArgumentException if $searchFieldDefinitions are not an instance of FhirSearchParameterDefinition
      */
-    public function __construct(array $searchFieldDefinitions)
+    public function __construct(private array $resourceSearchParameters)
     {
-        $this->resourceSearchParameters = $searchFieldDefinitions;
-        foreach ($searchFieldDefinitions as $key => $definition) {
+        foreach ($this->resourceSearchParameters as $key => $definition) {
             if (!$definition instanceof FhirSearchParameterDefinition) {
                 throw new \InvalidArgumentException("Search parameter contains invalid class definition " . $key);
             }
@@ -126,7 +120,7 @@ class FHIRSearchFieldFactory
      */
     private function extractSearchFieldName($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         return $fieldName;
     }
@@ -145,7 +139,7 @@ class FHIRSearchFieldFactory
         $modifier = is_array($modifiers) ? array_pop($modifiers) : null;
 
         // need to handle the fact that we can have multiple OR values that are separated in CSV format.
-        if (is_string($fhirSearchValues) && strpos($fhirSearchValues, ',') !== false) {
+        if (is_string($fhirSearchValues) && str_contains($fhirSearchValues, ',')) {
             $fhirSearchValues = explode(',', $fhirSearchValues);
         }
 
@@ -192,7 +186,7 @@ class FHIRSearchFieldFactory
 
         $normalizedValues = [];
         foreach ($values as $searchValue) {
-            if (strpos($searchValue, '://') !== false) {
+            if (str_contains((string) $searchValue, '://')) {
                 $url = $this->resolveReferenceRelativeUrl($searchValue);
                 $normalizedValues[] = $url;
             } else {
@@ -255,7 +249,7 @@ class FHIRSearchFieldFactory
      */
     private function extractFieldModifiers($fhirSearchField)
     {
-        $fieldNameWithModifiers = explode(":", $fhirSearchField);
+        $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];
         array_shift($fieldNameWithModifiers); // grab our modifiers
         return $fieldNameWithModifiers;
@@ -279,7 +273,7 @@ class FHIRSearchFieldFactory
                 // for now let's treat everything as a string...
                 // we won't give any modifier here for now
                 // not sure how we handle modifiers here...
-                $childField = $this->buildSearchField($childDefinition, $fieldName, $fhirSearchValues);
+                $childField = $this->buildSearchField($childDefinition, $fieldName);
                 $composite->addChild($childField);
             }
         }

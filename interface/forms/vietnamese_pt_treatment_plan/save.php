@@ -21,7 +21,7 @@ if ($_GET["mode"] == "new") {
         'start_date' => $_POST['start_date'] ?? date('Y-m-d'),
         'estimated_duration_weeks' => $_POST['estimated_duration_weeks'] ?? 8,
         'status' => $_POST['status'] ?? 'active',
-        'created_by' => $_POST['created_by']
+        'created_by' => $_POST['created_by'] ?? $_SESSION['authUserID']
     ];
 
     $result = $service->insert($data);
@@ -30,6 +30,9 @@ if ($_GET["mode"] == "new") {
         if ($formid) {
             addForm($_POST['encounter'], "Vietnamese PT Treatment Plan", $formid, "vietnamese_pt_treatment_plan", $_POST['pid'], 1);
         }
+    } else {
+        error_log("Vietnamese PT Treatment Plan insert failed: " . print_r($result->getValidationMessages(), true));
+        die("Error saving treatment plan: " . implode(", ", $result->getValidationMessages()));
     }
 } elseif ($_GET["mode"] == "update") {
     $data = [
@@ -40,7 +43,12 @@ if ($_GET["mode"] == "new") {
         'estimated_duration_weeks' => $_POST['estimated_duration_weeks'] ?? 8,
         'status' => $_POST['status'] ?? 'active'
     ];
-    $service->update($_GET["id"], $data);
+    $result = $service->update($_GET["id"], $data);
+
+    if ($result->hasErrors()) {
+        error_log("Vietnamese PT Treatment Plan update failed: " . print_r($result->getValidationMessages(), true));
+        die("Error updating treatment plan: " . implode(", ", $result->getValidationMessages()));
+    }
 }
 
 formHeader("Redirecting....");

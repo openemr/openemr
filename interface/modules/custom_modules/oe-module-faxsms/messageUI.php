@@ -37,7 +37,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
-    <!--<script src="./public/WebPhoneService.js"></script>-->
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/utif2/UTIF.js"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -87,13 +87,13 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         });
 
         <?php
-        $param = array(
+        $param = [
             'is_universal' => 1,
             'modal_size' => 'modal-mlg',
             'modal_height' => 775,
             'modal_size_height' => 'full',
             'type' => 'email'
-        );
+        ];
         $GLOBALS['kernel']->getEventDispatcher()->dispatch(
             new SendNotificationEvent($pid ?? 0, $param),
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
@@ -106,12 +106,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&isQueue=' +
                 encodeURIComponent(from) + '&file=' + encodeURIComponent(filePath);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 800, '', title, { // dialog auto restores session cookie
+            dlgopen(url, '', 'modal-sm', 500, '', title, { // dialog auto restores session cookie
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ],
                 resolvePromiseOn: 'close',
-                sizeHeight: 'full'
             }).then(function (contact) {
                 top.restoreSession();
             });
@@ -262,6 +261,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     setTimeout(retrieveMsgs, 1000);
                     return false;
                 }
+
                 if (downFlag == 'true') {
                     let base64 = data.base64;
                     if (data.mime === 'image/tiff' || data.mime === 'image/tif') {
@@ -270,6 +270,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     } else {
                         base64 = '';
                     }
+
                     fetch('disposeDocument?type=fax', {
                         method: 'POST',
                         headers: {
@@ -290,9 +291,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     }).catch(error => {
                         console.error('Error:', error);
                     });
-
                     return false;
                 }
+
                 if (data.mime === 'application/pdf') {
                     showDocument(data.base64, data.mime);
                 } else if (data.mime === 'image/tiff') {
@@ -931,7 +932,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                                 <th><?php echo xlt("Caller Id") ?></th>
                                                 <th><?php echo xlt("To") ?></th>
                                                 <th><?php echo xlt("Pages") ?></th>
-                                                <th><?php echo xlt("Length") ?></th>
+                                                <th><?php echo xlt("Name") ?></th>
                                                 <th><?php echo xlt("Status") ?></th>
                                                 <th><?php echo xlt("Actions") ?></th>
                                                 <th><i role="button" id="delete-selected-sent" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>

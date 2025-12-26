@@ -15,6 +15,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureOEProcedureService;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureSurgeryService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -22,6 +23,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -36,16 +38,31 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
     use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
+    use VersionedProfileTrait;
 
-    const FHIR_PROCEDURE_STATUS_COMPLETED = "completed";
-    const FHIR_PROCEDURE_STATUS_IN_PROGRESS = "in-progress";
-    const FHIR_PROCEDURE_STATUS_STOPPED = "stopped";
-    const FHIR_PROCEDURE_STATUS_UNKNOWN = "unknown";
+    /**
+     * @deprecated use EventStatusEnum::COMPLETED.
+     */
+    const FHIR_PROCEDURE_STATUS_COMPLETED = EventStatusEnum::COMPLETED->value;
+    /**
+     * @deprecated use EventStatusEnum::IN_PROGRESS.
+     */
+    const FHIR_PROCEDURE_STATUS_IN_PROGRESS = EventStatusEnum::IN_PROGRESS->value;
 
-    const PROCEDURE_STATUS_COMPLETED = "completed";
+    /**
+     * @deprecated use EventStatusEnum::STOPPED.
+     */
+    const FHIR_PROCEDURE_STATUS_STOPPED = EventStatusEnum::STOPPED->value;
+
+    /**
+     * @deprecated use EventStatusEnum::UNKNOWN.
+     */
+    const FHIR_PROCEDURE_STATUS_UNKNOWN = EventStatusEnum::UNKNOWN->value;
+
+    const PROCEDURE_STATUS_COMPLETED = EventStatusEnum::COMPLETED->value;
     const PROCEDURE_STATUS_PENDING = "pending";
     const PROCEDURE_STATUS_CANCELLED = "cancelled";
-
+    const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure";
 
 
     /**
@@ -70,7 +87,7 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('order_uuid', ServiceField::TYPE_UUID)]),
             '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
     }
@@ -115,8 +132,6 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
      */
     public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

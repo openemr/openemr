@@ -253,8 +253,8 @@ class MedicalTerminologyTest extends TestCase
             $this->assertEquals(trim($english), $english, "English term should not have whitespace");
 
             // Terms should not contain multiple consecutive spaces
-            $this->assertNotRegExp('/\s{2,}/', $vietnamese, "Vietnamese term should not have multiple spaces");
-            $this->assertNotRegExp('/\s{2,}/', $english, "English term should not have multiple spaces");
+            $this->assertDoesNotMatchRegularExpression('/\s{2,}/', $vietnamese, "Vietnamese term should not have multiple spaces");
+            $this->assertDoesNotMatchRegularExpression('/\s{2,}/', $english, "English term should not have multiple spaces");
         }
     }
 }

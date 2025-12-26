@@ -43,7 +43,7 @@ if ($_GET["mode"] == "new") {
         'precautions_vi' => $_POST['precautions_vi'] ?? '',
         'start_date' => $_POST['start_date'] ?? date('Y-m-d'),
         'end_date' => $_POST['end_date'] ?? null,
-        'prescribed_by' => $_POST['prescribed_by']
+        'prescribed_by' => $_POST['prescribed_by'] ?? $_SESSION['authUserID']
     ];
 
     $result = $service->insert($data);
@@ -61,6 +61,9 @@ if ($_GET["mode"] == "new") {
                 1
             );
         }
+    } else {
+        error_log("Vietnamese PT Exercise insert failed: " . print_r($result->getValidationMessages(), true));
+        die("Error saving exercise prescription: " . implode(", ", $result->getValidationMessages()));
     }
 } elseif ($_GET["mode"] == "update") {
     $data = [
@@ -82,7 +85,12 @@ if ($_GET["mode"] == "new") {
         'end_date' => $_POST['end_date'] ?? null
     ];
 
-    $service->update($_GET["id"], $data);
+    $result = $service->update($_GET["id"], $data);
+
+    if ($result->hasErrors()) {
+        error_log("Vietnamese PT Exercise update failed: " . print_r($result->getValidationMessages(), true));
+        die("Error updating exercise prescription: " . implode(", ", $result->getValidationMessages()));
+    }
 }
 
 formHeader("Redirecting....");

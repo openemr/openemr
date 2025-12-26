@@ -53,16 +53,12 @@ class CsrfUtils
     //    Using 'default' for everything else (for now)
     public static function collectCsrfToken($subject = 'default', ?SessionInterface $session = null)
     {
-        if (!empty($session)) {
-            $privateKey = $session->get('csrf_private_key', null);
-        } else {
-            $privateKey = $_SESSION['csrf_private_key'] ?? null;
-        }
+        $privateKey = !empty($session) ? $session->get('csrf_private_key', null) : $_SESSION['csrf_private_key'] ?? null;
         if (empty($privateKey)) {
             error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
             return false;
         }
-        return substr(hash_hmac('sha256', $subject, $privateKey), 0, 40);
+        return substr(hash_hmac('sha256', (string) $subject, (string) $privateKey), 0, 40);
     }
 
     // Function to verify a csrf_token

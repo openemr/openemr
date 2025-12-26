@@ -19,22 +19,22 @@ use OpenEMR\Core\Header;
 function get_history_codes($pid)
 {
     $origin = xlt('Problems');
-    $probcodes = array();
+    $probcodes = [];
     $dres = sqlStatementNoLog(
         "SELECT diagnosis as codes, title FROM lists " .
         "Where activity = 1 And type = ? And pid = ? Group By lists.diagnosis",
-        array('medical_problem', $pid)
+        ['medical_problem', $pid]
     );
     while ($diag = sqlFetchArray($dres)) {
-        $diag['codes'] = preg_replace('/^;+|;+$/', '', $diag['codes']);
-        $bld = explode(';', $diag['codes']);
+        $diag['codes'] = preg_replace('/^;+|;+$/', '', (string) $diag['codes']);
+        $bld = explode(';', (string) $diag['codes']);
         foreach ($bld as $cde) {
-            $probcodes[] = array(
+            $probcodes[] = [
                 'origin' => $origin,
                 'code' => $cde,
                 'desc' => lookup_code_descriptions($cde),
                 'procedure' => $diag['title']
-            );
+            ];
         }
     }
     // well that's problems history, now procedure history
@@ -44,21 +44,21 @@ function get_history_codes($pid)
         "Where procedure_order_code.diagnoses > '' Group By procedure_order_code.diagnoses"
     );
     $origin = xlt('Procedures');
-    $dxcodes = array();
+    $dxcodes = [];
     while ($diag = sqlFetchArray($dres)) {
-        $diag['codes'] = preg_replace('/^;+|;+$/', '', $diag['codes']);
-        $bld = explode(';', $diag['codes']);
+        $diag['codes'] = preg_replace('/^;+|;+$/', '', (string) $diag['codes']);
+        $bld = explode(';', (string) $diag['codes']);
         foreach ($bld as $cde) {
-            $dxcodes[] = array(
+            $dxcodes[] = [
                 'origin' => $origin,
                 'code' => $cde,
                 'desc' => lookup_code_descriptions($cde),
                 'procedure' => $diag['proc']
-            );
+            ];
         }
     }
     // make unique
-    $dxcodes = array_intersect_key($dxcodes, array_unique(array_map('serialize', $dxcodes)));
+    $dxcodes = array_intersect_key($dxcodes, array_unique(array_map(serialize(...), $dxcodes)));
     // the king of sort
     array_multisort(
         array_column($dxcodes, 'procedure'),
@@ -204,7 +204,7 @@ function get_history_codes($pid)
                 <?php
                 $dxcodes = get_history_codes($pid);
                 foreach ($dxcodes as $pc) {
-                    $code = explode(':', $pc['code']);
+                    $code = explode(':', (string) $pc['code']);
                     $code[0] = text($code[0]);
                     $code[1] = text($code[1]); ?>
 

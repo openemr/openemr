@@ -144,7 +144,7 @@ window.observationForm = {
 
         // Build FHIR query parameters
         let queryParams = new URLSearchParams({
-            'subject': this.fhirConfig.patient_uuid,
+            'patient': this.fhirConfig.patient_uuid,
             '_sort': '-authored',
             '_count': '20'
         });
@@ -411,7 +411,7 @@ window.observationForm = {
             datetimepickerTranslated('.datepicker', {
                 timepicker: true,
                 showSecond: false,
-                formatInput: false,
+                formatInput: true,
             });
             // setup cancel buttons
             $("#observation_form .btn-cancel").on('click', function() {

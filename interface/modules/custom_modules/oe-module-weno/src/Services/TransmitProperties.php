@@ -36,8 +36,8 @@ class TransmitProperties
     private $cryptoGen;
     private $pharmacy;
     private $encounter;
-    private mixed $wenoProviderID;
-    private string|false $csrf;
+    private readonly mixed $wenoProviderID;
+    private readonly string|false $csrf;
     private mixed $responsibleParty;
     public mixed $wenoLocation;
 
@@ -75,11 +75,7 @@ class TransmitProperties
         $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
         $this->provider_pass = $this->getProviderPassword();
-        if (!empty($this->wenoLocation)) {
-            $this->locid = $this->getFacilityForWenoId();
-        } else {
-            $this->locid = $this->getFacilityInfo();
-        }
+        $this->locid = !empty($this->wenoLocation) ? $this->getFacilityForWenoId() : $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
         // check if patient is under 19 years old
@@ -106,7 +102,7 @@ class TransmitProperties
 
     public function parseExternalId($external_id): mixed
     {
-        $match = explode(":", $external_id);
+        $match = explode(":", (string) $external_id);
         if (is_countable($match) && count($match) > 1) {
             $external_id = $match;
         }
@@ -157,7 +153,7 @@ class TransmitProperties
             if (is_string($value)) {
                 $values = [$value];
             } elseif ($this->isJson($value)) {
-                $values = json_decode($value, true);
+                $values = json_decode((string) $value, true);
             } elseif (is_array($value)) {
                 $values = $value;
             } else {
@@ -165,23 +161,23 @@ class TransmitProperties
             }
             // Iterate through the values
             foreach ($values as $v) {
-                if (str_contains($v, "REQED")) {
+                if (str_contains((string) $v, "REQED")) {
                     $type = 'errors';
-                } elseif (str_contains($v, "WARNS")) {
+                } elseif (str_contains((string) $v, "WARNS")) {
                     $type = 'warnings';
-                } elseif (str_contains($v, "INFO")) {
+                } elseif (str_contains((string) $v, "INFO")) {
                     $type = 'info';
                 } else {
                     continue; // Skip if no error type detected
                 }
                 // Extract action from value
                 $action = '';
-                if (preg_match('/{([^}]*)}/', $v, $matches)) {
+                if (preg_match('/{([^}]*)}/', (string) $v, $matches)) {
                     $action = $matches[1];
                     $v = str_replace('{' . $matches[1] . '}', '', $v);
                 }
                 // Add error to the respective error type if not already present
-                if (!str_contains($error[$type], $v)) {
+                if (!str_contains($error[$type], (string) $v)) {
                     // Append error with icon and onclick event
                     $uid = attr_js($_SESSION['authUserID'] ?? 0);
                     $action = attr_js($action);
@@ -202,11 +198,7 @@ class TransmitProperties
     {
         //default is testing mode
         $testing = isset($GLOBALS['weno_rx_enable_test']);
-        if ($testing) {
-            $mode = 'Y';
-        } else {
-            $mode = 'N';
-        }
+        $mode = $testing ? 'Y' : 'N';
         $gender = $this->patient['sex'];
         $heightDate = explode(" ", $this->vitals['date'] ?? '');
         $phonePrimary = $this->formatPhoneNumber($this->patient['phone_cell']);
@@ -214,7 +206,7 @@ class TransmitProperties
         //create json array
         $wenObj = [];
         $wenObj['UserEmail'] = $this->provider_email['email'];
-        $wenObj['MD5Password'] = md5($this->provider_pass);
+        $wenObj['MD5Password'] = md5((string) $this->provider_pass);
         $wenObj['LocationID'] = $this->locid['weno_id'];
         $wenObj['TestPatient'] = $mode;
         $wenObj['PatientType'] = 'Human';
@@ -270,13 +262,33 @@ class TransmitProperties
      */
     private function getResponsibleParty(): mixed
     {
-        $guardian = <<<guardian
-select guardiansname as ResponsiblePartyLastName, guardiansname as ResponsiblePartyFirstName, guardianaddress as ResponsiblePartyAddressLine1, guardianpostalcode as ResponsiblePartyPostalCode, guardiancity as ResponsiblePartyCity, guardianstate as ResponsiblePartyState, guardianphone as ResponsiblePartyPrimaryPhone from patient_data where pid = ?;
-guardian;
+        $guardian = <<<SQL
+            SELECT guardiansname AS ResponsiblePartyLastName,
+                   guardiansname AS ResponsiblePartyFirstName,
+                   guardianaddress AS ResponsiblePartyAddressLine1,
+                   guardianpostalcode AS ResponsiblePartyPostalCode,
+                   guardiancity AS ResponsiblePartyCity,
+                   guardianstate AS ResponsiblePartyState,
+                   guardianphone AS ResponsiblePartyPrimaryPhone
+              FROM patient_data
+             WHERE pid = ?;
+        SQL;
 
-        $insurance = <<<insurance
-select subscriber_lname as ResponsiblePartyLastName, subscriber_fname as ResponsiblePartyFirstName, subscriber_street as ResponsiblePartyAddressLine1, subscriber_postal_code as ResponsiblePartyPostalCode, subscriber_city as ResponsiblePartyCity, subscriber_state as ResponsiblePartyState, subscriber_phone as ResponsiblePartyPrimaryPhone, subscriber_street_line_2 as ResponsiblePartyAddressLine2 from insurance_data where pid = ? and subscriber_relationship > '' and subscriber_relationship != 'self' and type = 'primary'
-insurance;
+        $insurance = <<<SQL
+        select subscriber_lname AS ResponsiblePartyLastName,
+               subscriber_fname AS ResponsiblePartyFirstName,
+               subscriber_street AS ResponsiblePartyAddressLine1,
+               subscriber_postal_code AS ResponsiblePartyPostalCode,
+               subscriber_city AS ResponsiblePartyCity,
+               subscriber_state AS ResponsiblePartyState,
+               subscriber_phone AS ResponsiblePartyPrimaryPhone,
+               subscriber_street_line_2 AS ResponsiblePartyAddressLine2
+          FROM insurance_data
+         WHERE pid = ?
+           AND subscriber_relationship > ''
+           AND subscriber_relationship != 'self'
+           AND type = 'primary'
+        SQL;
 
         $relation = sqlQuery($guardian, [$_SESSION['pid']]);
         // if no guardian then check for primary insurance subscriber
@@ -303,8 +315,8 @@ insurance;
         if (empty($as_of)) {
             $as_of = date('Y-m-d');
         }
-        $a1 = explode('-', substr($dob, 0, 10));
-        $a2 = explode('-', substr($as_of, 0, 10));
+        $a1 = explode('-', substr((string) $dob, 0, 10));
+        $a2 = explode('-', substr((string) $as_of, 0, 10));
         $age = (int)$a2[0] - (int)$a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
@@ -319,9 +331,9 @@ insurance;
      */
     public function formatPhoneNumber($phone): string
     {
-        $phone = preg_replace('/\D+/', '', $phone);
-        if (strlen($phone) == 11) {
-            $phone = substr($phone, 1, 10);
+        $phone = preg_replace('/\D+/', '', (string) $phone);
+        if (strlen((string) $phone) == 11) {
+            $phone = substr((string) $phone, 1, 10);
         }
         return $phone;
     }
@@ -375,7 +387,7 @@ insurance;
 
     public function getFacilityForWenoId()
     {
-        $record = array();
+        $record = [];
         return sqlQuery("SELECT * from facility where weno_id = ? limit 1", [$this->wenoLocation]);
     }
 
@@ -437,11 +449,7 @@ insurance;
      */
     public static function echoError($errors): void
     {
-        if (is_array($errors)) {
-            $error = $errors['errors'] . $errors['warnings'] . $errors['info'];
-        } else {
-            $error = $errors;
-        }
+        $error = is_array($errors) ? $errors['errors'] . $errors['warnings'] . $errors['info'] : $errors;
         $log = self::styleErrors($error);
         echo($log);
     }
@@ -512,7 +520,7 @@ insurance;
     private function getSubscriber(): mixed
     {
         $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
-        $relation = $relation ?? ['subscriber_relationship' => ''];
+        $relation ??= ['subscriber_relationship' => ''];
 
         return $relation['subscriber_relationship'] ?? '';
     }
@@ -523,10 +531,10 @@ insurance;
     public function getPharmacy(): string|array
     {
         $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
-        $response = array(
+        $response = [
             "primary" => $data['primary_ncpdp'] ?? '',
             "alternate" => $data['alternate_ncpdp'] ?? ''
-        );
+        ];
         if (empty($data)) {
             $response['errors'] = true;
             // both primary and alternate are empty
@@ -547,7 +555,7 @@ insurance;
     public function getProviderName(): string
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
-        $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
 
@@ -557,7 +565,7 @@ insurance;
     public function getPatientName(): string
     {
         $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
-        $patient_info = $patient_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
+        $patient_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 
@@ -582,7 +590,7 @@ insurance;
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
 
         if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
-            $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
+            $doIt = ($GLOBALS['weno_provider_uid']) != trim((string) $provider['weno_prov_id']);
             if ($doIt) {
                 $provider['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
                 $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)

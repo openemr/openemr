@@ -16,23 +16,13 @@
  */
 class fee_sheet_option
 {
-    function __construct($c, $ct, $desc, $price, $category)
+    function __construct(public $code, public $code_type, public $description, public $price, public $category)
     {
-        $this->code = $c;
-        $this->code_type = $ct;
-        $this->description = $desc;
-        $this->price = $price;
-        $this->category = $category;
-        if ($price == null) {
+        if ($this->price == null) {
             $this->price = xl("Not Specified");
         }
     }
-    public $code;
-    public $code_type;
-    public $description;
-    public $price;
     public $fee_display;
-    public $category;
 }
 /**
  * get a list of fee sheet options
@@ -53,9 +43,9 @@ function load_fee_sheet_options($pricelevel)
         AND codes.code_type=code_types.ct_id
         ORDER BY fso.fs_category,fso.fs_option";
 
-    $results = sqlStatement($sql, array($pricelevel, $clFSO_code, $clFSO_code));
+    $results = sqlStatement($sql, [$pricelevel, $clFSO_code, $clFSO_code]);
 
-    $retval = array();
+    $retval = [];
     while ($res = sqlFetchArray($results)) {
         $fso = new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
         $retval[] = $fso;

@@ -51,7 +51,7 @@ function pendingFollowupLineItem(array $row, string $codetype, string $code): vo
 
     $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
     "code_type = ? AND " .
-    "code = ? LIMIT 1", array($code_types[$codetype]['id'], $code));
+    "code = ? LIMIT 1", [$code_types[$codetype]['id'], $code]);
     $code_text = $crow['code_text'];
 
     if ($_POST['form_csvexport']) {
@@ -199,7 +199,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
@@ -239,13 +239,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $patient_id = $row['patient_id'];
         $date_ordered = $row['date_ordered'];
 
-        $relcodes = explode(';', $row['related_code']);
+        $relcodes = explode(';', (string) $row['related_code']);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
                 continue;
             }
 
-            list($codetype, $code) = explode(':', $codestring);
+            [$codetype, $code] = explode(':', $codestring);
 
             $brow = sqlQuery("SELECT count(*) AS count " .
             "FROM billing AS b, form_encounter AS fe WHERE " .
@@ -254,7 +254,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             "b.code = ? AND " .
             "b.activity = 1 AND " .
             "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
-            "fe.date >= ?", array($patient_id, $codetype, $code, $date_ordered . ' 00:00:00'));
+            "fe.date >= ?", [$patient_id, $codetype, $code, $date_ordered . ' 00:00:00']);
 
             // If there was such a service, then this followup is not pending.
             if (!empty($brow['count'])) {

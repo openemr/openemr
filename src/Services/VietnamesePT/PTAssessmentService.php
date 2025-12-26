@@ -13,7 +13,10 @@
 
 namespace OpenEMR\Services\VietnamesePT;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -44,48 +47,95 @@ class PTAssessmentService extends BaseService
 
     /**
      * Get all assessments with optional search criteria
+     *
+     * AI-GENERATED CODE START - Claude Sonnet 4.5 (2025-01-22)
+     * Added ACL check and error handling
      */
     public function getAll($search = array(), $isAndCondition = true): ProcessingResult
     {
-        $sql = "SELECT
-            a.*,
-            a.id as assessment_id,
-            p.uuid as patient_uuid,
-            p.pid,
-            p.fname,
-            p.lname,
-            e.uuid as encounter_uuid,
-            e.encounter,
-            u.uuid as therapist_uuid,
-            u.username as therapist_username,
-            CONCAT(u.fname, ' ', u.lname) as therapist_name
-        FROM " . self::ASSESSMENT_TABLE . " a
-        LEFT JOIN " . self::PATIENT_TABLE . " p ON a.patient_id = p.pid
-        LEFT JOIN " . self::ENCOUNTER_TABLE . " e ON a.encounter_id = e.encounter
-        LEFT JOIN users u ON a.therapist_id = u.id";
-
-        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
-        $sql .= $whereClause->getFragment();
-        $sqlBindArray = $whereClause->getBoundValues();
-
-        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-
         $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $processingResult->addData($this->createResultRecordFromDatabaseResult($row));
+
+        // ACL check - require read access to patient medical records
+        if (!AclMain::aclCheckCore('patients', 'med')) {
+            $processingResult->setValidationMessages(['Access Denied']);
+            return $processingResult;
+        }
+
+        try {
+            $sql = "SELECT
+                a.*,
+                a.id as assessment_id,
+                p.uuid as patient_uuid,
+                p.pid,
+                p.fname,
+                p.lname,
+                e.uuid as encounter_uuid,
+                e.encounter,
+                u.uuid as therapist_uuid,
+                u.username as therapist_username,
+                CONCAT(u.fname, ' ', u.lname) as therapist_name
+            FROM " . self::ASSESSMENT_TABLE . " a
+            LEFT JOIN " . self::PATIENT_TABLE . " p ON a.patient_id = p.pid
+            LEFT JOIN " . self::ENCOUNTER_TABLE . " e ON a.encounter_id = e.encounter
+            LEFT JOIN users u ON a.therapist_id = u.id";
+
+            $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+            $sql .= $whereClause->getFragment();
+            $sqlBindArray = $whereClause->getBoundValues();
+
+            $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+            while ($row = sqlFetchArray($statementResults)) {
+                $processingResult->addData($this->createResultRecordFromDatabaseResult($row));
+            }
+        } catch (\Exception $e) {
+            SystemLogger::instance()->error('PT Assessment getAll failed', [
+                'error' => $e->getMessage(),
+                'search' => $search
+            ]);
+            $processingResult->addInternalError('Failed to retrieve assessments: ' . $e->getMessage());
         }
 
         return $processingResult;
     }
+    // AI-GENERATED CODE END
 
     /**
      * Get a single assessment by ID
+     *
+     * AI-GENERATED CODE START - Claude Sonnet 4.5 (2025-01-22)
+     * Added ACL check and audit logging
      */
     public function getOne($id): ProcessingResult
     {
+        // ACL check - require read access to patient medical records
+        $processingResult = new ProcessingResult();
+        if (!AclMain::aclCheckCore('patients', 'med')) {
+            $processingResult->setValidationMessages(['Access Denied']);
+            return $processingResult;
+        }
+
         $search = ['id' => new StringSearchField('id', [$id], SearchModifier::EXACT)];
-        return $this->getAll($search);
+        $result = $this->getAll($search);
+
+        // Audit log access to PT assessment
+        if ($result->hasData()) {
+            $data = $result->getData();
+            if (!empty($data[0])) {
+                EventAuditLogger::instance()->newEvent(
+                    'pt-assessment-access',
+                    $_SESSION['authUser'] ?? 'system',
+                    $_SESSION['authProvider'] ?? 0,
+                    1,
+                    "Accessed PT Assessment ID: {$id}",
+                    $data[0]['patient_id'] ?? null
+                );
+            }
+        }
+
+        return $result;
     }
+    // AI-GENERATED CODE END
 
     /**
      * Get all assessments for a specific patient
@@ -98,88 +148,198 @@ class PTAssessmentService extends BaseService
 
     /**
      * Create a new bilingual assessment
+     *
+     * AI-GENERATED CODE START - Claude Sonnet 4.5 (2025-01-22)
+     * Added ACL check, input sanitization, audit logging, and error handling
      */
     public function insert($data): ProcessingResult
     {
+        $processingResult = new ProcessingResult();
+
+        // ACL check - require write access to patient medical records
+        if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+            $processingResult->setValidationMessages(['Access Denied']);
+            return $processingResult;
+        }
+
+        // Sanitize input data
+        $data = $this->sanitizeInput($data);
+
+        // Validate data
         $processingResult = $this->validator->validate($data);
 
         if ($processingResult->isValid()) {
-            $data['created_at'] = date('Y-m-d H:i:s');
-            $data['updated_at'] = date('Y-m-d H:i:s');
+            try {
+                $data['created_at'] = date('Y-m-d H:i:s');
+                $data['updated_at'] = date('Y-m-d H:i:s');
+                $data['created_by'] = $_SESSION['authUserID'] ?? null;
 
-            $query = $this->buildInsertColumns($data);
-            $sql = "INSERT INTO " . self::ASSESSMENT_TABLE . " SET ";
-            $sql .= $query['set'];
+                $query = $this->buildInsertColumns($data);
+                $sql = "INSERT INTO " . self::ASSESSMENT_TABLE . " SET ";
+                $sql .= $query['set'];
 
-            $insertId = QueryUtils::sqlInsert($sql, $query['bind']);
+                $insertId = QueryUtils::sqlInsert($sql, $query['bind']);
 
-            if ($insertId) {
-                $processingResult->addData([
-                    'id' => $insertId,
-                    'patient_id' => $data['patient_id'],
-                    'encounter_id' => $data['encounter_id'] ?? null
+                if ($insertId) {
+                    $processingResult->addData([
+                        'id' => $insertId,
+                        'patient_id' => $data['patient_id'],
+                        'encounter_id' => $data['encounter_id'] ?? null
+                    ]);
+
+                    // Audit log the creation
+                    EventAuditLogger::instance()->newEvent(
+                        'pt-assessment-create',
+                        $_SESSION['authUser'] ?? 'system',
+                        $_SESSION['authProvider'] ?? 0,
+                        1,
+                        "Created PT Assessment ID: {$insertId} for patient: {$data['patient_id']}",
+                        $data['patient_id']
+                    );
+                } else {
+                    $processingResult->addInternalError("Error inserting PT assessment");
+                }
+            } catch (\Exception $e) {
+                SystemLogger::instance()->error('PT Assessment insert failed', [
+                    'error' => $e->getMessage(),
+                    'patient_id' => $data['patient_id'] ?? 'unknown'
                 ]);
-            } else {
-                $processingResult->addInternalError("Error inserting PT assessment");
+                $processingResult->addInternalError('Failed to create PT assessment: ' . $e->getMessage());
             }
         }
 
         return $processingResult;
     }
+    // AI-GENERATED CODE END
 
     /**
      * Update an existing assessment
+     *
+     * AI-GENERATED CODE START - Claude Sonnet 4.5 (2025-01-22)
+     * Added ACL check, input sanitization, audit logging, and error handling
      */
     public function update($id, $data): ProcessingResult
     {
+        $processingResult = new ProcessingResult();
+
+        // ACL check - require write access to patient medical records
+        if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+            $processingResult->setValidationMessages(['Access Denied']);
+            return $processingResult;
+        }
+
+        // Sanitize input data
+        $data = $this->sanitizeInput($data);
+
+        // Validate data
         $processingResult = $this->validator->validate($data, true);
 
         if ($processingResult->isValid()) {
-            $data['updated_at'] = date('Y-m-d H:i:s');
+            try {
+                $data['updated_at'] = date('Y-m-d H:i:s');
+                $data['updated_by'] = $_SESSION['authUserID'] ?? null;
 
-            // Remove fields that shouldn't be updated
-            unset($data['id']);
-            unset($data['created_at']);
-            unset($data['created_by']);
+                // Remove fields that shouldn't be updated
+                unset($data['id']);
+                unset($data['created_at']);
+                unset($data['created_by']);
 
-            $query = $this->buildUpdateColumns($data);
-            $sql = "UPDATE " . self::ASSESSMENT_TABLE . " SET ";
-            $sql .= $query['set'];
-            $sql .= " WHERE id = ?";
+                $query = $this->buildUpdateColumns($data);
+                $sql = "UPDATE " . self::ASSESSMENT_TABLE . " SET ";
+                $sql .= $query['set'];
+                $sql .= " WHERE id = ?";
 
-            $result = sqlStatement($sql, array_merge($query['bind'], [$id]));
+                $result = sqlStatement($sql, array_merge($query['bind'], [$id]));
 
-            if ($result !== false) {
-                $processingResult->addData(['id' => $id]);
-            } else {
-                $processingResult->addInternalError("Error updating PT assessment");
+                if ($result !== false) {
+                    $processingResult->addData(['id' => $id]);
+
+                    // Audit log the update
+                    EventAuditLogger::instance()->newEvent(
+                        'pt-assessment-update',
+                        $_SESSION['authUser'] ?? 'system',
+                        $_SESSION['authProvider'] ?? 0,
+                        1,
+                        "Updated PT Assessment ID: {$id}",
+                        $data['patient_id'] ?? null
+                    );
+                } else {
+                    $processingResult->addInternalError("Error updating PT assessment");
+                }
+            } catch (\Exception $e) {
+                SystemLogger::instance()->error('PT Assessment update failed', [
+                    'error' => $e->getMessage(),
+                    'assessment_id' => $id
+                ]);
+                $processingResult->addInternalError('Failed to update PT assessment: ' . $e->getMessage());
             }
         }
 
         return $processingResult;
     }
+    // AI-GENERATED CODE END
 
     /**
      * Delete assessment (soft delete by setting status to 'cancelled')
+     *
+     * AI-GENERATED CODE START - Claude Sonnet 4.5 (2025-01-22)
+     * Added ACL check, audit logging, and error handling
      */
     public function delete($id): ProcessingResult
     {
         $processingResult = new ProcessingResult();
 
-        $sql = "UPDATE " . self::ASSESSMENT_TABLE . "
-                SET status = 'cancelled', updated_at = ?
-                WHERE id = ?";
+        // ACL check - require write access to patient medical records
+        if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+            $processingResult->setValidationMessages(['Access Denied']);
+            return $processingResult;
+        }
 
-        $result = sqlStatement($sql, [date('Y-m-d H:i:s'), $id]);
+        try {
+            // Get assessment info for audit log
+            $assessmentInfo = $this->getOne($id);
+            $patientId = null;
+            if ($assessmentInfo->hasData()) {
+                $data = $assessmentInfo->getData();
+                $patientId = $data[0]['patient_id'] ?? null;
+            }
 
-        if ($result !== false) {
-            $processingResult->addData(['id' => $id, 'status' => 'cancelled']);
-        } else {
-            $processingResult->addInternalError("Error deleting PT assessment");
+            $sql = "UPDATE " . self::ASSESSMENT_TABLE . "
+                    SET status = 'cancelled', updated_at = ?, updated_by = ?
+                    WHERE id = ?";
+
+            $result = sqlStatement($sql, [
+                date('Y-m-d H:i:s'),
+                $_SESSION['authUserID'] ?? null,
+                $id
+            ]);
+
+            if ($result !== false) {
+                $processingResult->addData(['id' => $id, 'status' => 'cancelled']);
+
+                // Audit log the deletion
+                EventAuditLogger::instance()->newEvent(
+                    'pt-assessment-delete',
+                    $_SESSION['authUser'] ?? 'system',
+                    $_SESSION['authProvider'] ?? 0,
+                    1,
+                    "Deleted (cancelled) PT Assessment ID: {$id}",
+                    $patientId
+                );
+            } else {
+                $processingResult->addInternalError("Error deleting PT assessment");
+            }
+        } catch (\Exception $e) {
+            SystemLogger::instance()->error('PT Assessment delete failed', [
+                'error' => $e->getMessage(),
+                'assessment_id' => $id
+            ]);
+            $processingResult->addInternalError('Failed to delete PT assessment: ' . $e->getMessage());
         }
 
         return $processingResult;
     }
+    // AI-GENERATED CODE END
 
     /**
      * Search assessments with Vietnamese text
@@ -248,4 +408,35 @@ class PTAssessmentService extends BaseService
     {
         return ['uuid', 'patient_uuid', 'encounter_uuid', 'therapist_uuid'];
     }
+
+    /**
+     * Sanitize input data for Vietnamese PT assessments
+     *
+     * AI-GENERATED CODE START - Claude Sonnet 4.5 (2025-01-22)
+     * Input sanitization to prevent SQL injection and ensure proper UTF-8 encoding
+     *
+     * @param array $data Input data to sanitize
+     * @return array Sanitized data
+     */
+    private function sanitizeInput(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (is_string($value)) {
+                // Ensure proper UTF-8 encoding for Vietnamese text
+                $data[$key] = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+
+                // Remove null bytes
+                $data[$key] = str_replace("\0", '', $data[$key]);
+
+                // Trim whitespace
+                $data[$key] = trim($data[$key]);
+            } elseif (is_array($value)) {
+                // Recursively sanitize nested arrays
+                $data[$key] = $this->sanitizeInput($value);
+            }
+        }
+
+        return $data;
+    }
+    // AI-GENERATED CODE END
 }

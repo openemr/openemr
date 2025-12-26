@@ -6,4 +6,4 @@
  * @copyright Copyright (c) 2019 Yuriy Gershem <yuriyge@matrix.co.il>
  */
 
-return array();
+return [];
