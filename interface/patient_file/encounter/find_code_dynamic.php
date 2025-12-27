@@ -148,12 +148,19 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                             input.val('');
                             self.search('').draw();
                         });
+                    // Enter key handler for the search input
+                    input.on('keypress', function (e) {
+                        if (e.which === 13) { // Enter key
+                            e.preventDefault();
+                            self.search(input.val()).draw();
+                        }
+                    });
+
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
-            });
 
-            // OnClick handler for the rows
-            $('#my_data_table').on('click', 'tbody tr', function () {
+                // OnClick handler for the rows
+                $('#my_data_table').on('click', 'tbody tr', function () {
                 var limit = <?php echo js_escape($limit); ?>;
                 var target_element = <?php echo js_escape($target_element); ?>;
 
@@ -198,91 +205,91 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             // Set focus to the Search field.
             $('#my_data_table_filter input').focus();
 
-        });
+        })
 
-        <?php if ($what == 'codes') { ?>
-        // Pass info back to the opener and close this window. Specific to billing/product codes.
-        function selcode(codetype, code, selector, codedesc, target_element, limit = 0, modifier = '') {
-            if (opener.closed || (!opener.set_related && !opener.set_related_target)) {
-                alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
-            } else {
-                if (target_element != '') {
-                    var msg = opener.set_related_target(codetype, code, selector, codedesc, target_element, limit);
-                } else if (singleCodeSelection == '1') {
-                    opener.promiseData = JSON.stringify({codetype, code, selector, codedesc});
-                    dlgclose();
+            <?php if ($what == 'codes') { ?>
+            // Pass info back to the opener and close this window. Specific to billing/product codes.
+            function selcode(codetype, code, selector, codedesc, target_element, limit = 0, modifier = '') {
+                if (opener.closed || (!opener.set_related && !opener.set_related_target)) {
+                    alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
                 } else {
-                    var msg = opener.set_related(codetype, code, selector, codedesc, modifier);
+                    if (target_element != '') {
+                        var msg = opener.set_related_target(codetype, code, selector, codedesc, target_element, limit);
+                    } else if (singleCodeSelection == '1') {
+                        opener.promiseData = JSON.stringify({codetype, code, selector, codedesc});
+                        dlgclose();
+                    } else {
+                        var msg = opener.set_related(codetype, code, selector, codedesc, modifier);
+                    }
+                    if (msg) alert(msg);
+                    // window.close();
+                    return false;
                 }
-                if (msg) alert(msg);
-                // window.close();
+            }
+
+            // Function to call the opener to delete all or one related code. Specific to billing/product codes.
+            function delcode() {
+                if (opener.closed || !opener.del_related) {
+                    alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
+                } else {
+                    var sel = document.forms[0].form_delcodes;
+                    opener.del_related(sel.value);
+                    oChosenIDs = {};
+                    oTable.fnDraw();
+                    // window.close();
+                    return false;
+                }
+            }
+
+            <?php } elseif ($what == 'fields') { ?>
+            function selectField(jobj) {
+                if (opener.closed || !opener.SetField) {
+                    alert('The destination form was closed; I cannot act on your selection.');
+                } else {
+                    opener.SetField(jobj['field_id'], jobj['title'], jobj['data_type'], jobj['uor'], jobj['fld_length'],
+                        jobj['max_length'], jobj['list_id'], jobj['titlecols'], jobj['datacols'], jobj['edit_options'],
+                        jobj['description'], jobj['fld_rows']);
+                }
+                dlgclose();
                 return false;
             }
-        }
 
-        // Function to call the opener to delete all or one related code. Specific to billing/product codes.
-        function delcode() {
-            if (opener.closed || !opener.del_related) {
-                alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
-            } else {
-                var sel = document.forms[0].form_delcodes;
-                opener.del_related(sel.value);
-                oChosenIDs = {};
-                oTable.fnDraw();
-                // window.close();
+            function newField() {
+                return selectField({
+                    "field_id": document.forms[0].new_field_id.value,
+                    "title": '',
+                    "data_type": 2,
+                    "uor": 1,
+                    "fld_length": 10,
+                    "max_length": 255,
+                    "list_id": '',
+                    "titlecols": 1,
+                    "datacols": 3,
+                    "edit_options": '',
+                    "description": '',
+                    "fld_rows": 0
+                });
+            }
+
+            <?php } elseif ($what == 'lists') { ?>
+            function SelectList(jobj) {
+                if (opener.closed || !opener.SetList)
+                    alert('The destination form was closed; I cannot act on your selection.');
+                else
+                    opener.SetList(jobj['code']);
+                dlgclose();
                 return false;
             }
-        }
 
-        <?php } elseif ($what == 'fields') { ?>
-        function selectField(jobj) {
-            if (opener.closed || !opener.SetField) {
-                alert('The destination form was closed; I cannot act on your selection.');
-            } else {
-                opener.SetField(jobj['field_id'], jobj['title'], jobj['data_type'], jobj['uor'], jobj['fld_length'],
-                    jobj['max_length'], jobj['list_id'], jobj['titlecols'], jobj['datacols'], jobj['edit_options'],
-                    jobj['description'], jobj['fld_rows']);
-            }
-            dlgclose();
-            return false;
-        }
-
-        function newField() {
-            return selectField({
-                "field_id": document.forms[0].new_field_id.value,
-                "title": '',
-                "data_type": 2,
-                "uor": 1,
-                "fld_length": 10,
-                "max_length": 255,
-                "list_id": '',
-                "titlecols": 1,
-                "datacols": 3,
-                "edit_options": '',
-                "description": '',
-                "fld_rows": 0
-            });
-        }
-
-        <?php } elseif ($what == 'lists') { ?>
-        function SelectList(jobj) {
-            if (opener.closed || !opener.SetList)
-                alert('The destination form was closed; I cannot act on your selection.');
-            else
-                opener.SetList(jobj['code']);
-            dlgclose();
-            return false;
-        }
-
-        <?php } elseif ($what == 'groups') { ?>
-        var SelectItem = function (jobj) {
-            if (opener.closed)
-                alert('The destination form was closed; I cannot act on your selection.');
-            else
-                opener.MoveFields(jobj['code']);
-            dlgclose();
-            return false;
-        };
+            <?php } elseif ($what == 'groups') { ?>
+            var SelectItem = function (jobj) {
+                if (opener.closed)
+                    alert('The destination form was closed; I cannot act on your selection.');
+                else
+                    opener.MoveFields(jobj['code']);
+                dlgclose();
+                return false;
+            };
 
         <?php } ?>
 
