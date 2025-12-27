@@ -25,7 +25,7 @@ class Holidays_Storage
      */
     public function get_holidays()
     {
-        $holidays = [];
+        $holidays = array();
         $sql = "SELECT * FROM " . escape_table_name(self::TABLE_NAME);
         $res = sqlStatement($sql);
         while ($row = sqlFetchArray($res)) {
@@ -43,9 +43,9 @@ class Holidays_Storage
      */
     public static function get_holidays_by_dates($start_date, $end_date)
     {
-        $holidays = [];
+        $holidays = array();
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
-        $res = sqlStatement($sql, [self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date]);
+        $res = sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date));
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row['pc_eventDate'];
         }
@@ -67,7 +67,7 @@ class Holidays_Storage
                 $deleted = true;
             }
 
-            $row = [
+            $row = array(
                 self::CALENDAR_CATEGORY_HOLIDAY,//catgory
                 0,//authid
                 0,//pid
@@ -77,9 +77,9 @@ class Holidays_Storage
                 "a:6:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";s:6:\"exdate\";s:0:\"\";}",
                 1,//allday
                 1,//status
-                $_SESSION['pc_facility'] ?? 0,//facility
+                isset($_SESSION['pc_facility']) ? $_SESSION['pc_facility'] : 0,//facility
                 2 //SHARING_PUBLIC
-            ];
+            );
 
             $pc_eid = sqlInsert(
                 "INSERT INTO openemr_postcalendar_events ( " .
@@ -102,20 +102,36 @@ class Holidays_Storage
      */
     public function import_holidays($file)
     {
-        $data = [];
         $handle = fopen($file, "r");
-        $deleted = false;
-        do {
-            if ($data[0]) {
-                if (!$deleted) {
-                    $this->delete_calendar_external();
-                    $deleted = true;
-                }
+        if ($handle === false) {
+            return false;
+        }
 
-                $row = [$data[0],$data[1]];
-                sqlStatement("INSERT INTO " . escape_table_name(self::TABLE_NAME) . "(date,description,source)" . " VALUES (?,?,'csv')", $row);
+        $deleted = false;
+        while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
+            if (!isset($data[0]) || $data[0] === '') {
+                continue;
             }
-        } while ($data = fgetcsv($handle, 1000, ",", "'"));
+
+            $first = strtolower(trim($data[0]));
+            $second = strtolower(trim($data[1] ?? ''));
+            if ($first === 'date' && $second === 'description') {
+                continue;
+            }
+
+            if (!$deleted) {
+                $this->delete_calendar_external();
+                $deleted = true;
+            }
+
+            $row = array($data[0], $data[1] ?? '');
+            sqlStatement(
+                "INSERT INTO " . escape_table_name(self::TABLE_NAME) . "(date,description,source) VALUES (?,?,'csv')",
+                $row
+            );
+        }
+
+        fclose($handle);
         return true;
     }
 
@@ -128,6 +144,6 @@ class Holidays_Storage
     private function delete_holiday_events()
     {
         $sql = "DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?";
-        sqlStatement($sql, [self::CALENDAR_CATEGORY_HOLIDAY]);
+        sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
     }
 }

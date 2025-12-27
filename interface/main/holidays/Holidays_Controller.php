@@ -22,6 +22,7 @@ class Holidays_Controller
 
     public $storage;
     public $target_file;
+    public $last_error = '';
 
     function __construct()
     {
@@ -45,22 +46,29 @@ class Holidays_Controller
      */
     public function upload_csv($files)
     {
+        $this->last_error = '';
+        if (empty($files["form_file"])) {
+            $this->last_error = xl('No file uploaded');
+            return false;
+        }
+
         if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR)) {
             if (!mkdir($GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR . "/", 0700)) {
+                $this->last_error = xl('Unable to create upload directory');
                 return false;
             }
         }
 
-        $file_type = pathinfo((string) $this->target_file, PATHINFO_EXTENSION);
-        if ($file_type != "csv") {
+        if (!$this->is_valid_csv_upload($files["form_file"])) {
             return false;
         }
 
-        if (move_uploaded_file($files["form_file"]["tmp_name"], $this->target_file)) {
-            return true;
+        if (!move_uploaded_file($files["form_file"]["tmp_name"], $this->target_file)) {
+            $this->last_error = xl('Unable to save uploaded file');
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -69,12 +77,18 @@ class Holidays_Controller
      */
     public function import_holidays_from_csv()
     {
+        $this->last_error = '';
         $file = $this->get_file_csv_data();
         if (empty($file)) {
+            $this->last_error = xl('CSV file not found');
             return false;
         }
 
-        $this->storage->import_holidays($this->target_file);
+        if (!$this->storage->import_holidays($this->target_file)) {
+            $this->last_error = xl('CSV import failed');
+            return false;
+        }
+
         return true;
     }
 
@@ -84,12 +98,111 @@ class Holidays_Controller
      */
     public function get_file_csv_data()
     {
-        $file = [];
+        $file = array();
         if (file_exists($this->target_file)) {
             $file['date'] = date("d/m/Y H:i:s", filemtime($this->target_file));
         }
 
         return $file;
+    }
+
+    public function get_last_error()
+    {
+        return $this->last_error;
+    }
+
+    private function is_valid_csv_upload(array $file)
+    {
+        if (!empty($file["error"])) {
+            $this->last_error = xl('Upload failed');
+            return false;
+        }
+
+        if (empty($file["tmp_name"]) || !is_uploaded_file($file["tmp_name"])) {
+            $this->last_error = xl('Invalid upload');
+            return false;
+        }
+
+        $name = $file["name"] ?? "";
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        if ($extension !== "csv") {
+            $this->last_error = xl('File must be a CSV');
+            return false;
+        }
+
+        return $this->is_valid_csv_content($file["tmp_name"]);
+    }
+
+    private function is_valid_csv_content($path)
+    {
+        $handle = fopen($path, "r");
+        if ($handle === false) {
+            $this->last_error = xl('Unable to read uploaded file');
+            return false;
+        }
+
+        $row = null;
+        while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
+            if (!isset($data[0]) || trim($data[0]) === "") {
+                continue;
+            }
+            $row = $data;
+            break;
+        }
+
+        if ($row === null) {
+            fclose($handle);
+            $this->last_error = xl('CSV file is empty');
+            return false;
+        }
+
+        if ($this->is_header_row($row)) {
+            $row = null;
+            while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
+                if (!isset($data[0]) || trim($data[0]) === "") {
+                    continue;
+                }
+                $row = $data;
+                break;
+            }
+        }
+
+        fclose($handle);
+
+        if ($row === null || count($row) < 2) {
+            $this->last_error = xl('CSV row must have date and description');
+            return false;
+        }
+
+        $date = trim($row[0]);
+        if (!$this->is_valid_holiday_date($date)) {
+            $this->last_error = xl('Invalid date format in CSV');
+            return false;
+        }
+
+        return true;
+    }
+
+    private function is_header_row(array $row)
+    {
+        $first = strtolower(trim($row[0] ?? ""));
+        $second = strtolower(trim($row[1] ?? ""));
+        return ($first === "date" && $second === "description");
+    }
+
+    private function is_valid_holiday_date($date)
+    {
+        if (preg_match('/^\d{4}\/\d{2}\/\d{2}$/', $date)) {
+            $dt = DateTime::createFromFormat("Y/m/d", $date);
+            return $dt && $dt->format("Y/m/d") === $date;
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $dt = DateTime::createFromFormat("Y-m-d", $date);
+            return $dt && $dt->format("Y-m-d") === $date;
+        }
+
+        return false;
     }
 
     /**
@@ -110,7 +223,7 @@ class Holidays_Controller
      */
     public function get_holidays_by_date_range($start_date, $end_date)
     {
-        $holidays = [];
+        $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates($start_date, $end_date);
         return $holidays;
     }
@@ -121,7 +234,7 @@ class Holidays_Controller
      */
     public static function is_holiday($date)
     {
-        $holidays = [];
+        $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);
         if (in_array($date, $holidays)) {
             return true;

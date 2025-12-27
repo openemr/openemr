@@ -29,6 +29,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $holidays_controller = new Holidays_Controller();
 $csv_file_data = $holidays_controller->get_file_csv_data();
+$error_message = '';
 
 //this part download the CSV file after the click on the href link
 if (!empty($_GET['download_file']) && ($_GET['download_file'] == 1)) {
@@ -66,6 +67,8 @@ if (!empty($_POST['bn_upload'])) {
     $saved = $holidays_controller->upload_csv($_FILES);
     if ($saved) {
         $csv_file_data = $holidays_controller->get_file_csv_data();
+    } else {
+        $error_message = $holidays_controller->get_last_error();
     }
 }
 
@@ -76,6 +79,9 @@ if (!empty($_POST['import_holidays'])) {
 
     //Import from the csv file to the calendar external table
     $saved = $holidays_controller->import_holidays_from_csv();
+    if (!$saved) {
+        $error_message = $holidays_controller->get_last_error();
+    }
 }
 
 if (!empty($_POST['sync'])) {
@@ -85,6 +91,9 @@ if (!empty($_POST['sync'])) {
 
     //Upload and save the csv
     $saved = $holidays_controller->create_holiday_event();
+    if (!$saved && empty($error_message)) {
+        $error_message = xlt('Operation Failed');
+    }
 }
 
 
@@ -103,13 +112,9 @@ if (!empty($saved)) {
     echo "<p style='color:green'>" .
         xlt('Successfully Completed');
         "</p>\n";
-} elseif (
-    !empty($_POST['bn_upload'])             &&
-        !empty($_POST['import_holidays'])       &&
-        !empty($_POST['sync'])
-) {
+} elseif (!empty($error_message)) {
     echo "<p style='color:red'>" .
-        xlt('Operation Failed');
+        text($error_message);
     "</p>\n";
 }
 ?>
@@ -142,7 +147,7 @@ if (!empty($saved)) {
                 <td class='detail' nowrap>
                     <?php
                     if (!empty($csv_file_data)) {?>
-                        <?php $path = explode("/", (string) $holidays_controller->get_target_file());?>
+                        <?php $path = explode("/", $holidays_controller->get_target_file());?>
                         <?php $filename = $path[count($path) - 1];?>
                         <?php unset($path[count($path) - 1]);?>
 
