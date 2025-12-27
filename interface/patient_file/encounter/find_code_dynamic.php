@@ -98,11 +98,16 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                     }
                 },
                 // Drawing a row, apply styling if it is previously selected.
-                "fnCreatedRow": function (nRow, aData, iDataIndex) {
-                    if (oChosenIDs[nRow.id]) {
-                        nRow.style.fontWeight = 'bold';
-                    }
-                },
+                    "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                        // Make row behave like a button
+                        nRow.setAttribute('role', 'button');
+                        nRow.setAttribute('tabindex', '0');
+                        nRow.style.cursor = 'pointer';
+                        // Highlight previously selected rows
+                        if (oChosenIDs[nRow.id]) {
+                            nRow.style.fontWeight = 'bold';
+                        }
+                    },
                 // Language strings are included so we can translate them
                 "oLanguage": {
                     "sSearch": <?php echo xlj('Search for'); ?> +":",
@@ -158,6 +163,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
+            });
 
                 // OnClick handler for the rows
                 $('#my_data_table').on('click', 'tbody tr', function () {
