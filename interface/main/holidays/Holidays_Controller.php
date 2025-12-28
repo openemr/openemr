@@ -110,7 +110,7 @@ class Holidays_Controller
      * Checks if the file exists and returns the last modification date or empty array if the file doesn't exists
      * @return array
      */
-    public function get_file_csv_data()
+    public function get_file_csv_data():array
     {
         $file = [];
         if (file_exists($this->target_file)) {
@@ -120,12 +120,12 @@ class Holidays_Controller
         return $file;
     }
 
-    public function get_last_error()
+    public function get_last_error():string
     {
         return $this->last_error;
     }
 
-    private function is_valid_csv_upload(array $file)
+    private function is_valid_csv_upload(array $file):bool
     {
         if (!empty($file["error"])) {
             $this->last_error = xl("Upload failed");
@@ -147,7 +147,7 @@ class Holidays_Controller
         return $this->is_valid_csv_content($file["tmp_name"]);
     }
 
-    private function is_valid_csv_content($path)
+    private function is_valid_csv_content($path):bool
     {
         $handle = fopen($path, "r");
         if ($handle === false) {
@@ -198,14 +198,14 @@ class Holidays_Controller
         }
     }
 
-    private function is_header_row(array $row)
+    private function is_header_row(array $row):bool
     {
         $first = strtolower(trim($row[0] ?? ""));
         $second = strtolower(trim($row[1] ?? ""));
         return $first === "date" && $second === "description";
     }
 
-    private function is_valid_holiday_date($date)
+    private function is_valid_holiday_date($date):bool
     {
         if (preg_match('/^\d{4}\/\d{2}\/\d{2}$/', $date)) {
             $dt = DateTime::createFromFormat("Y/m/d", $date);
@@ -223,7 +223,7 @@ class Holidays_Controller
     /**
      * Gets all the holidays and send the result to create the events for the calendar
      */
-    public function create_holiday_event()
+    public function create_holiday_event():bool
     {
         $holidays = $this->storage->get_holidays();
         $events = $this->storage->create_events($holidays);
@@ -236,7 +236,7 @@ class Holidays_Controller
      * @param $end_date
      * @return array
      */
-    public function get_holidays_by_date_range($start_date, $end_date)
+    public function get_holidays_by_date_range($start_date, $end_date):array
     {
         $holidays = [];
         $holidays = Holidays_Storage::get_holidays_by_dates(
@@ -250,7 +250,7 @@ class Holidays_Controller
      * Return true if the date is a holiday/closed
      * @param $date
      */
-    public static function is_holiday($date)
+    public static function is_holiday($date):bool
     {
         $holidays = [];
         $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);

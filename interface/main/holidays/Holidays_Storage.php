@@ -23,7 +23,7 @@ class Holidays_Storage
      * This function selects ALL the holidays from the table calendar_external and returns an array
      * @return array
      */
-    public function get_holidays()
+    public function get_holidays():array
     {
         $holidays = [];
         $sql = "SELECT * FROM " . escape_table_name(self::TABLE_NAME);
@@ -41,7 +41,7 @@ class Holidays_Storage
      * @param $end_date
      * @return array [0=>"2016/06/16"]
      */
-    public static function get_holidays_by_dates($start_date, $end_date)
+    public static function get_holidays_by_dates($start_date, $end_date):array
     {
         $holidays = [];
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
@@ -66,7 +66,7 @@ class Holidays_Storage
      * The holidays array must contai the date=>DD/MM/YYY, description=>"string"
      * @param array $holidays
      */
-    public function create_events(array $holidays)
+    public function create_events(array $holidays):bool
     {
         $deleted = false;
         foreach ($holidays as $holiday) {
@@ -108,7 +108,7 @@ class Holidays_Storage
      * 2016/12/24,Christmas
      * @param $file (string containing the file name)
      */
-    public function import_holidays($file)
+    public function import_holidays($file):bool
     {
         $handle = fopen($file, "r");
         if ($handle === false) {
@@ -143,13 +143,13 @@ class Holidays_Storage
         return true;
     }
 
-    private function delete_calendar_external()
+    private function delete_calendar_external():void
     {
         $sql = "TRUNCATE TABLE " . escape_table_name(self::TABLE_NAME);
         $res = sqlStatement($sql);
     }
 
-    private function delete_holiday_events()
+    private function delete_holiday_events():void
     {
         $sql = "DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?";
         sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
