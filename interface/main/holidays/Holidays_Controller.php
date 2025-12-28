@@ -158,11 +158,10 @@ class Holidays_Controller
         try {
             $row = null;
             while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
-                if (!isset($data[0]) || trim($data[0]) === "") {
-                    continue;
+                if (trim($data[0] ?? "") !== "") {
+                    $row = $data;
+                    break;
                 }
-                $row = $data;
-                break;
             }
 
             if ($row === null) {
@@ -175,11 +174,10 @@ class Holidays_Controller
                 while (
                     ($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false
                 ) {
-                    if (!isset($data[0]) || trim($data[0]) === "") {
-                        continue;
+                    if (trim($data[0] ?? "") !== "") {
+                        $row = $data;
+                        break;
                     }
-                    $row = $data;
-                    break;
                 }
             }
 
