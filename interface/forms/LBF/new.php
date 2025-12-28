@@ -382,7 +382,7 @@ if (
     if (!$alertmsg && !$from_issue_form && empty($_POST['bn_save_continue'])) {
         // Support custom behavior at save time, such as going to another form.
         if (function_exists($formname . '_save_exit')) {
-            if (call_user_func($formname . '_save_exit')) {
+            if (($formname . '_save_exit')()) {
                 exit;
             }
         }
@@ -892,7 +892,7 @@ if (
         <?php } // end if (isset($fs))
 
         if (function_exists($formname . '_javascript')) {
-            call_user_func($formname . '_javascript');
+            ($formname . '_javascript')();
         }
         ?>
 
@@ -1293,7 +1293,7 @@ if (
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (!str_contains('?!.,:-=', substr((string) $tmp, -1, 1))) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -1816,7 +1816,7 @@ if (
                                     <?php
                                     if (function_exists($formname . '_additional_buttons')) {
                                         // Allow the plug-in to insert more action buttons here.
-                                        call_user_func($formname . '_additional_buttons');
+                                        ($formname . '_additional_buttons')();
                                     }
 
                                     if ($form_is_graphable) {
@@ -1874,7 +1874,7 @@ if (
                     <?php echo $date_init; ?>
                     <?php
                     if (function_exists($formname . '_javascript_onload')) {
-                        call_user_func($formname . '_javascript_onload');
+                        ($formname . '_javascript_onload')();
                     }
 
                     if ($alertmsg) {

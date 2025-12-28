@@ -782,7 +782,7 @@ if (!$drug_id) {
     <script>
         <?php
         if ($info_msg) {
-            echo " alert('" . addslashes((string)$info_msg) . "');\n";
+            echo " alert('" . addslashes($info_msg) . "');\n";
             echo " window.close();\n";
         }
         ?>

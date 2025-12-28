@@ -52,7 +52,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
                      source: "delete_full_category"
                 },
                 success: function(thedata){
-                            alert("<?php echo addslashes((string) xl('Deleted Successfully.'));?>");
+                            alert("<?php echo addslashes(xl('Deleted Successfully.'));?>");
                             document.location.reload();
                             },
                 error:function(){
@@ -62,7 +62,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         }
         function delete_category(id){
             top.restoreSession();
-            if(confirm("<?php echo addslashes((string) xl('Do you want to delete?'));?>")){
+            if(confirm("<?php echo addslashes(xl('Do you want to delete?'));?>")){
                 $.ajax({
                 type: "POST",
                 url: "ajax_code.php",
@@ -93,10 +93,10 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         <table align="center">
             <tr class="text reportTableHeadRow">
                 <th><?php echo htmlspecialchars('Sl.No', ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars((string) xl('Category'), ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars((string) xl('Context'), ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars((string) xl('Creator'), ENT_QUOTES);?></th>
-                <th><?php echo htmlspecialchars((string) xl('Delete'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars(xl('Category'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars(xl('Context'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars(xl('Creator'), ENT_QUOTES);?></th>
+                <th><?php echo htmlspecialchars(xl('Delete'), ENT_QUOTES);?></th>
             </tr>
     <?php
     $i = 0;

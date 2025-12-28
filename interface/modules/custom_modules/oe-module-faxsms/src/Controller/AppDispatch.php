@@ -81,7 +81,7 @@ abstract class AppDispatch
             // route it if direct call
             if (method_exists($this, $action)) {
                 $this->setResponse(
-                    call_user_func([$this, $action], [])
+                    $this->$action()
                 );
             } else {
                 $this->setHeader("HTTP/1.0 404 Not Found");
@@ -90,7 +90,7 @@ abstract class AppDispatch
         } else {
             // Not an internal route so pass on to current service index action.
             $this->setResponse(
-                call_user_func([$this, self::ACTION_DEFAULT], [])
+                $this->{self::ACTION_DEFAULT}()
             );
         }
     }

@@ -362,7 +362,7 @@ function printPatientForms($pid, $cols): void
             }
         }
 
-        call_user_func($result["formdir"] . "_report", $pid, $result["encounter"], $cols, $result["form_id"]);
+        ($result["formdir"] . "_report")($pid, $result["encounter"], $cols, $result["form_id"]);
 
         echo "</div>";
     }

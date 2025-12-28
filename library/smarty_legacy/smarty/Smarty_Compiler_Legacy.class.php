@@ -255,8 +255,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             foreach ($this->_plugins['prefilter'] as $filter_name => $prefilter) {
                 if ($prefilter === false) continue;
                 if ($prefilter[3] || is_callable($prefilter[0])) {
-                    $source_content = call_user_func_array($prefilter[0],
-                                                            [$source_content, &$this]);
+                    $source_content = ($prefilter[0])($source_content, $this);
                     $this->_plugins['prefilter'][$filter_name][3] = true;
                 } else {
                     $this->_trigger_fatal_error("[plugin] prefilter '$filter_name' is not implemented");
@@ -392,8 +391,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
             foreach ($this->_plugins['postfilter'] as $filter_name => $postfilter) {
                 if ($postfilter === false) continue;
                 if ($postfilter[3] || is_callable($postfilter[0])) {
-                    $compiled_content = call_user_func_array($postfilter[0],
-                                                              [$compiled_content, &$this]);
+                    $compiled_content = ($postfilter[0])($compiled_content, $this);
                     $this->_plugins['postfilter'][$filter_name][3] = true;
                 } else {
                     $this->_trigger_fatal_error("Smarty plugin error: postfilter '$filter_name' is not implemented");
@@ -651,7 +649,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
          */
         if ($found) {
             if ($have_function) {
-                $output = call_user_func_array($plugin_func, [$tag_args, &$this]);
+                $output = $plugin_func($tag_args, $this);
                 if($output != '') {
                     $output = '<?php ' . $this->_push_cacheable_state('compiler', $tag_command)
                                    . $output
