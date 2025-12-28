@@ -155,22 +155,7 @@ class Holidays_Controller
             return false;
         }
 
-        $row = null;
-        while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
-            if (!isset($data[0]) || trim($data[0]) === "") {
-                continue;
-            }
-            $row = $data;
-            break;
-        }
-
-        if ($row === null) {
-            fclose($handle);
-            $this->last_error = xl("CSV file is empty");
-            return false;
-        }
-
-        if ($this->is_header_row($row)) {
+        try {
             $row = null;
             while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
                 if (!isset($data[0]) || trim($data[0]) === "") {
@@ -179,22 +164,40 @@ class Holidays_Controller
                 $row = $data;
                 break;
             }
+
+            if ($row === null) {
+                $this->last_error = xl("CSV file is empty");
+                return false;
+            }
+
+            if ($this->is_header_row($row)) {
+                $row = null;
+                while (
+                    ($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false
+                ) {
+                    if (!isset($data[0]) || trim($data[0]) === "") {
+                        continue;
+                    }
+                    $row = $data;
+                    break;
+                }
+            }
+
+            if ($row === null || count($row) < 2) {
+                $this->last_error = xl("CSV row must have date and description");
+                return false;
+            }
+
+            $date = trim($row[0]);
+            if (!$this->is_valid_holiday_date($date)) {
+                $this->last_error = xl("Invalid date format in CSV");
+                return false;
+            }
+
+            return true;
+        } finally {
+            fclose($handle);
         }
-
-        fclose($handle);
-
-        if ($row === null || count($row) < 2) {
-            $this->last_error = xl("CSV row must have date and description");
-            return false;
-        }
-
-        $date = trim($row[0]);
-        if (!$this->is_valid_holiday_date($date)) {
-            $this->last_error = xl("Invalid date format in CSV");
-            return false;
-        }
-
-        return true;
     }
 
     private function is_header_row(array $row)
