@@ -108,7 +108,7 @@ class Holidays_Storage
      * 2016/12/24,Christmas
      * @param $file (string containing the file name)
      */
-    public function import_holidays($file):bool
+    public function import_holidays($file): bool
     {
         $handle = fopen($file, "r");
         if ($handle === false) {
@@ -116,32 +116,37 @@ class Holidays_Storage
         }
 
         $deleted = false;
-        while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
-            if (!isset($data[0]) || $data[0] === '') {
-                continue;
+
+        try {
+            while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
+                if (!isset($data[0]) || $data[0] === "") {
+                    continue;
+                }
+
+                $first = strtolower(trim($data[0]));
+                $second = strtolower(trim($data[1] ?? ""));
+                if ($first === "date" && $second === "description") {
+                    continue;
+                }
+
+                if (!$deleted) {
+                    $this->delete_calendar_external();
+                    $deleted = true;
+                }
+
+                $row = [$data[0], $data[1] ?? ""];
+                sqlStatement(
+                    "INSERT INTO " . escape_table_name(self::TABLE_NAME) . "(date,description,source) VALUES (?,?,'csv')",
+                    $row
+                );
             }
 
-            $first = strtolower(trim($data[0]));
-            $second = strtolower(trim($data[1] ?? ''));
-            if ($first === 'date' && $second === 'description') {
-                continue;
-            }
-
-            if (!$deleted) {
-                $this->delete_calendar_external();
-                $deleted = true;
-            }
-
-            $row = [$data[0], $data[1] ?? ''];
-            sqlStatement(
-                "INSERT INTO " . escape_table_name(self::TABLE_NAME) . "(date,description,source) VALUES (?,?,'csv')",
-                $row
-            );
+            return true;
+        } finally {
+            fclose($handle);
         }
-
-        fclose($handle);
-        return true;
     }
+
 
     private function delete_calendar_external():void
     {
