@@ -238,7 +238,7 @@ class Holidays_Controller
      */
     public function get_holidays_by_date_range($start_date, $end_date)
     {
-        $holidays = [];
+        $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates(
             $start_date,
             $end_date,
@@ -252,7 +252,7 @@ class Holidays_Controller
      */
     public static function is_holiday($date)
     {
-        $holidays = [];
+        $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);
         if (in_array($date, $holidays)) {
             return true;
