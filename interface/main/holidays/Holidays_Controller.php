@@ -38,7 +38,7 @@ class Holidays_Controller
             "/" .
             self::FILE_NAME;
     }
-    public function get_target_file()
+    public function get_target_file():string
     {
         return $this->target_file;
     }
