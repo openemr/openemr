@@ -25,7 +25,7 @@ class Holidays_Storage
      */
     public function get_holidays()
     {
-        $holidays = array();
+        $holidays = [];
         $sql = "SELECT * FROM " . escape_table_name(self::TABLE_NAME);
         $res = sqlStatement($sql);
         while ($row = sqlFetchArray($res)) {
@@ -43,7 +43,7 @@ class Holidays_Storage
      */
     public static function get_holidays_by_dates($start_date, $end_date)
     {
-        $holidays = array();
+        $holidays = [];
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
         $res = sqlStatement(
             $sql,
