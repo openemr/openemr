@@ -152,6 +152,6 @@ class Holidays_Storage
     private function delete_holiday_events():void
     {
         $sql = "DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?";
-        sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
+        sqlStatement($sql, [self::CALENDAR_CATEGORY_HOLIDAY]);
     }
 }
