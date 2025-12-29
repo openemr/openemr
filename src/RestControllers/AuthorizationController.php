@@ -1011,11 +1011,9 @@ class AuthorizationController
 
     public function getUuidUserAccount($userId): UuidUserAccount
     {
-        if (is_callable($this->uuidUserFactory)) {
-            return call_user_func($this->uuidUserFactory, [$userId]);
-        } else {
-            return new UuidUserAccount($userId);
-        }
+        return is_callable($this->uuidUserFactory)
+            ? ($this->uuidUserFactory)($userId)
+            : new UuidUserAccount($userId);
     }
 
 // ============================================================================

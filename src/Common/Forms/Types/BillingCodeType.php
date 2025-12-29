@@ -85,7 +85,7 @@ class BillingCodeType implements IOptionFormType
         $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
 
         // Support edit option T which assigns the (possibly very long) description as
         // the default value.
