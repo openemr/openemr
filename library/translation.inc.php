@@ -1,5 +1,19 @@
 <?php
 
+use OpenEMR\Common\Translation\TranslationCache;
+
+if (!(function_exists('xlWarmCache'))) {
+    /**
+     * Warm the translation cache by loading all translations for the current language.
+     * Call this early in the request lifecycle for best performance.
+     */
+    function xlWarmCache(): void
+    {
+        $lang_id = !empty($_SESSION['language_choice']) ? (int)$_SESSION['language_choice'] : 1;
+        TranslationCache::warm($lang_id);
+    }
+}
+
 if (!(function_exists('xl'))) {
     /**
      * Translation function - the translation engine for OpenEMR
@@ -26,13 +40,31 @@ if (!(function_exists('xl'))) {
         $patterns =  ['/\n/','/\r/'];
         $replace =  [' ',''];
         $constant = preg_replace($patterns, $replace, $constant);
-        // second, attempt translation
-        $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
-        "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-        "lang_id=? AND constant_name = ? LIMIT 1";
-        $res = sqlStatementNoLog($sql, [$lang_id,$constant]);
-        $row = sqlFetchArray($res);
-        $string = $row['definition'] ?? '';
+
+        // Check cache first
+        if (TranslationCache::has($lang_id, $constant)) {
+            $string = TranslationCache::get($lang_id, $constant);
+        } elseif (TranslationCache::isWarmed()) {
+            // Cache is warmed but constant not found - no translation exists
+            $string = '';
+        } else {
+            // Cache not warmed, query database
+            $sql = <<<'SQL'
+                SELECT lang_definitions.definition
+                  FROM lang_definitions
+                  JOIN lang_constants
+                 USING (cons_id)
+                 WHERE lang_definitions.lang_id = ?
+                   AND lang_constants.constant_name = ?
+                 LIMIT 1
+                SQL;
+            $res = sqlStatementNoLog($sql, [$lang_id, $constant]);
+            $row = sqlFetchArray($res);
+            $string = $row['definition'] ?? '';
+            // Cache for future lookups this request
+            TranslationCache::set($lang_id, $constant, $string);
+        }
+
         if ($string == '') {
             $string = "$constant";
         }
