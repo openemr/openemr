@@ -13,6 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once "Holidays_Csv.php";
 require_once "Holidays_Storage.php";
 class Holidays_Controller
 {
@@ -156,31 +157,11 @@ class Holidays_Controller
         }
 
         try {
-            $row = null;
-            while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
-                if (trim($data[0] ?? "") !== "") {
-                    $row = $data;
-                    break;
-                }
-            }
-
+            $row = Holidays_Csv::read_next_data_row($handle);
             if ($row === null) {
                 $this->last_error = xl("CSV file is empty");
                 return false;
             }
-
-            if ($this->is_header_row($row)) {
-                $row = null;
-                while (
-                    ($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false
-                ) {
-                    if (trim($data[0] ?? "") !== "") {
-                        $row = $data;
-                        break;
-                    }
-                }
-            }
-
             if ($row === null || count($row) < 2) {
                 $this->last_error = xl("CSV row must have date and description");
                 return false;
@@ -196,13 +177,6 @@ class Holidays_Controller
         } finally {
             fclose($handle);
         }
-    }
-
-    private function is_header_row(array $row): bool
-    {
-        $first = strtolower(trim($row[0] ?? ""));
-        $second = strtolower(trim($row[1] ?? ""));
-        return $first === "date" && $second === "description";
     }
 
     private function is_valid_holiday_date(string $date): bool

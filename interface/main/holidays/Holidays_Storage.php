@@ -1,5 +1,7 @@
 <?php
 
+require_once "Holidays_Csv.php";
+
 /**
  * interface/main/holidays/Holidays_Storage.php holidays/clinic interaction with the database
  *
@@ -118,17 +120,7 @@ class Holidays_Storage
         $deleted = false;
 
         try {
-            while (($data = fgetcsv($handle, 1000, ",", "'", "\\")) !== false) {
-                if (!isset($data[0]) || $data[0] === "") {
-                    continue;
-                }
-
-                $first = strtolower(trim($data[0]));
-                $second = strtolower(trim($data[1] ?? ""));
-                if ($first === "date" && $second === "description") {
-                    continue;
-                }
-
+            while (($data = Holidays_Csv::read_next_data_row($handle)) !== null) {
                 if (!$deleted) {
                     $this->delete_calendar_external();
                     $deleted = true;
