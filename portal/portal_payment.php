@@ -807,13 +807,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             $("#mode").val("portal-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 inv_values: inv_values,
                 extra_values: extra_values
             });
             let extra = "&" + params;
-            // AI-generated code end (GitHub Copilot)
             let flag = 0
             let liburl = './lib/paylib.php';
             $.ajax({

@@ -667,13 +667,11 @@ if (
         }
         function editInvoice(e, id) {
             e.preventDefault();
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 isPosting: '1',
                 id: id
             });
             const url = './sl_eob_invoice.php?' + params;
-            // AI-generated code end (GitHub Copilot)
             <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
             dlgopen(url,'editInvoiceDlg','modal-full', false, false, '', {
                 sizeHeight: 'full',
@@ -1264,7 +1262,6 @@ if (
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
-        // AI-generated code start (GitHub Copilot)
         const params = new URLSearchParams({
             eraname: <?php echo js_escape($eraname); ?>,
             debug: debug,
@@ -1273,7 +1270,6 @@ if (
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         });
         window.open('sl_eob_process.php?' + params, '_blank');
-        // AI-generated code end (GitHub Copilot)
         return false;
     }
 

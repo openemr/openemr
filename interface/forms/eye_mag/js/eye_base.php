@@ -264,7 +264,6 @@ function check_lock(modify) {
 /*
  * Function to save a canvas by zone
  */
-// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
@@ -287,7 +286,6 @@ function submit_canvas(zone) {
            }).done(function(o) {
                    });
 }
-// AI-generated code end
 /*
  *  Function to update the user's preferences
  */
@@ -930,7 +928,6 @@ function show_PRIORS_section(section,newValue) {
 /**
  *  Function to display a canvas/drawing from a prior visit.
  */
-// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
@@ -949,7 +946,6 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     $("#"+zone+"_olddrawing").html(filler);
     $("#"+zone+"_olddrawing").removeClass('nodisplay');
 }
-// AI-generated code end
 
 function replace_CANVAS(zone, url) {
     $("#url_"+zone).val(url);
@@ -1047,7 +1043,6 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 prescription: '',
                 edit: '',
@@ -1055,18 +1050,15 @@ function editScripts(url) {
                 pid: pid
             });
             iam.location.href = base + "/controller.php?" + params;
-            // AI-generated code end (GitHub Copilot)
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 prescription: '',
                 list: '',
                 id: pid
             });
             iam.location.href = base + "/controller.php?" + params;
-            // AI-generated code end (GitHub Copilot)
         };
 
         let title = 'Prescriptions';
@@ -1903,7 +1895,6 @@ function goto_url(url) {
     location.href = R;
 }
 //is this used anywhere?  Looks like it should be deleted...
-// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openImage() {
     const params = new URLSearchParams({
         document: '',
@@ -1914,10 +1905,8 @@ function openImage() {
     });
     dlgopen(base + '/controller.php?' + params.toString(), '_blank', 600, 475);
 }
-// AI-generated code end
 
 // Called to open a document in another tab for this encounter.
-// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 function openDocumentNewTab(doc_id) {
     const params = new URLSearchParams({
         formname: formdir,
@@ -1932,7 +1921,6 @@ function openDocumentNewTab(doc_id) {
     }
     return false;
 }
-// AI-generated code end
 
 function HPI_sync_heights() {
     if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height() ) ||

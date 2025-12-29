@@ -512,14 +512,12 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         function exportData() {
             let data = <?php echo json_encode($rows ?? ''); ?>;
             let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 csrf_token_form: csrf_token,
                 data: data
             });
             dlgopen(
                 "../../library/ajax/immunization_export.php?" + params,
-                // AI-generated code end (GitHub Copilot)
                 'Export',
                 'modal-xs',
                 300,

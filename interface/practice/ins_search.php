@@ -74,7 +74,6 @@ td {
 
     $("#form_entry").hide();
     var f = document.forms[0];
-    // AI-generated code start (GitHub Copilot)
     const params = new URLSearchParams({
         form_name: f.form_name.value,
         form_attn: f.form_attn.value,
@@ -88,7 +87,6 @@ td {
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
     });
     var search_list = 'ins_list.php?' + params;
-    // AI-generated code end (GitHub Copilot)
 
     top.restoreSession();
     $("#form_list").load( search_list ).show();

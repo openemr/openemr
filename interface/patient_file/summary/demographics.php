@@ -385,25 +385,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Process click on diagnosis for referential cds popup.
         function referentialCdsClick(codetype, codevalue) {
             top.restoreSession();
-            // AI-generated code start (GitHub Copilot)
             // Force a new window instead of iframe to address cross site scripting potential
             const params = new URLSearchParams({
                 type: codetype,
                 code: codevalue
             });
             dlgopen('../education.php?' + params, '_blank', 1024, 750, true);
-            // AI-generated code end (GitHub Copilot)
         }
 
         function oldEvt(apptdate, eventid) {
             let title = <?php echo xlj('Appointments'); ?>;
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 date: apptdate,
                 eid: eventid
             });
             dlgopen('../../main/calendar/add_edit_event.php?' + params, '_blank', 800, 500, '', title);
-            // AI-generated code end (GitHub Copilot)
         }
 
         function advdirconfigure() {
@@ -415,7 +411,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             location.reload();
         }
 
-        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
             const params = new URLSearchParams({
@@ -430,14 +425,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             return false;
         }
-        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
             top.clearPatient();
         }
 
-        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
             const params = new URLSearchParams({
@@ -447,7 +440,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
         }
-        // AI-generated code end
 
         function toggleIndicator(target, div) {
             // <i id="show_hide" class="fa fa-lg small fa-eye-slash" title="Click to Hide"></i>
@@ -660,7 +652,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     let pid = <?php echo js_escape($pid); ?>;
                     let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
                     let ruleId = $(this).data("ruleId");
-                    // AI-generated code start (GitHub Copilot)
                     const params = new URLSearchParams({
                         action: 'review!view',
                         pid: pid,
@@ -668,7 +659,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         csrf_token_form: csrfToken
                     });
                     let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?" + params;
-                    // AI-generated code end (GitHub Copilot)
                     e.preventDefault();
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
@@ -684,7 +674,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             window.name = event.source.name;
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
-                            // AI-generated code start (GitHub Copilot)
                             // loadFrame already handles webroot and /interface/ prefix.
                             const editParams = new URLSearchParams({
                                 action: 'edit!summary',
@@ -692,7 +681,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 csrf_token: csrfToken
                             });
                             let editUrl = '/super/rules/index.php?' + editParams;
-                            // AI-generated code end (GitHub Copilot)
                             window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                         }
                     };
@@ -962,7 +950,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
-            // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
             const encParams = new URLSearchParams({
                 set_encounter: <?php echo js_escape($encounter); ?>,
                 pid: <?php echo js_escape($pid); ?>

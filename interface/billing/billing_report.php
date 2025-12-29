@@ -371,20 +371,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function toEncounter(newpid, enc) {
             top.restoreSession();
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 set_pid: newpid,
                 set_encounterid: enc
             });
             top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
-            // AI-generated code end (GitHub Copilot)
         }
 
         function popMBO(pid, enc, mboid) {
             if (!window.focus) return true;
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 formname: 'misc_billing_options',
                 isBilling: '1',
@@ -393,7 +390,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 id: mboid
             });
             const href = "<?php echo $GLOBALS['web_root']?>/interface/patient_file/encounter/view_form.php?" + params;
-            // AI-generated code end (GitHub Copilot)
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -404,13 +400,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (!window.focus) return true;
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 pid: pid,
                 enc: enc
             });
             const href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?" + params;
-            // AI-generated code end (GitHub Copilot)
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });

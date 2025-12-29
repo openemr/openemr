@@ -17,14 +17,12 @@ function doTemplateEditor(_this, event, oContext = '') {
         ccFlag = 'name';
     }
     let title = '<i class="fa fa-th"></i><h4 class="ml-2">'+ xl("Text Templates") +'</h4>';
-    // AI-generated code start (GitHub Copilot)
     const params = new URLSearchParams({
         type: id,
         ccFlag: ccFlag,
         contextName: oContext
     });
     let url = top.webroot_url + "/library/custom_template/custom_template.php?" + params;
-    // AI-generated code end (GitHub Copilot)
     dlgopen(url, '', 'modal-lg', 800, '', '', {
         buttons: [
             {text: xl('Do Nothing'), close: true, style: 'secondary'}

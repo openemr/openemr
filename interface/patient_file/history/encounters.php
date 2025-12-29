@@ -222,7 +222,6 @@ function toencounter(rawdata) {
 }
 
 function todocument(docid) {
-  // AI-generated code start (GitHub Copilot)
   const params = new URLSearchParams({
     document: '',
     view: '',
@@ -230,7 +229,6 @@ function todocument(docid) {
     doc_id: docid
   });
   h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
-  // AI-generated code end (GitHub Copilot)
   top.restoreSession();
   location.href = h;
 }
@@ -246,7 +244,6 @@ function changePageSize() {
     issue = $(this).attr("issue");
     pagesize = $(this).val();
     top.restoreSession();
-    // AI-generated code start (GitHub Copilot)
     const params = new URLSearchParams({
         billing: billing,
         issue: issue,
@@ -254,7 +251,6 @@ function changePageSize() {
         pagesize: pagesize
     });
     window.location.href = "encounters.php?" + params;
-    // AI-generated code end (GitHub Copilot)
 }
 
 window.onload = function() {
@@ -911,7 +907,6 @@ $(function () {
             if (typeof el.dataset == 'undefined') {
                 return xl("Report Unavailable");
             }
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 ptid: el.dataset.formpid,
                 encid: el.dataset.formenc,
@@ -920,7 +915,6 @@ $(function () {
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
             let url = "encounters_ajax.php?" + params;
-            // AI-generated code end (GitHub Copilot)
             let fetchedReport;
             $.ajax({
                 url: url,

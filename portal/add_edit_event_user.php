@@ -841,7 +841,6 @@ if ($userid) {
                 s = se.options[se.selectedIndex].value;
                 <?php }?>
                 var formDate = document.getElementById('form_date');
-                // AI-generated code start (GitHub Copilot)
                 const params = new URLSearchParams({
                     bypatient: '',
                     providerid: s,
@@ -849,7 +848,6 @@ if ($userid) {
                     startdate: formDate.value
                 });
                 var url = 'find_appt_popup_user.php?' + params;
-                // AI-generated code end (GitHub Copilot)
                 var params = {
                     buttons: [
                         {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}

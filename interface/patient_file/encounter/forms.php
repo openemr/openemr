@@ -308,7 +308,6 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         <?php } ?>
     });
 
-    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete link.
     function deleteme() {
         const params = new URLSearchParams({
@@ -321,7 +320,6 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         });
         return false;
     }
-    // AI-generated code end
 
     // create new follow-up Encounter.
     function createFollowUpEncounter() {
@@ -347,13 +345,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
     // Called to open the data entry form a specified encounter form instance.
     function openEncounterForm(formdir, formname, formid) {
-        // AI-generated code start (GitHub Copilot)
         const params = new URLSearchParams({
             formname: formdir,
             id: formid
         });
         var url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?' + params;
-        // AI-generated code end (GitHub Copilot)
         if (formdir == 'newpatient' || !parent.twAddFrameTab) {
             top.restoreSession();
             location.href = url;
@@ -422,10 +418,8 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             parent.frames[0].location.href = sel;
         } else {
             if (FormNameValueArray[1] == 'questionnaire_assessments') {
-                // AI-generated code start (GitHub Copilot)
                 const params = new URLSearchParams({ questionnaire_form: label });
                 sel += "&" + params;
-                // AI-generated code end (GitHub Copilot)
             }
             parent.twAddFrameTab('enctabs', label, sel);
         }

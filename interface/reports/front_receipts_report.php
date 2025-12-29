@@ -62,7 +62,6 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
 
         // The OnClick handler for receipt display.
         function show_receipt(pid,timestamp) {
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 receipt: '1',
                 patient: pid,
@@ -71,7 +70,6 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
             dlgopen('../patient_file/front_payment.php?' + params, '_blank', 850, 550, '', '', {
                 onClosed: 'reload'
             });
-            // AI-generated code end (GitHub Copilot)
          }
     </script>
 

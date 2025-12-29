@@ -1062,7 +1062,6 @@ if (!empty($_REQUEST['go'])) { ?>
                 alert(<?php echo xlj("This patient does not allow SMS messaging!"); ?>);
             } else {
                 top.restoreSession();
-                // AI-generated code start (GitHub Copilot)
                 const params = new URLSearchParams({
                     nomenu: '1',
                     go: 'SMS_bot',
@@ -1070,7 +1069,6 @@ if (!empty($_REQUEST['go'])) { ?>
                     m: m
                 });
                 window.open('messages.php?' + params, 'SMS_bot', 'width=370,height=600,resizable=0');
-                // AI-generated code end (GitHub Copilot)
             }
         }
 

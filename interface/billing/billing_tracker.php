@@ -94,14 +94,12 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                         "render": function(data, type, row, meta) {
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
-                                // AI-generated code start (GitHub Copilot)
                                 const params = new URLSearchParams({
                                     key: data,
                                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                                     partner: row.x12_partner_id
                                 });
                                 const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' + params;
-                                // AI-generated code end (GitHub Copilot)
                                 data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
 

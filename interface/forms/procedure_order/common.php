@@ -749,7 +749,6 @@ if (!empty($row['lab_id'])) {
 
             let title = <?php echo xlj("Find Procedure Order"); ?>;
             // This replaces the previous search for an easier/faster order picker tool.
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 labid: f.form_lab_id.value,
                 order: f[ptvarname].value,
@@ -757,7 +756,6 @@ if (!empty($row['lab_id'])) {
                 formseq: formseq
             });
             dlgopen('../../orders/find_order_popup.php?' + params,
-                // AI-generated code end (GitHub Copilot)
                 '_blank', 850, 500, '', title);
         }
 
@@ -1128,14 +1126,12 @@ if (!empty($row['lab_id'])) {
             let codetitle = 'form_proc_type_desc[' + id + ']';
             let code = f[codeattr].value;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 action: 'code_detail)',
                 code: code,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
             url += "?" + params;
-            // AI-generated code end (GitHub Copilot)
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
             dlgopen(url, 'details', 'modal-md', 200, '', title, {
                 buttons: [
@@ -1192,7 +1188,6 @@ if (!empty($row['lab_id'])) {
             let dob = <?php echo js_escape($patient['DOB']); ?>;
             let pid = <?php echo js_escape($patient['pid']);  ?>;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-            // AI-generated code start (GitHub Copilot)
             // this escapes above
             const params = new URLSearchParams({
                 action: 'print_labels',
@@ -1206,7 +1201,6 @@ if (!empty($row['lab_id'])) {
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
             const uri = "?" + params;
-            // AI-generated code end (GitHub Copilot)
 
             // retrieve the labels
             dlgopen(url + uri, 'pdf', 'modal-md', 750, '');

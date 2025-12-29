@@ -110,13 +110,11 @@ $display_div = "style='display:block;'";
                 return false;
             }
         }
-        // AI-generated code start (GitHub Copilot)
         const params = new URLSearchParams({
             form_from_doc_date: frmdate,
             form_to_doc_date: todate
         });
         document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?' + params;
-        // AI-generated code end (GitHub Copilot)
     }
 
 </script>

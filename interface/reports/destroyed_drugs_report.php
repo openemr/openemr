@@ -130,13 +130,11 @@ a, a:visited, a:hover {
 
 // Process click on destroyed drug.
 function doclick(id, lot) {
- // AI-generated code start (GitHub Copilot)
  const params = new URLSearchParams({
      drug: id,
      lot: lot
  });
  dlgopen('../drugs/destroy_lot.php?' + params, '_blank', 600, 475);
- // AI-generated code end (GitHub Copilot)
 }
 
 $(function () {

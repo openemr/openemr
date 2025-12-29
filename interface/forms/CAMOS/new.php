@@ -903,12 +903,10 @@ function processajax (serverPage, obj, getOrPost, str){
 
 function setformvalues(form_array){
 
-  // AI-generated code start (GitHub Copilot)
   //Run through a list of all objects and build query string
   const params = new URLSearchParams(form_array);
   //Then return the string values.
   return params.toString();
-  // AI-generated code end (GitHub Copilot)
 }
 
 //END OF AJAX RELATED FUNCTIONS

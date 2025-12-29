@@ -580,7 +580,6 @@ if (
             // This is the case of selecting a code for the Fee Sheet:
             if (!current_sel_name) {
                 if (code) {
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 codetype: codetype,
                 code: code,
@@ -589,7 +588,6 @@ if (
             });
             params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
-            // AI-generated code end (GitHub Copilot)
                 }
                 return '';
             }
@@ -697,13 +695,11 @@ if (
         // TBD: Move this to TabsWrapper.class.php.
         function openLBFEncounterForm(formdir, formname, formid) {
             top.restoreSession();
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 formname: formdir,
                 id: formid
             });
             const url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?" ?>' + params;
-            // AI-generated code end (GitHub Copilot)
             parent.twAddFrameTab('enctabs', formname, url);
             return false;
         }
@@ -805,7 +801,6 @@ if (
                 }
                 return;
             }
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 codetype: a[0],
                 code: a[1],
@@ -813,7 +808,6 @@ if (
             });
             params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
-            // AI-generated code end (GitHub Copilot)
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -835,7 +829,6 @@ if (
                 }
                 return;
             }
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 codetype: a[0],
                 code: a[1],
@@ -844,7 +837,6 @@ if (
             });
             params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
-            // AI-generated code end (GitHub Copilot)
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -866,7 +858,6 @@ if (
                 }
                 return;
             }
-            // AI-generated code start (GitHub Copilot)
             const params = new URLSearchParams({
                 codetype: a[0],
                 code: a[1],
@@ -874,7 +865,6 @@ if (
             });
             params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
-            // AI-generated code end (GitHub Copilot)
         }
 
         // Respond to selecting a package of codes.
@@ -882,14 +872,12 @@ if (
             var f = sel.form;
             // The option value is an encoded string of code types and codes.
             if (sel.value) {
-                // AI-generated code start (GitHub Copilot)
                 const params = new URLSearchParams({
                     list: sel.value,
                     pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
                 });
                 params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
-                // AI-generated code end (GitHub Copilot)
             }
             sel.selectedIndex = 0;
         }
