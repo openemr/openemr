@@ -28,14 +28,14 @@ try {
     $pathInfo = $request->getPathInfo();
 
     // Handle /livez - minimal check, just verify PHP is running
-    if (str_ends_with($pathInfo, '/livez') || $pathInfo === '/livez') {
+    if (str_ends_with($pathInfo, '/livez')) {
         $response = new JsonResponse(['status' => 'alive']);
         $response->send();
         return;
     }
 
     // Handle /readyz - full health check with component status
-    if (str_ends_with($pathInfo, '/readyz') || $pathInfo === '/readyz') {
+    if (str_ends_with($pathInfo, '/readyz')) {
         // Set up site context - default to "default" site
         $siteId = 'default';
         $_GET['site'] = $siteId;
