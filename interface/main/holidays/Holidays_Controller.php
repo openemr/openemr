@@ -248,9 +248,9 @@ class Holidays_Controller
 
     /**
      * Return true if the date is a holiday/closed
-     * @param $date
+     * @param string $date Date in YYYY-MM-DD or YYYY/MM/DD format
      */
-    public static function is_holiday($date): bool
+    public static function is_holiday(string $date): bool
     {
         $holidays = [];
         $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);
