@@ -205,7 +205,7 @@ class Holidays_Controller
         return $first === "date" && $second === "description";
     }
 
-    private function is_valid_holiday_date($date): bool
+    private function is_valid_holiday_date(string $date): bool
     {
         if (preg_match('/^\d{4}\/\d{2}\/\d{2}$/', $date)) {
             $dt = DateTime::createFromFormat("Y/m/d", $date);
