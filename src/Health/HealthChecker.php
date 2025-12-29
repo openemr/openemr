@@ -16,6 +16,7 @@ namespace OpenEMR\Health;
 use OpenEMR\Health\Check\CacheCheck;
 use OpenEMR\Health\Check\DatabaseCheck;
 use OpenEMR\Health\Check\FilesystemCheck;
+use OpenEMR\Health\Check\InstallationCheck;
 use OpenEMR\Health\Check\OAuthKeysCheck;
 use OpenEMR\Health\Check\SessionCheck;
 
@@ -31,6 +32,7 @@ class HealthChecker
 
     private function registerDefaultChecks(): void
     {
+        $this->addCheck(new InstallationCheck());
         $this->addCheck(new DatabaseCheck());
         $this->addCheck(new FilesystemCheck());
         $this->addCheck(new SessionCheck());
@@ -63,11 +65,17 @@ class HealthChecker
     public function getResultsArray(): array
     {
         $checks = [];
+        $isInstalled = true;
+
         foreach ($this->runAll() as $result) {
             $checks[$result->name] = $result->healthy;
+            if ($result->name === 'installed' && !$result->healthy) {
+                $isInstalled = false;
+            }
         }
+
         return [
-            'status' => 'ready',
+            'status' => $isInstalled ? 'ready' : 'setup_required',
             'checks' => $checks,
         ];
     }

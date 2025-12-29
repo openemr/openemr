@@ -37,14 +37,36 @@ try {
     // Handle /readyz - full health check with component status
     if (str_ends_with($pathInfo, '/readyz') || $pathInfo === '/readyz') {
         // Set up site context - default to "default" site
-        $_GET['site'] = 'default';
+        $siteId = 'default';
+        $_GET['site'] = $siteId;
 
-        // Bootstrap OpenEMR globals (this sets up database connection)
-        require_once __DIR__ . "/../../interface/globals.php";
+        // Load sqlconf.php first to check installation status
+        $sqlconfPath = __DIR__ . "/../../sites/{$siteId}/sqlconf.php";
+        if (file_exists($sqlconfPath)) {
+            require_once $sqlconfPath;
+        }
 
-        // Run health checks
-        $checker = new HealthChecker();
-        $response = new JsonResponse($checker->getResultsArray());
+        // Check if OpenEMR is installed ($config is set in sqlconf.php)
+        global $config;
+        $isInstalled = isset($config) && $config === 1;
+
+        if ($isInstalled) {
+            // Bootstrap OpenEMR globals (this sets up database connection)
+            require_once __DIR__ . "/../../interface/globals.php";
+
+            // Run full health checks
+            $checker = new HealthChecker();
+            $response = new JsonResponse($checker->getResultsArray());
+        } else {
+            // Not installed - return minimal response
+            $response = new JsonResponse([
+                'status' => 'setup_required',
+                'checks' => [
+                    'installed' => false,
+                ],
+            ]);
+        }
+
         $response->send();
         return;
     }
