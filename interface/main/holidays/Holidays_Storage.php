@@ -108,7 +108,7 @@ class Holidays_Storage
      * 2016/12/24,Christmas
      * @param $file (string containing the file name)
      */
-    public function import_holidays($file): bool
+    public function import_holidays(string $file): bool
     {
         $handle = fopen($file, "r");
         if ($handle === false) {
