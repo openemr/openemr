@@ -5,12 +5,17 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @link      https://opencoreemr.com
  * @author    Boyd Stephen Smith Jr.
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2011 Boyd Stephen Smith Jr.
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Translation\TranslatorFactory;
 
 /**
  * Escape a javascript literal.
@@ -212,28 +217,6 @@ function attr($text)
 }
 
 /**
- * Don't call this function.  You don't see this function.  This function
- * doesn't exist.
- *
- * TODO: Hide this function so it can be called from this file but not from
- * PHP that includes / requires this file.  Either that, or write reasonable
- * documentation and clean up the name.
- */
-function hsc_private_xl_or_warn($key)
-{
-    if (function_exists('xl')) {
-        return xl($key);
-    } else {
-        trigger_error(
-            'Translation via xl() was requested, but the xl()'
-            . ' function is not defined, yet.',
-            E_USER_WARNING
-        );
-        return $key;
-    }
-}
-
-/**
  * Translate via xl() and then escape via text().
  *
  * @param string $key The string to escape, possibly including "&", "<",
@@ -242,7 +225,7 @@ function hsc_private_xl_or_warn($key)
  */
 function xlt($key)
 {
-    return text(hsc_private_xl_or_warn($key));
+    return TranslatorFactory::getInstance()->translateText($key);
 }
 
 /**
@@ -254,22 +237,22 @@ function xlt($key)
  */
 function xla($key)
 {
-    return attr(hsc_private_xl_or_warn($key));
+    return TranslatorFactory::getInstance()->translateAttribute($key);
 }
 
-/*
+/**
  * Translate via xl() and then escape via js_escape for use with javascript literals
  */
 function xlj($key)
 {
-    return js_escape(hsc_private_xl_or_warn($key));
+    return TranslatorFactory::getInstance()->translateJavaScript($key);
 }
 
-/*
- * @Deprecated
- *Translate via xl() and then escape via addslashes for use with javascript literals
+/**
+ * @deprecated Use xlj() instead
+ * Translate via xl() and then escape via addslashes for use with javascript literals
  */
 function xls($key)
 {
-    return addslashes((string) hsc_private_xl_or_warn($key));
+    return addslashes((string) TranslatorFactory::getInstance()->translate($key));
 }
