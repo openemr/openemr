@@ -20,19 +20,18 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use OpenEMR\Health\HealthChecker;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-// Always return JSON
-header('Content-Type: application/json');
+$request = Request::createFromGlobals();
 
 try {
-    // Parse the request path to determine which probe was requested
-    $request = Request::createFromGlobals();
     $pathInfo = $request->getPathInfo();
 
     // Handle /livez - minimal check, just verify PHP is running
     if (str_ends_with($pathInfo, '/livez') || $pathInfo === '/livez') {
-        echo json_encode(['status' => 'alive']);
-        exit(0);
+        $response = new JsonResponse(['status' => 'alive']);
+        $response->send();
+        return;
     }
 
     // Handle /readyz - full health check with component status
@@ -45,23 +44,20 @@ try {
 
         // Run health checks
         $checker = new HealthChecker();
-        $results = $checker->getResultsArray();
-
-        echo json_encode($results);
-        exit(0);
+        $response = new JsonResponse($checker->getResultsArray());
+        $response->send();
+        return;
     }
 
     // Unknown endpoint - return 404
-    http_response_code(404);
-    echo json_encode([
-        'error' => 'Not found',
-        'message' => 'Valid endpoints are /livez and /readyz'
-    ]);
+    $response = new JsonResponse(
+        ['error' => 'Not found', 'message' => 'Valid endpoints are /livez and /readyz'],
+        Response::HTTP_NOT_FOUND
+    );
+    $response->send();
 } catch (\Throwable $e) {
     // Even on error, return 200 with error details in body
     // This ensures the probe doesn't fail just because of an exception
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+    $response = new JsonResponse(['status' => 'error', 'message' => $e->getMessage()]);
+    $response->send();
 }
