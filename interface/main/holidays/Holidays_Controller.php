@@ -147,7 +147,7 @@ class Holidays_Controller
         return $this->is_valid_csv_content($file["tmp_name"]);
     }
 
-    private function is_valid_csv_content($path): bool
+    private function is_valid_csv_content(string $path): bool
     {
         $handle = fopen($path, "r");
         if ($handle === false) {
@@ -205,7 +205,7 @@ class Holidays_Controller
         return $first === "date" && $second === "description";
     }
 
-    private function is_valid_holiday_date($date): bool
+    private function is_valid_holiday_date(string $date): bool
     {
         if (preg_match('/^\d{4}\/\d{2}\/\d{2}$/', $date)) {
             $dt = DateTime::createFromFormat("Y/m/d", $date);
@@ -236,7 +236,7 @@ class Holidays_Controller
      * @param $end_date
      * @return array
      */
-    public function get_holidays_by_date_range($start_date, $end_date): array
+    public function get_holidays_by_date_range(DateTime $start_date, DateTIme $end_date): array
     {
         $holidays = [];
         $holidays = Holidays_Storage::get_holidays_by_dates(
