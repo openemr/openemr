@@ -147,7 +147,7 @@ class Holidays_Controller
         return $this->is_valid_csv_content($file["tmp_name"]);
     }
 
-    private function is_valid_csv_content($path): bool
+    private function is_valid_csv_content(string $path): bool
     {
         $handle = fopen($path, "r");
         if ($handle === false) {
