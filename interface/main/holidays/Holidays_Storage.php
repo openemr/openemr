@@ -41,7 +41,7 @@ class Holidays_Storage
      * @param $end_date
      * @return array [0=>"2016/06/16"]
      */
-    public static function get_holidays_by_dates($start_date, $end_date): array
+    public static function get_holidays_by_dates(string $start_date, string $end_date): array
     {
         $holidays = [];
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
