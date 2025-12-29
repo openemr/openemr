@@ -38,7 +38,7 @@ class TranslationCache
                    lang_definitions.definition
               FROM lang_definitions
               JOIN lang_constants
-                ON lang_definitions.cons_id = lang_constants.cons_id
+             USING (cons_id)
              WHERE lang_definitions.lang_id = ?
             SQL;
         $rows = QueryUtils::fetchRecordsNoLog($sql, [$langId]);

@@ -49,10 +49,16 @@ if (!(function_exists('xl'))) {
             $string = '';
         } else {
             // Cache not warmed, query database
-            $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
-            "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-            "lang_id=? AND constant_name = ? LIMIT 1";
-            $res = sqlStatementNoLog($sql, [$lang_id,$constant]);
+            $sql = <<<'SQL'
+                SELECT lang_definitions.definition
+                  FROM lang_definitions
+                  JOIN lang_constants
+                 USING (cons_id)
+                 WHERE lang_definitions.lang_id = ?
+                   AND lang_constants.constant_name = ?
+                 LIMIT 1
+                SQL;
+            $res = sqlStatementNoLog($sql, [$lang_id, $constant]);
             $row = sqlFetchArray($res);
             $string = $row['definition'] ?? '';
             // Cache for future lookups this request
