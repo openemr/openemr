@@ -89,7 +89,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -119,7 +119,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -149,7 +149,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -218,7 +218,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -248,7 +248,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -279,7 +279,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -310,7 +310,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -341,7 +341,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -372,7 +372,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -403,7 +403,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s

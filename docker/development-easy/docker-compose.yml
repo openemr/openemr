@@ -102,7 +102,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/apis/health/readyz
       start_period: 3m
       start_interval: 10s
       interval: 1m
