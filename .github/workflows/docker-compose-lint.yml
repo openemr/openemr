@@ -5,20 +5,10 @@ on:
     branches:
     - master
     - rel-*
-    paths:
-    - '**/*compose*.yml'
-    - '**/*compose*.yaml'
-    - '.github/workflows/docker-compose-lint.yml'
-    - '.dclintrc.yaml'
   pull_request:
     branches:
     - master
     - rel-*
-    paths:
-    - '**/*compose*.yml'
-    - '**/*compose*.yaml'
-    - '.github/workflows/docker-compose-lint.yml'
-    - '.dclintrc.yaml'
 
 permissions:
   contents: read
@@ -67,9 +57,9 @@ jobs:
     - name: Run dclint on changed files
       if: steps.files-to-check.outputs.mode == 'files'
       run: |
-        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 --exclude .github ${{ steps.files-to-check.outputs.files }}
-    
+        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 ${{ steps.files-to-check.outputs.files }} --exclude .github
+
     - name: Run dclint recursively
       if: steps.files-to-check.outputs.mode == 'recursive'
       run: |
-        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 --exclude .github --recursive ci/ docker/
+        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 ci/ docker/ --recursive --exclude .github
