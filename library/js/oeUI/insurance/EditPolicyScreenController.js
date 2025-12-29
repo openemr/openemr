@@ -391,13 +391,15 @@ export class EditPolicyScreenController
 
     #verifyAddress(evt, address) {
         window.top.restoreSession();
-        dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(address.street) +
-            '&address2=' + encodeURIComponent(address.street_line_2) +
-            '&city=' + encodeURIComponent(address.city) +
-            '&state=' + encodeURIComponent(address.state) +
-            '&zip5=' + encodeURIComponent(address.postal_code.substring(0,5)) +
-            '&zip4=' + encodeURIComponent(address.postal_code.substring(5,9))
-            , '_blank', 400, 150, '', xl('Address Verify'));
+        const params = new URLSearchParams({
+            address1: address.street,
+            address2: address.street_line_2,
+            city: address.city,
+            state: address.state,
+            zip5: address.postal_code.substring(0, 5),
+            zip4: address.postal_code.substring(5, 9)
+        });
+        dlgopen('../../practice/address_verify.php?' + params, '_blank', 400, 150, '', xl('Address Verify'));
 
         return false;
     }
