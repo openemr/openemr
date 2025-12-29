@@ -237,13 +237,13 @@ if ($refresh and $refresh != 'fullscreen') {
             // if a prior encounter within 90 days are procedures with a global period still in effect, then post-op code
         ?>
           <script>
-              var Code_new_est ='<?php
+              var Code_new_est = <?php
                 if ($output_priors == '') {
-                    echo xls("New");
+                    echo xlj("New");
                 } else {
-                    echo xls("Est");
+                    echo xlj("Est");
                 }
-                ?>';
+                ?>;
           </script>
         <!-- start form -->
         <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
@@ -4372,7 +4372,7 @@ if ($refresh and $refresh != 'fullscreen') {
             });
             dlgopen('../../patient_file/summary/a_issue.php?' + params.toString(), '_blank', 550, 400,  '', <?php echo xlj('Issues'); ?> );
             <?php else : ?>
-            alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
+            alert(<?php echo xlj('You are not authorized to add/edit issues'); ?>);
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {

@@ -1183,20 +1183,20 @@ function set_days_every_week() {
 
 // Constants used by dateChanged() function.
 const occurNames = Array(
-    '<?php echo xls("1st{{nth}}"); ?>',
-    '<?php echo xls("2nd{{nth}}"); ?>',
-    '<?php echo xls("3rd{{nth}}"); ?>',
-    '<?php echo xls("4th{{nth}}"); ?>'
+    <?php echo xlj("1st{{nth}}"); ?>,
+    <?php echo xlj("2nd{{nth}}"); ?>,
+    <?php echo xlj("3rd{{nth}}"); ?>,
+    <?php echo xlj("4th{{nth}}"); ?>
 );
 
 const weekDays = Array(
-    '<?php echo xls("Sunday"); ?>',
-    '<?php echo xls("Monday"); ?>',
-    '<?php echo xls("Tuesday"); ?>',
-    '<?php echo xls("Wednesday"); ?>',
-    '<?php echo xls("Thursday"); ?>',
-    '<?php echo xls("Friday"); ?>',
-    '<?php echo xls("Saturday"); ?>'
+    <?php echo xlj("Sunday"); ?>,
+    <?php echo xlj("Monday"); ?>,
+    <?php echo xlj("Tuesday"); ?>,
+    <?php echo xlj("Wednesday"); ?>,
+    <?php echo xlj("Thursday"); ?>,
+    <?php echo xlj("Friday"); ?>,
+    <?php echo xlj("Saturday"); ?>
 );
 
  // Monitor start date changes to adjust repeat type options.
@@ -1215,7 +1215,7 @@ function dateChanged() {
     if (tmp.getDate() - d.getUTCDate() < 7) { // Modified by epsdky 2016 (details in commit)
         // This is a last occurrence of the specified weekday in the month,
         // so permit that as an option.
-        lasttext = '<?php echo xls("Last"); ?> ' + downame;
+        lasttext = <?php echo xlj("Last"); ?> + ' ' + downame;
     }
     var si = f.form_repeat_type.selectedIndex;
     var opts = f.form_repeat_type.options;
@@ -1912,7 +1912,7 @@ function validateform(event,valu){
     $('#form_save').attr('disabled', true);
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if($('#days_every_week').is(':checked') && !are_days_checked()){
-        alert('<?php echo xls("Must choose at least one day!"); ?>');
+        alert(<?php echo xlj("Must choose at least one day!"); ?>);
         $('#form_save').attr('disabled', false);
         return false;
     }
@@ -1921,7 +1921,7 @@ function validateform(event,valu){
         //Prevent from user to change status to Arrive before the time
         //Dependent in globals setting - allow_early_check_in
         if($('#form_apptstatus').val() == '@' && new Date(DateToYYYYMMDD_js($('#form_date').val())).getTime() > new Date().getTime()){
-            alert('<?php echo xls("You can not change status to 'Arrive' before the appointment's time") . '.'; ?>');
+            alert(<?php echo xlj("You can not change status to 'Arrive' before the appointment's time."); ?>);
             $('#form_save').attr('disabled', false);
             return false;
         }
@@ -2043,7 +2043,7 @@ function SubmitForm() {
         }?>
     if (f.form_action.value != 'delete') {
         <?php if ($is_holiday) {?>
-        if (!confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
+        if (!confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
             top.restoreSession();
         }
         <?php }?>
