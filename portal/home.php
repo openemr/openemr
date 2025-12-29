@@ -36,7 +36,6 @@ use OpenEMR\Telemetry\TelemetryService;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use OpenEMR\Common\Auth\JWT\JwtService;
 
 $session = SessionWrapperFactory::instance()->getWrapper();
 
@@ -329,13 +328,6 @@ while ($row = sqlFetchArray($result)) {
 }
 // CCDA Alt Service
 $ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
-try {
-    JwtService::getKeysInfo();
-} catch (Throwable $exception) {
-    // NOTE: if we do not have properly set keys for signing JWT, we are not able to use the links
-    $ccdaOk = false;
-    (new SystemLogger())->debug("portal/home.php: JWT signing keys are not set. CCDA links are disabled. Error: {$exception->getMessage()}");
-}
 // Available Themes
 $styleArray = collectStyles();
 // Is telemetry enabled?
