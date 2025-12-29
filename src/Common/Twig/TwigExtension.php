@@ -309,10 +309,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 fn($string) => xlj($string)
             ),
             new TwigFilter(
-                'xls',
-                fn($string) => xls($string)
-            ),
-            new TwigFilter(
                 'money',
                 fn($amount) => oeFormatMoney($amount)
             ),

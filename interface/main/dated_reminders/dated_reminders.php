@@ -134,7 +134,7 @@ function updateme(id){
     },
     function(data) {
     if (data == 'error') {
-      alert("<?php echo xls('Error Removing Message') ?>");
+      alert(<?php echo xlj('Error Removing Message') ?>);
     } else {
       if (id > 0) {
         $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');

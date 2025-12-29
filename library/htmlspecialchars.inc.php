@@ -265,11 +265,3 @@ function xlj($key)
     return js_escape(hsc_private_xl_or_warn($key));
 }
 
-/*
- * @Deprecated
- *Translate via xl() and then escape via addslashes for use with javascript literals
- */
-function xls($key)
-{
-    return addslashes((string) hsc_private_xl_or_warn($key));
-}
