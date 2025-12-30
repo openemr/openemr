@@ -47,3 +47,7 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotIndex lang_definitions lang_cons
+CREATE INDEX `lang_cons` ON `lang_definitions` (`lang_id`, `cons_id`);
+#EndIf
