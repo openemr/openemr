@@ -110,7 +110,7 @@ if (!empty($_POST['sync'])) {
 <?php
 if (!empty($saved)) {
     echo "<p style='color:green'>" .
-        xlt('Successfully Completed');
+        xlt('Successfully Completed').
         "</p>\n";
 } elseif (!empty($error_message)) {
     echo "<p style='color:red'>" .
