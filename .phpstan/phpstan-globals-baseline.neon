@@ -2,7 +2,7 @@ parameters:
   ignoreErrors:
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 5
+      count: 1
       path: ../ccdaservice/ccda_gateway.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -1478,7 +1478,7 @@ parameters:
       path: ../interface/patient_file/encounter/find_code_popup.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 22
+      count: 21
       path: ../interface/patient_file/encounter/forms.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
@@ -1716,10 +1716,6 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../interface/patient_tracker/patient_tracker_status.php
-    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
-      identifier: openemr.forbiddenGlobalsAccess
-      count: 1
-      path: ../interface/practice/address_verify.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
@@ -2264,10 +2260,6 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../library/classes/Tree.class.php
-    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../library/classes/Tree.class.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 11
@@ -2616,14 +2608,6 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 10
       path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php
-    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
-      identifier: openemr.forbiddenGlobalsAccess
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
-    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
-      identifier: openemr.forbiddenGlobalsAccess
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/BladeRenderEngine.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 5
@@ -3016,10 +3000,6 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../src/Gacl/GaclAdminApi.php
-    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 4
-      path: ../src/Gacl/GaclApi.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 3
@@ -3224,10 +3204,6 @@ parameters:
       identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../src/Services/BaseService.php
-    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
-      identifier: openemr.forbiddenGlobalsAccess
-      count: 3
-      path: ../src/Services/CDADocumentService.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 1

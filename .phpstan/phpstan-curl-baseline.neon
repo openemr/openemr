@@ -235,26 +235,6 @@ parameters:
     - message: '#^Raw curl_\* function curl_close\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
       identifier: openemr.forbiddenCurlFunction
       count: 2
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
-    - message: '#^Raw curl_\* function curl_error\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 2
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
-    - message: '#^Raw curl_\* function curl_exec\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 2
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
-    - message: '#^Raw curl_\* function curl_init\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 7
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
-    - message: '#^Raw curl_\* function curl_setopt\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 28
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/HttpRequest.php
-    - message: '#^Raw curl_\* function curl_close\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 2
       path: ../src/Services/Cda/CdaValidateDocuments.php
     - message: '#^Raw curl_\* function curl_error\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
       identifier: openemr.forbiddenCurlFunction
@@ -324,31 +304,3 @@ parameters:
       identifier: openemr.forbiddenCurlFunction
       count: 6
       path: ../src/Telemetry/TelemetryService.php
-    - message: '#^Raw curl_\* function curl_close\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
-    - message: '#^Raw curl_\* function curl_errno\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
-    - message: '#^Raw curl_\* function curl_error\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
-    - message: '#^Raw curl_\* function curl_exec\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
-    - message: '#^Raw curl_\* function curl_getinfo\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
-    - message: '#^Raw curl_\* function curl_init\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
-    - message: '#^Raw curl_\* function curl_setopt_array\(\) is forbidden\. Use GuzzleHttp\\Client or OpenEMR\\Common\\Http\\oeHttp instead\.$#'
-      identifier: openemr.forbiddenCurlFunction
-      count: 1
-      path: ../src/USPS/USPSBase.php
