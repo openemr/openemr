@@ -92,7 +92,7 @@ if (!empty($_POST['sync'])) {
     //Upload and save the csv
     $saved = $holidays_controller->create_holiday_event();
     if (!$saved && empty($error_message)) {
-        $error_message = xlt('Operation Failed');
+        $error_message = xl('Operation Failed');
     }
 }
 
