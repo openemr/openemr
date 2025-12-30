@@ -24,6 +24,7 @@ use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Utils\MeasurementUtils;
+use OpenEMR\Common\Utils\MeasurementUtilsInterface;
 
 class FormVitals extends ORDataObject
 {
@@ -82,6 +83,11 @@ class FormVitals extends ORDataObject
      */
     private $encounter;
 
+    /**
+     * @var MeasurementUtilsInterface|null Lazy-loaded instance for unit conversions
+     */
+    private ?MeasurementUtilsInterface $_measurementUtils = null;
+
     // public $temp_methods;
     /**
      * Constructor sets all Form attributes to their default value
@@ -108,6 +114,18 @@ class FormVitals extends ORDataObject
     {
         parent::populate();
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
+    }
+
+    /**
+     * Get the measurement utils instance for unit conversions.
+     * Lazily instantiated on first use.
+     */
+    private function getMeasurementUtils(): MeasurementUtilsInterface
+    {
+        if ($this->_measurementUtils === null) {
+            $this->_measurementUtils = new MeasurementUtils();
+        }
+        return $this->_measurementUtils;
     }
 
     public function toString($html = false)
@@ -217,7 +235,7 @@ class FormVitals extends ORDataObject
 
     public function get_weight_metric()
     {
-        return MeasurementUtils::lbToKg($this->get_weight());
+        return $this->getMeasurementUtils()->lbToKg($this->get_weight());
     }
     public function set_weight($w)
     {
@@ -242,7 +260,7 @@ class FormVitals extends ORDataObject
     }
     public function get_height_metric()
     {
-        return MeasurementUtils::inchesToCm($this->get_height());
+        return $this->getMeasurementUtils()->inchesToCm($this->get_height());
     }
     public function set_height($h)
     {
@@ -256,7 +274,7 @@ class FormVitals extends ORDataObject
     }
     public function get_temperature_metric()
     {
-        return MeasurementUtils::fhToCelsius($this->get_temperature());
+        return $this->getMeasurementUtils()->fhToCelsius($this->get_temperature());
     }
     public function set_temperature($t)
     {
@@ -333,7 +351,7 @@ class FormVitals extends ORDataObject
     }
     public function get_waist_circ_metric()
     {
-        return MeasurementUtils::inchesToCm($this->get_waist_circ());
+        return $this->getMeasurementUtils()->inchesToCm($this->get_waist_circ());
     }
     public function set_waist_circ($w)
     {
@@ -347,7 +365,7 @@ class FormVitals extends ORDataObject
     }
     public function get_head_circ_metric()
     {
-        return MeasurementUtils::inchesToCm($this->get_head_circ());
+        return $this->getMeasurementUtils()->inchesToCm($this->get_head_circ());
     }
     public function set_head_circ($h)
     {

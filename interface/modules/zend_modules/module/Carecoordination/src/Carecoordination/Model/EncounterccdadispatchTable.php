@@ -45,6 +45,7 @@ use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Services\Search\SearchQueryFragment;
+use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 use RuntimeException;
@@ -3054,15 +3055,16 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $res = $appTable->zQuery($query, [$pid]);
 
         $vitals .= "<vitals_list>";
+        $measurementUtils = new MeasurementUtils();
         foreach ($res as $row) {
             $provenanceRecord = [
                 'author_id' => $row['provenance_updated_by']
                 , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
-            $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
-            $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
-            $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
+            $convWeightValue = number_format((float)$measurementUtils->lbToKg($row['weight']), 2);
+            $convHeightValue = number_format(round((float)$measurementUtils->inchesToCm($row['height']), 1), 2);
+            $convTempValue = number_format((float)$measurementUtils->fhToCelsius($row['temperature']), 1);
             if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';
@@ -3073,9 +3075,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             } else {
                 // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
                 // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
-                $temp = US_weight($row['weight'], 1);
-                $tempArr = explode(" ", (string)$temp);
-                $weight_value = (float)$tempArr[0];
+                $weight_value = (float)number_format((float)$row['weight'], 2, '.', '');
                 $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
                 $height_unit = '[in_i]'; // inches international

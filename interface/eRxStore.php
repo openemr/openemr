@@ -13,6 +13,8 @@
 
 require_once(__DIR__ . "/../library/api.inc.php");
 
+use OpenEMR\Common\Utils\MeasurementUtils;
+
 class eRxStore
 {
     /**
@@ -112,8 +114,9 @@ class eRxStore
 
         $data = formFetch("form_vitals", $result['id']);
 
-        $weight = number_format($data['weight'] * 0.45359237, 2);
-        $height = number_format(round($data['height'] * 2.54, 1), 2);
+        $measurementUtils = new MeasurementUtils();
+        $weight = number_format((float)$measurementUtils->lbToKg($data['weight']), 2);
+        $height = number_format(round((float)$measurementUtils->inchesToCm($data['height']), 1), 2);
 
         return [
             'height' => $height,

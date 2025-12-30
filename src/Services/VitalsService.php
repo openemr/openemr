@@ -18,6 +18,7 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
+use OpenEMR\Common\Utils\MeasurementUtilsInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -49,6 +50,7 @@ class VitalsService extends BaseService
 
     private $dispatcher;
     private $units_of_measurement;
+    private MeasurementUtilsInterface $measurementUtils;
 
     public function __construct(?int $units_of_measurement = null)
     {
@@ -56,6 +58,7 @@ class VitalsService extends BaseService
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
         $this->units_of_measurement = $units_of_measurement ?? $GLOBALS['units_of_measurement'];
+        $this->measurementUtils = new MeasurementUtils();
         if (!empty($GLOBALS['kernel'])) {
             $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
         } else {
@@ -230,23 +233,12 @@ class VitalsService extends BaseService
 
 
         // add in all the measurement fields
+        $utils = $this->measurementUtils;
 
-        $kgToLb = function ($val) {
-            if ($val != 0) {
-                return MeasurementUtils::lbToKg($val);
-            }
-        };
-        $inchesToCm = function ($val) {
-            if ($val != 0) {
-                return MeasurementUtils::inchesToCm($val);
-            }
-        };
-        $fhToCelsius = function ($val) {
-            if ($val != 0) {
-                return MeasurementUtils::fhToCelsius($val);
-            }
-        };
-        $identity = (fn($val) => $val);
+        $lbToKg = fn($val) => $val != 0 ? $utils->lbToKg($val) : $val;
+        $inchesToCm = fn($val) => $val != 0 ? $utils->inchesToCm($val) : $val;
+        $fhToCelsius = fn($val) => $val != 0 ? $utils->fhToCelsius($val) : $val;
+        $identity = fn($val) => $val;
 
         $convertArrayValue = function ($index, $converter, $unit, &$array): void {
             $array[$index] = $converter($array[$index]);
@@ -258,7 +250,7 @@ class VitalsService extends BaseService
                 && ($this->units_of_measurement == self::MEASUREMENT_PERSIST_IN_METRIC
                     || $this->units_of_measurement == self::MEASUREMENT_METRIC_ONLY)
         ) {
-            $convertArrayValue('weight', $kgToLb, 'kg', $record);
+            $convertArrayValue('weight', $lbToKg, 'kg', $record);
             $convertArrayValue('height', $inchesToCm, 'cm', $record);
             $convertArrayValue('head_circ', $inchesToCm, 'cm', $record);
             $convertArrayValue('waist_circ', $inchesToCm, 'cm', $record);

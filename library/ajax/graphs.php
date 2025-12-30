@@ -16,10 +16,14 @@ require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\MeasurementUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
+
+// Create measurement utils instance for unit conversions
+$measurementUtils = new MeasurementUtils();
 
 // Collect passed variable(s)
 //  $table is the sql table (or form name if LBF)
@@ -41,15 +45,20 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 // Conversion functions/constants
 function convertFtoC($a)
 {
-    return ($a - 32) * 0.5556;
+    global $measurementUtils;
+    return (float)$measurementUtils->fhToCelsius($a);
 }
 function getLbstoKgMultiplier()
 {
-    return 0.45359237;
+    global $measurementUtils;
+    // Get conversion factor by converting 1 lb to kg
+    return (float)$measurementUtils->lbToKg(1);
 }
 function getIntoCmMultiplier()
 {
-    return 2.54;
+    global $measurementUtils;
+    // Get conversion factor by converting 1 inch to cm
+    return (float)$measurementUtils->inchesToCm(1);
 }
 function getIdealYSteps($a)
 {
