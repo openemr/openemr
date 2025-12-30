@@ -206,16 +206,16 @@ class Holidays_Controller
 
     /**
      * Returns an array of the holiday that are in the calendar_external table
-     * @param $start_date
-     * @param $end_date
+     * @param string $start_date
+     * @param string $end_date
      * @return array
      */
-    public function get_holidays_by_date_range(DateTime $start_date, DateTIme $end_date): array
+    public function get_holidays_by_date_range(string $start_date, string $end_date): array
     {
         $holidays = [];
         $holidays = Holidays_Storage::get_holidays_by_dates(
             $start_date,
-            $end_date,
+            $end_date
         );
         return $holidays;
     }
