@@ -22,7 +22,7 @@ class Holidays_Controller
 
     public $storage;
     public $target_file;
-    public $last_error = "";
+    private $last_error = "";
 
     function __construct()
     {
