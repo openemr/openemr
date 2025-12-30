@@ -14,7 +14,9 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 
@@ -26,8 +28,9 @@ class FaxDocumentService
 
     public function __construct(?string $siteId = null)
     {
+        $globals = OEGlobalsBag::getInstance();
         $this->siteId = $siteId ?? ($_SESSION['site_id'] ?? 'default');
-        $this->sitePath = $GLOBALS['OE_SITE_DIR'] ?? ($GLOBALS['OE_SITES_BASE'] . '/' . $this->siteId);
+        $this->sitePath = $globals->get('OE_SITE_DIR') ?? ($globals->get('OE_SITES_BASE') . '/' . $this->siteId);
         $this->receivedFaxesPath = $this->sitePath . '/documents/received_faxes';
         
         // Ensure received faxes directory exists
@@ -67,7 +70,7 @@ class FaxDocumentService
             // Determine storage location
             if ($patientId > 0) {
                 // Get FAX category ID
-                $categoryResult = sqlQuery("SELECT id FROM categories WHERE name = 'FAX'");
+                $categoryResult = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = 'FAX'");
                 $categoryId = $categoryResult['id'] ?? 1;
                 
                 $formattedFrom = $this->formatPhoneDisplay($fromNumber);
@@ -138,7 +141,7 @@ class FaxDocumentService
     {
         try {
             // Get fax from queue
-            $fax = sqlQuery(
+            $fax = QueryUtils::querySingleRow(
                 "SELECT * FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ?",
                 [$faxSid, $this->siteId]
             );
@@ -170,7 +173,7 @@ class FaxDocumentService
             $result = $this->storeFaxDocument($faxSid, $mediaContent, $fromNumber, $patientId, $mimeType);
             
             // Update queue record
-            sqlStatement(
+            QueryUtils::sqlStatementThrowException(
                 "UPDATE oe_faxsms_queue 
                  SET patient_id = ?, document_id = ?, media_path = ? 
                  WHERE job_id = ? AND site_id = ?",
@@ -209,10 +212,10 @@ class FaxDocumentService
                 AND deleted = 0
                 ORDER BY date DESC";
         
-        $result = sqlStatement($sql, [$this->siteId]);
+        $rows = QueryUtils::fetchRecords($sql, [$this->siteId]);
         $faxes = [];
         
-        while ($row = sqlFetchArray($result)) {
+        foreach ($rows as $row) {
             $details = json_decode($row['details_json'] ?? '{}', true);
             $faxes[] = [
                 'id' => $row['id'],
@@ -238,7 +241,7 @@ class FaxDocumentService
      */
     public function getFaxDocument(string $faxSid): ?array
     {
-        $fax = sqlQuery(
+        $fax = QueryUtils::querySingleRow(
             "SELECT * FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ?",
             [$faxSid, $this->siteId]
         );
@@ -281,7 +284,7 @@ class FaxDocumentService
             }
             
             // Mark as deleted in queue
-            sqlStatement(
+            QueryUtils::sqlStatementThrowException(
                 "UPDATE oe_faxsms_queue SET deleted = 1 WHERE job_id = ? AND site_id = ?",
                 [$faxSid, $this->siteId]
             );
@@ -345,7 +348,7 @@ class FaxDocumentService
         ];
         
         foreach ($patterns as $pattern) {
-            $result = sqlQuery(
+            $result = QueryUtils::querySingleRow(
                 "SELECT pid FROM patient_data 
                  WHERE (phone_cell LIKE ? OR phone_home LIKE ? OR phone_biz LIKE ?)
                  LIMIT 1",

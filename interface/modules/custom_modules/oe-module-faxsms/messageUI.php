@@ -26,7 +26,7 @@ $assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
-$serviceEnum = ServiceType::tryFrom($service);
+$serviceEnum = ServiceType::fromValue($service);
 $title = $serviceEnum?->getTranslatedDisplayName() ?? '';
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>

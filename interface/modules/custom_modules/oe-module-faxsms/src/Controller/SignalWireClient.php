@@ -16,6 +16,8 @@ use Document;
 use Exception;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use SignalWire\Rest\Client;
 
 class SignalWireClient extends AppDispatch
@@ -39,9 +41,10 @@ class SignalWireClient extends AppDispatch
     public function __construct()
     {
         // Initialize properties before calling parent (like other controllers)
+        $globals = OEGlobalsBag::getInstance();
         $this->crypto = new CryptoGen();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->baseDir = $globals->get('temporary_files_dir');
+        $this->uriDir = $globals->get('OE_SITE_WEBROOT');
 
         try {
             $this->credentials = $this->getCredentials();
@@ -137,7 +140,8 @@ class SignalWireClient extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS['SMTP_USER'] ?? null);
+        $globals = OEGlobalsBag::getInstance();
+        $smtpEnabled = !empty($globals->get('SMTP_PASS') ?? null) && !empty($globals->get('SMTP_USER') ?? null);
         $user = $this::getLoggedInUser();
 
         // DEBUG: Log parameters received in sendFax
@@ -243,10 +247,11 @@ class SignalWireClient extends AppDispatch
             // Use public web root for uploads so SignalWire can access via HTTP
             // Store in web root's public area accessible to external IPs
             // Use GLOBALS['fileroot'] which is properly set by globals.php
-            $webRoot = $GLOBALS['fileroot'] ?? dirname(dirname(dirname(dirname(dirname(__DIR__)))));
+            $globals = OEGlobalsBag::getInstance();
+            $webRoot = $globals->get('fileroot') ?? dirname(dirname(dirname(dirname(dirname(__DIR__)))));
 
             // Get site_id with fallback to 'default'
-            $siteId = $_SESSION['site_id'] ?? $GLOBALS['OE_SITE_NAME'] ?? 'default';
+            $siteId = $_SESSION['site_id'] ?? $globals->get('OE_SITE_NAME') ?? 'default';
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - Using siteId: " . $siteId);
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - Using fileroot: " . $webRoot);
 
@@ -309,7 +314,7 @@ class SignalWireClient extends AppDispatch
                 (uid, job_id, calling_number, called_number, details_json, date, direction, status, site_id)
                 VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
 
-        sqlStatement($sql, [
+        QueryUtils::sqlStatementThrowException($sql, [
             $uid,
             $faxData['job_id'] ?? '',
             $faxData['calling_number'] ?? '',
@@ -342,10 +347,10 @@ class SignalWireClient extends AppDispatch
                   AND (direction = 'inbound' OR uid = ?)
                 ORDER BY date DESC";
 
-        $result = sqlStatement($sql, [$site_id, $dateFrom, $dateTo, $uid]);
+        $rows = QueryUtils::fetchRecords($sql, [$site_id, $dateFrom, $dateTo, $uid]);
         $faxes = [];
 
-        while ($row = sqlFetchArray($result)) {
+        foreach ($rows as $row) {
             $faxes[] = (object)$row;
         }
 
@@ -371,7 +376,7 @@ class SignalWireClient extends AppDispatch
     {
         $uid = $_SESSION['authUserID'] ?? 0;
         $sql = "SELECT COUNT(*) as count FROM oe_faxsms_queue WHERE uid = ? AND deleted = 0";
-        $result = sqlQuery($sql, [$uid]);
+        $result = QueryUtils::querySingleRow($sql, [$uid]);
         return (int)($result['count'] ?? 0);
     }
 
@@ -407,11 +412,12 @@ class SignalWireClient extends AppDispatch
      */
     public static function emailDocument(string $email, string $body, string $file, array $user = []): string
     {
+        $globals = OEGlobalsBag::getInstance();
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
+        $from = $globals->get("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
@@ -471,7 +477,7 @@ class SignalWireClient extends AppDispatch
 
         // Fetch fax from queue
         $site_id = $_SESSION['site_id'] ?? 'default';
-        $fax = sqlQuery(
+        $fax = QueryUtils::querySingleRow(
             "SELECT * FROM oe_faxsms_queue WHERE id = ? AND site_id = ?",
             [$queueId, $site_id]
         );
@@ -518,7 +524,7 @@ class SignalWireClient extends AppDispatch
 
         // Fetch fax from queue
         $site_id = $_SESSION['site_id'] ?? 'default';
-        $fax = sqlQuery(
+        $fax = QueryUtils::querySingleRow(
             "SELECT * FROM oe_faxsms_queue WHERE id = ? AND site_id = ?",
             [$queueId, $site_id]
         );
@@ -566,7 +572,7 @@ class SignalWireClient extends AppDispatch
         try {
             // Look up the fax from queue to get job_id (SID)
             $site_id = $_SESSION['site_id'] ?? 'default';
-            $fax = sqlQuery(
+            $fax = QueryUtils::querySingleRow(
                 "SELECT job_id, patient_id FROM oe_faxsms_queue WHERE id = ? AND site_id = ?",
                 [$queueId, $site_id]
             );
@@ -669,7 +675,8 @@ class SignalWireClient extends AppDispatch
             if ($direction === 'inbound') {
                 // If assigned to patient, link to patient document
                 if ($patientId > 0 && $documentId > 0) {
-                    $viewLink = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . 
+                    $globals = OEGlobalsBag::getInstance();
+                    $viewLink = $globals->get('webroot') . "/controller.php?document&retrieve&patient_id=" . 
                                 urlencode($patientId) . "&document_id=" . urlencode($documentId) . 
                                 "&as_file=false&original_file=true";
                     $messageCol .= "<a href='" . attr($viewLink) . "' target='_blank' class='btn btn-sm btn-success'>" . 
@@ -702,7 +709,7 @@ class SignalWireClient extends AppDispatch
                 // Show patient assignment status
                 if ($patientId > 0) {
                     // Get patient name
-                    $patientRow = sqlQuery("SELECT fname, lname FROM patient_data WHERE pid = ?", [$patientId]);
+                    $patientRow = QueryUtils::querySingleRow("SELECT fname, lname FROM patient_data WHERE pid = ?", [$patientId]);
                     if ($patientRow) {
                         $patientName = text($patientRow['fname'] . ' ' . $patientRow['lname']);
                         $messageCol .= "<span class='badge badge-success'>" . xlt('Assigned to') . ": {$patientName}</span>";
@@ -792,7 +799,7 @@ class SignalWireClient extends AppDispatch
             }
 
             // Check if fax already exists in queue
-            $existing = sqlQuery("SELECT id, called_number, media_path FROM oe_faxsms_queue WHERE job_id = ?", [$jobId]);
+            $existing = QueryUtils::querySingleRow("SELECT id, called_number, media_path FROM oe_faxsms_queue WHERE job_id = ?", [$jobId]);
 
             if (!empty($existing)) {
                 // Update existing fax with fresh status and media path
@@ -802,7 +809,7 @@ class SignalWireClient extends AppDispatch
                             status = ?,
                             media_path = ?
                         WHERE job_id = ?";
-                sqlStatement($sql, [json_encode($faxData), $direction, $status, $mediaPath ?? null, $jobId]);
+                QueryUtils::sqlStatementThrowException($sql, [json_encode($faxData), $direction, $status, $mediaPath ?? null, $jobId]);
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Updated fax {$jobId} with fresh status");
             } else {
                 // Insert new fax from API fetch (these are received/already-sent faxes)
@@ -810,7 +817,7 @@ class SignalWireClient extends AppDispatch
                         (uid, job_id, calling_number, called_number, details_json, date, direction, status, site_id, media_path)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $site_id = $_SESSION['site_id'] ?? 'default';
-                sqlStatement($sql, [$uid, $jobId, $from, $to, json_encode($faxData), $dateCreated, $direction, $status, $site_id, $mediaPath ?? null]);
+                QueryUtils::sqlStatementThrowException($sql, [$uid, $jobId, $from, $to, json_encode($faxData), $dateCreated, $direction, $status, $site_id, $mediaPath ?? null]);
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Inserted fax {$jobId}");
             }
         } catch (Exception $e) {

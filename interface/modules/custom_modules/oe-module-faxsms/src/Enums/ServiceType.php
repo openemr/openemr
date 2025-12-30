@@ -57,22 +57,15 @@ enum ServiceType: int
     }
 
     /**
-     * Try to create from a numeric value
+     * Try to create from a numeric or string value
+     * Note: Use this instead of native tryFrom() when you need to handle string inputs
      *
-     * @param int $value
+     * @param int|string $value
      * @return self|null
      */
-    public static function tryFrom(int|string $value): ?self
+    public static function fromValue(int|string $value): ?self
     {
         $value = (int)$value;
-        return match ($value) {
-            1 => self::RINGCENTRAL,
-            2 => self::TWILIO_SMS,
-            3 => self::ETHERFAX,
-            4 => self::EMAIL,
-            5 => self::CLICKATELL_SMS,
-            6 => self::SIGNALWIRE,
-            default => null,
-        };
+        return self::tryFrom($value);
     }
 }
