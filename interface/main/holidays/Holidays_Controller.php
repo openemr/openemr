@@ -162,7 +162,7 @@ class Holidays_Controller
                 $this->last_error = xl("CSV file is empty");
                 return false;
             }
-            if ($row === null || count($row) < 2) {
+            if (count($row) < 2) {
                 $this->last_error = xl("CSV row must have date and description");
                 return false;
             }
