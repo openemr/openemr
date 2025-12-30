@@ -14,7 +14,7 @@ class Holidays_Csv
 {
     private const CSV_LENGTH = 1000;
     private const CSV_DELIMITER = ",";
-    private const CSV_ENCLOSURE = "'";
+    private const CSV_ENCLOSURE = "\"";
     private const CSV_ESCAPE = "\\";
 
     /**
