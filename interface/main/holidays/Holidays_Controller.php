@@ -87,7 +87,7 @@ class Holidays_Controller
     }
 
     /**
-     * Trys to reach the file (csv) and sends the rows to the storage to import the holidays to the calendar external table
+     * Tries to reach the file (csv) and sends the rows to the storage to import the holidays to the calendar external table
      * @return bool
      */
     public function import_holidays_from_csv()

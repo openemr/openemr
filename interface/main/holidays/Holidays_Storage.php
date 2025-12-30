@@ -39,7 +39,7 @@ class Holidays_Storage
 
     /**
      * Selects  holidays/closed clinic events from the table events in a range of dates
-     * @param $star_date
+     * @param $start_date
      * @param $end_date
      * @return array [0=>"2016/06/16"]
      */
@@ -65,7 +65,7 @@ class Holidays_Storage
 
     /**
      * From an array of holidays creates a row that will be inserted as an event to be used in the calendar
-     * The holidays array must contai the date=>DD/MM/YYY, description=>"string"
+     * The holidays array must contains the date=>DD/MM/YYY, description=>"string"
      * @param array $holidays
      */
     public function create_events(array $holidays): bool
