@@ -259,9 +259,9 @@ $CPR = 4; // cells per row
 
         function address_verify() {
             top.restoreSession();
-            var f = document.demographics_form;
+            const f = document.demographics_form;
 
-            var params = new URLSearchParams({
+            const params = new URLSearchParams({
                 address1: f.form_street.value,
                 address2: f.form_street_line_2.value,
                 city: f.form_city.value,
@@ -270,7 +270,7 @@ $CPR = 4; // cells per row
                 zip4: f.form_postal_code.value.substring(5, 9)
             });
 
-            dlgopen('../../practice/address_verify.php?' + params.toString(),
+            dlgopen('../../practice/address_verify.php?' + params,
                 '_blank', 400, 150, '', xl('Address Verify'));
             return false;
         }

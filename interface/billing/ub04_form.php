@@ -273,18 +273,19 @@ function cleanUp()
 }
 
 function selectUser(formid,event) {
-    var title = 'Providers';
-    var params = {
+    const title = 'Providers';
+    const urlParams = new URLSearchParams({
+        action: 'user_select',
+        formid: formid
+    });
+    const params = {
         buttons: [
             {text: 'Cancel', close: true, style: 'secondary btn-sm'}
         ],
         type: 'GET',
         title: title,
         size: 'modal-mlg',
-        url: './ub04_helpers.php?' + new URLSearchParams({
-            action: 'user_select',
-            formid: formid
-        })
+        url: './ub04_helpers.php?' + urlParams
     };
     return dialog.ajax(params).then(function () {
     });

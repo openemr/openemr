@@ -2225,14 +2225,14 @@ $(function () {
 
 function layoutLook(){
     var form = <?php echo js_escape($layout_id);?>;
-    var btnName = <?php echo xlj('Back To Editor');?>;
+    const btnName = <?php echo xlj('Back To Editor');?>;
     const params = new URLSearchParams({
         isShow: '',
         id: '0',
         formname: form
     });
-    var url = "../patient_file/encounter/view_form.php?" + params;
-    var title = <?php echo xlj('LBF Encounter Form Preview');?>;
+    const url = "../patient_file/encounter/view_form.php?" + params;
+    const title = <?php echo xlj('LBF Encounter Form Preview');?>;
     dlgopen(url, '_blank', 1250, 800, "", title);
     return false;
 }

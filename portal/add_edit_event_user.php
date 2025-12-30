@@ -840,15 +840,15 @@ if ($userid) {
                 <?php } else {?>
                 s = se.options[se.selectedIndex].value;
                 <?php }?>
-                var formDate = document.getElementById('form_date');
-                const params = new URLSearchParams({
+                const formDate = document.getElementById('form_date');
+                const urlParams = new URLSearchParams({
                     bypatient: '',
                     providerid: s,
                     catid: catId,
                     startdate: formDate.value
                 });
-                var url = 'find_appt_popup_user.php?' + params;
-                var params = {
+                const url = 'find_appt_popup_user.php?' + urlParams;
+                const dialogParams = {
                     buttons: [
                         {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
 
@@ -857,7 +857,7 @@ if ($userid) {
                     dialogId: 'apptDialog',
                     type: 'iframe'
                 };
-                dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', params);
+                dlgopen(url, 'apptFind', 'modal-md', 300, '', 'Find Date', dialogParams);
             }
 
             // Check for errors when the form is submitted.

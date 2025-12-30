@@ -273,8 +273,8 @@ $(function () {
 
     // begin the merge of a block into a single record
     $(".onerow").on("click", function() {
-        var dupecount = $(this).attr("dupecount");
-        var masterid = $(this).attr("oemrid");
+        const dupecount = $(this).attr("dupecount");
+        const masterid = $(this).attr("oemrid");
         const params = new URLSearchParams({
             dupecount: dupecount,
             masterid: masterid
@@ -283,7 +283,7 @@ $(function () {
         $("[dupecount="+dupecount+"]").each(function (i) {
             if (this.id != masterid) { params.append("otherid[]", this.id); }
         });
-        var newurl = "mergerecords.php?" + params;
+        const newurl = "mergerecords.php?" + params;
         // open a new window and show the merge results
         moreinfoWin = window.open(newurl, "mergewin");
     });

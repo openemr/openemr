@@ -349,7 +349,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             formname: formdir,
             id: formid
         });
-        var url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?' + params;
+        const url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?' + params;
         if (formdir == 'newpatient' || !parent.twAddFrameTab) {
             top.restoreSession();
             location.href = url;
