@@ -2338,7 +2338,7 @@
             <column name="irnpool" comments="IRN (Insurance Referral Network) pool for the user."/>
             <column name="state_license_number" comments="State license number for the user."/>
             <column name="weno_prov_id" comments="WENO Provider ID for the user. EMPTY for exports" exclude="true"/>
-            <column name="newcrop_user_role" comments="NewCrop user role for the user.EMPTY for exports" exclude="true"/>
+            <column name="newcrop_user_role" comments="Ensora user role for the user.EMPTY for exports" exclude="true"/>
             <column name="cpoe" comments="Indicates whether the user has CPOE (Computerized Physician Order Entry) capabilities."/>
             <column name="physician_type" comments="Type or designation of the physician (e.g., standard, specialist)."/>
             <column name="main_menu_role" comments="Main menu role for the user. EMPTY for exports" exclude="true"/>

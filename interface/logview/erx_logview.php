@@ -1,10 +1,10 @@
 <?php
 
 /**
- * interface/logview/erx_logview.php Display NewCrop errors.
+ * interface/logview/erx_logview.php Display Ensora eRx errors.
  *
  * @package    OpenEMR
- * @subpackage NewCrop
+ * @subpackage Ensora
  * @link       http://www.open-emr.org
  * @author     Eldho Chacko <eldho@zhservices.com>
  * @author     Vinish K <vinish@zhservices.com>

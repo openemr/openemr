@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRx_xml.php Functions for interacting with NewCrop communications.
+ * interface/eRx_xml.php Functions for interacting with Ensora eRx communications.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -193,7 +193,7 @@ function account($doc, $r): void
     global $msg, $facilityService;
     $erxSiteID = $facilityService->getPrimaryBusinessEntity();
     if (!$erxSiteID['federal_ein']) {
-        echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.");
+        echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.");
         die;
     }
 
