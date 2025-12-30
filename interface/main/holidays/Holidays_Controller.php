@@ -157,19 +157,27 @@ class Holidays_Controller
         }
 
         try {
-            $row = Holidays_Csv::read_next_data_row($handle);
-            if ($row === null) {
-                $this->last_error = xl("CSV file is empty");
-                return false;
-            }
-            if (count($row) < 2) {
-                $this->last_error = xl("CSV row must have date and description");
-                return false;
+            $row_number = 0;
+            while (($row = Holidays_Csv::read_next_data_row($handle)) !== null) {
+                $row_number++;
+
+                if (count($row) < 2) {
+                    $this->last_error = sprintf(
+            xl('Row %1$d: CSV row must have date and description'),
+            $row_number
+                );
+                    return false;
+                }
+
+                $date = trim($row[0]);
+                if (!$this->is_valid_holiday_date($date)) {
+                    $this->last_error = sprintf("Row %1: Invalid date format in CSV", [$row_number]);
+                    return false;
+                }
             }
 
-            $date = trim($row[0]);
-            if (!$this->is_valid_holiday_date($date)) {
-                $this->last_error = xl("Invalid date format in CSV");
+            if ($row_number === 0) {
+                $this->last_error = xl("CSV file is empty");
                 return false;
             }
 
