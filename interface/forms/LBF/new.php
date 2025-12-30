@@ -584,9 +584,9 @@ if (
                 codetype: codetype,
                 code: code,
                 selector: selector,
-                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
-            params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
                 }
                 return '';
@@ -804,9 +804,9 @@ if (
             const params = new URLSearchParams({
                 codetype: a[0],
                 code: a[1],
-                pricelevel: f.form_fs_pricelevel.value
+                pricelevel: f.form_fs_pricelevel.value,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
-            params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
@@ -833,9 +833,9 @@ if (
                 codetype: a[0],
                 code: a[1],
                 selector: a[2],
-                pricelevel: f.form_fs_pricelevel.value
+                pricelevel: f.form_fs_pricelevel.value,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
-            params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
@@ -861,9 +861,9 @@ if (
             const params = new URLSearchParams({
                 codetype: a[0],
                 code: a[1],
-                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             });
-            params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
@@ -874,9 +874,9 @@ if (
             if (sel.value) {
                 const params = new URLSearchParams({
                     list: sel.value,
-                    pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+                    pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 });
-                params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
             }
             sel.selectedIndex = 0;

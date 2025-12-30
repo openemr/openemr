@@ -1381,11 +1381,11 @@ function setListItemOptions(lino, seq, init) {
   // This happens asynchronously so the generated code needs to stand alone.
   f[target].style.display = '';
   const params = new URLSearchParams({
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+    current: current,
     listid: list_id,
-    target: target,
-    current: current
+    target: target
   });
-  params.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
   $.getScript('layout_listitems_ajax.php?' + params);
 }
 
