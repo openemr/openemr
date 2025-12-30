@@ -205,8 +205,8 @@ $res = sqlStatement($query, $sqlBindArray);
         function toEncounter(newpid, enc) {
             top.restoreSession();
             const params = new URLSearchParams({
-                set_pid: newpid,
-                set_encounterid: enc
+                set_encounterid: enc,
+                set_pid: newpid
             });
             top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
         }

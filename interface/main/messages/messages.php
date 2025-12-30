@@ -1063,10 +1063,10 @@ if (!empty($_REQUEST['go'])) { ?>
             } else {
                 top.restoreSession();
                 const params = new URLSearchParams({
-                    nomenu: '1',
                     go: 'SMS_bot',
-                    pid: pid,
-                    m: m
+                    m: m,
+                    nomenu: '1',
+                    pid: pid
                 });
                 window.open('messages.php?' + params, 'SMS_bot', 'width=370,height=600,resizable=0');
             }

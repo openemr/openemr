@@ -266,8 +266,8 @@ $CPR = 4; // cells per row
                 address2: f.form_street_line_2.value,
                 city: f.form_city.value,
                 state: f.form_state.value,
-                zip5: f.form_postal_code.value.substring(0, 5),
-                zip4: f.form_postal_code.value.substring(5, 9)
+                zip4: f.form_postal_code.value.substring(5, 9),
+                zip5: f.form_postal_code.value.substring(0, 5)
             });
 
             dlgopen('../../practice/address_verify.php?' + params,

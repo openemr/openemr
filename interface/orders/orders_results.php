@@ -191,8 +191,8 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
             }
             ptvarname = varname;
             const params = new URLSearchParams({
-                popup: '1',
-                order: f[ptvarname].value
+                order: f[ptvarname].value,
+                popup: '1'
             });
             dlgopen('types.php?' + params, '_blank', 800, 500);
         }

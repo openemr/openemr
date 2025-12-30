@@ -434,10 +434,10 @@
         // Existing prescription - use the popup dispense flow
         const params = new URLSearchParams({
             drug_id: drugId,
-            prescription: prescriptionId,
-            quantity: f.disp_quantity.value,
+            encounter: f.dispense_encounter_id.value,
             fee: f.disp_fee.value,
-            encounter: f.dispense_encounter_id.value
+            prescription: prescriptionId,
+            quantity: f.disp_quantity.value
         });
         const promise = dlgopen('interface/drugs/dispense_drug.php?' + params.toString(),
             '_blank', 400, 200, false, {{ "Dispense Drug"|xlj }}, {

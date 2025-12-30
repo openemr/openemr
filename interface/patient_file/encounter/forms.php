@@ -311,8 +311,8 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     // Process click on Delete link.
     function deleteme() {
         const params = new URLSearchParams({
-            encounterid: <?php echo js_escape($encounter); ?>,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            encounterid: <?php echo js_escape($encounter); ?>
         });
         dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 200, '', '', {
             allowResize: false,
@@ -346,8 +346,8 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     // Called to open the data entry form a specified encounter form instance.
     function openEncounterForm(formdir, formname, formid) {
         const params = new URLSearchParams({
-            formname: formdir,
-            id: formid
+            id: formid,
+            formname: formdir
         });
         const url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?' + params;
         if (formdir == 'newpatient' || !parent.twAddFrameTab) {

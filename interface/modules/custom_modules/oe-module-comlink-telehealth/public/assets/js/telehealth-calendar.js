@@ -164,9 +164,9 @@
         window.top.window.parent.left_nav.setPatientEncounter(encounterData.encounterList.ids, encounterData.encounterList.dates, encounterData.encounterList.categories);
         window.top.left_nav.setEncounter(encounterData.selectedEncounter.dateStr, encounterData.selectedEncounter.id, "");
         const params = new URLSearchParams({
-            set_pid: pid,
+            launch_telehealth: 1,
             set_encounter: encounterData.selectedEncounter.id,
-            launch_telehealth: 1
+            set_pid: pid
         });
         window.top.RTop.location = '../../patient_file/encounter/encounter_top.php?' + params;
         if (window.top.comlink && window.top.comlink.telehealth && window.top.comlink.telehealth.launchProviderVideoMessage) {

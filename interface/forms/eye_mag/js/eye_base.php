@@ -268,8 +268,8 @@ function submit_canvas(zone) {
     var id_here = document.getElementById('myCanvas_'+zone);
     var dataURL = id_here.toDataURL('image/jpeg','1');
     const params = new URLSearchParams({
-        canvas: zone,
-        id: $("#form_id").val()
+        id: $("#form_id").val(),
+        canvas: zone
     });
     top.restoreSession();
     $.ajax({
@@ -932,11 +932,11 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     var pid    =  $('#pid').val();
     var zone   = section;
     const params = new URLSearchParams({
+        as_file: 'false',
         document: '',
-        retrieve: '',
-        patient_id: pid,
         document_id: newValue,
-        as_file: 'false'
+        patient_id: pid,
+        retrieve: ''
     });
     const result = base + '/controller.php?' + params.toString();
     const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
@@ -1044,19 +1044,19 @@ function editScripts(url) {
         var AddScript = function () {
             var iam = top.frames.editScripts;
             const params = new URLSearchParams({
-                prescription: '',
                 edit: '',
                 id: '',
-                pid: pid
+                pid: pid,
+                prescription: ''
             });
             iam.location.href = base + "/controller.php?" + params;
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
             const params = new URLSearchParams({
-                prescription: '',
+                id: pid,
                 list: '',
-                id: pid
+                prescription: ''
             });
             iam.location.href = base + "/controller.php?" + params;
         };
@@ -1897,11 +1897,11 @@ function goto_url(url) {
 //is this used anywhere?  Looks like it should be deleted...
 function openImage() {
     const params = new URLSearchParams({
+        as_file: 'false',
         document: '',
-        retrieve: '',
-        patient_id: '3',
         document_id: '10',
-        as_file: 'false'
+        patient_id: '3',
+        retrieve: ''
     });
     dlgopen(base + '/controller.php?' + params.toString(), '_blank', 600, 475);
 }
@@ -1909,8 +1909,8 @@ function openImage() {
 // Called to open a document in another tab for this encounter.
 function openDocumentNewTab(doc_id) {
     const params = new URLSearchParams({
-        formname: formdir,
-        id: formid
+        id: formid,
+        formname: formdir
     });
     const url = '../../interface/patient_file/encounter/view_form.php?' + params.toString();
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {

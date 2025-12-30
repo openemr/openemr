@@ -18,9 +18,9 @@ function doTemplateEditor(_this, event, oContext = '') {
     }
     let title = '<i class="fa fa-th"></i><h4 class="ml-2">'+ xl("Text Templates") +'</h4>';
     const params = new URLSearchParams({
-        type: id,
         ccFlag: ccFlag,
-        contextName: oContext
+        contextName: oContext,
+        type: id
     });
     let url = top.webroot_url + "/library/custom_template/custom_template.php?" + params;
     dlgopen(url, '', 'modal-lg', 800, '', '', {

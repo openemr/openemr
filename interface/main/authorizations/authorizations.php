@@ -263,9 +263,9 @@ var EditNote = function(note) {
 <?php if (true) : ?>
     top.restoreSession();
     const params = new URLSearchParams({
+        active: '1',
         noteid: parts[1],
-        set_pid: parts[0],
-        active: '1'
+        set_pid: parts[0]
     });
     location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?" + params;
 <?php else : ?>

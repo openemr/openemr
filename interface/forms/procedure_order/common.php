@@ -750,10 +750,10 @@ if (!empty($row['lab_id'])) {
             let title = <?php echo xlj("Find Procedure Order"); ?>;
             // This replaces the previous search for an easier/faster order picker tool.
             const params = new URLSearchParams({
-                labid: f.form_lab_id.value,
-                order: f[ptvarname].value,
                 formid: <?php echo js_escape($formid); ?>,
-                formseq: formseq
+                formseq: formseq,
+                labid: f.form_lab_id.value,
+                order: f[ptvarname].value
             });
             dlgopen('../../orders/find_order_popup.php?' + params,
                 '_blank', 850, 500, '', title);
@@ -1190,15 +1190,15 @@ if (!empty($row['lab_id'])) {
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
             // this escapes above
             const params = new URLSearchParams({
+                acctid: acctid,
                 action: 'print_labels',
                 count: count,
-                order: order,
-                pid: pid,
-                acctid: acctid,
-                patient: patient,
-                specimen: tarray,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                 dob: dob,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                order: order,
+                patient: patient,
+                pid: pid,
+                specimen: tarray
             });
             const uri = "?" + params;
 

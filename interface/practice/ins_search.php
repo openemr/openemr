@@ -75,16 +75,16 @@ td {
     $("#form_entry").hide();
     var f = document.forms[0];
     const params = new URLSearchParams({
-        form_name: f.form_name.value,
-        form_attn: f.form_attn.value,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
         form_addr1: f.form_addr1.value,
         form_addr2: f.form_addr2.value,
+        form_attn: f.form_attn.value,
         form_city: f.form_city.value,
-        form_state: f.form_state.value,
-        form_zip: f.form_zip.value,
-        form_phone: f.form_phone.value,
         form_cms_id: f.form_cms_id.value,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        form_name: f.form_name.value,
+        form_phone: f.form_phone.value,
+        form_state: f.form_state.value,
+        form_zip: f.form_zip.value
     });
     var search_list = 'ins_list.php?' + params;
 

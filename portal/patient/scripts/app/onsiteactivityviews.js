@@ -39,8 +39,8 @@ const actpage = {
             let title = 'Patient Online Payment';
             const urlParams = new URLSearchParams({
                 pid: cpid,
-                user: cuser,
-                recid: recid
+                recid: recid,
+                user: cuser
             });
             let params = {
                 buttons: [
@@ -78,8 +78,8 @@ const actpage = {
             let title = 'Audit Document';
             const urlParams = new URLSearchParams({
                 pid: cpid,
-                user: cuser,
-                recid: recid
+                recid: recid,
+                user: cuser
             });
             let params = {
                 buttons: [

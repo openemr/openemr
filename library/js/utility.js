@@ -539,9 +539,9 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 }
 
                 const params = new URLSearchParams({
-                    intent: intent,
                     client_id: clientId,
-                    csrf_token: csrfToken
+                    csrf_token: csrfToken,
+                    intent: intent
                 });
                 let url = webroot + '/interface/smart/ehr-launch-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
@@ -575,8 +575,8 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                         window.top.removeEventListener('message', windowMessageHandler);
                         // loadFrame already handles webroot and /interface/ prefix.
                         const editParams = new URLSearchParams({
-                            action: "external-cdr/edit/" + data.dsiId,
-                            csrf_token: csrfToken
+                            csrf_token: csrfToken,
+                            action: "external-cdr/edit/" + data.dsiId
                         });
                         let editUrl = '/smart/admin-client.php?' + editParams;
                         window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
@@ -586,8 +586,8 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
 
                 const params = new URLSearchParams({
                     action: "external-cdr/cdr-info",
-                    serviceId: dsi,
-                    csrf_token: csrfToken
+                    csrf_token: csrfToken,
+                    serviceId: dsi
                 });
                 let url = webroot + '/interface/smart/admin-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));

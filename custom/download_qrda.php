@@ -106,8 +106,8 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
                     const params = new URLSearchParams({
-                        fileName: zipFiles,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        fileName: zipFiles
                     });
                     window.location = 'ajax_download.php?' + params;
                     zipFileArray.length = 0;

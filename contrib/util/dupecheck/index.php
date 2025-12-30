@@ -276,9 +276,9 @@ $(function () {
         const dupecount = $(this).attr("dupecount");
         const masterid = $(this).attr("oemrid");
         const params = new URLSearchParams({
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
             dupecount: dupecount,
-            masterid: masterid,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            masterid: masterid
         });
         $("[dupecount="+dupecount+"]").each(function (i) {
             if (this.id != masterid) { params.append("otherid[]", this.id); }

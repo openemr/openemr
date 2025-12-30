@@ -372,8 +372,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         function toEncounter(newpid, enc) {
             top.restoreSession();
             const params = new URLSearchParams({
-                set_pid: newpid,
-                set_encounterid: enc
+                set_encounterid: enc,
+                set_pid: newpid
             });
             top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
         }
@@ -383,11 +383,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
             const params = new URLSearchParams({
-                formname: 'misc_billing_options',
-                isBilling: '1',
-                pid: pid,
                 enc: enc,
-                id: mboid
+                formname: 'misc_billing_options',
+                id: mboid,
+                isBilling: '1',
+                pid: pid
             });
             const href = "<?php echo $GLOBALS['web_root']?>/interface/patient_file/encounter/view_form.php?" + params;
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
@@ -401,8 +401,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
             const params = new URLSearchParams({
-                pid: pid,
-                enc: enc
+                enc: enc,
+                pid: pid
             });
             const href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?" + params;
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {

@@ -808,8 +808,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
             const params = new URLSearchParams({
-                inv_values: inv_values,
-                extra_values: extra_values
+                extra_values: extra_values,
+                inv_values: inv_values
             });
             let extra = "&" + params;
             let flag = 0

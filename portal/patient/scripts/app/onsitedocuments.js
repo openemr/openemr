@@ -260,11 +260,11 @@ var page = {
                             let url = '';
                             if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                 const params = new URLSearchParams({
-                                    return_content: '',
-                                    formname: page.encounterFormName,
                                     formid: page.encounterFormId,
-                                    visitid: 0,
-                                    patientid: cpid
+                                    formname: page.encounterFormName,
+                                    patientid: cpid,
+                                    return_content: '',
+                                    visitid: 0
                                 });
                                 url = webroot_url + "/interface/forms/LBF/printable.php?" + params;
                             } else {
@@ -332,11 +332,11 @@ var page = {
                             let url = '';
                             if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                 const params = new URLSearchParams({
-                                    return_content: '',
-                                    formname: page.encounterFormName,
                                     formid: page.encounterFormId,
-                                    visitid: 0,
-                                    patientid: cpid
+                                    formname: page.encounterFormName,
+                                    patientid: cpid,
+                                    return_content: '',
+                                    visitid: 0
                                 });
                                 url = webroot_url + "/interface/forms/LBF/printable.php?" + params;
                             } else {
@@ -805,10 +805,10 @@ var page = {
                                 if (page.encounterFormName) {
                                     let url = '';
                                     const params = new URLSearchParams({
-                                        isPortal: isPortal ? 1 : 0,
-                                        formOrigin: page.formOrigin,
                                         formname: page.encounterFormName,
-                                        id: 0
+                                        formOrigin: page.formOrigin,
+                                        id: 0,
+                                        isPortal: isPortal ? 1 : 0
                                     });
                                     if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                         // iframe from template directive {EncounterDocument:LBFxxxxx} for a LBF form

@@ -95,8 +95,8 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
                                 const params = new URLSearchParams({
-                                    key: data,
                                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                    key: data,
                                     partner: row.x12_partner_id
                                 });
                                 const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' + params;

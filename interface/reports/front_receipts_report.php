@@ -63,8 +63,8 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
         // The OnClick handler for receipt display.
         function show_receipt(pid,timestamp) {
             const params = new URLSearchParams({
-                receipt: '1',
                 patient: pid,
+                receipt: '1',
                 time: timestamp
             });
             dlgopen('../patient_file/front_payment.php?' + params, '_blank', 850, 550, '', '', {

@@ -396,8 +396,8 @@ export class EditPolicyScreenController
             address2: address.street_line_2,
             city: address.city,
             state: address.state,
-            zip5: address.postal_code.substring(0, 5),
-            zip4: address.postal_code.substring(5, 9)
+            zip4: address.postal_code.substring(5, 9),
+            zip5: address.postal_code.substring(0, 5)
         });
         dlgopen('../../practice/address_verify.php?' + params, '_blank', 400, 150, '', xl('Address Verify'));
 

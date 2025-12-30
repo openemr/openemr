@@ -326,16 +326,16 @@ function sendToEmrDirect() {
     var referral_reason = $("#referral_reason").val();
     if (recipients != '') {
         const ccdaParams = new URLSearchParams({
-            view: 1,
-            emr_transfer: 1,
-            recipient: 'emr_direct',
-            downloadformat_type: downloadformat_type,
             combination: combination,
-            sections: components,
-            param: recipients,
-            referral_reason: referral_reason,
             components: comp,
-            latest_ccda: latest_ccda
+            downloadformat_type: downloadformat_type,
+            emr_transfer: 1,
+            latest_ccda: latest_ccda,
+            param: recipients,
+            recipient: 'emr_direct',
+            referral_reason: referral_reason,
+            sections: components,
+            view: 1
         });
         var ccdaUrl = APP_URL + "/encounterccdadispatch/index?" + ccdaParams;
         $.ajax({
@@ -345,10 +345,10 @@ function sendToEmrDirect() {
             data: {},
         }).done(function () {
             const emrDirectParams = new URLSearchParams({
-                xml_type: format,
-                downloadformat_type: downloadformat_type,
                 combination: combination,
-                recipients: recipients
+                downloadformat_type: downloadformat_type,
+                recipients: recipients,
+                xml_type: format
             });
             $.ajax({
                 type: "POST",
@@ -435,10 +435,10 @@ function sendToDownloadAll() {
         if (download_format == 'ccda') {
             if ($('#ccda_pid').val()) {
                 const params = new URLSearchParams({
-                    pid_ccda: pid,
-                    downloadccda: 'download_ccda',
                     components: comp,
-                    latest_ccda: latest_ccda
+                    downloadccda: 'download_ccda',
+                    latest_ccda: latest_ccda,
+                    pid_ccda: pid
                 });
                 window.location.assign(baseUrl + params);
             } else {
@@ -450,8 +450,8 @@ function sendToDownloadAll() {
         } else if (download_format == 'qrda') {
             if ($('#ccda_pid').val()) {
                 const params = new URLSearchParams({
-                    pid_ccda: pid,
-                    downloadqrda: 'download_qrda'
+                    downloadqrda: 'download_qrda',
+                    pid_ccda: pid
                 });
                 window.location.assign(baseUrl + params);
             } else {
@@ -461,8 +461,8 @@ function sendToDownloadAll() {
         } else if (download_format == 'qrda3') {
             if ($('#ccda_pid').val()) {
                 const params = new URLSearchParams({
-                    pid_ccda: pid,
-                    downloadqrda: 'download_qrda3'
+                    downloadqrda: 'download_qrda3',
+                    pid_ccda: pid
                 });
                 window.location.assign(baseUrl + params);
             } else {
@@ -472,8 +472,8 @@ function sendToDownloadAll() {
         } else if (download_format == 'qrda3_consolidated') {
             if ($('#ccda_pid').val()) {
                 const params = new URLSearchParams({
-                    pid_ccda: pid,
-                    downloadqrda3_consolidated: 'download_qrda3_consolidated'
+                    downloadqrda3_consolidated: 'download_qrda3_consolidated',
+                    pid_ccda: pid
                 });
                 window.location.assign(baseUrl + params);
             } else {
@@ -483,8 +483,8 @@ function sendToDownloadAll() {
         } else if (download_format == 'ccr') {
             if ($('#ccda_pid').val()) {
                 const params = new URLSearchParams({
-                    pid_ccr: pid,
-                    downloadccr: 'download_ccr'
+                    downloadccr: 'download_ccr',
+                    pid_ccr: pid
                 });
                 window.location.assign(baseUrl + params);
             } else {
@@ -494,8 +494,8 @@ function sendToDownloadAll() {
         } else if (download_format == 'ccd') {
             if ($('#ccda_pid').val()) {
                 const params = new URLSearchParams({
-                    pid_ccd: pid,
-                    downloadccd: 'download_ccd'
+                    downloadccd: 'download_ccd',
+                    pid_ccd: pid
                 });
                 window.location.assign(baseUrl + params);
             } else {
@@ -547,9 +547,9 @@ function send() {
         if (send_to == "printer") {
             const params = new URLSearchParams({
                 covering_letter: cover_letter,
-                selected_cform: $("#selected_cform").val(),
                 formnames: formnames,
-                formnames_title: formnames_title
+                formnames_title: formnames_title,
+                selected_cform: $("#selected_cform").val()
             });
             window.open(WEB_ROOT + "/interface/patient_file/encounter/print_report.php?" + params, "Print", 'width=1000,height=800,resizable=yes,scrollbars=yes');
             $('.ap-st-st-12').fadeToggle();
@@ -614,11 +614,11 @@ function send() {
 
         const hieParams = new URLSearchParams({
             combination: combination,
-            sections: str,
-            send: 1,
-            recipient: 'hie',
             components: comp,
-            latest_ccda: latest_ccda
+            latest_ccda: latest_ccda,
+            recipient: 'hie',
+            sections: str,
+            send: 1
         });
         $.ajax({
             type: "POST",

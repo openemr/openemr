@@ -843,8 +843,8 @@ if ($userid) {
                 const formDate = document.getElementById('form_date');
                 const urlParams = new URLSearchParams({
                     bypatient: '',
-                    providerid: s,
                     catid: catId,
+                    providerid: s,
                     startdate: formDate.value
                 });
                 const url = 'find_appt_popup_user.php?' + urlParams;

@@ -223,10 +223,10 @@ function toencounter(rawdata) {
 
 function todocument(docid) {
   const params = new URLSearchParams({
+    doc_id: docid,
     document: '',
-    view: '',
     patient_id: '<?php echo attr_js($pid); ?>',
-    doc_id: docid
+    view: ''
   });
   h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
   top.restoreSession();
@@ -247,8 +247,8 @@ function changePageSize() {
     const params = new URLSearchParams({
         billing: billing,
         issue: issue,
-        pagestart: pagestart,
-        pagesize: pagesize
+        pagesize: pagesize,
+        pagestart: pagestart
     });
     window.location.href = "encounters.php?" + params;
 }
@@ -908,11 +908,11 @@ $(function () {
                 return xl("Report Unavailable");
             }
             const params = new URLSearchParams({
-                ptid: el.dataset.formpid,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                 encid: el.dataset.formenc,
-                formname: el.dataset.formdir,
                 formid: el.dataset.formid,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                formname: el.dataset.formdir,
+                ptid: el.dataset.formpid
             });
             let url = "encounters_ajax.php?" + params;
             let fetchedReport;

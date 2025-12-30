@@ -513,8 +513,8 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             let data = <?php echo json_encode($rows ?? ''); ?>;
             let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
             const params = new URLSearchParams({
-                csrf_token_form: csrf_token,
-                data: data
+                data: data,
+                csrf_token_form: csrf_token
             });
             dlgopen(
                 "../../library/ajax/immunization_export.php?" + params,

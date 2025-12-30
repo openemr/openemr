@@ -1399,8 +1399,8 @@ function cidChanged(lino, seq) {
 function edit_layout_props(groupid) {
  var title = <?php echo xlj('Layout Properties');?>;
  const params = new URLSearchParams({
-   layout_id: <?php echo js_escape($layout_id); ?>,
-   group_id: groupid
+   group_id: groupid,
+   layout_id: <?php echo js_escape($layout_id); ?>
  });
  dlgopen('edit_layout_props.php?' + params,
   '_blank', 775, 550, "", title);
@@ -2227,9 +2227,9 @@ function layoutLook(){
     var form = <?php echo js_escape($layout_id);?>;
     const btnName = <?php echo xlj('Back To Editor');?>;
     const params = new URLSearchParams({
-        isShow: '',
+        formname: form,
         id: '0',
-        formname: form
+        isShow: ''
     });
     const url = "../patient_file/encounter/view_form.php?" + params;
     const title = <?php echo xlj('LBF Encounter Form Preview');?>;

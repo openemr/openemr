@@ -668,8 +668,8 @@ if (
         function editInvoice(e, id) {
             e.preventDefault();
             const params = new URLSearchParams({
-                isPosting: '1',
-                id: id
+                id: id,
+                isPosting: '1'
             });
             const url = './sl_eob_invoice.php?' + params;
             <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
@@ -1263,11 +1263,11 @@ if (
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
         const params = new URLSearchParams({
-            eraname: <?php echo js_escape($eraname); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
             debug: debug,
-            paydate: paydate,
+            eraname: <?php echo js_escape($eraname); ?>,
             original: 'original',
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            paydate: paydate
         });
         window.open('sl_eob_process.php?' + params, '_blank');
         return false;

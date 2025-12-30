@@ -109,8 +109,8 @@ function openAddScreen(id){
   } else {
     top.restoreSession();
     const params = new URLSearchParams({
-        mID: id,
-        csrf_token_form: '<?php echo attr_js(CsrfUtils::collectCsrfToken()); ?>'
+        csrf_token_form: '<?php echo attr_js(CsrfUtils::collectCsrfToken()); ?>',
+        mID: id
     });
     dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
   }
