@@ -14,8 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class Kernel.
