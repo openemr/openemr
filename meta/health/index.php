@@ -4,7 +4,7 @@
  * Health Check Entry Point
  *
  * Provides liveness and readiness probe endpoints for Kubernetes and Docker.
- * These endpoints are restricted to localhost access via .htaccess.
+ * Access restriction should be configured at the infrastructure level.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -52,6 +52,9 @@ try {
 
         if ($isInstalled) {
             // Bootstrap OpenEMR globals (this sets up database connection)
+            // NOTE: This loads the full OpenEMR framework on each probe request.
+            // For high-frequency probes, a lighter bootstrap path that only
+            // initializes the database connection could improve performance.
             require_once __DIR__ . "/../../interface/globals.php";
 
             // Run full health checks
