@@ -308,12 +308,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         <?php } ?>
     });
 
-    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete link.
     function deleteme() {
         const params = new URLSearchParams({
-            encounterid: <?php echo js_escape($encounter); ?>,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            encounterid: <?php echo js_escape($encounter); ?>
         });
         dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 200, '', '', {
             allowResize: false,
@@ -321,7 +320,6 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         });
         return false;
     }
-    // AI-generated code end
 
     // create new follow-up Encounter.
     function createFollowUpEncounter() {
@@ -347,8 +345,11 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
 
     // Called to open the data entry form a specified encounter form instance.
     function openEncounterForm(formdir, formname, formid) {
-        var url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?formname=' +
-            encodeURIComponent(formdir) + '&id=' + encodeURIComponent(formid);
+        const params = new URLSearchParams({
+            id: formid,
+            formname: formdir
+        });
+        const url = <?php echo js_escape($rootdir); ?> +'/patient_file/encounter/view_form.php?' + params;
         if (formdir == 'newpatient' || !parent.twAddFrameTab) {
             top.restoreSession();
             location.href = url;
@@ -417,7 +418,8 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             parent.frames[0].location.href = sel;
         } else {
             if (FormNameValueArray[1] == 'questionnaire_assessments') {
-                sel += "&questionnaire_form=" + encodeURIComponent(label);
+                const params = new URLSearchParams({ questionnaire_form: label });
+                sel += "&" + params;
             }
             parent.twAddFrameTab('enctabs', label, sel);
         }

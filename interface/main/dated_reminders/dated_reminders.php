@@ -108,7 +108,11 @@ function openAddScreen(id){
     dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
   } else {
     top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>', '_drAdd', 700, 500);
+    const params = new URLSearchParams({
+        csrf_token_form: '<?php echo attr_js(CsrfUtils::collectCsrfToken()); ?>',
+        mID: id
+    });
+    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
   }
 }
 

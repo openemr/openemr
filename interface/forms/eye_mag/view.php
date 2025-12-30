@@ -4367,8 +4367,8 @@ if ($refresh and $refresh != 'fullscreen') {
         function dopclick(id) {
             <?php if (($thisauth ?? '') != 'write') : ?>
             const params = new URLSearchParams({
-                issue: '0',
-                thistype: id
+                thistype: id,
+                issue: '0'
             });
             dlgopen('../../patient_file/summary/a_issue.php?' + params.toString(), '_blank', 550, 400,  '', <?php echo xlj('Issues'); ?> );
             <?php else : ?>
@@ -4377,10 +4377,10 @@ if ($refresh and $refresh != 'fullscreen') {
         }
         function doscript(type,id,encounter,rx_number) {
              const params = new URLSearchParams({
-                 REFTYPE: type,
-                 id: id,
                  encounter: encounter,
                  form_id: <?php echo js_escape($form_id); ?>,
+                 id: id,
+                 REFTYPE: type,
                  rx_number: rx_number
              });
              dlgopen('../../forms/eye_mag/SpectacleRx.php?' + params.toString(), '_blank', 660, 700,'', <?php echo xlj('Dispense Rx'); ?>);
@@ -4388,8 +4388,8 @@ if ($refresh and $refresh != 'fullscreen') {
 
         function dispensed(pid) {
             const params = new URLSearchParams({
-                dispensed: '1',
-                pid: pid
+                pid: pid,
+                dispensed: '1'
             });
             dlgopen('../../forms/eye_mag/SpectacleRx.php?' + params.toString(), '_blank', 560, 590, '', <?php echo xlj('Rx History'); ?>);
                     }
@@ -4405,8 +4405,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             ?>
             // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
             const searchParams = new URLSearchParams({
-                codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>,
-                search_term: term
+                search_term: term,
+                codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>
             });
             dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
                             <?php
@@ -4414,8 +4414,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             ?>
                         // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
                         const searchParams = new URLSearchParams({
-                            codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>,
-                            search_term: term
+                            search_term: term,
+                            codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>
                         });
                         dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
                             <?php

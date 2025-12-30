@@ -222,7 +222,13 @@ function toencounter(rawdata) {
 }
 
 function todocument(docid) {
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo attr_url($pid); ?>&doc_id=' + encodeURIComponent(docid);
+  const params = new URLSearchParams({
+    doc_id: docid,
+    document: '',
+    patient_id: '<?php echo attr_js($pid); ?>',
+    view: ''
+  });
+  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -238,7 +244,13 @@ function changePageSize() {
     issue = $(this).attr("issue");
     pagesize = $(this).val();
     top.restoreSession();
-    window.location.href = "encounters.php?billing=" + encodeURIComponent(billing) + "&issue=" + encodeURIComponent(issue) + "&pagestart=" + encodeURIComponent(pagestart) + "&pagesize=" + encodeURIComponent(pagesize);
+    const params = new URLSearchParams({
+        billing: billing,
+        issue: issue,
+        pagesize: pagesize,
+        pagestart: pagestart
+    });
+    window.location.href = "encounters.php?" + params;
 }
 
 window.onload = function() {
@@ -895,11 +907,14 @@ $(function () {
             if (typeof el.dataset == 'undefined') {
                 return xl("Report Unavailable");
             }
-            let url = "encounters_ajax.php?ptid=" + encodeURIComponent(el.dataset.formpid) +
-                "&encid=" + encodeURIComponent(el.dataset.formenc) +
-                "&formname=" + encodeURIComponent(el.dataset.formdir) +
-                "&formid=" + encodeURIComponent(el.dataset.formid) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                encid: el.dataset.formenc,
+                formid: el.dataset.formid,
+                formname: el.dataset.formdir,
+                ptid: el.dataset.formpid
+            });
+            let url = "encounters_ajax.php?" + params;
             let fetchedReport;
             $.ajax({
                 url: url,

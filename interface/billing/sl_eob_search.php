@@ -667,7 +667,11 @@ if (
         }
         function editInvoice(e, id) {
             e.preventDefault();
-            let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
+            const params = new URLSearchParams({
+                id: id,
+                isPosting: '1'
+            });
+            const url = './sl_eob_invoice.php?' + params;
             <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
             dlgopen(url,'editInvoiceDlg','modal-full', false, false, '', {
                 sizeHeight: 'full',
@@ -1258,7 +1262,14 @@ if (
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
-        window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&original=original' + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank');
+        const params = new URLSearchParams({
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            debug: debug,
+            eraname: <?php echo js_escape($eraname); ?>,
+            original: 'original',
+            paydate: paydate
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
         return false;
     }
 
