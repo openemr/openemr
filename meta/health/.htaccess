@@ -1,8 +1,5 @@
-# Health check endpoints - restricted to localhost only
-# These endpoints are used by Kubernetes liveness/readiness probes and Docker healthchecks
-# They should not be accessible from the internet
-
-Require local
+# Health check endpoints for Kubernetes liveness/readiness probes and Docker healthchecks
+# Access restriction should be configured at the infrastructure level (firewall/load balancer)
 
 # Enable URL rewriting for clean paths
 RewriteEngine On
