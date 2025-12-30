@@ -11,7 +11,6 @@ services:
       OPENEMR_ENABLE_CI_PHP: "1"
       ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
       SELENIUM_BASE_URL: "http://openemr"
-      OPENEMR_SETTING_ccda_alt_service_enable: "3"
     healthcheck:
       test:
       - CMD
