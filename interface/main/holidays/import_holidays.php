@@ -114,7 +114,7 @@ if (!empty($saved)) {
         "</p>\n";
 } elseif (!empty($error_message)) {
     echo "<p style='color:red'>" .
-        text($error_message);
+        text($error_message).
     "</p>\n";
 }
 ?>
