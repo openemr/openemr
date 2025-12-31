@@ -14,34 +14,21 @@ use Symfony\Component\Console\{
     CommandLoader\ContainerCommandLoader,
 };
 
-chdir(dirname(__DIR__));
-
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 // load DI container
 $container = require 'di.php';
-$commandMap = [
-    'module:enable' => EnableModuleCommand::class,
-    'module:list' => ListModuleCommand::class,
-];
-
-// add a few system module orinated commands
-// for all active modules, filter to those that implement CliModuleInterface
-// (recursively?) and feed them in.
-$loader = new ContainerCommandLoader($container, $commandMap);
-// print_r($loader);
+$commandMap = [];
 
 $mm = new ModuleManager();
 foreach ($mm->getEnabledModules() as $moduleInfo) {
-    print_r($moduleInfo);
-    print_r($moduleInfo->getCliCommands());
+    // print_r($moduleInfo);
+    // print_r($moduleInfo->getCliCommands());
     foreach ($moduleInfo->getCliCommands() as $commandClass) {
         $commandMap[readCommandName($commandClass)] = $commandClass;
     }
-    // Append into the commandMap based on... something. Read the AsCommand
-    // attribute of each CliCommand class?
 }
-var_dump($commandMap);
+print_r($commandMap);
 
 /**
  * @param class-string $commandClass
@@ -54,6 +41,8 @@ function readCommandName(string $commandClass): string
     $info = $attrs[0]->newInstance();
     return $info->name;
 }
+
+$loader = new ContainerCommandLoader($container, $commandMap);
 
 $application = new Application();
 $application->setCommandLoader($loader);
