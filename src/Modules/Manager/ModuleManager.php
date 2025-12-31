@@ -41,13 +41,14 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
         return ModuleInfo::for($packageName);
     }
 
+    /**
+     * @return ModuleInfo[]
+     */
     public function getEnabledModules(): array
     {
         if (!file_exists(self::MANIFEST_FILE)) {
             // ensure manager itself loads
-            return [
-                'openemr/module-mamanger',
-            ];
+            return [self::getManagerModuleInfo()];
         }
         return [];
     }
@@ -59,12 +60,17 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
     {
         $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
         $info = array_map(ModuleInfo::for(...), $packages);
-        $info[] = new ModuleInfo(
+        $info[] = self::getManagerModuleInfo();
+        // sort by name?
+        return $info;
+    }
+
+    private static function getManagerModuleInfo(): ModuleInfo
+    {
+        return new ModuleInfo(
             packageName: 'opememr/module-manager',
             installDirectory: 'idk',
             isActive: true,
         );
-        // sort by name?
-        return $info;
     }
 }
