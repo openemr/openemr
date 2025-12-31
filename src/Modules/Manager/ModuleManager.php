@@ -35,10 +35,17 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
         // Otherwise, undo manifest changes from enable.
     }
 
+    /**
+     * Returns module info for a given Composer package. Throws an exception if
+     * the package is not installed or is not a module.
+     */
     public function getInfoFor(string $packageName): ModuleInfo
     {
-        // FIXME: not like this.
-        return ModuleInfo::for($packageName);
+        $installed = $this->getInstalledModules();
+        if (!array_key_exists($packageName, $installed)) {
+            throw new \Exception('Package does not exist');
+        }
+        return $installed[$packageName];
     }
 
     /**
@@ -63,14 +70,16 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
     }
 
     /**
-     * @return ModuleInfo[]
+     * @return array<string, ModuleInfo>
      */
     public function getInstalledModules(): array
     {
         $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
-        $info = array_map(ModuleInfo::for(...), $packages);
-        $info[] = self::getManagerModuleInfo();
-        // sort by name? just do this in cli? package=>info?
+        $info = [];
+        foreach ($packages as $package) {
+            $info[$package] = ModuleInfo::for($package);
+        }
+        $info['openemr/module-manager'] = self::getManagerModuleInfo();
         return $info;
     }
 
