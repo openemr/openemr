@@ -16,20 +16,11 @@ require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
-function US_weight($pounds, $mode = 1)
-{
-
-    if ($mode == 1) {
-        return $pounds . " " . xl('lb') ;
-    } else {
-        $pounds_int = floor($pounds);
-        $ounces = round(($pounds - $pounds_int) * 16);
-        return $pounds_int . " " . xl('lb') . " " . $ounces . " " . xl('oz');
-    }
-}
+use OpenEMR\Common\Utils\MeasurementUtils;
 
 function vitals_report($pid, $encounter, $cols, $id, $print = true)
 {
+    $measurementUtils = new MeasurementUtils();
     $count = 0;
     $data = formFetch("form_vitals", $id);
     $patient_data = getPatientData($GLOBALS['pid']);
@@ -84,47 +75,13 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
             } elseif ($key == "Weight") {
                 $value = floatval($value);
-                $convValue = number_format($value * 0.45359237, 2);
-                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>";
-                // show appropriate units
-                $mode = $GLOBALS['us_weight_format'];
-                if ($GLOBALS['units_of_measurement'] == 2) {
-                    $vitals .=  text($convValue) . " " . xlt('kg') . " (" . text(US_weight($value, $mode)) . ")";
-                } elseif ($GLOBALS['units_of_measurement'] == 3) {
-                    $vitals .=  text(US_weight($value, $mode));
-                } elseif ($GLOBALS['units_of_measurement'] == 4) {
-                    $vitals .= text($convValue) . " " . xlt('kg');
-                } else { // = 1 or not set
-                    $vitals .= text(US_weight($value, $mode)) . " (" . text($convValue) . " " . xlt('kg')  . ")";
-                }
-
-                $vitals .= "</div></td>";
+                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($measurementUtils->formatWeight($value)) . "</div></td>";
             } elseif (in_array($key, ["Height", "Waist Circ", "Head Circ"])) {
                 $value = floatval($value);
-                $convValue = number_format(round($value * 2.54, 1), 2);
-                // show appropriate units
-                if ($GLOBALS['units_of_measurement'] == 2) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('cm') . " (" . text($value) . " " . xlt('in')  . ")</div></td>";
-                } elseif ($GLOBALS['units_of_measurement'] == 3) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('in') . "</div></td>";
-                } elseif ($GLOBALS['units_of_measurement'] == 4) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('cm') . "</div></td>";
-                } else { // = 1 or not set
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('in') . " (" . text($convValue) . " " . xlt('cm')  . ")</div></td>";
-                }
+                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($measurementUtils->formatLength($value)) . "</div></td>";
             } elseif ($key == "Temperature") {
                 $value = floatval($value);
-                $convValue = number_format((($value - 32) * 0.5556), 2);
-                // show appropriate units
-                if ($GLOBALS['units_of_measurement'] == 2) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('C') . " (" . text($value) . " " . xlt('F')  . ")</div></td>";
-                } elseif ($GLOBALS['units_of_measurement'] == 3) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('F') . "</div></td>";
-                } elseif ($GLOBALS['units_of_measurement'] == 4) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('C') . "</div></td>";
-                } else { // = 1 or not set
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('F') . " (" . text($convValue) . " " . xlt('C')  . ")</div></td>";
-                }
+                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div></td><td><div class='text' style='display:inline-block'>" . text($measurementUtils->formatTemperature($value)) . "</div></td>";
             } elseif (in_array($key, ["Pulse", "Respiration", "Oxygen Saturation", "BMI", "Oxygen Flow Rate"])) {
                 $value = floatval($value);
                 $c_value = number_format($value, 0);

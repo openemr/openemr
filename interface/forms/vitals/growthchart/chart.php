@@ -42,6 +42,7 @@ require_once("../../../../interface/globals.php");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Services\VitalsService;
 
 
@@ -60,8 +61,7 @@ if ($pid == "") {
 }
 
 $vitalsService = new VitalsService();
-
-$isMetric = ((($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) ? true : false);
+$measurementUtils = new MeasurementUtils();
 
 $patient_data = "";
 if (isset($pid) && is_numeric($pid)) {
@@ -79,9 +79,16 @@ $datapoints = $vitalsService->getVitalsHistoryForPatient($pid, true);
 $first_datapoint = $datapoints[0];
 if (!empty($first_datapoint)) {
     $date = str_replace('-', '', substr((string) $first_datapoint['date'], 0, 10));
-    $height = (($isMetric) ? convertHeightToUs($first_datapoint['height']) : $first_datapoint['height']);
-    $weight = (($isMetric) ? convertWeightToUS($first_datapoint['weight']) : $first_datapoint['weight']);
-    $head_circ = (($isMetric) ? convertHeightToUs($first_datapoint['head_circ']) : $first_datapoint['head_circ']);
+    // When system is metric, vitals data comes in metric units - convert to US for chart plotting
+    $height = $measurementUtils->isMetric()
+        ? $measurementUtils->convertCmToInches($first_datapoint['height'])
+        : $first_datapoint['height'];
+    $weight = $measurementUtils->isMetric()
+        ? $measurementUtils->convertKgToLb($first_datapoint['weight'])
+        : $first_datapoint['weight'];
+    $head_circ = $measurementUtils->isMetric()
+        ? $measurementUtils->convertCmToInches($first_datapoint['head_circ'])
+        : $first_datapoint['head_circ'];
 
     if ($date != "") {
         $charttype_date = $date;
@@ -100,40 +107,6 @@ if (isset($_GET['chart_type'])) {
 
 //sort the datapoints
 rsort($datapoints);
-
-
-// convert to applicable weight units from Config Locale
-function unitsWt($wt)
-{
-    global $isMetric;
-    return $isMetric
-        ? sprintf('%s %s', number_format(($wt * 0.45359237), 2, '.', ''), xl('kg'))
-        : sprintf('%s %s', number_format($wt, 2), xl('lb'));
-}
-
-// convert to applicable length units from Config Locale
-function unitsDist($dist)
-{
-    global $isMetric;
-    return $isMetric
-        ? sprintf('%s %s', number_format(($dist * 2.54), 2, '.', ''), xl('cm'))
-        : sprintf('%s %s', number_format($dist, 2), xl('in'));
-}
-
-// convert vitals service data to US values for graphing
-function convertHeightToUs($height)
-{
-    return $height * 0.393701;
-}
-
-function convertWeightToUs($weight)
-{
-    return $weight * 2.20462262185;
-}
-/******************************/
-/******************************/
-/******************************/
-
 
 $name_x = 650;
 $name_y = 50;
@@ -437,9 +410,15 @@ if (($_GET['html'] ?? null) == 1) {
         if (!empty($data)) {
             $date = str_replace('-', '', substr((string) $data['date'], 0, 10));
             // convert to US if metric locale
-            $height = (($isMetric) ? convertHeightToUs($data['height']) : $data['height']);
-            $weight = (($isMetric) ? convertWeightToUs($data['weight']) : $data['weight']);
-            $head_circ = (($isMetric) ? convertHeightToUs($data['head_circ']) : $data['head_circ']);
+            $height = $measurementUtils->isMetric()
+                ? $measurementUtils->convertCmToInches($data['height'])
+                : $data['height'];
+            $weight = $measurementUtils->isMetric()
+                ? $measurementUtils->convertKgToLb($data['weight'])
+                : $data['weight'];
+            $head_circ = $measurementUtils->isMetric()
+                ? $measurementUtils->convertCmToInches($data['head_circ'])
+                : $data['head_circ'];
 
             if ($date == "") {
                 continue;
@@ -516,11 +495,11 @@ if (($_GET['html'] ?? null) == 1) {
                 $point = convertpoint([$datatable_x + $datatable_age_offset,$datatable_y]);
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
                 $point = convertpoint([$datatable_x + $datatable_weight_offset,$datatable_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatWeight($weight, true)) . "</div>\n");
                 $point = convertpoint([$datatable_x + $datatable_height_offset,$datatable_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatLength($height, true)) . "</div>\n");
                 $point = convertpoint([$datatable_x + $datatable_hc_offset,$datatable_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($head_circ)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatLength($head_circ, true)) . "</div>\n");
                 $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
             }
 
@@ -531,9 +510,9 @@ if (($_GET['html'] ?? null) == 1) {
                 $point = convertpoint([$datatable_x + $datatable_age_offset,$datatable_y]);
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
                 $point = convertpoint([$datatable_x + $datatable_weight_offset,$datatable_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatWeight($weight, true)) . "</div>\n");
                 $point = convertpoint([$datatable_x + $datatable_height_offset,$datatable_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatLength($height, true)) . "</div>\n");
                 $point = convertpoint([$datatable_x + $datatable_bmi_offset,$datatable_y]);
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr((string) $bmi, 0, 5)) . "</div>\n");
                 $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
@@ -546,11 +525,11 @@ if (($_GET['html'] ?? null) == 1) {
                 $point = convertpoint([$datatable2_x + $datatable2_age_offset,$datatable2_y]);
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
                 $point = convertpoint([$datatable2_x + $datatable2_weight_offset,$datatable2_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatWeight($weight, true)) . "</div>\n");
                 $point = convertpoint([$datatable2_x + $datatable2_height_offset,$datatable2_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatLength($height, true)) . "</div>\n");
                 $point = convertpoint([$datatable2_x + $datatable2_hc_offset,$datatable2_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($head_circ)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatLength($head_circ, true)) . "</div>\n");
                 $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
             }
 
@@ -561,9 +540,9 @@ if (($_GET['html'] ?? null) == 1) {
                 $point = convertpoint([$datatable2_x + $datatable2_age_offset,$datatable2_y]);
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($ageinYMD) . "</div>\n");
                 $point = convertpoint([$datatable2_x + $datatable2_weight_offset,$datatable2_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsWt($weight)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatWeight($weight, true)) . "</div>\n");
                 $point = convertpoint([$datatable2_x + $datatable2_height_offset,$datatable2_y]);
-                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(unitsDist($height)) . "</div>\n");
+                echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text($measurementUtils->formatLength($height, true)) . "</div>\n");
                 $point = convertpoint([$datatable2_x + $datatable2_bmi_offset,$datatable2_y]);
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr((string) $bmi, 0, 5)) . "</div>\n");
                 $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
@@ -594,9 +573,15 @@ foreach ($datapoints as $data) {
     if (!empty($data)) {
         $date = str_replace('-', '', substr((string) $data['date'], 0, 10));
         // values can be US or metric thus convert to US for graphing
-        $height = (($isMetric) ? convertHeightToUs($data['height']) : $data['height']);
-        $weight = (($isMetric) ? convertWeightToUs($data['weight']) : $data['weight']);
-        $head_circ = (($isMetric) ? convertHeightToUs($data['head_circ']) : $data['head_circ']);
+        $height = $measurementUtils->isMetric()
+            ? $measurementUtils->convertCmToInches($data['height'])
+            : $data['height'];
+        $weight = $measurementUtils->isMetric()
+            ? $measurementUtils->convertKgToLb($data['weight'])
+            : $data['weight'];
+        $head_circ = $measurementUtils->isMetric()
+            ? $measurementUtils->convertCmToInches($data['head_circ'])
+            : $data['head_circ'];
 
         if ($date == "") {
             continue;
@@ -666,9 +651,9 @@ foreach ($datapoints as $data) {
         if ($count < 8 && $charttype == "birth") {
             imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
             imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, (string) $ageinYMD, $color);
-            imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, (string) unitsWt($weight), $color);
-            imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, (string) unitsDist($height), $color);
-            imagestring($im, 2, ($datatable_x + $datatable_hc_offset), $datatable_y, (string) unitsDist($head_circ), $color);
+            imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, $measurementUtils->formatWeight($weight, true), $color);
+            imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, $measurementUtils->formatLength($height, true), $color);
+            imagestring($im, 2, ($datatable_x + $datatable_hc_offset), $datatable_y, $measurementUtils->formatLength($head_circ, true), $color);
             $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
         }
 
@@ -676,8 +661,8 @@ foreach ($datapoints as $data) {
         if ($count < 7  && $charttype == "2-20") {
             imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
             imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, (string) $ageinYMD, $color);
-            imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, (string) unitsWt($weight), $color);
-            imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, (string) unitsDist($height), $color);
+            imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, $measurementUtils->formatWeight($weight, true), $color);
+            imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, $measurementUtils->formatLength($height, true), $color);
             imagestring($im, 2, ($datatable_x + $datatable_bmi_offset), $datatable_y, substr((string) $bmi, 0, 5), $color);
             $datatable_y += $datatable_y_increment; // increment the datatable "row pointer"
         }
@@ -686,9 +671,9 @@ foreach ($datapoints as $data) {
         if ($count < 5 && $charttype == "birth") {
             imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, (string) $ageinYMD, $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, (string) unitsWt($weight), $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, (string) unitsDist($height), $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_hc_offset), $datatable2_y, (string) unitsDist($head_circ), $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, $measurementUtils->formatWeight($weight, true), $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, $measurementUtils->formatLength($height, true), $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_hc_offset), $datatable2_y, $measurementUtils->formatLength($head_circ, true), $color);
             $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
@@ -696,8 +681,8 @@ foreach ($datapoints as $data) {
         if ($count < 14 && $charttype == "2-20") {
             imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, (string) $ageinYMD, $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, (string) unitsWt($weight), $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, (string) unitsDist($height), $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, $measurementUtils->formatWeight($weight, true), $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, $measurementUtils->formatLength($height, true), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_bmi_offset), $datatable2_y, substr((string) $bmi, 0, 5), $color);
             $datatable2_y += $datatable2_y_increment; // increment the datatable2 "row pointer"
         }

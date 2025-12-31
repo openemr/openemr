@@ -34,3 +34,16 @@ $GLOBALS['disable_database_connection'] = true;
 $GLOBALS['HTML_CHARSET'] = 'UTF-8';
 ini_set('default_charset', 'utf-8');
 mb_internal_encoding('UTF-8');
+
+/**
+ * Stub xl() translation function for isolated tests.
+ *
+ * In production, xl() translates strings using the database.
+ * In isolated tests, we just return the original string.
+ */
+if (!function_exists('xl')) {
+    function xl(string $constant): string
+    {
+        return $constant;
+    }
+}
