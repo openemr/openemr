@@ -135,7 +135,7 @@ jobs:
     # We don't need to run composer install at all if we get a hit.
     - name: Restore vendor artifacts
       id: vendor-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -164,7 +164,7 @@ jobs:
     - name: Restore composer downloads
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -199,7 +199,7 @@ jobs:
     # This does not include ccda.
     - name: Restore npm build artifacts
       id: npm-build-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -230,7 +230,7 @@ jobs:
     # We don't need to run npm ci in ccdaservice at all if we get a hit.
     - name: Restore CCDA build artifacts
       id: ccda-build-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: |
           ccdaservice/node_modules/
@@ -261,7 +261,7 @@ jobs:
     - name: Restore npm cache
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
@@ -307,14 +307,14 @@ jobs:
     # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
     - name: Save npm cache
       if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
       if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         path: |
@@ -323,7 +323,7 @@ jobs:
 
     - name: Save NPM build artifacts
       if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -333,14 +333,14 @@ jobs:
 
     - name: Save composer cache
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
 
     - name: Save vendor artifacts
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -377,7 +377,7 @@ jobs:
         curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
 
     - name: Upload PHP info to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ hashFiles('phpinfo.html') != '' }}
       with:
         name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
@@ -406,11 +406,12 @@ jobs:
 
     - name: Upload unit test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-unit.xml
         flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide unit test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
@@ -449,11 +450,12 @@ jobs:
 
     - name: Upload api test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-api.xml
         flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide api test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
@@ -509,11 +511,12 @@ jobs:
 
     - name: Upload fixtures test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-fixtures.xml
         flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide fixtures test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
@@ -541,11 +544,12 @@ jobs:
 
     - name: Upload services test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-services.xml
         flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide services test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
@@ -573,11 +577,12 @@ jobs:
 
     - name: Upload validators test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-validators.xml
         flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide validators test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
@@ -605,11 +610,12 @@ jobs:
 
     - name: Upload controllers test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-controllers.xml
         flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide controllers test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
@@ -637,11 +643,12 @@ jobs:
 
     - name: Upload common test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-common.xml
         flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide common test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
@@ -669,11 +676,12 @@ jobs:
 
     - name: Upload email test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-email.xml
         flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide email test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
@@ -754,11 +762,12 @@ jobs:
 
     - name: Upload e2e test results to Codecov
       if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-e2e.xml
         flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        report_type: test_results
 
     - name: Hide e2e test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
@@ -780,7 +789,7 @@ jobs:
 
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
         path: selenium-videos/
@@ -799,7 +808,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml
@@ -845,14 +854,14 @@ jobs:
         } >> $GITHUB_OUTPUT
 
     - name: Upload clover coverage to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
       with:
         name: coverage.clover.xml
         path: coverage.clover.xml
 
     - name: Upload html coverage to GitHub
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
       with:
         name: htmlcov

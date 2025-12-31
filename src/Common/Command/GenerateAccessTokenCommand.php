@@ -271,18 +271,18 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
         $scopeIdentifiers = $client->getScopes();
         // if we have been given specific resources then we will limit the scopes to those resources
         if (!empty($input->getOption('scopes'))) {
-            $requestedScopes = array_map('trim', explode(',', (string) $input->getOption('scopes')));
+            $requestedScopes = array_map(trim(...), explode(',', (string) $input->getOption('scopes')));
             $scopeIdentifiers = array_unique($requestedScopes);
         } else if (!empty($input->getOption('resources'))) {
             if (!empty($input->getOption('contexts'))) {
-                $requestedContexts = array_map('trim', explode(',', (string) $input->getOption('contexts')));
+                $requestedContexts = array_map(trim(...), explode(',', (string) $input->getOption('contexts')));
             }
             if (empty($requestedContexts)) {
                 $requestedContexts = ['user'];
             }
             // if we have been given specific resources then we will limit the scopes to those resources
             if (!empty($input->getOption('resources'))) {
-                $requestedResources = array_map('trim', explode(',', (string) $input->getOption('resources')));
+                $requestedResources = array_map(trim(...), explode(',', (string) $input->getOption('resources')));
                 foreach ($requestedContexts as $context) {
                     $fhirScopes = array_map(fn($resource): string => "{$context}/{$resource}.rs", $requestedResources);
                 }
@@ -293,7 +293,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
 
             // add any operations requested
             if (!empty($input->getOption('operations'))) {
-                $requestedOperations = array_map('trim', explode(',', (string) $input->getOption('operations')));
+                $requestedOperations = array_map(trim(...), explode(',', (string) $input->getOption('operations')));
                 $scopeIdentifiers = array_unique(array_merge($scopeIdentifiers, $requestedOperations));
             }
         }
@@ -306,11 +306,11 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             }
         }
 
-        $scopes = array_map(fn($scope): ScopeEntity => ScopeEntity::createFromString($scope), $scopeIdentifiers);
+        $scopes = array_map(ScopeEntity::createFromString(...), $scopeIdentifiers);
         return $scopes;
     }
 
-    private function saveTrustedUser(Session $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
+    private function saveTrustedUser(SessionInterface $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
     {
         // we will save our trusted user
         $trustedUserService = new TrustedUserService();

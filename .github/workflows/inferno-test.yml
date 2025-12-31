@@ -97,7 +97,7 @@ jobs:
     # If we get a hit, we can skip composer install entirely
     - name: Restore vendor artifacts
       id: vendor-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -123,7 +123,7 @@ jobs:
     - name: Restore composer downloads
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -150,14 +150,14 @@ jobs:
     # Save caches only if they weren't exact hits
     - name: Save composer cache
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ steps.cache-keys.outputs.composer }}
 
     - name: Save vendor artifacts
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -190,7 +190,7 @@ jobs:
     # Restore npm build artifacts (node_modules/, public/assets/, public/themes/)
     - name: Restore npm build artifacts
       id: npm-build-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.npm-build }}
         path: |
@@ -216,7 +216,7 @@ jobs:
     # Restore CCDA build artifacts
     - name: Restore CCDA build artifacts
       id: ccda-build-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: |
           ccdaservice/node_modules/
@@ -242,7 +242,7 @@ jobs:
     - name: Restore npm cache
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
@@ -269,14 +269,14 @@ jobs:
     # Save caches (base caches before derived caches)
     - name: Save npm cache
       if: ${{ (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
       if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.ccda-build }}
         path: |
@@ -285,7 +285,7 @@ jobs:
 
     - name: Save npm build artifacts
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ steps.npm-cache-keys.outputs.npm-build }}
         path: |
@@ -323,11 +323,12 @@ jobs:
 
     - name: Upload Inferno test results to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('junit-inferno.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-inferno.xml
         flags: inferno,certification,php${{ matrix.php-version }}
+        report_type: test_results
 
     - name: Hide Inferno test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-inferno.xml') != '' }}
@@ -378,14 +379,14 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-inferno.xml') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: junit-inferno-test-results
         path: junit-inferno.xml
 
     - name: Upload coverage artifacts to GitHub
       if: ${{ !cancelled() && hashFiles('coverage.clover.xml') != '' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: inferno-coverage-reports
         path: |

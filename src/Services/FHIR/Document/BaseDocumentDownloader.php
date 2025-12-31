@@ -26,17 +26,11 @@ class BaseDocumentDownloader implements IDocumentDownloader
     const EXPIRES_HEADER_DATE_TIME_FORMAT = 'D, d M Y H:i:s \G\M\T';
 
     /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
-
-    /**
      * BaseDocumentDownloader constructor.
      * @param LoggerInterface|null $logger
      */
-    public function __construct(?LoggerInterface $logger = null)
+    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
     {
-        $this->logger = $logger ?? new SystemLogger();
     }
 
     /**

@@ -237,13 +237,13 @@ if ($refresh and $refresh != 'fullscreen') {
             // if a prior encounter within 90 days are procedures with a global period still in effect, then post-op code
         ?>
           <script>
-              var Code_new_est ='<?php
+              var Code_new_est = <?php
                 if ($output_priors == '') {
-                    echo xls("New");
+                    echo xlj("New");
                 } else {
-                    echo xls("Est");
+                    echo xlj("Est");
                 }
-                ?>';
+                ?>;
           </script>
         <!-- start form -->
         <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
@@ -4367,20 +4367,20 @@ if ($refresh and $refresh != 'fullscreen') {
         function dopclick(id) {
             <?php if (($thisauth ?? '') != 'write') : ?>
             const params = new URLSearchParams({
-                issue: '0',
-                thistype: id
+                thistype: id,
+                issue: '0'
             });
             dlgopen('../../patient_file/summary/a_issue.php?' + params.toString(), '_blank', 550, 400,  '', <?php echo xlj('Issues'); ?> );
             <?php else : ?>
-            alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
+            alert(<?php echo xlj('You are not authorized to add/edit issues'); ?>);
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {
              const params = new URLSearchParams({
-                 REFTYPE: type,
-                 id: id,
                  encounter: encounter,
                  form_id: <?php echo js_escape($form_id); ?>,
+                 id: id,
+                 REFTYPE: type,
                  rx_number: rx_number
              });
              dlgopen('../../forms/eye_mag/SpectacleRx.php?' + params.toString(), '_blank', 660, 700,'', <?php echo xlj('Dispense Rx'); ?>);
@@ -4388,8 +4388,8 @@ if ($refresh and $refresh != 'fullscreen') {
 
         function dispensed(pid) {
             const params = new URLSearchParams({
-                dispensed: '1',
-                pid: pid
+                pid: pid,
+                dispensed: '1'
             });
             dlgopen('../../forms/eye_mag/SpectacleRx.php?' + params.toString(), '_blank', 560, 590, '', <?php echo xlj('Rx History'); ?>);
                     }
@@ -4405,8 +4405,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             ?>
             // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
             const searchParams = new URLSearchParams({
-                codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>,
-                search_term: term
+                search_term: term,
+                codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>
             });
             dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
                             <?php
@@ -4414,8 +4414,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             ?>
                         // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
                         const searchParams = new URLSearchParams({
-                            codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>,
-                            search_term: term
+                            search_term: term,
+                            codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>
                         });
                         dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
                             <?php

@@ -218,9 +218,17 @@ $score_calculate = getDupScoreSQL();
             }
             top.restoreSession();
             if (select.value == 'MK') {
-                window.location = 'merge_patients.php?pid1=' + encodeURIComponent(rowpid) + '&pid2=' + encodeURIComponent(toppid);
+                const params = new URLSearchParams({
+                    pid1: rowpid,
+                    pid2: toppid
+                });
+                window.location = 'merge_patients.php?' + params;
             } else if (select.value == 'MD') {
-                window.location = 'merge_patients.php?pid1=' + encodeURIComponent(toppid) + '&pid2=' + encodeURIComponent(rowpid);
+                const params = new URLSearchParams({
+                    pid1: toppid,
+                    pid2: rowpid
+                });
+                window.location = 'merge_patients.php?' + params;
             } else {
                 // Currently 'U' and 'R' actions are supported and rowpid is meaningless.
                 form.form_action.value = select.value;

@@ -13,15 +13,12 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class FormReportRenderer
 {
-    private readonly SystemLogger $logger;
-    private readonly FormLocator $locator;
-    public function __construct(?FormLocator $locator = null, ?SystemLogger $logger = null)
+    public function __construct(private readonly ?FormLocator $locator = new FormLocator(), private readonly ?LoggerInterface $logger = new SystemLogger())
     {
-        $this->locator = $locator ?? new FormLocator();
-        $this->logger = $logger ?? new SystemLogger();
     }
 
     public function renderReport(string $formDir, string $page, $attendant_id, $encounter, $columns, $formId, $noWrap = true)
@@ -37,7 +34,7 @@ class FormReportRenderer
             lbf_report($attendant_id, $encounter, $columns, $formId, $formDir, $noWrap);
         } else {
             if (function_exists($formDir . "_report")) {
-                call_user_func($formDir . "_report", $attendant_id, $encounter, $columns, $formId);
+                ($formDir . "_report")($attendant_id, $encounter, $columns, $formId);
             } else {
                 $this->logger->errorLogCaller("form is missing report function", ['formdir' => $formDir, 'formId' => $formId]);
             }

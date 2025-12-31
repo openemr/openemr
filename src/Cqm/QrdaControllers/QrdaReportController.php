@@ -43,7 +43,7 @@ class QrdaReportController
         // can be an array of measure data(measure_id,title,active or a delimited string. e.g. "CMS22;CMS69;CMS122;..."
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
-        $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved, $options);
+        $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
         if (empty($document)) {
             return '';
         }
@@ -150,7 +150,7 @@ class QrdaReportController
                 // delete existing to make reporting easier with last exported reports, current.
                 $glob = glob("$local_directory/*.*");
                 if ($glob !== false) {
-                    array_map('unlink', $glob);
+                    array_map(unlink(...), $glob);
                 }
                 $content = '';
                 $file = '';
@@ -285,7 +285,7 @@ class QrdaReportController
         // Clean up existing files in local directory
         $glob = glob("$directory/*.*");
         if ($glob !== false) {
-            array_map('unlink', $glob);
+            array_map(unlink(...), $glob);
         }
 
         $pids = is_array($pids) ? $pids : [$pids];

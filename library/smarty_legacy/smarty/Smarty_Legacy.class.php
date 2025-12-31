@@ -955,8 +955,7 @@ class Smarty_Legacy
         $_auto_id = $this->_get_auto_id($cache_id, $compile_id);
 
         if (!empty($this->cache_handler_func)) {
-            return call_user_func_array($this->cache_handler_func,
-                                  ['clear', &$this, &$dummy, $tpl_file, $cache_id, $compile_id, $exp_time]);
+            return ($this->cache_handler_func)('clear', $this, $dummy, $tpl_file, $cache_id, $compile_id, $exp_time);
         } else {
             $_params = ['auto_base' => $this->cache_dir,
                             'auto_source' => $tpl_file,
@@ -1276,7 +1275,7 @@ class Smarty_Legacy
             ob_end_clean();
 
             foreach ((array)$this->_plugins['outputfilter'] as $_output_filter) {
-                $_smarty_results = call_user_func_array($_output_filter[0], [$_smarty_results, &$this]);
+                $_smarty_results = ($_output_filter[0])($_smarty_results, $this);
             }
         }
 
@@ -1566,15 +1565,13 @@ class Smarty_Legacy
                     // call resource functions to fetch the template source and timestamp
                     if ($params['get_source']) {
                         $_source_return = isset($this->_plugins['resource'][$_resource_type]) &&
-                            call_user_func_array($this->_plugins['resource'][$_resource_type][0][0],
-                                                 [$_resource_name, &$params['source_content'], &$this]);
+                            ($this->_plugins['resource'][$_resource_type][0][0])($_resource_name, $params['source_content'], $this);
                     } else {
                         $_source_return = true;
                     }
 
                     $_timestamp_return = isset($this->_plugins['resource'][$_resource_type]) &&
-                        call_user_func_array($this->_plugins['resource'][$_resource_type][0][1],
-                                             [$_resource_name, &$params['resource_timestamp'], &$this]);
+                        ($this->_plugins['resource'][$_resource_type][0][1])($_resource_name, $params['resource_timestamp'], $this);
 
                     $_return = $_source_return && $_timestamp_return;
                     break;
@@ -1587,9 +1584,8 @@ class Smarty_Legacy
                 if (!is_callable($this->default_template_handler_func)) {
                     $this->trigger_error("default template handler function \"$this->default_template_handler_func\" doesn't exist.");
                 } else {
-                    $_return = call_user_func_array(
-                        $this->default_template_handler_func,
-                        [$_params['resource_type'], $_params['resource_name'], &$params['source_content'], &$params['resource_timestamp'], &$this]);
+                    $_return = ($this->default_template_handler_func)(
+                        $_params['resource_type'], $_params['resource_name'], $params['source_content'], $params['resource_timestamp'], $this);
                 }
             }
         }
@@ -1692,7 +1688,7 @@ class Smarty_Legacy
         $_var = $_args[0];
         foreach ($_var as $_key => $_val) {
             $_args[0] = $_val;
-            $_var[$_key] = call_user_func_array($_func_name, $_args);
+            $_var[$_key] = $_func_name(...$_args);
         }
         return $_var;
     }
