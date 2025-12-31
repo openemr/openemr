@@ -46,6 +46,9 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
      */
     public function getEnabledModules(): array
     {
+        // TODO: while FS-based installs are OK, this needs to support other
+        // enable/disable mechanisms for other deployment systems
+        // e.g. OPENEMR_ENABLE_MODULES=vendor/pkg1,vendor/pkg2,...
         if (!file_exists(self::MANIFEST_FILE)) {
             // ensure manager itself loads
             return [self::getManagerModuleInfo()];
