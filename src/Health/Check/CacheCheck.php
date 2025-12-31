@@ -19,9 +19,11 @@ use Predis\Client;
 
 class CacheCheck implements HealthCheckInterface
 {
+    public const NAME = 'cache';
+
     public function getName(): string
     {
-        return 'cache';
+        return static::NAME;
     }
 
     public function check(): HealthCheckResult

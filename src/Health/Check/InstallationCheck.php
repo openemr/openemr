@@ -18,9 +18,11 @@ use OpenEMR\Health\HealthCheckResult;
 
 class InstallationCheck implements HealthCheckInterface
 {
+    public const NAME = 'installed';
+
     public function getName(): string
     {
-        return 'installed';
+        return static::NAME;
     }
 
     public function check(): HealthCheckResult

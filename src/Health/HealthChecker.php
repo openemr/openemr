@@ -69,7 +69,7 @@ class HealthChecker
 
         foreach ($this->runAll() as $result) {
             $checks[$result->name] = $result->healthy;
-            if ($result->name === 'installed' && !$result->healthy) {
+            if ($result->name === InstallationCheck::NAME && !$result->healthy) {
                 $isInstalled = false;
             }
         }

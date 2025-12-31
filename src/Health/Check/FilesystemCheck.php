@@ -19,9 +19,11 @@ use OpenEMR\Health\HealthCheckResult;
 
 class FilesystemCheck implements HealthCheckInterface
 {
+    public const NAME = 'filesystem';
+
     public function getName(): string
     {
-        return 'filesystem';
+        return static::NAME;
     }
 
     public function check(): HealthCheckResult

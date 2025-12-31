@@ -19,9 +19,11 @@ use OpenEMR\Health\HealthCheckResult;
 
 class OAuthKeysCheck implements HealthCheckInterface
 {
+    public const NAME = 'oauth_keys';
+
     public function getName(): string
     {
-        return 'oauth_keys';
+        return static::NAME;
     }
 
     public function check(): HealthCheckResult

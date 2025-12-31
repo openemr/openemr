@@ -19,9 +19,11 @@ use OpenEMR\Health\HealthCheckResult;
 
 class DatabaseCheck implements HealthCheckInterface
 {
+    public const NAME = 'database';
+
     public function getName(): string
     {
-        return 'database';
+        return static::NAME;
     }
 
     public function check(): HealthCheckResult

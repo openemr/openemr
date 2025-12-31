@@ -18,9 +18,11 @@ use OpenEMR\Health\HealthCheckResult;
 
 class SessionCheck implements HealthCheckInterface
 {
+    public const NAME = 'session';
+
     public function getName(): string
     {
-        return 'session';
+        return static::NAME;
     }
 
     public function check(): HealthCheckResult
