@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Psr\Container\ContainerInterface;
-use OpenEMR\Modules\Manager\ModuleManager;
+use OpenEMR\Modules\Manager\ManagerInterface;
 use Symfony\Component\Console\{
     Application,
     Attribute\AsCommand,
@@ -21,8 +21,8 @@ $container = require 'di.php';
 assert($container instanceof ContainerInterface);
 
 $commandMap = [];
-$mm = $container->get(ModuleManager::class);
-assert($mm instanceof ModuleManager);
+$mm = $container->get(ManagerInterface::class);
+assert($mm instanceof ManagerInterface);
 foreach ($mm->getEnabledModules() as $moduleInfo) {
     // print_r($moduleInfo);
     // print_r($moduleInfo->getCliCommands());
