@@ -34,6 +34,12 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
         // Otherwise, undo manifest changes from enable.
     }
 
+    public function getInfoFor(string $packageName): ModuleInfo
+    {
+        // FIXME: not like this.
+        return ModuleInfo::for($packageName);
+    }
+
     public function getEnabledModules(): array
     {
         if (!file_exists(self::MANIFEST_FILE)) {

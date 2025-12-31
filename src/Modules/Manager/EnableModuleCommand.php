@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class EnableModuleCommand extends Command
 {
     public function __construct(
-        private ModuleFinder $finder,
+        private ModuleManager $manager,
     ) {
         parent::__construct();
     }
@@ -33,15 +33,12 @@ class EnableModuleCommand extends Command
 
     public function __invoke(string $moduleName, OutputInterface $output): int
     {
-        // $available = $this->finder->listAllAvailable();
-        $mi = ModuleInfo::for($moduleName);
+        $mi = $this->manager->getInfoFor($moduleName);
         if ($mi->isActive) {
             $output->writeln('Module is already active');
             return Command::SUCCESS; // clean exit so this is idempotent
         }
-
-        $mm = new ModuleManager();
-        $mm->enable($moduleName);
+        $this->manager->enable($moduleName);
         $output->writeln(sprintf('%s activated', $moduleName));
 
         return Command::SUCCESS;
