@@ -9,6 +9,12 @@ use OpenEMR\Modules\ModuleInterface;
 
 class ModuleManager implements ManagerInterface
 {
+    /**
+     * Special-case the tooling for module management. This may move out to
+     * being a separate package (but still core dependency) eventually.
+     */
+    private const MODULE_MANAGER_NAME = 'openemr/module-manager';
+
     private const /* string */ MANIFEST_FILE = 'todooooo.php';
 
     public function enable(string $packageName): void
@@ -62,9 +68,6 @@ class ModuleManager implements ManagerInterface
         return array_filter($this->getAvailableModules(), fn ($m) => $m->isActive);
     }
 
-    /**
-     * @return array<string, ModuleInfo>
-     */
     public function getAvailableModules(): array
     {
         $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
@@ -74,14 +77,14 @@ class ModuleManager implements ManagerInterface
             // using ModuleInfo::for()
             $info[$package] = ModuleInfo::for($package);
         }
-        $info['openemr/module-manager'] = self::getManagerModuleInfo();
+        $info[self::MODULE_MANAGER_NAME] = self::getManagerModuleInfo();
         return $info;
     }
 
     private static function getManagerModuleInfo(): ModuleInfo
     {
         return new ModuleInfo(
-            packageName: 'opememr/module-manager',
+            packageName: self::MODULE_MANAGER_NAME,
             entrypoint: Module::class,
             // installDirectory: 'idk', // dirname(__DIR__)?
             isActive: true,
