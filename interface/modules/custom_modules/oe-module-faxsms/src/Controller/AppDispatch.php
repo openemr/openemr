@@ -387,10 +387,9 @@ abstract class AppDispatch
             $spaceUrl = $this->getRequest('space_url');
             $projectId = $this->getRequest('project_id');
             $apiToken = $this->getRequest('api_token');
-            $faxNumberRaw = $this->getRequest('fax_number');
-            $faxNumber = !empty($faxNumberRaw) ? $this->formatPhoneForSave($faxNumberRaw) : '';
+            $faxNumber = $this->formatPhoneForSave($this->getRequest('fax_number'));
 
-            $setup = array(
+            $setup = [
                 'username' => "$username",
                 'extension' => "$ext",
                 'account' => $account,
@@ -410,8 +409,8 @@ abstract class AppDispatch
                 'space_url' => $spaceUrl ?? '',
                 'project_id' => $projectId ?? '',
                 'api_token' => $apiToken ?? '',
-                'fax_number' => $faxNumber,
-            );
+                'fax_number' => $faxNumber ?? '',
+            ];
         }
 
         $vendor = self::getModuleVendor();
@@ -617,7 +616,6 @@ abstract class AppDispatch
      */
     public function mailEmail($email, $from_name, $body, $subject = '', $htmlContent = ''): string
     {
-        $status = 'Error: ' . xlt('Unknown error occurred');
         try {
             $mail = new MyMailer();
             $smtpEnabled = $mail::isConfigured();

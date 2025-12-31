@@ -22,9 +22,9 @@ use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 
 class FaxDocumentService
 {
-    private string $siteId;
-    private string $sitePath;
-    private string $receivedFaxesPath;
+    private readonly string $siteId;
+    private readonly string $sitePath;
+    private readonly string $receivedFaxesPath;
 
     public function __construct(?string $siteId = null)
     {
@@ -64,7 +64,7 @@ class FaxDocumentService
     ): array {
         try {
             $timestamp = date('YmdHis');
-            $extension = FileUtils::getExtensionFromMimeType($mimeType, 'pdf');
+            $extension = FileUtils::getExtensionFromMimeType($mimeType);
             $filename = "fax_{$faxSid}_{$timestamp}.{$extension}";
             
             // Determine storage location
@@ -313,12 +313,12 @@ class FaxDocumentService
     {
         $cleaned = preg_replace('/[^0-9]/', '', $phone);
         
-        if (strlen($cleaned) === 11 && $cleaned[0] === '1') {
-            $cleaned = substr($cleaned, 1);
+        if (strlen((string) $cleaned) === 11 && $cleaned[0] === '1') {
+            $cleaned = substr((string) $cleaned, 1);
         }
         
-        if (strlen($cleaned) === 10) {
-            return sprintf("(%s) %s-%s", substr($cleaned, 0, 3), substr($cleaned, 3, 3), substr($cleaned, 6));
+        if (strlen((string) $cleaned) === 10) {
+            return sprintf("(%s) %s-%s", substr((string) $cleaned, 0, 3), substr((string) $cleaned, 3, 3), substr((string) $cleaned, 6));
         }
         
         return $phone;
@@ -334,8 +334,8 @@ class FaxDocumentService
     {
         $cleaned = preg_replace('/[^0-9]/', '', $fromNumber);
         
-        if (strlen($cleaned) === 11 && $cleaned[0] === '1') {
-            $cleaned = substr($cleaned, 1);
+        if (strlen((string) $cleaned) === 11 && $cleaned[0] === '1') {
+            $cleaned = substr((string) $cleaned, 1);
         }
         
         // Try exact match first
@@ -343,8 +343,8 @@ class FaxDocumentService
             $cleaned,
             '+1' . $cleaned,
             '1' . $cleaned,
-            substr($cleaned, 0, 3) . '-' . substr($cleaned, 3, 3) . '-' . substr($cleaned, 6),
-            '(' . substr($cleaned, 0, 3) . ') ' . substr($cleaned, 3, 3) . '-' . substr($cleaned, 6)
+            substr((string) $cleaned, 0, 3) . '-' . substr((string) $cleaned, 3, 3) . '-' . substr((string) $cleaned, 6),
+            '(' . substr((string) $cleaned, 0, 3) . ') ' . substr((string) $cleaned, 3, 3) . '-' . substr((string) $cleaned, 6)
         ];
         
         foreach ($patterns as $pattern) {

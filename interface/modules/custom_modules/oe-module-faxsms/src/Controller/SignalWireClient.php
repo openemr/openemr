@@ -130,17 +130,14 @@ class SignalWireClient extends AppDispatch
             ]);
         }
 
-        // Get request parameters - initialize all to avoid PHPStan warnings
+        // Get request parameters
         $isContent = $this->getRequest('isContent');
-        $fileParam = $this->getRequest('file');
-        $file = !empty($fileParam) ? $fileParam : '';
+        $file = $this->getRequest('file');
         $docId = $this->getRequest('docid');
-        $phoneParam = $this->getRequest('phone');
-        $phone = !empty($phoneParam) ? $this->formatPhone($phoneParam) : '';
+        $phone = $this->formatPhone($this->getRequest('phone'));
         $recipientName = $this->getRequest('name') . ' ' . $this->getRequest('surname');
         $recipientName = trim($recipientName) ?: 'Unknown'; // Default if empty
-        $isDocumentsParam = $this->getRequest('isDocuments');
-        $isDocuments = !empty($isDocumentsParam) ? (int)$isDocumentsParam : 0;
+        $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $globals = OEGlobalsBag::getInstance();
@@ -148,19 +145,19 @@ class SignalWireClient extends AppDispatch
         $user = $this::getLoggedInUser();
 
         // DEBUG: Log parameters received in sendFax
-        error_log("SignalWireClient.sendFax(): DEBUG - Received file path: " . $file);
+        error_log("SignalWireClient.sendFax(): DEBUG - Received file path: " . ($file ?? 'EMPTY'));
         error_log("SignalWireClient.sendFax(): DEBUG - isContent: " . ($isContent ?? 'EMPTY'));
-        error_log("SignalWireClient.sendFax(): DEBUG - isDocuments: " . $isDocuments);
-        error_log("SignalWireClient.sendFax(): DEBUG - Phone: " . $phone);
-        error_log("SignalWireClient.sendFax(): DEBUG - File exists: " . (!empty($file) && file_exists($file) ? 'YES' : 'NO'));
+        error_log("SignalWireClient.sendFax(): DEBUG - isDocuments: " . ($isDocuments ?? 'EMPTY'));
+        error_log("SignalWireClient.sendFax(): DEBUG - Phone: " . ($phone ?? 'EMPTY'));
+        error_log("SignalWireClient.sendFax(): DEBUG - File exists: " . (file_exists($file) ? 'YES' : 'NO'));
         if (!empty($file) && file_exists($file)) {
             error_log("SignalWireClient.sendFax(): DEBUG - File size: " . filesize($file) . " bytes");
         }
 
         // Handle file path
-        if (empty($isContent) && !empty($file)) {
-            if (str_starts_with($file, 'file://')) {
-                $file = substr($file, 7);
+        if (empty($isContent)) {
+            if (str_starts_with((string) $file, 'file://')) {
+                $file = substr((string) $file, 7);
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
@@ -244,14 +241,14 @@ class SignalWireClient extends AppDispatch
         try {
             // DEBUG: Log before upload
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - baseDir: " . ($this->baseDir ?? 'EMPTY'));
-            error_log("SignalWireClient.uploadFileForFax(): DEBUG - File parameter: " . $file);
+            error_log("SignalWireClient.uploadFileForFax(): DEBUG - File parameter: " . ($file ?? 'EMPTY'));
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - isDocuments: " . ($isDocuments ? 'YES' : 'NO'));
 
             // Use public web root for uploads so SignalWire can access via HTTP
             // Store in web root's public area accessible to external IPs
             // Use GLOBALS['fileroot'] which is properly set by globals.php
             $globals = OEGlobalsBag::getInstance();
-            $webRoot = $globals->get('fileroot') ?? dirname(dirname(dirname(dirname(dirname(__DIR__)))));
+            $webRoot = $globals->get('fileroot') ?? dirname(__DIR__, 5);
 
             // Get site_id with fallback to 'default'
             $siteId = $_SESSION['site_id'] ?? $globals->get('OE_SITE_NAME') ?? 'default';
@@ -440,7 +437,7 @@ class SignalWireClient extends AppDispatch
     public function formatPhone(string $number): string
     {
         $n = preg_replace('/[^0-9]/', '', $number);
-        if (stripos($n, '1') === 0) {
+        if (stripos((string) $n, '1') === 0) {
             $n = '+' . $n;
         } elseif (!empty($n)) {
             $n = '+1' . $n;
@@ -497,7 +494,7 @@ class SignalWireClient extends AppDispatch
         }
 
         // Send file for inline viewing
-        $filename = basename($mediaPath);
+        $filename = basename((string) $mediaPath);
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="' . $filename . '"');
         header('Content-Length: ' . filesize($mediaPath));
@@ -544,7 +541,7 @@ class SignalWireClient extends AppDispatch
         }
 
         // Send file as download
-        $filename = basename($mediaPath);
+        $filename = basename((string) $mediaPath);
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Content-Length: ' . filesize($mediaPath));
@@ -659,7 +656,7 @@ class SignalWireClient extends AppDispatch
 
         foreach ($faxStore as $faxDetails) {
             $details = json_decode($faxDetails->details_json ?? '{}', true);
-            $formattedDate = date('M j, Y g:i:sa T', strtotime($faxDetails->date));
+            $formattedDate = date('M j, Y g:i:sa T', strtotime((string) $faxDetails->date));
             $direction = $faxDetails->direction ?? ($details['direction'] ?? 'inbound');
             $status = $faxDetails->status ?? ($details['status'] ?? 'unknown');
             $jobId = $faxDetails->job_id;  // FAX SID from SignalWire
@@ -680,7 +677,7 @@ class SignalWireClient extends AppDispatch
                 if ($patientId > 0 && $documentId > 0) {
                     $globals = OEGlobalsBag::getInstance();
                     $viewLink = $globals->get('webroot') . "/controller.php?document&retrieve&patient_id=" . 
-                                urlencode($patientId) . "&document_id=" . urlencode($documentId) . 
+                                urlencode((string) $patientId) . "&document_id=" . urlencode((string) $documentId) . 
                                 "&as_file=false&original_file=true";
                     $messageCol .= "<a href='" . attr($viewLink) . "' target='_blank' class='btn btn-sm btn-success'>" . 
                                    "<i class='fa fa-eye'></i> " . xlt('View') . "</a> ";
@@ -689,7 +686,7 @@ class SignalWireClient extends AppDispatch
                     }
                 } elseif (!empty($mediaPath) && file_exists($mediaPath)) {
                     // Unassigned fax - use queue view/download links
-                    $filename = basename($mediaPath);
+                    $filename = basename((string) $mediaPath);
                     $viewLink = "./viewFaxPdf?type=fax&site=" . urlencode($_SESSION['site_id'] ?? 'default') . "&id=" . urlencode($queueId);
                     $downloadLink = "./download?type=fax&site=" . urlencode($_SESSION['site_id'] ?? 'default') . "&id=" . urlencode($queueId);
                     
@@ -904,7 +901,7 @@ class SignalWireClient extends AppDispatch
             return '';
         }
 
-        $name = basename($_FILES['fax']['name']);
+        $name = basename((string) $_FILES['fax']['name']);
         $tmp_name = $_FILES['fax']['tmp_name'];
         $targetDir = $this->baseDir . '/send';
 

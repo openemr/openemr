@@ -17,14 +17,13 @@ $sessionAllowWrite = true;
 
 // Set site from query parameter for multi-site support
 $_GET['auth'] = 'portal';  // Enable site selection
-$_GET['site'] = $_GET['site'] ?? 'default';
+$_GET['site'] ??= 'default';
 
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 
 // Capture raw input first (can only be read once)
@@ -35,7 +34,7 @@ $siteId = $_SESSION['site_id'] ?? $_GET['site'] ?? 'default';
 
 // Handle JSON payloads (SignalWire sends JSON for some webhooks)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-if (strpos($contentType, 'application/json') !== false && !empty($rawInput)) {
+if (str_contains((string) $contentType, 'application/json') && !empty($rawInput)) {
     $jsonData = json_decode($rawInput, true);
     if (json_last_error() === JSON_ERROR_NONE) {
         // Check if this is a SWML execute callback with fax data in vars
@@ -81,9 +80,9 @@ if ($vendor !== 'signalwire' || $type !== 'fax') {
     exit('Invalid request');
 }
 
-// Get webhook payload - initialize all variables explicitly for PHPStan
+// Get webhook payload
 $faxSid = $_POST['FaxSid'] ?? $_POST['Sid'] ?? '';
-$status = $_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown';
+$status = $_POST['Status'] ?? $_POST['FaxStatus'] ?? '';
 $from = $_POST['From'] ?? $_POST['RemoteStationId'] ?? '';
 $to = $_POST['To'] ?? $_POST['OriginalTo'] ?? '';
 $numPages = $_POST['NumPages'] ?? $_POST['Pages'] ?? 0;
@@ -208,10 +207,10 @@ function downloadAndStoreFaxMedia(
         // Download the fax media with authentication using oeHttp
         // SignalWire files.signalwire.com requires Bearer token, not Basic auth
         try {
-            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
+            $httpRequest = oeHttp::newArgs(oeHttp::client());
 
             // Set up headers based on URL type
-            if (strpos($mediaUrl, 'files.signalwire.com') !== false) {
+            if (str_contains($mediaUrl, 'files.signalwire.com')) {
                 // Use Bearer token authentication for SignalWire file downloads
                 $httpRequest->usingHeaders([
                     'Authorization' => 'Bearer ' . $apiToken
@@ -226,8 +225,7 @@ function downloadAndStoreFaxMedia(
             $response = $httpRequest->get($mediaUrl);
             $httpCode = $response->status();
             $mediaContent = $response->body();
-            $contentTypeHeader = $response->header('Content-Type');
-            $contentType = !empty($contentTypeHeader) ? $contentTypeHeader : 'application/pdf';
+            $contentType = $response->header('Content-Type') ?? 'application/pdf';
 
             if ($httpCode !== 200 || empty($mediaContent)) {
                 return;
@@ -244,13 +242,13 @@ function downloadAndStoreFaxMedia(
         }
 
         // Store fax using FaxDocumentService
-        $faxService = $faxService ?? new FaxDocumentService($siteId);
+        $faxService ??= new FaxDocumentService($siteId);
         $result = $faxService->storeFaxDocument(
             $faxSid,
             $mediaContent,
             $fromNumber,
             $patientId,
-            $contentType
+            $contentType ?? 'application/pdf'
         );
 
         // Update queue with storage info
