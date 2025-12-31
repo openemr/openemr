@@ -70,7 +70,7 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
         $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
         $info = array_map(ModuleInfo::for(...), $packages);
         $info[] = self::getManagerModuleInfo();
-        // sort by name?
+        // sort by name? just do this in cli? package=>info?
         return $info;
     }
 
@@ -78,7 +78,8 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
     {
         return new ModuleInfo(
             packageName: 'opememr/module-manager',
-            installDirectory: 'idk',
+            entrypoint: self::class,
+            // installDirectory: 'idk', // dirname(__DIR__)?
             isActive: true,
         );
     }

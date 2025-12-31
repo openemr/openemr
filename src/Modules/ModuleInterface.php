@@ -6,5 +6,5 @@ namespace OpenEMR\Modules;
 
 interface ModuleInterface
 {
-    public const COMPOSER_TYPE = 'openemr-module';
+    final public const COMPOSER_TYPE = 'openemr-module';
 }

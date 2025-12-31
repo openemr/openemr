@@ -31,7 +31,9 @@ $loader = new ContainerCommandLoader($container, $commandMap);
 // print_r($loader);
 
 $mm = new ModuleManager();
-foreach ($mm->getEnabledModules() as $module) {
+foreach ($mm->getEnabledModules() as $moduleInfo) {
+    print_r($moduleInfo);
+    print_r($moduleInfo->getCliCommands());
     // Append into the commandMap based on... something. Read the AsCommand
     // attribute of each CliCommand class?
 }
