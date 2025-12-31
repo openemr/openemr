@@ -19,10 +19,12 @@ interface ManagerInterface
     /**
      * @return array<string, ModuleInfo>
      */
-    public function getEnabledModules(): array;
+    public function getAvailableModules(): array;
 
     /**
      * @return array<string, ModuleInfo>
      */
-    public function getAvailableModules(): array;
+    public function getEnabledModules(): array;
+
+    public function getInfoFor(string $packageName): ModuleInfo;
 }

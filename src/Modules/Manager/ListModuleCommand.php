@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ListModuleCommand extends Command
 {
     public function __construct(
-        private ModuleManager $manager,
+        private ManagerInterface $manager,
     ) {
         parent::__construct();
     }
@@ -30,7 +30,7 @@ class ListModuleCommand extends Command
 
     public function __invoke(OutputInterface $output): int
     {
-        $installed = $this->manager->getInstalledModules();
+        $installed = $this->manager->getAvailableModules();
         $table = new Table($output);
         $table->setHeaders(['Name', 'Active']);
         foreach ($installed as $module) {

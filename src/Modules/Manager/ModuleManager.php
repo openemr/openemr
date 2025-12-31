@@ -10,7 +10,7 @@ use OpenEMR\Modules\{
     ModuleInterface,
 };
 
-class ModuleManager implements ModuleInterface, CliModuleInterface
+class ModuleManager implements ManagerInterface, ModuleInterface, CliModuleInterface
 {
     public static function getConsoleCommands(): array
     {
@@ -41,7 +41,7 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
      */
     public function getInfoFor(string $packageName): ModuleInfo
     {
-        $installed = $this->getInstalledModules();
+        $installed = $this->getAvailableModules();
         if (!array_key_exists($packageName, $installed)) {
             throw new \Exception('Package does not exist');
         }
@@ -70,13 +70,13 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
         //    return [self::getManagerModuleInfo()];
         //}
         //return [];
-        return array_filter($this->getInstalledModules(), fn ($m) => $m->isActive);
+        return array_filter($this->getAvailableModules(), fn ($m) => $m->isActive);
     }
 
     /**
      * @return array<string, ModuleInfo>
      */
-    public function getInstalledModules(): array
+    public function getAvailableModules(): array
     {
         $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
         $info = [];

@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class EnableModuleCommand extends Command
 {
     public function __construct(
-        private ModuleManager $manager,
+        private ManagerInterface $manager,
     ) {
         parent::__construct();
     }
