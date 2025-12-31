@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\Console\Attribute\AsCommand;
+use Psr\Container\ContainerInterface;
 use OpenEMR\Modules\Manager\{
     EnableModuleCommand,
     ListModuleCommand,
@@ -11,16 +11,22 @@ use OpenEMR\Modules\Manager\{
 };
 use Symfony\Component\Console\{
     Application,
+    Attribute\AsCommand,
     CommandLoader\ContainerCommandLoader,
 };
 
 require_once __DIR__ . '/../bootstrap.php';
 
 // load DI container
+// TODO: figure out how to ensure that module classes get autowired correctly
+// This may require writing data to a config file at module enable time
+// depending on the DI container used.
 $container = require 'di.php';
-$commandMap = [];
+assert($container instanceof ContainerInterface);
 
-$mm = new ModuleManager();
+$commandMap = [];
+$mm = $container->get(ModuleManager::class);
+assert($mm instanceof ModuleManager);
 foreach ($mm->getEnabledModules() as $moduleInfo) {
     // print_r($moduleInfo);
     // print_r($moduleInfo->getCliCommands());
@@ -46,5 +52,4 @@ $loader = new ContainerCommandLoader($container, $commandMap);
 
 $application = new Application();
 $application->setCommandLoader($loader);
-// $application->add($container->get(ListModulesCommand::class));
 $application->run();
