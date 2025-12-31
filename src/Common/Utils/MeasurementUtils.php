@@ -25,6 +25,15 @@ use PhpUnitsOfMeasure\PhysicalQuantity\Temperature;
  *
  * Uses the php-units-of-measure library for accurate conversions.
  * Implements MeasurementUtilsInterface for dependency injection support.
+ *
+ * This class registers UCUM (Unified Code for Units of Measure) aliases to ensure
+ * compatibility with FHIR and HL7 standards used in healthcare interoperability.
+ *
+ * @see https://ucum.org/ UCUM - Unified Code for Units of Measure
+ * @see https://ucum.org/ucum UCUM Specification
+ * @see https://hl7.org/fhir/R4/valueset-ucum-units.html FHIR UCUM Units ValueSet
+ * @see https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html HL7 Units ValueSet
+ * @see https://unitsofmeasure.org/ucum Unit codes reference
  */
 class MeasurementUtils implements MeasurementUtilsInterface
 {
@@ -40,6 +49,11 @@ class MeasurementUtils implements MeasurementUtilsInterface
     public const WEIGHT_DECIMAL = 1;
     public const WEIGHT_LBS_OZ = 2;
 
+    /**
+     * @var bool Flag to ensure UCUM aliases are only registered once
+     */
+    private static bool $ucumAliasesRegistered = false;
+
     private readonly int $unitsMode;
     private readonly int $usWeightFormat;
 
@@ -53,9 +67,64 @@ class MeasurementUtils implements MeasurementUtilsInterface
         ?int $unitsMode = null,
         ?int $usWeightFormat = null
     ) {
+        self::registerUcumAliases();
+
         $globals = OEGlobalsBag::getInstance();
         $this->unitsMode = $unitsMode ?? ($globals->get('units_of_measurement') ?? self::UNITS_USA_PRIMARY);
         $this->usWeightFormat = $usWeightFormat ?? ($globals->get('us_weight_format') ?? self::WEIGHT_DECIMAL);
+    }
+
+    /**
+     * Register UCUM (Unified Code for Units of Measure) aliases for FHIR/HL7 compatibility.
+     *
+     * UCUM is the standard unit system used in healthcare interoperability standards
+     * including FHIR and HL7. This method registers UCUM codes as aliases so that
+     * code using standard UCUM codes can work seamlessly with this library.
+     *
+     * UCUM codes registered:
+     * - Mass: [lb_av] (avoirdupois pound), [oz_av] (avoirdupois ounce)
+     * - Length: [in_i] (international inch)
+     * - Temperature: Cel (degree Celsius), [degF] (degree Fahrenheit)
+     *
+     * @see https://ucum.org/ucum#section-Derived-Unit-Atoms UCUM Derived Units
+     * @see https://hl7.org/fhir/R4/valueset-ucum-units.html FHIR UCUM ValueSet
+     * @see urn:oid:2.16.840.1.113883.1.11.12839 HL7 UnitsOfMeasureCaseSensitive OID
+     */
+    private static function registerUcumAliases(): void
+    {
+        if (self::$ucumAliasesRegistered) {
+            return;
+        }
+
+        /*
+         * Mass unit UCUM aliases
+         * @see https://ucum.org/ucum#para-30 UCUM Mass Units
+         *
+         * [lb_av] = avoirdupois pound (international pound)
+         * [oz_av] = avoirdupois ounce
+         */
+        Mass::getUnit('lb')->addAlias('[lb_av]');
+        Mass::getUnit('oz')->addAlias('[oz_av]');
+
+        /*
+         * Length unit UCUM aliases
+         * @see https://ucum.org/ucum#para-28 UCUM Length Units
+         *
+         * [in_i] = international inch (exactly 2.54 cm)
+         */
+        Length::getUnit('in')->addAlias('[in_i]');
+
+        /*
+         * Temperature unit UCUM aliases
+         * @see https://ucum.org/ucum#para-32 UCUM Temperature Units
+         *
+         * Cel = degree Celsius
+         * [degF] = degree Fahrenheit
+         */
+        Temperature::getUnit('C')->addAlias('Cel');
+        Temperature::getUnit('F')->addAlias('[degF]');
+
+        self::$ucumAliasesRegistered = true;
     }
 
     /**

@@ -396,4 +396,91 @@ class MeasurementUtilsTest extends TestCase
         $this->assertStringContainsString('150', $result);
         $this->assertStringContainsString('12', $result);
     }
+
+    /**
+     * Test that UCUM aliases are registered for mass units.
+     *
+     * UCUM (Unified Code for Units of Measure) is the standard unit system
+     * used in FHIR and HL7 healthcare interoperability standards.
+     *
+     * @see https://ucum.org/ucum UCUM Specification
+     * @see https://hl7.org/fhir/R4/valueset-ucum-units.html FHIR UCUM ValueSet
+     */
+    public function testUcumMassAliasesRegistered(): void
+    {
+        // Instantiate to trigger UCUM alias registration
+        new MeasurementUtils();
+
+        // [lb_av] = avoirdupois pound (UCUM code)
+        $this->assertTrue(
+            \PhpUnitsOfMeasure\PhysicalQuantity\Mass::isUnitDefined('[lb_av]'),
+            'UCUM alias [lb_av] should be registered for pounds'
+        );
+
+        // [oz_av] = avoirdupois ounce (UCUM code)
+        $this->assertTrue(
+            \PhpUnitsOfMeasure\PhysicalQuantity\Mass::isUnitDefined('[oz_av]'),
+            'UCUM alias [oz_av] should be registered for ounces'
+        );
+    }
+
+    /**
+     * Test that UCUM aliases are registered for length units.
+     *
+     * @see https://ucum.org/ucum#para-28 UCUM Length Units
+     */
+    public function testUcumLengthAliasesRegistered(): void
+    {
+        new MeasurementUtils();
+
+        // [in_i] = international inch (UCUM code)
+        $this->assertTrue(
+            \PhpUnitsOfMeasure\PhysicalQuantity\Length::isUnitDefined('[in_i]'),
+            'UCUM alias [in_i] should be registered for inches'
+        );
+    }
+
+    /**
+     * Test that UCUM aliases are registered for temperature units.
+     *
+     * @see https://ucum.org/ucum#para-32 UCUM Temperature Units
+     */
+    public function testUcumTemperatureAliasesRegistered(): void
+    {
+        new MeasurementUtils();
+
+        // Cel = degree Celsius (UCUM code)
+        $this->assertTrue(
+            \PhpUnitsOfMeasure\PhysicalQuantity\Temperature::isUnitDefined('Cel'),
+            'UCUM alias Cel should be registered for Celsius'
+        );
+
+        // [degF] = degree Fahrenheit (UCUM code)
+        $this->assertTrue(
+            \PhpUnitsOfMeasure\PhysicalQuantity\Temperature::isUnitDefined('[degF]'),
+            'UCUM alias [degF] should be registered for Fahrenheit'
+        );
+    }
+
+    /**
+     * Test conversions using UCUM codes work correctly.
+     *
+     * This verifies that FHIR-compliant code can use standard UCUM unit codes.
+     */
+    public function testConversionsWithUcumCodes(): void
+    {
+        new MeasurementUtils();
+
+        // Test mass conversion with UCUM codes
+        $mass = new \PhpUnitsOfMeasure\PhysicalQuantity\Mass(1, '[lb_av]');
+        $this->assertEqualsWithDelta(0.45359237, $mass->toUnit('kg'), 0.0001);
+
+        // Test length conversion with UCUM codes
+        $length = new \PhpUnitsOfMeasure\PhysicalQuantity\Length(1, '[in_i]');
+        $this->assertEqualsWithDelta(2.54, $length->toUnit('cm'), 0.0001);
+
+        // Test temperature conversion with UCUM codes
+        $temp = new \PhpUnitsOfMeasure\PhysicalQuantity\Temperature(32, '[degF]');
+        $this->assertEqualsWithDelta(0, $temp->toUnit('Cel'), 0.0001);
+    }
 }
