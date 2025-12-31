@@ -46,19 +46,19 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 function convertFtoC($a)
 {
     global $measurementUtils;
-    return (float)$measurementUtils->fhToCelsius($a);
+    return $measurementUtils->convertFhToCelsius($a);
 }
 function getLbstoKgMultiplier()
 {
     global $measurementUtils;
     // Get conversion factor by converting 1 lb to kg
-    return (float)$measurementUtils->lbToKg(1);
+    return $measurementUtils->convertLbToKg(1);
 }
 function getIntoCmMultiplier()
 {
     global $measurementUtils;
     // Get conversion factor by converting 1 inch to cm
-    return (float)$measurementUtils->inchesToCm(1);
+    return $measurementUtils->convertInchesToCm(1);
 }
 function getIdealYSteps($a)
 {

@@ -184,6 +184,69 @@ class MeasurementUtils implements MeasurementUtilsInterface
     /**
      * @inheritDoc
      */
+    public function convertKgToLb(float $val): float
+    {
+        $mass = new Mass($val, 'kg');
+        return $mass->toUnit('lb');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function convertLbToKg(float $val): float
+    {
+        $mass = new Mass($val, 'lb');
+        return $mass->toUnit('kg');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function convertCmToInches(float $val): float
+    {
+        $length = new Length($val, 'cm');
+        return $length->toUnit('in');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function convertInchesToCm(float $val): float
+    {
+        $length = new Length($val, 'in');
+        return $length->toUnit('cm');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function convertFhToCelsius(float $val): float
+    {
+        $temp = new Temperature($val, 'F');
+        return $temp->toUnit('C');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function convertCelsiusToFh(float $val): float
+    {
+        $temp = new Temperature($val, 'C');
+        return $temp->toUnit('F');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function convertLbToOz(float $val): float
+    {
+        $mass = new Mass($val, 'lb');
+        return $mass->toUnit('oz');
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function isMetric(): bool
     {
         return in_array($this->unitsMode, [self::UNITS_METRIC_PRIMARY, self::UNITS_METRIC_ONLY]);
@@ -264,9 +327,11 @@ class MeasurementUtils implements MeasurementUtilsInterface
     private function formatUsWeight(float $lbs): string
     {
         if ($this->usWeightFormat === self::WEIGHT_LBS_OZ) {
-            $totalOz = (int) round($lbs * 16);
-            $wholeLbs = intdiv($totalOz, 16);
-            $oz = $totalOz % 16;
+            // Use library to convert lbs to oz (16 oz per lb)
+            $ozPerLb = (int) $this->convertLbToOz(1);
+            $totalOz = (int) round($this->convertLbToOz($lbs));
+            $wholeLbs = intdiv($totalOz, $ozPerLb);
+            $oz = $totalOz % $ozPerLb;
             return "{$wholeLbs} " . $this->xl('lb') . " {$oz} " . $this->xl('oz');
         }
         return number_format($lbs, 2) . ' ' . $this->xl('lb');

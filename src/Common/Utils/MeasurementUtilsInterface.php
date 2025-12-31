@@ -70,6 +70,62 @@ interface MeasurementUtilsInterface
     public function celsiusToFh(float $val): string;
 
     /**
+     * Convert kilograms to pounds, returning raw float for calculations.
+     *
+     * @param float $val Value in kilograms
+     * @return float Value in pounds
+     */
+    public function convertKgToLb(float $val): float;
+
+    /**
+     * Convert pounds to kilograms, returning raw float for calculations.
+     *
+     * @param float $val Value in pounds
+     * @return float Value in kilograms
+     */
+    public function convertLbToKg(float $val): float;
+
+    /**
+     * Convert centimeters to inches, returning raw float for calculations.
+     *
+     * @param float $val Value in centimeters
+     * @return float Value in inches
+     */
+    public function convertCmToInches(float $val): float;
+
+    /**
+     * Convert inches to centimeters, returning raw float for calculations.
+     *
+     * @param float $val Value in inches
+     * @return float Value in centimeters
+     */
+    public function convertInchesToCm(float $val): float;
+
+    /**
+     * Convert Fahrenheit to Celsius, returning raw float for calculations.
+     *
+     * @param float $val Value in Fahrenheit
+     * @return float Value in Celsius
+     */
+    public function convertFhToCelsius(float $val): float;
+
+    /**
+     * Convert Celsius to Fahrenheit, returning raw float for calculations.
+     *
+     * @param float $val Value in Celsius
+     * @return float Value in Fahrenheit
+     */
+    public function convertCelsiusToFh(float $val): float;
+
+    /**
+     * Convert pounds to ounces, returning raw float for calculations.
+     *
+     * @param float $val Value in pounds
+     * @return float Value in ounces
+     */
+    public function convertLbToOz(float $val): float;
+
+    /**
      * Check if metric mode is enabled based on units_of_measurement setting.
      *
      * @return bool True if metric is the primary or only unit system

@@ -79,9 +79,16 @@ $datapoints = $vitalsService->getVitalsHistoryForPatient($pid, true);
 $first_datapoint = $datapoints[0];
 if (!empty($first_datapoint)) {
     $date = str_replace('-', '', substr((string) $first_datapoint['date'], 0, 10));
-    $height = $measurementUtils->isMetric() ? convertHeightToUs($first_datapoint['height']) : $first_datapoint['height'];
-    $weight = $measurementUtils->isMetric() ? convertWeightToUs($first_datapoint['weight']) : $first_datapoint['weight'];
-    $head_circ = $measurementUtils->isMetric() ? convertHeightToUs($first_datapoint['head_circ']) : $first_datapoint['head_circ'];
+    // When system is metric, vitals data comes in metric units - convert to US for chart plotting
+    $height = $measurementUtils->isMetric()
+        ? $measurementUtils->convertCmToInches($first_datapoint['height'])
+        : $first_datapoint['height'];
+    $weight = $measurementUtils->isMetric()
+        ? $measurementUtils->convertKgToLb($first_datapoint['weight'])
+        : $first_datapoint['weight'];
+    $head_circ = $measurementUtils->isMetric()
+        ? $measurementUtils->convertCmToInches($first_datapoint['head_circ'])
+        : $first_datapoint['head_circ'];
 
     if ($date != "") {
         $charttype_date = $date;
@@ -100,20 +107,6 @@ if (isset($_GET['chart_type'])) {
 
 //sort the datapoints
 rsort($datapoints);
-
-// Helper functions to convert vitals service data to US values for graphing
-function convertHeightToUs($height)
-{
-    global $measurementUtils;
-    return (float)$measurementUtils->cmToInches($height);
-}
-
-function convertWeightToUs($weight)
-{
-    global $measurementUtils;
-    return (float)$measurementUtils->kgToLb($weight);
-}
-
 
 $name_x = 650;
 $name_y = 50;
@@ -417,9 +410,15 @@ if (($_GET['html'] ?? null) == 1) {
         if (!empty($data)) {
             $date = str_replace('-', '', substr((string) $data['date'], 0, 10));
             // convert to US if metric locale
-            $height = ($measurementUtils->isMetric() ? convertHeightToUs($data['height']) : $data['height']);
-            $weight = ($measurementUtils->isMetric() ? convertWeightToUs($data['weight']) : $data['weight']);
-            $head_circ = ($measurementUtils->isMetric() ? convertHeightToUs($data['head_circ']) : $data['head_circ']);
+            $height = $measurementUtils->isMetric()
+                ? $measurementUtils->convertCmToInches($data['height'])
+                : $data['height'];
+            $weight = $measurementUtils->isMetric()
+                ? $measurementUtils->convertKgToLb($data['weight'])
+                : $data['weight'];
+            $head_circ = $measurementUtils->isMetric()
+                ? $measurementUtils->convertCmToInches($data['head_circ'])
+                : $data['head_circ'];
 
             if ($date == "") {
                 continue;
@@ -574,9 +573,15 @@ foreach ($datapoints as $data) {
     if (!empty($data)) {
         $date = str_replace('-', '', substr((string) $data['date'], 0, 10));
         // values can be US or metric thus convert to US for graphing
-        $height = ($measurementUtils->isMetric() ? convertHeightToUs($data['height']) : $data['height']);
-        $weight = ($measurementUtils->isMetric() ? convertWeightToUs($data['weight']) : $data['weight']);
-        $head_circ = ($measurementUtils->isMetric() ? convertHeightToUs($data['head_circ']) : $data['head_circ']);
+        $height = $measurementUtils->isMetric()
+            ? $measurementUtils->convertCmToInches($data['height'])
+            : $data['height'];
+        $weight = $measurementUtils->isMetric()
+            ? $measurementUtils->convertKgToLb($data['weight'])
+            : $data['weight'];
+        $head_circ = $measurementUtils->isMetric()
+            ? $measurementUtils->convertCmToInches($data['head_circ'])
+            : $data['head_circ'];
 
         if ($date == "") {
             continue;

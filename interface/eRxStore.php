@@ -115,8 +115,8 @@ class eRxStore
         $data = formFetch("form_vitals", $result['id']);
 
         $measurementUtils = new MeasurementUtils();
-        $weight = number_format((float)$measurementUtils->lbToKg($data['weight']), 2);
-        $height = number_format(round((float)$measurementUtils->inchesToCm($data['height']), 1), 2);
+        $weight = number_format($measurementUtils->convertLbToKg($data['weight']), 2);
+        $height = number_format(round($measurementUtils->convertInchesToCm($data['height']), 1), 2);
 
         return [
             'height' => $height,
