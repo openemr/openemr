@@ -9,6 +9,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
@@ -25,12 +26,18 @@ class EnableModuleCommand extends Command
         parent::__construct();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function configure(): void
     {
-        $moduleName = 'firehed/openemr-sample-module'; // FIXME: read from $input
+        $this->addArgument('package-name', InputArgument::REQUIRED);
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $moduleName = $input->getArgument('package-name');
         return $this($moduleName, $output);
     }
 
+    // 7.3+: remove configure+execute
     public function __invoke(string $moduleName, OutputInterface $output): int
     {
         $mi = $this->manager->getInfoFor($moduleName);
