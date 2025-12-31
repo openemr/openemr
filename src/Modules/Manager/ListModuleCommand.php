@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\Manager;
 
-use Composer\InstalledVersions;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,11 +17,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ListModuleCommand extends Command
 {
     public function __construct(
-        private ModuleFinder $finder,
+        private ModuleManager $manager,
     ) {
         parent::__construct();
     }
 
+    // FC proxy to console 7.x
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this($output);
@@ -30,26 +30,14 @@ class ListModuleCommand extends Command
 
     public function __invoke(OutputInterface $output): int
     {
-        $available = $this->finder->listAllAvailable();
-
-        $io = new \Composer\IO\NullIO();
-        $c = \Composer\Factory::create($io);
-        $repo = $c->getRepositoryManager()->getLocalRepository();
-        // var_dump($available);
-        // print into a table?
+        $installed = $this->manager->getInstalledModules();
         $table = new Table($output);
         $table->setHeaders(['Name', 'Active']);
-        foreach ($available as $module) {
-            // $info = InstalledVersions::GetInstallPath($module);
-            // var_dump($module, $info);
-            // $package = $repo->findPackage($module, '*');
-            // print_r(get_class($package));
-            // var_dump($package instanceof \Composer\Package\AliasPackage);
-            // $extra = $package->getExtra();
-            // print_r($extra);
-            $mi = ModuleInfo::for($module);
-            // print_r($mi);
-            $table->addRow([$mi->packageName, $mi->isActive ? 'Yes' : 'No']);
+        foreach ($installed as $module) {
+            $table->addRow([
+                $module->packageName,
+                $module->isActive ? 'Yes' : 'No',
+            ]);
         }
 
         $table->render();

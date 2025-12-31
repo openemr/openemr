@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\Manager;
 
+use Composer\InstalledVersions;
 use OpenEMR\Modules\{
     CliModuleInterface,
     ModuleInterface,
@@ -49,5 +50,21 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
             ];
         }
         return [];
+    }
+
+    /**
+     * @return ModuleInfo[]
+     */
+    public function getInstalledModules(): array
+    {
+        $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
+        $info = array_map(ModuleInfo::for(...), $packages);
+        $info[] = new ModuleInfo(
+            packageName: 'opememr/module-manager',
+            installDirectory: 'idk',
+            isActive: true,
+        );
+        // sort by name?
+        return $info;
     }
 }
