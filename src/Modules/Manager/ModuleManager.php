@@ -5,21 +5,10 @@ declare(strict_types=1);
 namespace OpenEMR\Modules\Manager;
 
 use Composer\InstalledVersions;
-use OpenEMR\Modules\{
-    CliModuleInterface,
-    ModuleInterface,
-};
+use OpenEMR\Modules\ModuleInterface;
 
-class ModuleManager implements ManagerInterface, ModuleInterface, CliModuleInterface
+class ModuleManager implements ManagerInterface
 {
-    public static function getConsoleCommands(): array
-    {
-        return [
-            EnableModuleCommand::class,
-            ListModuleCommand::class,
-        ];
-    }
-
     private const /* string */ MANIFEST_FILE = 'todooooo.php';
 
     public function enable(string $packageName): void
@@ -93,7 +82,7 @@ class ModuleManager implements ManagerInterface, ModuleInterface, CliModuleInter
     {
         return new ModuleInfo(
             packageName: 'opememr/module-manager',
-            entrypoint: self::class,
+            entrypoint: Module::class,
             // installDirectory: 'idk', // dirname(__DIR__)?
             isActive: true,
         );
