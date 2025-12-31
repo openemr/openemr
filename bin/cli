@@ -3,6 +3,7 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use OpenEMR\Modules\Manager\{
     EnableModuleCommand,
     ListModuleCommand,
@@ -34,8 +35,24 @@ $mm = new ModuleManager();
 foreach ($mm->getEnabledModules() as $moduleInfo) {
     print_r($moduleInfo);
     print_r($moduleInfo->getCliCommands());
+    foreach ($moduleInfo->getCliCommands() as $commandClass) {
+        $commandMap[readCommandName($commandClass)] = $commandClass;
+    }
     // Append into the commandMap based on... something. Read the AsCommand
     // attribute of each CliCommand class?
+}
+var_dump($commandMap);
+
+/**
+ * @param class-string $commandClass
+ */
+function readCommandName(string $commandClass): string
+{
+    $rc = new ReflectionClass($commandClass);
+    $attrs = $rc->getAttributes(AsCommand::class);
+    assert(count($attrs) === 1);
+    $info = $attrs[0]->newInstance();
+    return $info->name;
 }
 
 $application = new Application();

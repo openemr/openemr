@@ -11,13 +11,14 @@ use Symfony\Component\Console\Command\Command;
 
 readonly class ModuleInfo
 {
+    #[\Deprecated]
     public static function for(string $composerPackageName): ModuleInfo
     {
         return new ModuleInfo(
             packageName: $composerPackageName,
             // installDirectory: realpath(InstalledVersions::getInstallPath($composerPackageName)),
-            isActive: false,
-            entrypoint: '', // TODO: composer.json['extras']['oe-module-entrypoint'],
+            isActive: true,
+            entrypoint: \Firehed\OpenemrSampleModule\Init::class, // TODO: composer.json['extras']['oe-module-entrypoint'],
         );
     }
 

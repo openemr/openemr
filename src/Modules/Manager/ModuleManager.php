@@ -49,24 +49,28 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
     }
 
     /**
+     * This implementation needs to be kept as light as possible since the
+     * method will be called early in the lifecycle of nearly every request.
+     *
      * @return ModuleInfo[]
      */
     public function getEnabledModules(): array
     {
-        // TODO: while FS-based installs are OK, this needs to support other
-        // enable/disable mechanisms for other deployment systems
-        // e.g. OPENEMR_ENABLE_MODULES=vendor/pkg1,vendor/pkg2,...
-        //
-        // Support a driver-based system and delegate to it:
-        // - env
-        // - static file
-        // - database
-        // more?
-        if (!file_exists(self::MANIFEST_FILE)) {
-            // ensure manager itself loads
-            return [self::getManagerModuleInfo()];
-        }
-        return [];
+        //// TODO: while FS-based installs are OK, this needs to support other
+        //// enable/disable mechanisms for other deployment systems
+        //// e.g. OPENEMR_ENABLE_MODULES=vendor/pkg1,vendor/pkg2,...
+        ////
+        //// Support a driver-based system and delegate to it:
+        //// - env
+        //// - static file
+        //// - database
+        //// more?
+        //if (!file_exists(self::MANIFEST_FILE)) {
+        //    // ensure manager itself loads
+        //    return [self::getManagerModuleInfo()];
+        //}
+        //return [];
+        return array_filter($this->getInstalledModules(), fn ($m) => $m->isActive);
     }
 
     /**
@@ -77,6 +81,8 @@ class ModuleManager implements ModuleInterface, CliModuleInterface
         $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
         $info = [];
         foreach ($packages as $package) {
+            // TODO: this should determine the critical module info instead of
+            // using ModuleInfo::for()
             $info[$package] = ModuleInfo::for($package);
         }
         $info['openemr/module-manager'] = self::getManagerModuleInfo();
