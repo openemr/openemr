@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use OpenEMR\Modules\Manager\{
+    EnableModuleCommand,
+    ListModuleCommand,
+    ModuleManager,
+};
+use Symfony\Component\Console\{
+    Application,
+    CommandLoader\ContainerCommandLoader,
+};
+
+chdir(dirname(__DIR__));
+
+require_once 'vendor/autoload.php';
+
+// load DI container
+$container = require 'di.php';
+$commandMap = [
+    'module:enable' => EnableModuleCommand::class,
+    'module:list' => ListModuleCommand::class,
+];
+
+// add a few system module orinated commands
+// for all active modules, filter to those that implement CliModuleInterface
+// (recursively?) and feed them in.
+$loader = new ContainerCommandLoader($container, $commandMap);
+// print_r($loader);
+
+$mm = new ModuleManager();
+foreach ($mm->getEnabledModules() as $module) {
+    // Append into the commandMap based on... something. Read the AsCommand
+    // attribute of each CliCommand class?
+}
+
+$application = new Application();
+$application->setCommandLoader($loader);
+// $application->add($container->get(ListModulesCommand::class));
+$application->run();
