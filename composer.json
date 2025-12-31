@@ -125,7 +125,10 @@
         "vlucas/phpdotenv": "5.6.3",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "zircote/swagger-php": "^3.0"
+        "zircote/swagger-php": "^3.0",
+        "firehed/container": "^0.10.0",
+        "composer/composer": "^2.9",
+        "firehed/openemr-sample-module": "^1.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
@@ -136,7 +139,8 @@
         "phpunit/phpunit": "^11.0",
         "rector/rector": "^2.1",
         "squizlabs/php_codesniffer": "^4.0",
-        "symfony/panther": "^2.0"
+        "symfony/panther": "^2.0",
+        "firehed/simplelogger": "^3.0"
     },
     "repositories": [
         {
@@ -146,6 +150,11 @@
         {
             "type": "git",
             "url": "https://github.com/openemr/oe-module-cqm"
+        },
+        {
+            "type": "path",
+            "only": ["firehed/openemr-sample-module"],
+            "url": "../openemr-sample-module"
         }
     ],
     "autoload": {
