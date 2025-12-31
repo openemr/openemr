@@ -4,11 +4,7 @@
 declare(strict_types=1);
 
 use Psr\Container\ContainerInterface;
-use OpenEMR\Modules\Manager\{
-    EnableModuleCommand,
-    ListModuleCommand,
-    ModuleManager,
-};
+use OpenEMR\Modules\Manager\ModuleManager;
 use Symfony\Component\Console\{
     Application,
     Attribute\AsCommand,
