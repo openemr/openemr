@@ -47,3 +47,7 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfRow2D list_options list_id care_team_roles option_id primary_care
+UPDATE `list_options` SET `option_id` = 'primary_care_provider' WHERE `list_id` = 'care_team_roles' AND `option_id` = 'primary_care';
+#EndIf
