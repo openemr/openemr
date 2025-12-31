@@ -24,6 +24,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 
 // Capture raw input first (can only be read once)
@@ -80,9 +81,9 @@ if ($vendor !== 'signalwire' || $type !== 'fax') {
     exit('Invalid request');
 }
 
-// Get webhook payload
+// Get webhook payload - initialize all variables explicitly for PHPStan
 $faxSid = $_POST['FaxSid'] ?? $_POST['Sid'] ?? '';
-$status = $_POST['Status'] ?? $_POST['FaxStatus'] ?? '';
+$status = $_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown';
 $from = $_POST['From'] ?? $_POST['RemoteStationId'] ?? '';
 $to = $_POST['To'] ?? $_POST['OriginalTo'] ?? '';
 $numPages = $_POST['NumPages'] ?? $_POST['Pages'] ?? 0;
@@ -207,7 +208,7 @@ function downloadAndStoreFaxMedia(
         // Download the fax media with authentication using oeHttp
         // SignalWire files.signalwire.com requires Bearer token, not Basic auth
         try {
-            $httpRequest = oeHttp::newArgs(oeHttp::client());
+            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
 
             // Set up headers based on URL type
             if (str_contains($mediaUrl, 'files.signalwire.com')) {
@@ -225,7 +226,8 @@ function downloadAndStoreFaxMedia(
             $response = $httpRequest->get($mediaUrl);
             $httpCode = $response->status();
             $mediaContent = $response->body();
-            $contentType = $response->header('Content-Type') ?? 'application/pdf';
+            $contentTypeHeader = $response->header('Content-Type');
+            $contentType = !empty($contentTypeHeader) ? $contentTypeHeader : 'application/pdf';
 
             if ($httpCode !== 200 || empty($mediaContent)) {
                 return;
@@ -248,7 +250,7 @@ function downloadAndStoreFaxMedia(
             $mediaContent,
             $fromNumber,
             $patientId,
-            $contentType ?? 'application/pdf'
+            $contentType
         );
 
         // Update queue with storage info
