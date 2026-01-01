@@ -20,4 +20,6 @@ interface ModuleInterface
      * @internal
      */
     final public const ENTRYPOINT_KEY = 'openemr-module-entrypoint';
+
+    // static function getAutowiredClasses(): array<class-string>?
 }
