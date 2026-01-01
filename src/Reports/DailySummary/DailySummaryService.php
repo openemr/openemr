@@ -318,10 +318,10 @@ class DailySummaryService
             'total_charges' => (float)$totalCharges,
             'total_paid' => (float)$totalPaid,
             'total_balance' => (float)$totalBalance,
-            'collection_rate' => (float)round($collectionRate, 2),
-            'no_show_rate' => (float)round($noShowRate, 2),
-            'average_charge_per_visit' => $totalVisits > 0 ? (float)round($totalCharges / $totalVisits, 2) : 0,
-            'average_payment_per_visit' => $totalVisits > 0 ? (float)round($totalPaid / $totalVisits, 2) : 0,
+            'collection_rate' => round($collectionRate, 2),
+            'no_show_rate' => round($noShowRate, 2),
+            'average_charge_per_visit' => $totalVisits > 0 ? round($totalCharges / $totalVisits, 2) : 0,
+            'average_payment_per_visit' => $totalVisits > 0 ? round($totalPaid / $totalVisits, 2) : 0,
         ];
     }
 

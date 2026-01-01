@@ -67,6 +67,5 @@ jobs:
         exit_code=$?
         if [[ $exit_code -eq 2 ]]; then
           echo "Rector would make changes (exit code 2 - this is expected)"
-          exit 0
         fi
         exit $exit_code
