@@ -265,3 +265,14 @@ function xlj($key)
     return js_escape(hsc_private_xl_or_warn($key));
 }
 
+/**
+ * Translate via xl() and then escape via xmlEscape() for use in XML contexts.
+ *
+ * @param string $key The string to translate and escape.
+ * @return string The translated string, escaped for XML contexts.
+ */
+function xlx($key)
+{
+    return xmlEscape(hsc_private_xl_or_warn($key));
+}
+
