@@ -3486,14 +3486,6 @@ parameters:
       path: ../interface/reports/custom_report_range.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
-      count: 4
-      path: ../interface/reports/daily_summary_report.php
-    - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 4
-      path: ../interface/reports/daily_summary_report.php
-    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/reports/destroyed_drugs_report.php
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'

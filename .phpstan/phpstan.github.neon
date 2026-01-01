@@ -13642,17 +13642,9 @@ parameters:
     identifier: variable.undefined
     count: 3
     path: ../interface/reports/custom_report_range.php
-  - message: '#^Variable \$selectedFacility in isset\(\) always exists and is not nullable\.$#'
-    identifier: isset.variable
-    count: 1
-    path: ../interface/reports/daily_summary_report.php
-  - message: '#^Variable \$selectedProvider in isset\(\) always exists and is not nullable\.$#'
-    identifier: isset.variable
-    count: 1
-    path: ../interface/reports/daily_summary_report.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
-    count: 2
+    count: 1
     path: ../interface/reports/daily_summary_report.php
   - message: '#^Variable \$srcdir might not be defined\.$#'
     identifier: variable.undefined
