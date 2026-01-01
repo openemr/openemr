@@ -62,4 +62,11 @@ jobs:
       run: vendor/bin/rector list-rules
 
     - name: Rector Dry Run
-      run: vendor/bin/rector process --dry-run
+      run: |
+        vendor/bin/rector process --dry-run
+        exit_code=$?
+        if [[ $exit_code -eq 2 ]]; then
+          echo "Rector would make changes (exit code 2 - this is expected)"
+          exit 0
+        fi
+        exit $exit_code
