@@ -163,13 +163,13 @@ class Holidays_Controller
 
                 if (count($row) < 2) {
                     $this->last_error = sprintf(
-            xl('Row %1$d: CSV row must have date and description'),
-            $row_number
-                );
+                        xl('Row %1$d: CSV row must have date and description'),
+                        $row_number
+                    );
                     return false;
                 }
 
-                $date = trim($row[0]);
+                $date = trim((string) $row[0]);
                 if (!$this->is_valid_holiday_date($date)) {
                     $this->last_error = sprintf("Row %d: Invalid date format in CSV", [$row_number]);
                     return false;
