@@ -171,7 +171,7 @@ class Holidays_Controller
 
                 $date = trim($row[0]);
                 if (!$this->is_valid_holiday_date($date)) {
-                    $this->last_error = sprintf("Row %1: Invalid date format in CSV", [$row_number]);
+                    $this->last_error = sprintf("Row %d: Invalid date format in CSV", [$row_number]);
                     return false;
                 }
             }
