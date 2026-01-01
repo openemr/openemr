@@ -24,8 +24,6 @@ $commandMap = [];
 $mm = $container->get(ManagerInterface::class);
 assert($mm instanceof ManagerInterface);
 foreach ($mm->getEnabledModules() as $moduleInfo) {
-    // print_r($moduleInfo);
-    // print_r($moduleInfo->getCliCommands());
     foreach ($moduleInfo->getCliCommands() as $commandClass) {
         $commandMap[readCommandName($commandClass)] = $commandClass;
     }
