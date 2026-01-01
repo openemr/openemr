@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\Manager;
 
-use Composer\InstalledVersions;
+use Composer\{
+    Factory,
+    IO\NullIO,
+    InstalledVersions,
+};
 use OpenEMR\Modules\ModuleInterface;
 
+/**
+ * TODO: FileModuleManager? (could also support db, env var, etc
+ */
 class ModuleManager implements ManagerInterface
 {
     /**
@@ -15,7 +22,7 @@ class ModuleManager implements ManagerInterface
      */
     private const MODULE_MANAGER_NAME = 'openemr/module-manager';
 
-    private const /* string */ MANIFEST_FILE = 'todooooo.php';
+    // private const MANIFEST_FILE = 'module_manifest.php';
 
     public function enable(string $packageName): void
     {
@@ -51,34 +58,24 @@ class ModuleManager implements ManagerInterface
      */
     public function getEnabledModules(): array
     {
-        //// TODO: while FS-based installs are OK, this needs to support other
-        //// enable/disable mechanisms for other deployment systems
-        //// e.g. OPENEMR_ENABLE_MODULES=vendor/pkg1,vendor/pkg2,...
-        ////
-        //// Support a driver-based system and delegate to it:
-        //// - env
-        //// - static file
-        //// - database
-        //// more?
-        //if (!file_exists(self::MANIFEST_FILE)) {
-        //    // ensure manager itself loads
-        //    return [self::getManagerModuleInfo()];
-        //}
-        //return [];
+        // TODO: cache this or availability or whatever. APCu or a simple file
+        // is fine.
         return array_filter($this->getAvailableModules(), fn ($m) => $m->isActive);
     }
 
     public function getAvailableModules(): array
     {
-        $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
-        $info = [];
-        foreach ($packages as $package) {
-            // TODO: this should determine the critical module info instead of
-            // using ModuleInfo::for()
-            $info[$package] = ModuleInfo::for($package);
+        $modules = [
+            self::MODULE_MANAGER_NAME => self::getManagerModuleInfo(),
+        ];
+        foreach (self::findComposerModules() as $pkg => $ep) {
+            $modules[$pkg] = new ModuleInfo(
+                packageName: $pkg,
+                entrypoint: $ep,
+                isActive: false,
+            );
         }
-        $info[self::MODULE_MANAGER_NAME] = self::getManagerModuleInfo();
-        return $info;
+        return $modules;
     }
 
     private static function getManagerModuleInfo(): ModuleInfo
@@ -86,8 +83,50 @@ class ModuleManager implements ManagerInterface
         return new ModuleInfo(
             packageName: self::MODULE_MANAGER_NAME,
             entrypoint: Module::class,
-            // installDirectory: 'idk', // dirname(__DIR__)?
+            // TODO: actually read the activation status
             isActive: true,
         );
+    }
+
+    /**
+     * @return array<string, class-string<ModuleInterface>>
+     */
+    private static function findComposerModules(): array
+    {
+        $packages = InstalledVersions::getInstalledPackagesByType(ModuleInterface::COMPOSER_TYPE);
+
+        // This is a somewhat convoluted way of reading composer.lock and
+        // extracting metadata. A future version of this module system may use
+        // composer-level installer hooks to streamline this process.
+        $composer = Factory::create(new NullIO());
+        $locker = $composer->getLocker();
+        $lockData = $locker->getLockData();
+        $allInstalled = $lockData['packages'];
+
+        $availableModules = [];
+
+        foreach ($packages as $package) {
+            $composerInfo = array_find($allInstalled, fn ($p) => $p['name'] === $package);
+            $extra = $composerInfo['extra'] ?? [];
+            $entrypoint = $extra[ModuleInterface::ENTRYPOINT_KEY] ?? '';
+            if (!is_string($entrypoint) || $entrypoint === '') {
+                // echo "Bad entrypoint";
+                continue;
+            }
+            // Future: this should do more to validate that the entrypoint is
+            // actually within the module.
+
+            if (!class_exists($entrypoint)) {
+                // echo "Entrypoint is not a class";
+                continue;
+            }
+            if (!is_a($entrypoint, ModuleInterface::class, allow_string: true)) {
+                // echo "EP not a module";
+                continue;
+            }
+
+            $availableModules[$package] = $entrypoint;
+        }
+        return $availableModules;
     }
 }
