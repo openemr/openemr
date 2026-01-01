@@ -1890,9 +1890,7 @@
             },
             "type": "openemr-module",
             "extra": {
-                "openemr-module-entrypoints": [
-                    "Firehed\\OpenemrSampleModule\\Init"
-                ]
+                "openemr-module-entrypoint": "Firehed\\OpenemrSampleModule\\Init"
             },
             "autoload": {
                 "psr-4": {
@@ -1908,6 +1906,7 @@
                     "email": "eric@ericstern.com"
                 }
             ],
+            "description": "Example module",
             "transport-options": {
                 "relative": true
             }
