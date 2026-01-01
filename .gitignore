@@ -31,3 +31,4 @@ coverage/js-unit
 
 # phpstan
 tmp-phpstan/*
+/rector-fix.sh
