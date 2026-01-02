@@ -1,0 +1,151 @@
+<div style="padding-left:25px;">
+    {{ report_header|raw }}
+
+    {% set label_addressee = 'ADDRESSED TO'|xl %}
+    {% set label_remitto = 'REMIT TO'|xl %}
+    {% set label_totaldue = 'Total amount due'|xl %}
+    {% set label_payby = 'If paying by'|xl %}
+    {% set label_cards = 'VISA/MC/Discovery/HSA'|xl %}
+    {% set label_cardnum = 'Card'|xl %}
+    {% set label_expiry = 'Exp'|xl %}
+    {% set label_sign = 'Signature'|xl %}
+    {% set label_retpay = 'Please fill in credit information and send for review.'|xl %}
+    {% set label_pgbrk = 'STATEMENT SUMMARY'|xl %}
+    {% set label_visit = 'Visit Date'|xl %}
+    {% set label_desc = 'Description'|xl %}
+    {% set label_amt = 'Amount'|xl %}
+    {% set label_ptname = 'Name'|xl %}
+    {% set label_today = 'Date'|xl %}
+    {% set label_due = 'Due'|xl %}
+    {% set label_call = 'Please call or message if any of the above information is incorrect.'|xl %}
+    {% set label_prompt = 'We appreciate prompt payment of balances due.'|xl %}
+    {% set label_dept = 'Billing Department'|xl %}
+    {% set label_appointments = 'Future Appointments'|xl %}
+
+    <div style='margin-left:60px;margin-top:0px;'>
+    <pre>
+	_______________________ {{ label_pgbrk|e('html') }} _______________________
+
+	{{ label_visit|e('html')|pad(11, ' ', 'right') }} {{ label_desc|e('html')|pad(46, ' ', 'right') }} {{ label_amt|e('html') }}
+
+	{% for line in stmt.lines %}
+	    {% set description = use_custom_statement ? line.desc|slice(0, 30) : line.desc %}
+	    {% set tmp = description|slice(0, 14) %}
+	    {% if tmp == 'Procedure 9920' or tmp == 'Procedure 9921' or tmp == 'Procedure 9200' or tmp == 'Procedure 9201' %}
+		{% set description = description|replace({'Procedure': ('Office Visit'|xl) ~ ':'}) %}
+	    {% endif %}
+
+	    {% set dos = line.dos %}
+	    {% for dkey, ddata in line.detail %}
+		{% set ddate = dkey|slice(0, 10) %}
+		{% if ddate|match('/^(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)\\s*$/') %}
+		    {% set year = ddate|slice(0, 4) %}
+		    {% set month = ddate|slice(4, 2) %}
+		    {% set day = ddate|slice(6, 2) %}
+		    {% set ddate = year ~ '-' ~ month ~ '-' ~ day %}
+		{% endif %}
+
+		{% set amount = '' %}
+		{% set desc = '' %}
+
+		{% if ddata.pmt is defined and ddata.pmt %}
+		    {% set amount = '%.2f'|format(0 - ddata.pmt) %}
+		    {% set desc = 'Paid'|xl ~ ' ' ~ (ddate|shortDate) ~ ': ' ~ ddata.src ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
+		{% elseif ddata.rsn is defined and ddata.rsn %}
+		    {% if ddata.chg %}
+			{% set amount = '%.2f'|format(ddata.chg) %}
+			{% set desc = 'Adj'|xl ~ ' ' ~ (ddate|shortDate) ~ ': ' ~ ddata.rsn ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
+		    {% else %}
+			{% set desc = 'Note'|xl ~ ' ' ~ (ddate|shortDate) ~ ': ' ~ ddata.rsn ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
+		    {% endif %}
+		{% elseif ddata.chg is defined and ddata.chg < 0 %}
+		    {% set amount = '%.2f'|format(ddata.chg) %}
+		    {% set desc = 'Patient Payment'|xl %}
+		{% else %}
+		    {% set amount = '%.2f'|format(ddata.chg) %}
+		    {% set desc = description %}
+		{% endif %}
+
+		{{ (dos|shortDate)|e('html')|pad(10, ' ', 'right') }}  {{ desc|e('html')|pad(45, ' ', 'right') }}{{ amount|e('html')|pad(8, ' ', 'left') }}
+		{% set dos = '' %}
+	    {% endfor %}
+	{% endfor %}
+
+	{% if stmt.bill_note|length > 0 and statement_bill_note_print %}
+	{{ stmt.bill_note|e('html')|pad(46, ' ', 'right') }}
+	{% endif %}
+
+	{% if use_dunning_message and dun_message|length > 0 %}
+	{{ dun_message|e('html')|pad(46, ' ', 'right') }}
+	{% endif %}
+
+	{{ label_ptname|e('html') }}: {{ stmt.patient|e('html')|pad(25, ' ', 'right') }} {{ label_today|e('html') }}: {{ stmt.today|shortDate|e('html')|pad(14, ' ', 'right') }} {{ label_due|e('html') }}: {{ stmt.amount|e('html')|pad(8, ' ', 'left') }}
+	__________________________________________________________________
+
+	{{ label_call|e('html') }}
+	{{ label_prompt|e('html') }}
+
+	{{ billing_contact|e('html') }}
+	  {{ label_dept|e('html') }} {{ label_bill_phone|e('html') }}
+
+	{% if statement_message_to_patient and statement_message|length > 0 %}
+
+	{{ statement_message|e('html')|pad(40, ' ', 'right') }}
+	{% endif %}
+
+	{% if show_aging_on_custom_statement and ageline %}
+
+	{{ ageline|e('html') }}
+
+	{% endif %}
+
+	{% if number_appointments_on_statement > 0 and events|length > 0 %}
+
+	{{ label_appointments|e('html') }}:
+	{% for event in events %}
+	    {% if event.pc_startTime|length > 0 %}
+		{% set appt_provider = event.umname|length > 0 ? event.ufname ~ ' ' ~ event.umname ~ ' ' ~ event.ulname : event.ufname ~ ' ' ~ event.ulname %}
+		{{ 'Date'|xlt }}: {{ event.pc_eventDate|shortDate|text }} {{ 'Time'|xlt }} {{ event.pc_startTime|slice(0, 5)|text }} {{ 'Provider'|xlt }} {{ appt_provider|text }}
+	    {% endif %}
+	{% endfor %}
+	{% endif %}
+
+	{{ label_retpay|e('html') }}
+    </pre>
+    </div>
+
+    <div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br><br>
+	<table style="width:8in;margin-left:20px;"><tr><td style="width:4.5in;"><br>
+	    {{ label_payby|e('html') }} {{ label_cards|e('html') }}<br><br>
+	    {{ label_cardnum|e('html') }}: {TextInput}  {{ label_expiry|e('html') }}: {smTextInput} / {smTextInput} <br><br>
+	    {{ label_sign|e('html') }}  {PatientSignature}<br>
+	</td><td style="width:2.0in;vertical-align:middle;">
+	    {% if practice_cards_exist %}
+		<br><p>{{ label_totaldue|e('html') }}: {{ stmt.amount|e('html') }}</p>
+	    {% endif %}
+	</td></tr></table>
+    </div><br>
+
+    {% if stmt.to[3] is defined and stmt.to[3]|length > 0 %}
+	<pre>   {{ stmt.to[3]|e('html')|pad(32, ' ', 'right') }}</pre>
+    {% endif %}
+
+    <pre>
+    <div style="width:8in;border-top:1pt solid black;"><br>
+	<table style='width:6.0in;margin-left:40px;'><tr>
+	    <td style="width:3.0in;"><b>{{ label_addressee|e('html') }}</b><br>
+		{{ stmt.to[0]|e('html') }}<br>
+		{{ stmt.to[1]|e('html') }}<br>
+		{{ stmt.to[2]|e('html') }}
+	    </td>
+	    <td style="width:3.0in;"><b>{{ label_remitto|e('html') }}</b><br>
+		{{ remit_name|e('html') }}<br>
+		{{ remit_addr|e('html') }}<br>
+		{{ remit_csz|e('html') }}
+	    </td>
+	</tr></table>
+    </div></div>
+    &#x0C;
+    <br><br>
+    </pre>
+</div>
