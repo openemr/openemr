@@ -141,11 +141,11 @@ if (count($missingExtensions) > 0) {
                 ?>
         <strong><?php echo xlt('Ensora call failed'); ?></strong>
         <ul>
-            <?php foreach ($errors as $message) {
-                echo '<li>' . text($message) . '</li>';
-            } ?>
+                <?php foreach ($errors as $message) {
+                    echo '<li>' . text($message) . '</li>';
+                } ?>
         <ul>
-            <?php
+                <?php
             }
         } else {
             $eRxPage->updatePatientData();
