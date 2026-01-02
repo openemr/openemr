@@ -23,7 +23,30 @@ namespace OpenEMR\Gacl;
 
 class GaclApi extends Gacl {
 
-    /*
+    /**
+     * Indexes for data returned by get_group_data
+     *
+     * @see self::get_group_data()
+     */
+    public const GROUP_INDEX_ID = 0;
+    public const GROUP_INDEX_PARENT_ID = 1;
+    public const GROUP_INDEX_VALUE = 2;
+    public const GROUP_INDEX_NAME = 3;
+    public const GROUP_INDEX_LFT = 4;
+    public const GROUP_INDEX_RGT = 5;
+
+    /**
+     * Indexes for data returned by get_object_data
+     *
+     * @see self::get_object_data()
+     */
+    public const OBJECT_INDEX_SECTION_VALUE = 0;
+    public const OBJECT_INDEX_VALUE = 1;
+    public const OBJECT_INDEX_ORDER = 2;
+    public const OBJECT_INDEX_NAME = 3;
+    public const OBJECT_INDEX_HIDDEN = 4;
+
+    /**
      *
      * Misc helper functions.
      *

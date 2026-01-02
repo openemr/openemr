@@ -208,7 +208,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return integer  Last id generated from the sql insert command
      */
-    public static function sqlInsert($statement, $binds = [])
+    public static function sqlInsert($statement, $binds = []): int
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -223,9 +223,7 @@ class QueryUtils
             throw new SqlQueryException($statement, "Insert failed. SQL error " . getSqlLastError() . " Query: " . $statement);
         }
 
-        // Return the correct last id generated using function
-        //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return self::getLastInsertId();
     }
 
     /**
@@ -293,9 +291,14 @@ class QueryUtils
         \sqlRollbackTrans();
     }
 
-    public static function getLastInsertId()
+    public static function getLastInsertId(): int
     {
         return \sqlGetLastInsertId();
+    }
+
+    public static function getAffectedRows(): int
+    {
+        return (int) $GLOBALS['adodb']['db']->affected_rows();
     }
 
     public static function querySingleRow(string $sql, array $params = [])

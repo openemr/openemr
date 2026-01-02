@@ -36,6 +36,7 @@ This file configures the kind that requires initialization.
       <directory>tests/Tests/Fixtures</directory>
     </testsuite>
     <testsuite name="services">
+      <directory>tests/Tests/Setting</directory>
       <directory>tests/Tests/Services</directory>
     </testsuite>
     <testsuite name="validators">

@@ -83,6 +83,7 @@ use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalsServiceFactory;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -119,7 +120,8 @@ function getDefaultRenderListOptions()
 // xl('Miscellaneous')
 
 // List of user specific tabs and globals
-$USER_SPECIFIC_TABS = ['Appearance',
+$USER_SPECIFIC_TABS = [
+    'Appearance',
     'Locale',
     'Features',
     'Billing',
@@ -127,13 +129,16 @@ $USER_SPECIFIC_TABS = ['Appearance',
     'Calendar',
     'CDR',
     'Connectors',
-    'Questionnaires'];
-$USER_SPECIFIC_GLOBALS = ['default_top_pane',
+    'Questionnaires',
+];
+
+$USER_SPECIFIC_GLOBALS = [
+    'default_top_pane',
     'default_second_tab',
     'theme_tabs_layout',
     'css_header',
     'enable_compact_mode',
-    'vertical_responsive_menu',
+    'vertical_responsive_menu', // not exists
     'search_any_patient',
     'default_encounter_view',
     'gbl_pt_list_page_size',
@@ -162,7 +167,7 @@ $USER_SPECIFIC_GLOBALS = ['default_top_pane',
     'erx_import_status_message',
     'questionnaire_display_LOINCnote',
     'questionnaire_display_style',
-    'questionnaire_display_fullscreen'
+    'questionnaire_display_fullscreen',
 ];
 
 // Gets array of time zones supported by PHP.
@@ -818,7 +823,8 @@ $GLOBALS_METADATA = [
             '$',                              // default
             xl('Code or symbol to indicate currency')
         ],
-        'age_display_format' => [xl('Age Display Format'),
+        'age_display_format' => [
+            xl('Age Display Format'),
             [
                 '0' => xl('Years or months'),
                 '1' => xl('Years, months and days')
@@ -4678,7 +4684,10 @@ if (!empty($GLOBALS['ippf_specific'])) {
 } // end if ippf_specific
 
 if (empty($skipGlobalEvent)) {
-    $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
+    $globalsService = GlobalsServiceFactory::build($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS);
+
+    $globalsInitEvent = new GlobalsInitializedEvent($globalsService);
     $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE, 10);
-    $globalsService = $globalsInitEvent->getGlobalsService()->save();
+
+    $globalsService->save();
 }

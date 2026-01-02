@@ -124,11 +124,13 @@
         "twilio/sdk": "8.10.0",
         "vlucas/phpdotenv": "5.6.3",
         "waryway/php-traits-library": "1.0.4",
+        "webmozart/assert": "^1.12",
         "yubico/u2flib-server": "1.0.2",
         "zircote/swagger-php": "^3.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
+        "fakerphp/faker": "^1.24",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",

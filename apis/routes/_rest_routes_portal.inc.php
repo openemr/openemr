@@ -18,6 +18,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenApi\Annotations as OA;
 use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\RestControllers\EncounterRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
