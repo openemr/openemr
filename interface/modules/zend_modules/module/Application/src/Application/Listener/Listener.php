@@ -56,16 +56,6 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
    * @param string $str
    * @return string
    */
-    public static function z_xl($str)
-    {
-        return xl($str);
-    }
-
-  /**
-   * Language converter
-   * @param string $str
-   * @return string
-   */
     public static function z_xlt($str)
     {
         return xlt($str);
@@ -80,5 +70,4 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
     {
         return xla($str);
     }
-
 }

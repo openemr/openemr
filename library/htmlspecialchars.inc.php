@@ -257,8 +257,11 @@ function xla($key)
     return attr(hsc_private_xl_or_warn($key));
 }
 
-/*
- * Translate via xl() and then escape via js_escape for use with javascript literals
+/**
+ * Translate via xl() and then escape via js_escape() for use with JavaScript literals.
+ *
+ * @param string $key The string to translate and escape.
+ * @return string The translated string escaped for JavaScript.
  */
 function xlj($key)
 {
@@ -275,4 +278,3 @@ function xlx($key)
 {
     return xmlEscape(hsc_private_xl_or_warn($key));
 }
-
