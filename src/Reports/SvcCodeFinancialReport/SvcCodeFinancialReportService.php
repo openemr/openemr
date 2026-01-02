@@ -210,23 +210,21 @@ class SvcCodeFinancialReportService
      */
     public function formatForDisplay(array $procedureCodes): array
     {
-        return array_map(function ($item) {
-            return [
-                'code' => $item['code'] ?? '',
-                'units' => (int)($item['units'] ?? 0),
-                'billed' => (float)($item['billed'] ?? 0),
-                'paid_amount' => (float)($item['paid_amount'] ?? 0),
-                'adjust_amount' => (float)($item['adjust_amount'] ?? 0),
-                'balance' => (float)($item['balance'] ?? 0),
-                'encounter_count' => (int)($item['encounter_count'] ?? 0),
-                'financial_reporting' => $item['financial_reporting'] ?? 0,
-                'collection_rate' => ($item['billed'] ?? 0) > 0
-                    ? (($item['paid_amount'] ?? 0) / ($item['billed'] ?? 0)) * 100
-                    : 0,
-                'revenue_per_unit' => ($item['units'] ?? 0) > 0
-                    ? ($item['billed'] ?? 0) / ($item['units'] ?? 0)
-                    : 0
-            ];
-        }, $procedureCodes);
+        return array_map(fn($item) => [
+            'code' => $item['code'] ?? '',
+            'units' => (int)($item['units'] ?? 0),
+            'billed' => (float)($item['billed'] ?? 0),
+            'paid_amount' => (float)($item['paid_amount'] ?? 0),
+            'adjust_amount' => (float)($item['adjust_amount'] ?? 0),
+            'balance' => (float)($item['balance'] ?? 0),
+            'encounter_count' => (int)($item['encounter_count'] ?? 0),
+            'financial_reporting' => $item['financial_reporting'] ?? 0,
+            'collection_rate' => ($item['billed'] ?? 0) > 0
+                ? (($item['paid_amount'] ?? 0) / ($item['billed'] ?? 0)) * 100
+                : 0,
+            'revenue_per_unit' => ($item['units'] ?? 0) > 0
+                ? ($item['billed'] ?? 0) / ($item['units'] ?? 0)
+                : 0
+        ], $procedureCodes);
     }
 }

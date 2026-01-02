@@ -28,12 +28,13 @@ require_once "$srcdir/appointments.inc.php";
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\SvcCodeFinancialReport\SvcCodeFinancialReportService;
 use OpenEMR\Services\FacilityService;
 use League\Csv\Writer;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Financial Summary by Service Code")]);
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Financial Summary by Service Code")]);
     exit;
 }
 
@@ -165,10 +166,10 @@ $twigVariables = [
     'chart_data' => $chart_data,
     'summary_metrics' => $summary_metrics,
     'formatted_codes' => $formatted_codes,
-    'webroot' => $GLOBALS['webroot'],
+    'webroot' => OEGlobalsBag::getInstance()->get('webroot'),
 ];
 
 // Render Twig template
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig();
 echo $twig->render('reports/svc_code_financial_report/report.html.twig', $twigVariables);
 ?>
