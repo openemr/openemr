@@ -14,6 +14,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
@@ -109,11 +110,13 @@ class FaxDocumentService
                     'patient_id' => $patientId
                 ];
             } else {
-                // Store in unassigned directory
+                // Store in unassigned directory with encryption
+                $filename = "fax_{$faxSid}_{$timestamp}.{$extension}.enc";
                 $mediaPath = $this->receivedFaxesPath . '/unassigned/' . $filename;
-                file_put_contents($mediaPath, $mediaContent);
+                $encryptedContent = $this->encryptFaxContent($mediaContent);
+                file_put_contents($mediaPath, $encryptedContent);
                 
-                error_log("FaxDocumentService: Stored unassigned fax {$faxSid} at {$mediaPath}");
+                error_log("FaxDocumentService: Stored encrypted unassigned fax {$faxSid} at {$mediaPath}");
                 
                 return [
                     'success' => true,
@@ -160,14 +163,20 @@ class FaxDocumentService
                 throw new FaxDocumentException("Fax media file not found: {$mediaPath}");
             }
             
-            $mediaContent = file_get_contents($mediaPath);
+            $encryptedContent = file_get_contents($mediaPath);
+            // Decrypt the fax content
+            $mediaContent = $this->decryptFaxContent($encryptedContent);
             $details = json_decode($fax['details_json'] ?? '{}', true);
             $fromNumber = $details['from'] ?? $fax['calling_number'] ?? 'Unknown';
             
-            // Determine mime type from file
+            // Determine mime type from decrypted content
+            // Create temp file to get accurate mime type
+            $tempFile = tempnam(sys_get_temp_dir(), 'fax_');
+            file_put_contents($tempFile, $mediaContent);
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mimeType = finfo_file($finfo, $mediaPath);
+            $mimeType = finfo_file($finfo, $tempFile);
             finfo_close($finfo);
+            unlink($tempFile);
             
             // Store as patient document
             $result = $this->storeFaxDocument($faxSid, $mediaContent, $fromNumber, $patientId, $mimeType);
@@ -268,6 +277,62 @@ class FaxDocumentService
     }
 
     /**
+     * Get fax content for viewing/download (decrypts if encrypted)
+     *
+     * @param string $faxSid Fax SID
+     * @return array|null Array with 'content' (binary), 'mime_type', and 'filename', or null if not found
+     * @throws FaxDocumentException
+     */
+    public function getFaxContent(string $faxSid): ?array
+    {
+        try {
+            $fax = QueryUtils::querySingleRow(
+                "SELECT * FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ?",
+                [$faxSid, $this->siteId]
+            );
+            
+            if (empty($fax)) {
+                return null;
+            }
+            
+            $mediaPath = $fax['media_path'];
+            if (empty($mediaPath) || !file_exists($mediaPath)) {
+                throw new FaxDocumentException("Fax media file not found: {$mediaPath}");
+            }
+            
+            // Read file content
+            $fileContent = file_get_contents($mediaPath);
+            
+            // Check if file is encrypted (has .enc extension)
+            $isEncrypted = str_ends_with((string) $mediaPath, '.enc');
+            
+            $mediaContent = $isEncrypted ? $this->decryptFaxContent($fileContent) : $fileContent;
+            
+            // Determine MIME type from content
+            $tempFile = tempnam(sys_get_temp_dir(), 'fax_');
+            file_put_contents($tempFile, $mediaContent);
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $tempFile);
+            finfo_close($finfo);
+            unlink($tempFile);
+            
+            // Generate filename
+            $details = json_decode($fax['details_json'] ?? '{}', true);
+            $extension = FileUtils::getExtensionFromMimeType($mimeType);
+            $filename = "fax_{$faxSid}.{$extension}";
+            
+            return [
+                'content' => $mediaContent,
+                'mime_type' => $mimeType,
+                'filename' => $filename
+            ];
+        } catch (FaxDocumentException $e) {
+            error_log("FaxDocumentService: Error retrieving fax content: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Delete fax document
      *
      * @param string $faxSid Fax SID
@@ -302,6 +367,58 @@ class FaxDocumentService
         }
     }
 
+
+    /**
+     * Encrypt fax content for secure filesystem storage
+     *
+     * @param string $content Binary fax content
+     * @return string Base64-encoded encrypted content
+     * @throws FaxDocumentException
+     */
+    private function encryptFaxContent(string $content): string
+    {
+        try {
+            $crypto = new CryptoGen();
+            // Use database key source for files stored on the filesystem
+            $encrypted = $crypto->encryptStandard($content, null, 'database');
+            // Base64 encode for safe filesystem storage
+            return base64_encode($encrypted);
+        } catch (\Exception $e) {
+            error_log("FaxDocumentService: Error encrypting fax content: " . $e->getMessage());
+            throw new FaxDocumentException("Failed to encrypt fax content: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Decrypt fax content from filesystem storage
+     *
+     * @param string $encryptedContent Base64-encoded encrypted content
+     * @return string Binary fax content
+     * @throws FaxDocumentException
+     */
+    private function decryptFaxContent(string $encryptedContent): string
+    {
+        try {
+            // Base64 decode first
+            $encrypted = base64_decode($encryptedContent, true);
+            if ($encrypted === false) {
+                throw new FaxDocumentException("Invalid base64 encoded content");
+            }
+            
+            $crypto = new CryptoGen();
+            // Use database key source to match encryption
+            $decrypted = $crypto->decryptStandard($encrypted, null, 'database');
+            
+            if ($decrypted === false) {
+                throw new FaxDocumentException("Decryption failed");
+            }
+            
+            return $decrypted;
+        } catch (\Exception $e) {
+            error_log("FaxDocumentService: Error decrypting fax content: " . $e->getMessage());
+            throw new FaxDocumentException("Failed to decrypt fax content: " . $e->getMessage());
+        }
+    }
 
     /**
      * Format phone number for display
