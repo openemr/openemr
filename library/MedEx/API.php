@@ -294,8 +294,8 @@ class Events extends Base
 
         $sqlQuery = "SELECT msg_type, msg_status, i_html FROM medex_icons";
         $result = sqlStatement($sqlQuery);
+        $matches = [];
         while ($icons = sqlFetchArray($result)) {
-            $matches = [];
             preg_match('/title="([^"]*)"/', (string) $icons['i_html'], $matches);
             $title = $matches[1] ?? '';
             $xl_title = xla($title);
