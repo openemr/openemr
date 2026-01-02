@@ -130,14 +130,17 @@ class SignalWireClient extends AppDispatch
             ]);
         }
 
-        // Get request parameters
+        // Get request parameters - initialize all to avoid PHPStan warnings
         $isContent = $this->getRequest('isContent');
-        $file = $this->getRequest('file');
+        $fileParam = $this->getRequest('file');
+        $file = !empty($fileParam) ? $fileParam : '';
         $docId = $this->getRequest('docid');
-        $phone = $this->formatPhone($this->getRequest('phone'));
+        $phoneParam = $this->getRequest('phone');
+        $phone = !empty($phoneParam) ? $this->formatPhone($phoneParam) : '';
         $recipientName = $this->getRequest('name') . ' ' . $this->getRequest('surname');
         $recipientName = trim($recipientName) ?: 'Unknown'; // Default if empty
-        $isDocuments = (int)$this->getRequest('isDocuments');
+        $isDocumentsParam = $this->getRequest('isDocuments');
+        $isDocuments = !empty($isDocumentsParam) ? (int)$isDocumentsParam : 0;
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $globals = OEGlobalsBag::getInstance();
@@ -145,17 +148,17 @@ class SignalWireClient extends AppDispatch
         $user = $this::getLoggedInUser();
 
         // DEBUG: Log parameters received in sendFax
-        error_log("SignalWireClient.sendFax(): DEBUG - Received file path: " . ($file ?? 'EMPTY'));
+        error_log("SignalWireClient.sendFax(): DEBUG - Received file path: " . $file);
         error_log("SignalWireClient.sendFax(): DEBUG - isContent: " . ($isContent ?? 'EMPTY'));
-        error_log("SignalWireClient.sendFax(): DEBUG - isDocuments: " . ($isDocuments ?? 'EMPTY'));
-        error_log("SignalWireClient.sendFax(): DEBUG - Phone: " . ($phone ?? 'EMPTY'));
-        error_log("SignalWireClient.sendFax(): DEBUG - File exists: " . (file_exists($file) ? 'YES' : 'NO'));
+        error_log("SignalWireClient.sendFax(): DEBUG - isDocuments: " . $isDocuments);
+        error_log("SignalWireClient.sendFax(): DEBUG - Phone: " . $phone);
+        error_log("SignalWireClient.sendFax(): DEBUG - File exists: " . (!empty($file) && file_exists($file) ? 'YES' : 'NO'));
         if (!empty($file) && file_exists($file)) {
             error_log("SignalWireClient.sendFax(): DEBUG - File size: " . filesize($file) . " bytes");
         }
 
         // Handle file path
-        if (empty($isContent)) {
+        if (empty($isContent) && !empty($file)) {
             if (str_starts_with((string) $file, 'file://')) {
                 $file = substr((string) $file, 7);
             }
@@ -241,7 +244,7 @@ class SignalWireClient extends AppDispatch
         try {
             // DEBUG: Log before upload
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - baseDir: " . ($this->baseDir ?? 'EMPTY'));
-            error_log("SignalWireClient.uploadFileForFax(): DEBUG - File parameter: " . ($file ?? 'EMPTY'));
+            error_log("SignalWireClient.uploadFileForFax(): DEBUG - File parameter: " . $file);
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - isDocuments: " . ($isDocuments ? 'YES' : 'NO'));
 
             // Use public web root for uploads so SignalWire can access via HTTP
