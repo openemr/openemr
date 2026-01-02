@@ -20,57 +20,57 @@ class Receipt
     /**
      * @var int Patient ID
      */
-    private int $patientId;
+    private readonly int $patientId;
 
     /**
      * @var int Encounter ID
      */
-    private int $encounterId;
+    private readonly int $encounterId;
 
     /**
      * @var int Provider/Doctor ID
      */
-    private int $providerId;
+    private readonly int $providerId;
 
     /**
      * @var string Transaction date (YYYY-MM-DD format)
      */
-    private string $transactionDate;
+    private readonly string $transactionDate;
 
     /**
      * @var float Transaction amount
      */
-    private float $amount;
+    private readonly float $amount;
 
     /**
      * @var string Transaction type (copay or ar_activity)
      */
-    private string $type;
+    private readonly string $type;
 
     /**
      * @var string|null Procedure code (if applicable)
      */
-    private ?string $procedureCode;
+    private readonly ?string $procedureCode;
 
     /**
      * @var string|null Code type (CPT4, HCPCS, etc.)
      */
-    private ?string $codeType;
+    private readonly ?string $codeType;
 
     /**
      * @var int Insurance company/payer ID (0 if patient payment)
      */
-    private int $payerId;
+    private readonly int $payerId;
 
     /**
      * @var string|null Invoice reference number
      */
-    private ?string $invoiceRefNo;
+    private readonly ?string $invoiceRefNo;
 
     /**
      * @var string|null Patient full name
      */
-    private ?string $patientName;
+    private readonly ?string $patientName;
 
     /**
      * @var bool Whether this is a clinic receipt (vs professional)

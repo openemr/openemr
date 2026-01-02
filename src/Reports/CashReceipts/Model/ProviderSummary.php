@@ -18,16 +18,6 @@ namespace OpenEMR\Reports\CashReceipts\Model;
 class ProviderSummary
 {
     /**
-     * @var int Provider ID
-     */
-    private int $providerId;
-
-    /**
-     * @var string Provider name (formatted: fname lname)
-     */
-    private string $providerName;
-
-    /**
      * @var Receipt[] Array of receipts for this provider
      */
     private array $receipts;
@@ -48,10 +38,8 @@ class ProviderSummary
      * @param int $providerId
      * @param string $providerName
      */
-    public function __construct(int $providerId, string $providerName)
+    public function __construct(private readonly int $providerId, private readonly string $providerName)
     {
-        $this->providerId = $providerId;
-        $this->providerName = $providerName;
         $this->receipts = [];
         $this->professionalTotal = 0.0;
         $this->clinicTotal = 0.0;
@@ -184,9 +172,7 @@ class ProviderSummary
             return ['start' => '', 'end' => ''];
         }
 
-        $dates = array_map(function ($receipt) {
-            return $receipt->getTransactionDate();
-        }, $this->receipts);
+        $dates = array_map(fn($receipt) => $receipt->getTransactionDate(), $this->receipts);
 
         return [
             'start' => min($dates),
@@ -211,9 +197,7 @@ class ProviderSummary
             'encounter_count' => $this->getEncounterCount(),
             'average_receipt' => $this->getAverageReceiptAmount(),
             'date_range' => $this->getDateRange(),
-            'receipts' => array_map(function ($receipt) {
-                return $receipt->toArray();
-            }, $this->receipts),
+            'receipts' => array_map(fn($receipt) => $receipt->toArray(), $this->receipts),
         ];
     }
 }

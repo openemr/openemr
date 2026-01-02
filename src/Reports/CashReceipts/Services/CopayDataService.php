@@ -21,25 +21,13 @@ use OpenEMR\Reports\CashReceipts\Repository\CashReceiptsRepository;
 class CopayDataService
 {
     /**
-     * @var CashReceiptsRepository
-     */
-    private CashReceiptsRepository $repository;
-
-    /**
-     * @var bool Whether to use invoice display mode (show patient names)
-     */
-    private bool $useInvoiceDisplay;
-
-    /**
      * Constructor
      *
      * @param CashReceiptsRepository $repository
      * @param bool $useInvoiceDisplay
      */
-    public function __construct(CashReceiptsRepository $repository, bool $useInvoiceDisplay = false)
+    public function __construct(private readonly CashReceiptsRepository $repository, private readonly bool $useInvoiceDisplay = false)
     {
-        $this->repository = $repository;
-        $this->useInvoiceDisplay = $useInvoiceDisplay;
     }
 
     /**
@@ -103,7 +91,7 @@ class CopayDataService
      */
     private function mapRecordToReceiptData(array $record): array
     {
-        $transDate = substr($record['date'], 0, 10);
+        $transDate = substr((string) $record['date'], 0, 10);
         
         return [
             'pid' => $record['pid'],
@@ -129,9 +117,7 @@ class CopayDataService
      */
     public function getTotalAmount(array $receipts): float
     {
-        return array_reduce($receipts, function ($carry, $receipt) {
-            return $carry + $receipt->getAmount();
-        }, 0.0);
+        return array_reduce($receipts, fn($carry, $receipt) => $carry + $receipt->getAmount(), 0.0);
     }
 
     /**

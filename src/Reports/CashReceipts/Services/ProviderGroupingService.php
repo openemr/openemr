@@ -22,18 +22,12 @@ use OpenEMR\Reports\CashReceipts\Repository\CashReceiptsRepository;
 class ProviderGroupingService
 {
     /**
-     * @var CashReceiptsRepository
-     */
-    private CashReceiptsRepository $repository;
-
-    /**
      * Constructor
      *
      * @param CashReceiptsRepository $repository
      */
-    public function __construct(CashReceiptsRepository $repository)
+    public function __construct(private readonly CashReceiptsRepository $repository)
     {
-        $this->repository = $repository;
     }
 
     /**
@@ -45,9 +39,7 @@ class ProviderGroupingService
     public function groupByProvider(array $receipts): array
     {
         // Sort receipts by sorting key
-        usort($receipts, function ($a, $b) {
-            return strcmp($a->getSortingKey(), $b->getSortingKey());
-        });
+        usort($receipts, fn($a, $b) => strcmp((string) $a->getSortingKey(), (string) $b->getSortingKey()));
 
         $providers = [];
 

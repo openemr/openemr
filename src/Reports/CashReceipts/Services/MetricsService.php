@@ -203,9 +203,7 @@ class MetricsService
         }
 
         // Sort by total descending
-        usort($procedureTotals, function ($a, $b) {
-            return $b['total'] <=> $a['total'];
-        });
+        usort($procedureTotals, fn($a, $b) => $b['total'] <=> $a['total']);
 
         return array_slice($procedureTotals, 0, $limit);
     }

@@ -43,7 +43,7 @@ class CsvExportService
     ): StreamedResponse {
         $filename = $this->generateFilename($filters);
         
-        $response = new StreamedResponse(function () use ($providerSummaries, $filters, $options) {
+        $response = new StreamedResponse(function () use ($providerSummaries, $filters, $options): void {
             $output = fopen('php://output', 'w');
             
             // Write headers

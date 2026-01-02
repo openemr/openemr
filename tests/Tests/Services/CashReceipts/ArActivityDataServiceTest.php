@@ -16,6 +16,7 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\Reports\CashReceipts\Services\ArActivityDataService;
 use OpenEMR\Reports\CashReceipts\Repository\CashReceiptsRepository;
 use OpenEMR\Reports\CashReceipts\Model\Receipt;
+use OpenEMR\Reports\CashReceipts\Enums\DateMode;
 
 /**
  * @coversDefaultClass \OpenEMR\Reports\CashReceipts\Services\ArActivityDataService
@@ -40,7 +41,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);
@@ -60,7 +61,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_SERVICE,
+            'date_mode' => DateMode::SERVICE->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);
@@ -76,7 +77,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_ENTRY,
+            'date_mode' => DateMode::ENTRY->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);
@@ -93,7 +94,7 @@ class ArActivityDataServiceTest extends TestCase
         $narrowFilters = [
             'from_date' => '2024-06-01',
             'to_date' => '2024-06-30',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $narrowReceipts = $this->service->processReceipts($narrowFilters);
@@ -102,7 +103,7 @@ class ArActivityDataServiceTest extends TestCase
         $wideFilters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $wideReceipts = $this->service->processReceipts($wideFilters);
@@ -117,16 +118,14 @@ class ArActivityDataServiceTest extends TestCase
     public function testProcessReceiptsWithClinicCallback(): void
     {
         // Create service with clinic callback that marks codes starting with '9' as clinic
-        $isClinicCallback = function ($code) {
-            return substr($code, 0, 1) === '9';
-        };
+        $isClinicCallback = (fn($code) => str_starts_with((string) $code, '9'));
 
         $service = new ArActivityDataService($this->repository, false, $isClinicCallback);
 
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receipts = $service->processReceipts($filters);
@@ -157,7 +156,7 @@ class ArActivityDataServiceTest extends TestCase
         $filtersWithoutDx = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receiptsWithoutDx = $this->service->processReceipts($filtersWithoutDx);
@@ -165,7 +164,7 @@ class ArActivityDataServiceTest extends TestCase
         $filtersWithDx = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
             'diagnosis_code_type' => 'ICD10',
             'diagnosis_code' => 'Z00%',
         ];
@@ -184,7 +183,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
             'provider_id' => 1,
         ];
 
@@ -206,7 +205,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);
@@ -232,7 +231,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);
@@ -251,7 +250,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);
@@ -266,7 +265,7 @@ class ArActivityDataServiceTest extends TestCase
             $manualTotal += $receipt->getAmount();
         }
 
-        $this->assertEquals($manualTotal, $total, '', 0.01);
+        $this->assertEqualsWithDelta($manualTotal, $total, 0.01);
     }
 
     /**
@@ -277,7 +276,7 @@ class ArActivityDataServiceTest extends TestCase
         $filters = [
             'from_date' => '2024-01-01',
             'to_date' => '2024-12-31',
-            'date_mode' => ArActivityDataService::DATE_MODE_PAYMENT,
+            'date_mode' => DateMode::PAYMENT->value,
         ];
 
         $receipts = $this->service->processReceipts($filters);

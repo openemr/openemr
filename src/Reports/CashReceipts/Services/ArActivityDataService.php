@@ -23,16 +23,6 @@ class ArActivityDataService
 {
 
     /**
-     * @var CashReceiptsRepository
-     */
-    private CashReceiptsRepository $repository;
-
-    /**
-     * @var bool Whether to use invoice display mode (show patient names)
-     */
-    private bool $useInvoiceDisplay;
-
-    /**
      * @var callable|null Function to determine if code is clinic receipt
      */
     private $isClinicCallback;
@@ -45,12 +35,10 @@ class ArActivityDataService
      * @param callable|null $isClinicCallback Function that takes code and returns bool
      */
     public function __construct(
-        CashReceiptsRepository $repository,
-        bool $useInvoiceDisplay = false,
+        private readonly CashReceiptsRepository $repository,
+        private readonly bool $useInvoiceDisplay = false,
         ?callable $isClinicCallback = null
     ) {
-        $this->repository = $repository;
-        $this->useInvoiceDisplay = $useInvoiceDisplay;
         $this->isClinicCallback = $isClinicCallback;
     }
 
@@ -118,17 +106,17 @@ class ArActivityDataService
     {
         switch ($dateMode) {
             case DateMode::SERVICE->value:
-                return substr($record['date'], 0, 10);
+                return substr((string) $record['date'], 0, 10);
             
             case DateMode::ENTRY->value:
-                return substr($record['post_time'], 0, 10);
+                return substr((string) $record['post_time'], 0, 10);
             
             case DateMode::PAYMENT->value:
             default:
                 if (!empty($record['deposit_date'])) {
                     return $record['deposit_date'];
                 }
-                return substr($record['post_time'], 0, 10);
+                return substr((string) $record['post_time'], 0, 10);
         }
     }
 
@@ -198,9 +186,7 @@ class ArActivityDataService
      */
     public function getTotalAmount(array $receipts): float
     {
-        return array_reduce($receipts, function ($carry, $receipt) {
-            return $carry + $receipt->getAmount();
-        }, 0.0);
+        return array_reduce($receipts, fn($carry, $receipt) => $carry + $receipt->getAmount(), 0.0);
     }
 
     /**

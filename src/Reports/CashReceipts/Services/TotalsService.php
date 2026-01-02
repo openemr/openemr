@@ -50,9 +50,7 @@ class TotalsService
      */
     public function getTotalReceiptCount(array $providerSummaries): int
     {
-        return array_reduce($providerSummaries, function ($carry, $summary) {
-            return $carry + $summary->getReceiptCount();
-        }, 0);
+        return array_reduce($providerSummaries, fn($carry, $summary) => $carry + $summary->getReceiptCount(), 0);
     }
 
     /**
@@ -63,9 +61,7 @@ class TotalsService
      */
     public function getTotalEncounterCount(array $providerSummaries): int
     {
-        return array_reduce($providerSummaries, function ($carry, $summary) {
-            return $carry + $summary->getEncounterCount();
-        }, 0);
+        return array_reduce($providerSummaries, fn($carry, $summary) => $carry + $summary->getEncounterCount(), 0);
     }
 
     /**
