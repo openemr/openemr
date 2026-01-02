@@ -1451,7 +1451,7 @@ class Callback extends Base
     }
 }
 
-class Logging extends base
+class Logging extends Base
 {
     public function log_this($data)
     {
@@ -1478,7 +1478,7 @@ class Logging extends base
     }
 }
 
-class Display extends base
+class Display extends Base
 {
     public function navigation($logged_in)
     {
