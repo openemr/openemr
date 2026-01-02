@@ -21,7 +21,7 @@ require_once($GLOBALS['fileroot'] . '/interface/eRxXMLBuilder.php');
 require_once($GLOBALS['fileroot'] . '/interface/eRxPage.php');
 
 use OpenEMR\ERx\CredentialValidator;
-use OpenEMR\Common\Globals\OEGlobalsBag;
+use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 
