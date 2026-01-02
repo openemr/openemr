@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{ setupHeader(['no_main-theme']) }}
+    <title>{{ "Ensora ePrescribing Service"|xlt }}</title>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .ensora-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .ensora-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .ensora-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+        .ensora-header p {
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .ensora-content {
+            padding: 40px;
+        }
+        .ensora-message {
+            background-color: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .ensora-message.error {
+            background-color: #fee;
+            border-left-color: #c33;
+        }
+        .ensora-message.missing {
+            background-color: #fef5e7;
+            border-left-color: #f39c12;
+        }
+        .ensora-description {
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .pricing-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .pricing-card h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .pricing-card .price {
+            font-size: 28px;
+            color: #764ba2;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .pricing-card .period {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .pricing-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            font-size: 14px;
+            text-align: left;
+        }
+        .pricing-card li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .pricing-card li:last-child {
+            border-bottom: none;
+        }
+        .pricing-card li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #5568d3;
+        }
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+        .contact-info {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        .contact-info h3 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+        }
+        .contact-info p {
+            margin: 8px 0;
+            color: #666;
+        }
+        .contact-info a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            .ensora-header {
+                padding: 30px;
+            }
+            .ensora-header h1 {
+                font-size: 24px;
+            }
+            .ensora-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ensora-container">
+        <div class="ensora-header">
+            <h1>{{ "Ensora ePrescribing Service"|xlt }}</h1>
+            <p>{{ "Professional e-prescribing solution for your practice"|xlt }}</p>
+        </div>
+
+        <div class="ensora-content">
+            {% if errorType == 'missing_credentials' %}
+                <div class="ensora-message missing">
+                    <strong>{{ "Configuration Required"|xlt }}:</strong>
+                    <p>{{ "Your practice has not yet configured Ensora eRx credentials. To get started with electronic prescribing, please review the service options below and contact Ensora for setup."|xlt }}</p>
+                </div>
+            {% elseif errorType == 'authentication_failed' %}
+                <div class="ensora-message error">
+                    <strong>{{ "Authentication Failed"|xlt }}:</strong>
+                    <p>{{ "The eRx service authentication failed. This may indicate your subscription has expired or your credentials need to be updated. Please contact Ensora support for assistance."|xlt }}</p>
+                </div>
+            {% endif %}
+
+            <div class="ensora-description">
+                <p>{{ "Ensora (formerly NewCrop) provides a robust, web-based e-prescribing solution that integrates seamlessly with OpenEMR. Send prescriptions directly to any registered pharmacy in the USA and manage prescriptions efficiently."|xlt }}</p>
+            </div>
+
+            <h2>{{ "Service Options"|xlt }}</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>{{ "Standalone ePrescribing"|xlt }}</h3>
+                    <div class="price">{{ "$38.45"|xlt }}</div>
+                    <div class="period">{{ "per month per prescriber"|xlt }}</div>
+                    <ul>
+                        <li>{{ "Prescription sending"|xlt }}</li>
+                        <li>{{ "Pharmacy lookup"|xlt }}</li>
+                        <li>{{ "Refill requests"|xlt }}</li>
+                        <li>{{ "Basic reporting"|xlt }}</li>
+                        <li>{{ "Email support"|xlt }}</li>
+                    </ul>
+                    <p style="font-size: 12px; color: #666; margin: 0;">{{ "Setup completed by Ensora team"|xlt }}</p>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>{{ "ECPS Service"|xlt }}</h3>
+                    <div class="price">{{ "$119"|xlt }}</div>
+                    <div class="period">{{ "per year per prescriber"|xlt }}</div>
+                    <ul>
+                        <li>{{ "All Standalone features"|xlt }}</li>
+                        <li>{{ "e-Prior Authorization"|xlt }}</li>
+                        <li>{{ "Formulary checking"|xlt }}</li>
+                        <li>{{ "Advanced reporting"|xlt }}</li>
+                        <li>{{ "Priority support"|xlt }}</li>
+                    </ul>
+                    <p style="font-size: 12px; color: #666; margin: 0;">{{ "Quick setup in minutes"|xlt }}</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="https://www.ensora.com" target="_blank" class="btn btn-primary">{{ "Visit Ensora Website"|xlt }}</a>
+                <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_ePrescribe" target="_blank" class="btn btn-secondary">{{ "Learn More"|xlt }}</a>
+            </div>
+
+            <div class="contact-info">
+                <h3>{{ "Contact Ensora"|xlt }}</h3>
+                <p>{{ "Ready to get started? Contact Ensora directly for subscription setup and integration with your OpenEMR system."|xlt }}</p>
+                <p><strong>{{ "Phone"|xlt }}:</strong> <a href="tel:1-877-890-3726">1-877-890-3726</a></p>
+                <p><strong>{{ "Website"|xlt }}:</strong> <a href="https://www.ensora.com" target="_blank">www.ensora.com</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
