@@ -23,6 +23,18 @@ use PHPUnit\Framework\TestCase;
 
 class MeasurementUtilsTest extends TestCase
 {
+    /**
+     * Exact conversion factor: 1 lb = 0.45359237 kg (international avoirdupois pound)
+     * @see https://www.nist.gov/pml/special-publication-811 NIST Guide for Use of the SI
+     */
+    private const LB_TO_KG_FACTOR = 0.45359237;
+
+    /**
+     * Exact conversion factor: 1 inch = 2.54 cm (international inch)
+     * @see https://www.nist.gov/pml/special-publication-811 NIST Guide for Use of the SI
+     */
+    private const INCH_TO_CM_FACTOR = 2.54;
+
     private MeasurementUtils $utils;
 
     protected function setUp(): void
@@ -47,13 +59,14 @@ class MeasurementUtilsTest extends TestCase
      */
     public function testLbToKg(): void
     {
-        // 1 lb = 0.45359237 kg (exact)
+        // 1 lb converts to exactly LB_TO_KG_FACTOR kg
         $result = $this->utils->lbToKg(1);
-        $this->assertEquals('0.453592', $result);
+        $this->assertEqualsWithDelta(self::LB_TO_KG_FACTOR, (float)$result, 0.000001);
 
-        // 150 lbs
+        // 150 lbs = 150 * LB_TO_KG_FACTOR kg
+        $expectedKg = 150 * self::LB_TO_KG_FACTOR;
         $result = $this->utils->lbToKg(150);
-        $this->assertEqualsWithDelta(68.039, (float)$result, 0.001);
+        $this->assertEqualsWithDelta($expectedKg, (float)$result, 0.001);
     }
 
     /**
@@ -61,13 +74,15 @@ class MeasurementUtilsTest extends TestCase
      */
     public function testKgToLb(): void
     {
-        // 1 kg = 2.20462262185 lbs
+        // 1 kg = 1/LB_TO_KG_FACTOR lbs
+        $expectedLbPerKg = 1 / self::LB_TO_KG_FACTOR;
         $result = $this->utils->kgToLb(1);
-        $this->assertEqualsWithDelta(2.20462, (float)$result, 0.00001);
+        $this->assertEqualsWithDelta($expectedLbPerKg, (float)$result, 0.00001);
 
-        // 68 kg
+        // 68 kg = 68 / LB_TO_KG_FACTOR lbs
+        $expectedLbs = 68 / self::LB_TO_KG_FACTOR;
         $result = $this->utils->kgToLb(68);
-        $this->assertEqualsWithDelta(149.914, (float)$result, 0.001);
+        $this->assertEqualsWithDelta($expectedLbs, (float)$result, 0.001);
     }
 
     /**
@@ -75,13 +90,14 @@ class MeasurementUtilsTest extends TestCase
      */
     public function testInchesToCm(): void
     {
-        // 1 inch = 2.54 cm (exact)
+        // 1 inch = exactly INCH_TO_CM_FACTOR cm
         $result = $this->utils->inchesToCm(1);
-        $this->assertEquals('2.540000', $result);
+        $this->assertEqualsWithDelta(self::INCH_TO_CM_FACTOR, (float)$result, 0.000001);
 
-        // 68 inches (5'8")
+        // 68 inches (5'8") = 68 * INCH_TO_CM_FACTOR cm
+        $expectedCm = 68 * self::INCH_TO_CM_FACTOR;
         $result = $this->utils->inchesToCm(68);
-        $this->assertEqualsWithDelta(172.72, (float)$result, 0.01);
+        $this->assertEqualsWithDelta($expectedCm, (float)$result, 0.01);
     }
 
     /**
@@ -89,12 +105,13 @@ class MeasurementUtilsTest extends TestCase
      */
     public function testCmToInches(): void
     {
-        // 2.54 cm = 1 inch
-        $result = $this->utils->cmToInches(2.54);
+        // INCH_TO_CM_FACTOR cm = 1 inch
+        $result = $this->utils->cmToInches(self::INCH_TO_CM_FACTOR);
         $this->assertEqualsWithDelta(1.0, (float)$result, 0.0001);
 
-        // 172.72 cm
-        $result = $this->utils->cmToInches(172.72);
+        // 68 * INCH_TO_CM_FACTOR cm = 68 inches
+        $cmValue = 68 * self::INCH_TO_CM_FACTOR;
+        $result = $this->utils->cmToInches($cmValue);
         $this->assertEqualsWithDelta(68.0, (float)$result, 0.01);
     }
 

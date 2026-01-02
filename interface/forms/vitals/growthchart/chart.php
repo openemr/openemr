@@ -80,15 +80,15 @@ $first_datapoint = $datapoints[0];
 if (!empty($first_datapoint)) {
     $date = str_replace('-', '', substr((string) $first_datapoint['date'], 0, 10));
     // When system is metric, vitals data comes in metric units - convert to US for chart plotting
-    $height = $measurementUtils->isMetric()
-        ? $measurementUtils->convertCmToInches($first_datapoint['height'])
-        : $first_datapoint['height'];
-    $weight = $measurementUtils->isMetric()
-        ? $measurementUtils->convertKgToLb($first_datapoint['weight'])
-        : $first_datapoint['weight'];
-    $head_circ = $measurementUtils->isMetric()
-        ? $measurementUtils->convertCmToInches($first_datapoint['head_circ'])
-        : $first_datapoint['head_circ'];
+    if ($measurementUtils->isMetric()) {
+        $height = $measurementUtils->convertCmToInches($first_datapoint['height']);
+        $weight = $measurementUtils->convertKgToLb($first_datapoint['weight']);
+        $head_circ = $measurementUtils->convertCmToInches($first_datapoint['head_circ']);
+    } else {
+        $height = $first_datapoint['height'];
+        $weight = $first_datapoint['weight'];
+        $head_circ = $first_datapoint['head_circ'];
+    }
 
     if ($date != "") {
         $charttype_date = $date;
@@ -410,15 +410,15 @@ if (($_GET['html'] ?? null) == 1) {
         if (!empty($data)) {
             $date = str_replace('-', '', substr((string) $data['date'], 0, 10));
             // convert to US if metric locale
-            $height = $measurementUtils->isMetric()
-                ? $measurementUtils->convertCmToInches($data['height'])
-                : $data['height'];
-            $weight = $measurementUtils->isMetric()
-                ? $measurementUtils->convertKgToLb($data['weight'])
-                : $data['weight'];
-            $head_circ = $measurementUtils->isMetric()
-                ? $measurementUtils->convertCmToInches($data['head_circ'])
-                : $data['head_circ'];
+            if ($measurementUtils->isMetric()) {
+                $height = $measurementUtils->convertCmToInches($data['height']);
+                $weight = $measurementUtils->convertKgToLb($data['weight']);
+                $head_circ = $measurementUtils->convertCmToInches($data['head_circ']);
+            } else {
+                $height = $data['height'];
+                $weight = $data['weight'];
+                $head_circ = $data['head_circ'];
+            }
 
             if ($date == "") {
                 continue;

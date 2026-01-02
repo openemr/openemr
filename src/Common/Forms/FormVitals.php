@@ -243,13 +243,25 @@ class FormVitals extends ORDataObject
             $this->weight = $w;
         }
     }
+    /**
+     * Format weight in US units (lb or lb/oz depending on global setting).
+     *
+     * @param float|int|string $pounds Weight in pounds
+     * @return string Formatted weight string
+     * @deprecated Use MeasurementUtils::formatWeight() instead for full formatting
+     */
     public function display_weight($pounds)
     {
-        if ($pounds != 0) {
-            if ($GLOBALS['us_weight_format'] == 2) {
-                $pounds_int = floor($pounds);
-                return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
-            }
+        if ($pounds == 0) {
+            return $pounds;
+        }
+        $utils = $this->getMeasurementUtils();
+        if ($GLOBALS['us_weight_format'] == MeasurementUtils::WEIGHT_LBS_OZ) {
+            $ozPerLb = (int) $utils->convertLbToOz(1);
+            $totalOz = (int) round($utils->convertLbToOz((float) $pounds));
+            $wholeLbs = intdiv($totalOz, $ozPerLb);
+            $oz = $totalOz % $ozPerLb;
+            return $wholeLbs . " " . xl('lb') . " " . $oz . " " . xl('oz');
         }
         return $pounds;
     }

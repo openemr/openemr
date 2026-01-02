@@ -3062,10 +3062,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 , 'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $first_encounter);
-            $convWeightValue = number_format((float)$measurementUtils->lbToKg($row['weight']), 2);
-            $convHeightValue = number_format(round((float)$measurementUtils->inchesToCm($row['height']), 1), 2);
-            $convTempValue = number_format((float)$measurementUtils->fhToCelsius($row['temperature']), 1);
-            if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
+            $convWeightValue = number_format($measurementUtils->convertLbToKg($row['weight']), 2);
+            $convHeightValue = number_format(round($measurementUtils->convertInchesToCm($row['height']), 1), 2);
+            $convTempValue = number_format($measurementUtils->convertFhToCelsius($row['temperature']), 1);
+            if ($measurementUtils->isMetric()) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';
                 $height_value = $convHeightValue;

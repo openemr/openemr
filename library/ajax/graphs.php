@@ -42,24 +42,6 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
 
-// Conversion functions/constants
-function convertFtoC($a)
-{
-    global $measurementUtils;
-    return $measurementUtils->convertFhToCelsius($a);
-}
-function getLbstoKgMultiplier()
-{
-    global $measurementUtils;
-    // Get conversion factor by converting 1 lb to kg
-    return $measurementUtils->convertLbToKg(1);
-}
-function getIntoCmMultiplier()
-{
-    global $measurementUtils;
-    // Get conversion factor by converting 1 inch to cm
-    return $measurementUtils->convertInchesToCm(1);
-}
 function getIdealYSteps($a)
 {
     if ($a > 1000) {
@@ -126,7 +108,7 @@ if ($is_lbf) {
             break;
         case "weight_metric":
              $titleGraph = $title . " (" . xl("kg") . ")";
-             $multiplier = getLbstoKgMultiplier();
+             $multiplier = $measurementUtils->convertLbToKg(1);
              $name = "weight";
             break;
         case "height":
@@ -134,7 +116,7 @@ if ($is_lbf) {
             break;
         case "height_metric":
              $titleGraph = $title . " (" . xl("cm") . ")";
-             $multiplier = getIntoCmMultiplier();
+             $multiplier = $measurementUtils->convertInchesToCm(1);
              $name = "height";
             break;
         case "bps":
@@ -169,7 +151,7 @@ if ($is_lbf) {
             break;
         case "head_circ_metric":
              $titleGraph = $title . " (" . xl("cm") . ")";
-             $multiplier = getIntoCmMultiplier();
+             $multiplier = $measurementUtils->convertInchesToCm(1);
              $name = "head_circ";
             break;
         case "waist_circ":
@@ -177,7 +159,7 @@ if ($is_lbf) {
             break;
         case "waist_circ_metric":
              $titleGraph = $title . " (" . xl("cm") . ")";
-             $multiplier = getIntoCmMultiplier();
+             $multiplier = $measurementUtils->convertInchesToCm(1);
              $name = "waist_circ";
             break;
         case "BMI":
@@ -239,7 +221,7 @@ while ($row = sqlFetchArray($values)) {
             $y = $row["$name"] * $multiplier;
         } elseif ($isConvertFtoC ?? null) {
             // apply temp F to C conversion
-            $y = convertFtoC($row["$name"]);
+            $y = $measurementUtils->convertFhToCelsius($row["$name"]);
         } else {
            // no conversion, so use raw value
             $y = $row["$name"];
@@ -259,7 +241,7 @@ if ($isBP) {
                 $y = $row["$name_alt"] * $multiplier;
             } elseif ($isConvertFtoC ?? null) {
                 // apply temp F to C conversion
-                $y = convertFtoC($row["$name_alt"]);
+                $y = $measurementUtils->convertFhToCelsius($row["$name_alt"]);
             } else {
                // no conversion, so use raw value
                 $y = $row["$name_alt"];

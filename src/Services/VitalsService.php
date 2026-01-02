@@ -235,9 +235,9 @@ class VitalsService extends BaseService
         // add in all the measurement fields
         $utils = $this->measurementUtils;
 
-        $lbToKg = fn($val) => $val != 0 ? $utils->lbToKg($val) : $val;
-        $inchesToCm = fn($val) => $val != 0 ? $utils->inchesToCm($val) : $val;
-        $fhToCelsius = fn($val) => $val != 0 ? $utils->fhToCelsius($val) : $val;
+        $lbToKg = fn($val) => $utils->lbToKg($val);
+        $inchesToCm = fn($val) => $utils->inchesToCm($val);
+        $fhToCelsius = fn($val) => $utils->fhToCelsius($val);
         $identity = fn($val) => $val;
 
         $convertArrayValue = function ($index, $converter, $unit, &$array): void {
