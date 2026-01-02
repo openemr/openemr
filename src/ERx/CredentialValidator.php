@@ -60,7 +60,7 @@ class CredentialValidator
         $lowerXml = strtolower($xml);
 
         foreach ($authFailureIndicators as $indicator) {
-            if (strpos($lowerXml, $indicator) !== false) {
+            if (str_contains($lowerXml, $indicator)) {
                 return true;
             }
         }
