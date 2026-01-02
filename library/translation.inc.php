@@ -25,7 +25,7 @@ if (!(function_exists('xl'))) {
      * @param string $constant The text constant to translate
      * @return string The translated string
      */
-    function xl(string $constant): string
+    function xl($constant)
     {
         if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
             return $constant;
@@ -106,7 +106,7 @@ if (!(function_exists('xl'))) {
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
-function xl_list_label(string $constant): string
+function xl_list_label($constant)
 {
     return $GLOBALS['translate_lists'] ? xl($constant) : $constant;
 }
@@ -120,7 +120,7 @@ function xl_list_label(string $constant): string
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
-function xl_layout_label(string $constant): string
+function xl_layout_label($constant)
 {
     return $GLOBALS['translate_layout'] ? xl($constant) : $constant;
 }
@@ -134,7 +134,7 @@ function xl_layout_label(string $constant): string
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
-function xl_gacl_group(string $constant): string
+function xl_gacl_group($constant)
 {
     return $GLOBALS['translate_gacl_groups'] ? xl($constant) : $constant;
 }
@@ -148,7 +148,7 @@ function xl_gacl_group(string $constant): string
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
-function xl_form_title(string $constant): string
+function xl_form_title($constant)
 {
     return $GLOBALS['translate_form_titles'] ? xl($constant) : $constant;
 }
@@ -162,7 +162,7 @@ function xl_form_title(string $constant): string
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
-function xl_document_category(string $constant): string
+function xl_document_category($constant)
 {
     return $GLOBALS['translate_document_categories'] ? xl($constant) : $constant;
 }
@@ -176,7 +176,7 @@ function xl_document_category(string $constant): string
  * @param string $constant The text constant to translate
  * @return string The translated or original string
  */
-function xl_appt_category(string $constant): string
+function xl_appt_category($constant)
 {
     return $GLOBALS['translate_appt_categories'] ? xl($constant) : $constant;
 }
