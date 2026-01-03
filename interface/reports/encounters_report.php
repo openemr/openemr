@@ -120,7 +120,7 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
                 
                 fputcsv($output, [
                     $encounter['id'] ?? '',
-                    $encounter['date'] ? date('Y-m-d', strtotime($encounter['date'])) : '',
+                    $encounter['date'] ? date('Y-m-d', strtotime((string) $encounter['date'])) : '',
                     $encounter['patient'] ?? '',
                     $encounter['provider'] ?? '',
                     $encounter['category'] ?? '',

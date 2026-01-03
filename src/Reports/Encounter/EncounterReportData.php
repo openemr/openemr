@@ -99,7 +99,7 @@ class EncounterReportData
                 OR (esf.tid IS NOT NULL)
             )";
         }
-        
+
         $sql .= " AND f.formdir != 'newpatient'";
         $sql .= " GROUP BY e.id ORDER BY e.date DESC";
 
@@ -153,13 +153,13 @@ class EncounterReportData
         // ... Add other filters ...
 
         $result = QueryUtils::querySingleRow($sql, $params);
-        
+
         return $result ?: ['encounter_count' => 0];
     }
 
     public function getEncounterSummary(array $filters): array
     {
-        $sqlBindArray = array();
+        $sqlBindArray = [];
 
         $query = "SELECT u.id as provider_id,
                         CONCAT(u.lname, ', ', u.fname) AS provider,
@@ -192,7 +192,7 @@ class EncounterReportData
         foreach ($results as $row) {
             $summary[] = [
                 'provider_id' => $row['provider_id'],
-                'provider_name' => trim($row['provider']),
+                'provider_name' => trim((string) $row['provider']),
                 'encounter_count' => $row['encounter_count']
             ];
         }
@@ -203,6 +203,6 @@ class EncounterReportData
     //function formate date this function needs to return yyyymmdd check the date format first and return the formatted date
     public function formatDate($date): string
     {
-        return date('Ymd', strtotime($date));
+        return date('Ymd', strtotime((string) $date));
     }
 } // END AI GENERATED CODE

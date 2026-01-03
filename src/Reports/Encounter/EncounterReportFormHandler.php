@@ -63,11 +63,11 @@ class EncounterReportFormHandler
     private function validateDate($date): bool
     {
         if ($GLOBALS['date_display_format'] == 0) {
-            return checkdate(substr($date, 5, 2), substr($date, 8, 2), substr($date, 0, 4));
+            return checkdate(substr((string) $date, 5, 2), substr((string) $date, 8, 2), substr((string) $date, 0, 4));
         } elseif ($GLOBALS['date_display_format'] == 1) {
-            return checkdate(substr($date, 0, 2), substr($date, 3, 2), substr($date, 6, 4));
+            return checkdate(substr((string) $date, 0, 2), substr((string) $date, 3, 2), substr((string) $date, 6, 4));
         } else {
-            return checkdate(substr($date, 3, 2), substr($date, 0, 2), substr($date, 6, 4));
+            return checkdate(substr((string) $date, 3, 2), substr((string) $date, 0, 2), substr((string) $date, 6, 4));
         }
     }
 

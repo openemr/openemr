@@ -28,7 +28,7 @@ class EncounterReportFormatter
         // Example formatting. Adapt this based on the specific fields and formatting needs.
         return [
             'provider' => $encounter['provider'], // Assuming a method to get provider name
-            'date' => date('Y-m-d', strtotime($encounter['date'])),
+            'date' => date('Y-m-d', strtotime((string) $encounter['date'])),
             'patient' => $encounter['patient'], // Assuming a method to get patient name
             'id' => $encounter['id'],
             'pid' => $encounter['pid'],
