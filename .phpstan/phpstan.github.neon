@@ -7166,14 +7166,6 @@ parameters:
       identifier: variable.undefined
       count: 8
       path: ../interface/forms/eye_mag/taskman.php
-    - message: '#^Result of function display_GlaucomaFlowSheet \(void\) is used\.$#'
-      identifier: function.void
-      count: 1
-      path: ../interface/forms/eye_mag/view.php
-    - message: '#^Result of function display_VisualAcuities \(void\) is used\.$#'
-      identifier: function.void
-      count: 1
-      path: ../interface/forms/eye_mag/view.php
     - message: '#^Variable \$ACT might not be defined\.$#'
       identifier: variable.undefined
       count: 2
