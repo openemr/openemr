@@ -1,7 +1,7 @@
 <?php
 
 /**
- * src/ERx/CredentialValidator.php
+ * src/Rx/CredentialValidator.php
  *
  * Utility class for validating Ensora eRx credentials and detecting authentication failures.
  *
@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\ERx;
+namespace OpenEMR\Rx;
 
 class CredentialValidator
 {
@@ -82,14 +82,10 @@ class CredentialValidator
             'erx_account_password' => 'Account Password',
         ];
 
-        $missing = [];
-
-        foreach ($requiredFields as $field => $label) {
-            if (!isset($globals[$field]) || empty($globals[$field])) {
-                $missing[$field] = $label;
-            }
-        }
-
-        return $missing;
+        return array_filter(
+            $requiredFields,
+            fn($field) => !isset($globals[$field]) || empty($globals[$field]),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }
