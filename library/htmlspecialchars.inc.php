@@ -222,7 +222,7 @@ function attr($text)
 function hsc_private_xl_or_warn($key)
 {
     if (function_exists('xl')) {
-        return xl($key);
+        return xl($key ?? '');
     } else {
         trigger_error(
             'Translation via xl() was requested, but the xl()'
