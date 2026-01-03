@@ -129,6 +129,7 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
+        "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
@@ -230,6 +231,21 @@
         "checks": [
             "composer validate",
             "composer normalize --dry-run"
-        ]
+        ],
+        "code-quality": [
+            "@php-syntax-check",
+            "@phpcbf",
+            "@phpcs",
+            "@phpstan",
+            "@rector-check",
+            "@require-checker"
+        ],
+        "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
+        "phpcbf": "php -d memory_limit=1g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
+        "phpcs": "php -d memory_limit=1g ./vendor/bin/phpcs --standard=ci/phpcs.xml .",
+        "phpstan": "php -d memory_limit=1g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist",
+        "rector-check": "php -d memory_limit=1g ./vendor/bin/rector process --dry-run",
+        "rector-fix": "php -d memory_limit=1g ./vendor/bin/rector process",
+        "require-checker": "php -d memory_limit=1g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json"
     }
 }
