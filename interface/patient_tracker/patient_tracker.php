@@ -573,7 +573,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         $newarrive = collect_checkin($tracker_id);
                         $newend = collect_checkout($tracker_id);
                         $colorevents = (collectApptStatusSettings($status));
-                        $bgcolor = $colorevents['color'];
+                        $bgcolor = ltrim($colorevents['color'],'#');
                         $statalert = $colorevents['time_alert'];
                         // process the time to allow items with a check out status to be displayed
                         if (is_checkout($status) && (($GLOBALS['checkout_roll_off'] > 0) && strlen($form_apptstatus) != 1)) {
