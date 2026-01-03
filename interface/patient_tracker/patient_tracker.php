@@ -25,6 +25,7 @@ require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
+use ESign\Encounter_Signable;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -622,13 +623,12 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
-                                $isLocked = false;
                                 if ($appt_enc != 0) {
                                     echo text($appt_enc);
-                                    $signable = new ESign\Encounter_Signable($appt_enc);
+                                    $signable = new Encounter_Signable($appt_enc);
                                     if ($signable->isLocked()) {
-                                        echo "<span class='text-success' title='" . xlt('Signed')
-                                        . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
+                                        echo "<span class='text-success' title='" . attr(xlt('Signed'))
+                                            . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
                                     }
                                 }
                                 ?>
