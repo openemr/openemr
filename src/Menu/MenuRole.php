@@ -21,7 +21,7 @@ require_once(__DIR__ . "/../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
-class MenuRole
+abstract class MenuRole implements MenuRoleInterface
 {
     /**
      * @var array
@@ -38,34 +38,6 @@ class MenuRole
         //   constructor. Adding to this array will link special menu items
         //   to functions in the class.
         $this->menu_update_map = [];
-    }
-
-    /**
-     * Collect the Menu for logged in user.
-     *
-     * @return array representation of the Menu
-     */
-    public function getMenu()
-    {
-    }
-
-    /**
-     * Build the html select element to list the MenuRole options.
-     *
-     * @var string $selected Current MenuRole for current users.
-     * @return string Html select element to list the MenuRole options.
-     */
-    public function displayMenuRoleSelector($selected = "")
-    {
-    }
-
-    /**
-     * Collect the MenuRole for logged in user.
-     *
-     * @return string Identifier for the MenuRole
-     */
-    private function getMenuRole()
-    {
     }
 
     protected function menuUpdateEntries(&$menu_list)
