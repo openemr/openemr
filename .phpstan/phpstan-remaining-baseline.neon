@@ -220,10 +220,6 @@ parameters:
       identifier: nullCoalesce.variable
       count: 1
       path: ../controllers/C_DocumentCategory.class.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../controllers/C_Prescription.class.php
     - message: '#^Variable \$p might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16372,10 +16368,6 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../src/Cqm/test.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:usingHeaders\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 5
-      path: ../src/Easipro/Easipro.php
     - message: '#^Undefined variable\: \$row$#'
       identifier: variable.undefined
       count: 1
@@ -16444,10 +16436,6 @@ parameters:
       identifier: empty.variable
       count: 1
       path: ../src/Gacl/GaclApi.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../src/MedicalDevice/MedicalDevice.php
     - message: '#^Variable \$catEntry might not be defined\.$#'
       identifier: variable.undefined
       count: 5
@@ -16488,10 +16476,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/PaymentProcessing/Sphere/SpherePayment.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:getCurlOptions\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../src/Pharmacy/Services/ImportPharmacies.php
     - message: '#^Variable \$zip might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16512,10 +16496,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../src/Rx/RxList.php
     - message: '#^Variable \$all might not be defined\.$#'
       identifier: variable.undefined
       count: 1
