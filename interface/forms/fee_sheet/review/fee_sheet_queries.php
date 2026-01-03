@@ -16,6 +16,9 @@ require_once("$srcdir/../custom/code_types.inc.php");
 require_once("$srcdir/../library/lists.inc.php");
 require_once("code_check.php");
 
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
+use OpenEMR\Forms\FeeSheet\Review\EncounterInfo;
+use OpenEMR\Forms\FeeSheet\Review\Procedure;
 use OpenEMR\Services\PatientIssuesService;
 
 /**
@@ -232,7 +235,7 @@ function issue_diagnoses($pid, $encounter)
             $diagnosis = explode(":", $code_key);
             $code = $diagnosis[1] ?? '';
             $code_type = $diagnosis[0];
-            $new_info = new code_info($code, $code_type, $title, $res['selected'] != 0);
+            $new_info = new CodeInfo($code, $code_type, $title, $res['selected'] != 0);
 
             //ensure that a diagnostic element is allowed to be created from a problem element
             if ($new_info->allowed_to_create_diagnosis_from_problem != "TRUE") {
@@ -269,7 +272,7 @@ function common_diagnoses($limit = 10)
         $title = $res['code_text'];
         $code = $res['code'];
         $code_type = $res['code_type'];
-        $retval[] = new code_info($code, $code_type, $title, 0);
+        $retval[] = new CodeInfo($code, $code_type, $title, 0);
     }
 
     return $retval;
@@ -298,7 +301,7 @@ function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
         $code_type = $res['code_type'];
         $code_text = $res['code_text'];
         if ($res['ct_diag'] == '1') {
-            $diagnoses[] = new code_info($code, $code_type, $code_text);
+            $diagnoses[] = new CodeInfo($code, $code_type, $code_text);
         } elseif ($res['ct_fee'] == 1) {
             $fee = $res['fee'];
             $justify = $res['justify'];
@@ -306,7 +309,7 @@ function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
             $units = $res['units'];
             $selected = true;
             $mod_size = $res['ct_mod'];
-            $procedures[] = new procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $selected);
+            $procedures[] = new Procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $selected);
         }
     }
 }
@@ -329,7 +332,7 @@ function select_encounters($pid, $encounter)
          " ORDER BY date DESC";
     $results = sqlStatement($sql, $parameters);
     while ($res = sqlFetchArray($results)) {
-        $retval[] = new encounter_info($res['encounter'], $res['date']);
+        $retval[] = new EncounterInfo($res['encounter'], $res['date']);
     }
 
     return $retval;

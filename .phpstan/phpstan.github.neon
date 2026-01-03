@@ -14350,22 +14350,6 @@ parameters:
       identifier: isset.variable
       count: 1
       path: ../library/appointments.inc.php
-    - message: '#^Access to undefined constant procedure\:\:DIALYSIS_SERVICE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Access to undefined constant procedure\:\:INFLU_VACCINE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Access to undefined constant procedure\:\:PNEUMOCOCCAL_VACCINE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Class procedure referenced with incorrect case\: Procedure\.$#'
-      identifier: class.nameCase
-      count: 3
-      path: ../library/classes/ClinicalTypes/codes.php
     - message: '#^Variable \$inline_arg might not be defined\.$#'
       identifier: variable.undefined
       count: 1
