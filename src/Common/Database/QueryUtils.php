@@ -296,7 +296,14 @@ class QueryUtils
         return \sqlGetLastInsertId();
     }
 
-    public static function querySingleRow(string $sql, array $params)
+    /**
+     * Execute a statement and return a single row.
+     *
+     * @param string $sql SQL statement
+     * @param array $params Optional binds for the statement
+     * @return array|null
+     */
+    public static function querySingleRow(string $sql, array $params = [])
     {
         $result = self::sqlStatementThrowException($sql, $params);
         return \sqlFetchArray($result);
