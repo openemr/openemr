@@ -22,71 +22,19 @@ require_once("$srcdir/report.inc.php");
 
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+use OpenEMR\Forms\EyeMag\RxType;
+use OpenEMR\Forms\EyeMag\RefType;
 
 /**
- * RX_TYPE numeric value to display name mapping.
- */
-const RX_TYPE_NAMES = [
-    '0' => 'Single',
-    '1' => 'Bifocal',
-    '2' => 'Trifocal',
-    '3' => 'Progressive',
-];
-
-/**
- * REFTYPE field mappings. Maps refraction type to database column prefix.
- * Standard fields: ODSPH, ODAXIS, ODCYL, ODPRISM, OSSPH, OSCYL, OSAXIS, OSPRISM
- */
-const REFTYPE_CONFIG = [
-    'AR' => [
-        'prefix' => 'AR',
-        'comments_field' => 'CRCOMMENTS',
-        'extra_fields' => ['ODADD2' => 'ARODADD', 'OSADD2' => 'AROSADD'],
-        'default_checked' => 'Bifocal',
-    ],
-    'MR' => [
-        'prefix' => 'MR',
-        'comments_field' => 'CRCOMMENTS',
-        'extra_fields' => ['ODADD2' => 'MRODADD', 'OSADD2' => 'MROSADD'],
-        'default_checked' => 'Bifocal',
-    ],
-    'CR' => [
-        'prefix' => 'CR',
-        'comments_field' => 'CRCOMMENTS',
-        'extra_fields' => [],
-        'default_checked' => null,
-    ],
-    'CTL' => [
-        'prefix' => 'CTL',
-        'comments_field' => 'COMMENTS',
-        'extra_fields' => [
-            'ODBC' => 'CTLODBC', 'ODDIAM' => 'CTLODDIAM', 'ODADD' => 'CTLODADD', 'ODVA' => 'CTLODVA',
-            'OSBC' => 'CTLOSBC', 'OSDIAM' => 'CTLOSDIAM', 'OSADD' => 'CTLOSADD', 'OSVA' => 'CTLOSVA',
-        ],
-        'default_checked' => null,
-        'manufacturer_fields' => [
-            'CTLMANUFACTUREROD', 'CTLMANUFACTUREROS',
-            'CTLSUPPLIEROD', 'CTLSUPPLIEROS',
-            'CTLBRANDOD', 'CTLBRANDOS',
-        ],
-    ],
-];
-
-/**
- * Extract refraction data based on REFTYPE.
+ * Extract refraction data based on RefType enum.
  *
- * @param string $reftype Refraction type (AR, MR, CR, CTL)
- * @param array  $data    Source data array from database
+ * @param RefType $refType Refraction type enum
+ * @param array   $data    Source data array from database
  * @return array Extracted refraction values as variable name => value
  */
-function extractRefractionData(string $reftype, array $data): array
+function extractRefractionData(RefType $refType, array $data): array
 {
-    $config = REFTYPE_CONFIG[$reftype] ?? null;
-    if ($config === null) {
-        return [];
-    }
-
-    $prefix = $config['prefix'];
+    $prefix = $refType->columnPrefix();
 
     // Build standard refraction fields
     $result = [
@@ -98,24 +46,23 @@ function extractRefractionData(string $reftype, array $data): array
         'OSCYL' => $data[$prefix . 'OSCYL'] ?? null,
         'OSAXIS' => $data[$prefix . 'OSAXIS'] ?? null,
         'OSPRISM' => $data[$prefix . 'OSPRISM'] ?? null,
-        'COMMENTS' => $data[$config['comments_field']] ?? null,
+        'COMMENTS' => $data[$refType->commentsField()] ?? null,
     ];
 
     // Add extra fields specific to this reftype
-    foreach ($config['extra_fields'] as $targetField => $sourceField) {
+    foreach ($refType->extraFields() as $targetField => $sourceField) {
         $result[$targetField] = $data[$sourceField] ?? null;
     }
 
     // Set default checked radio button
-    if ($config['default_checked']) {
-        $result[$config['default_checked']] = "checked='checked'";
+    $defaultRxType = $refType->defaultRxType();
+    if ($defaultRxType !== null) {
+        $result[$defaultRxType->name] = "checked='checked'";
     }
 
     // CTL manufacturer lookups
-    if (isset($config['manufacturer_fields'])) {
-        foreach ($config['manufacturer_fields'] as $field) {
-            $result[$field] = getListItemTitle('CTLManufacturer', $data[$field] ?? '');
-        }
+    foreach ($refType->manufacturerFields() as $field) {
+        $result[$field] = getListItemTitle('CTLManufacturer', $data[$field] ?? '');
     }
 
     return $result;
@@ -258,13 +205,13 @@ if ($_REQUEST['REFTYPE']) {
         @extract($wearing);
 
         // Map RX_TYPE numeric value to name and set checked flag
-        $RXTYPE = RX_TYPE_NAMES[$wearing['RX_TYPE']] ?? 'Single';
+        $RXTYPE = RxType::tryFrom($wearing['RX_TYPE'])?->name ?? 'Single';
         ${$RXTYPE} = "checked='checked'";
 
         //do LT and Lens materials
-    } elseif (isset(REFTYPE_CONFIG[$REFTYPE])) {
-        // Use config-driven extraction for AR, MR, CR, CTL
-        extract(extractRefractionData($REFTYPE, $data));
+    } elseif (($refTypeEnum = RefType::tryFrom($REFTYPE)) !== null) {
+        // Use enum-driven extraction for AR, MR, CR, CTL
+        extract(extractRefractionData($refTypeEnum, $data));
     }
 
     //Since we selected the Print Icon, we must be dispensing this - add to dispensed table now

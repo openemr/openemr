@@ -44,6 +44,8 @@ require_once("$srcdir/report.inc.php");
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
 
@@ -1229,7 +1231,12 @@ if ($_REQUEST['canvas'] ?? '') {
 }
 
 if ($_REQUEST['copy']) {
-    echo getCopyForwardJson($_REQUEST['zone'], $_REQUEST['copy_from'], $pid);
+    $mode = Zone::tryFrom($_REQUEST['zone']) ?? CopyMode::tryFrom($_REQUEST['zone']);
+    if ($mode === null) {
+        echo json_encode([]);
+        return;
+    }
+    echo getCopyForwardJson($mode, $_REQUEST['copy_from'], $pid);
     return;
 }
 

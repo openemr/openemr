@@ -31,22 +31,21 @@ require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Forms\EyeMag\SubtypeFilter;
 
 /**
  * Quick-pick query configuration for issue types.
  * Each type maps to its query parameters for recent items and fallback list_options.
- *
- * subtype: value to match in lists table ('' for empty, 'eye' for eye)
- * list_options_exclude_eye: true to exclude 'eye' subtype in fallback, false to require it
+ * Uses SubtypeFilter enum for parameterized subtype queries.
  */
 const ISSUE_QUERY_CONFIG = [
-    'PMH'        => ['list_type' => 'medical_problem', 'subtype' => '',    'list_options_id' => 'medical_problem_issue_list', 'list_options_exclude_eye' => true],
-    'Medication' => ['list_type' => 'medication',      'subtype' => '',    'list_options_id' => 'medication_issue_list',      'list_options_exclude_eye' => true],
-    'Surgery'    => ['list_type' => 'surgery',         'subtype' => '',    'list_options_id' => 'surgery_issue_list',         'list_options_exclude_eye' => true],
-    'Allergy'    => ['list_type' => 'allergy',         'subtype' => '',    'list_options_id' => 'allergy_issue_list',         'list_options_exclude_eye' => true],
-    'POH'        => ['list_type' => 'medical_problem', 'subtype' => 'eye', 'list_options_id' => 'medical_problem_issue_list', 'list_options_exclude_eye' => false],
-    'POS'        => ['list_type' => 'surgery',         'subtype' => 'eye', 'list_options_id' => 'surgery_issue_list',         'list_options_exclude_eye' => false],
-    'Eye Meds'   => ['list_type' => 'medication',      'subtype' => 'eye', 'list_options_id' => 'medication_issue_list',      'list_options_exclude_eye' => false],
+    'PMH'        => ['list_type' => 'medical_problem', 'subtype_filter' => SubtypeFilter::Empty, 'list_options_id' => 'medical_problem_issue_list'],
+    'Medication' => ['list_type' => 'medication',      'subtype_filter' => SubtypeFilter::Empty, 'list_options_id' => 'medication_issue_list'],
+    'Surgery'    => ['list_type' => 'surgery',         'subtype_filter' => SubtypeFilter::Empty, 'list_options_id' => 'surgery_issue_list'],
+    'Allergy'    => ['list_type' => 'allergy',         'subtype_filter' => SubtypeFilter::Empty, 'list_options_id' => 'allergy_issue_list'],
+    'POH'        => ['list_type' => 'medical_problem', 'subtype_filter' => SubtypeFilter::Eye,   'list_options_id' => 'medical_problem_issue_list'],
+    'POS'        => ['list_type' => 'surgery',         'subtype_filter' => SubtypeFilter::Eye,   'list_options_id' => 'surgery_issue_list'],
+    'Eye Meds'   => ['list_type' => 'medication',      'subtype_filter' => SubtypeFilter::Eye,   'list_options_id' => 'medication_issue_list'],
 ];
 
 /**
@@ -64,6 +63,10 @@ function buildIssueQuickPickQuery(string $key, int $providerId)
         return null;
     }
 
+    /** @var SubtypeFilter $subtypeFilter */
+    $subtypeFilter = $config['subtype_filter'];
+
+    // Build recent items query with parameterized subtype condition
     $recentQuery = <<<'SQL'
           SELECT title,
                  title AS option_id,
@@ -71,7 +74,12 @@ function buildIssueQuickPickQuery(string $key, int $providerId)
                  count(title) AS freq
             FROM lists
            WHERE type LIKE ?
-             AND subtype = ?
+    SQL;
+
+    $subtypeCondition = $subtypeFilter->toSqlCondition();
+    $recentQuery .= ' ' . $subtypeCondition['sql'];
+
+    $recentQuery .= <<<'SQL'
              AND pid IN (
                  SELECT pid
                    FROM form_encounter
@@ -85,13 +93,14 @@ function buildIssueQuickPickQuery(string $key, int $providerId)
            LIMIT 10
     SQL;
 
-    $qry = sqlStatement($recentQuery, [$config['list_type'], $config['subtype'], $providerId]);
+    $params = array_merge([$config['list_type']], $subtypeCondition['params'], [$providerId]);
+    $qry = sqlStatement($recentQuery, $params);
 
     if (sqlNumRows($qry) < 4) {
-        $fallbackQuery = $config['list_options_exclude_eye']
-            ? 'SELECT * FROM list_options WHERE list_id = ? AND subtype NOT LIKE ?'
-            : 'SELECT * FROM list_options WHERE list_id = ? AND subtype = ?';
-        $qry = sqlStatement($fallbackQuery, [$config['list_options_id'], 'eye']);
+        $fallbackCondition = $subtypeFilter->toListOptionsSqlCondition();
+        $fallbackQuery = 'SELECT * FROM list_options WHERE list_id = ?';
+        $fallbackQuery .= ' ' . $fallbackCondition['sql'];
+        $qry = sqlStatement($fallbackQuery, array_merge([$config['list_options_id']], $fallbackCondition['params']));
     }
 
     return $qry;

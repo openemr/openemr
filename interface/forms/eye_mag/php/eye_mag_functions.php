@@ -15,10 +15,14 @@
 $form_folder = "eye_mag";
 require_once(__DIR__ . "/../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../library/options.inc.php");
+require_once(__DIR__ . "/EyeMagEnums.php");
 global $PMSFH;
 
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Services\FacilityService;
+    use OpenEMR\Forms\EyeMag\SubtypeFilter;
+    use OpenEMR\Forms\EyeMag\Zone;
+    use OpenEMR\Forms\EyeMag\CopyMode;
 
     $facilityService = new FacilityService();
 
@@ -87,20 +91,15 @@ const ZONE_ALL_EXTRA_FIELDS = ['ODHERTEL', 'OSHERTEL', 'IMP'];
  * Panel type configuration for build_PMSFH().
  * Maps panel_type to [issue_type, subtype_filter, order_column, order_dir].
  * FH, SOCH, ROS are handled separately and not included here.
- *
- * subtype_filter values:
- *   - 'eye': subtype = 'eye'
- *   - 'empty': subtype = '' OR subtype IS NULL
- *   - null: no subtype filter
  */
 const PMSFH_PANEL_CONFIG = [
-    'POH'        => ['issue_type' => 'medical_problem', 'subtype_filter' => 'eye',   'order_column' => 'title'],
-    'POS'        => ['issue_type' => 'surgery',         'subtype_filter' => 'eye',   'order_column' => 'title'],
-    'PMH'        => ['issue_type' => 'medical_problem', 'subtype_filter' => 'empty', 'order_column' => 'title'],
-    'Surgery'    => ['issue_type' => 'surgery',         'subtype_filter' => 'empty', 'order_column' => 'begdate', 'order_dir' => 'DESC'],
-    'Allergy'    => ['issue_type' => 'allergy',         'subtype_filter' => null,    'order_column' => 'title'],
-    'Medication' => ['issue_type' => 'medication',      'subtype_filter' => null,    'order_column' => 'title'],
-    'Eye Meds'   => ['issue_type' => 'medication',      'subtype_filter' => 'eye',   'order_column' => 'title'],
+    'POH'        => ['issue_type' => 'medical_problem', 'subtype_filter' => SubtypeFilter::Eye,   'order_column' => 'title'],
+    'POS'        => ['issue_type' => 'surgery',         'subtype_filter' => SubtypeFilter::Eye,   'order_column' => 'title'],
+    'PMH'        => ['issue_type' => 'medical_problem', 'subtype_filter' => SubtypeFilter::Empty, 'order_column' => 'title'],
+    'Surgery'    => ['issue_type' => 'surgery',         'subtype_filter' => SubtypeFilter::Empty, 'order_column' => 'begdate', 'order_dir' => 'DESC'],
+    'Allergy'    => ['issue_type' => 'allergy',         'subtype_filter' => SubtypeFilter::None,  'order_column' => 'title'],
+    'Medication' => ['issue_type' => 'medication',      'subtype_filter' => SubtypeFilter::None,  'order_column' => 'title'],
+    'Eye Meds'   => ['issue_type' => 'medication',      'subtype_filter' => SubtypeFilter::Eye,   'order_column' => 'title'],
 ];
 
 /**
@@ -111,8 +110,8 @@ const PMSFH_ORDER_COLUMNS = ['title', 'begdate', 'enddate'];
 /**
  * Build parameterized PMSFH query from config.
  *
- * @param string $pid        Patient ID
- * @param array  $config     Panel config from PMSFH_PANEL_CONFIG
+ * @param string $pid    Patient ID
+ * @param array  $config Panel config from PMSFH_PANEL_CONFIG
  * @return array{sql: string, params: array}
  */
 function buildPmsfhQuery(string $pid, array $config): array
@@ -120,13 +119,9 @@ function buildPmsfhQuery(string $pid, array $config): array
     $sql = "SELECT * FROM lists WHERE pid = ? AND type = ?";
     $params = [$pid, $config['issue_type']];
 
-    if ($config['subtype_filter'] === 'eye') {
-        $sql .= " AND subtype = ?";
-        $params[] = 'eye';
-    } elseif ($config['subtype_filter'] === 'empty') {
-        $sql .= " AND (subtype = ? OR subtype IS NULL)";
-        $params[] = '';
-    }
+    $subtypeCondition = $config['subtype_filter']->toSqlCondition();
+    $sql .= ' ' . $subtypeCondition['sql'];
+    $params = array_merge($params, $subtypeCondition['params']);
 
     $orderColumn = in_array($config['order_column'], PMSFH_ORDER_COLUMNS, true)
         ? $config['order_column']
@@ -155,12 +150,12 @@ function extractZoneFields(array $sourceData, array $fields): array
 /**
  * Get JSON for copying forward from a prior encounter.
  *
- * @param string $zone      Zone identifier (EXT, ANTSEG, RETINA, NEURO, IMPPLAN, ALL, READONLY)
- * @param string $copy_from Source form_id
- * @param string $pid       Patient ID
- * @return string JSON-encoded data for the requested zone
+ * @param Zone|CopyMode $mode      Zone or CopyMode enum
+ * @param string        $copy_from Source form_id
+ * @param string        $pid       Patient ID
+ * @return string JSON-encoded data for the requested zone or mode
  */
-function getCopyForwardJson(string $zone, string $copy_from, string $pid): string
+function getCopyForwardJson(Zone|CopyMode $mode, string $copy_from, string $pid): string
 {
     $query = <<<'SQL'
         SELECT *, form_encounter.date AS encounter_date
@@ -190,16 +185,19 @@ function getCopyForwardJson(string $zone, string $copy_from, string $pid): strin
 
     $objQuery = sqlQuery($query, [$pid, $copy_from]);
 
-    $result = match ($zone) {
-        'IMPPLAN' => ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from)],
-        'ALL' => array_merge(
-            ...array_map(
-                fn($z) => extractZoneFields($objQuery, $z),
-                [ZONE_FIELD_MAP['EXT'], ZONE_FIELD_MAP['ANTSEG'], ZONE_FIELD_MAP['RETINA'], ZONE_FIELD_MAP['NEURO'], ZONE_ALL_EXTRA_FIELDS]
+    $result = match (true) {
+        $mode instanceof Zone => extractZoneFields($objQuery, ZONE_FIELD_MAP[$mode->name]),
+        $mode === CopyMode::IMPPLAN => ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from)],
+        $mode === CopyMode::ALL => array_merge(
+            ...array_merge(
+                array_map(
+                    fn($z) => extractZoneFields($objQuery, ZONE_FIELD_MAP[$z->name]),
+                    Zone::all()
+                ),
+                [extractZoneFields($objQuery, ZONE_ALL_EXTRA_FIELDS)]
             )
         ),
-        'READONLY' => $objQuery + ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from), 'query' => $query],
-        default => extractZoneFields($objQuery, ZONE_FIELD_MAP[$zone] ?? []),
+        $mode === CopyMode::READONLY => $objQuery + ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from), 'query' => $query],
     };
 
     $result['json'] = json_encode($result);
