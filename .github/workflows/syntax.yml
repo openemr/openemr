@@ -38,4 +38,33 @@ jobs:
 
       - name: Check PHP Syntax
         shell: bash
-        run: git ls-files -z '*.inc' '*.php' | xargs -0 php -l >/dev/null
+        run: |
+          echo "::add-matcher::.github/problem-matchers/php-syntax.json"
+          
+          # Count total files
+          total_files=$(git ls-files '*.inc' '*.php' | wc -l)
+          echo "Checking syntax of $total_files PHP files..."
+          echo "# PHP Syntax Check for PHP ${{ matrix.php }}" >> $GITHUB_STEP_SUMMARY
+          echo "Checking $total_files files..." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Run syntax check - the problem matcher will capture any errors in the output
+          set +e  # Don't exit on error yet
+          git ls-files -z '*.inc' '*.php' | xargs -0 -n1 php -l 2>&1 | tee /tmp/syntax-check.log
+          syntax_result=${PIPESTATUS[1]}
+          set -e
+          
+          # Count errors - count lines that say "Errors parsing"
+          error_count=$(grep -c "^Errors parsing" /tmp/syntax-check.log || echo "0")
+          
+          # Report results
+          if [ $syntax_result -eq 0 ] && [ $error_count -eq 0 ]; then
+            echo "✅ All $total_files files passed syntax check" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All $total_files files passed syntax check"
+          else
+            echo "❌ $error_count file(s) failed syntax check" >> $GITHUB_STEP_SUMMARY
+            echo "❌ $error_count file(s) failed syntax check"
+          fi
+          
+          echo "::remove-matcher owner=php-syntax::"
+          exit $syntax_result
