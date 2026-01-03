@@ -11062,10 +11062,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/main/onotes/office_comments.php
-    - message: '#^Class ESign\\Api referenced with incorrect case\: Esign\\Api\.$#'
-      identifier: class.nameCase
-      count: 2
-      path: ../interface/main/tabs/main.php
     - message: '#^Variable \$any_search_class might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11550,18 +11546,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php
-    - message: '#^Class OpenEMR\\Core\\Kernel referenced with incorrect case\: OpenEmr\\Core\\Kernel\.$#'
-      identifier: class.nameCase
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/config/module.config.php
     - message: '#^Call to an undefined method Application\\Controller\\IndexController\:\:CommonPlugin\(\)\.$#'
       identifier: method.notFound
       count: 1
@@ -11570,22 +11554,6 @@ parameters:
       identifier: method.notFound
       count: 2
       path: ../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Exception\\ExceptionInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\Feature\\GlobalAdapterFeature" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
     - message: '#^Variable \$result might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11594,14 +11562,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php
     - message: '#^Variable \$rows might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11638,22 +11598,10 @@ parameters:
       identifier: variable.undefined
       count: 3
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php
     - message: '#^Constructor of class Carecoordination\\Form\\ModuleconfigForm has an unused parameter \$dbAdapter\.$#'
       identifier: constructor.unusedParameter
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php
     - message: '#^Variable \$allergy_begdate_value might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11682,14 +11630,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php
     - message: '#^Variable \$str might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11704,18 +11644,6 @@ parameters:
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php
     - message: '#^Function display_layout_rows_group_new not found\.$#'
       identifier: function.notFound
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
     - message: '#^Variable \$code_type on left side of \?\? always exists and is not nullable\.$#'
@@ -11790,14 +11718,6 @@ parameters:
       identifier: nullCoalesce.variable
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php
     - message: '#^Variable \$ccda_file might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11818,86 +11738,18 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
     - message: '#^Access to an undefined property Carecoordination\\Model\\ModuleconfigTable\:\:\$applicationTable\.$#'
       identifier: property.notFound
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Ccr/Module.php
     - message: '#^Class Ccr\\Model\\CcrTable constructor invoked with 1 parameter, 0 required\.$#'
       identifier: arguments.count
-      count: 1
-      path: ../interface/modules/zend_modules/module/Ccr/config/module.config.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Ccr/config/module.config.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
       count: 1
       path: ../interface/modules/zend_modules/module/Ccr/config/module.config.php
     - message: '#^Call to an undefined method Ccr\\Controller\\CcrController\:\:CommonPlugin\(\)\.$#'
       identifier: method.notFound
       count: 2
       path: ../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php
     - message: '#^Variable \$active might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11914,14 +11766,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/config/module.config.php
     - message: '#^Call to an undefined method Immunization\\Controller\\ImmunizationController\:\:CommonPlugin\(\)\.$#'
       identifier: method.notFound
       count: 9
@@ -11934,22 +11778,6 @@ parameters:
       identifier: constructor.unusedParameter
       count: 1
       path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Form/ImmunizationForm.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
     - message: '#^Variable \$res_cur might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -11958,14 +11786,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/Module.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/config/module.config.php
     - message: '#^Variable \$curr_html_tag might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -11990,18 +11810,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\Feature\\GlobalAdapterFeature" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
     - message: '#^Variable \$modArr might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -12010,42 +11818,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Sql" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\TableIdentifier" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Multipledb/config/module.config.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Expression" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Predicate" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
     - message: '#^Variable \$aclSetupFlag might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -12058,58 +11830,14 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/PatientFlowBoard/src/PatientFlowBoard/Listener/PatientFlowBoardEventsSubscriber.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Patientvalidation/Module.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Patientvalidation/config/module.config.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Expression" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Predicate" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
     - message: '#^Variable \$p might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/PrescriptionTemplates/src/PrescriptionTemplates/Controller/PrescriptionTemplatesController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/config/module.config.php
     - message: '#^Call to an undefined method Syndromicsurveillance\\Controller\\SyndromicsurveillanceController\:\:CommonPlugin\(\)\.$#'
       identifier: method.notFound
       count: 3
       path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/SyndromicsurveillanceController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
     - message: '#^Variable \$formatted_date might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -14470,10 +14198,6 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../library/MedEx/API.php
-    - message: '#^Class MedExApi\\Base referenced with incorrect case\: MedExApi\\base\.$#'
-      identifier: class.nameCase
-      count: 2
-      path: ../library/MedEx/API.php
     - message: '#^Instantiated class MedExApi\\DateTime not found\.$#'
       identifier: class.notFound
       count: 2
@@ -14738,10 +14462,6 @@ parameters:
       identifier: constructor.unusedParameter
       count: 1
       path: ../library/classes/InsuranceNumbers.class.php
-    - message: '#^Class Note referenced with incorrect case\: note\.$#'
-      identifier: class.nameCase
-      count: 1
-      path: ../library/classes/Note.class.php
     - message: '#^Function NumberToText not found\.$#'
       identifier: function.notFound
       count: 1

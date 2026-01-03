@@ -6600,3 +6600,267 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 4
       path: ../src/Gacl/GaclApi.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Exception\\ExceptionInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\Feature\\GlobalAdapterFeature" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Moduleconfig.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/ModuleconfigTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Ccr/Module.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Ccr/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Ccr/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Immunization/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/Module.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Driver\\Pdo\\Result" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\Feature\\GlobalAdapterFeature" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Sql" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\TableIdentifier" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Multipledb/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Expression" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Predicate" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Patientvalidation/Module.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Patientvalidation/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Expression" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Predicate" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/config/module.config.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\Sql\\Select" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
+    - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\TableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
+      identifier: openemr.deprecatedLaminasDb
+      count: 1
+      path: ../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
