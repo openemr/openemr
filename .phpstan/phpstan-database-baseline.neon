@@ -6636,10 +6636,6 @@ parameters:
       identifier: openemr.deprecatedLaminasDb
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/ModuleconfigController.php
-    - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\AdapterInterface" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
-      identifier: openemr.deprecatedLaminasDb
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
     - message: '#^Laminas\-DB class "Laminas\\Db\\TableGateway\\AbstractTableGateway" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
       identifier: openemr.deprecatedLaminasDb
       count: 1

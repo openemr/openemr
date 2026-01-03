@@ -153,7 +153,7 @@ return [
             EncountermanagerTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncountermanagerTable => new EncountermanagerTable(),
             SetupTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\SetupTable => new SetupTable(),
             CcdTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdTable => new CcdTable(),
-            ModuleconfigForm::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Form\ModuleconfigForm => new ModuleconfigForm($container->get(\Laminas\Db\Adapter\Adapter::class)),
+            ModuleconfigForm::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Form\ModuleconfigForm => new ModuleconfigForm(),
             // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
             ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\ModuleconfigController => new ModuleconfigController($container->get(\Laminas\Db\Adapter\Adapter::class)),
             SetupController::class => SetupControllerFactory::class,

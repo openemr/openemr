@@ -9110,10 +9110,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/forms/physical_exam/new.php
-    - message: '#^Constructor of class FormPriorAuth has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/forms/prior_auth/FormPriorAuth.class.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -9246,10 +9242,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/forms/reviewofs/view.php
-    - message: '#^Constructor of class FormROS has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/forms/ros/FormROS.class.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -9290,10 +9282,6 @@ parameters:
       identifier: variable.undefined
       count: 3
       path: ../interface/forms/sdoh/save.php
-    - message: '#^Constructor of class FormSOAP has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/forms/soap/FormSOAP.class.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11194,10 +11182,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php
-    - message: '#^Constructor of class Comlink\\OpenEMR\\Modules\\TeleHealthModule\\TelehealthGlobalConfig has an unused parameter \$moduleDirectoryName\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php
     - message: '#^Variable \$classLoader might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11378,10 +11362,6 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php
-    - message: '#^Constructor of class OpenEMR\\Modules\\FaxSMS\\Controller\\AppDispatch has an unused parameter \$type\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php
     - message: '#^Variable \$route on left side of \?\? always exists and is not nullable\.$#'
       identifier: nullCoalesce.variable
       count: 1
@@ -11558,10 +11538,6 @@ parameters:
       identifier: variable.undefined
       count: 3
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php
-    - message: '#^Constructor of class Carecoordination\\Form\\ModuleconfigForm has an unused parameter \$dbAdapter\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
     - message: '#^Variable \$allergy_begdate_value might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11734,10 +11710,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php
-    - message: '#^Constructor of class Immunization\\Form\\ImmunizationForm has an unused parameter \$name\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Form/ImmunizationForm.php
     - message: '#^Variable \$res_cur might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -14402,14 +14374,6 @@ parameters:
       identifier: variable.undefined
       count: 4
       path: ../library/classes/Document.class.php
-    - message: '#^Constructor of class InsuranceCompany has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/InsuranceCompany.class.php
-    - message: '#^Constructor of class InsuranceNumbers has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/InsuranceNumbers.class.php
     - message: '#^Function NumberToText not found\.$#'
       identifier: function.notFound
       count: 1
@@ -14418,14 +14382,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../library/classes/OFX.class.php
-    - message: '#^Constructor of class Person has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/Person.class.php
-    - message: '#^Constructor of class Pharmacy has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/Pharmacy.class.php
     - message: '#^Variable \$arr might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -14434,18 +14390,10 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../library/classes/Prescription.class.php
-    - message: '#^Constructor of class Provider has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/Provider.class.php
     - message: '#^Call to an undefined method HTML_TreeMenu_Presentation\:\:toHTML\(\)\.$#'
       identifier: method.notFound
       count: 1
       path: ../library/classes/TreeMenu.php
-    - message: '#^Constructor of class X12Partner has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/X12Partner.class.php
     - message: '#^Variable \$b2 might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -15946,14 +15894,6 @@ parameters:
       identifier: return.missing
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php
-    - message: '#^Constructor of class SimpleRouter has an unused parameter \$appRootUrl\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
-    - message: '#^Method SimpleRouter\:\:GetUri\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
     - message: '#^Method VerySimpleStringUtil\:\:unicode_entity_replace\(\) should return string but return statement is missing\.$#'
       identifier: return.missing
       count: 1
@@ -16326,10 +16266,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/Common/Command/CreateReleaseChangelogCommand.php
-    - message: '#^Constructor of class OpenEMR\\Common\\Forms\\FormVitals has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../src/Common/Forms/FormVitals.php
     - message: '#^Variable \$code_types in isset\(\) is never defined\.$#'
       identifier: isset.variable
       count: 1
@@ -16946,57 +16882,40 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
-
     # Optional custom files - checked with file_exists() before include
-    -
-      message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
       identifier: includeOnce.fileNotFound
       path: ../interface/patient_file/printed_fee_sheet.php
-    -
-      message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/patient_file/summary/demographics_print.php
-
     # Legacy PostNuke calendar files - header/footer don't exist
-    -
-      message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/main/calendar/includes/pnHTML.php
-    -
-      message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/main/calendar/includes/pnHTML.php
-
     # Windows compatibility file for getmxrr - conditionally included
-    -
-      message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../modules/sms_email_reminder/cron_functions.php
-
     # Dead code - renderForm() is never called, path is wrong
-    -
-      message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../library/ESign/DbRow/Signable.php
-
     # Optional PEAR/PHPExcel dependency - not installed
-    -
-      message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
-
     # Optional RSS functionality - files don't exist
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-
     # Template path depends on runtime working directory
-    -
-      message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/templates/PatientListView.tpl.php

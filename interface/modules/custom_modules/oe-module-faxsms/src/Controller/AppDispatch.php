@@ -40,7 +40,7 @@ abstract class AppDispatch
     /**
      * @throws \Exception
      */
-    public function __construct($type = null)
+    public function __construct()
     {
         $this->_request = &$_REQUEST;
         $this->_query = &$_GET;
