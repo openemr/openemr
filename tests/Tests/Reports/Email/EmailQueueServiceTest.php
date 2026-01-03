@@ -38,7 +38,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithNoFilters()
+    public function testGetEmailQueueWithNoFilters(): void
     {
         $result = $this->service->getEmailQueue();
         $this->assertIsArray($result);
@@ -47,7 +47,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithSearchFilter()
+    public function testGetEmailQueueWithSearchFilter(): void
     {
         $filters = ['search' => 'test@example.com'];
         $result = $this->service->getEmailQueue($filters, 50, 0);
@@ -57,7 +57,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithStatusFilterSent()
+    public function testGetEmailQueueWithStatusFilterSent(): void
     {
         $filters = ['status' => 'sent'];
         $result = $this->service->getEmailQueue($filters);
@@ -67,7 +67,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithStatusFilterPending()
+    public function testGetEmailQueueWithStatusFilterPending(): void
     {
         $filters = ['status' => 'pending'];
         $result = $this->service->getEmailQueue($filters);
@@ -77,7 +77,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithStatusFilterFailed()
+    public function testGetEmailQueueWithStatusFilterFailed(): void
     {
         $filters = ['status' => 'failed'];
         $result = $this->service->getEmailQueue($filters);
@@ -87,7 +87,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithTemplateFilter()
+    public function testGetEmailQueueWithTemplateFilter(): void
     {
         $filters = ['template_name' => 'appointment_reminder'];
         $result = $this->service->getEmailQueue($filters);
@@ -97,7 +97,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithDateFilters()
+    public function testGetEmailQueueWithDateFilters(): void
     {
         $filters = [
             'date_from' => '2025-01-01',
@@ -110,7 +110,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithMultipleFilters()
+    public function testGetEmailQueueWithMultipleFilters(): void
     {
         $filters = [
             'search' => 'test',
@@ -126,7 +126,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueue
      */
-    public function testGetEmailQueueWithPagination()
+    public function testGetEmailQueueWithPagination(): void
     {
         $result = $this->service->getEmailQueue([], 10, 5);
         $this->assertIsArray($result);
@@ -136,7 +136,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueueCount
      */
-    public function testGetEmailQueueCountWithNoFilters()
+    public function testGetEmailQueueCountWithNoFilters(): void
     {
         $count = $this->service->getEmailQueueCount();
         $this->assertIsInt($count);
@@ -146,7 +146,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailQueueCount
      */
-    public function testGetEmailQueueCountWithFilters()
+    public function testGetEmailQueueCountWithFilters(): void
     {
         $filters = ['status' => 'sent'];
         $count = $this->service->getEmailQueueCount($filters);
@@ -157,7 +157,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getStatistics
      */
-    public function testGetStatistics()
+    public function testGetStatistics(): void
     {
         $stats = $this->service->getStatistics();
         $this->assertIsArray($stats);
@@ -180,7 +180,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getTemplateNames
      */
-    public function testGetTemplateNames()
+    public function testGetTemplateNames(): void
     {
         $templates = $this->service->getTemplateNames();
         $this->assertIsArray($templates);
@@ -194,7 +194,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailById
      */
-    public function testGetEmailByIdNotFound()
+    public function testGetEmailByIdNotFound(): void
     {
         $result = $this->service->getEmailById(999999999);
         $this->assertNull($result);
@@ -203,7 +203,7 @@ class EmailQueueServiceTest extends TestCase
     /**
      * @covers ::getEmailById
      */
-    public function testGetEmailByIdValidId()
+    public function testGetEmailByIdValidId(): void
     {
         // This test requires a valid ID from the database
         // We can't hardcode an ID, so we'll get one from the queue first
