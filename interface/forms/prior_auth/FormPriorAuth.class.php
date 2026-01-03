@@ -43,7 +43,7 @@ class FormPriorAuth extends ORDataObject implements \Stringable
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id = "", $_prefix = "")
+    function __construct($id = "")
     {
         parent::__construct();
 

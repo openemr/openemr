@@ -9084,10 +9084,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/forms/physical_exam/new.php
-    - message: '#^Constructor of class FormPriorAuth has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/forms/prior_auth/FormPriorAuth.class.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -9220,10 +9216,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/forms/reviewofs/view.php
-    - message: '#^Constructor of class FormROS has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/forms/ros/FormROS.class.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -9264,10 +9256,6 @@ parameters:
       identifier: variable.undefined
       count: 3
       path: ../interface/forms/sdoh/save.php
-    - message: '#^Constructor of class FormSOAP has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/forms/soap/FormSOAP.class.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11176,10 +11164,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthRemoteRegistrationService.php
-    - message: '#^Constructor of class Comlink\\OpenEMR\\Modules\\TeleHealthModule\\TelehealthGlobalConfig has an unused parameter \$moduleDirectoryName\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php
     - message: '#^Variable \$classLoader might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11354,10 +11338,6 @@ parameters:
       path: ../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php
     - message: '#^Caught class OpenEMR\\Modules\\FaxSMS\\Controller\\Exception not found\.$#'
       identifier: class.notFound
-      count: 1
-      path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php
-    - message: '#^Constructor of class OpenEMR\\Modules\\FaxSMS\\Controller\\AppDispatch has an unused parameter \$type\.$#'
-      identifier: constructor.unusedParameter
       count: 1
       path: ../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php
     - message: '#^Variable \$route on left side of \?\? always exists and is not nullable\.$#'
@@ -11536,10 +11516,6 @@ parameters:
       identifier: variable.undefined
       count: 3
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php
-    - message: '#^Constructor of class Carecoordination\\Form\\ModuleconfigForm has an unused parameter \$dbAdapter\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
     - message: '#^Variable \$allergy_begdate_value might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -11712,10 +11688,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php
-    - message: '#^Constructor of class Immunization\\Form\\ImmunizationForm has an unused parameter \$name\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../interface/modules/zend_modules/module/Immunization/src/Immunization/Form/ImmunizationForm.php
     - message: '#^Variable \$res_cur might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -14376,14 +14348,6 @@ parameters:
       identifier: variable.undefined
       count: 4
       path: ../library/classes/Document.class.php
-    - message: '#^Constructor of class InsuranceCompany has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/InsuranceCompany.class.php
-    - message: '#^Constructor of class InsuranceNumbers has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/InsuranceNumbers.class.php
     - message: '#^Function NumberToText not found\.$#'
       identifier: function.notFound
       count: 1
@@ -14392,14 +14356,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../library/classes/OFX.class.php
-    - message: '#^Constructor of class Person has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/Person.class.php
-    - message: '#^Constructor of class Pharmacy has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/Pharmacy.class.php
     - message: '#^Variable \$arr might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -14408,18 +14364,10 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../library/classes/Prescription.class.php
-    - message: '#^Constructor of class Provider has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/Provider.class.php
     - message: '#^Call to an undefined method HTML_TreeMenu_Presentation\:\:toHTML\(\)\.$#'
       identifier: method.notFound
       count: 1
       path: ../library/classes/TreeMenu.php
-    - message: '#^Constructor of class X12Partner has an unused parameter \$prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../library/classes/X12Partner.class.php
     - message: '#^Variable \$b2 might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -15936,14 +15884,6 @@ parameters:
       identifier: return.missing
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php
-    - message: '#^Constructor of class SimpleRouter has an unused parameter \$appRootUrl\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
-    - message: '#^Method SimpleRouter\:\:GetUri\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
     - message: '#^Method VerySimpleStringUtil\:\:unicode_entity_replace\(\) should return string but return statement is missing\.$#'
       identifier: return.missing
       count: 1
@@ -16320,10 +16260,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/Common/Command/CreateReleaseChangelogCommand.php
-    - message: '#^Constructor of class OpenEMR\\Common\\Forms\\FormVitals has an unused parameter \$_prefix\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../src/Common/Forms/FormVitals.php
     - message: '#^Variable \$code_types in isset\(\) is never defined\.$#'
       identifier: isset.variable
       count: 1
