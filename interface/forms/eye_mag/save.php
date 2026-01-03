@@ -1229,7 +1229,7 @@ if ($_REQUEST['canvas'] ?? '') {
 }
 
 if ($_REQUEST['copy']) {
-    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], ($_SESSION['ID'] ?? ''), $pid);
+    echo getCopyForwardJson($_REQUEST['zone'], $_REQUEST['copy_from'], $pid);
     return;
 }
 

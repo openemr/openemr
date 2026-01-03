@@ -23,6 +23,104 @@ require_once("$srcdir/report.inc.php");
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
 
+/**
+ * RX_TYPE numeric value to display name mapping.
+ */
+const RX_TYPE_NAMES = [
+    '0' => 'Single',
+    '1' => 'Bifocal',
+    '2' => 'Trifocal',
+    '3' => 'Progressive',
+];
+
+/**
+ * REFTYPE field mappings. Maps refraction type to database column prefix.
+ * Standard fields: ODSPH, ODAXIS, ODCYL, ODPRISM, OSSPH, OSCYL, OSAXIS, OSPRISM
+ */
+const REFTYPE_CONFIG = [
+    'AR' => [
+        'prefix' => 'AR',
+        'comments_field' => 'CRCOMMENTS',
+        'extra_fields' => ['ODADD2' => 'ARODADD', 'OSADD2' => 'AROSADD'],
+        'default_checked' => 'Bifocal',
+    ],
+    'MR' => [
+        'prefix' => 'MR',
+        'comments_field' => 'CRCOMMENTS',
+        'extra_fields' => ['ODADD2' => 'MRODADD', 'OSADD2' => 'MROSADD'],
+        'default_checked' => 'Bifocal',
+    ],
+    'CR' => [
+        'prefix' => 'CR',
+        'comments_field' => 'CRCOMMENTS',
+        'extra_fields' => [],
+        'default_checked' => null,
+    ],
+    'CTL' => [
+        'prefix' => 'CTL',
+        'comments_field' => 'COMMENTS',
+        'extra_fields' => [
+            'ODBC' => 'CTLODBC', 'ODDIAM' => 'CTLODDIAM', 'ODADD' => 'CTLODADD', 'ODVA' => 'CTLODVA',
+            'OSBC' => 'CTLOSBC', 'OSDIAM' => 'CTLOSDIAM', 'OSADD' => 'CTLOSADD', 'OSVA' => 'CTLOSVA',
+        ],
+        'default_checked' => null,
+        'manufacturer_fields' => [
+            'CTLMANUFACTUREROD', 'CTLMANUFACTUREROS',
+            'CTLSUPPLIEROD', 'CTLSUPPLIEROS',
+            'CTLBRANDOD', 'CTLBRANDOS',
+        ],
+    ],
+];
+
+/**
+ * Extract refraction data based on REFTYPE.
+ *
+ * @param string $reftype Refraction type (AR, MR, CR, CTL)
+ * @param array  $data    Source data array from database
+ * @return array Extracted refraction values as variable name => value
+ */
+function extractRefractionData(string $reftype, array $data): array
+{
+    $config = REFTYPE_CONFIG[$reftype] ?? null;
+    if ($config === null) {
+        return [];
+    }
+
+    $prefix = $config['prefix'];
+
+    // Build standard refraction fields
+    $result = [
+        'ODSPH' => $data[$prefix . 'ODSPH'] ?? null,
+        'ODAXIS' => $data[$prefix . 'ODAXIS'] ?? null,
+        'ODCYL' => $data[$prefix . 'ODCYL'] ?? null,
+        'ODPRISM' => $data[$prefix . 'ODPRISM'] ?? null,
+        'OSSPH' => $data[$prefix . 'OSSPH'] ?? null,
+        'OSCYL' => $data[$prefix . 'OSCYL'] ?? null,
+        'OSAXIS' => $data[$prefix . 'OSAXIS'] ?? null,
+        'OSPRISM' => $data[$prefix . 'OSPRISM'] ?? null,
+        'COMMENTS' => $data[$config['comments_field']] ?? null,
+    ];
+
+    // Add extra fields specific to this reftype
+    foreach ($config['extra_fields'] as $targetField => $sourceField) {
+        $result[$targetField] = $data[$sourceField] ?? null;
+    }
+
+    // Set default checked radio button
+    if ($config['default_checked']) {
+        $result[$config['default_checked']] = "checked='checked'";
+    }
+
+    // CTL manufacturer lookups
+    if (isset($config['manufacturer_fields'])) {
+        foreach ($config['manufacturer_fields'] as $field) {
+            $result[$field] = getListItemTitle('CTLManufacturer', $data[$field] ?? '');
+        }
+    }
+
+    return $result;
+}
+
 $facilityService = new FacilityService();
 
 $form_name = "Eye Form";
@@ -38,30 +136,31 @@ if (!$_REQUEST['pid']) {
     $_REQUEST['pid'] = $_SESSION['pid'];
 }
 
-$query = "select  *,form_encounter.date as encounter_date
-               from forms,form_encounter,form_eye_base,
-                form_eye_hpi,form_eye_ros,form_eye_vitals,
-                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
-                form_eye_external, form_eye_antseg,form_eye_postseg,
-                form_eye_neuro,form_eye_locking
-                    where
-                    forms.deleted != '1'  and
-                    forms.formdir='eye_mag' and
-                    forms.encounter=form_encounter.encounter  and
-                    forms.form_id=form_eye_base.id and
-                    forms.form_id=form_eye_hpi.id and
-                    forms.form_id=form_eye_ros.id and
-                    forms.form_id=form_eye_vitals.id and
-                    forms.form_id=form_eye_acuity.id and
-                    forms.form_id=form_eye_refraction.id and
-                    forms.form_id=form_eye_biometrics.id and
-                    forms.form_id=form_eye_external.id and
-                    forms.form_id=form_eye_antseg.id and
-                    forms.form_id=form_eye_postseg.id and
-                    forms.form_id=form_eye_neuro.id and
-                    forms.form_id=form_eye_locking.id and
-                    forms.encounter=? and
-                    forms.pid=? ";
+$query = <<<'SQL'
+    SELECT *, form_encounter.date AS encounter_date
+    FROM forms, form_encounter, form_eye_base,
+         form_eye_hpi, form_eye_ros, form_eye_vitals,
+         form_eye_acuity, form_eye_refraction, form_eye_biometrics,
+         form_eye_external, form_eye_antseg, form_eye_postseg,
+         form_eye_neuro, form_eye_locking
+    WHERE forms.deleted != '1'
+      AND forms.formdir = 'eye_mag'
+      AND forms.encounter = form_encounter.encounter
+      AND forms.form_id = form_eye_base.id
+      AND forms.form_id = form_eye_hpi.id
+      AND forms.form_id = form_eye_ros.id
+      AND forms.form_id = form_eye_vitals.id
+      AND forms.form_id = form_eye_acuity.id
+      AND forms.form_id = form_eye_refraction.id
+      AND forms.form_id = form_eye_biometrics.id
+      AND forms.form_id = form_eye_external.id
+      AND forms.form_id = form_eye_antseg.id
+      AND forms.form_id = form_eye_postseg.id
+      AND forms.form_id = form_eye_neuro.id
+      AND forms.form_id = form_eye_locking.id
+      AND forms.encounter = ?
+      AND forms.pid = ?
+    SQL;
 
     $data = sqlQuery($query, [$_REQUEST['encounter'], $_REQUEST['pid']]);
     $data['ODMPDD'] = $data['ODPDMeasured'];
@@ -157,86 +256,15 @@ if ($_REQUEST['REFTYPE']) {
         $OSMIDADD = $wearing['OSMIDADD'];
         $OSADD2 = $wearing['OSADD'];
         @extract($wearing);
-        if ($wearing['RX_TYPE'] == '0') {
-            $Single = "checked='checked'";
-            $RXTYPE = "Single";
-        } elseif ($wearing['RX_TYPE'] == '1') {
-            $Bifocal = "checked='checked'";
-            $RXTYPE = "Bifocal";
-        } elseif ($wearing['RX_TYPE'] == '2') {
-            $Trifocal = "checked='checked'";
-            $RXTYPE = "Trifocal";
-        } elseif ($wearing['RX_TYPE'] == '3') {
-            $Progressive = "checked='checked'";
-            $RXTYPE = "Progressive";
-        }
+
+        // Map RX_TYPE numeric value to name and set checked flag
+        $RXTYPE = RX_TYPE_NAMES[$wearing['RX_TYPE']] ?? 'Single';
+        ${$RXTYPE} = "checked='checked'";
 
         //do LT and Lens materials
-    } elseif ($REFTYPE == "AR") {
-        $ODSPH      = $data['ARODSPH'];
-        $ODAXIS     = $data['ARODAXIS'];
-        $ODCYL      = $data['ARODCYL'];
-        $ODPRISM    = $data['ARODPRISM'];
-        $OSSPH      = $data['AROSSPH'];
-        $OSCYL      = $data['AROSCYL'];
-        $OSAXIS     = $data['AROSAXIS'];
-        $OSPRISM    = $data['AROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-        $ODADD2     = $data['ARODADD'];
-        $OSADD2     = $data['AROSADD'];
-        $Bifocal    = "checked='checked'";
-    } elseif ($REFTYPE == "MR") {
-        $ODSPH      = $data['MRODSPH'];
-        $ODAXIS     = $data['MRODAXIS'];
-        $ODCYL      = $data['MRODCYL'];
-        $ODPRISM    = $data['MRODPRISM'];
-        $OSSPH      = $data['MROSSPH'];
-        $OSCYL      = $data['MROSCYL'];
-        $OSAXIS     = $data['MROSAXIS'];
-        $OSPRISM    = $data['MROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-        $ODADD2     = $data['MRODADD'];
-        $OSADD2     = $data['MROSADD'];
-        $Bifocal    = "checked='checked'";
-    } elseif ($REFTYPE == "CR") {
-        $ODSPH      = $data['CRODSPH'];
-        $ODAXIS     = $data['CRODAXIS'];
-        $ODCYL      = $data['CRODCYL'];
-        $ODPRISM    = $data['CRODPRISM'];
-        $OSSPH      = $data['CROSSPH'];
-        $OSCYL      = $data['CROSCYL'];
-        $OSAXIS     = $data['CROSAXIS'];
-        $OSPRISM    = $data['CROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-    } elseif ($REFTYPE == "CTL") {
-        $ODSPH      = $data['CTLODSPH'];
-        $ODAXIS     = $data['CTLODAXIS'];
-        $ODCYL      = $data['CTLODCYL'];
-        $ODPRISM    = $data['CTLODPRISM'];
-
-        $OSSPH      = $data['CTLOSSPH'];
-        $OSCYL      = $data['CTLOSCYL'];
-        $OSAXIS     = $data['CTLOSAXIS'];
-        $OSPRISM    = $data['CTLOSPRISM'];
-
-        $ODBC       = $data['CTLODBC'];
-        $ODDIAM     = $data['CTLODDIAM'];
-        $ODADD      = $data['CTLODADD'];
-        $ODVA       = $data['CTLODVA'];
-
-        $OSBC       = $data['CTLOSBC'];
-        $OSDIAM     = $data['CTLOSDIAM'];
-        $OSADD      = $data['CTLOSADD'];
-        $OSVA       = $data['CTLOSVA'];
-
-        $COMMENTS   = $data['COMMENTS'];//in form_eye_mag_dispense there is no leading 'CTL_'
-
-        $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROD']);
-        $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROS']);
-        $CTLSUPPLIEROD      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROD']);
-        $CTLSUPPLIEROS      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROS']);
-        $CTLBRANDOD         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOD']);
-        $CTLBRANDOS         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOS']);
+    } elseif (isset(REFTYPE_CONFIG[$REFTYPE])) {
+        // Use config-driven extraction for AR, MR, CR, CTL
+        extract(extractRefractionData($REFTYPE, $data));
     }
 
     //Since we selected the Print Icon, we must be dispensing this - add to dispensed table now
