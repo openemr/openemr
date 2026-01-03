@@ -24,6 +24,25 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 
+/**
+ * Interface for mocking ADODB connection in tests
+ */
+interface MockAdodbConnection
+{
+    public function qstr(string $value): string;
+    public function Insert_ID(): int;
+    public function Execute(string $sql, array|false $inputarr = false): mixed;
+    public function ExecuteNoLog(string $sql, array|false $inputarr = false): mixed;
+}
+
+/**
+ * Interface for mocking ADODB result set in tests
+ */
+interface MockAdodbResultSet
+{
+    public function FetchRow(): array|false;
+}
+
 final class EventAuditLoggerTest extends TestCase
 {
     /**
@@ -252,10 +271,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function createMockAdodb(): MockObject
     {
-        // Create a more specific mock that includes the methods we need
-        $mock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['qstr', 'Insert_ID', 'Execute', 'ExecuteNoLog', 'FetchRow', 'EOF'])
-            ->getMock();
+        // Create a mock using the test interface
+        $mock = $this->createMock(MockAdodbConnection::class);
 
         $mock->method('qstr')->willReturnCallback(
             function ($value): string {
@@ -269,10 +286,8 @@ final class EventAuditLoggerTest extends TestCase
         );
         $mock->method('Insert_ID')->willReturn(123);
 
-        // Mock database execution methods
-        $resultSetMock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['FetchRow'])
-            ->getMock();
+        // Mock database execution methods using the result set interface
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
         $resultSetMock->method('FetchRow')->willReturn(false); // No breakglass user found
 
         // Set EOF property directly to avoid undefined property warning
@@ -1586,9 +1601,7 @@ final class EventAuditLoggerTest extends TestCase
         $mockAdodb = $this->createMockAdodb();
 
         // Create a result set mock that returns successful menu lookup results
-        $resultSetMock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['FetchRow'])
-            ->getMock();
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
 
         // Mock successful database results for patient portal menu lookup
         $resultSetMock->method('FetchRow')->willReturnOnConsecutiveCalls(
@@ -1822,9 +1835,7 @@ final class EventAuditLoggerTest extends TestCase
     {
         // Setup database mock for patient portal menu lookup
         $mockAdodb = $this->createMockAdodb();
-        $resultSetMock = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['FetchRow'])
-            ->getMock();
+        $resultSetMock = $this->createMock(MockAdodbResultSet::class);
         $resultSetMock->method('FetchRow')->willReturnOnConsecutiveCalls(
             ['patient_portal_menu_id' => '1', 'menu_name' => 'dashboard'],
             false
