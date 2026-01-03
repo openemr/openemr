@@ -167,26 +167,17 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
     formHeader("OpenEMR Eye: " . text($prov_data['facility']));
 
 if ($_REQUEST['REFTYPE']) {
-    $REFTYPE = $_REQUEST['REFTYPE'];
-    if ($REFTYPE == "AR") {
-        $RXTYPE = "Bifocal";
-    }
+    $refType = RefType::tryFrom($_REQUEST['REFTYPE']);
+    $REFTYPE = $_REQUEST['REFTYPE']; // Keep string for form fields
 
-    if ($REFTYPE == "MR") {
-        $RXTYPE = "Bifocal";
-    }
-
-    if ($REFTYPE == "CTL") {
-        $RXTYPE = "Bifocal";
-    }
+    // Set default RXTYPE from enum
+    $RXTYPE = $refType?->defaultRxType()?->name;
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
     $encounter = !$_REQUEST['encounter'] ? $_SESSION['encounter'] : $_REQUEST['encounter'];
 
-
-
-    if ($REFTYPE == "W") {
+    if ($refType === RefType::W) {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
         $wear = sqlStatement($query, [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']]);
@@ -209,9 +200,9 @@ if ($_REQUEST['REFTYPE']) {
         ${$RXTYPE} = "checked='checked'";
 
         //do LT and Lens materials
-    } elseif (($refTypeEnum = RefType::tryFrom($REFTYPE)) !== null) {
+    } elseif ($refType !== null) {
         // Use enum-driven extraction for AR, MR, CR, CTL
-        extract(extractRefractionData($refTypeEnum, $data));
+        extract(extractRefractionData($refType, $data));
     }
 
     //Since we selected the Print Icon, we must be dispensing this - add to dispensed table now
@@ -371,28 +362,17 @@ if ($_REQUEST['dispensed'] ?? '') {
             <?php
             while ($row = sqlFetchArray($dispensed)) {
                 $i++;
-                $Single = '';
-                $Bifocal = '';
-                $Trifocal = '';
-                $Progressive = '';
-                if ($row['RXTYPE'] == "Single") {
-                    $Single = "checked='checked'";
-                }
+                $rowRefType = RefType::tryFrom($row['REFTYPE']);
+                $rowRxType = RxType::tryFrom($row['RXTYPE']);
 
-                if ($row['RXTYPE'] == "Bifocal") {
-                    $Bifocal = "checked='checked'";
-                }
-
-                if ($row['RXTYPE'] == "Trifocal") {
-                    $Trifocal = "checked='checked'";
-                }
-
-                if ($row['RXTYPE'] == "Progressive") {
-                    $Progressive = "checked='checked'";
+                // Set checked flag for the matching RX type
+                $Single = $Bifocal = $Trifocal = $Progressive = '';
+                if ($rowRxType !== null) {
+                    ${$rowRxType->name} = "checked='checked'";
                 }
 
                 $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
-                if ($row['REFTYPE'] == "CTL") {
+                if ($rowRefType?->isContactLens()) {
                     $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
                 } else {
                     $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
@@ -429,25 +409,16 @@ if ($_REQUEST['dispensed'] ?? '') {
                                 <tr>
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('Refraction Method'); ?>:</td>
                                     <td>&nbsp;&nbsp;<?php
-                                    if ($row['REFTYPE'] == "W") {
-                                        echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
-                                    } elseif ($row['REFTYPE'] == "CR") {
-                                        echo xlt('Cycloplegic (Wet) Refraction');
-                                    } elseif ($row['REFTYPE'] == "MR") {
-                                        echo xlt('Manifest (Dry) Refraction');
-                                    } elseif ($row['REFTYPE'] == "AR") {
-                                        echo xlt('Auto-Refraction');
-                                    } elseif ($row['REFTYPE'] == "CTL") {
-                                        echo xlt('Contact Lens');
-                                    } else {
-                                        echo $row['REFTYPE'];
-                                    } ?>
+                                        echo $rowRefType !== null
+                                            ? $rowRefType->displayName()
+                                            : text($row['REFTYPE']);
+                                    ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="text-center"> <?php
-                                    if ($row['REFTYPE'] != "CTL") { ?>
+                                    if (!$rowRefType?->isContactLens()) { ?>
                                                 <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                                     <tr class="font-weight-bold">
                                                         <td></td>
@@ -865,7 +836,7 @@ if ($_REQUEST['dispensed'] ?? '') {
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
-if ($REFTYPE == "CTL") {
+if ($refType?->isContactLens()) {
     $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
 } else {
     $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
@@ -891,7 +862,7 @@ if ($REFTYPE == "CTL") {
             <tr>
                 <td>
                     <?php
-                    if ($REFTYPE != "CTL") { ?>
+                    if (!$refType?->isContactLens()) { ?>
                             <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
                                    style="min-width:610px;top:0px;">
                                 <tr class="font-weight-bold text-center">

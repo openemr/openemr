@@ -152,6 +152,28 @@ enum RefType: string
             default => [],
         };
     }
+
+    /**
+     * Get translated human-readable display name for this refraction type.
+     */
+    public function displayName(): string
+    {
+        return match ($this) {
+            self::W => xlt('Duplicate Rx -- unchanged from current Rx'),
+            self::AR => xlt('Auto-Refraction'),
+            self::MR => xlt('Manifest (Dry) Refraction'),
+            self::CR => xlt('Cycloplegic (Wet) Refraction'),
+            self::CTL => xlt('Contact Lens'),
+        };
+    }
+
+    /**
+     * Check if this is a contact lens prescription.
+     */
+    public function isContactLens(): bool
+    {
+        return $this === self::CTL;
+    }
 }
 
 /**
