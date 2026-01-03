@@ -20,7 +20,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
     public function monthSelector($Date)
     {
         // caldate depends on what the user has clicked
-        $caldate = strtotime($Date);
+        $caldate = strtotime((string) $Date);
         $cMonth = date("m", $caldate);
         $cYear = date("Y", $caldate);
         $cDay = date("d", $caldate);
@@ -33,29 +33,27 @@ class PostCalendarTwigExtensions extends AbstractExtension
         return [
             new TwigFunction(
                 'monthSelector',
-                [$this, 'monthSelector']
+                $this->monthSelector(...)
             ),
             new TwigFunction(
                 'create_event_time_anchor',
-                [$this, 'create_event_time_anchor']
+                $this->create_event_time_anchor(...)
             ),
             new TwigFunction(
                 'renderProviderTimeSlots',
-                [$this, 'renderProviderTimeSlots']
+                $this->renderProviderTimeSlots(...)
             ),
             new TwigFunction(
                 'is_weekend_day',
-                function ($date) {
-                    return is_weekend_day($date);
-                }
+                fn($date) => is_weekend_day($date)
             ),
             new TwigFunction(
                 'PrintDatePicker',
-                [$this, 'PrintDatePicker']
+                $this->PrintDatePicker(...)
             ),
             new TwigFunction(
                 'generateDOWCalendar',
-                [$this, 'generateDOWCalendar']
+                $this->generateDOWCalendar(...)
             ),
             new TwigFunction(
                 'PrintEvents',
@@ -64,20 +62,20 @@ class PostCalendarTwigExtensions extends AbstractExtension
             ),
             new TwigFunction(
                 'getProviderInfo',
-                [$this, 'getProviderInfo']
+                $this->getProviderInfo(...)
             ),
             new TwigFunction(
                 'datetimepickerJsConfig',
-                [$this, 'getDatetimepickerJsConfig'],
+                $this->getDatetimepickerJsConfig(...),
                 ['is_safe' => ['html']]
             ),
             new TwigFunction(
                 'getCalendarImagePath',
-                [$this, 'getCalendarImagePath']
+                $this->getCalendarImagePath(...)
             ),
             new TwigFunction(
                 'generatePrintURL',
-                [$this, 'generatePrintURL']
+                $this->generatePrintURL(...)
             )
         ];
     }
@@ -168,7 +166,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
     public function generatePrintURL($template_view, $viewtype, $Date, $pc_username = '', $category = '', $topic = '')
     {
         // Build the URL parameters - always include all parameters to match Smarty behavior
-        $params = array(
+        $params = [
             'module' => 'PostCalendar',
             'func' => 'view',
             'tplview' => $template_view,
@@ -178,7 +176,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
             'pc_username' => $pc_username,
             'pc_category' => $category,
             'pc_topic' => $topic
-        );
+        ];
 
         // Build the query string
         $queryString = http_build_query($params);
@@ -190,7 +188,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
     /* output a small calendar, based on the date-picker code from the normal calendar */
     public function PrintDatePicker($dateString, $DOWlist, $daynames)
     {
-        $caldate = strtotime($dateString);
+        $caldate = strtotime((string) $dateString);
         $cMonth = date("m", $caldate);
         $cYear = date("Y", $caldate);
         $cDay = date("d", $caldate);
@@ -209,7 +207,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
 
         // to make a complete week row we need to compute the real
         // start and end dates for the view
-        list($year, $month, $day) = explode(" ", date('Y m d', $caldate));
+        [$year, $month, $day] = explode(" ", date('Y m d', $caldate));
         $startdate = strtotime($year . $month . "01");
         while (date('w', $startdate) != $DOWlist[0]) {
             $startdate -= 60 * 60 * 24;
@@ -283,7 +281,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
             $slotstartmins = $starttimeh * 60 + $starttimem;
             $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
-            $events_in_timeslot = array();
+            $events_in_timeslot = [];
             foreach ($events as $e1) {
                 // ignore IN event
                 if (($e1['catid'] == 2)) {
@@ -305,10 +303,10 @@ class PostCalendarTwigExtensions extends AbstractExtension
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
                     $tmpTime = $times[0];
-                    if (strlen($tmpTime['hour']) < 2) {
+                    if (strlen((string) $tmpTime['hour']) < 2) {
                         $tmpTime['hour'] = "0" . $tmpTime['hour'];
                     }
-                    if (strlen($tmpTime['minute']) < 2) {
+                    if (strlen((string) $tmpTime['minute']) < 2) {
                         $tmpTime['minute'] = "0" . $tmpTime['minute'];
                     }
                     $e1['startTime'] = $tmpTime['hour'] . ":" . $tmpTime['minute'] . ":00";
@@ -316,8 +314,8 @@ class PostCalendarTwigExtensions extends AbstractExtension
                 }
 
                 // create a numeric start and end for comparison
-                $starth = substr($e1['startTime'], 0, 2);
-                $startm = substr($e1['startTime'], 3, 2);
+                $starth = substr((string) $e1['startTime'], 0, 2);
+                $startm = substr((string) $e1['startTime'], 3, 2);
                 $e1Start = ($starth * 60) + $startm;
                 $e1End = $e1Start + $e1['duration'] / 60;
 
@@ -368,8 +366,8 @@ class PostCalendarTwigExtensions extends AbstractExtension
 
     public function renderProviderTimeSlots($times, $events, $interval, $provider, $providerid, $calEndMin, $calStartMin, $timeformat, $openhour, $closehour, $timeslotHeightVal, $timeslotHeightUnit, $date, $viewtype)
     {
-        $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
-        $defaultDate = date("Y-m-d", strtotime($date));
+        $eventdate = substr((string) $date, 0, 4) . substr((string) $date, 5, 2) . substr((string) $date, 8, 2);
+        $defaultDate = date("Y-m-d", strtotime((string) $date));
 
         // Generate empty time slots for creating new appointments
         $html = '';
@@ -399,8 +397,8 @@ class PostCalendarTwigExtensions extends AbstractExtension
                 $html .= "<div class='time-slot' style='position: absolute; top: " . attr($slotTop) . "; width: 100%; height: " . attr($timeslotHeightVal . $timeslotHeightUnit) . ";'>";
                 $html .= "<a href='javascript:newEvt(" . attr_js($startampm) . "," . attr_js($starttimeh) . "," . attr_js($starttimem) . "," . attr_js($defaultDate) . "," . attr_js($providerid) . "," . attr_js($in_cat_id) . ")'
 		    title='" . xla("New Appointment") . "'
-		    class='time-slot-link' data-time='" . text($disptimeh . ":" . str_pad($starttimem, 2, '0', STR_PAD_LEFT)) . "'>
-		    " . text($disptimeh . ":" . str_pad($starttimem, 2, '0', STR_PAD_LEFT)) . "
+		    class='time-slot-link' data-time='" . text($disptimeh . ":" . str_pad((string) $starttimem, 2, '0', STR_PAD_LEFT)) . "'>
+		    " . text($disptimeh . ":" . str_pad((string) $starttimem, 2, '0', STR_PAD_LEFT)) . "
 		</a>";
                 $html .= "</div>";
             }
@@ -427,10 +425,10 @@ class PostCalendarTwigExtensions extends AbstractExtension
             // specially handle all-day events
             if ($event['alldayevent'] == 1) {
                 $tmpTime = $times[0];
-                if (strlen($tmpTime['hour']) < 2) {
+                if (strlen((string) $tmpTime['hour']) < 2) {
                     $tmpTime['hour'] = "0" . $tmpTime['hour'];
                 }
-                if (strlen($tmpTime['minute']) < 2) {
+                if (strlen((string) $tmpTime['minute']) < 2) {
                     $tmpTime['minute'] = "0" . $tmpTime['minute'];
                 }
                 $event['startTime'] = $tmpTime['hour'] . ":" . $tmpTime['minute'] . ":00";
@@ -438,8 +436,8 @@ class PostCalendarTwigExtensions extends AbstractExtension
             }
 
             // figure the start time and minutes (from midnight)
-            $starth = substr($event['startTime'], 0, 2);
-            $startm = substr($event['startTime'], 3, 2);
+            $starth = substr((string) $event['startTime'], 0, 2);
+            $startm = substr((string) $event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth; // used to display the hour
 
@@ -452,35 +450,26 @@ class PostCalendarTwigExtensions extends AbstractExtension
 
             // determine the class for the event DIV based on the event category
             $evtClass = "event_appointment";
-            switch ($event['catid']) {
-                case 1:  // NO-SHOW appt
-                    $evtClass = "event_noshow";
-                    break;
-                case 2:  // IN office
-                    $evtClass = "event_in";
-                    break;
-                case 3:  // OUT of office
-                    $evtClass = "event_out";
-                    break;
-                case 4:  // VACATION
-                    $evtClass = "event_reserved";
-                    break;
-                case 6:  // HOLIDAY
-                    $evtClass = "event_holiday";
-                    break;
-                case 8:  // LUNCH
-                    $evtClass = "event_reserved";
-                    break;
-                case 11: // RESERVED
-                    $evtClass = "event_reserved";
-                    break;
-                case 99: // HOLIDAY
-                    $evtClass = "event_holiday";
-                    break;
-                default: // some appointment
-                    $evtClass = "event_appointment";
-                    break;
-            }
+            $evtClass = match ($event['catid']) {
+                // NO-SHOW appt
+                1 => "event_noshow",
+                // IN office
+                2 => "event_in",
+                // OUT of office
+                3 => "event_out",
+                // VACATION
+                4 => "event_reserved",
+                // HOLIDAY
+                6 => "event_holiday",
+                // LUNCH
+                8 => "event_reserved",
+                // RESERVED
+                11 => "event_reserved",
+                // HOLIDAY
+                99 => "event_holiday",
+                // some appointment
+                default => "event_appointment",
+            };
             // eventViewClass allows the event class to override the template (such as from a dispatched system event).
             $evtClass = $event['eventViewClass'] ?? $evtClass;
 
@@ -509,8 +498,8 @@ class PostCalendarTwigExtensions extends AbstractExtension
                     }
                     if (($found == true) && ($outevent['catid'] == 3)) {
                         // calculate the duration from this event to the outevent
-                        $outH = substr($outevent['startTime'], 0, 2);
-                        $outM = substr($outevent['startTime'], 3, 2);
+                        $outH = substr((string) $outevent['startTime'], 0, 2);
+                        $outM = substr((string) $outevent['startTime'], 3, 2);
                         $outMins = ($outH * 60) + $outM;
                         $event['duration'] = ($outMins - $eStartMin) * 60; // duration is in seconds
                         $found = 2;
@@ -600,7 +589,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
             // note we've merged the day and week divTitle's here but we should look at merging these
             // the divTitle is what appears when the user hovers the mouse over the DIV
             if ($viewtype == 'week') {
-                $divTitle = date("D, d M Y", strtotime($date));
+                $divTitle = date("D, d M Y", strtotime((string) $date));
             } else {
                 if ($groupid) {
                     $divTitle = xl('Counselors') . ": \n" . $groupcounselors . " \n";
@@ -647,7 +636,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= " (" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4) {
-                                $content .= ": <span class='text-success'>" . text(trim($event['hometext'])) . "</span>";
+                                $content .= ": <span class='text-success'>" . text(trim((string) $event['hometext'])) . "</span>";
                             }
                             $content .= ")";
                         }
@@ -672,7 +661,7 @@ class PostCalendarTwigExtensions extends AbstractExtension
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4) {
-                                $content .= ": <span class='text-success'>" . text(trim($event['hometext'])) . "</span>";
+                                $content .= ": <span class='text-success'>" . text(trim((string) $event['hometext'])) . "</span>";
                             }
                             $content .= ")";
                         }
