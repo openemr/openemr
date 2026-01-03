@@ -26,6 +26,11 @@ use OpenEMR\Forms\EyeMag\RxType;
 use OpenEMR\Forms\EyeMag\RefType;
 
 /**
+ * Standard refraction field names (without prefix).
+ */
+const REFRACTION_FIELDS = ['ODSPH', 'ODAXIS', 'ODCYL', 'ODPRISM', 'OSSPH', 'OSCYL', 'OSAXIS', 'OSPRISM'];
+
+/**
  * Extract refraction data based on RefType enum.
  *
  * @param RefType $refType Refraction type enum
@@ -36,18 +41,12 @@ function extractRefractionData(RefType $refType, array $data): array
 {
     $prefix = $refType->columnPrefix();
 
-    // Build standard refraction fields
-    $result = [
-        'ODSPH' => $data[$prefix . 'ODSPH'] ?? null,
-        'ODAXIS' => $data[$prefix . 'ODAXIS'] ?? null,
-        'ODCYL' => $data[$prefix . 'ODCYL'] ?? null,
-        'ODPRISM' => $data[$prefix . 'ODPRISM'] ?? null,
-        'OSSPH' => $data[$prefix . 'OSSPH'] ?? null,
-        'OSCYL' => $data[$prefix . 'OSCYL'] ?? null,
-        'OSAXIS' => $data[$prefix . 'OSAXIS'] ?? null,
-        'OSPRISM' => $data[$prefix . 'OSPRISM'] ?? null,
-        'COMMENTS' => $data[$refType->commentsField()] ?? null,
-    ];
+    // Build standard refraction fields from field names
+    $result = array_combine(
+        REFRACTION_FIELDS,
+        array_map(fn($f) => $data[$prefix . $f] ?? null, REFRACTION_FIELDS)
+    );
+    $result['COMMENTS'] = $data[$refType->commentsField()] ?? null;
 
     // Add extra fields specific to this reftype
     foreach ($refType->extraFields() as $targetField => $sourceField) {
@@ -372,11 +371,8 @@ if ($_REQUEST['dispensed'] ?? '') {
                 }
 
                 $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
-                if ($rowRefType?->isContactLens()) {
-                    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
-                } else {
-                    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
-                }
+                $expir_offset = $rowRefType?->isContactLens() ? $CTL_expir : $RX_expir;
+                $expir = date("Y-m-d", strtotime($expir_offset, strtotime((string) $row['REFDATE'])));
                 $expir_date = oeFormatShortDate($expir);
                 $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
 
@@ -836,12 +832,9 @@ if ($_REQUEST['dispensed'] ?? '') {
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
-if ($refType?->isContactLens()) {
-    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
-} else {
-    $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
-}
-    $expir_date = oeFormatShortDate($expir);
+$expir_offset = $refType?->isContactLens() ? $CTL_expir : $RX_expir;
+$expir = date("Y-m-d", strtotime($expir_offset, strtotime((string) $data['date'])));
+$expir_date = oeFormatShortDate($expir);
 ?>
 <p><span class="font-weight-bold"><?php echo xlt('Expiration Date'); ?>: </span>
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>

@@ -76,13 +76,7 @@ enum RefType: string
      */
     public function columnPrefix(): string
     {
-        return match ($this) {
-            self::W => '',
-            self::AR => 'AR',
-            self::MR => 'MR',
-            self::CR => 'CR',
-            self::CTL => 'CTL',
-        };
+        return $this === self::W ? '' : $this->name;
     }
 
     /**
