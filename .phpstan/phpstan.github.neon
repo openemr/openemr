@@ -15886,14 +15886,6 @@ parameters:
       identifier: property.notFound
       count: 4
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php
-    - message: '#^Method CacheNoCache\:\:Set\(\) should return VARIANT but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php
-    - message: '#^Method CacheRam\:\:Set\(\) should return VARIANT but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/CacheRam.php
     - message: '#^Access to an undefined property DataSet\:\:\$_total\.$#'
       identifier: property.notFound
       count: 1
@@ -15922,14 +15914,6 @@ parameters:
       identifier: property.notFound
       count: 2
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php
-    - message: '#^Method Phreezable\:\:__serialize\(\) should return array\<mixed, mixed\> but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php
-    - message: '#^Method Phreezer\:\:GetPrimaryKeyMap\(\) should return KeyMap but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php
     - message: '#^Class GenericRouter constructor invoked with 0 parameters, 3 required\.$#'
       identifier: arguments.count
       count: 1
@@ -15942,22 +15926,6 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Method Reporter\:\:__serialize\(\) should return array\<mixed, mixed\> but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php
-    - message: '#^Constructor of class SimpleRouter has an unused parameter \$appRootUrl\.$#'
-      identifier: constructor.unusedParameter
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
-    - message: '#^Method SimpleRouter\:\:GetUri\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
-    - message: '#^Method VerySimpleStringUtil\:\:unicode_entity_replace\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
     - message: '#^Variable \$errors on left side of \?\? always exists and is not nullable\.$#'
       identifier: nullCoalesce.variable
       count: 1
@@ -16298,10 +16266,6 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../src/Common/Auth/Exception/OneTimeAuthExpiredException.php
-    - message: '#^Method OpenEMR\\Common\\Auth\\MfaUtils\:\:checkU2F\(\) should return bool but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Common/Auth/MfaUtils.php
     - message: '#^Variable \$response might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16362,14 +16326,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/Common/ORDataObject/ORDataObject.php
-    - message: '#^Method OpenEMR\\Core\\Header\:\:readConfigFile\(\) should return array but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Core/Header.php
-    - message: '#^Method OpenEMR\\Core\\Header\:\:setupHeader\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Core/Header.php
     - message: '#^Class OpenEMR\\Cqm\\CqmClient constructor invoked with 0 parameters, 2\-4 required\.$#'
       identifier: arguments.count
       count: 1
@@ -16386,10 +16342,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/Easipro/Easipro.php
-    - message: '#^Method OpenEMR\\Events\\Messaging\\SendNotificationEvent\:\:setSendNotificationMethod\(\) should return OpenEMR\\Events\\Messaging\\SendNotificationEvent but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Events/Messaging/SendNotificationEvent.php
     - message: '#^Variable \$result on left side of \?\? always exists and is not nullable\.$#'
       identifier: nullCoalesce.variable
       count: 1
@@ -16454,18 +16406,6 @@ parameters:
       identifier: variable.undefined
       count: 5
       path: ../src/Menu/MainMenuRole.php
-    - message: '#^Method OpenEMR\\Menu\\MenuRole\:\:displayMenuRoleSelector\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Menu/MenuRole.php
-    - message: '#^Method OpenEMR\\Menu\\MenuRole\:\:getMenu\(\) should return array but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Menu/MenuRole.php
-    - message: '#^Method OpenEMR\\Menu\\MenuRole\:\:getMenuRole\(\) should return string but return statement is missing\.$#'
-      identifier: return.missing
-      count: 1
-      path: ../src/Menu/MenuRole.php
     - message: '#^Variable \$action might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16946,57 +16886,40 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
-
     # Optional custom files - checked with file_exists() before include
-    -
-      message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
       identifier: includeOnce.fileNotFound
       path: ../interface/patient_file/printed_fee_sheet.php
-    -
-      message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/patient_file/summary/demographics_print.php
-
     # Legacy PostNuke calendar files - header/footer don't exist
-    -
-      message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/main/calendar/includes/pnHTML.php
-    -
-      message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/main/calendar/includes/pnHTML.php
-
     # Windows compatibility file for getmxrr - conditionally included
-    -
-      message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../modules/sms_email_reminder/cron_functions.php
-
     # Dead code - renderForm() is never called, path is wrong
-    -
-      message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../library/ESign/DbRow/Signable.php
-
     # Optional PEAR/PHPExcel dependency - not installed
-    -
-      message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
-
     # Optional RSS functionality - files don't exist
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-
     # Template path depends on runtime working directory
-    -
-      message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/templates/PatientListView.tpl.php

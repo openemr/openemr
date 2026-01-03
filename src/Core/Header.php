@@ -126,9 +126,8 @@ class Header
 
         if ($echoOutput) {
             echo $output;
-        } else {
-            return $output;
         }
+        return $output;
     }
 
     public static function getFavIcon()
@@ -421,6 +420,7 @@ class Header
         } catch (ParseException $e) {
             error_log(errorLogEscape($e->getMessage()));
             // @TODO need to handle this better. RD 2017-05-24
+            return [];
         }
     }
 

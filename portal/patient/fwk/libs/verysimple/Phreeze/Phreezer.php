@@ -857,7 +857,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          the type of object
-* @return KeyMap object
+* @return KeyMap|null
 */
     public function GetPrimaryKeyMap($objectclass)
     {
@@ -867,6 +867,7 @@ class Phreezer extends Observable
                 return $fm;
             }
         }
+        return null;
     }
 
 /**
