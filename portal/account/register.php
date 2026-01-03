@@ -16,9 +16,12 @@
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
+$globalsBag = OEGlobalsBag::getInstance(true);
 
 if ($portalRegistrationAuthorization !== true) {
     (new SystemLogger())->debug("Attempted to use register.php directly, so failed");
@@ -28,7 +31,7 @@ if ($portalRegistrationAuthorization !== true) {
     die();
 }
 
-if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
+if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
     (new SystemLogger())->debug("Attempted to use register.php despite register feature being turned off, so failed");
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
@@ -46,7 +49,7 @@ $landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
 
 // Prepare data for the template
 $data = [
-'global' => $GLOBALS,
+'global' => $globalsBag->all(),
 'session' => $_SESSION,
 'languageRegistration' => $languageRegistration ?? '',
 'fnameRegistration' => $fnameRegistration ?? '',
@@ -57,7 +60,7 @@ $data = [
 ];
 
 // Render Register Twig template
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
     echo $twig->render('portal/registration/portal_register.html.twig', $data);
 } catch (LoaderError | SyntaxError | RuntimeError $e) {

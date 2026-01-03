@@ -33,7 +33,7 @@ abstract class Phreezable implements Serializable
     ];
 
     /** @var cache of public properties for each type for improved performance when enumerating */
-    private static $PublicPropCache =  [];
+    private static array $PublicPropCache =  [];
 
     /**
      * Returns true if the current object has been loaded

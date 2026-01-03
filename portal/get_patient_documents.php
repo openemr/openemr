@@ -20,15 +20,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
+
 require_once("./verify_session.php");
 /**
  * @Global $srcdir openemr src folder, setup during verify_session.php
  */
-require_once("$srcdir/documents.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+require_once("{$globalsBag->getString('srcdir')}/documents.php");
+require_once($globalsBag->getString('fileroot') . "/controllers/C_Document.class.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+
 
 // Get all the documents of the patient
 $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `foreign_id` = ? AND `deleted` = 0";

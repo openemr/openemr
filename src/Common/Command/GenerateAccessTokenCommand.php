@@ -140,7 +140,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
             }
 
             $scopes = $this->getScopesFromInput($input, $client);
-            $hasOfflineScope = !empty(array_filter($scopes, fn($scope) => $scope->getIdentifier() === 'offline_access'));
+            $hasOfflineScope = !empty(array_filter($scopes, static fn($scope): bool => $scope->getIdentifier() === 'offline_access'));
 //            $scopes = array_map(function($scope): ScopeEntity { $entity = new ScopeEntity(); $entity->setIdentifier($scope); return $entity; }
 //            , $scopeIdentifiers);
             $session = new Session(new MockFileSessionStorage());

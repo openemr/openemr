@@ -17,11 +17,13 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
 SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc.php");
@@ -41,7 +43,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
-
+$srcdir = $globalsBag->getString('srcdir');
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/forms.inc.php");
@@ -127,7 +129,7 @@ if ($eid !== 0) {
         $min_name = $qmin['facility'];
 
         // multiple providers case
-        if ($GLOBALS['select_multi_providers']) {
+        if ($globalsBag->get('select_multi_providers')) {
             $mul = $facility['pc_multiple'];
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min, $mul]);
         }
@@ -293,7 +295,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
-        if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
+        if ($globalsBag->get('select_multi_providers') && $row['pc_multiple']) {
             /* ==========================================
             // multi providers BOS
             ==========================================*/
@@ -375,7 +377,7 @@ if (($_POST['form_action'] ?? null) == "save") {
           // multi providers EOS
             ==========================================*/
         } elseif (!$row['pc_multiple']) {
-            $prov = $GLOBALS['select_multi_providers'] ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
+            $prov = $globalsBag->get('select_multi_providers') ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
             $insert = false;
             // simple provider case
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
@@ -486,7 +488,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 // =======================================
 //  multi providers case
 // =======================================
-    if ($GLOBALS['select_multi_providers']) {
+    if ($globalsBag->get('select_multi_providers')) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
         if ($row['pc_multiple']) {

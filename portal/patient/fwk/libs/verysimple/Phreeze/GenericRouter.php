@@ -8,6 +8,8 @@
 require_once('IRouter.php');
 require_once('verysimple/HTTP/RequestUtil.php');
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Generic Router is an implementation of IRouter that uses patterns to connect
  * routes to a Controller/Method
@@ -71,7 +73,7 @@ class GenericRouter implements IRouter
      */
     public function GetRoute($uri = "")
     {
-
+        $globalsBag = OEGlobalsBag::getInstance(true);
         // reset the uri cache
         $this->uri = '';
 
@@ -84,7 +86,7 @@ class GenericRouter implements IRouter
             // expects mapped values to be in the form: Controller.Model
             [$controller, $method] = explode(".", (string) $this->routeMap [$uri] ["route"]);
 
-            if (!empty($GLOBALS['bootstrap_pid'])) {
+            if (!empty($globalsBag->get('bootstrap_pid'))) {
                 // p_acl check
                 if ($this->routeMap[$uri]["p_acl"] != 'p_all') {
                     // failed p_acl check
@@ -93,7 +95,7 @@ class GenericRouter implements IRouter
                 }
             }
 
-            if (!empty($GLOBALS['bootstrap_register'])) {
+            if (!empty($globalsBag->get('bootstrap_register'))) {
                 // p_reg check
                 if ($this->routeMap[$uri]["p_reg"] !== true) {
                     // failed p_reg check
@@ -125,12 +127,12 @@ class GenericRouter implements IRouter
 
             // check for RegEx match
             if (preg_match('#^' . $key . '$#', (string) $uri, $match)) {
-                if (!empty($GLOBALS['bootstrap_pid'])) {
+                if (!empty($globalsBag->get('bootstrap_pid'))) {
                     // p_acl check
                     $p_acl = $this->routeMap[$unalteredKey]["p_acl"];
                     if (
                         ($p_acl == 'p_none') ||
-                        (($p_acl == 'p_limited') && ($GLOBALS['bootstrap_uri_id'] != $match[1]))
+                        (($p_acl == 'p_limited') && ($globalsBag->get('bootstrap_uri_id') != $match[1]))
                     ) {
                         // failed p_acl check
                         $error = 'Unauthorized';
@@ -138,7 +140,7 @@ class GenericRouter implements IRouter
                     }
                 }
 
-                if (!empty($GLOBALS['bootstrap_register'])) {
+                if (!empty($globalsBag->get('bootstrap_register'))) {
                     // p_reg check
                     if ($this->routeMap[$unalteredKey]["p_reg"] !== true) {
                         // failed p_reg check
