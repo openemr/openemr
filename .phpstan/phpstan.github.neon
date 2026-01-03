@@ -230,10 +230,6 @@ parameters:
       identifier: nullCoalesce.variable
       count: 1
       path: ../controllers/C_DocumentCategory.class.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../controllers/C_Prescription.class.php
     - message: '#^Variable \$p might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -14350,18 +14346,6 @@ parameters:
       identifier: isset.variable
       count: 1
       path: ../library/appointments.inc.php
-    - message: '#^Access to undefined constant procedure\:\:DIALYSIS_SERVICE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Access to undefined constant procedure\:\:INFLU_VACCINE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Access to undefined constant procedure\:\:PNEUMOCOCCAL_VACCINE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
     - message: '#^Class procedure referenced with incorrect case\: Procedure\.$#'
       identifier: class.nameCase
       count: 3
@@ -16374,10 +16358,6 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../src/Cqm/test.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:usingHeaders\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 5
-      path: ../src/Easipro/Easipro.php
     - message: '#^Undefined variable\: \$row$#'
       identifier: variable.undefined
       count: 1
@@ -16446,10 +16426,6 @@ parameters:
       identifier: empty.variable
       count: 1
       path: ../src/Gacl/GaclApi.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../src/MedicalDevice/MedicalDevice.php
     - message: '#^Variable \$catEntry might not be defined\.$#'
       identifier: variable.undefined
       count: 5
@@ -16490,10 +16466,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/PaymentProcessing/Sphere/SpherePayment.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:getCurlOptions\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../src/Pharmacy/Services/ImportPharmacies.php
     - message: '#^Variable \$zip might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16514,10 +16486,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php
-    - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
-      identifier: staticMethod.notFound
-      count: 1
-      path: ../src/Rx/RxList.php
     - message: '#^Variable \$all might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16946,57 +16914,57 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
-
     # Optional custom files - checked with file_exists() before include
-    -
-      message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
       identifier: includeOnce.fileNotFound
       path: ../interface/patient_file/printed_fee_sheet.php
-    -
-      message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/patient_file/summary/demographics_print.php
-
     # Legacy PostNuke calendar files - header/footer don't exist
-    -
-      message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/main/calendar/includes/pnHTML.php
-    -
-      message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../interface/main/calendar/includes/pnHTML.php
-
     # Windows compatibility file for getmxrr - conditionally included
-    -
-      message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../modules/sms_email_reminder/cron_functions.php
-
     # Dead code - renderForm() is never called, path is wrong
-    -
-      message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
       identifier: include.fileNotFound
       path: ../library/ESign/DbRow/Signable.php
-
     # Optional PEAR/PHPExcel dependency - not installed
-    -
-      message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
-
     # Optional RSS functionality - files don't exist
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-
     # Template path depends on runtime working directory
-    -
-      message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
+    - message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
       identifier: requireOnce.fileNotFound
       path: ../portal/patient/templates/PatientListView.tpl.php
+
+    # Class collision: lowercase 'procedure' shadows 'Procedure' - see issue #10046
+    -
+      message: '#^Access to undefined constant procedure\:\:DIALYSIS_SERVICE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: ../library/classes/ClinicalTypes/codes.php
+    -
+      message: '#^Access to undefined constant procedure\:\:INFLU_VACCINE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: ../library/classes/ClinicalTypes/codes.php
+    -
+      message: '#^Access to undefined constant procedure\:\:PNEUMOCOCCAL_VACCINE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: ../library/classes/ClinicalTypes/codes.php
