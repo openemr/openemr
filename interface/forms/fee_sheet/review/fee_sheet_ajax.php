@@ -15,6 +15,8 @@ require_once("fee_sheet_queries.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
+use OpenEMR\Forms\FeeSheet\Review\Procedure;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
@@ -78,7 +80,7 @@ if ($task == 'add_diags') {
 
     $diags = [];
     foreach ($json_diags as $diag) {
-        $diags[] = new code_info($diag->code, $diag->code_type, $diag->description);
+        $diags[] = new CodeInfo($diag->code, $diag->code_type, $diag->description);
     }
 
     $procs = [];
@@ -87,7 +89,7 @@ if ($task == 'add_diags') {
     }
 
     foreach ($json_procs as $proc) {
-        $procs[] = new procedure(
+        $procs[] = new Procedure(
             $proc->code,
             $proc->code_type,
             $proc->description,

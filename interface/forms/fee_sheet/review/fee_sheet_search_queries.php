@@ -12,6 +12,8 @@
 
 require_once("$srcdir/../custom/code_types.inc.php");
 
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
+
 /**
  *
  * wrapper for sequential code set search
@@ -26,7 +28,7 @@ function diagnosis_search($search_type_id, $search_type, $search_query)
     $retval = [];
     $search = main_code_set_search($search_type, $search_query, 20);
     while ($code = sqlFetchArray($search)) {
-        array_push($retval, new code_info($code['code'], $search_type, $code['code_text']));
+        array_push($retval, new CodeInfo($code['code'], $search_type, $code['code_text']));
     }
 
     return $retval;
