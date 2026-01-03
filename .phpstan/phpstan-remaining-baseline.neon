@@ -13068,10 +13068,6 @@ parameters:
       identifier: variable.undefined
       count: 2
       path: ../interface/patient_file/summary/stats.php
-    - message: '#^Variable \$kernel might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/patient_file/summary/stats.php
     - message: '#^Variable \$need_head might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -14244,10 +14240,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../library/ajax/graphs.php
-    - message: '#^Instantiated class TwigContainer not found\.$#'
-      identifier: class.notFound
-      count: 1
-      path: ../library/ajax/immunization_export.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
