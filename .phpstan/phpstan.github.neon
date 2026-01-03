@@ -9810,22 +9810,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/main/calendar/find_patient_popup.php
-    - message: '#^Path in require\(\) "config\.php" is not a file or it does not exist\.$#'
-      identifier: require.fileNotFound
-      count: 1
-      path: ../interface/main/calendar/includes/pnAPI.php
-    - message: '#^Path in require\(\) "includes/pnHTML\.php" is not a file or it does not exist\.$#'
-      identifier: require.fileNotFound
-      count: 1
-      path: ../interface/main/calendar/includes/pnAPI.php
-    - message: '#^Path in require\(\) "includes/pnMod\.php" is not a file or it does not exist\.$#'
-      identifier: require.fileNotFound
-      count: 1
-      path: ../interface/main/calendar/includes/pnAPI.php
-    - message: '#^Path in require\(\) "pntables\.php" is not a file or it does not exist\.$#'
-      identifier: require.fileNotFound
-      count: 1
-      path: ../interface/main/calendar/includes/pnAPI.php
     - message: '#^Variable \$_GLOBALS might not be defined\.$#'
       identifier: variable.undefined
       count: 3
@@ -9864,14 +9848,6 @@ parameters:
       path: ../interface/main/calendar/includes/pnHTML.php
     - message: '#^Method pnHTML\:\:Text\(\) should return string but return statement is missing\.$#'
       identifier: return.missing
-      count: 1
-      path: ../interface/main/calendar/includes/pnHTML.php
-    - message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      count: 1
-      path: ../interface/main/calendar/includes/pnHTML.php
-    - message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
       count: 1
       path: ../interface/main/calendar/includes/pnHTML.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
@@ -12570,10 +12546,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/patient_file/pos_checkout_normal.php
-    - message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
-      identifier: includeOnce.fileNotFound
-      count: 1
-      path: ../interface/patient_file/printed_fee_sheet.php
     - message: '#^Variable \$encounter might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -12902,10 +12874,6 @@ parameters:
       identifier: variable.undefined
       count: 6
       path: ../interface/patient_file/summary/demographics_full.php
-    - message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      count: 1
-      path: ../interface/patient_file/summary/demographics_print.php
     - message: '#^Variable \$pid might not be defined\.$#'
       identifier: variable.undefined
       count: 3
@@ -14126,10 +14094,6 @@ parameters:
       identifier: variable.undefined
       count: 2
       path: ../ippf_upgrade.php
-    - message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      count: 1
-      path: ../library/ESign/DbRow/Signable.php
     - message: '#^Variable \$this might not be defined\.$#'
       identifier: variable.undefined
       count: 4
@@ -15590,10 +15554,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../modules/sms_email_reminder/cron_email_notification.php
-    - message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      count: 1
-      path: ../modules/sms_email_reminder/cron_functions.php
     - message: '#^Class sms constructor invoked with 3 parameters, 0 required\.$#'
       identifier: arguments.count
       count: 1
@@ -15850,42 +15810,10 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../portal/messaging/secure_chat.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/SavantRenderEngine\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_app_config.php
     - message: '#^Instantiated class specify not found\.$#'
       identifier: class.notFound
       count: 1
       path: ../portal/patient/_global_config.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseConfig\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_global_config.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_global_config.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/GenericRouter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_global_config.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/ObserveToSmarty\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_global_config.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/PortalController\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_global_config.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_machine_config.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/ConnectionSetting\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/_machine_config.php
     - message: '#^Variable \$disable_utf8_flag might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -15942,97 +15870,21 @@ parameters:
       identifier: function.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseConfig\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseException\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/ISqlFunction\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL.php
     - message: '#^Function mysql_ping not found\.$#'
       identifier: function.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseConfig\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseException\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/ISqlFunction\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQL_PDO.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseConfig\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseException\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/ISqlFunction\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseConfig\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DatabaseException\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/ISqlFunction\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/DB/DataDriver/SQLite.php
     - message: '#^Undefined variable\: \$attachment$#'
       identifier: variable.undefined
       count: 4
       path: ../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php
-    - message: '#^Path in require_once\(\) "verysimple/String/VerySimpleStringUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 2
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php
     - message: '#^Variable \$_POST in isset\(\) always exists and is not nullable\.$#'
       identifier: isset.variable
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/UrlWriter.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/ActionRouter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/HTTP/UrlWriter.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IRouter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php
-    - message: '#^Path in require_once\(\) "verysimple/Util/UrlWriterMode\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php
     - message: '#^Access to an undefined property CacheMemCache\:\:\$LastServerError\.$#'
       identifier: property.notFound
       count: 4
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php
-    - message: '#^Path in require_once\(\) "verysimple/Util/ExceptionThrower\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php
     - message: '#^Method CacheNoCache\:\:Set\(\) should return VARIANT but return statement is missing\.$#'
       identifier: return.missing
@@ -16042,48 +15894,12 @@ parameters:
       identifier: return.missing
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/CacheRam.php
-    - message: '#^Path in require_once\(\) "verysimple/IO/Includer\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php
-    - message: '#^Path in include_once\(\) "verysimple/DB/DataDriver/MySQL\.php" is not a file or it does not exist\.$#'
-      identifier: includeOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php
-    - message: '#^Path in include_once\(\) "verysimple/DB/DataDriver/MySQLi\.php" is not a file or it does not exist\.$#'
-      identifier: includeOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php
-    - message: '#^Path in include_once\(\) "verysimple/DB/DataDriver/SQLite\.php" is not a file or it does not exist\.$#'
-      identifier: includeOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php
-    - message: '#^Path in require_once\(\) "verysimple/DB/DataDriver/IDataDriver\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php
-    - message: '#^Path in require_once\(\) "verysimple/IO/Includer\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php
     - message: '#^Access to an undefined property DataSet\:\:\$_total\.$#'
       identifier: property.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php
-    - message: '#^Path in require_once\(\) "verysimple/Util/ExceptionFormatter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php
     - message: '#^Class GenericRouter constructor invoked with 0 parameters, 3 required\.$#'
       identifier: arguments.count
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php
-    - message: '#^Path in require_once\(\) "verysimple/Util/ExceptionThrower\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php
     - message: '#^Call to static method createWriter\(\) on an unknown class PHPExcel_IOFactory\.$#'
@@ -16094,14 +15910,6 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
-    - message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php
     - message: '#^Access to an undefined property MockRouter\:\:\$delim\.$#'
       identifier: property.notFound
       count: 1
@@ -16110,10 +15918,6 @@ parameters:
       identifier: property.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ObserveToFile.php
     - message: '#^Access to an undefined property PHPRenderEngine\:\:\$templatePath\.$#'
       identifier: property.notFound
       count: 2
@@ -16124,10 +15928,6 @@ parameters:
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php
     - message: '#^Method Phreezer\:\:GetPrimaryKeyMap\(\) should return KeyMap but return statement is missing\.$#'
       identifier: return.missing
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php
-    - message: '#^Path in require_once\(\) "verysimple/IO/Includer\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php
     - message: '#^Class GenericRouter constructor invoked with 0 parameters, 3 required\.$#'
@@ -16142,50 +15942,10 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/Authentication/Auth401\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/Authentication/Authenticator\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 2
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/Authentication/IAuthenticatable\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/BrowserDevice\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/Context\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    - message: '#^Path in require_once\(\) "verysimple/String/VerySimpleStringUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
     - message: '#^Method Reporter\:\:__serialize\(\) should return array\<mixed, mixed\> but return statement is missing\.$#'
       identifier: return.missing
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php
-    - message: '#^Path in require_once\(\) "savant/Savant3\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SavantRenderEngine.php
     - message: '#^Constructor of class SimpleRouter has an unused parameter \$appRootUrl\.$#'
       identifier: constructor.unusedParameter
       count: 1
@@ -16194,166 +15954,18 @@ parameters:
       identifier: return.missing
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
-    - message: '#^Path in require_once\(\) "verysimple/HTTP/RequestUtil\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IRouter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/SimpleRouter.php
     - message: '#^Method VerySimpleStringUtil\:\:unicode_entity_replace\(\) should return string but return statement is missing\.$#'
       identifier: return.missing
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/CacheMemCache\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Dispatcher\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/index.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/PortalController\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Controller/AppBasePortalController.php
-    - message: '#^Path in require_once\(\) "Model/OnsiteActivityView\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Controller/OnsiteActivityViewController.php
-    - message: '#^Path in require_once\(\) "Model/OnsiteDocument\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Controller/OnsiteDocumentController.php
     - message: '#^Variable \$errors on left side of \?\? always exists and is not nullable\.$#'
       identifier: nullCoalesce.variable
       count: 1
       path: ../portal/patient/libs/Controller/OnsiteDocumentController.php
-    - message: '#^Path in require_once\(\) "Model/OnsitePortalActivity\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Controller/OnsitePortalActivityController.php
-    - message: '#^Path in require_once\(\) "Model/Patient\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Controller/PatientController.php
     - message: '#^Variable \$output might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../portal/patient/libs/Controller/PatientController.php
-    - message: '#^Path in require_once\(\) "Model/Patient\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Controller/PortalPatientController.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Criteria\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteActivityViewCriteriaDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Phreezable\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteActivityViewDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap2\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap2\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteActivityViewMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Criteria\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteDocumentCriteriaDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Phreezable\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteDocumentDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteDocumentMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap2\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsiteDocumentMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Criteria\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsitePortalActivityCriteriaDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Phreezable\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsitePortalActivityDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsitePortalActivityMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap2\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/OnsitePortalActivityMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Criteria\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Phreezable\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/PatientDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/PatientMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap2\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/PatientMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Criteria\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/UserCriteriaDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Phreezable\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/UserDAO.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/UserMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/IDaoMap2\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Model/DAO/UserMap.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Reporter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Reporter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Reporter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Reporter/OnsiteDocumentReporter.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Reporter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Reporter/OnsitePortalActivityReporter.php
-    - message: '#^Path in require_once\(\) "verysimple/Phreeze/Reporter\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/libs/Reporter/PatientReporter.php
     - message: '#^Variable \$this might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -16374,10 +15986,6 @@ parameters:
       identifier: variable.undefined
       count: 4
       path: ../portal/patient/templates/OnsitePortalActivityListView.tpl.php
-    - message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      count: 1
-      path: ../portal/patient/templates/PatientListView.tpl.php
     - message: '#^Variable \$this might not be defined\.$#'
       identifier: variable.undefined
       count: 14
@@ -17338,3 +16946,57 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
+
+    # Optional custom files - checked with file_exists() before include
+    -
+      message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
+      identifier: includeOnce.fileNotFound
+      path: ../interface/patient_file/printed_fee_sheet.php
+    -
+      message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      path: ../interface/patient_file/summary/demographics_print.php
+
+    # Legacy PostNuke calendar files - header/footer don't exist
+    -
+      message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      path: ../interface/main/calendar/includes/pnHTML.php
+    -
+      message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      path: ../interface/main/calendar/includes/pnHTML.php
+
+    # Windows compatibility file for getmxrr - conditionally included
+    -
+      message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      path: ../modules/sms_email_reminder/cron_functions.php
+
+    # Dead code - renderForm() is never called, path is wrong
+    -
+      message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      path: ../library/ESign/DbRow/Signable.php
+
+    # Optional PEAR/PHPExcel dependency - not installed
+    -
+      message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
+
+    # Optional RSS functionality - files don't exist
+    -
+      message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
+    -
+      message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
+
+    # Template path depends on runtime working directory
+    -
+      message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      path: ../portal/patient/templates/PatientListView.tpl.php
