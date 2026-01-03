@@ -19,8 +19,11 @@ namespace OpenEMR\Tests\Isolated\Validators;
 use OpenEMR\Validators\CoverageValidator;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('isolated')]
+#[Group('validator')]
 class CoverageValidatorTest extends TestCase
 {
     private CoverageValidatorStub $validator;
