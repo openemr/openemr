@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
 $tab = "orders";
 $pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     exit;
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');

@@ -42,7 +42,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         if ($insertNeedReturn) {
             $GLOBALS['lastidado'] = $this->Insert_ID();
         }
-        EventAuditLogger::instance()->auditSQLEvent($sql, $outcome, $inputarr);
+        EventAuditLogger::getInstance()->auditSQLEvent($sql, $outcome, $inputarr);
         return $retval;
     }
 

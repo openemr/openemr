@@ -77,7 +77,7 @@ class ClientAdminController
     {
         $this->kernel = $this->globalsBag->get('kernel');
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = TwigContainer::getInstance()->getTwig();
         $this->webroot = $this->globalsBag->get('web_root');
     }
 

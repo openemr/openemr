@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
     exit;
 }
 $editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
@@ -39,7 +39,7 @@ if (isset($_POST['mode'])) {
     if ($_POST["amendment_id"] == "") {
         // New. Insert
         if (!$addAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
+            echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
             exit;
         }
         $query = "INSERT INTO amendments SET
@@ -65,7 +65,7 @@ if (isset($_POST['mode'])) {
         $amendment_id = $_POST['amendment_id'];
         // Existing. Update
         if (!$editAccess) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
+            echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
             exit;
         }
         $query = "UPDATE amendments SET

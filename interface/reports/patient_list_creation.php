@@ -30,7 +30,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
+    echo TwigContainer::getInstance()->getTwig()
         ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") ]);
     exit;
 }
@@ -820,7 +820,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     if (!AclMain::aclCheckCore($search_options[$srch_option]["acl"][0], $search_options[$srch_option]["acl"][1])) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
+        echo TwigContainer::getInstance()->getTwig()
             ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . $search_options[$srch_option]["title"] . ")"]);
         exit;
     }

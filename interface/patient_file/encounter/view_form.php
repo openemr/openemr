@@ -40,7 +40,7 @@ if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
     if (!AclMain::aclCheckForm($_GET["formname"])) {
         $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
         $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+        echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
         exit;
     }
 }

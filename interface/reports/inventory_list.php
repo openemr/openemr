@@ -40,7 +40,7 @@ $auth_drug_reports = $GLOBALS['inhouse_pharmacy'] && (
     AclMain::aclCheckCore('admin', 'drugs') ||
     AclMain::aclCheckCore('inventory', 'reporting'));
 if (!$auth_drug_reports) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory List")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory List")]);
     exit;
 }
 

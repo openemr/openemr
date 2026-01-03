@@ -41,7 +41,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments and Encounters")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments and Encounters")]);
     exit;
 }
 

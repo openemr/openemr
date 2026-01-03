@@ -21,7 +21,7 @@ use OpenEMR\Services\FacilityService;
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Facility Admin")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Facility Admin")]);
     exit;
 }
 
@@ -51,6 +51,6 @@ $args = [
     'facility' => $facilityService->getById($my_fid),
 ];
 
-$twig = new TwigContainer(null, $GLOBALS["kernel"]);
+$twig = TwigContainer::getInstance();
 $t = $twig->getTwig();
 echo $t->render("super/facilities/form.html.twig", $args);

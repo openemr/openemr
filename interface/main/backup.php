@@ -60,7 +60,7 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
     exit;
 }
 
@@ -600,7 +600,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     chdir($cur_dir);
     /* To log the backup event */
     if ($GLOBALS['audit_events_backup']) {
-        EventAuditLogger::instance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
+        EventAuditLogger::getInstance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
     }
 
     $auto_continue = true;

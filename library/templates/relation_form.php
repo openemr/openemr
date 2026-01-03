@@ -210,6 +210,6 @@ $logger->debug("Sending to TWIG", [
                 ]);
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/relation_form.html.twig', $templateVars);

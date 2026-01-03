@@ -61,7 +61,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Event")]);
     exit;
 }
 

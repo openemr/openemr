@@ -85,6 +85,6 @@ $templateVars = [
 ];
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/telecom_form.html.twig', $templateVars);

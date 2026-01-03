@@ -39,7 +39,7 @@ if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
 }
 
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
     exit;
 }
 

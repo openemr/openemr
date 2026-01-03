@@ -107,7 +107,7 @@ class OemrUI
         /**
          * @var TwigEnvironment
          */
-        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+        $twigContainer = TwigContainer::getInstance();
         $this->twig = $twigContainer->getTwig();
 
         if ($this->expandable) {

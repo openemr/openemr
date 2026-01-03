@@ -12,7 +12,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
-$bootstrap = Bootstrap::instantiate($GLOBALS['kernel']->getEventDispatcher(), $GLOBALS['kernel']);
+$bootstrap = Bootstrap::instantiate($GLOBALS['kernel']->getEventDispatcher());
 $exporter = $bootstrap->getExporter();
 
 

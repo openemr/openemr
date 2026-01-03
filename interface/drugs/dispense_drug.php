@@ -50,7 +50,7 @@ $user            = $_SESSION['authUser'];
 $encounter       = $_REQUEST['encounter'] ?? $_SESSION['encounter'] ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
     exit;
 }
 

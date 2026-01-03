@@ -22,7 +22,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
 if (empty($noteid)) {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = TwigContainer::getInstance();
     echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
     exit;
 }

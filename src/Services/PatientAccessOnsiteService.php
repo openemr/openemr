@@ -61,7 +61,7 @@ class PatientAccessOnsiteService
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
         $this->kernel = $GLOBALS['kernel'];
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = TwigContainer::getInstance()->getTwig();
         $this->logger = new SystemLogger();
     }
 
@@ -113,7 +113,7 @@ class PatientAccessOnsiteService
         $query_parameters[] = $forced_reset_disable;
         $query_parameters[] = $pid;
 
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "patient-access",
             $this->authUser,
             $this->authProvider,

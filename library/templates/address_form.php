@@ -100,6 +100,6 @@ $templateVars = [
 ];
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = TwigContainer::getInstance();
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/address_form.html.twig', $templateVars);

@@ -111,7 +111,7 @@ final class EventAuditLoggerTest extends TestCase
         }
 
         // Get EventAuditLogger instance (works with existing singleton)
-        $this->eventAuditLogger = EventAuditLogger::instance();
+        $this->eventAuditLogger = EventAuditLogger::getInstance();
 
         // Create mock for CryptoGen
         $this->cryptoGenMock = $this->createMock(CryptoGen::class);
@@ -303,8 +303,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testSingletonPattern(): void
     {
-        $eventAuditLogger = EventAuditLogger::instance();
-        $instance2 = EventAuditLogger::instance();
+        $eventAuditLogger = EventAuditLogger::getInstance();
+        $instance2 = EventAuditLogger::getInstance();
 
         $this->assertSame($eventAuditLogger, $instance2, 'EventAuditLogger should implement singleton pattern');
         $this->assertInstanceOf(EventAuditLogger::class, $eventAuditLogger);

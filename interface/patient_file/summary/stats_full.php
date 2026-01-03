@@ -40,7 +40,7 @@ if ($auth) {
         die(xlt('Not authorized'));
     }
 } else {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
     exit;
 }
 

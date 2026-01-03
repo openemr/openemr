@@ -50,7 +50,7 @@ class ObservationController
         ?Environment $twig = null,
         private ?PatientService $patientService = new PatientService()
     ) {
-        $this->twig = $twig ?? (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $this->twig = $twig ?? TwigContainer::getInstance()->getTwig();
         $this->codeTypeService = new CodeTypesService();
     }
 

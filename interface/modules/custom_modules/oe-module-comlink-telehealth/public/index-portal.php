@@ -31,7 +31,7 @@ require_once "../../../../../portal/verify_session.php";
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 
 $kernel = $GLOBALS['kernel'];
-$bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
+$bootstrap = new Bootstrap($kernel->getEventDispatcher());
 $roomController = $bootstrap->getTeleconferenceRoomController(true);
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $queryVars['csrf_token'] = $_SERVER['HTTP_APICSRFTOKEN'];
