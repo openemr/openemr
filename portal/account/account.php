@@ -12,19 +12,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::instance()->getWrapper();
 
 if (
-    (!empty($_SESSION['verifyPortalEmail']) && ($_SESSION['verifyPortalEmail'] === true)) ||
-    (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) ||
-    (($_SESSION['credentials_update'] ?? null) === 1 && isset($_SESSION['pid'])) ||
-    (($_SESSION['itsme'] ?? null) === 1 && isset($_SESSION['password_update']))
+    ($session->get('verifyPortalEmail') === true) ||
+    (($session->get('register', null)) === true && $session->has('pid')) ||
+    (($session->get('credentials_update', null)) === 1 && $session->has('pid')) ||
+    (($session->get('itsme', null)) === 1 && $session->has('password_update'))
 ) {
     $ignoreAuth_onsite_portal = true;
 }
@@ -42,10 +42,10 @@ use OpenEMR\Core\Header;
 $action = $_REQUEST['action'] ?? '';
 
 if ($action == 'verify_email') {
-    if (!empty($_SESSION['verifyPortalEmail']) && ($_SESSION['verifyPortalEmail'] === true)) {
+    if ($session->get('verifyPortalEmail') === true) {
         if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf')) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified(true, true, false);
                 cleanupRegistrationSession();
                 exit;
@@ -73,8 +73,8 @@ if ($action == 'verify_email') {
 
 if ($action == 'userIsUnique') {
     if (
-        ((int)$_SESSION['credentials_update'] === 1 && isset($_SESSION['pid'])) ||
-        ((int)$_SESSION['itsme'] === 1 && isset($_SESSION['password_update']))
+        ((int)$session->get('credentials_update') === 1 && $session->has('pid')) ||
+        ((int)$session->get('itsme') === 1 && $session->has('password_update'))
     ) {
         // The above comparisons will not allow querying for usernames if not authorized (ie. not including the register stuff)
         if (empty(trim((string) $_REQUEST['account']))) {
@@ -102,11 +102,11 @@ if ($action == 'userIsUnique') {
 }
 
 if ($action == 'reset_password') {
-    if (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
+    if ($session->get('register', null) === true && $session->has('pid')) {
         $rtn = 0;
         if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
             // check csrf
-            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf')) {
+            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified(true, true, false);
                 cleanupRegistrationSession();
                 exit;
@@ -127,7 +127,7 @@ if ($action == 'reset_password') {
 }
 
 if ($action == 'do_signup') {
-    if (($_SESSION['register_silo_ajax'] ?? null) === true && ($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
+    if ($session->get('register_silo_ajax', null) === true && $session->get('register', null) === true && $session->has('pid')) {
         if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
             $pidHolder = getPidHolder();
             if ($pidHolder == 0) {
@@ -158,7 +158,7 @@ if ($action == 'do_signup') {
 }
 
 if ($action == 'new_insurance') {
-    if (($_SESSION['register_silo_ajax'] ?? null) === true && ($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
+    if ($session->get('register_silo_ajax', null) === true && $session->get('register', null) === true && $session->has('pid')) {
         if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
             $pidHolder = getPidHolder(true);
             if ($pidHolder == 0) {

@@ -22,7 +22,7 @@ abstract class Reporter implements Serializable
     private $_noCache = false;
 
     /** @var these properties will never be cached */
-    private static $NoCacheProperties =  [
+    private static $NoCacheProperties = [
             "_cache",
             "_phreezer",
             "_val_errors",

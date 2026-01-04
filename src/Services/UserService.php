@@ -18,6 +18,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -135,8 +136,9 @@ class UserService
      */
     public function getCurrentlyLoggedInUser()
     {
+        $session = SessionWrapperFactory::instance()->getWrapper();
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
-        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$_SESSION['authUserID']]);
+        return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$session->get('authUserID')]);
     }
 
     /**
