@@ -8522,14 +8522,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
-    - message: '#^Variable \$json_diags might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
-    - message: '#^Variable \$json_procs might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
     - message: '#^Variable \$req_encounter might not be defined\.$#'
       identifier: variable.undefined
       count: 5
