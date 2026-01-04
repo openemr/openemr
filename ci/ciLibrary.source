@@ -28,7 +28,7 @@ coverage_args=(
 
 composer_github_auth() {
     local codes=(103 104 112 95 105 71 104 117 51 104 55 53 97 117 117 121 89 75 120 97 72 73 88 66 107 52 114 76 84 90 99 85 101 51 48 77 75 107 56 112)
-    githubToken=$(printf '%b' $(printf '\\%03o' "${codes[@]}"))
+    githubToken=$(printf '%b' "$(printf '\\%03o' "${codes[@]}")")
     githubTokenRateLimitRequest=$(curl -H "Authorization: token ${githubToken}" https://api.github.com/rate_limit)
     githubTokenRateLimit=$(jq '.rate.remaining' <<< "${githubTokenRateLimitRequest}")
     echo "Number of github api requests remaining is ${githubTokenRateLimit}"
