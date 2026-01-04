@@ -74,22 +74,17 @@ if ($task == 'retrieve') {
 }
 
 if ($task == 'add_diags') {
-    if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode((string) $_REQUEST['diags']);
-    }
+    $json_diags = isset($_REQUEST['diags']) ? json_decode((string) $_REQUEST['diags']) : [];
+    $json_diags = is_array($json_diags) ? $json_diags : [];
+    $diags = array_map(
+        fn($diag) => new CodeInfo($diag->code, $diag->code_type, $diag->description),
+        $json_diags
+    );
 
-    $diags = [];
-    foreach ($json_diags as $diag) {
-        $diags[] = new CodeInfo($diag->code, $diag->code_type, $diag->description);
-    }
-
-    $procs = [];
-    if (isset($_REQUEST['procs'])) {
-        $json_procs = json_decode((string) $_REQUEST['procs']);
-    }
-
-    foreach ($json_procs as $proc) {
-        $procs[] = new Procedure(
+    $json_procs = isset($_REQUEST['procs']) ? json_decode((string) $_REQUEST['procs']) : [];
+    $json_procs = is_array($json_procs) ? $json_procs : [];
+    $procs = array_map(
+        fn($proc) => new Procedure(
             $proc->code,
             $proc->code_type,
             $proc->description,
@@ -98,8 +93,9 @@ if ($task == 'add_diags') {
             $proc->modifiers,
             $proc->units,
             0
-        );
-    }
+        ),
+        $json_procs
+    );
 
     $database->StartTrans();
     create_diags($req_pid, $req_encounter, $diags);
