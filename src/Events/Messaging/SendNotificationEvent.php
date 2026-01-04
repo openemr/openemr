@@ -53,9 +53,9 @@ class SendNotificationEvent extends Event
 
     /**
      * @param string $sendNotificationMethod
-     * @return SendNotificationEvent
+     * @return void
      */
-    public function setSendNotificationMethod(string $sendNotificationMethod)
+    public function setSendNotificationMethod(string $sendNotificationMethod): void
     {
         $this->sendNotificationMethod = $sendNotificationMethod;
     }
