@@ -17,17 +17,29 @@ namespace OpenEMR\Tests\Common\Uuid;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidFactory;
 
 #[Group('uuid')]
 #[CoversClass(UuidRegistry::class)]
+#[CoversMethod(UuidRegistry::class, 'isValidStringUUID')]
 #[CoversMethod(UuidRegistry::class, 'uuidToBytes')]
 #[CoversMethod(UuidRegistry::class, 'uuidToString')]
 class UuidRegistryTest extends TestCase
 {
+    #[Test]
+    public function isValidStringUuidTest(): void
+    {
+        $uuid = (new UuidFactory())->uuid4();
+
+        $this->assertTrue(UuidRegistry::isValidStringUUID($uuid->toString()));
+        $this->assertFalse(UuidRegistry::isValidStringUUID($uuid->getBytes()));
+    }
+
     #[Test]
     public function uuidToBytesTest(): void
     {
