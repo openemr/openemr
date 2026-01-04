@@ -129,7 +129,7 @@ class Bootstrap
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
-        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName, $this->twig);
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->twig);
     }
 
     public function getGlobalConfig(): TelehealthGlobalConfig

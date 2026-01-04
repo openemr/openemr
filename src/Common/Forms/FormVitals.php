@@ -87,7 +87,7 @@ class FormVitals extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    public function __construct($id = "", $_prefix = "")
+    public function __construct($id = "")
     {
         parent::__construct();
         if ($id > 0) {

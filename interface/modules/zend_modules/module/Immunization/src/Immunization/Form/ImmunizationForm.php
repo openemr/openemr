@@ -17,7 +17,7 @@ use Laminas\Form\Form;
 
 class ImmunizationForm extends Form
 {
-    public function __construct($name = null)
+    public function __construct()
     {
         global $pid, $encounter;
         parent::__construct('immunization');
