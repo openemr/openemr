@@ -72,7 +72,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         return [
             // can be used like {% if is numeric %}...{% endif %}
-            new TwigTest('numeric', fn($value): bool => is_numeric($value))
+            new TwigTest('numeric', is_numeric(...))
         ];
     }
 
@@ -259,7 +259,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'uniqid',
-                fn(string $prefix = "", bool $more_entropy = false): string => uniqid($prefix, $more_entropy)
+                uniqid(...)
             )
         ];
     }
