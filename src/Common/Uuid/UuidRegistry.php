@@ -148,7 +148,7 @@ class UuidRegistry
 
         // log it
         if ($log && !empty($logEntryComment)) {
-            EventAuditLogger::instance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
+            EventAuditLogger::getInstance()->newEvent('uuid', '', '', 1, 'Automatic uuid service creation: ' . $logEntryComment);
         }
 
         // return it

@@ -307,12 +307,12 @@ function checkBackgroundServices(): void
         $auditLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'");
         $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
         if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-            EventAuditLogger::instance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
+            EventAuditLogger::getInstance()->auditSQLAuditTamper('enable_auditlog', $auditLogStatusFieldNew);
         }
         $forceBreakglassLogStatusNew = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'");
         $forceBreakglassLogStatusFieldNew = $forceBreakglassLogStatusNew['gl_value'];
         if ($forceBreakglassLogStatusFieldOld != $forceBreakglassLogStatusFieldNew) {
-            EventAuditLogger::instance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
+            EventAuditLogger::getInstance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
         }
 
         echo "<script>";

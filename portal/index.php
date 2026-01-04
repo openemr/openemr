@@ -182,14 +182,14 @@ if (!empty($_GET['forward_email_verify'])) {
     $sqlResource = sqlStatementNoLog("SELECT `id`, `token_onetime`, `fname`, `mname`, `lname`, `dob`, `email`, `language` FROM `verify_email` WHERE `active` = 1 AND `token_onetime` LIKE BINARY ?", [$token_one_time . '%']);
     if (sqlNumRows($sqlResource) > 1) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") found more than once, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
     if (!sqlNumRows($sqlResource)) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not found, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
@@ -197,7 +197,7 @@ if (!empty($_GET['forward_email_verify'])) {
     $sqlVerify = sqlFetchArray($sqlResource);
     if (empty($sqlVerify['id']) || empty($sqlVerify['token_onetime'])) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") not properly set up, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
@@ -208,7 +208,7 @@ if (!empty($_GET['forward_email_verify'])) {
     $validateTime = hex2bin(str_replace($token_one_time, '', $sqlVerify['token_onetime']));
     if ($validateTime <= time()) {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") has expired, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your email verification link has expired. Reset and try again."));
     }
@@ -230,12 +230,12 @@ if (!empty($_GET['forward_email_verify'])) {
         $portalRegistrationAuthorization = true;
         $_SESSION['token_id_holder'] = $sqlVerify['id'];
         (new SystemLogger())->debug("token worked for forward_email_verify token, now on to registration");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
         require_once(__DIR__ . "/account/register.php");
         exit();
     } else {
         (new SystemLogger())->debug("active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
-        EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
+        EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "active token (" . $token_one_time . ") did not have all required data, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();

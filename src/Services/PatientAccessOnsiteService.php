@@ -113,7 +113,7 @@ class PatientAccessOnsiteService
         $query_parameters[] = $forced_reset_disable;
         $query_parameters[] = $pid;
 
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "patient-access",
             $this->authUser,
             $this->authProvider,
