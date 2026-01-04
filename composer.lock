@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ef74f3f920b40474c5b03d34161da9d",
+    "content-hash": "6f0904ea3920bce476256d0a25322759",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -11584,46 +11584,6 @@
             "time": "2025-12-27T19:49:13+00:00"
         },
         {
-            "name": "waryway/php-traits-library",
-            "version": "1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Waryway/PhpTraitsLibrary.git",
-                "reference": "ec0b630770bdd84168d2cd5e61bd93f45095e035"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Waryway/PhpTraitsLibrary/zipball/ec0b630770bdd84168d2cd5e61bd93f45095e035",
-                "reference": "ec0b630770bdd84168d2cd5e61bd93f45095e035",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "6.4.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Waryway\\PhpTraitsLibrary\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kyle Wiering",
-                    "email": "kyle@waryway.com"
-                }
-            ],
-            "description": "General use traits",
-            "support": {
-                "issues": "https://github.com/Waryway/PhpTraitsLibrary/issues",
-                "source": "https://github.com/Waryway/PhpTraitsLibrary/tree/1.0.4"
-            },
-            "time": "2017-12-23T14:22:07+00:00"
-        },
-        {
             "name": "webimpress/safe-writer",
             "version": "2.2.0",
             "source": {
@@ -14974,5 +14934,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

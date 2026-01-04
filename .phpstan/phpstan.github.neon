@@ -11246,10 +11246,6 @@ parameters:
       identifier: classConstant.notFound
       count: 1
       path: ../interface/modules/custom_modules/oe-module-dorn/src/GlobalConfig.php
-    - message: '#^Call to static method instance\(\) on an unknown class OpenEMR\\Modules\\Dorn\\EventAuditLogger\.$#'
-      identifier: class.notFound
-      count: 1
-      path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
     - message: '#^Undefined variable\: \$arep$#'
       identifier: variable.undefined
       count: 2
