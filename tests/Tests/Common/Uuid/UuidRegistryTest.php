@@ -1,37 +1,56 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ *
+ * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
+ *
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\Common\Uuid;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidFactory;
 
-/**
- * Uuid Registry Tests
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Dixon Whitmire <dixonwh@gmail.com>
- * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+#[Group('uuid')]
+#[CoversClass(UuidRegistry::class)]
+#[CoversMethod(UuidRegistry::class, 'uuidToBytes')]
+#[CoversMethod(UuidRegistry::class, 'uuidToString')]
 class UuidRegistryTest extends TestCase
 {
-    private $uuidFactory;
-
-    protected function setUp(): void
+    #[Test]
+    public function uuidToBytesTest(): void
     {
-        $this->uuidFactory = new UuidFactory();
+        $uuid = (new UuidFactory())->uuid4();
+
+        $this->assertEquals(
+            UuidRegistry::uuidToBytes(
+                $uuid->toString(),
+            ),
+            $uuid->getBytes(),
+        );
     }
 
-    /**
-     * Tests bi-directional uuid conversions
-     */
-    public function testUuidConversions(): void
+    #[Test]
+    public function uuidToStringTest(): void
     {
-        $stringValue = $this->uuidFactory->uuid4()->toString();
-        $byteValue = UuidRegistry::uuidToBytes($stringValue);
-        $this->assertEquals(UuidRegistry::uuidToBytes($stringValue), $byteValue);
-        $this->assertEquals($stringValue, UuidRegistry::uuidToString($byteValue));
+        $uuid = (new UuidFactory())->uuid4();
+
+        $this->assertEquals(
+            $uuid->toString(),
+            UuidRegistry::uuidToString(
+                $uuid->getBytes(),
+            ),
+        );
     }
 }
