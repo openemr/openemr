@@ -54,7 +54,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: "Validate Composer"
-      run: composer validate
+      run: composer validate --strict
 
     - name: "Check Composer Normalized"
       run: composer normalize --dry-run
