@@ -5,7 +5,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FormService;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @deprecated Use FormService::getFormByEncounter() instead

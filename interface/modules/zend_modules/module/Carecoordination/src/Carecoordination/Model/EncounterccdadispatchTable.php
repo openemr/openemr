@@ -779,7 +779,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     private function convertAdvanceDirectivesToXml($data, $pid): string
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $advance_directives = "<advance_directives>";
 
         // Combine documents and observations into organizer format
@@ -979,7 +979,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     private function getDocumentAuthorRecord($pid, $encounter)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $authUserID = $session->get('authUserID');
         $details = $this->getDetails('hie_author_id');
         if (!$details && !empty($authUserID)) {
@@ -1283,7 +1283,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getInformationRecipient($pid, $encounter, $recipients, $params)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $information_recipient = '';
         $field_name = [];
         $details = $this->getDetails('hie_recipient_id');
@@ -1542,7 +1542,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getAllergies($pid)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $allergies = '';
         $query = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
             SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS observation_code,
@@ -1638,7 +1638,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getMedications($pid)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $medications = '';
         $query = "select l.id, l.date_added, l.start_date, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
                        l.rxnorm_drugcode, l1.title as unit, l1.codes as unit_code,l2.title as form,SUBSTRING(l2.codes, LOCATE(':',l2.codes)+1, LENGTH(l2.codes)) AS form_code, l3.title as route, l4.title as `interval`,
@@ -1730,7 +1730,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getProblemList($pid)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
         $query = "select l.*, author.id AS provenance_updated_by, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
@@ -1831,7 +1831,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getMedicalDeviceList($pid)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $medical_devices = '';
         $query = "select l.*, author.id AS provenance_updated_by, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
     from lists AS l
@@ -1910,7 +1910,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getImmunization($pid)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $immunizations = '';
         $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
             DATE_FORMAT(administered_date,'%Y%m%d') AS administered_formatted, lo.title as route_of_administration,
@@ -1979,7 +1979,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         $rows = [];
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!empty($this->encounterFilterList)) {
             $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
@@ -2102,7 +2102,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         $sqlBindArray = [];
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!empty($this->encounterFilterList)) {
             $wherCon .= " po.encounter_id IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
@@ -2220,7 +2220,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         $sqlBindArray = [];
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!empty($this->encounterFilterList)) {
             $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
@@ -3022,7 +3022,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $wherCon = '';
         $first_encounter = null;
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!empty($this->encounterFilterList)) {
             $wherCon .= " AND fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") ";
             $first_encounter = reset($this->encounterFilterList);
@@ -3212,7 +3212,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getSocialHistory($pid)
     {
         $social_history = '';
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $arr = [
             'alcohol' => '160573003',
             'drug' => '363908000',
@@ -4271,7 +4271,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $appTable = new ApplicationTable();
         $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         if (!empty($this->encounterFilterList)) {
             $wherCon = " AND f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ")";

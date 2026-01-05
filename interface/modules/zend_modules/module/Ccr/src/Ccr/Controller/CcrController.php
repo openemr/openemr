@@ -38,7 +38,7 @@ class CcrController extends AbstractActionController
     */
     public function indexAction()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $request = $this->getRequest();
         $action = $request->getPost('action');
         $am_id  = $request->getPost('am_id');

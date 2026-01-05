@@ -411,7 +411,7 @@ function addPnote(
     $message_status = 'New',
     $background_user = ""
 ) {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
     }
@@ -446,7 +446,7 @@ function addMailboxPnote(
     $datetime = '',
     $message_status = "New"
 ) {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
     }
@@ -472,7 +472,7 @@ function addMailboxPnote(
 
 function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", $datetime = ""): void
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $row = getPnoteById($id);
     if (! $row) {
         die("updatePnote() did not find id '" . text($id) . "'");
@@ -517,7 +517,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
 
 function updatePnoteMessageStatus($id, $message_status): void
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     if ($message_status == "Done") {
         sqlStatement("update pnotes set message_status = ?, activity = '0', update_by = ?, update_date = NOW() where id = ?", [$message_status, $session->get('authUserID'), $id]);
     } else {
@@ -533,7 +533,7 @@ function updatePnoteMessageStatus($id, $message_status): void
  */
 function updatePnotePatient($id, $patient_id): void
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $row = getPnoteById($id);
     if (! $row) {
         die("updatePnotePatient() did not find id '" . text($id) . "'");
@@ -555,27 +555,27 @@ function updatePnotePatient($id, $patient_id): void
 
 function authorizePnote($id, $authorized = "1"): void
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?", [$authorized, $session->get('authUserID'), $id]);
 }
 
 function disappearPnote($id)
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     sqlStatement("UPDATE pnotes SET activity = '0', message_status = 'Done', update_by = ?, update_date = NOW()  WHERE id=?", [$session->get('authUserID'), $id]);
     return true;
 }
 
 function reappearPnote($id)
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     sqlStatement("UPDATE pnotes SET activity = '1', message_status = IF(message_status='Done','New',message_status), update_by = ?, update_date = NOW() WHERE id=?", [$session->get('authUserID'), $id]);
     return true;
 }
 
 function deletePnote($id)
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $assigned = getAssignedToById($id);
     $authUser = $session->get('authUser');
     if (!checkPortalAuthUser($authUser) && $assigned == 'portal-user') {

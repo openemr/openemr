@@ -2,11 +2,11 @@
 
 namespace OpenEMR\Common\Session;
 
-use Waryway\PhpTraitsLibrary\Singleton;
+use OpenEMR\Core\Traits\SingletonTrait;
 
 class SessionWrapperFactory
 {
-    use Singleton;
+    use SingletonTrait;
 
     private ?SessionWrapperInterface $sessionWrapper = null;
 

@@ -56,7 +56,7 @@ class Module
     {
         $events = $manager->getEventManager();
         $sharedEvents = $events->getSharedManager();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) use ($session): void {
             $controller = $e->getTarget();

@@ -65,7 +65,7 @@ class CcdController extends AbstractActionController
         $request          = $this->getRequest();
         $upload           = $request->getPost('upload');
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCD');
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         if ($upload == 1) {
             $time_start         = date('Y-m-d H:i:s');

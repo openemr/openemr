@@ -78,7 +78,7 @@ use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 
 $facilityService = new FacilityService();
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $date_init = "";
 $membership_group_number = 0;

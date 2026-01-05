@@ -96,7 +96,7 @@ class MultipledbController extends BaseController
 
     public function saveAction()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->checkAcl('write');
         $id = substr((int)$session->get('multiple_edit_id'), 0, 11);
         $db = [];

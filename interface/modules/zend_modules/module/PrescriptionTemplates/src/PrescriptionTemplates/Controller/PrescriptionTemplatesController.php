@@ -32,7 +32,7 @@ class PrescriptionTemplatesController extends AbstractActionController
      */
     protected function getDefaultTemplate($id)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $ids = preg_split('/::/', substr((string) $id, 1, strlen((string) $id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         $prescriptions = [];
         foreach ($ids as $id) {

@@ -73,7 +73,7 @@ class FormService
     ) {
 
         global $attendant_type;
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!$user) {
             $user = $session->get('authUser');
         }

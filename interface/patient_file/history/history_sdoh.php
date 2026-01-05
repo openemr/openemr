@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;

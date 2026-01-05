@@ -14,7 +14,7 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance(true);
 $globalsBag->set('already_autoloaded', true);
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */

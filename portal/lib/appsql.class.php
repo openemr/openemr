@@ -142,7 +142,7 @@ class ApplicationTable
      */
     public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $return = false;
         $result = false;
         $audit =  [];
@@ -203,7 +203,7 @@ class ApplicationTable
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
         $globalsBag = OEGlobalsBag::getInstance();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $groupname = $globalsBag->get('groupname') ?? 'none';
         $user = $session->get('portal_username') ?? $session->get('authUser') ?? null;
         $log_from = $session->has('portal_username') ? 'onsite-portal' : 'portal-dashboard';

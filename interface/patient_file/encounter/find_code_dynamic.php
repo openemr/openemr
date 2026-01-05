@@ -25,7 +25,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $info_msg = "";
 

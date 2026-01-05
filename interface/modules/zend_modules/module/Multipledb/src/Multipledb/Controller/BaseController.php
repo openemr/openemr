@@ -115,7 +115,7 @@ class BaseController extends AbstractActionController
      */
     protected function getUserId()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         return $session->get('authUserID');
     }
 

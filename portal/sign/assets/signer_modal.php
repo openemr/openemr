@@ -18,7 +18,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $is_portal = ($session->isSymfonySession() && $session->has('patient_portal_onsite_two') && $session->get('authUser') === 'portal-user') ? 1 : $_GET['isPortal'];
 

@@ -14,7 +14,7 @@
 use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $status_title = array('0' => 'Pending', '1' => 'Completed', '2' => 'Secure Transfer', '3' => 'View');
 $status_details = array();

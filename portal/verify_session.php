@@ -33,7 +33,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Landing page definition -- where to go if something goes wrong
 // if this script is included somewhere else we want to support them changing up the landingpage url such as adding

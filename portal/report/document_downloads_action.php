@@ -15,7 +15,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 $globalsBag = OEGlobalsBag::getInstance();
 require_once("../verify_session.php");
 require_once("{$globalsBag->getString('srcdir')}/documents.php");

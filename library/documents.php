@@ -54,7 +54,7 @@ function addNewDocument(
 ) {
 
     if (empty($owner)) {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $owner = $session->get('authUserID');
     }
 

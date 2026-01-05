@@ -700,7 +700,7 @@ class ContactRelationService extends BaseService
     {
         $linkService = new PersonPatientLinkService();
         $personService = new PersonService();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         // Check if patient already has a linked person
         $existingPerson = $linkService->getPersonForPatient($patientId);

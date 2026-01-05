@@ -34,7 +34,7 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $sdoh_id = (int)($_GET['sdoh_id'] ?? 0);

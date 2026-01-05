@@ -514,7 +514,7 @@ class AuthUtils
     {
         // Collect ip address for log
         $ip = collectIpAddresses();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         if (empty($activeUser) || empty($currentPwd)) {
             $this->errorMessage = xl("Password update error! Empty username or password.");
@@ -840,7 +840,7 @@ class AuthUtils
      */
     public static function authCheckSession()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if ((!empty($session->get('authUserID'))) && (!empty($session->get('authUser'))) && (!empty($session->get('authPass')))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
@@ -872,7 +872,7 @@ class AuthUtils
      */
     public static function useActiveDirectory($user = '')
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (empty($GLOBALS['gbl_ldap_enabled'])) {
             return false;
         }
@@ -1525,7 +1525,7 @@ class AuthUtils
      */
     public static function setUserSessionVariables($username, $hash, $userInfo, $authGroup)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Set up session environment
         $session->set('authUser', $username); // username
         $session->set('authPass', $hash); // user hash used to confirm session in authCheckSession()

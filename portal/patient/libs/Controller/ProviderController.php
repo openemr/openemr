@@ -42,7 +42,7 @@ class ProviderController extends AppBasePortalController
     public function Home()
     {
         $cpid = $cuser = 0;
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if ($session->has('authUserID')) {
             $cuser = $session->get('authUserID');
         } else {

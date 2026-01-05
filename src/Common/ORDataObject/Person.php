@@ -55,7 +55,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     public function __construct(private $id = "")
     {
         parent::__construct("person");
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->setThrowExceptionOnError(true);
         $this->uuid = null;
         $this->title = "";
@@ -132,7 +132,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
      */
     public function persist()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Generate UUID if creating new record
         if (empty($this->id) && empty($this->uuid)) {
             try {

@@ -23,7 +23,7 @@ class PatientSessionUtil
     {
         global $pid, $encounter;
 
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         // Escape $new_pid by forcing it to an integer to protect from sql injection
         $new_pid_int = intval($new_pid);

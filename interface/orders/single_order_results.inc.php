@@ -27,7 +27,7 @@ require_once($GLOBALS["srcdir"] . "/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 function getListItem($listid, $value)
 {

@@ -36,7 +36,7 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $globalsBag = OEGlobalsBag::getInstance();
 $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();

@@ -1449,7 +1449,7 @@ class BillingUtilities
         $revenue_code = "",
         $payer_id = ""
     ) {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!$authorized) {
             $authorized = "0";
         }
@@ -1786,7 +1786,7 @@ class BillingUtilities
     //
     public static function getInvoiceRefNumber()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $trow = sqlQuery(
             "SELECT lo.notes " .
             "FROM users AS u, list_options AS lo " .
@@ -1803,7 +1803,7 @@ class BillingUtilities
     //
     public static function updateInvoiceRefNumber()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $irnumber = self::getInvoiceRefNumber();
         // Here "?" specifies a minimal match, to get the most digits possible:
         if (preg_match('/^(.*?)(\d+)(\D*)$/', (string) $irnumber, $matches)) {
@@ -1826,7 +1826,7 @@ class BillingUtilities
     //
     public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = '')
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
         $adjustments = 0;

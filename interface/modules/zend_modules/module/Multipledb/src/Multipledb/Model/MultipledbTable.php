@@ -63,7 +63,7 @@ class MultipledbTable
     {
         $rowset = $this->tableGateway->select(['namespace' => $namespace]);
         $count = $rowset->count();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         if ($count and $session->get('multiple_edit_id') == 0) {
             return 1;

@@ -23,7 +23,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $incoming_site_id = '';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
