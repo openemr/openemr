@@ -14,6 +14,7 @@ require_once dirname(__DIR__) . '/globals.php'; // Include globals.php
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\Encounter\EncounterReportData;
 use OpenEMR\Reports\Encounter\EncounterReportFormatter;
 use OpenEMR\Reports\Encounter\EncounterReportFormHandler;
@@ -22,9 +23,10 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+$globals = OEGlobalsBag::getInstance();
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Encounters Report")]);
+    echo (new TwigContainer(null, $globals->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Encounters Report")]);
     exit;
 }
 
@@ -38,47 +40,47 @@ if (!empty($_GET['csrf_token_form'])) {
 if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
     // Add logging for debugging
     error_log("CSV export requested with parameters: " . json_encode($_GET));
-    
+
     try {
         // Set headers for CSV download
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=encounter_report_' . date('Y-m-d') . '.csv');
-        
+
         $formHandler = new EncounterReportFormHandler();
         $filters = $formHandler->processForm($_GET);
         error_log("Filters processed: " . json_encode($filters));
-        
+
         $data = new EncounterReportData();
         $formatter = new EncounterReportFormatter();
-        
+
         // Create output handle
         $output = fopen('php://output', 'w');
-        
+
         if ($output === false) {
             error_log("Failed to open output stream");
             echo "Error: Failed to open output stream";
             exit;
         }
-        
+
         // Write UTF-8 BOM for Excel compatibility
         fwrite($output, "\xEF\xBB\xBF");
-        
+
         // Export based on report type (summary or detail)
         if (empty($filters['details'])) {
             // Summary export
             $summaryData = $data->getEncounterSummary($filters);
             error_log("Summary data retrieved: " . json_encode($summaryData));
-            
+
             $formattedSummary = $formatter->formatSummary($summaryData);
-            
+
             // Write headers
             fputcsv($output, [xl('Provider'), xl('Encounters')]);
-            
+
             // Write provider rows
             foreach ($formattedSummary['providers'] as $provider) {
                 fputcsv($output, [$provider['provider_name'], $provider['encounter_count']]);
             }
-            
+
             // Write total row
             fputcsv($output, [xl('Total'), $formattedSummary['total_encounters']]);
         } else {
@@ -86,14 +88,14 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
             error_log("Retrieving detailed encounter data");
             $encounters = $data->getEncounters($filters, false); // Pass false to disable pagination
             error_log("Encounters retrieved: " . count($encounters));
-            
+
             $formattedEncounters = $formatter->formatEncounters($encounters);
-            
+
             // Write headers
             fputcsv($output, [
-                xl('ID'), 
-                xl('Date'), 
-                xl('Patient'), 
+                xl('ID'),
+                xl('Date'),
+                xl('Patient'),
                 xl('Provider'),
                 xl('Visit Type'),
                 xl('Enc#'),
@@ -101,13 +103,13 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
                 xl('Coding'),
                 xl('Signed By')
             ]);
-            
+
             // Write encounter rows
             foreach ($formattedEncounters as $encounter) {
                 // Build signed by field: show both signers if available
                 $encounterSigner = !empty($encounter['encounter_signer']) ? $encounter['encounter_signer'] : '';
                 $formSigner = !empty($encounter['form_signer']) ? $encounter['form_signer'] : '';
-                
+
                 if ($encounterSigner && $formSigner) {
                     $signedBy = $encounterSigner . ' / ' . $formSigner;
                 } elseif ($encounterSigner) {
@@ -117,7 +119,7 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
                 } else {
                     $signedBy = xl('Not signed');
                 }
-                
+
                 fputcsv($output, [
                     $encounter['id'] ?? '',
                     $encounter['date'] ? date('Y-m-d', strtotime((string) $encounter['date'])) : '',
@@ -131,7 +133,7 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
                 ]);
             }
         }
-        
+
         fclose($output);
     } catch (Exception $e) {
         error_log("Exception in CSV export: " . $e->getMessage());
@@ -143,7 +145,7 @@ if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
 }
 
 // Initialize Twig
-$loader = new TwigContainer(dirname(__FILE__, 3) . '/templates', $GLOBALS['kernel']);
+$loader = new TwigContainer(dirname(__FILE__, 3) . '/templates', $globals->get('kernel'));
 $twig = $loader->getTwig();
 
 global $formattedEncounters, $encounterCount, $filters, $errors;
