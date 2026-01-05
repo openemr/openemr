@@ -33,16 +33,14 @@ jobs:
       run: pip install pre-commit
     - name: Get changed files (PR only)
       if: github.event_name == 'pull_request'
-      run: |
-        git fetch origin ${{ github.base_ref }} --depth=1
-        git diff --name-only --diff-filter=ACMRT origin/${{ github.base_ref }}...HEAD > changed_files.txt
-        test -s changed_files.txt || rm changed_files.txt
+      id: changed-files
+      uses: tj-actions/changed-files@v47
     - name: Run whitespace hooks (PR - changed files only)
-      if: github.event_name == 'pull_request' && hashFiles('changed_files.txt') != ''
+      if: github.event_name == 'pull_request' && steps.changed-files.outputs.any_changed == 'true'
       run: |
-        xargs pre-commit run trailing-whitespace --files < changed_files.txt
-        xargs pre-commit run end-of-file-fixer --files < changed_files.txt
-        xargs pre-commit run mixed-line-ending --files < changed_files.txt
+        pre-commit run trailing-whitespace --files ${{ steps.changed-files.outputs.all_changed_files }}
+        pre-commit run end-of-file-fixer --files ${{ steps.changed-files.outputs.all_changed_files }}
+        pre-commit run mixed-line-ending --files ${{ steps.changed-files.outputs.all_changed_files }}
     - name: Run whitespace hooks (push - all files)
       if: github.event_name == 'push'
       run: |
