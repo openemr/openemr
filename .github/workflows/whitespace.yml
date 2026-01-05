@@ -1,0 +1,36 @@
+name: Whitespace
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+
+  whitespace:
+    runs-on: ubuntu-24.04
+    name: Check whitespace
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install pre-commit
+      run: pip install pre-commit
+    - run: pre-commit run --all-files trailing-whitespace
+    - run: pre-commit run --all-files end-of-file-fixer
+    - run: pre-commit run --all-files mixed-line-ending
