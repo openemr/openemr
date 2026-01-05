@@ -747,7 +747,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
-                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated 
+                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
                     AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";

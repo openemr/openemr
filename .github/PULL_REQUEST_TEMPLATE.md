@@ -1,4 +1,4 @@
-<!--Thanks for sending a pull request! 
+<!--Thanks for sending a pull request!
 Please create an issue at https://github.com/openemr/openemr/issues/new/choose and then
 -->
 

@@ -8,7 +8,7 @@
 //-------------------------------------------------------------------
 
 
-/* 
+/*
  *  Fuction to check that the password contains at least 3 of the following:
  *  - an integer one integer
  *  - a lower case letter

@@ -55,4 +55,3 @@ if ($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos
 
     <?php
 }
-

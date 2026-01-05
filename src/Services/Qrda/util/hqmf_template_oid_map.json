@@ -6,7 +6,7 @@
   "2.16.840.1.113883.3.560.1.25":{
       "definition":"patient_characteristic_birthdate",
       "status":"",
-      "negation":false},      
+      "negation":false},
   "2.16.840.1.113883.3.560.1.400":{
       "definition":"patient_characteristic_birthdate",
       "status":"",

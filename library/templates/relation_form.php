@@ -77,7 +77,7 @@ try {
                 'target_id' => $targetId,
                 'target_contact_id' => $targetContactId,
                 'first_name' => $record['first_name'] ?? '',
-                'middle_name' => $record['middle_name'] ?? '',   
+                'middle_name' => $record['middle_name'] ?? '',
                 'last_name' => $record['last_name'] ?? '',
                 'gender' => $record['gender'] ?? '',
                 'birth_date' => $record['birth_date'] ?? '',

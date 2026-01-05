@@ -56,4 +56,3 @@ class FamilyHistory extends QDMBaseType
 
     public $_type = 'QDM::FamilyHistory';
 }
-
