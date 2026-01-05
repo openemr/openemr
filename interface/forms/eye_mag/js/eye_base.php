@@ -2079,7 +2079,6 @@ function update_READONLY() {
                  if ($field.length > 0) {
                      var currentVal = $field.val();
                      if (currentVal != valhere) {
-                         console.log("READ-ONLY update: " + keyhere + " from '" + currentVal + "' to '" + valhere + "'");
                          $field.val(valhere);
                          $field.attr('style', 'background-color: #CCF !important');
                      }
