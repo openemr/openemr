@@ -25,9 +25,9 @@
 ?>
 var prior_field;
 var prior_text;
-var response = [];
+var response = response || [];
 var update_chart;
-var obj= [];
+var obj = obj || [];
 var IMP_order = [];
 var CODING_items=[];
 var CPT_92060='';
@@ -1405,11 +1405,10 @@ function build_DX_list(obj) {
     if (typeof obj.PMSFH === "undefined") {
         return;
     }
-    if (typeof obj.Clinical === "undefined") {
-        console.warn('obj.Clinical is undefined - initializing as empty object');
+    if (typeof obj.Clinical === "undefined" || obj.Clinical === null) {
         obj.Clinical = {};
     }
-    if (!obj.PMSFH['POH']  && !obj.PMSFH['PMH'] && !obj.Clinical) {
+    if (!obj.PMSFH['POH']  && !obj.PMSFH['PMH'] && (typeof obj.Clinical === "undefined" || Object.keys(obj.Clinical).length === 0)) {
         out = '<br /><span class="bold">The Past Ocular History (POH) and Past Medical History (PMH) are negative and no diagnosis was auto-generated from the clinical findings.</span><br /><br />Update the chart to activate the Builder.<br />';
         $( "#build_DX_list" ).html(out);
         return;
@@ -1422,10 +1421,12 @@ function build_DX_list(obj) {
     if ($('#inc_PE').is(':checked') && obj.Clinical) {
         $.each(obj.Clinical, function(key, value) {
                diagnosis='';
-               if (obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
+               if (obj.Clinical[key] && obj.Clinical[key][0] && obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li> ";
+               if (obj.Clinical[key] && obj.Clinical[key][0]) {
+                   out += "<li class='ui-widget-content'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li> ";
+               }
                });
     }
 
@@ -1589,10 +1590,10 @@ function build_IMPPLAN(items,nodisplay) {
 
                     //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
                   if (value.PMSFH_link.match(/Clinical_(.*)/)) {
-                    if (typeof obj.Clinical !== "undefined") {
+                    if (typeof obj.Clinical !== "undefined" && obj.Clinical !== null) {
                       var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
 
-                      if (obj.Clinical !== null) {
+                      if (obj.Clinical[location]) {
                         for (i=0; i < obj.Clinical[location].length; i++) {
                             $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
                             justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+obj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
@@ -1815,23 +1816,24 @@ function dragto_IMPPLAN_zone(event, ui) {
     if (group =="Clinical") {
             //more than one field can contain this DX.
             //Group them into one IMPPLAN.
-        for (i=0;i < obj.Clinical[location].length; i++) {
-            the_code += obj.Clinical[location][i]['code']+',';
-            the_codedesc = obj.Clinical[location][i]['codedesc'];
-            the_codetext = obj.Clinical[location][i]['codetext'];
-            the_plan += obj.Clinical[location][i]['codedesc'] + "\r";
+        if (obj.Clinical && obj.Clinical[location]) {
+            for (i=0;i < obj.Clinical[location].length; i++) {
+                the_code += obj.Clinical[location][i]['code']+',';
+                the_codedesc = obj.Clinical[location][i]['codedesc'];
+                the_codetext = obj.Clinical[location][i]['codetext'];
+                the_plan += obj.Clinical[location][i]['codedesc'] + "\r";
+            }
+            if (i > 0) the_code = the_code.slice(0, -1);
+            obj.IMPPLAN_items.push({
+                                   code:        the_code,
+                                   codedesc:    the_codedesc,
+                                   codetext:    the_codetext,
+                                   codetype:    obj.Clinical[location][0]['codetype'],
+                                   plan:        the_plan,
+                                   PMSFH_link:  obj.Clinical[location][0]['PMSFH_link'],
+                                   title:       obj.Clinical[location][0]['title']
+                                   });
         }
-        if (i > 0) the_code = the_code.slice(0, -1);
-        obj.IMPPLAN_items.push({
-                               code:        the_code,
-                               codedesc:    the_codedesc,
-                               codetext:    the_codetext,
-                               codetype:    obj.Clinical[location][0]['codetype'],
-                               plan:        the_plan,
-                               PMSFH_link:  obj.Clinical[location][0]['PMSFH_link'],
-                               title:       obj.Clinical[location][0]['title']
-                               });
-
     } else {
         obj.IMPPLAN_items.push({
                                code:        obj.PMSFH[group][location]['code'],
@@ -1897,14 +1899,16 @@ function build_CODING_list() {
           // if there is a comma in there, there is more than one code present. Split them out.
           // And all those in one group have the same link out (PMSFH_link) value
           var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
-          for (i=0; i< obj.Clinical[location].length; i++) {
-            CODING_items.push({
-                             code:     obj.Clinical[location][i]['code'],
-                             codedesc: obj.Clinical[location][i]['codedesc'],
-                             codetext: obj.Clinical[location][i]['codetext'],
-                             codetype: obj.Clinical[location][i]['codetype'],
-                             title:    obj.Clinical[location][i]['title']
-                             });
+          if (obj.Clinical && obj.Clinical[location]) {
+            for (i=0; i< obj.Clinical[location].length; i++) {
+              CODING_items.push({
+                               code:     obj.Clinical[location][i]['code'],
+                               codedesc: obj.Clinical[location][i]['codedesc'],
+                               codetext: obj.Clinical[location][i]['codetext'],
+                               codetype: obj.Clinical[location][i]['codetype'],
+                               title:    obj.Clinical[location][i]['title']
+                               });
+            }
           }
         } else if (value['code'].match(/Code/)){
           //ignore
@@ -2052,6 +2056,14 @@ function update_READONLY() {
            url      :  "../../forms/eye_mag/save.php?copy=ALL",
            data   : data,
            success  : function(result) {
+           // Check if we need to unhide additional wearing sections (W_2, W_3, W_4, W_5)
+           for (var i = 2; i <= 5; i++) {
+                 if (result["W_" + i] == '1' && $('#LayerVision_W_' + i).hasClass('nodisplay')) {
+                     $('#W_' + i).val('1');
+                     $('#LayerVision_W_' + i).removeClass('nodisplay');
+                 }
+           }
+           
            $.map(result, function(valhere, keyhere) {
                  if ($("#"+keyhere).val() != valhere) {
                  $("#"+keyhere).val(valhere).css("background-color","#CCF");
@@ -2515,7 +2527,13 @@ function show_by_setting() {
 
 $(function () {
                   // Check if the form is already locked by another user (server determined this on page load)
-                  var locked = $("#LOCKED").val();
+                  var locked_el = $("#LOCKED");
+                  if (locked_el.length === 0) {
+                      // Not on the main form, skip lock check
+                      return;
+                  }
+
+                  var locked = locked_el.val();
                   var locked_by = $("#LOCKEDBY").val();
                   var authUserID = $('#authUserID').val();
                   var locked_by_name = $("#LOCKEDBY_NAME").val();
@@ -4593,25 +4611,27 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                       var the_codedesc='';
                                                       var the_codetext='';
                                                       var the_plan='';
-                                                      for (i=0;i < obj.Clinical[issue[2]].length; i++) {
-                                                        if (i == 0) {
-                                                            the_code = obj.Clinical[issue[2]][i]['code'];
-                                                        } else if (i < obj.Clinical[issue[2]].length) {
-                                                            the_code += ', '+ obj.Clinical[issue[2]][i]['code'];
+                                                      if (obj.Clinical && obj.Clinical[issue[2]]) {
+                                                        for (i=0;i < obj.Clinical[issue[2]].length; i++) {
+                                                          if (i == 0) {
+                                                              the_code = obj.Clinical[issue[2]][i]['code'];
+                                                          } else if (i < obj.Clinical[issue[2]].length) {
+                                                              the_code += ', '+ obj.Clinical[issue[2]][i]['code'];
+                                                          }
+                                                          the_codedesc += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
+                                                          the_codetext += obj.Clinical[issue[2]][i]['codetext'] + "\r";
+                                                          the_plan += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
                                                         }
-                                                        the_codedesc += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
-                                                        the_codetext += obj.Clinical[issue[2]][i]['codetext'] + "\r";
-                                                        the_plan += obj.Clinical[issue[2]][i]['codedesc'] + "\r";
+                                                        obj.IMPPLAN_items.push({
+                                                                               title:obj.Clinical[issue[2]][0]['title'],
+                                                                               code: the_code,
+                                                                               codetype: obj.Clinical[issue[2]][0]['codetype'],
+                                                                               codedesc: the_codedesc,
+                                                                               codetext: the_codetext,
+                                                                               plan: the_plan,
+                                                                               PMSFH_link: obj.Clinical[issue[2]][0]['PMSFH_link']
+                                                                               });
                                                       }
-                                                      obj.IMPPLAN_items.push({
-                                                                             title:obj.Clinical[issue[2]][0]['title'],
-                                                                             code: the_code,
-                                                                             codetype: obj.Clinical[issue[2]][0]['codetype'],
-                                                                             codedesc: the_codedesc,
-                                                                             codetext: the_codetext,
-                                                                             plan: the_plan,
-                                                                             PMSFH_link: obj.Clinical[issue[2]][0]['PMSFH_link']
-                                                                             });
                                                   } else {
                                                       if (issue[1] == "PMH") {
                                                         if (!$('#inc_PMH').is(':checked')) { return; }
