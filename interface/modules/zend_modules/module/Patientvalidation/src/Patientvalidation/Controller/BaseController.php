@@ -78,7 +78,7 @@ class BaseController extends AbstractActionController
      */
     protected function getCssFiles()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         //adding bootstrap rtl for rtl languages
         if ($session->get('language_direction') === 'rtl') {
             $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
@@ -122,7 +122,7 @@ class BaseController extends AbstractActionController
      */
     protected function getUserId()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         return $session->get('authUserID');
     }
 

@@ -24,7 +24,7 @@ if (isset($_GET['portal_auth'])) {
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../vendor/autoload.php");
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
         $pid = $session->get('pid');

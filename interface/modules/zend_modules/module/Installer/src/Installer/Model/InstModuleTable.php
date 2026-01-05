@@ -201,7 +201,7 @@ class InstModuleTable
      */
     public function saveSettings($fieldName, $fieldValue, $moduleId)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         /**
          * Check the field exist
          */

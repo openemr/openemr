@@ -200,7 +200,7 @@ class PatientController extends AppBasePortalController
     public function Create()
     {
         try {
-            $session = SessionWrapperFactory::instance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
             $json = json_decode(RequestUtil::GetBody());
             if (empty($json)) {
                 throw new Exception('The request body does not contain valid JSON');
@@ -400,7 +400,7 @@ class PatientController extends AppBasePortalController
     }
     public function CloseAudit($p)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {

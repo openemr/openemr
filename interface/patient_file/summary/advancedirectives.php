@@ -19,7 +19,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\UserService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 ?>
 

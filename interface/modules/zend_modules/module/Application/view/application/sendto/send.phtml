@@ -15,7 +15,7 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $combinationFormData = $this->combinationFormData;
 $faxRecievers = $this->faxRecievers;

@@ -19,7 +19,7 @@ use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)$session->get('pid');
 

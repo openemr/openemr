@@ -28,7 +28,7 @@ use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');

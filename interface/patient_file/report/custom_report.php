@@ -38,7 +38,7 @@ use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);

@@ -29,7 +29,7 @@ require_once(__DIR__ . "/dupscore.inc.php");
 
 global $facilityService;
 $facilityService = new FacilityService();
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // These are for sports team use:
 $PLAYER_FITNESSES = [

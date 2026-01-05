@@ -136,7 +136,7 @@ class UserService
      */
     public function getCurrentlyLoggedInUser()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // TODO: look at deserializing uuid with createResultRecordFromDatabaseResult here
         return sqlQuery("SELECT * FROM `users` WHERE `id` = ?", [$session->get('authUserID')]);
     }

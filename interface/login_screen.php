@@ -14,7 +14,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $ignoreAuth = true;
 require_once("./globals.php");
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 ?>
 <html>
 <body>

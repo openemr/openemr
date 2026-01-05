@@ -163,7 +163,7 @@ class AclMain
      */
     public static function aclCheckCore($section, $value, $user = '', $return_value = ''): bool
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (! $user) {
             $user = $session->get('authUser') ?? '';
         }

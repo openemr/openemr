@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here

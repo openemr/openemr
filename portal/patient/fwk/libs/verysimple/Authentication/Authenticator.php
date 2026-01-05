@@ -46,7 +46,7 @@ class Authenticator
     {
         if (self::$user == null) {
             self::Init();
-            $session = SessionWrapperFactory::instance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
             $sessionGuid = $session->get($guid);
             if (!empty($sessionGuid)) {
                 self::$user = unserialize($sessionGuid);
@@ -69,7 +69,7 @@ class Authenticator
     {
         self::UnsetAllSessionVars(); // this calls Init so we don't have to here
         self::$user = $user;
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $session->set($guid, serialize($user));
     }
 
@@ -79,7 +79,7 @@ class Authenticator
     public static function UnsetAllSessionVars()
     {
         self::Init();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $session->clear();
     }
 
@@ -93,7 +93,7 @@ class Authenticator
     {
         self::Init();
         self::$user = null;
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $session->remove($guid);
 
         self::UnsetAllSessionVars();

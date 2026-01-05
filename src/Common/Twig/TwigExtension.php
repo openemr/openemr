@@ -57,7 +57,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getGlobals(): array
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         return [
             'assets_dir' => $this->globals->get('assets_static_relative'),
             'srcdir' => $this->globals->get('srcdir'),
@@ -78,7 +78,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     public function getFunctions(): array
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         return [
             new TwigFunction(
                 'setupHeader',

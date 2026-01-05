@@ -906,7 +906,7 @@ class Document extends ORDataObject
         ) {
             return xl('Reference table and reference id must both be set');
         }
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->set_foreign_reference_id($foreign_reference_id);
         $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.

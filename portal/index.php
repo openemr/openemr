@@ -43,7 +43,7 @@ $globalsBag = OEGlobalsBag::getInstance();
 SessionUtil::setAppCookie(SessionUtil::PORTAL_SESSION_ID);
 // Ensure that the cookie is there when we select session wrapper on first page load of login page
 $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;

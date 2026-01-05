@@ -67,7 +67,7 @@ use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;

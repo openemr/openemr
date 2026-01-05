@@ -21,7 +21,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 
 //ensure user has proper access

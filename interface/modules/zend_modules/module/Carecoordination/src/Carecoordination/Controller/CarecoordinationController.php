@@ -107,7 +107,7 @@ class CarecoordinationController extends AbstractActionController
         $action = $request->getPost('action');
         $am_id = $request->getPost('am_id');
         $document_id = $request->getPost('document_id');
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         if ($action == 'add_new_patient') {
             $this->getCarecoordinationTable()->insert_patient($am_id, $document_id);

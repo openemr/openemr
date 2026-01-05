@@ -107,7 +107,7 @@ function getListById($id, $cols = "*")
 
 function addList($pid, $type, $title, $comments, $activity = "1")
 {
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", [$pid, $type, $title, $activity, $comments, $session->get('authUser'), $session->get('authProvider')]);
 }
 

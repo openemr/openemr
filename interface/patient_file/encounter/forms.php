@@ -42,7 +42,7 @@ use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;

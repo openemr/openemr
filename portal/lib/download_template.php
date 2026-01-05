@@ -18,7 +18,7 @@ use OpenEMR\Core\OEGlobalsBag;
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance(true);
 $globalsBag->set('already_autoloaded', true);
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $is_module = $_POST['isModule'] ?? 0;
 if ($is_module) {

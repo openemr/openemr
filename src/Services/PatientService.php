@@ -134,7 +134,7 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -217,7 +217,7 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Get the data before update to send to the event listener
         $dataBeforeUpdate = $this->findByPid($data['pid']);
 

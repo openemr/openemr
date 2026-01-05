@@ -67,7 +67,7 @@ use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;

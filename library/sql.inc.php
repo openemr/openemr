@@ -21,7 +21,7 @@ require_once(__DIR__ . "/sqlconf.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * Variables set by sqlconf.php or SqlConfigEvent

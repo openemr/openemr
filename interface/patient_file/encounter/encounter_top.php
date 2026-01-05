@@ -21,7 +21,7 @@ use OpenEMR\Tabs\TabsWrapper;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.

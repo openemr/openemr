@@ -19,7 +19,7 @@ require_once(__DIR__ . "/lib/appsql.class.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 $logit = new ApplicationTable();
 $logit->portalLog('logout', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
 

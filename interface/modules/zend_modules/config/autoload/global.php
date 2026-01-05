@@ -18,7 +18,7 @@
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // If to use utf-8 or not in my sql query
 if (!$GLOBALS['disable_utf8_flag']) {

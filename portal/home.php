@@ -44,7 +44,7 @@ require_once("$srcdir/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if ($session->has('register') && $session->get('register') === true) {
     SessionUtil::portalSessionCookieDestroy();

@@ -30,7 +30,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Services\DemographicsRelatedPersonsService;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //

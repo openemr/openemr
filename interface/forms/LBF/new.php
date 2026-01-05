@@ -21,7 +21,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../../vendor/autoload.php");
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }

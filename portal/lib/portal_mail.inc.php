@@ -50,7 +50,7 @@ function addPortalMailboxMail(
         $datetime = date('Y-m-d H:i:s');
     }
 
-    $session = SessionWrapperFactory::instance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $user = $session->get('portal_username') ?: $session->get('authUser');
     // make inactive if set as Done
     if ($message_status == "Done") {
@@ -297,7 +297,7 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
 
     if ($message_status == "Delete") {
         $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", [$id, $owner]);
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $by = $session->get('authUser') ?: $session->get('ptName');
         $loguser = $session->get('authUser') ?: $session->get('portal_username');
         $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];

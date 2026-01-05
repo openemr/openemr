@@ -29,7 +29,7 @@ use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>

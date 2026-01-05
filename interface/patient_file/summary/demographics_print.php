@@ -33,7 +33,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {

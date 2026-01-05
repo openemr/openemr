@@ -26,7 +26,7 @@ if (empty(SessionUtil::getAppCookie())) {
     // Prevent error 500 in case of cleaning cookies and site data once when the login page is already loaded
     $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
 }
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // regenerating the session id to avoid session fixation attacks
 $session->migrate(true);

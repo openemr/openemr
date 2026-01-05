@@ -76,7 +76,7 @@ class EncounterccdadispatchController extends AbstractActionController
         global $assignedEntity;
         global $representedOrganization;
 
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
@@ -374,7 +374,7 @@ class EncounterccdadispatchController extends AbstractActionController
     public function getConsolidatedQrda3Content($pids = null, $measures = [])
     {
         try {
-            $session = SessionWrapperFactory::instance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
             $xmlController = new QrdaReportController();
 
             // Handle different PID formats (following your existing pattern)

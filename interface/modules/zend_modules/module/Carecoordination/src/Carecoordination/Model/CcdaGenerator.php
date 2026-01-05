@@ -74,7 +74,7 @@ class CcdaGenerator
         $date_options = []
     ): GeneratedCcdaResult {
 
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
         (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")

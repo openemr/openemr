@@ -25,7 +25,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientIssuesService;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here

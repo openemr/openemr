@@ -34,7 +34,7 @@ if (!AclMain::aclCheckForm('fee_sheet')) { ?>
     formJump();
 }
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";

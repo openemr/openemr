@@ -232,13 +232,13 @@ $globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connect
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 if (session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
     //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
     SessionUtil::coreSessionStart($web_root, $read_only);
     //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
 }
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set the site ID if required.  This must be done before any database
 // access is attempted.

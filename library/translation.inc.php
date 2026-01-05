@@ -10,7 +10,7 @@ if (!(function_exists('xlWarmCache'))) {
      */
     function xlWarmCache(): void
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $language_choice = $session->get('language_choice');
         $lang_id = !empty($language_choice) ? (int)$language_choice : 1;
         TranslationCache::warm($lang_id);
@@ -33,7 +33,7 @@ if (!(function_exists('xl'))) {
         if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
             return $constant;
         }
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $language_choice = $session->get('language_choice');
         // set language id
         $lang_id = !empty($language_choice) ? $language_choice : 1;

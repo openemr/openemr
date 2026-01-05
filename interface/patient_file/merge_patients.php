@@ -26,7 +26,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);

@@ -25,7 +25,7 @@ use OpenEMR\Services\FacilityService;
 
 $first_time = true;
 
-$session = SessionWrapperFactory::instance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @param $row

@@ -47,7 +47,7 @@ class C_Document extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
@@ -159,7 +159,7 @@ class C_Document extends Controller
     //Upload multiple files on single click
     public function upload_action_process()
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Collect a manually set owner if this has been set
         // Used when want to manually assign the owning user/service such as the Direct mechanism
         $non_HTTP_owner = false;
@@ -370,7 +370,7 @@ class C_Document extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $n = new Note();
         $n->set_owner($session->get('authUserID'));
         parent::populate_object($n);
@@ -444,7 +444,7 @@ class C_Document extends Controller
         global $ISSUE_TYPES;
 
         require_once(__DIR__ . "/../library/lists.inc.php");
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $d = new Document($doc_id);
         $notes = $d->get_notes();
 
@@ -585,7 +585,7 @@ class C_Document extends Controller
      * */
     public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
@@ -1108,7 +1108,7 @@ class C_Document extends Controller
 
     public function list_action($patient_id = "")
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->_last_node = null;
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
@@ -1306,7 +1306,7 @@ class C_Document extends Controller
             die("process is '" . text($_POST['process']) . "', expected 'true'");
             return;
         }
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Create Encounter and Tag it.
         $event_date = date('Y-m-d H:i:s');
         $encounter_id = $_POST['encounter_id'];
@@ -1415,7 +1415,7 @@ class C_Document extends Controller
 
     public function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
-        $session = SessionWrapperFactory::instance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", [$doc_id]);
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
