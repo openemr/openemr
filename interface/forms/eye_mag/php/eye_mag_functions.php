@@ -2069,6 +2069,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     global $PMSFH;
     global $pid;
     global $PMSFH_titles;
+    $counter = 0;
     if (!($PMSFH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
@@ -2123,6 +2124,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
     $open_table = "<div class='table PMSFH_table'>";
     $close_table = "</div>";
+    $counter = 0;
 
     foreach ($PMSFH[0] as $key => $value) {
         if (in_array($key, ["FH", "SOCH", "ROS"])) {
@@ -3511,54 +3513,103 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         $result['DIMOSPUPILREACTIVITY'] = $objQuery['DIMOSPUPILREACTIVITY'];
         $result['PUPIL_COMMENTS'] = $objQuery['PUPIL_COMMENTS'];
         $result['IMP'] = $objQuery['IMP'];
+        
+        // Add wearing RX data for READ-ONLY polling updates
+        $count_rx = 0;
+        $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
+        $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
+        while ($wearing = sqlFetchArray($wear)) {
+            $result["ODSPH_$count_rx"]            = $wearing['ODSPH'];
+            $result["ODCYL_$count_rx"]            = $wearing['ODCYL'];
+            $result["ODAXIS_$count_rx"]           = $wearing['ODAXIS'];
+            $result["OSSPH_$count_rx"]            = $wearing['OSSPH'];
+            $result["OSCYL_$count_rx"]            = $wearing['OSCYL'];
+            $result["OSAXIS_$count_rx"]           = $wearing['OSAXIS'];
+            $result["ODMIDADD_$count_rx"]         = $wearing['ODMIDADD'];
+            $result["OSMIDADD_$count_rx"]         = $wearing['OSMIDADD'];
+            $result["ODADD_$count_rx"]            = $wearing['ODADD'];
+            $result["OSADD_$count_rx"]            = $wearing['OSADD'];
+            $result["ODVA_$count_rx"]             = $wearing['ODVA'];
+            $result["OSVA_$count_rx"]             = $wearing['OSVA'];
+            $result["ODNEARVA_$count_rx"]         = $wearing['ODNEARVA'];
+            $result["OSNEARVA_$count_rx"]         = $wearing['OSNEARVA'];
+            $result["ODPRISM_$count_rx"]          = $wearing['ODPRISM'] ?? '';
+            $result["OSPRISM_$count_rx"]          = $wearing['OSPRISM'] ?? '';
+            $result["W_$count_rx"]                = '1';
+            $result["RX_TYPE_$count_rx"]          = $wearing['RX_TYPE'];
+            $result["ODHPD_$count_rx"]            = $wearing['ODHPD'];
+            $result["ODHBASE_$count_rx"]          = $wearing['ODHBASE'];
+            $result["ODVPD_$count_rx"]            = $wearing['ODVPD'];
+            $result["ODVBASE_$count_rx"]          = $wearing['ODVBASE'];
+            $result["ODSLABOFF_$count_rx"]        = $wearing['ODSLABOFF'];
+            $result["ODVERTEXDIST_$count_rx"]     = $wearing['ODVERTEXDIST'];
+            $result["OSHPD_$count_rx"]            = $wearing['OSHPD'];
+            $result["OSHBASE_$count_rx"]          = $wearing['OSHBASE'];
+            $result["OSVPD_$count_rx"]            = $wearing['OSVPD'];
+            $result["OSVBASE_$count_rx"]          = $wearing['OSVBASE'];
+            $result["OSSLABOFF_$count_rx"]        = $wearing['OSSLABOFF'];
+            $result["OSVERTEXDIST_$count_rx"]     = $wearing['OSVERTEXDIST'];
+            $result["ODMPDD_$count_rx"]           = $wearing['ODMPDD'];
+            $result["ODMPDN_$count_rx"]           = $wearing['ODMPDN'];
+            $result["OSMPDD_$count_rx"]           = $wearing['OSMPDD'];
+            $result["OSMPDN_$count_rx"]           = $wearing['OSMPDN'];
+            $result["BPDD_$count_rx"]             = $wearing['BPDD'];
+            $result["BPDN_$count_rx"]             = $wearing['BPDN'];
+            $result["LENS_MATERIAL_$count_rx"]    = $wearing['LENS_MATERIAL'];
+            $result["LENS_TREATMENTS_$count_rx"]  = $wearing['LENS_TREATMENTS'];
+            $result["COMMENTS_$count_rx"]         = $wearing['COMMENTS'];
+            $count_rx++;
+        }
+        
         $result["json"] = json_encode($result);
         echo json_encode($result);
     } elseif ($zone == "READONLY") {
         $result = $objQuery;
-        $count_rx = '0';
+        $count_rx = 0;
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
         $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
         while ($wearing = sqlFetchArray($wear)) {
-            ${"display_W_$count_rx"}        = '';
-                  ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
-                  ${"ODCYL_$count_rx"}            = $wearing['ODCYL'];
-                  ${"ODAXIS_$count_rx"}           = $wearing['ODAXIS'];
-                  ${"OSSPH_$count_rx"}            = $wearing['OSSPH'];
-                  ${"OSCYL_$count_rx"}            = $wearing['OSCYL'];
-                  ${"OSAXIS_$count_rx"}           = $wearing['OSAXIS'];
-                  ${"ODMIDADD_$count_rx"}         = $wearing['ODMIDADD'];
-                  ${"OSMIDADD_$count_rx"}         = $wearing['OSMIDADD'];
-                  ${"ODADD_$count_rx"}            = $wearing['ODADD'];
-                  ${"OSADD_$count_rx"}            = $wearing['OSADD'];
-                  ${"ODVA_$count_rx"}             = $wearing['ODVA'];
-                  ${"OSVA_$count_rx"}             = $wearing['OSVA'];
-                  ${"ODNEARVA_$count_rx"}         = $wearing['ODNEARVA'];
-                  ${"OSNEARVA_$count_rx"}         = $wearing['OSNEARVA'];
-                  ${"ODPRISM_$count_rx"}          = $wearing['ODPRISM'] ?? '';
-                  ${"OSPRISM_$count_rx"}          = $wearing['OSPRISM'] ?? '';
-                  ${"W_$count_rx"}                = '1';
-                  ${"RX_TYPE_$count_rx"}          = $wearing['RX_TYPE'];
-                  ${"ODHPD_$count_rx"}            = $wearing['ODHPD'];
-                  ${"ODHBASE_$count_rx"}          = $wearing['ODHBASE'];
-                  ${"ODVPD_$count_rx"}            = $wearing['ODVPD'];
-                  ${"ODVBASE_$count_rx"}          = $wearing['ODVBASE'];
-                  ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF'];
-                  ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST'];
-                  ${"OSHPD_$count_rx"}            = $wearing['OSHPD'];
-                  ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE'];
-                  ${"OSVPD_$count_rx"}            = $wearing['OSVPD'];
-                  ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE'];
-                  ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF'];
-                  ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST'];
-                  ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD'];
-                  ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN'];
-                  ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD'];
-                  ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN'];
-                  ${"BPDD_$count_rx"}             = $wearing['BPDD'];
-                  ${"BPDN_$count_rx"}             = $wearing['BPDN'];
-                  ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL'];
-                  ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS'];
-                  ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS'];
+            $result["display_W_$count_rx"]        = '';
+            $result["ODSPH_$count_rx"]            = $wearing['ODSPH'];
+            $result["ODCYL_$count_rx"]            = $wearing['ODCYL'];
+            $result["ODAXIS_$count_rx"]           = $wearing['ODAXIS'];
+            $result["OSSPH_$count_rx"]            = $wearing['OSSPH'];
+            $result["OSCYL_$count_rx"]            = $wearing['OSCYL'];
+            $result["OSAXIS_$count_rx"]           = $wearing['OSAXIS'];
+            $result["ODMIDADD_$count_rx"]         = $wearing['ODMIDADD'];
+            $result["OSMIDADD_$count_rx"]         = $wearing['OSMIDADD'];
+            $result["ODADD_$count_rx"]            = $wearing['ODADD'];
+            $result["OSADD_$count_rx"]            = $wearing['OSADD'];
+            $result["ODVA_$count_rx"]             = $wearing['ODVA'];
+            $result["OSVA_$count_rx"]             = $wearing['OSVA'];
+            $result["ODNEARVA_$count_rx"]         = $wearing['ODNEARVA'];
+            $result["OSNEARVA_$count_rx"]         = $wearing['OSNEARVA'];
+            $result["ODPRISM_$count_rx"]          = $wearing['ODPRISM'] ?? '';
+            $result["OSPRISM_$count_rx"]          = $wearing['OSPRISM'] ?? '';
+            $result["W_$count_rx"]                = '1';
+            $result["RX_TYPE_$count_rx"]          = $wearing['RX_TYPE'];
+            $result["ODHPD_$count_rx"]            = $wearing['ODHPD'];
+            $result["ODHBASE_$count_rx"]          = $wearing['ODHBASE'];
+            $result["ODVPD_$count_rx"]            = $wearing['ODVPD'];
+            $result["ODVBASE_$count_rx"]          = $wearing['ODVBASE'];
+            $result["ODSLABOFF_$count_rx"]        = $wearing['ODSLABOFF'];
+            $result["ODVERTEXDIST_$count_rx"]     = $wearing['ODVERTEXDIST'];
+            $result["OSHPD_$count_rx"]            = $wearing['OSHPD'];
+            $result["OSHBASE_$count_rx"]          = $wearing['OSHBASE'];
+            $result["OSVPD_$count_rx"]            = $wearing['OSVPD'];
+            $result["OSVBASE_$count_rx"]          = $wearing['OSVBASE'];
+            $result["OSSLABOFF_$count_rx"]        = $wearing['OSSLABOFF'];
+            $result["OSVERTEXDIST_$count_rx"]     = $wearing['OSVERTEXDIST'];
+            $result["ODMPDD_$count_rx"]           = $wearing['ODMPDD'];
+            $result["ODMPDN_$count_rx"]           = $wearing['ODMPDN'];
+            $result["OSMPDD_$count_rx"]           = $wearing['OSMPDD'];
+            $result["OSMPDN_$count_rx"]           = $wearing['OSMPDN'];
+            $result["BPDD_$count_rx"]             = $wearing['BPDD'];
+            $result["BPDN_$count_rx"]             = $wearing['BPDN'];
+            $result["LENS_MATERIAL_$count_rx"]    = $wearing['LENS_MATERIAL'];
+            $result["LENS_TREATMENTS_$count_rx"]  = $wearing['LENS_TREATMENTS'];
+            $result["COMMENTS_$count_rx"]         = $wearing['COMMENTS'];
+            $count_rx++;
         }
         $result['IMPPLAN'] = build_IMPPLAN_items($pid, $copy_from);
         $result['query'] = $query;
@@ -4830,7 +4881,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 
         if ($encounter_data['ODIOPAP'] > '') {
             if (!is_int($encounter_data['ODIOPAP'])) {
-                $ODIOP[$k]['IOP'] = '';
+                $ODIOP[$i]['IOP'] = '';
             } else {
                 $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP'];
             }
@@ -4842,7 +4893,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 
         if ($encounter_data['OSIOPAP'] > '') {
             if (!is_int($encounter_data['OSIOPAP'])) {
-                $OSIOP[$k]['IOP'] = '';
+                $OSIOP[$i]['IOP'] = '';
             } else {
                 $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP'];
             }
@@ -5535,6 +5586,13 @@ function display_VisualAcuities($pid = 0): void
     global $visit_date;
     global $dated;
 
+    ?>
+    <div>
+        <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
+        <h5><?php echo xlt('Visual Acuity History'); ?></h5>
+    </div>
+    <?php
+
     if ($priors) {
         // We have to get this data if it exists for each prior visit.
         // if it is a resource hog, then maybe show just the last 10
@@ -5629,10 +5687,6 @@ function display_VisualAcuities($pid = 0): void
         $VA_CTLODVA = implode(',', $array_va_CTLODVA);
         $VA_CTLOSVA = implode(',', $array_va_CTLOSVA);
         ?>
-        <div>
-            <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
-            <h5><?php echo xlt('Visual Acuity History'); ?></h5>
-        </div>
         <div id="VAHX_table" name="VAHX_table" class="borderShadow table-responsive"
              style="position:relative;display:inline-block;float:left;vertical-align: middle;width:40%;">
             <table class="table d-inline">
