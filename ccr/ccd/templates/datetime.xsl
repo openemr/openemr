@@ -33,7 +33,7 @@ License :
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:a="urn:astm-org:CCR" xmlns:date="http://exslt.org/dates-and-times" exclude-result-prefixes="a date">
 	<!-- Displays the DateTime.  If ExactDateTime is present, it will format according
 		 to the 'fmt' variable. The default format is: Oct 31, 2005 -->
-  <xsl:import href="../lib/date.format-date.template.xsl"/>  
+  <xsl:import href="../lib/date.format-date.template.xsl"/>
   <xsl:template name="dateTime" match="a:DateTime">
 		<xsl:param name="dt" select="."/>
 		<xsl:param name="fmt">MMM dd, yyyy</xsl:param>

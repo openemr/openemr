@@ -72,8 +72,8 @@ Administrators can now control each user’s access to Fax, SMS, Email, and Voic
 - **Bulk Toggles** — Enable or disable all services per user or per column.
 
 **Permission Hierarchy:**
-1. Global service must be enabled.  
-2. User must have permission for the service.  
+1. Global service must be enabled.
+2. User must have permission for the service.
 3. Appropriate credentials (user-specific or primary) are applied.
 
 > Changes apply immediately—no restart required.
@@ -190,13 +190,13 @@ This module is distributed under the **GNU General Public License v3.0 (GPL-3)**
 ---
 
 ## 📚 References
-- **Repository Path:**  
+- **Repository Path:**
   `interface/modules/custom_modules/oe-module-faxsms`
-- **OpenEMR Forum Topic:**  
+- **OpenEMR Forum Topic:**
   [Newly Improved Fax, SMS and Email Module – Community Discussion](https://community.open-emr.org/t/newly-improved-fax-sms-and-email-module/23266)
-- **Vendor Docs:**  
-  [RingCentral Developer Portal](https://developer.ringcentral.com)  
-  [etherFAX](https://www.etherfax.net)  
+- **Vendor Docs:**
+  [RingCentral Developer Portal](https://developer.ringcentral.com)
+  [etherFAX](https://www.etherfax.net)
   [Twilio Docs](https://www.twilio.com/docs)
 
 ---
@@ -219,8 +219,8 @@ This module is distributed under the **GNU General Public License v3.0 (GPL-3)**
 
 ---
 
-**Maintained by:** OpenEMR Community  
-**Lead Developer:** Jerry Padgett  
-**Version:** 7.0.4  
-**License:** GPL-3  
+**Maintained by:** OpenEMR Community
+**Lead Developer:** Jerry Padgett
+**Version:** 7.0.4
+**License:** GPL-3
 **Module Path:** `interface/modules/custom_modules/oe-module-faxsms`
