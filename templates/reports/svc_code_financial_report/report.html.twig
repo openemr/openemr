@@ -1,0 +1,311 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'Financial Summary by Service Code' | xlt }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">{{ 'Report' | xlt }} - {{ 'Financial Summary by Service Code' | xlt }}</h1>
+        </div>
+    </div>
+
+    <!-- Filter Parameters -->
+    <div id="report_parameters" class="card mb-4">
+        <div class="card-body">
+            <form method="post" action="svc_code_financial_report.php" id="theform" onsubmit="return top.restoreSession()">
+                <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw() }}" />
+                <input type="hidden" name="form_refresh" id="form_refresh" value="" />
+                <input type="hidden" name="form_csvexport" id="form_csvexport" value="" />
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">{{ 'Facility' | xlt }}:</label>
+                        <select name="form_facility" class="form-select">
+                            <option value="">-- {{ 'All Facilities' | xlt }} --</option>
+                            {% for facility in facilities %}
+                                <option value="{{ facility.id }}" {% if facility.id == form_facility %}selected{% endif %}>
+                                    {{ facility.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">{{ 'Provider' | xlt }}:</label>
+                        <select name="form_provider" class="form-select">
+                            <option value="">-- {{ 'All' | xlt }} --</option>
+                            {% for provider in providers %}
+                                <option value="{{ provider.id }}" {% if provider.id == form_provider %}selected{% endif %}>
+                                    {{ provider.lname }}, {{ provider.fname }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">{{ 'From' | xlt }}:</label>
+                        <input type="text" class="datepicker form-control" name="form_from_date" id="form_from_date"
+                               value="{{ form_from_date | shortDate }}" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">{{ 'To{{Range}}' | xlt }}:</label>
+                        <input type="text" class="datepicker form-control" name="form_to_date" id="form_to_date"
+                               value="{{ form_to_date | shortDate }}" />
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="form_details" id="form_details"
+                                   {% if form_details %}checked{% endif %} />
+                            <label class="form-check-label" for="form_details">
+                                {{ 'Important Codes' | xlt }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary" onclick="$(&#x27;#form_refresh&#x27;).val(&#x27;true&#x27;); $(&#x27;#form_csvexport&#x27;).val(&#x27;&#x27;); $(&#x27;#theform&#x27;).submit();">
+                            <i class="fa fa-search"></i> {{ 'Submit' | xlt }}
+                        </button>
+                        {% if report_data %}
+                            <button type="button" class="btn btn-secondary" id="printbutton">
+                                <i class="fa fa-print"></i> {{ 'Print' | xlt }}
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="$(&#x27;#form_refresh&#x27;).val(&#x27;&#x27;); $(&#x27;#form_csvexport&#x27;).val(&#x27;true&#x27;); $(&#x27;#theform&#x27;).submit();">
+                                <i class="fa fa-download"></i> {{ 'CSV Export' | xlt }}
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if report_data %}
+        <!-- KPI Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ 'Total Units' | xlt }}</h6>
+                        <p class="card-text h4">{{ summary_metrics.total_units | number_format(0) }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ 'Total Billed' | xlt }}</h6>
+                        <p class="card-text h4">${{ summary_metrics.total_billed | money }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ 'Collection Rate' | xlt }}</h6>
+                        <p class="card-text h4">{{ summary_metrics.collection_rate | number_format(1) }}%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ 'Outstanding Balance' | xlt }}</h6>
+                        <p class="card-text h4">${{ summary_metrics.total_balance | money }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div id="report_results">
+            <div class="row mb-4">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ 'Top Procedures by Volume' | xlt }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="volumeChart" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ 'Revenue Distribution' | xlt }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="revenueChart" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ 'Billing Summary by Procedure Code' | xlt }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="collectionChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'Procedure Codes Detail' | xlt }}</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{{ 'Procedure Code' | xlt }}</th>
+                                <th class="text-end">{{ 'Units' | xlt }}</th>
+                                <th class="text-end">{{ 'Amt Billed' | xlt }}</th>
+                                <th class="text-end">{{ 'Rev/Unit' | xlt }}</th>
+                                <th class="text-end">{{ 'Paid Amt' | xlt }}</th>
+                                <th class="text-end">{{ 'Collection %' | xlt }}</th>
+                                <th class="text-end">{{ 'Adjustment' | xlt }}</th>
+                                <th class="text-end">{{ 'Balance' | xlt }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in formatted_codes %}
+                                <tr>
+                                    <td>{{ item.code }}</td>
+                                    <td class="text-end">{{ item.units | number_format(0) }}</td>
+                                    <td class="text-end">${{ item.billed | money }}</td>
+                                    <td class="text-end">${{ item.revenue_per_unit | money }}</td>
+                                    <td class="text-end">${{ item.paid_amount | money }}</td>
+                                    <td class="text-end">
+                                        <span class="badge {% if item.collection_rate >= 95 %}bg-success{% elseif item.collection_rate >= 80 %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ item.collection_rate | number_format(1) }}%
+                                        </span>
+                                    </td>
+                                    <td class="text-end">${{ item.adjust_amount | money }}</td>
+                                    <td class="text-end">
+                                        {% if item.balance > 0 %}
+                                            <span class="text-danger fw-bold">${{ item.balance | money }}</span>
+                                        {% else %}
+                                            <span class="text-success">${{ item.balance | money }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light fw-bold">
+                            <tr>
+                                <td>{{ 'Grand Total' | xlt }}</td>
+                                <td class="text-end">{{ summary_metrics.total_units | number_format(0) }}</td>
+                                <td class="text-end">${{ summary_metrics.total_billed | money }}</td>
+                                <td class="text-end">${{ summary_metrics.average_per_unit | money }}</td>
+                                <td class="text-end">${{ summary_metrics.total_paid | money }}</td>
+                                <td class="text-end">
+                                    <span class="badge bg-primary">{{ summary_metrics.collection_rate | number_format(1) }}%</span>
+                                </td>
+                                <td class="text-end">${{ summary_metrics.total_adjustment | money }}</td>
+                                <td class="text-end">${{ summary_metrics.total_balance | money }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            {{ 'Please input search criteria above, and click Submit to view results.' | xlt }}
+        </div>
+    {% endif %}
+</div>
+
+{% block scripts %}
+<script src="{{ webroot }}/public/assets/chart.js/dist/chart.umd.js"></script>
+<script>
+    $(function() {
+        var win = top.printLogSetup ? top : opener.top;
+        win.printLogSetup(document.getElementById('printbutton'));
+
+        $('.datepicker').datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y'
+        });
+    });
+
+    // Wait for all scripts (including Chart.js) to load before initializing charts
+    window.addEventListener('load', function() {
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js is not loaded');
+            return;
+        }
+
+        {% if report_data %}
+            // Volume Chart
+            const volumeCtx = document.getElementById('volumeChart');
+            if (volumeCtx) {
+                new Chart(volumeCtx, {
+                    type: 'bar',
+                    data: {{ chart_data.volume_by_code | json_encode | raw }},
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Revenue Distribution Chart
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'pie',
+                    data: {{ chart_data.revenue_distribution | json_encode | raw }},
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // Collection Chart
+            const collectionCtx = document.getElementById('collectionChart');
+            if (collectionCtx) {
+                new Chart(collectionCtx, {
+                    type: 'bar',
+                    data: {{ chart_data.collection_by_code | json_encode | raw }},
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}
