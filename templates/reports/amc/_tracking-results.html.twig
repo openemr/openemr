@@ -1,0 +1,157 @@
+{# AMC Tracking Report Results #}
+<div class="card report-card mt-4" id="report_results">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-table me-2 text-primary"></i>
+                {{ 'Tracking Results'|xlt }}
+            </h5>
+            <span class="badge bg-primary rounded-pill">
+                {{ results|length }} {{ 'Records'|xlt }}
+            </span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if results|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped results-table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">
+                                <i class="fas fa-user me-1"></i>
+                                {{ 'Patient Name'|xlt }}
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-id-card me-1"></i>
+                                {{ 'Patient ID'|xlt }}
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-calendar me-1"></i>
+                                {% if rule == 'send_sum_amc' %}
+                                    {{ 'Referral Date'|xlt }}
+                                {% elseif rule == 'provide_rec_pat_amc' %}
+                                    {{ 'Record Request Date'|xlt }}
+                                {% else %}
+                                    {{ 'Encounter Date'|xlt }}
+                                {% endif %}
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-hashtag me-1"></i>
+                                {% if rule == 'send_sum_amc' %}
+                                    {{ 'Referral ID'|xlt }}
+                                {% elseif rule == 'provide_rec_pat_amc' %}
+                                    &nbsp;
+                                {% else %}
+                                    {{ 'Encounter ID'|xlt }}
+                                {% endif %}
+                            </th>
+                            <th scope="col" class="checkbox-cell">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {% if rule == 'provide_rec_pat_amc' %}
+                                    {{ 'Medical Records Sent'|xlt }}
+                                {% elseif rule == 'send_sum_amc' %}
+                                    {{ 'Summary of Care Sent'|xlt }}
+                                {% else %}
+                                    {{ 'Medical Summary Given'|xlt }}
+                                {% endif %}
+                            </th>
+                            {% if rule == 'send_sum_amc' %}
+                                <th scope="col" class="checkbox-cell">
+                                    <i class="fas fa-paper-plane me-1"></i>
+                                    {{ 'Summary Sent Electronically'|xlt }}
+                                </th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                            <tr>
+                                <td>
+                                    <strong>{{ result.lname|text }}, {{ result.fname|text }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ result.pid|text }}</span>
+                                </td>
+                                <td>
+                                    <i class="far fa-clock me-1 text-muted"></i>
+                                    {{ result.date|text }}
+                                </td>
+                                <td>
+                                    {% if rule == 'send_sum_amc' or rule == 'provide_sum_pat_amc' %}
+                                        <span class="badge bg-info">{{ result.id|text }}</span>
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
+                                <td class="checkbox-cell">
+                                    {% if rule == 'send_sum_amc' %}
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input 
+                                                type="checkbox" 
+                                                class="form-check-input" 
+                                                id="send_sum_flag_{{ result.pid }}_{{ result.id }}" 
+                                                onclick="send_sum({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
+                                                role="switch"
+                                            />
+                                            <label class="form-check-label" for="send_sum_flag_{{ result.pid }}_{{ result.id }}">
+                                                {{ 'Yes'|xlt }}
+                                            </label>
+                                        </div>
+                                    {% elseif rule == 'provide_rec_pat_amc' %}
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input 
+                                                type="checkbox" 
+                                                class="form-check-input" 
+                                                id="provide_rec_pat_flag_{{ result.pid }}" 
+                                                onclick="provide_rec_pat({{ result.pid|js_escape }}, {{ result.date|js_escape }})"
+                                                role="switch"
+                                            />
+                                            <label class="form-check-label" for="provide_rec_pat_flag_{{ result.pid }}">
+                                                {{ 'Yes'|xlt }}
+                                            </label>
+                                        </div>
+                                    {% else %}
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input 
+                                                type="checkbox" 
+                                                class="form-check-input" 
+                                                id="provide_sum_pat_flag_{{ result.pid }}_{{ result.id }}" 
+                                                onclick="provide_sum_pat({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
+                                                role="switch"
+                                            />
+                                            <label class="form-check-label" for="provide_sum_pat_flag_{{ result.pid }}_{{ result.id }}">
+                                                {{ 'Yes'|xlt }}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                {% if rule == 'send_sum_amc' %}
+                                    <td class="checkbox-cell">
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input 
+                                                type="checkbox" 
+                                                class="form-check-input" 
+                                                id="send_sum_elec_flag_{{ result.pid }}_{{ result.id }}" 
+                                                onclick="send_sum_elec({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
+                                                role="switch"
+                                            />
+                                            <label class="form-check-label" for="send_sum_elec_flag_{{ result.pid }}_{{ result.id }}">
+                                                {{ 'Yes'|xlt }}
+                                            </label>
+                                        </div>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-5 text-center text-muted">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <h5>{{ 'No Results Found'|xlt }}</h5>
+                <p class="mb-0">{{ 'No data matches your search criteria. Try adjusting your filters.'|xlt }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>

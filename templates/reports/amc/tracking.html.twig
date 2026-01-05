@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'Automated Measure Calculations (AMC) Tracking'|xlt }}</title>
+    {{ setupHeader(['datetime-picker']) }}
+    
+    <script>
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+
+            {{ jqueryDateTimePicker('.datepicker', true, true, true) }}
+        });
+
+        function send_sum(patient_id, transaction_id) {
+            const checkbox = $('#send_sum_flag_' + patient_id + '_' + transaction_id);
+            const mode = checkbox.prop('checked') ? 'add' : 'remove';
+            
+            top.restoreSession();
+            $.post('../../library/ajax/amc_misc_data.php', {
+                amc_id: 'send_sum_amc',
+                complete: true,
+                mode: mode,
+                patient_id: patient_id,
+                object_category: 'transactions',
+                object_id: transaction_id,
+                csrf_token_form: {{ csrf_token_raw|js_escape }}
+            });
+        }
+
+        function send_sum_elec(patient_id, transaction_id) {
+            const elecCheckbox = $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id);
+            const sumCheckbox = $('#send_sum_flag_' + patient_id + '_' + transaction_id);
+            
+            if (elecCheckbox.prop('checked')) {
+                if (!sumCheckbox.prop('checked')) {
+                    elecCheckbox.prop('checked', false);
+                    alert({{ 'Can not set this unless the Summary of Care Sent toggle is set.'|xlj }});
+                    return false;
+                }
+                var mode = 'add';
+            } else {
+                var mode = 'remove';
+            }
+            
+            top.restoreSession();
+            $.post('../../library/ajax/amc_misc_data.php', {
+                amc_id: 'send_sum_elec_amc',
+                complete: true,
+                mode: mode,
+                patient_id: patient_id,
+                object_category: 'transactions',
+                object_id: transaction_id,
+                csrf_token_form: {{ csrf_token_raw|js_escape }}
+            });
+        }
+
+        function provide_rec_pat(patient_id, date_created) {
+            const checkbox = $('#provide_rec_pat_flag_' + patient_id);
+            const mode = checkbox.prop('checked') ? 'complete_safe' : 'uncomplete_safe';
+            
+            top.restoreSession();
+            $.post('../../library/ajax/amc_misc_data.php', {
+                amc_id: 'provide_rec_pat_amc',
+                complete: true,
+                mode: mode,
+                date_created: date_created,
+                patient_id: patient_id,
+                csrf_token_form: {{ csrf_token_raw|js_escape }}
+            });
+        }
+
+        function provide_sum_pat(patient_id, encounter_id) {
+            const checkbox = $('#provide_sum_pat_flag_' + patient_id + '_' + encounter_id);
+            const mode = checkbox.prop('checked') ? 'add' : 'remove';
+            
+            top.restoreSession();
+            $.post('../../library/ajax/amc_misc_data.php', {
+                amc_id: 'provide_sum_pat_amc',
+                complete: true,
+                mode: mode,
+                patient_id: patient_id,
+                object_category: 'form_encounter',
+                object_id: encounter_id,
+                csrf_token_form: {{ csrf_token_raw|js_escape }}
+            });
+        }
+    </script>
+
+    <style>
+        @media print {
+            #report_parameters {
+                display: none;
+            }
+            .no-print {
+                display: none;
+            }
+            .card {
+                border: none;
+                box-shadow: none;
+            }
+        }
+
+        .report-card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.5rem 0.5rem 0 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .submit-section {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .results-table {
+            font-size: 0.95rem;
+        }
+
+        .results-table thead {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 10;
+        }
+
+        .checkbox-cell {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+
+<body class="body_top">
+    <div class="container-fluid mt-4 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="page-title">
+                    <i class="fas fa-chart-line me-2"></i>
+                    {{ 'Automated Measure Calculations (AMC) Tracking'|xlt }}
+                </h1>
+            </div>
+        </div>
+
+        {% include 'reports/amc/_tracking-form.html.twig' %}
+
+        {% if show_results %}
+            {% include 'reports/amc/_tracking-results.html.twig' %}
+        {% else %}
+            <div class="alert alert-info d-flex align-items-center no-print" role="alert">
+                <i class="fas fa-info-circle me-3 fa-2x"></i>
+                <div>
+                    <h5 class="alert-heading mb-1">{{ 'Get Started'|xlt }}</h5>
+                    <p class="mb-0">{{ 'Please select your search criteria above and click Submit to view the tracking report.'|xlt }}</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ oemrUiBelowContainerDiv(oemrUiSettings) }}
+</body>
+</html>

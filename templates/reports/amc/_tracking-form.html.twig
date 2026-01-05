@@ -1,0 +1,124 @@
+{# AMC Tracking Report Form #}
+<div class="card report-card no-print" id="report_parameters">
+    <div class="report-card-header">
+        <h4 class="mb-0">
+            <i class="fas fa-filter me-2"></i>
+            {{ 'Search Criteria'|xlt }}
+        </h4>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" name="theform" id="theform" action="amc_tracking.php" onsubmit="return top.restoreSession()">
+            <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}" />
+            <input type="hidden" name="form_refresh" id="form_refresh" value="1" />
+
+            <div class="row g-3">
+                {# Date Range Section #}
+                <div class="col-md-6">
+                    <div class="form-section h-100">
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            {{ 'Date Range'|xlt }}
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label for="form_begin_date" class="form-label">
+                                {{ 'Begin Date'|xlt }}
+                            </label>
+                            <input 
+                                type="text" 
+                                name="form_begin_date" 
+                                id="form_begin_date" 
+                                value="{{ begin_date|attr }}" 
+                                class="form-control datepicker" 
+                                placeholder="{{ 'Select begin date'|xla }}"
+                            />
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="form_end_date" class="form-label">
+                                {{ 'End Date'|xlt }}
+                            </label>
+                            <input 
+                                type="text" 
+                                name="form_end_date" 
+                                id="form_end_date" 
+                                value="{{ end_date|attr }}" 
+                                class="form-control datepicker" 
+                                placeholder="{{ 'Select end date'|xla }}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {# Filters Section #}
+                <div class="col-md-6">
+                    <div class="form-section h-100">
+                        <h6 class="text-muted mb-3">
+                            <i class="fas fa-sliders-h me-2"></i>
+                            {{ 'Filters'|xlt }}
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label for="form_rule" class="form-label">
+                                {{ 'Rule'|xlt }}
+                            </label>
+                            <select name="form_rule" id="form_rule" class="form-select">
+                                <option value="send_sum_amc" {{ rule == 'send_sum_amc' ? 'selected' : '' }}>
+                                    {{ 'Send Summaries with Referrals'|xlt }}
+                                </option>
+                                <option value="provide_rec_pat_amc" {{ rule == 'provide_rec_pat_amc' ? 'selected' : '' }}>
+                                    {{ 'Patient Requested Medical Records'|xlt }}
+                                </option>
+                                <option value="provide_sum_pat_amc" {{ rule == 'provide_sum_pat_amc' ? 'selected' : '' }}>
+                                    {{ 'Provide Records to Patient for Visit'|xlt }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="form_provider" class="form-label">
+                                {{ 'Provider'|xlt }}
+                            </label>
+                            <select name="form_provider" id="form_provider" class="form-select">
+                                <option value="">-- {{ 'All'|xlt }} --</option>
+                                {% for prov in providers %}
+                                    <option 
+                                        value="{{ prov.id|attr }}" 
+                                        {{ prov.id == provider ? 'selected' : '' }}
+                                    >
+                                        {{ prov.display_name|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Submit Section #}
+            <div class="mt-4 pt-3 border-top">
+                <div class="submit-section">
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary btn-lg"
+                        onclick="$('#form_refresh').val('1');"
+                    >
+                        <i class="fas fa-search me-2"></i>
+                        {{ 'Submit'|xlt }}
+                    </button>
+
+                    {% if show_results %}
+                        <button 
+                            type="button" 
+                            class="btn btn-outline-secondary btn-lg" 
+                            id="printbutton"
+                        >
+                            <i class="fas fa-print me-2"></i>
+                            {{ 'Print'|xlt }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
