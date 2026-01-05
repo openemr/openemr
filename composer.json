@@ -242,6 +242,19 @@
         "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
         "phpcs": "php -d memory_limit=4g ./vendor/bin/phpcs --standard=ci/phpcs.xml .",
         "phpstan": "php -d memory_limit=4g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist",
+        "phpstan-baseline": [
+            "if ! command -v yq >/dev/null 2>&1; then echo 'Error: yq is not installed.' >&2; exit 1; fi",
+            "echo '' > .phpstan/phpstan-curl-baseline.neon",
+            "echo '' > .phpstan/phpstan-database-baseline.neon",
+            "echo '' > .phpstan/phpstan-globals-baseline.neon",
+            "echo '' > .phpstan/phpstan-remaining-baseline.neon",
+            "php -d memory_limit=8g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist --generate-baseline=tmp-phpstan/tmp.neon",
+            "expand tmp-phpstan/tmp.neon | yq -P '.parameters.ignoreErrors |= map(select(.identifier == \"openemr.forbiddenCurlFunction\"))' > .phpstan/phpstan-curl-baseline.neon",
+            "expand tmp-phpstan/tmp.neon | yq -P '.parameters.ignoreErrors |= ((map(select(.identifier == \"openemr.deprecatedSqlFunction\"))) + (map(select(.identifier == \"openemr.deprecatedLaminasDb\"))))' > .phpstan/phpstan-database-baseline.neon",
+            "expand tmp-phpstan/tmp.neon | yq -P '.parameters.ignoreErrors |= map(select(.identifier == \"openemr.forbiddenGlobalsAccess\"))' > .phpstan/phpstan-globals-baseline.neon",
+            "expand tmp-phpstan/tmp.neon | yq -P '.parameters.ignoreErrors |= map(select(.identifier != \"openemr.forbiddenCurlFunction\" and .identifier != \"openemr.deprecatedSqlFunction\" and .identifier != \"openemr.deprecatedLaminasDb\" and .identifier != \"openemr.forbiddenGlobalsAccess\"))' > .phpstan/phpstan-remaining-baseline.neon",
+            "rm tmp-phpstan/tmp.neon"
+        ],
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
         "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json"

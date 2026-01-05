@@ -4160,6 +4160,10 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../library/classes/Provider.class.php
+    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../library/classes/Tree.class.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
@@ -5764,6 +5768,10 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Events/Messaging/SendSmsEvent.php
+    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 4
+      path: ../src/Gacl/GaclApi.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
@@ -6592,14 +6600,6 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 3
       path: ../tests/Tests/Validators/PatientValidatorTest.php
-    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../library/classes/Tree.class.php
-    - message: '#^GenID is deprecated\. Use QueryUtils\:\:generateId\(\) or QueryUtils\:\:ediGenerateId\(\) instead\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 4
-      path: ../src/Gacl/GaclApi.php
     - message: '#^Laminas\-DB class "Laminas\\Db\\Adapter\\Adapter" is deprecated\. Use QueryUtils or DatabaseQueryTrait instead\.$#'
       identifier: openemr.deprecatedLaminasDb
       count: 1
