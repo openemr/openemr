@@ -21,4 +21,11 @@ class Module implements ModuleInterface, CliModuleInterface
             ListModuleCommand::class,
         ];
     }
+
+    public static function getConfigFiles(): array
+    {
+        return [
+            __DIR__ . '/config.php',
+        ];
+    }
 }

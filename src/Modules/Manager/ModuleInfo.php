@@ -31,4 +31,9 @@ readonly class ModuleInfo
         }
         return [];
     }
+
+    public function getConfigFiles(): array
+    {
+        return $this->entrypoint::getConfigFiles();
+    }
 }
