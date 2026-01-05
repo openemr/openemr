@@ -9840,6 +9840,14 @@ parameters:
       identifier: return.missing
       count: 1
       path: ../interface/main/calendar/includes/pnHTML.php
+    - message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      count: 1
+      path: ../interface/main/calendar/includes/pnHTML.php
+    - message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      count: 1
+      path: ../interface/main/calendar/includes/pnHTML.php
     - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 2
@@ -12532,6 +12540,10 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/patient_file/pos_checkout_normal.php
+    - message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
+      identifier: includeOnce.fileNotFound
+      count: 1
+      path: ../interface/patient_file/printed_fee_sheet.php
     - message: '#^Variable \$encounter might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -12860,6 +12872,10 @@ parameters:
       identifier: variable.undefined
       count: 6
       path: ../interface/patient_file/summary/demographics_full.php
+    - message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      count: 1
+      path: ../interface/patient_file/summary/demographics_print.php
     - message: '#^Variable \$pid might not be defined\.$#'
       identifier: variable.undefined
       count: 3
@@ -14080,6 +14096,10 @@ parameters:
       identifier: variable.undefined
       count: 2
       path: ../ippf_upgrade.php
+    - message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      count: 1
+      path: ../library/ESign/DbRow/Signable.php
     - message: '#^Variable \$this might not be defined\.$#'
       identifier: variable.undefined
       count: 4
@@ -15540,6 +15560,10 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../modules/sms_email_reminder/cron_email_notification.php
+    - message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
+      identifier: include.fileNotFound
+      count: 1
+      path: ../modules/sms_email_reminder/cron_functions.php
     - message: '#^Class sms constructor invoked with 3 parameters, 0 required\.$#'
       identifier: arguments.count
       count: 1
@@ -15896,6 +15920,10 @@ parameters:
       identifier: class.notFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
+    - message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      count: 1
+      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
     - message: '#^Access to an undefined property MockRouter\:\:\$delim\.$#'
       identifier: property.notFound
       count: 1
@@ -15926,6 +15954,14 @@ parameters:
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
     - message: '#^Instantiated class RSS_Writer not found\.$#'
       identifier: class.notFound
+      count: 1
+      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
+    - message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      count: 1
+      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
+    - message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
       count: 1
       path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
     - message: '#^Method Reporter\:\:__serialize\(\) should return array\<mixed, mixed\> but return statement is missing\.$#'
@@ -15972,6 +16008,10 @@ parameters:
       identifier: variable.undefined
       count: 4
       path: ../portal/patient/templates/OnsitePortalActivityListView.tpl.php
+    - message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
+      identifier: requireOnce.fileNotFound
+      count: 1
+      path: ../portal/patient/templates/PatientListView.tpl.php
     - message: '#^Variable \$this might not be defined\.$#'
       identifier: variable.undefined
       count: 14
@@ -16932,57 +16972,3 @@ parameters:
       identifier: arguments.count
       count: 1
       path: ../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php
-
-    # Optional custom files - checked with file_exists() before include
-    -
-      message: '#^Path in include_once\(\) "\.\./\.\./custom/fee_sheet_codes\.php" is not a file or it does not exist\.$#'
-      identifier: includeOnce.fileNotFound
-      path: ../interface/patient_file/printed_fee_sheet.php
-    -
-      message: '#^Path in include\(\) "\.\./\.\./\.\./custom/demographics_print\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      path: ../interface/patient_file/summary/demographics_print.php
-
-    # Legacy PostNuke calendar files - header/footer don't exist
-    -
-      message: '#^Path in include\(\) "header\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      path: ../interface/main/calendar/includes/pnHTML.php
-    -
-      message: '#^Path in include\(\) "footer\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      path: ../interface/main/calendar/includes/pnHTML.php
-
-    # Windows compatibility file for getmxrr - conditionally included
-    -
-      message: '#^Path in include\(\) "getmxrr\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      path: ../modules/sms_email_reminder/cron_functions.php
-
-    # Dead code - renderForm() is never called, path is wrong
-    -
-      message: '#^Path in include\(\) "views/esign_signature_log\.php" is not a file or it does not exist\.$#'
-      identifier: include.fileNotFound
-      path: ../library/ESign/DbRow/Signable.php
-
-    # Optional PEAR/PHPExcel dependency - not installed
-    -
-      message: '#^Path in require_once\(\) "PEAR/PHPExcel\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php
-
-    # Optional RSS functionality - files don't exist
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/Writer\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-    -
-      message: '#^Path in require_once\(\) "verysimple/RSS/IRSSFeedItem\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      path: ../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php
-
-    # Template path depends on runtime working directory
-    -
-      message: '#^Path in require_once\(\) "\.\./\.\./library/options\.inc\.php" is not a file or it does not exist\.$#'
-      identifier: requireOnce.fileNotFound
-      path: ../portal/patient/templates/PatientListView.tpl.php
