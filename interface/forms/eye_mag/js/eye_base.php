@@ -2080,7 +2080,8 @@ function update_READONLY() {
                      var currentVal = $field.val();
                      if (currentVal != valhere) {
                          console.log("READ-ONLY update: " + keyhere + " from '" + currentVal + "' to '" + valhere + "'");
-                         $field.val(valhere).css("background-color","#CCF");
+                         $field.val(valhere);
+                         $field.attr('style', 'background-color: #CCF !important');
                      }
                  }
                  if (keyhere.match(/MOTILITY_/)) {
