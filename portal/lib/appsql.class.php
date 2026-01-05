@@ -51,7 +51,7 @@ class ApplicationTable
         }
 
         if ($log) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;
@@ -98,7 +98,7 @@ class ApplicationTable
         }
 
         if ($oelog) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $audit);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $audit);
         }
 
         if ($rtn == 'last') {
@@ -366,6 +366,6 @@ class ApplicationTable
 
     public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
-        EventAuditLogger::instance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
+        EventAuditLogger::getInstance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
     }
 }// app query class

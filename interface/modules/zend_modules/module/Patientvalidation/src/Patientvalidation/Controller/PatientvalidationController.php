@@ -79,7 +79,7 @@ class PatientvalidationController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Patient validation"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Patient validation"));
         $this->layout()->setVariable("translate", $this->translate);
 
          $relatedPatients =  $this->getAllRealatedPatients();

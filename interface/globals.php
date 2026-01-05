@@ -852,7 +852,7 @@ $globalsBag->set('web_root', $web_root);
 $globalsBag->set('restRequest', $restRequest);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 
-EventAuditLogger::instance()->logHttpRequest();
+EventAuditLogger::getInstance()->logHttpRequest();
 
 // Warm translation cache if configured
 if (!empty($GLOBALS['translation_preload_cache'])) {

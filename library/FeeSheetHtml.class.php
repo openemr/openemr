@@ -372,7 +372,7 @@ function jsLineItemValidation(f) {
         } // end if male patient
         if ($this->patient_age < 10 || $this->patient_age > 65) {
             $s .= "
-   if (!confirm(" . xlj('Warning: Contraception for a patient under 10 or over 65.') . "))
+    if (!confirm(" . xlj('Warning: Contraception for a patient under 10 or over 65.') . "))
     return false;
 ";
         } // end if improper age

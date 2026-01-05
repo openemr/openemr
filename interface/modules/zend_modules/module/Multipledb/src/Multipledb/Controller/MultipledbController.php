@@ -56,7 +56,7 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Multiple DataBase"));
         $this->checkAcl();
 
         return new ViewModel([
@@ -74,7 +74,7 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Multiple DataBase"));
         $this->checkAcl('write');
 
         return new ViewModel([
@@ -130,7 +130,7 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-        $this->layout()->setVariable("title", $this->listenerObject->z_xl("Multiple DataBase"));
+        $this->layout()->setVariable("title", $this->listenerObject->z_xlt("Multiple DataBase"));
         $this->checkAcl('write');
 
         return new ViewModel([

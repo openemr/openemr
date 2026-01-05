@@ -222,7 +222,7 @@ function attr($text)
 function hsc_private_xl_or_warn($key)
 {
     if (function_exists('xl')) {
-        return xl($key);
+        return xl($key ?? '');
     } else {
         trigger_error(
             'Translation via xl() was requested, but the xl()'
@@ -257,11 +257,24 @@ function xla($key)
     return attr(hsc_private_xl_or_warn($key));
 }
 
-/*
- * Translate via xl() and then escape via js_escape for use with javascript literals
+/**
+ * Translate via xl() and then escape via js_escape() for use with JavaScript literals.
+ *
+ * @param string $key The string to translate and escape.
+ * @return string The translated string escaped for JavaScript.
  */
 function xlj($key)
 {
     return js_escape(hsc_private_xl_or_warn($key));
 }
 
+/**
+ * Translate via xl() and then escape via xmlEscape() for use in XML contexts.
+ *
+ * @param string $key The string to translate and escape.
+ * @return string The translated string, escaped for XML contexts.
+ */
+function xlx($key)
+{
+    return xmlEscape(hsc_private_xl_or_warn($key));
+}
