@@ -3515,7 +3515,7 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         $result['IMP'] = $objQuery['IMP'];
         
         // Add wearing RX data for READ-ONLY polling updates
-        $count_rx = 0;
+        $count_rx = 1;
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
         $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
         while ($wearing = sqlFetchArray($wear)) {
@@ -3565,7 +3565,7 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         echo json_encode($result);
     } elseif ($zone == "READONLY") {
         $result = $objQuery;
-        $count_rx = 0;
+        $count_rx = 1;
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
         $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
         while ($wearing = sqlFetchArray($wear)) {
