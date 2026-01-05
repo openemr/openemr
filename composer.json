@@ -227,7 +227,7 @@
     },
     "scripts": {
         "checks": [
-            "composer validate",
+            "composer validate --strict",
             "composer normalize --dry-run"
         ],
         "code-quality": [
