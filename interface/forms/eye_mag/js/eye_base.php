@@ -2065,6 +2065,16 @@ function update_READONLY() {
            }
            
            $.map(result, function(valhere, keyhere) {
+                 // Check if this field belongs to a wearing section that needs unhiding
+                 var wearingMatch = keyhere.match(/^(ODSPH|ODCYL|ODAXIS|OSSPH|OSCYL|OSAXIS|ODMIDADD|OSMIDADD|ODADD|OSADD|ODVA|OSVA|ODNEARVA|OSNEARVA|ODPRISM|OSPRISM|ODBASE|OSBASE|ODVPRISM|OSVPRISM|ODVBASE|OSVBASE|OSPHCYL|ODCYLAXIS|ODSLABO|OSSLABO|ODVERTEXDIST|OSVERTEXDIST|ODHPD|OSHPD|ODHBASE|OSHBASE|ODVPD|OSVPD|ODVBASE|OSVBASE|ODPD|OSPD|ODMPDD|OSMPDD|ODMPDN|OSMPDN|BPDD|BPDN|LENS_MATERIAL|LENS_TREATMENTS|COMMENTS|RX_TYPE|W)_(\d)$/);
+                 if (wearingMatch) {
+                     var wearingNum = parseInt(wearingMatch[2]);
+                     if (wearingNum >= 2 && wearingNum <= 5 && $('#LayerVision_W_' + wearingNum).hasClass('nodisplay')) {
+                         $('#W_' + wearingNum).val('1');
+                         $('#LayerVision_W_' + wearingNum).removeClass('nodisplay');
+                     }
+                 }
+                 
                  if ($("#"+keyhere).val() != valhere) {
                  $("#"+keyhere).val(valhere).css("background-color","#CCF");
                  }
