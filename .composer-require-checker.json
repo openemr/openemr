@@ -29,6 +29,7 @@
     "areCredentialsCreated",
     "buildTemplate",
     "checkUserSetting",
+    "check_code_set_filters",
     "csv_like_join",
     "display_layout_tabs",
     "display_layout_tabs_data",
