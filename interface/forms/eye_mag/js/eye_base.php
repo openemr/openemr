@@ -2075,8 +2075,13 @@ function update_READONLY() {
                      }
                  }
                  
-                 if ($("#"+keyhere).val() != valhere) {
-                 $("#"+keyhere).val(valhere).css("background-color","#CCF");
+                 var $field = $("#"+keyhere);
+                 if ($field.length > 0) {
+                     var currentVal = $field.val();
+                     if (currentVal != valhere) {
+                         console.log("READ-ONLY update: " + keyhere + " from '" + currentVal + "' to '" + valhere + "'");
+                         $field.val(valhere).css("background-color","#CCF");
+                     }
                  }
                  if (keyhere.match(/MOTILITY_/)) {
                  // Copy forward ductions and versions visually
