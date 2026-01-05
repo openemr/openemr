@@ -25,7 +25,7 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\AppointmentService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class TeleHealthCalendarController
@@ -67,7 +67,7 @@ class TeleHealthCalendarController
 //        $this->apptService = new AppointmentService();
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
         $eventDispatcher->addListener(CalendarUserGetEventsFilter::EVENT_NAME, $this->filterTelehealthCalendarEvents(...));
         $eventDispatcher->addListener(ScriptFilterEvent::EVENT_NAME, $this->addCalendarJavascript(...));

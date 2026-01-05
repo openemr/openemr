@@ -177,7 +177,7 @@ class BillingLoggerStub extends BillingLogger
     {
         // Skip file writing, just call the callback if set
         if (isset($this->onLogCompleteCallback)) {
-            return call_user_func($this->onLogCompleteCallback);
+            return ($this->onLogCompleteCallback)();
         }
 
         return false;

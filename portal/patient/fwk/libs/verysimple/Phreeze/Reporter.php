@@ -30,7 +30,7 @@ abstract class Reporter implements Serializable
     ];
 
     /** @var cache of public properties for each type for improved performance when enumerating */
-    private static $PublicPropCache =  [];
+    private static array $PublicPropCache = [];
 
     /**
      * Returns true if the current object has been loaded
@@ -176,7 +176,7 @@ abstract class Reporter implements Serializable
     {
         $className = static::class;
 
-        if (! property_exists(self::$PublicPropCache, $className)) {
+        if (! array_key_exists($className, self::$PublicPropCache)) {
             $props =  [];
             $ro = new ReflectionObject($this);
 

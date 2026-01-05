@@ -190,7 +190,11 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 varname = 'form_proc_type';
             }
             ptvarname = varname;
-            dlgopen('types.php?popup=1&order=' + encodeURIComponent(f[ptvarname].value), '_blank', 800, 500);
+            const params = new URLSearchParams({
+                order: f[ptvarname].value,
+                popup: '1'
+            });
+            dlgopen('types.php?' + params, '_blank', 800, 500);
         }
 
         // This is for callback by the find-procedure-type popup.

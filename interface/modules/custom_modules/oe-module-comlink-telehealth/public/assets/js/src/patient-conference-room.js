@@ -20,9 +20,13 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
 
     function checkProviderReadyForPatient()
     {
-        let pc_eid = patientConferenceRoom.telehealthSessionData.pc_eid;
+        const pc_eid = patientConferenceRoom.telehealthSessionData.pc_eid;
+        const params = new URLSearchParams({
+            action: 'patient_appointment_ready',
+            eid: pc_eid
+        });
         window.top.restoreSession();
-        window.fetch(scriptLocation + '?action=patient_appointment_ready&eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
+        window.fetch(scriptLocation + '?' + params, {redirect: "manual"})
             .then(result => {
                 if (result.ok) {
                     return result.json();

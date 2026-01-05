@@ -20,7 +20,7 @@ use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Environment;
@@ -31,7 +31,7 @@ class TeleHealthPatientPortalController
     {
     }
 
-    public function subscribeToEvents(EventDispatcher $eventDispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)
     {
         $eventDispatcher->addListener(AppointmentFilterEvent::EVENT_NAME, $this->filterPatientAppointment(...));
         $eventDispatcher->addListener(RenderEvent::EVENT_SECTION_RENDER_POST, $this->renderTeleHealthPatientVideo(...));

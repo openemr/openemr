@@ -114,6 +114,13 @@ if (!empty($codetype)) {
                         .click(function () {
                             input.val('');
                         });
+                    // Enter key handler for the search input
+                    input.on('keypress', function (e) {
+                        if (e.which === 13) { // Enter key
+                            e.preventDefault();
+                            self.search(input.val()).draw();
+                        }
+                    });
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
             });

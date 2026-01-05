@@ -42,8 +42,11 @@ export function ConfirmSessionCloseDialog(translations, pc_eid, scriptLocation, 
     this.sendAppointmentStatusUpdate = function(status)
     {
         console.log("Setting appointment to status ", status);
-        let postData = "action=set_appointment_status&pc_eid=" + encodeURIComponent(pc_eid)
-            + "&status=" + encodeURIComponent(status);
+        const postData = new URLSearchParams({
+            action: 'set_appointment_status',
+            pc_eid: pc_eid,
+            status: status
+        });
         window.top.restoreSession();
         window.fetch(scriptLocation,
             {

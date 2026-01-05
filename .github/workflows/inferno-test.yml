@@ -323,11 +323,12 @@ jobs:
 
     - name: Upload Inferno test results to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('junit-inferno.xml') != '' }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-inferno.xml
         flags: inferno,certification,php${{ matrix.php-version }}
+        report_type: test_results
 
     - name: Hide Inferno test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit-inferno.xml') != '' }}

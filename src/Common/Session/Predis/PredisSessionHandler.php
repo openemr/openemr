@@ -16,6 +16,7 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use Predis\Client;
 use SessionHandlerInterface;
 
@@ -23,7 +24,7 @@ class PredisSessionHandler implements SessionHandlerInterface
 {
     private ?string $currentSessionId = null;
 
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(private readonly Client $redis, private readonly int $ttl, private readonly int $lockTimeout = 60, private readonly int $waitTimeout = 70, private readonly int $waitInterval = 150000)
     {

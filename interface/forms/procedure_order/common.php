@@ -749,11 +749,13 @@ if (!empty($row['lab_id'])) {
 
             let title = <?php echo xlj("Find Procedure Order"); ?>;
             // This replaces the previous search for an easier/faster order picker tool.
-            dlgopen('../../orders/find_order_popup.php' +
-                '?labid=' + encodeURIComponent(f.form_lab_id.value) +
-                '&order=' + encodeURIComponent(f[ptvarname].value) +
-                '&formid=' + <?php echo js_url($formid); ?> +
-                    '&formseq=' + encodeURIComponent(formseq),
+            const params = new URLSearchParams({
+                formid: <?php echo js_escape($formid); ?>,
+                formseq: formseq,
+                labid: f.form_lab_id.value,
+                order: f[ptvarname].value
+            });
+            dlgopen('../../orders/find_order_popup.php?' + params,
                 '_blank', 850, 500, '', title);
         }
 
@@ -1124,8 +1126,12 @@ if (!empty($row['lab_id'])) {
             let codetitle = 'form_proc_type_desc[' + id + ']';
             let code = f[codeattr].value;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
-            url += "?action=code_detail)&code=" + encodeURIComponent(code) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                action: 'code_detail)',
+                code: code,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            url += "?" + params;
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
             dlgopen(url, 'details', 'modal-md', 200, '', title, {
                 buttons: [
@@ -1183,10 +1189,18 @@ if (!empty($row['lab_id'])) {
             let pid = <?php echo js_escape($patient['pid']);  ?>;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
             // this escapes above
-            let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
-                "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
-                "&dob=" + encodeURIComponent(dob) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                acctid: acctid,
+                action: 'print_labels',
+                count: count,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                dob: dob,
+                order: order,
+                patient: patient,
+                pid: pid,
+                specimen: tarray
+            });
+            const uri = "?" + params;
 
             // retrieve the labels
             dlgopen(url + uri, 'pdf', 'modal-md', 750, '');

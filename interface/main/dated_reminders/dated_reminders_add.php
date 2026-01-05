@@ -124,7 +124,7 @@ if ($_POST) {
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("' . xls('Reminder Sent') . '");';
+            echo '   alert(' . xlj('Reminder Sent') . ');';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';

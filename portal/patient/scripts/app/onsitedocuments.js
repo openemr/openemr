@@ -259,24 +259,26 @@ var page = {
                             page.onsiteDocument.set('encounter', page.encounterFormId);
                             let url = '';
                             if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
-                                url = webroot_url +
-                                    "/interface/forms/LBF/printable.php?return_content=" +
-                                    "&formname=" + encodeURIComponent(page.encounterFormName) +
-                                    "&formid=" + encodeURIComponent(page.encounterFormId) +
-                                    "&visitid=0&patientid=" + encodeURIComponent(cpid);
+                                const params = new URLSearchParams({
+                                    formid: page.encounterFormId,
+                                    formname: page.encounterFormName,
+                                    patientid: cpid,
+                                    return_content: '',
+                                    visitid: 0
+                                });
+                                url = webroot_url + "/interface/forms/LBF/printable.php?" + params;
                             } else {
                                 // first, ensure form name is valid
                                 if (!page.verifyValidEncounterForm(page.encounterFormName)) {
                                     asyncAlertMsg("There is an issue loading form. Form does not exist.");
                                     return false;
                                 }
-                                url = webroot_url +
-                                    "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php" +
-                                    "?formid=" + encodeURIComponent(page.encounterFormId);
+                                const params = new URLSearchParams({
+                                    formid: page.encounterFormId
+                                });
+                                url = webroot_url + "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php?" + params;
                                 if (page.isQuestionnaire) {
-                                    url = webroot_url +
-                                        "/interface/forms/questionnaire_assessments/patient_portal.php" +
-                                        "?formid=" + encodeURIComponent(page.encounterFormId);
+                                    url = webroot_url + "/interface/forms/questionnaire_assessments/patient_portal.php?" + params;
                                 }
                             }
                             fetch(url).then(response => {
@@ -329,24 +331,26 @@ var page = {
                             page.onsiteDocument.set('encounter', page.encounterFormId);
                             let url = '';
                             if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
-                                url = webroot_url +
-                                    "/interface/forms/LBF/printable.php?return_content=" +
-                                    "&formname=" + encodeURIComponent(page.encounterFormName) +
-                                    "&formid=" + encodeURIComponent(page.encounterFormId) +
-                                    "&visitid=0&patientid=" + encodeURIComponent(cpid);
+                                const params = new URLSearchParams({
+                                    formid: page.encounterFormId,
+                                    formname: page.encounterFormName,
+                                    patientid: cpid,
+                                    return_content: '',
+                                    visitid: 0
+                                });
+                                url = webroot_url + "/interface/forms/LBF/printable.php?" + params;
                             } else {
                                 // first, ensure form name is valid
                                 if (!page.verifyValidEncounterForm(page.encounterFormName)) {
                                     asyncAlertMsg("There is an issue loading form. Form does not exist.");
                                     return false;
                                 }
-                                url = webroot_url +
-                                    "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php" +
-                                    "?formid=" + encodeURIComponent(page.encounterFormId);
+                                const params = new URLSearchParams({
+                                    formid: page.encounterFormId
+                                });
+                                url = webroot_url + "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/patient_portal.php?" + params;
                                 if (page.isQuestionnaire) {
-                                    url = webroot_url +
-                                        "/interface/forms/questionnaire_assessments/patient_portal.php" +
-                                        "?formid=" + encodeURIComponent(page.encounterFormId);
+                                    url = webroot_url + "/interface/forms/questionnaire_assessments/patient_portal.php?" + params;
                                 }
                             }
                             fetch(url).then(response => {
@@ -461,7 +465,8 @@ var page = {
                         if (autoRender + auditRender > 0) {
                             auditRender = 0;
                             autoRender = 0;
-                            location.assign(webroot_url + "/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid))
+                            const params = new URLSearchParams({ pid: cpid });
+                            location.assign(webroot_url + "/portal/patient/onsitedocuments?" + params);
                         }
                     });
                     // post to submit and save content remote form.
@@ -477,7 +482,8 @@ var page = {
                     if (autoRender + auditRender > 0) {
                         auditRender = 0;
                         autoRender = 0;
-                        location.assign(webroot_url + "/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid));
+                        const params = new URLSearchParams({ pid: cpid });
+                        location.assign(webroot_url + "/portal/patient/onsitedocuments?" + params);
                     }
 
                 }
@@ -798,12 +804,15 @@ var page = {
                                 // a layout form
                                 if (page.encounterFormName) {
                                     let url = '';
+                                    const params = new URLSearchParams({
+                                        formname: page.encounterFormName,
+                                        formOrigin: page.formOrigin,
+                                        id: 0,
+                                        isPortal: isPortal ? 1 : 0
+                                    });
                                     if (page.encounterFormName.startsWith('LBF') || page.encounterFormName.startsWith('HIS')) {
                                         // iframe from template directive {EncounterDocument:LBFxxxxx} for a LBF form
-                                        url = webRoot + "/interface/forms/LBF/new.php" + "" +
-                                            "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
-                                            "&formOrigin=" + encodeURIComponent(page.formOrigin) +
-                                            "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
+                                        url = webRoot + "/interface/forms/LBF/new.php?" + params;
                                     } else {
                                         // iframe from template directive {EncounterDocument:xxxxx} for a native form
                                         // first, ensure form name is valid
@@ -811,15 +820,9 @@ var page = {
                                             asyncAlertMsg("There is an issue loading form. Form does not exist.");
                                             return false;
                                         }
-                                        url = webRoot + "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/new.php" +
-                                            "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
-                                            "&formOrigin=" + encodeURIComponent(page.formOrigin) +
-                                            "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
+                                        url = webRoot + "/interface/forms/" + encodeURIComponent(page.encounterFormName) + "/new.php?" + params;
                                         if (page.isQuestionnaire) {
-                                            url = webRoot + "/interface/forms/questionnaire_assessments/questionnaire_assessments.php" +
-                                                "?isPortal=" + encodeURIComponent(isPortal ? 1 : 0) +
-                                                "&formOrigin=" + encodeURIComponent(page.formOrigin) +
-                                                "&formname=" + encodeURIComponent(page.encounterFormName) + "&id=0";
+                                            url = webRoot + "/interface/forms/questionnaire_assessments/questionnaire_assessments.php?" + params;
                                         }
                                     }
                                     document.getElementById('encounterForm').src = url;

@@ -35,7 +35,7 @@ use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -222,10 +222,10 @@ class ClientAdminController
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      * @throws Exception
      */
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->kernel->getEventDispatcher();
     }

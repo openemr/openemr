@@ -16,6 +16,7 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Session\Predis\PredisSessionHandler;
 use Predis\Client;
 
@@ -44,7 +45,7 @@ class SentinelUtil
     private readonly ?string $masterCertFile;
     private readonly ?string $masterKeyFile;
 
-    public function __construct(private readonly int $ttl, private readonly ?SystemLogger $logger = new SystemLogger())
+    public function __construct(private readonly int $ttl, private readonly ?LoggerInterface $logger = new SystemLogger())
     {
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;

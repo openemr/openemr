@@ -17,7 +17,12 @@ function doTemplateEditor(_this, event, oContext = '') {
         ccFlag = 'name';
     }
     let title = '<i class="fa fa-th"></i><h4 class="ml-2">'+ xl("Text Templates") +'</h4>';
-    let url = top.webroot_url + "/library/custom_template/custom_template.php?type=" + encodeURIComponent(id) + "&ccFlag=" + encodeURIComponent(ccFlag) + "&contextName=" + encodeURIComponent(oContext);
+    const params = new URLSearchParams({
+        ccFlag: ccFlag,
+        contextName: oContext,
+        type: id
+    });
+    let url = top.webroot_url + "/library/custom_template/custom_template.php?" + params;
     dlgopen(url, '', 'modal-lg', 800, '', '', {
         buttons: [
             {text: xl('Do Nothing'), close: true, style: 'secondary'}

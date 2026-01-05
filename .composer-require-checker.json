@@ -5,6 +5,8 @@
     "BillingExport",
     "C_Document",
     "Carecoordination\\Model\\CarecoordinationTable",
+    "Carecoordination\\Model\\CcdaGenerator",
+    "Carecoordination\\Model\\EncounterccdadispatchTable",
     "FPDF_FONTPATH",
     "GenericProductRegistrationException",
     "IS_WINDOWS",

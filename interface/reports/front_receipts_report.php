@@ -62,8 +62,12 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
 
         // The OnClick handler for receipt display.
         function show_receipt(pid,timestamp) {
-            dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + encodeURIComponent(pid) +
-                '&time=' + encodeURIComponent(timestamp), '_blank', 850, 550, '', '', {
+            const params = new URLSearchParams({
+                patient: pid,
+                receipt: '1',
+                time: timestamp
+            });
+            dlgopen('../patient_file/front_payment.php?' + params, '_blank', 850, 550, '', '', {
                 onClosed: 'reload'
             });
          }
@@ -169,7 +173,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
             </td>
             <td class='col-form-label'>
-                <?php xl('To{{Range}}', 'e'); ?>:
+                <?php echo xl('To{{Range}}'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>

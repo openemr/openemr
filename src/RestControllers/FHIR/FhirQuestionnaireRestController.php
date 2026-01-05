@@ -16,6 +16,7 @@ namespace OpenEMR\RestControllers\FHIR;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -30,12 +31,12 @@ class FhirQuestionnaireRestController
      */
     private readonly FhirResourcesService $fhirService;
 
-    public function __construct(private readonly SystemLogger $logger, private readonly FhirQuestionnaireService $questionnaireResourceService)
+    public function __construct(private readonly LoggerInterface $logger, private readonly FhirQuestionnaireService $questionnaireResourceService)
     {
         $this->fhirService = new FhirResourcesService();
     }
 
-    public function getSystemLogger(): SystemLogger
+    public function getSystemLogger(): LoggerInterface
     {
         return $this->logger;
     }

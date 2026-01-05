@@ -15,6 +15,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -45,7 +46,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
-    public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?SystemLogger $logger = null)
+    public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?LoggerInterface $logger = null)
     {
         if ($logger) {
             $this->setSystemLogger($logger);

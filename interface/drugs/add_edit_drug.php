@@ -701,7 +701,7 @@ dispensable_changed();
 
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes((string) $alertmsg) . "');\n";
+    echo "alert('" . addslashes($alertmsg) . "');\n";
 }
 ?>
 

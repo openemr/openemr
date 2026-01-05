@@ -17,7 +17,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Events\Services\LogoFilterEvent;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -37,9 +37,9 @@ class LogoService
      */
     private $fs;
 
-    private readonly EventDispatcher $dispatcher;
+    private readonly EventDispatcherInterface $dispatcher;
 
-    public function __construct(?EventDispatcher $dispatcher = null)
+    public function __construct(?EventDispatcherInterface $dispatcher = null)
     {
         // Ensure a finder object exists
         $this->resetFinder();

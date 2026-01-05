@@ -386,12 +386,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         function referentialCdsClick(codetype, codevalue) {
             top.restoreSession();
             // Force a new window instead of iframe to address cross site scripting potential
-            dlgopen('../education.php?type=' + encodeURIComponent(codetype) + '&code=' + encodeURIComponent(codevalue), '_blank', 1024, 750, true);
+            const params = new URLSearchParams({
+                code: codevalue,
+                type: codetype
+            });
+            dlgopen('../education.php?' + params, '_blank', 1024, 750, true);
         }
 
         function oldEvt(apptdate, eventid) {
             let title = <?php echo xlj('Appointments'); ?>;
-            dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);
+            const params = new URLSearchParams({
+                eid: eventid,
+                date: apptdate
+            });
+            dlgopen('../../main/calendar/add_edit_event.php?' + params, '_blank', 800, 500, '', title);
         }
 
         function advdirconfigure() {
@@ -403,12 +411,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             location.reload();
         }
 
-        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
             const params = new URLSearchParams({
-                patient: <?php echo js_escape($pid); ?>,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                patient: <?php echo js_escape($pid); ?>
             });
             dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
                 allowResize: false,
@@ -418,14 +425,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
             return false;
         }
-        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {
             top.clearPatient();
         }
 
-        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function newEvt() {
             let title = <?php echo xlj('Appointments'); ?>;
             const params = new URLSearchParams({
@@ -435,7 +440,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
         }
-        // AI-generated code end
 
         function toggleIndicator(target, div) {
             // <i id="show_hide" class="fa fa-lg small fa-eye-slash" title="Click to Hide"></i>
@@ -465,9 +469,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         function editScripts(url) {
 
             let title = <?php echo xlj('Prescriptions'); ?>;
-            let w = 960; // for weno width
 
-            dlgopen(url, 'editScripts', w, 400, '', '', {
+            dlgopen(url, 'editScripts', 'modal-xl', 400, '', '', {
                 resolvePromiseOn: 'close',
                 allowResize: true,
                 allowDrag: true,
@@ -649,8 +652,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     let pid = <?php echo js_escape($pid); ?>;
                     let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
                     let ruleId = $(this).data("ruleId");
-                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?action=review!view&pid="
-                        + encodeURIComponent(pid) + "&rule_id=" + encodeURIComponent(ruleId) + "&csrf_token_form=" + encodeURIComponent(csrfToken);
+                    const params = new URLSearchParams({
+                        action: 'review!view',
+                        csrf_token_form: csrfToken,
+                        pid: pid,
+                        rule_id: ruleId
+                    });
+                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?" + params;
                     e.preventDefault();
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
@@ -667,8 +675,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
                             // loadFrame already handles webroot and /interface/ prefix.
-                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' + encodeURIComponent(data.ruleId)
-                                + "&csrf_token=" + encodeURIComponent(csrfToken);
+                            const editParams = new URLSearchParams({
+                                action: 'edit!summary',
+                                csrf_token: csrfToken,
+                                id: data.ruleId
+                            });
+                            let editUrl = '/super/rules/index.php?' + editParams;
                             window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                         }
                     };
@@ -938,10 +950,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
-            // AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams
             const encParams = new URLSearchParams({
-                set_encounter: <?php echo js_escape($encounter); ?>,
-                pid: <?php echo js_escape($pid); ?>
+                pid: <?php echo js_escape($pid); ?>,
+                set_encounter: <?php echo js_escape($encounter); ?>
             });
             encurl = 'encounter/encounter_top.php?' + encParams.toString();
             parent.left_nav.setEncounter(<?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime((string) $query_result['date'])))); ?>, <?php echo js_escape($encounter); ?>, 'enc');

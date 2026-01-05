@@ -285,7 +285,7 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
             $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
-                $row['field'] = htmlspecialchars((string) xl($row['cvx_text']), ENT_NOQUOTES);
+                $row['field'] = htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
             } else {
                 $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
             }

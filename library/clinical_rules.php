@@ -188,7 +188,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
             //  is being passed via an ajax call by using a dummy image.
-            echo '<img src="../../pic/empty.gif" onload="alert(\'' . xls('New Due Clinical Reminders') . '\n\n';
+            echo '<img src="../../pic/empty.gif" onload="alert(' . xlj('New Due Clinical Reminders') . ' + \'\n\n';
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", (string) $key);
                 $category = $category_item[0];
@@ -197,7 +197,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                    ': ' . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $item) . '\n';
             }
 
-            echo '\n' . '(' . xls('See the Clinical Reminders widget for more details') . ')';
+            echo '\n\' + ' . xlj('See the Clinical Reminders widget for more details') . ' + \'';
             echo '\');this.parentNode.removeChild(this);" />';
         }
     }

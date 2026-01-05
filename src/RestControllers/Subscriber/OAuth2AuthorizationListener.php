@@ -8,6 +8,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\Authorization\OAuth2DiscoveryController;
 use OpenEMR\RestControllers\Authorization\OAuth2PublicJsonWebKeyController;
@@ -24,7 +25,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class OAuth2AuthorizationListener implements EventSubscriberInterface
 {
-    private SystemLogger $logger;
+    private LoggerInterface $logger;
 
     public function __construct()
     {
@@ -37,15 +38,15 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         ];
     }
 
-    public function setSystemLogger(SystemLogger $logger): void
+    public function setSystemLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
 
     /**
-     * @return SystemLogger
+     * @return LoggerInterface
      */
-    public function getLogger(): SystemLogger
+    public function getLogger(): LoggerInterface
     {
         if (!isset($this->logger)) {
             $this->logger = new SystemLogger();

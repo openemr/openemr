@@ -81,13 +81,4 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
         return xla($str);
     }
 
-    /**
-   * Language converter
-   * @param string $str
-   * @return string
-   */
-    public static function z_xls($str)
-    {
-        return xls($str);
-    }
 }

@@ -135,7 +135,7 @@ class LocalProviderListType implements IOptionFormType
         $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         if (!empty($this->providerList)) {
             $urest = $this->providerList;
         } else {

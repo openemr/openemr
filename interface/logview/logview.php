@@ -316,7 +316,7 @@ if (!empty($_GET)) {
 
                                                 //translate comments
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
-                                                $replace = [xl('success'), xl('failure'), xl('encounter', '', ' ')];
+                                                $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
                                                 $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
                                                 $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;

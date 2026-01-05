@@ -29,6 +29,7 @@ use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class VitalsService extends BaseService
 {
@@ -62,12 +63,12 @@ class VitalsService extends BaseService
         }
     }
 
-    public function setEventDispatcher(EventDispatcher $dispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->dispatcher;
     }

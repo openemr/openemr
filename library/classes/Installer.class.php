@@ -513,7 +513,7 @@ class Installer
          * @var string $v_database
          * @var string $v_acl
          */
-        $version_fields = array_map([$this, 'escapeSql'], [
+        $version_fields = array_map($this->escapeSql(...), [
             'v_major' => $v_major,
             'v_minor' => $v_minor,
             'v_patch' => $v_patch,
@@ -677,7 +677,7 @@ class Installer
             if (!$this->clone_database) {
                 $files = $this->globPattern($destination_directory . "/documents/logs_and_misc/methods/*");
                 if ($files !== false) {
-                    array_map([$this, 'unlinkFile'], $files);
+                    array_map($this->unlinkFile(...), $files);
                 }
             }
         }

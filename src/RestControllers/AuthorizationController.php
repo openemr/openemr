@@ -1011,11 +1011,9 @@ class AuthorizationController
 
     public function getUuidUserAccount($userId): UuidUserAccount
     {
-        if (is_callable($this->uuidUserFactory)) {
-            return call_user_func($this->uuidUserFactory, [$userId]);
-        } else {
-            return new UuidUserAccount($userId);
-        }
+        return is_callable($this->uuidUserFactory)
+            ? ($this->uuidUserFactory)($userId)
+            : new UuidUserAccount($userId);
     }
 
 // ============================================================================
@@ -1223,14 +1221,17 @@ class AuthorizationController
                     CsrfUtils::csrfNotVerified(false, true, false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
-                    $this->saveTrustedUser(
+                    if (!$this->saveTrustedUser(
                         $this->session->get('client_id'),
                         $this->session->get('user_id'),
                         $this->session->get('scopes'),
                         $this->session->get('persist_login'),
                         $code,
                         $session_cache
-                    );
+                    )) {
+                        $this->getSystemLogger()->errorLogCaller("AuthorizationController->authorizeUser() failed to save trusted user session");
+                        throw OAuthServerException::serverError("Failed authorization due to internal server error.");
+                    }
                 }
             } else {
                 if (empty($this->session->get('csrf'))) {
@@ -1421,10 +1422,17 @@ class AuthorizationController
 
     public function saveTrustedUser($clientId, $userId, $scope, $persist, $code = '', $session = '', $grant = 'authorization_code'): bool
     {
-        if ($this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant) !== false) {
+        try {
+            $id = $this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant);
+            if (empty($id)) {
+                $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() failed to save trusted user");
+                return false;
+            }
             return true;
+        } catch (Exception $e) {
+            $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return false;
         }
-        return false;
     }
 
     public function decodeToken($token)

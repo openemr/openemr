@@ -854,4 +854,9 @@ $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 
 EventAuditLogger::instance()->logHttpRequest();
 
+// Warm translation cache if configured
+if (!empty($GLOBALS['translation_preload_cache'])) {
+    xlWarmCache();
+}
+
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

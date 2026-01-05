@@ -198,6 +198,18 @@ function updateSendEmailIdList() {
     }
 }
 
+// Update the "check all" checkbox state based on individual checkbox states
+function updateCheckAllState() {
+    let allCheckboxes = document.querySelectorAll(".check_list");
+    let checkedCheckboxes = document.querySelectorAll(".check_list:checked");
+    let checkAllBox = document.getElementById("check_all");
+    if (checkAllBox) {
+        checkAllBox.checked = (allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length);
+        // Set indeterminate state when some but not all are checked
+        checkAllBox.indeterminate = (checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length);
+    }
+}
+
 $(function () {
   $(":checkbox:checked").each(function () {
       let checkedBox = this;
@@ -205,6 +217,16 @@ $(function () {
           changeLinkHref(selector,checkedBox.checked, checkedBox.value);
       });
   });
+  // Set initial state of "check all" checkbox
+  updateCheckAllState();
+
+  // Auto-print prescription if printPrescriptionId is set (Save and Print workflow)
+  {% if printPrescriptionId %}
+  (function() {
+      let printUrl = "{{ CONTROLLER|e('js') }}prescription&multiprint&id=:{{ printPrescriptionId|e('js') }}:";
+      window.open(printUrl, '_blank');
+  })();
+  {% endif %}
 });
 
 </script>
@@ -309,7 +331,9 @@ $(function () {
                                 <thead>
                                     <tr>
                                     <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->
-                                        <th>&nbsp;</th>
+                                        <th class="text-center">
+                                            <input type="checkbox" id="check_all" title="{{'Check/Uncheck All'|xla}}" />
+                                        </th>
                                         <th>&nbsp;</th>
                                         <th>{{'Drug'|xlt}}</th>
                                         <th>{{'RxNorm'|xlt}}</th>
@@ -345,7 +369,9 @@ $(function () {
                                                 {% else %}
                                                     {{prescription.drug|text}}
                                                 {% endif %}&nbsp;
-                                                <br />{{prescription.note|text}}
+                                                <br />{% if prescription.get_dispensation_count() > 0 %}
+                                                    <span class="badge badge-success mr-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
+                                                {% endif %}{{prescription.note|text}}
                                             </td>
                                         {% else %}
                                             <td>&nbsp;</td>
@@ -355,7 +381,9 @@ $(function () {
                                                 {% else %}
                                                     {{prescription.drug|text}}
                                                 {% endif %}&nbsp;
-                                                <br />{{prescription.note|text}}
+                                                <br />{% if prescription.get_dispensation_count() > 0 %}
+                                                    <span class="badge badge-success mr-1" style="font-size: 0.7em; margin-top: 0.3em; display: inline-block;">{{ 'dispensed'|xlt }}</span>
+                                                {% endif %}{{prescription.note|text}}
                                             </td>
                                         {% endif %}
                                         <td id="{{prescription.id|attr}}">
@@ -453,6 +481,16 @@ $(function () {
 
         });
         updateSendEmailIdList();
+        // Update "check all" checkbox state based on individual checkboxes
+        updateCheckAllState();
+    });
+    // Handle "check all" checkbox in table header
+    $("#check_all").on('click', function() {
+        if (this.checked) {
+            Check(document.presc.check_list);
+        } else {
+            Uncheck(document.presc.check_list);
+        }
     });
     $(".editscript").on("click", function() {
         ShowScript(this);

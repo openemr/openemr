@@ -27,6 +27,7 @@ use OpenEMR\Services\IGlobalsAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 
 class SymfonyCommandRunner
@@ -52,11 +53,11 @@ class SymfonyCommandRunner
         $this->globalsBag = $globalsBag;
     }
 
-    public function setEventDispatcher(EventDispatcher $eventDispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
     }
-    public function getEventDispatcher(): EventDispatcher
+    public function getEventDispatcher(): EventDispatcherInterface
     {
         if (!isset($this->eventDispatcher)) {
             $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();

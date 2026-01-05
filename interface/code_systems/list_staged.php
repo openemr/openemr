@@ -444,7 +444,7 @@ if ($supported_file === 1) {
             }
         }
 
-        if (strlen((string) $action) > 0) {
+        if (strlen($action) > 0) {
             $rf = "rf1";
             if (!empty($rf2)) {
                 $rf = "rf2";

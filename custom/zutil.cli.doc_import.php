@@ -139,21 +139,19 @@ foreach ($docs as $doc) {
         }
         printf('%s - %s%s', text($doc_pathname), (is_numeric($objDoc->get_id()) ? text($objDoc->get_url()) : xlt('Documents setup error')), "\n");
     } else {
-        // Too many parameters for the function make the following setup necessary for readability.
-        $doc_params = [
-            'name' => $doc->getFilename(),
-            'mime_type' => $str_mime,
-            'full_path' => $doc_pathname,
-            'upload_error' => '',
-            'size' => $doc->getSize(),
-            'owner' => $arg['owner'],
-            'patient_id' => $arg['pid'],
-            'category_id' => '1',
-            'higher_level_path' => '',
-            'path_depth' => '1',
-            'skip_acl_check' => true
-        ];
-        $new_doc = call_user_func_array(addNewDocument(...), $doc_params);
+        $new_doc = addNewDocument(
+            name: $doc->getFilename(),
+            type: $str_mime,
+            tmp_name: $doc_pathname,
+            error: '',
+            size: $doc->getSize(),
+            owner: $arg['owner'],
+            patient_id_or_simple_directory: $arg['pid'],
+            category_id: '1',
+            higher_level_path: '',
+            path_depth: '1',
+            skip_acl_check: true,
+        );
         printf('%s - %s%s', text($doc_pathname), (isset($new_doc) ? text($new_doc->get_url()) : xlt('Documents setup error')), "\n");
         if (!$new_doc) {
             die();

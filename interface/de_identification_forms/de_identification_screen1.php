@@ -442,7 +442,7 @@ if (empty($row)) {
         <td><span class="text"><?php echo xlt('Begin Date'); ?></span>
         <input type="text" size="10" class="datepicker" name="begin_date" id="begin_date" value="<?php echo $viewmode ? attr(substr((string) $result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
         </td>
-        <td><span class="text"><?php xl('End Date', 'e'); ?></span>
+        <td><span class="text"><?php echo xl('End Date'); ?></span>
         <input type="text" size="10" class="datepicker" name="end_date" id="end_date" value="<?php echo $viewmode ? attr(substr((string) $result['date'], 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
         </td>
         <td>&nbsp;</td>

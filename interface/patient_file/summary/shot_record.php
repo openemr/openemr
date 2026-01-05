@@ -204,7 +204,7 @@ function printHTML($res, $res2, $data): void
       width: 100%;
     }
   </style>
-  <title><?php xl('Shot Record', 'e'); ?></title>
+  <title><?php echo xl('Shot Record'); ?></title>
   </head>
   <body>
 

@@ -105,7 +105,11 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+                    const params = new URLSearchParams({
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        fileName: zipFiles
+                    });
+                    window.location = 'ajax_download.php?' + params;
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {

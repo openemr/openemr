@@ -85,11 +85,12 @@ jobs:
 
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
         flags: isolated,php${{ matrix.php-version }}
+        report_type: test_results
 
     - name: Hide test results from subsequent uploads
       if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}

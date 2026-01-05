@@ -382,7 +382,7 @@ if (
     if (!$alertmsg && !$from_issue_form && empty($_POST['bn_save_continue'])) {
         // Support custom behavior at save time, such as going to another form.
         if (function_exists($formname . '_save_exit')) {
-            if (call_user_func($formname . '_save_exit')) {
+            if (($formname . '_save_exit')()) {
                 exit;
             }
         }
@@ -580,12 +580,14 @@ if (
             // This is the case of selecting a code for the Fee Sheet:
             if (!current_sel_name) {
                 if (code) {
-                    $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                        '?codetype=' + encodeURIComponent(codetype) +
-                        '&code=' + encodeURIComponent(code) +
-                        '&selector=' + encodeURIComponent(selector) +
-                        '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                        '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: code,
+                codetype: codetype,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
+                selector: selector
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
                 }
                 return '';
             }
@@ -693,8 +695,11 @@ if (
         // TBD: Move this to TabsWrapper.class.php.
         function openLBFEncounterForm(formdir, formname, formid) {
             top.restoreSession();
-            var url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?formname=" ?>' +
-                encodeURIComponent(formdir) + '&id=' + encodeURIComponent(formid);
+            const params = new URLSearchParams({
+                formname: formdir,
+                id: formid
+            });
+            const url = '<?php echo "$rootdir/patient_file/encounter/view_form.php?" ?>' + params;
             parent.twAddFrameTab('enctabs', formname, url);
             return false;
         }
@@ -796,11 +801,13 @@ if (
                 }
                 return;
             }
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                '?codetype=' + encodeURIComponent(a[0]) +
-                '&code=' + encodeURIComponent(a[1]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: a[1],
+                codetype: a[0],
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                pricelevel: f.form_fs_pricelevel.value
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -822,12 +829,14 @@ if (
                 }
                 return;
             }
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                '?codetype=' + encodeURIComponent(a[0]) +
-                '&code=' + encodeURIComponent(a[1]) +
-                '&selector=' + encodeURIComponent(a[2]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: a[1],
+                codetype: a[0],
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                pricelevel: f.form_fs_pricelevel.value,
+                selector: a[2]
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -849,11 +858,13 @@ if (
                 }
                 return;
             }
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                '?codetype=' + encodeURIComponent(a[0]) +
-                '&code=' + encodeURIComponent(a[1]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+            const params = new URLSearchParams({
+                code: a[1],
+                codetype: a[0],
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+            });
+            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to selecting a package of codes.
@@ -861,10 +872,12 @@ if (
             var f = sel.form;
             // The option value is an encoded string of code types and codes.
             if (sel.value) {
-                $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
-                    '?list=' + encodeURIComponent(sel.value) +
-                    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+                const params = new URLSearchParams({
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    list: sel.value,
+                    pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
+                });
+                $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
             }
             sel.selectedIndex = 0;
         }
@@ -892,7 +905,7 @@ if (
         <?php } // end if (isset($fs))
 
         if (function_exists($formname . '_javascript')) {
-            call_user_func($formname . '_javascript');
+            ($formname . '_javascript')();
         }
         ?>
 
@@ -1293,7 +1306,7 @@ if (
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
                         // Append colon only if label does not end with punctuation.
-                        if (!str_contains('?!.,:-=', substr((string) $tmp, -1, 1))) {
+                        if (!str_contains('?!.,:-=', substr($tmp, -1, 1))) {
                             echo ':';
                         }
                     } else {
@@ -1816,7 +1829,7 @@ if (
                                     <?php
                                     if (function_exists($formname . '_additional_buttons')) {
                                         // Allow the plug-in to insert more action buttons here.
-                                        call_user_func($formname . '_additional_buttons');
+                                        ($formname . '_additional_buttons')();
                                     }
 
                                     if ($form_is_graphable) {
@@ -1874,7 +1887,7 @@ if (
                     <?php echo $date_init; ?>
                     <?php
                     if (function_exists($formname . '_javascript_onload')) {
-                        call_user_func($formname . '_javascript_onload');
+                        ($formname . '_javascript_onload')();
                     }
 
                     if ($alertmsg) {

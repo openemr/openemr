@@ -108,8 +108,8 @@ class ContextWidgetController
 
         <div class="context-nav-dropdown" id="context-nav-widget">
             <span class="context-label"><?php echo xlt('Context'); ?>:</span>
-            <select id="nav-context-selector" 
-                    class="form-control form-control-sm context-select" 
+            <select id="nav-context-selector"
+                    class="form-control form-control-sm context-select"
                     <?php echo $canSwitch ? '' : 'disabled'; ?>
                     title="<?php echo xla('Select Care Context'); ?>">
                 <?php foreach ($contexts as $key => $label) : ?>
@@ -128,8 +128,8 @@ class ContextWidgetController
                 <?php endif; ?>
             </select>
             <?php if ($canSwitch) : ?>
-                <button type="button" 
-                        class="btn btn-sm btn-outline-secondary context-settings-btn" 
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary context-settings-btn"
                         id="nav-context-settings"
                         title="<?php echo xla('Configure Widget Visibility'); ?>">
                     <i class="fa fa-cog"></i>
@@ -143,7 +143,7 @@ class ContextWidgetController
         <script>
         (function($) {
             'use strict';
-            
+
             // Navbar Context Controller - lightweight version
             const NavContextController = {
                 config: {
@@ -181,8 +181,52 @@ class ContextWidgetController
 
                 init: function() {
                     this.bindEvents();
-                    // Apply visibility on init
-                    this.applyWidgetVisibility();
+                    // Load and watch for late-loading widgets (loaded after page ready)
+                    this.observeWidgetAdditions();
+                },
+
+                observeWidgetAdditions: function() {
+                    const self = this;
+                    let debounceTimer = null;
+
+                    // Use MutationObserver to detect when new widgets are added to the DOM
+                    // TODO: sjp This is too reliant widget is a card. Address next iteration.
+                    const observer = new MutationObserver(function(mutations) {
+                        let hasNewCards = false;
+
+                        for (const mutation of mutations) {
+                            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                                for (const node of mutation.addedNodes) {
+                                    if (node.nodeType === Node.ELEMENT_NODE) {
+                                        // Check if the added node is a card or contains cards
+                                        if (node.classList && node.classList.contains('card')) {
+                                            hasNewCards = true;
+                                            break;
+                                        }
+                                        if (node.querySelector && node.querySelector('.card')) {
+                                            hasNewCards = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (hasNewCards) break;
+                        }
+
+                        if (hasNewCards) {
+                            clearTimeout(debounceTimer);
+                            debounceTimer = setTimeout(function() {
+                                self.applyWidgetVisibility();
+                            }, 50);
+                        }
+                    });
+
+                    // Observe the main content area for widget additions
+                    const targetNode = document.getElementById('container_div') || document.body;
+                    observer.observe(targetNode, {
+                        childList: true,
+                        subtree: true
+                    });
                 },
 
                 bindEvents: function() {
@@ -613,7 +657,7 @@ class ContextWidgetController
                     $('body').append($alert);
                     setTimeout(function() {
                         $alert.fadeOut(function() { $(this).remove(); });
-                    }, 4000);
+                    }, 3000);
                 },
 
                 escapeHtml: function(text) {
