@@ -94,6 +94,7 @@ class eRxXMLBuilder
 
     public function checkError($xml)
     {
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
         $data = ['RxInput' => $xml];
@@ -101,7 +102,7 @@ class eRxXMLBuilder
         curl_setopt($curlHandler, CURLOPT_URL, $this->getGlobals()->getPath());
         curl_setopt($curlHandler, CURLOPT_POST, 1);
         curl_setopt($curlHandler, CURLOPT_POSTFIELDS, 'RxInput=' . $xml);
-        curl_setopt($curlHandler, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curlHandler, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
         curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($curlHandler, CURLOPT_COOKIESESSION, true);
         curl_setopt($curlHandler, CURLOPT_COOKIEFILE, $sitePath . '/newcrop-cookiefile');

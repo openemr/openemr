@@ -21,8 +21,7 @@ use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use PHPMailer\PHPMailer\Exception;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
@@ -69,10 +68,6 @@ class NotificationEventListener implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param EventDispatcher $eventDispatcher
-     * @return void
-     */
     public function subscribeToEvents(): void
     {
         $this->eventDispatcher->addListener('sendNotification.send', $this->onNotifySendEvent(...));

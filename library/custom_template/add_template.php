@@ -65,12 +65,12 @@ $list_id = $_REQUEST['list_id'];
                 async: false,
                 success: function(thedata){
                         if(thedata=="Fail"){
-                            alert(document.getElementById('template_name').value+" <?php echo addslashes((string) xl('already exists'));?>");
+                            alert(document.getElementById('template_name').value+" <?php echo addslashes(xl('already exists'));?>");
                             return false;
                         }
                         else{
                             mainform.getElementById('templateDD').innerHTML = thedata;
-                            alert("<?php echo addslashes((string) xl('Successfully added category'));?> "+document.getElementById('template_name').value);
+                            alert("<?php echo addslashes(xl('Successfully added category'));?> "+document.getElementById('template_name').value);
                             //window.opener.opener.location.reload();
                             dlgclose();
                         }
@@ -81,11 +81,11 @@ $list_id = $_REQUEST['list_id'];
                 });
                 }
                 else{
-                    alert("<?php echo addslashes((string) xl('You should select at least one context'));?>");
+                    alert("<?php echo addslashes(xl('You should select at least one context'));?>");
                 }
             }
             else{
-                alert("<?php echo addslashes((string) xl('Category name is empty'));?>");
+                alert("<?php echo addslashes(xl('Category name is empty'));?>");
                 return false;
             }
         }
@@ -109,7 +109,7 @@ $list_id = $_REQUEST['list_id'];
                     <input type="text" name="template_name" id="template_name">
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars((string) xl('ADD'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('ADD'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

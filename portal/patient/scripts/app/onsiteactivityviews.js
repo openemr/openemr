@@ -37,19 +37,28 @@ const actpage = {
 
         function showPaymentModal(cpid, recid) {
             let title = 'Patient Online Payment';
+            const urlParams = new URLSearchParams({
+                pid: cpid,
+                recid: recid,
+                user: cuser
+            });
             let params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
                     {text: 'Done', style: 'danger btn-sm', close: true}],
                 onClosed: 'reload',
                 type: 'GET',
-                url: './../portal_payment.php?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser) + '&recid=' + encodeURIComponent(recid)
+                url: './../portal_payment.php?' + urlParams
             };
             dlgopen('', '', 'modal-lg', 625, '', '', params);
         }
 
         function showProfileModal(cpid) {
             let title = 'Profile Edits' + ' ';
+            const urlParams = new URLSearchParams({
+                pid: cpid,
+                user: cuser
+            });
             let params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
@@ -60,20 +69,25 @@ const actpage = {
                 sizeHeight: 'full',
                 allowDrag: false,
                 type: 'GET',
-                url: top.webroot_url + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
+                url: top.webroot_url + '/portal/patient/patientdata?' + urlParams
             };
             dlgopen('', '', 'modal-xl', '', '', title, params);
         }
 
         function showDocumentModal(cpid, recid) {
             let title = 'Audit Document';
+            const urlParams = new URLSearchParams({
+                pid: cpid,
+                recid: recid,
+                user: cuser
+            });
             let params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
                     {text: 'Done', style: 'danger btn-sm', close: true}],
                 sizeHeight: 'full',
                 onClosed: 'reload',
-                url: './onsitedocuments?pid=' + cpid + '&user=' + encodeURIComponent(cuser) + '&recid=' + encodeURIComponent(recid)
+                url: './onsitedocuments?' + urlParams
             };
             dlgopen('', '', 'modal-lg', '', '', '', params);
         }

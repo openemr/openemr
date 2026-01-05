@@ -310,7 +310,7 @@ class GenerateAccessTokenCommand extends Command implements IGlobalsAware
         return $scopes;
     }
 
-    private function saveTrustedUser(Session $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
+    private function saveTrustedUser(SessionInterface $session, AccessTokenEntity $token, ClientEntity $client, array $scopeIdentifiers): void
     {
         // we will save our trusted user
         $trustedUserService = new TrustedUserService();

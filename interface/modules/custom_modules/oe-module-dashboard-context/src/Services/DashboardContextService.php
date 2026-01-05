@@ -69,6 +69,7 @@ class DashboardContextService
         'track_anything_ps_expand' => 'Tracks',
         'patient_portal_expand' => 'Patient Portal / API Access',
         'health_concern_ps_expand' => 'Health Concerns',
+        'medical_device_ps_expand' => 'Medical Devices',
         'immunizations_ps_expand' => 'Immunizations',
     ];
 
@@ -95,6 +96,7 @@ class DashboardContextService
         'recall_ps_expand' => 'card_recalls',
         'appointments_ps_expand' => 'card_appointments',
         'health_concern_ps_expand' => 'card_health_concern',
+        'medical_device_ps_expand' => 'card_medical_device',
         'immunizations_ps_expand' => 'card_immunizations',
     ];
 

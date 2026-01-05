@@ -264,83 +264,27 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getFilters(): array
     {
         return [
-            new TwigFilter(
-                'text',
-                fn($string) => text($string)
-            ),
-            new TwigFilter(
-                'attr',
-                fn($string) => attr($string)
-            ),
-            new TwigFilter(
-                'js_escape',
-                fn($string) => js_escape($string)
-            ),
-            new TwigFilter(
-                'attr_js',
-                fn($string) => attr_js($string)
-            ),
-            new TwigFilter(
-                'attr_url',
-                fn($string) => attr_url($string)
-            ),
-            new TwigFilter(
-                'js_url',
-                fn($string) => js_url($string)
-            ),
-            new TwigFilter(
-                'javascriptStringRemove',
-                fn($string): string => javascriptStringRemove($string)
-            ),
-            new TwigFilter(
-                'xl',
-                fn($string) => xl($string)
-            ),
-            new TwigFilter(
-                'xlt',
-                fn($string) => xlt($string)
-            ),
-            new TwigFilter(
-                'xla',
-                fn($string) => xla($string)
-            ),
-            new TwigFilter(
-                'xlj',
-                fn($string) => xlj($string)
-            ),
-            new TwigFilter(
-                'xls',
-                fn($string) => xls($string)
-            ),
-            new TwigFilter(
-                'money',
-                fn($amount) => oeFormatMoney($amount)
-            ),
-            new TwigFilter(
-                'shortDate',
-                fn($string) => oeFormatShortDate($string)
-            ),
+            new TwigFilter('text', text(...)),
+            new TwigFilter('attr', attr(...)),
+            new TwigFilter('js_escape', js_escape(...)),
+            new TwigFilter('attr_js', attr_js(...)),
+            new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('js_url', js_url(...)),
+            new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
+            new TwigFilter('xl', xl(...)),
+            new TwigFilter('xlt', xlt(...)),
+            new TwigFilter('xla', xla(...)),
+            new TwigFilter('xlj', xlj(...)),
+            new TwigFilter('money', oeFormatMoney(...)),
+            new TwigFilter('shortDate', oeFormatShortDate(...)),
             new TwigFilter(
                 'oeFormatDateTime',
                 fn($string, $formatTime = "global", $seconds = false) => oeFormatDateTime($string, $formatTime, $seconds)
             ),
-            new TwigFilter(
-                'xlLayoutLabel',
-                fn($string) => xl_layout_label($string)
-            ),
-            new TwigFilter(
-                'xlListLabel',
-                fn($string) => xl_list_label($string)
-            ),
-            new TwigFilter(
-                'xlDocCategory',
-                fn($string) => xl_document_category($string)
-            ),
-
-            new TwigFilter(
-                'xlFormTitle',
-                fn($string) => xl_form_title($string)
-            ),
+            new TwigFilter('xlLayoutLabel', xl_layout_label(...)),
+            new TwigFilter('xlListLabel', xl_list_label(...)),
+            new TwigFilter('xlDocCategory', xl_document_category(...)),
+            new TwigFilter('xlFormTitle', xl_form_title(...)),
             // we have some weirdness if we have a date string in the format of YmdHi, it blows things up so we have
             // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
             new TwigFilter(

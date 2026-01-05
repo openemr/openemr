@@ -28,33 +28,4 @@ class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
     {
         return xl($str);
     }
-
-
-    /**
-     * Translates a function and escapes any html rendering it as strictly text.
-     */
-    public function escape($str)
-    {
-        return xlt($str);
-    }
-
-  /**
-   * Translates a function escaping html attribute values
-   * @param string $str
-   * @return string
-   */
-    public function safeAttribute($str)
-    {
-        return xla($str);
-    }
-
-    /**
-   * Language converter
-   * @param string $str
-   * @return string
-   */
-    public function safeJavascript($str)
-    {
-        return xls($str);
-    }
 }
