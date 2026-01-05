@@ -6221,7 +6221,7 @@ function generate_specRx($W)
                           <td class="WMid"><input type="text" class="presbyopia" id="ODMIDADD_<?php echo attr($W); ?>" name="ODMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($ODMIDADD ?? ''); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="ODADD_<?php echo attr($W); ?>" name="ODADD_<?php echo attr($W); ?>" value="<?php echo attr($ODADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0106"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="NEARODVA_<?php echo attr($W); ?>" name="NEARODVA_<?php echo attr($W); ?>" value="<?php echo attr($NEARODVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
+                          <td><input class="jaeger" type="text" id="ODNEARVA_<?php echo attr($W); ?>" name="ODNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($ODNEARVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0110"></td>
 
                           <td name="W_wide"></td>
 
@@ -6245,7 +6245,7 @@ function generate_specRx($W)
                           <td class="WMid"><input type="text" class="presbyopia" id="OSMIDADD_<?php echo attr($W); ?>" name="OSMIDADD_<?php echo attr($W); ?>" value="<?php echo attr($OSMIDADD ?? ''); ?>"></td>
                           <td class="WAdd2"><input type="text" class="presbyopia" id="OSADD_<?php echo attr($W); ?>" name="OSADD_<?php echo attr($W); ?>" value="<?php echo attr($OSADD ?? ''); ?>" tabindex="<?php echo attr($W); ?>0107"></td>
                           <td></td>
-                          <td><input class="jaeger" type="text" id="NEAROSVA_<?php echo attr($W); ?>" name="NEAROSVA_<?php echo attr($W); ?>" value="<?php echo attr($NEAROSVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
+                          <td><input class="jaeger" type="text" id="OSNEARVA_<?php echo attr($W); ?>" name="OSNEARVA_<?php echo attr($W); ?>" value="<?php echo attr($OSNEARVA ?? ''); ?>" tabindex="<?php echo attr($W); ?>0111"></td>
 
                           <td name="W_wide"></td>
 
