@@ -246,7 +246,7 @@ function generate_select_list(
                 (strlen($currvalue ?? '') > 0 && in_array($lrow['option_id'], $selectedValues))
             ) {
                 // Deselect the initial empty option if a real selection is made.
-                if (!$multiple && $_options[0]['value'] === '' && $_options[0]['isSelected']) {
+                if (!$multiple && !empty($options) && $options[0]['value'] === '' && $_options[0]['isSelected']) {
                     $_options[0]['isSelected'] = false;
                 }
                 //  ai gen'ed code ends
