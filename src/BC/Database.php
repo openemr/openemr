@@ -14,7 +14,18 @@ use OpenEMR\Core\OEGlobalsBag;
 use PDO;
 
 /**
- * Transitional wrapper for database operations (see library/sql.inc.php)
+ * Backwards-compatible wrapper for database operations. See
+ * `library/sql.inc.php`.
+ *
+ * DO NOT WRITE CODE THAT INTERACTS WITH THIS CLASS DIRECTLY!
+ *
+ * The aim of this class is to have a way to hook `doctrine/dbal` in to
+ * existing code without changes, replacing connections that are managed with
+ * `ADOdb` and `laminas-db`. For now, continue to use the existing wrappers
+ * (e.g. QueryUtils) for database interactions.
+ *
+ * In the future, the DBAL `Connection` may be made avaible through a DI
+ * container, and/or something like `doctrine/orm` for most interactions.
  */
 class Database
 {
