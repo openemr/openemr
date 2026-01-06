@@ -15620,19 +15620,11 @@ parameters:
       identifier: variable.undefined
       count: 2
       path: ../portal/add_edit_event_user.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 3
-      path: ../portal/add_edit_event_user.php
     - message: '#^Variable \$starttime might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../portal/add_edit_event_user.php
     - message: '#^Variable \$providerid might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/find_appt_popup_user.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../portal/find_appt_popup_user.php
@@ -15657,10 +15649,6 @@ parameters:
       count: 1
       path: ../portal/get_medications.php
     - message: '#^Variable \$pid might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/get_patient_documents.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../portal/get_patient_documents.php
@@ -15704,10 +15692,6 @@ parameters:
       identifier: variable.undefined
       count: 8
       path: ../portal/home.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 2
-      path: ../portal/home.php
     - message: '#^Variable \$defaultLangID might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -15736,14 +15720,6 @@ parameters:
       identifier: variable.undefined
       count: 3
       path: ../portal/index.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 2
-      path: ../portal/lib/doc_lib.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/lib/patient_groups.php
     - message: '#^Variable \$ccaudit might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -15764,10 +15740,6 @@ parameters:
       identifier: empty.variable
       count: 1
       path: ../portal/messaging/handle_note.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/messaging/handle_note.php
     - message: '#^Variable \$pid might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -15779,10 +15751,6 @@ parameters:
     - message: '#^Variable \$resultusers on left side of \?\? always exists and is not nullable\.$#'
       identifier: nullCoalesce.variable
       count: 1
-      path: ../portal/messaging/messages.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 3
       path: ../portal/messaging/messages.php
     - message: '#^Instantiated class OpenEMR\\PatientPortal\\Chat\\ChatController not found\.$#'
       identifier: class.notFound
@@ -16024,18 +15992,10 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../portal/portal_payment.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 5
-      path: ../portal/portal_payment.php
     - message: '#^Variable \$v_js_includes might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../portal/portal_payment.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/report/document_downloads_action.php
     - message: '#^Variable \$adj_amt might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -16071,10 +16031,6 @@ parameters:
     - message: '#^Variable \$prevIssueType might not be defined\.$#'
       identifier: variable.undefined
       count: 1
-      path: ../portal/report/portal_custom_report.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 8
       path: ../portal/report/portal_custom_report.php
     - message: '#^Variable \$tmp_files_remove might not be defined\.$#'
       identifier: variable.undefined
