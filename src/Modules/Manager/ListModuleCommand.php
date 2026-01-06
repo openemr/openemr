@@ -32,6 +32,7 @@ class ListModuleCommand extends Command
     {
         $installed = $this->manager->getAvailableModules();
         $table = new Table($output);
+        // Future: module version, capabilities (CLI, API, DB, etc)
         $table->setHeaders(['Name', 'Active']);
         foreach ($installed as $module) {
             $table->addRow([
