@@ -164,6 +164,7 @@
             "library/classes"
         ],
         "files": [
+            "bootstrap_functions.php",
             "library/htmlspecialchars.inc.php",
             "library/formdata.inc.php",
             "library/sanitize.inc.php",

@@ -30,17 +30,6 @@ foreach ($mm->getEnabledModules() as $moduleInfo) {
 }
 print_r($commandMap);
 
-/**
- * @param class-string $commandClass
- */
-function readCommandName(string $commandClass): string
-{
-    $rc = new ReflectionClass($commandClass);
-    $attrs = $rc->getAttributes(AsCommand::class);
-    assert(count($attrs) === 1);
-    $info = $attrs[0]->newInstance();
-    return $info->name;
-}
 
 $loader = new ContainerCommandLoader($container, $commandMap);
 
