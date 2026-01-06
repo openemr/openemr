@@ -14,6 +14,7 @@
 namespace OpenEMR\Modules\Manager;
 
 return [
-    ManagerInterface::class => ModuleManager::class,
+    ManagerInterface::class => CachingModuleManager::class,
     ModuleManager::class,
+    CachingModuleManager::class => fn ($c) => new CachingModuleManager($c->get(ModuleManager::class)),
 ];

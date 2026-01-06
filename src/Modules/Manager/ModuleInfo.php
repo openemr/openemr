@@ -36,4 +36,14 @@ readonly class ModuleInfo
     {
         return $this->entrypoint::getConfigFiles();
     }
+
+    /**
+     * for var_export in CachingModuleManager
+     * @internal
+     */
+    public static function __set_state(array $data): ModuleInfo
+    {
+        // TODO: Is this actully stable?
+        return new ModuleInfo(...$data);
+    }
 }
