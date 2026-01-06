@@ -38,6 +38,7 @@ require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(__DIR__ . "/ADODB_mysqli_log.php");
 
+use Doctrine\DBAL\Exception as DBALException;
 use OpenEMR\Common\Database\QueryUtils;
 
 if (!defined('ADODB_FETCH_ASSOC')) {
@@ -361,33 +362,23 @@ function sqlInsert($statement, $binds = false)
 */
 function sqlQuery($statement, $binds = false)
 {
-    if ($binds === false) { $binds = []; }
-
-    return \OpenEMR\BC\Database::instance()
-        ->fetchOneRow($statement, $binds);
-
-
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
+    if ($binds === false) {
+        $binds = [];
     }
 
-    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
-
-    if ($recordset === false) {
-        HelpfulDie("query failed: $statement", getSqlLastError());
+    try {
+        $row = \OpenEMR\BC\Database::instance()
+            ->fetchOneRow($statement, $binds);
+    } catch (DBALException $e) {
+        HelpfulDie("query failed: $statement", $e->getMessage());
     }
 
-    if ($recordset->EOF) {
+    if ($row === null) {
+        // Match existing API
         return false;
     }
 
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
+    return $row;
 }
 
 /**
