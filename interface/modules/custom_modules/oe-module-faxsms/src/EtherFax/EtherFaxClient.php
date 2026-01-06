@@ -159,14 +159,16 @@ class EtherFaxClient
     }
 
     /**
-     * @param $number
-     * @param $file
-     * @param $pages
-     * @param $localId
-     * @param $callerId
-     * @param $tag
-     * @param $tz
+     * @param      $number
+     * @param      $file
+     * @param      $pages
+     * @param null $localId
+     * @param null $callerId
+     * @param null $tag
+     * @param null $isDocument
+     * @param null $fileName
      * @return FaxStatus
+     * @throws \Exception
      */
     public function sendFax($number, $file, $pages, $localId = null, $callerId = null, $tag = null, $isDocument = null, $fileName = null): FaxStatus
     {
@@ -183,6 +185,8 @@ class EtherFaxClient
             // is content of document
             $data = $file;
         }
+        $faxImage = base64_encode((string) $data);
+
         //use server timezone
         if (empty($tz)) {
             $now = new DateTime();
@@ -195,7 +199,7 @@ class EtherFaxClient
         // create post array/items
         $post = [
             'DialNumber' => $number,
-            'FaxImage' => base64_encode((string) $data),
+            'FaxImage' => $faxImage,
             'TotalPages' => $pages,
             'TimeZoneOffset' => $tz
         ];
@@ -210,7 +214,7 @@ class EtherFaxClient
             $post['Tag'] = $tag;
         }
         $DocumentParams = new \stdClass();
-        $DocumentParams->Name = $fileName ?? 'Unknown';
+        $DocumentParams->Name = $fileName;
         $post['DocumentParams'] = $DocumentParams;
 
         $post['HeaderString'] = "  {date:d-MMM-yyyy}  {time}   FROM: {csid}  TO: {number}   P. {page}";
@@ -224,6 +228,7 @@ class EtherFaxClient
             // This will have an error 'Message' in response.
             $status->set(json_decode($response));
         }
+        $status->set(['FaxImage'=>$faxImage]);
 
         return $status;
     }
@@ -235,6 +240,7 @@ class EtherFaxClient
      * @param            $url
      * @param array|null $post
      * @return bool|string
+     * @throws \Exception
      */
     private function clientHttpPost($url, ?array $post = null): bool|string
     {

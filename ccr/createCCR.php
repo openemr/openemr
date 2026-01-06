@@ -391,7 +391,7 @@ if ($_POST['ccrAction']) {
     if (str_starts_with((string) $raw, "send")) {
         $send_to = trim(stripslashes(substr((string) $raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
-            echo(htmlspecialchars((string) xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
+            echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
 

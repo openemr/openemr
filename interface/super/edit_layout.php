@@ -291,7 +291,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
 
     if ($add && !$column_exists) {
         sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -322,7 +322,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                     "ALTER TABLE `" . escape_table_name($tablename) . "` " .
                     "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
                 );
-                EventAuditLogger::instance()->newEvent(
+                EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
                     $_SESSION['authUser'],
                     $_SESSION['authProvider'],
@@ -376,7 +376,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     }
     $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "alter_table",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -1380,11 +1380,13 @@ function setListItemOptions(lino, seq, init) {
   // OK, list item IDs do apply so go get 'em.
   // This happens asynchronously so the generated code needs to stand alone.
   f[target].style.display = '';
-  $.getScript('layout_listitems_ajax.php' +
-    '?listid='  + encodeURIComponent(list_id) +
-    '&target='  + encodeURIComponent(target)  +
-    '&current=' + encodeURIComponent(current) +
-    '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>);
+  const params = new URLSearchParams({
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+    current: current,
+    listid: list_id,
+    target: target
+  });
+  $.getScript('layout_listitems_ajax.php?' + params);
 }
 
 // This is called whenever a condition's field ID selection is changed.
@@ -1396,7 +1398,11 @@ function cidChanged(lino, seq) {
 // This invokes the popup to edit layout properties or add a new layout.
 function edit_layout_props(groupid) {
  var title = <?php echo xlj('Layout Properties');?>;
- dlgopen('edit_layout_props.php?layout_id=' + <?php echo js_url($layout_id); ?> + '&group_id=' + encodeURIComponent(groupid),
+ const params = new URLSearchParams({
+   group_id: groupid,
+   layout_id: <?php echo js_escape($layout_id); ?>
+ });
+ dlgopen('edit_layout_props.php?' + params,
   '_blank', 775, 550, "", title);
 }
 
@@ -2219,9 +2225,14 @@ $(function () {
 
 function layoutLook(){
     var form = <?php echo js_escape($layout_id);?>;
-    var btnName = <?php echo xlj('Back To Editor');?>;
-    var url = "../patient_file/encounter/view_form.php?isShow&id=0&formname=" + encodeURIComponent(form);
-    var title = <?php echo xlj('LBF Encounter Form Preview');?>;
+    const btnName = <?php echo xlj('Back To Editor');?>;
+    const params = new URLSearchParams({
+        formname: form,
+        id: '0',
+        isShow: ''
+    });
+    const url = "../patient_file/encounter/view_form.php?" + params;
+    const title = <?php echo xlj('LBF Encounter Form Preview');?>;
     dlgopen(url, '_blank', 1250, 800, "", title);
     return false;
 }

@@ -26,7 +26,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
     public function getEventAuditLogger(): EventAuditLogger
     {
         if (!isset($this->eventAuditLogger)) {
-            $this->eventAuditLogger = EventAuditLogger::instance();
+            $this->eventAuditLogger = EventAuditLogger::getInstance();
         }
         return $this->eventAuditLogger;
     }

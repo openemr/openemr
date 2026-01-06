@@ -63,7 +63,7 @@ if (!empty($_POST['confirm'])) {
         );
     }
     // log the event
-    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
+    EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";

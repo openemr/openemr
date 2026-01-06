@@ -538,9 +538,12 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                     return;
                 }
 
-                let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                    + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    client_id: clientId,
+                    csrf_token: csrfToken,
+                    intent: intent
+                });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
@@ -571,16 +574,22 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                         dlgclose();
                         window.top.removeEventListener('message', windowMessageHandler);
                         // loadFrame already handles webroot and /interface/ prefix.
-                        let editUrl = '/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/edit/" + data.dsiId)
-                            + "&csrf_token=" + encodeURIComponent(csrfToken);
+                        const editParams = new URLSearchParams({
+                            csrf_token: csrfToken,
+                            action: "external-cdr/edit/" + data.dsiId
+                        });
+                        let editUrl = '/smart/admin-client.php?' + editParams;
                         window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                     }
                 };
                 window.top.addEventListener('message', windowMessageHandler);
 
-                let url = webroot + '/interface/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/cdr-info")
-                    + '&serviceId=' + encodeURIComponent(dsi)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    action: "external-cdr/cdr-info",
+                    csrf_token: csrfToken,
+                    serviceId: dsi
+                });
+                let url = webroot + '/interface/smart/admin-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here

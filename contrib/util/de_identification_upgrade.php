@@ -211,12 +211,12 @@ function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")
  {
-  alert("<?php echo xls('Enter Database root Username');?>");
+  alert(<?php echo xlj('Enter Database root Username');?>);
   return false;
  }
  /*if(document.forms[0].root_user_pass.value == "")
  {
-  alert("<?php echo xls('Enter Database root Password');?>");
+  alert(<?php echo xlj('Enter Database root Password');?>);
   return false;
  }*/
  return true;
