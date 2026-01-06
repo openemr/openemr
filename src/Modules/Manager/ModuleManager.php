@@ -73,7 +73,7 @@ class ModuleManager implements ManagerInterface
                 packageName: $pkg,
                 entrypoint: $ep,
                 // TODO: actually read the activation status
-                isActive: false,
+                isActive: true,
             );
         }
         return $modules;
