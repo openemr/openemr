@@ -187,6 +187,12 @@ describe('jsPDF Integration', () => {
     });
 });
 
+describe('Sanity Check - This Should Fail', () => {
+    test('intentionally failing test to verify CI catches failures', () => {
+        expect(1 + 1).toBe(3);
+    });
+});
+
 describe('jsPDF Version Upgrade Compatibility', () => {
     /**
      * These tests document the jsPDF APIs used by OpenEMR.
