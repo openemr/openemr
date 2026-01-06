@@ -55,6 +55,9 @@ try {
             // NOTE: This loads the full OpenEMR framework on each probe request.
             // For high-frequency probes, a lighter bootstrap path that only
             // initializes the database connection could improve performance.
+            //
+            // Skip authentication - health checks must work without a session
+            $ignoreAuth = true;
             require_once __DIR__ . "/../../interface/globals.php";
 
             // Run full health checks
