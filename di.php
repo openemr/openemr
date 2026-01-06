@@ -2,20 +2,27 @@
 
 declare(strict_types=1);
 
-use Firehed\Container\AutoDetect;
+use Firehed\Container\Builder;
+use Firehed\Container\Compiler;
 use Psr\Container\ContainerInterface;
-// use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-use OpenEMR\Modules\Manager\ListModulesCommand;
-use OpenEMR\Modules\Manager\ModuleFinder;
+// TODO: builder/compiler swap on env (assuming we use _this_ DI tooling)
+$builder = new Compiler('vendor/di_container.php');
+$files = glob('config/*.php');
+if ($files === false) {
+    throw new RuntimeException('Could not read config directory');
+}
+foreach ($files as $file) {
+    $builder->addFile($file);
+}
 
-// $container = new ContainerBuilder();
-// $container->setAutoconfigured(true);
-// $container->autowire(ListModulesCommand::class, ListModulesCommand::class);
-// $container->autowire(ModuleFinder::class, ModuleFinder::class);
-// TODO: add defs.
-// $container->compile();
-// assert($container instanceof ContainerInterface);
-// return $container;
-putenv('ENVIRONMENT=development');
-return AutoDetect::instance('config');
+// Modules can define their own DI-related config; wire it in to the main
+// container rather than doing something wacky like giving each module its own
+// DI subsystem.
+foreach (getModuleManager()->getEnabledModules() as $moduleInfo) {
+    foreach ($moduleInfo->getConfigFiles() as $file) {
+        $builder->addFile($file);
+    }
+}
+
+return $builder->build();
