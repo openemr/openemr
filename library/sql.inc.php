@@ -370,7 +370,7 @@ function sqlQuery($statement, $binds = false)
         $row = \OpenEMR\BC\Database::instance()
             ->fetchOneRow($statement, $binds);
     } catch (DBALException $e) {
-        HelpfulDie("query failed: $statement", $e->getMessage());
+        HelpfulDieDbal($e);
     }
 
     if ($row === null) {
@@ -379,6 +379,22 @@ function sqlQuery($statement, $binds = false)
     }
 
     return $row;
+}
+
+function HelpfulDieDbal(DBALException $e): never
+{
+    $sql = $e->getQuery()->getSQL();
+    $sqlInfo = $e->getMessage();
+    while ($inner = $e->getPrevious()) {
+        $e = $inner;
+    }
+    if ($e instanceof PDOException) {
+        $info = $e->errorInfo;
+        if ($info !== null) {
+            $sqlInfo = $info[2];
+        }
+    }
+    HelpfulDie("query failed: $sql", $sqlInfo);
 }
 
 /**
