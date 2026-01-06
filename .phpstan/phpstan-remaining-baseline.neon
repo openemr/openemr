@@ -8512,14 +8512,6 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
-    - message: '#^Variable \$json_diags might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
-    - message: '#^Variable \$json_procs might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
     - message: '#^Variable \$req_encounter might not be defined\.$#'
       identifier: variable.undefined
       count: 5
@@ -8532,10 +8524,6 @@ parameters:
       identifier: variable.undefined
       count: 2
       path: ../interface/forms/fee_sheet/review/fee_sheet_ajax.php
-    - message: '#^Variable \$srcdir might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../interface/forms/fee_sheet/review/fee_sheet_classes.php
     - message: '#^Variable \$billing_id might not be defined\.$#'
       identifier: variable.undefined
       count: 1
@@ -14356,22 +14344,6 @@ parameters:
       identifier: isset.variable
       count: 1
       path: ../library/appointments.inc.php
-    - message: '#^Access to undefined constant procedure\:\:DIALYSIS_SERVICE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Access to undefined constant procedure\:\:INFLU_VACCINE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Access to undefined constant procedure\:\:PNEUMOCOCCAL_VACCINE\.$#'
-      identifier: classConstant.notFound
-      count: 1
-      path: ../library/classes/ClinicalTypes/codes.php
-    - message: '#^Class procedure referenced with incorrect case\: Procedure\.$#'
-      identifier: class.nameCase
-      count: 3
-      path: ../library/classes/ClinicalTypes/codes.php
     - message: '#^Variable \$inline_arg might not be defined\.$#'
       identifier: variable.undefined
       count: 1

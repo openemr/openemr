@@ -14,6 +14,7 @@ require_once("../../../globals.php");
 require_once("fee_sheet_queries.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
@@ -64,7 +65,7 @@ if ($task == 'update') {
     }
 
     foreach ($json_diags as $diag) {
-        $new_diag = new code_info($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
+        $new_diag = new CodeInfo($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
         if (isset($diag->{'prob_id'})) {
             $new_diag->db_id = $diag->{'prob_id'};
         } else {
