@@ -17,7 +17,7 @@ if (!(function_exists('xlWarmCache'))) {
 if (!(function_exists('xl'))) {
     /**
      * Translation function - the translation engine for OpenEMR
-     * 
+     *
      * Translates a given constant string into the current session language.
      * Note: In some installation scenarios this function may already be declared,
      * so we check to ensure it hasn't been declared yet.
@@ -99,7 +99,7 @@ if (!(function_exists('xl'))) {
 //
 /**
  * Conditionally translates list labels based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_lists'] is set to true.
  * Added 5-09 by BM.
  *
@@ -113,7 +113,7 @@ function xl_list_label($constant)
 
 /**
  * Conditionally translates layout labels based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_layout'] is set to true.
  * Added 5-09 by BM.
  *
@@ -127,7 +127,7 @@ function xl_layout_label($constant)
 
 /**
  * Conditionally translates access control group labels based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_gacl_groups'] is set to true.
  * Added 6-2009 by BM.
  *
@@ -141,7 +141,7 @@ function xl_gacl_group($constant)
 
 /**
  * Conditionally translates patient form (notes) titles based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_form_titles'] is set to true.
  * Added 6-2009 by BM.
  *
@@ -155,7 +155,7 @@ function xl_form_title($constant)
 
 /**
  * Conditionally translates document categories based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_document_categories'] is set to true.
  * Added 6-2009 by BM.
  *
@@ -169,7 +169,7 @@ function xl_document_category($constant)
 
 /**
  * Conditionally translates appointment categories based on global setting
- * 
+ *
  * Only translates if $GLOBALS['translate_appt_categories'] is set to true.
  * Added 6-2009 by BM.
  *

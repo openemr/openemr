@@ -12,6 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
+$globalsBag = OEGlobalsBag::getInstance(true);
+$web_root = $globalsBag->getString('web_root');
+$assets_static_relative = $globalsBag->getString('assets_static_relative');
+$v_js_includes = $globalsBag->get('v_js_includes');
 ?>
 <!DOCTYPE html>
 <html>
@@ -24,23 +30,23 @@
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" rel="stylesheet" />
+<script src="<?php echo $assets_static_relative; ?>/jquery/dist/jquery.min.js"></script>
+<link href="<?php echo $assets_static_relative; ?>/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
+<link href="<?php echo $assets_static_relative; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" rel="stylesheet" />
 <?php if ($this->register) {?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="<?php echo $assets_static_relative; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="<?php echo $assets_static_relative; ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <?php } ?>
 
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js"></script>
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $assets_static_relative; ?>/moment/moment.js"></script>
+<script src="<?php echo $assets_static_relative; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script src="<?php echo $assets_static_relative; ?>/underscore/underscore-min.js"></script>
+<script src="<?php echo $assets_static_relative; ?>/backbone/backbone-min.js"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>"></script>
 <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script>
 $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
 </script>

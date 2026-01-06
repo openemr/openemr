@@ -11,7 +11,6 @@
  */
 
 require_once("../../../globals.php");
-require_once("fee_sheet_classes.php");
 require_once("fee_sheet_search_queries.php");
 
 use OpenEMR\Common\Acl\AclMain;

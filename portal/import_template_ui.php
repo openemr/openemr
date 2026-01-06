@@ -12,23 +12,28 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 
 // Service
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');
@@ -190,7 +195,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();

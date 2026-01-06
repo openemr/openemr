@@ -191,7 +191,7 @@ try {
             'Authorization' => 'Bearer token'
         ]
     ]);
-    
+
     $data = json_decode($response->getBody()->getContents(), true);
 } catch (GuzzleException $e) {
     // handle error with proper exception

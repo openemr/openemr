@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `mod_claimrev_eligibility`(
     ,`last_checked` datetime default NULL
     ,`create_date` datetime default NULL
     ,`raw271` LONGTEXT
-); 
+);
 
 #IfNotColumnType mod_claimrev_eligibility response_json LONGTEXT
 ALTER TABLE `mod_claimrev_eligibility` CHANGE `response_json` `response_json` LONGTEXT;
@@ -29,8 +29,8 @@ ALTER TABLE `mod_claimrev_eligibility` CHANGE `individual_json` `individual_json
 #IfNotColumnType mod_claimrev_eligibility raw271 LONGTEXT
 ALTER TABLE `mod_claimrev_eligibility` CHANGE `raw271` `raw271` LONGTEXT;
 #EndIf
-  
-  
+
+
 -- Add the background service for sending claims
 #IfNotRow background_services name ClaimRev_Send
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
@@ -46,4 +46,3 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('ClaimRev_Elig_Send_Receive', 'Send and Receive Eligibility from ClaimRev', 1, 0, '2017-05-09 17:39:10', 1, 'start_send_eligibility', '/interface/modules/custom_modules/oe-module-claimrev-connect/src/Eligibility_ClaimRev_Service.php', 100);
 #Endif
-

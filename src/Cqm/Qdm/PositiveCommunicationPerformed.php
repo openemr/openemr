@@ -26,4 +26,3 @@ class PositiveCommunicationPerformed extends CommunicationPerformed
 
     public $_type = 'QDM::PositiveCommunicationPerformed';
 }
-

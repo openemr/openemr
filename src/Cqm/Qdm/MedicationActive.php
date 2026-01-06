@@ -71,4 +71,3 @@ class MedicationActive extends QDMBaseType
 
     public $_type = 'QDM::MedicationActive';
 }
-

@@ -26,4 +26,3 @@ class NegativePhysicalExamOrder extends PhysicalExamOrder
 
     public $_type = 'QDM::NegativePhysicalExamOrder';
 }
-

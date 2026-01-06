@@ -285,7 +285,7 @@ class Phreezer extends Observable
 
     // if the object hasn't changed at level 1, then supress the cache update
         $obj = $this->_level1Cache->Get($objectclass . "_" . $id);
-        if ($obj && $obj->serialize() == $val->serialize()) {
+        if ($obj && serialize($obj) == serialize($val)) {
             $this->Observe("TYPE='$objectclass' ID='$id' level 1 cache has not changed.  SetCache was supressed", OBSERVE_DEBUG);
             return false;
         }
@@ -857,7 +857,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          the type of object
-* @return KeyMap object
+* @return KeyMap|null
 */
     public function GetPrimaryKeyMap($objectclass)
     {
@@ -867,6 +867,7 @@ class Phreezer extends Observable
                 return $fm;
             }
         }
+        return null;
     }
 
 /**

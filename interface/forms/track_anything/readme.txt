@@ -15,4 +15,3 @@ If some Tracks are configured...
 * select "Track anything"
 * select the desired track
 * enter your data
-

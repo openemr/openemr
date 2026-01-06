@@ -25,6 +25,13 @@
 
 //namespace OnsitePortal;
 
+use OpenEMR\Core\OEGlobalsBag;
+
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
+
 require_once("verify_session.php");
 require_once("./../library/report.inc.php");
 require_once("./../library/options.inc.php");
@@ -93,7 +100,7 @@ $N = 7;
             </div>
         </div>
     </div>
-    <?php if ($GLOBALS['show_insurance_in_profile']) { ?>
+    <?php if ($globalsBag->get('show_insurance_in_profile')) { ?>
     <div class='insurance table-sm table-responsive'>
         <div class="card">
             <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance'); ?></header>

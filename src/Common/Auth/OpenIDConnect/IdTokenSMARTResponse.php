@@ -107,7 +107,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         return $response;
     }
 
-    protected function getExtraParams(AccessTokenEntityInterface $accessToken)
+    protected function getExtraParams(AccessTokenEntityInterface $accessToken): array
     {
         $extraParams = parent::getExtraParams($accessToken);
 

@@ -456,6 +456,7 @@ class VerySimpleStringUtil
             $h = "&#" . $h . ";";
             return $h;
         }
+        return $c;
     }
 
     /**
