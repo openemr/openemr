@@ -15,11 +15,13 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag->set('already_autoloaded', true);
 SessionUtil::portalSessionStart();
 
 //landing page definition -- where to go if something goes wrong
@@ -39,6 +41,9 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
+$web_root = $globalsBag->getString('web_root');
+
+$srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/pnotes.inc.php");
@@ -49,9 +54,9 @@ require_once("$srcdir/report.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/../../custom/code_types.inc.php");
-require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
-require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+require_once("$srcdir/ESign/Api.php");
+require_once("{$globalsBag->getString("include_root")}/orders/single_order_results.inc.php");
+require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
@@ -64,7 +69,7 @@ $staged_docs = [];
 $archive_name = '';
 
 // For those who care that this is the patient report.
-$GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
+$globalsBag->set('PATIENT_REPORT_ACTIVE', true);
 
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
@@ -204,14 +209,14 @@ input[type="radio"] {
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
-<script src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
+<link rel="stylesheet" href="<?php echo $web_root ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
+<script src="<?php echo $web_root?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
     <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
 <script>var $j = '$';</script>
 
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
- <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>">
+ <link rel="stylesheet" href="<?php echo $web_root?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>">
     <?php  } ?>
 
 <script>
@@ -531,7 +536,7 @@ if ($printable) {
     }
 
   /******************************************************************/
-    $db = $GLOBALS['adodb']['db'];
+    $db = $globalsBag->get('adodb', [])['db'];
     $results = $db->Execute($sql);
     $facility = [];
     if (!$results->EOF) {
@@ -696,7 +701,7 @@ foreach ($ar as $key => $val) {
                 $result = sqlStatement($sql, [$pid]);
             while ($row = sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
-                if ($GLOBALS['use_custom_immun_list']) {
+                if ($globalsBag->get('use_custom_immun_list')) {
                      $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {
@@ -792,7 +797,7 @@ foreach ($ar as $key => $val) {
                         $tempDocC->onReturnRetrieveKey();
                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
-                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                        $from_file_tmp_web_name = tempnam($globalsBag->getString('OE_SITE_DIR') . '/documents/temp', "oer");
                         file_put_contents($from_file_tmp_web_name, $fileTemp);
                         echo "<img src='$from_file_tmp_web_name'";
                         // Flag images with excessive width for possible stylesheet action.
@@ -803,7 +808,7 @@ foreach ($ar as $key => $val) {
                         $tmp_files_remove[] = $from_file_tmp_web_name;
                         echo " /><br /><br />";
                     } else {
-                        echo "<img src='" . $GLOBALS['webroot'] .
+                        echo "<img src='" . $globalsBag->getString('webroot') .
                             "/controller.php?document&retrieve&patient_id=&document_id=" .
                             attr_url($document_id) . "&as_file=false'><br /><br />";
                     }
@@ -820,7 +825,7 @@ foreach ($ar as $key => $val) {
                             $tempDocC->onReturnRetrieveKey();
                             $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                             // tmp file in temporary_files_dir
-                            $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                            $from_file_tmp_name = tempnam($globalsBag->getString('temporary_files_dir'), "oer");
                             file_put_contents($from_file_tmp_name, $pdfTemp);
 
                             $pagecount = $pdf->setSourceFile($from_file_tmp_name);
@@ -834,7 +839,7 @@ foreach ($ar as $key => $val) {
                             // regardless, we're here so lets dispose in different way.
                             //
                             unlink($from_file_tmp_name);
-                            $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
+                            $archive_name = ($globalsBag->getString('temporary_files_dir') . '/' . report_basename($pid)['base'] . ".zip");
                             $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp);
                             $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                             $pdf->writeHTML($err);
@@ -857,12 +862,12 @@ foreach ($ar as $key => $val) {
                             $tempDocC->onReturnRetrieveKey();
                             $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
-                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                            $from_file_tmp_web_name = tempnam($globalsBag->getString('OE_SITE_DIR') . '/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
                             echo "<img src='$from_file_tmp_web_name'><br /><br />";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
                         } else {
-                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                            echo "<img src='" . $globalsBag->getString('webroot') . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                         }
                     }
                 } // end if-else
@@ -1053,7 +1058,7 @@ if ($PDF_OUTPUT) {
 
                 unlink($archive_name);
             } else {
-                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                $pdf->Output($fn, $globalsBag->get('pdf_output')); // D = Download, I = Inline
             }
         } catch (Exception $exception) {
             die(text($exception));

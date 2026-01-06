@@ -412,7 +412,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $ownerContact = $contactService->getForEntity($foreign_table, $foreign_id);
             if ($ownerContact) {
                 $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
-                $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+                $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
                 // For each relationship, get addresses and telecoms
                 foreach ($relatedPersonRecords as $record) {
                     // Get target person's contact record

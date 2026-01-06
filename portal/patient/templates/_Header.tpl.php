@@ -13,7 +13,12 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$globalsBag = OEGlobalsBag::getInstance(true);
+$assets_static_relative = $globalsBag->getString('assets_static_relative');
+$web_root = $globalsBag->getString('web_root');
+$v_js_includes = $globalsBag->get('v_js_includes');
 ?>
 <!DOCTYPE html>
 <html>
@@ -30,14 +35,14 @@ use OpenEMR\Core\Header;
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
         <meta name="description" content="Patient Portal" />
         <meta name="author" content="Form | sjpadgett@gmail.com" />
-        <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+        <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script>
-            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+            $LAB.script("<?php echo $assets_static_relative; ?>/moment/moment.js")
+                .script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js").wait()
+                .script("<?php echo $assets_static_relative; ?>/backbone/backbone-min.js")
+                .script("<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>")
+                .script("<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>").wait()
+                .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait()
         </script>
     </head>
 
