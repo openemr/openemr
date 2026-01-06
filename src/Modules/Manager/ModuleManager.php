@@ -72,6 +72,7 @@ class ModuleManager implements ManagerInterface
             $modules[$pkg] = new ModuleInfo(
                 packageName: $pkg,
                 entrypoint: $ep,
+                // TODO: actually read the activation status
                 isActive: false,
             );
         }
@@ -83,7 +84,6 @@ class ModuleManager implements ManagerInterface
         return new ModuleInfo(
             packageName: self::MODULE_MANAGER_NAME,
             entrypoint: Module::class,
-            // TODO: actually read the activation status
             isActive: true,
         );
     }
