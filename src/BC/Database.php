@@ -55,7 +55,7 @@ class Database
      * go through this backwards-compatibility layer.
      */
     private function __construct(
-        private Connection $connection,
+        private readonly Connection $connection,
     ) {
     }
 
