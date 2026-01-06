@@ -3,36 +3,29 @@
 
 declare(strict_types=1);
 
-use Psr\Container\ContainerInterface;
-use OpenEMR\Modules\Manager\ManagerInterface;
 use Symfony\Component\Console\{
     Application,
-    Attribute\AsCommand,
     CommandLoader\ContainerCommandLoader,
 };
 
 require_once __DIR__ . '/../bootstrap.php';
 
-// load DI container
-// TODO: figure out how to ensure that module classes get autowired correctly
-// This may require writing data to a config file at module enable time
-// depending on the DI container used.
-$container = require 'di.php';
-assert($container instanceof ContainerInterface);
-
+// Set up CLI commands through the lazy-loaded ContainerCommandLoader.
 $commandMap = [];
-$mm = $container->get(ManagerInterface::class);
-assert($mm instanceof ManagerInterface);
+
+$mm = getModuleManager();
 foreach ($mm->getEnabledModules() as $moduleInfo) {
     foreach ($moduleInfo->getCliCommands() as $commandClass) {
         $commandMap[readCommandName($commandClass)] = $commandClass;
     }
 }
-print_r($commandMap);
 
+
+$container = require 'di.php';
 
 $loader = new ContainerCommandLoader($container, $commandMap);
 
 $application = new Application();
+// Future: add specific library-bundled commands here?
 $application->setCommandLoader($loader);
 $application->run();
