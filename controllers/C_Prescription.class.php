@@ -649,7 +649,7 @@ class C_Prescription extends Controller
         echo ("}\n");
         echo ("</style>\n");
 
-        echo ("<title>" . xl('Prescription') . "</title>\n");
+        echo ("<title>" . xlt('Prescription') . "</title>\n");
         echo ("</head>\n");
         echo ("<body>\n");
     }
@@ -706,8 +706,8 @@ class C_Prescription extends Controller
     function multiprintcss_footer()
     {
         echo ("<div class='signdiv'>\n");
-        echo (xl('Signature') . ":________________________________<br />");
-        echo (xl('Date') . ": " . date('Y-m-d'));
+        echo (xlt('Signature') . ":________________________________<br />");
+        echo (xlt('Date') . ": " . text(date('Y-m-d')));
         echo ("</div>\n");
         echo ("</div>\n");
     }

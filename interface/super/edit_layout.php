@@ -291,7 +291,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
 
     if ($add && !$column_exists) {
         sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -322,7 +322,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                     "ALTER TABLE `" . escape_table_name($tablename) . "` " .
                     "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
                 );
-                EventAuditLogger::instance()->newEvent(
+                EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
                     $_SESSION['authUser'],
                     $_SESSION['authProvider'],
@@ -376,7 +376,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     }
     $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "alter_table",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

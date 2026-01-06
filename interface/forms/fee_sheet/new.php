@@ -514,7 +514,7 @@ if (isset($_POST['form_checksum'])) {
     if ($_POST['form_checksum'] != $current_checksum) {
         $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
         $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "checksum",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],

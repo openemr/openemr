@@ -83,7 +83,7 @@ class ApplicationTable extends AbstractTableGateway
          * Logging, if the $log is true
          */
         if ($log) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;

@@ -100,7 +100,7 @@ class AuthorizationListener implements EventSubscriberInterface
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
             // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
             $serverConfig = new ServerConfig();
-            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy($this->getGlobalsBag(), EventAuditLogger::instance(), $this->getLogger());
+            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy($this->getGlobalsBag(), EventAuditLogger::getInstance(), $this->getLogger());
             $bearerTokenAuthorizationStrategy->setPublicKey($serverConfig->getPublicRestKey());
             $this->addAuthorizationStrategy($bearerTokenAuthorizationStrategy);
         }

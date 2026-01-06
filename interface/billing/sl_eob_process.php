@@ -841,7 +841,7 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
     <?php echo xlt('Amount'); ?>&nbsp;
       </td>
       <td class="dehead" align="right">
-    <?php echo xl('Balance'); ?>&nbsp;
+    <?php echo xlt('Balance'); ?>&nbsp;
       </td>
      </tr>
 

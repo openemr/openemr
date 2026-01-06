@@ -121,7 +121,7 @@ if (count($missingExtensions) > 0) {
 
         if (count($errors) > 0) {
             ?>
-        <strong><?php echo xlt('NewCrop call failed'); ?></strong>
+        <strong><?php echo xlt('Ensora call failed'); ?></strong>
         <ul>
             <?php foreach ($errors as $message) {
                 echo '<li>' . text($message) . '</li>';

@@ -287,7 +287,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],
