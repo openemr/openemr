@@ -381,6 +381,11 @@ function sqlQuery($statement, $binds = false)
     return $row;
 }
 
+
+/**
+ * Mimics the behavior from ADOdb connections when errors occur on the
+ * doctrine/dbal path through the BC wrapper.
+ */
 function HelpfulDieDbal(DBALException $e): never
 {
     $sql = $e->getQuery()->getSQL();
