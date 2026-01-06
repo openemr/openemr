@@ -43,7 +43,6 @@ class Database
     {
         if (self::$instance === null) {
             $params = self::readLegacyConfig();
-            error_log(print_r($params, true));
             $connection = DriverManager::getConnection($params);
             self::$instance = new self($connection);
         }
@@ -63,7 +62,6 @@ class Database
     private static function readLegacyConfig(): array
     {
         $bag = OEGlobalsBag::getInstance(true);
-        // require __DIR__ . '/../../library/sqlconf.php';
         $sqlconf = $bag->get('sqlconf');
         if (empty($sqlconf)) {
             throw new LogicException(
