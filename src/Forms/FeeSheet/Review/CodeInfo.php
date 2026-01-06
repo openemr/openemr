@@ -3,6 +3,7 @@
 /**
  * CodeInfo - encapsulation of code, code_type and description representing a code
  *
+ * @package   OpenEMR
  * @link      https://open-emr.org/
  * @link      https://opencoreemr.com/
  * @author    Kevin Yeh <kevin.y@integralemr.com>
