@@ -92,7 +92,10 @@ if ($task == 'add_diags') {
             $proc->justify,
             $proc->modifiers,
             $proc->units,
-            0
+            /** ai generated code by google-labs-jules starts */
+            $proc->mod_size, // mod_size
+            $proc->ndc_info ?? '' // ndc_info
+            /** ai generated code by google-labs-jules end */
         ),
         $json_procs
     );

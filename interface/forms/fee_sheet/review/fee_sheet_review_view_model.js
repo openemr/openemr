@@ -31,6 +31,9 @@ function procedure(json_source) {
     retval.fee = ko.observable(json_source.fee);
     retval.modifiers = ko.observable(json_source.modifiers);
     retval.units = ko.observable(json_source.units);
+    /** ai generated code by google-labs-jules starts */
+    retval.ndc_info = ko.observable(json_source.ndc_info);
+    /** ai generated code by google-labs-jules end */
     retval.mod_size = ko.observable(json_source.mod_size);
     retval.justify = ko.observableArray();
     if (json_source.justify !== null) {
@@ -81,6 +84,10 @@ function procedure(json_source) {
         json_return.fee = this.fee();
         json_return.modifiers = this.modifiers();
         json_return.units = this.units();
+        /** ai generated code by google-labs-jules starts */
+        json_return.ndc_info = this.ndc_info();
+        json_return.mod_size = this.mod_size();
+        /** ai generated code by google-labs-jules end */
         json_return.justify = this.genJustify();
         return json_return;
     }
