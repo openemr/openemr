@@ -2,6 +2,8 @@
 
 /** @package    verysimple::Phreeze */
 
+require_once("SerializableTrait.php");
+
 /**
  * Phreezable Class
  *
@@ -13,8 +15,9 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.3
  */
-abstract class Phreezable implements Serializable
+abstract class Phreezable
 {
+    use SerializableTrait;
     private $_cache =  [];
     protected $_phreezer;
     protected $_val_errors =  [];
@@ -136,31 +139,6 @@ abstract class Phreezable implements Serializable
     }
 
     /**
-     * When serializing, make sure that we ommit certain properties that
-     * should never be cached or serialized.
-     */
-    function serialize()
-    {
-        $propvals =  [];
-        $ro = new ReflectionObject($this);
-
-        foreach ($ro->getProperties() as $rp) {
-            $propname = $rp->getName();
-
-            if (! in_array($propname, self::$NoCacheProperties)) {
-                if (method_exists($rp, "setAccessible")) {
-                    $propvals [$propname] = $rp->getValue($this);
-                } elseif (! $rp->isPrivate()) {
-                    // if < php 5.3 we can't serialize private vars
-                    $propvals [$propname] = $rp->getValue($this);
-                }
-            }
-        }
-
-        return serialize($propvals);
-    }
-
-    /**
      *
      * @deprecated use ToObject
      */
@@ -206,30 +184,6 @@ abstract class Phreezable implements Serializable
         }
 
         return $obj;
-    }
-
-    /**
-     * Reload the object when it awakes from serialization
-     *
-     * @param
-     *          $data
-     */
-    function unserialize($data)
-    {
-        $propvals = unserialize($data);
-        $ro = new ReflectionObject($this);
-
-        foreach ($ro->getProperties() as $rp) {
-            $propname = $rp->name;
-            if (array_key_exists($propname, $propvals)) {
-                if (method_exists($rp, "setAccessible")) {
-                    $rp->setValue($this, $propvals [$propname]);
-                } elseif (! $rp->isPrivate()) {
-                    // if < php 5.3 we can't serialize private vars
-                    $rp->setValue($this, $propvals [$propname]);
-                }
-            }
-        }
     }
 
     /**
@@ -785,10 +739,4 @@ abstract class Phreezable implements Serializable
     {
         throw new Exception("Unknown property: $key");
     }
-
-    function __serialize()
-    {}
-
-    function __unserialize($data)
-    {}
 }
