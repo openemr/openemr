@@ -182,7 +182,7 @@ class FormROS extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function __construct($id = "", $_prefix = "")
+    function __construct($id = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
