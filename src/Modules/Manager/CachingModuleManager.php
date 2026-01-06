@@ -54,5 +54,5 @@ class CachingModuleManager implements ManagerInterface
         }
     }
 
-    private const CACHE_FILE = 'module_status.php';
+    private const CACHE_FILE = 'vendor/module_status.php';
 }
