@@ -127,7 +127,7 @@ class FeeSheetClassesTest extends TestCase
             '25',
             1,
             2,
-            ''
+            '0703-0243-01'
         );
 
         $this->assertEquals('99213', $procedure->code);
@@ -138,6 +138,7 @@ class FeeSheetClassesTest extends TestCase
         $this->assertEquals('25', $procedure->modifiers);
         $this->assertEquals(1, $procedure->units);
         $this->assertEquals(2, $procedure->mod_size);
+        $this->assertEquals('0703-0243-01', $procedure->ndc_info);
         $this->assertTrue($procedure->selected);
     }
 
@@ -172,13 +173,13 @@ class FeeSheetClassesTest extends TestCase
             '25',
             1,
             2,
-            ''
+            '0703-0243-01'
         );
         $params = ['existing'];
 
         $procedure->addProcParameters($params);
 
-        $this->assertEquals(['existing', '25', 1, 75.00, 'ICD10:A01.0'], $params);
+        $this->assertEquals(['existing', '25', 1, 75.00, '0703-0243-01', 'ICD10:A01.0'], $params);
     }
 
     public function testEncounterInfoConstruction(): void
