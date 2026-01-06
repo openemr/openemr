@@ -38,6 +38,8 @@ require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(__DIR__ . "/ADODB_mysqli_log.php");
 
+use OpenEMR\Common\Database\QueryUtils;
+
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
 }
@@ -622,9 +624,9 @@ function HelpfulDie($statement, $sqlerr = ''): never
 *
 * @return integer
 */
-function generate_id()
+function generate_id(): int
 {
-    return \OpenEMR\BC\Database::instance()->generateSequentialId('sequences');
+    return QueryUtils::generateId();
 }
 
 /**
