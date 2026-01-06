@@ -12,7 +12,7 @@ class WenoValidate extends ModuleService
     private string $userEmail;
     private string $md5UserPassword;
     private mixed $encryptionKey;
-    private Client $client;
+    private readonly Client $client;
 
     public function __construct()
     {
@@ -158,8 +158,8 @@ class WenoValidate extends ModuleService
             }
 
             $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
-            return ($response !== false && !empty($newKey)) ? trim($newKey) : false;
-        } catch (\Exception $e) {
+            return ($response !== false && !empty($newKey)) ? trim((string) $newKey) : false;
+        } catch (\Exception) {
             // Handle Exception
             return false;
         }
@@ -200,7 +200,7 @@ class WenoValidate extends ModuleService
                 $valid = (strtolower($valid) === 'true') || ($valid == '1') && !empty($valid);
             }
             return $valid;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
@@ -225,8 +225,8 @@ class WenoValidate extends ModuleService
                 // more escaping hell!
                 $xmlContent = html_entity_decode($result);
                 $xmlContent = preg_replace('/<string[^>]*>/', '', $xmlContent);
-                $xmlContent = preg_replace('/<\/string>/', '', $xmlContent);
-                $result = simplexml_load_string($xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
+                $xmlContent = preg_replace('/<\/string>/', '', (string) $xmlContent);
+                $result = simplexml_load_string((string) $xmlContent, 'SimpleXMLElement', LIBXML_NOCDATA);
                 $result = json_decode(json_encode($result), true); // make associative array.
                 return $result ?: [];
             } else {

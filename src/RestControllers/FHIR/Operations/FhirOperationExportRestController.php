@@ -3,10 +3,13 @@
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
@@ -17,17 +20,19 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\RestControllers\FHIR\Operations\InvalidExportHeaderException;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\FhirGroupService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\DateSearchField;
-use OpenEMR\Services\Search\SearchFieldComparableValue;
+use OpenEMR\Services\SessionAwareInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 
 class FhirOperationExportRestController
 {
@@ -61,14 +66,9 @@ class FhirOperationExportRestController
     const FHIR_DOCUMENT_CATEGORY = 'FHIR Export Document';
 
     /**
-     * @var HttpRestRequest The current http request object
-     */
-    private $request;
-
-    /**
      * @var LoggerInterface
      */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var IFhirExportableResourceService[] hashmap of resources to service classes that can be exported
@@ -76,16 +76,37 @@ class FhirOperationExportRestController
     private $resourceRegistry;
 
     /**
-     * @var
+     * @var bool
      */
-    private $isExportDisabled;
+    private readonly bool $isExportDisabled;
 
-    public function __construct(HttpRestRequest $request)
-    {
-        $this->request = $request;
+    private readonly FhirExportJobService $fhirExportJobService;
+
+    private readonly FhirServiceLocator $fhirServiceLocator;
+
+    /**
+     * @var OEGlobalsBag The OEGlobalsBag instance that holds global configuration values.
+     */
+    private readonly OEGlobalsBag $globalsBag;
+
+
+    /**
+     * @param HttpRestRequest $request The current http request object
+     * @param OEGlobalsBag $globalsBag
+     */
+    public function __construct(
+        private readonly HttpRestRequest $request,
+        OEGlobalsBag $globalsBag
+    ) {
         $this->logger = new SystemLogger();
         $this->fhirExportJobService = new FhirExportJobService();
-        $this->isExportDisabled = !($this->request->getRestConfig()::areSystemScopesEnabled());
+        $this->isExportDisabled = $globalsBag->getInt('rest_system_scopes_api', 0) === 0;
+        $serviceLocator = $this->request->attributes->get('_serviceLocator');
+        if (!$serviceLocator instanceof FhirServiceLocator) {
+            throw new \InvalidArgumentException('FhirServiceLocator must be set in the request attributes');
+        }
+        $this->fhirServiceLocator = $serviceLocator;
+        $this->globalsBag = $globalsBag;
     }
 
     /**
@@ -113,9 +134,9 @@ class FhirOperationExportRestController
         }
         $type = $exportParams['type'] ?? '';
         $groupId = $exportParams['groupId'] ?? null;
-        $resources = !empty($type) ? explode(",", $type) : [];
+        $resources = !empty($type) ? explode(",", (string) $type) : [];
 
-        $this->logger->debug("FhirExportRestController->processExport() Patient export call made", [
+        $this->logger->debug(self::class . " Patient export call made", [
             '_outputFormat' => $outputFormat,
             '_since' => $since,
             '_type' => $type,
@@ -152,8 +173,16 @@ class FhirOperationExportRestController
 
             $completedJob = $this->processResourceExportForJob($job);
             $response = $response->withAddedHeader("Content-Location", $completedJob->getStatusReportURL());
-        } catch (AccessDeniedException $exception) {
+        } catch (\InvalidArgumentException $exception) {
+            $this->logger->error(
+                "FhirExportRestController->processExport() invalid request",
+                ['exception' => $exception->getMessage()]
+            );
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
+            $operationOutcome = $this->createOperationOutcomeError($exception->getMessage());
+            $response->getBody()->write(json_encode($operationOutcome) );
+        } catch (AccessDeniedException $exception) {
+            $response = $this->createResponseForCode(StatusCode::UNAUTHORIZED);
             $operationOutcome = $this->createOperationOutcomeError($exception->getMessage());
             $response->getBody()->write(json_encode($operationOutcome));
         } catch (InvalidExportHeaderException $header) {
@@ -221,8 +250,8 @@ class FhirOperationExportRestController
                 "FhirExportRestController->processExport() invalid request",
                 ['jobUuid' => $jobUuidString, 'exception' => $exception->getMessage()]
             );
-            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
-            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was invalid"));
+            $response = $this->createResponseForCode(StatusCode::NOT_FOUND);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
             $response->getBody()->write(json_encode($operationOutcome));
             return $response;
         } catch (\Exception $exception) {
@@ -269,18 +298,24 @@ class FhirOperationExportRestController
             }
             $this->fhirExportJobService->deleteJob($job);
             $response = (new Psr17Factory())->createResponse(StatusCode::ACCEPTED);
-        } catch (\InvalidArgumentException $ex) {
+        } catch (\InvalidArgumentException) {
             $this->logger->error(
                 "FhirExportRestController->processDeleteExportForJob failed to delete job for nonexistant job id",
                 ['job' => $jobUuidString]
             );
-            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+            $response = $this->createResponseForCode(StatusCode::NOT_FOUND);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
+            $response->getBody()->write(json_encode($operationOutcome));
+            return $response;
         } catch (\Exception $ex) {
             $this->logger->error(
                 "FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
                 ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
             );
-            return (new Psr17Factory())->createResponse(StatusCode::NOT_FOUND);
+            $response = $this->createResponseForCode(StatusCode::INTERNAL_SERVER_ERROR);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted failed to delete"));
+            $response->getBody()->write(json_encode($operationOutcome));
+            return $response;
         }
 
         return $response;
@@ -321,7 +356,7 @@ class FhirOperationExportRestController
             }
             // if we've reached our shutdown point, every subsequent resource we just fail immediately
             if ($shutdownImminent) {
-                $this->errorResult[] = $this->getExportTimeoutExportError($resource);
+                $errorResult[] = $this->getExportTimeoutExportError();
                 continue;
             }
 
@@ -332,21 +367,26 @@ class FhirOperationExportRestController
             $lastResourceIdExported = null;
             try {
                 $service = $this->getExportServiceForResource($resource);
+                $this->populateServiceWithDependencies($service, $this->request, $this->globalsBag);
+                // make sure our service is session aware so it can get user context if needed
+                if ($service instanceof SessionAwareInterface) {
+                    $service->setSession($this->request->getSession());
+                }
                 // this could be a file pointer, or whatever else we wanted to be able to handle this
                 // for now we assume that OpenEMR data can all fit inside memory per resource.... if that changes
                 // we should be able to rewrite just a little bit of this to be more efficient.
                 $exportWriter = new ExportMemoryStreamWriter($shutdownTime);
                 $service->export($exportWriter, $jobForResource, $lastResourceIdExported);
-
+                $contents = $exportWriter->getContents();
                 // we are grabbing the contents to write out to our document
-                $output = $this->createOutputResultForData($jobForResource, $resource, $exportWriter->getContents());
+                $output = $this->createOutputResultForData($jobForResource, $resource, $contents);
                 $this->logger->debug("FhirExportRestController->processResourceExportForJob() resource outputted", [
                     'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
                 ]);
             } catch (ExportWillShutdownException $exception) {
                 // we ran out of time and need to mark everything as failed
                 $shutdownImminent = true;
-                $errorOutcome = $this->getExportTimeoutExportError($resource);
+                $errorOutcome = $this->getExportTimeoutExportError();
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
                 $this->logger->error("FhirExportRestController->processResourceExportForJob() Export reached "
                     . "maximum execution time.", [
@@ -475,13 +515,17 @@ class FhirOperationExportRestController
 
     /**
      * Checks if the passed in resource is valid and can be exported as part of this request.
-     * @param $resource The name of the resource to check
+     * @param $resource string The name of the resource to check
      * @param $exportType string The export operation type that is being requested.
+     * @throws AccessDeniedException if the resource is not valid or the user does not have access to it.
      * @return bool true if the resource can be exported, false otherwise.
      */
     private function isValidResource($resource, $exportType)
     {
-        $this->request->getRestConfig()::scope_check('system', $resource, 'read');
+        $scope = 'system/' . $resource . '.read';
+        if (!$this->request->requestHasScope($scope)) {
+            throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
+        }
         $resourceRegistry = $this->getExportServiceRegistry();
         $service = $resourceRegistry[$resource] ?? null;
         if (isset($service)) {
@@ -506,7 +550,7 @@ class FhirOperationExportRestController
      * @param array $resources
      * @return array
      */
-    private function getResourcesForRequest($resources = array())
+    private function getResourcesForRequest($resources = [])
     {
         // TODO: if we start adding a bunch more FHIR resources and need to filter for just the patient compartment we could do that here
         $approvedResources = [];
@@ -530,13 +574,14 @@ class FhirOperationExportRestController
             }
         }
         if (empty($approvedResources)) {
-            throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does grant access to any supported system resources');
+            throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does not grant access to any supported system resources');
         }
         return $approvedResources;
     }
 
     /**
      * Checks if the current user agent has access to the resource.
+     * TODO: @adunsulag we need to write tests cases for these methods.
      * @param $resource The resource being checked
      * @return bool true if the user agent has access, false otherwise
      */
@@ -544,7 +589,7 @@ class FhirOperationExportRestController
     {
 
         $permission = 'system/' . $resource . '.read';
-        $hasAccess = \in_array($permission, $this->request->getAccessTokenScopes());
+        $hasAccess = $this->request->requestHasScope($permission);
         $this->logger->debug(
             "FhirExportRestController->hasAccessToResource() Checking resource access",
             ['permission' => $permission, 'hasAccess' => $hasAccess]
@@ -561,12 +606,11 @@ class FhirOperationExportRestController
         if (!empty($this->resourceRegistry)) {
             return $this->resourceRegistry;
         }
-        $restConfig = $this->request->getRestConfig();
-        $serviceLocator = new FhirExportServiceLocator($restConfig);
+        $serviceLocator = new FhirExportServiceLocator($this->fhirServiceLocator);
         $this->resourceRegistry = $serviceLocator->findExportServices();
         // TODO: @adunsulag is there a better way to handle this... because Provenance uses its own service locator and we need the rest config...
         if (isset($this->resourceRegistry['Provenance'])) {
-            $this->resourceRegistry['Provenance']->setServiceLocator(new FhirServiceLocator($restConfig));
+            $this->resourceRegistry['Provenance']->setServiceLocator($this->fhirServiceLocator);
         }
         return $this->resourceRegistry;
     }
@@ -643,6 +687,20 @@ class FhirOperationExportRestController
             return $value->getStartDate();
         } else {
             throw new \InvalidArgumentException("Invalid date format for _since parameter");
+        }
+    }
+
+    protected function populateServiceWithDependencies(IFhirExportableResourceService $service, HttpRestRequest $request, OEGlobalsBag $globalsBag)
+    {
+        if ($service instanceof SessionAwareInterface) {
+            $service->setSession($request->getSession());
+        }
+        if ($service instanceof IGlobalsAware) {
+            $service->setGlobalsBag($globalsBag);
+        }
+        // would be better if this was an interface... but we'll run with it for now
+        if ($service instanceof FhirServiceBase) {
+            $service->setSystemLogger($this->logger);
         }
     }
 }

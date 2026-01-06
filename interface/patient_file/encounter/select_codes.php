@@ -103,8 +103,8 @@ if (!empty($codetype)) {
                     }
                 },
                 initComplete: function () {
-                    // const input = $('.dataTables_filter input').unbind(),
-                        const self = this.api(),
+                     const input = $('.dataTables_filter input').unbind(),
+                        self = this.api(),
                         $searchButton = $('<button class="btn btn-sm btn-outline-primary fa fa-search p-2">').click(function () {
                             event.preventDefault();
                             event.stopPropagation();
@@ -114,6 +114,13 @@ if (!empty($codetype)) {
                         .click(function () {
                             input.val('');
                         });
+                    // Enter key handler for the search input
+                    input.on('keypress', function (e) {
+                        if (e.which === 13) { // Enter key
+                            e.preventDefault();
+                            self.search(input.val()).draw();
+                        }
+                    });
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
             });

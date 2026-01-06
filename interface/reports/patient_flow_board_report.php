@@ -64,10 +64,10 @@ $provider  = $_POST['form_provider'] ?? null;
 $facility  = $_POST['form_facility'] ?? null;  #(CHEMED) facility filter
 $form_orderby = (!empty($_POST['form_orderby']) && getComparisonOrder($_POST['form_orderby'])) ?  $_POST['form_orderby'] : 'date';
 if (!empty($_POST["form_patient"])) {
-    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+    $form_patient = $_POST['form_patient'] ?? '';
 }
 
-$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+$form_pid = $_POST['form_pid'] ?? '';
 if (empty($form_patient)) {
     $form_pid = '';
 }
@@ -211,7 +211,7 @@ if (empty($form_patient)) {
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), ($_POST['form_apptstatus'] ?? ''));?></td>
+                <td><?php generate_form_field(['data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'], ($_POST['form_apptstatus'] ?? ''));?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -464,7 +464,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         # Get the tracker elements.
         $tracker_elements = collect_Tracker_Elements($tracker_id);
         # $j is incremented for a patient that made it for display.
-        $j = $j + 1;
+        $j += 1;
         ?>
 
     <tr bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>
@@ -503,10 +503,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             ?>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text(substr($newarrive, 11)) ?>
+        <td class="detail">&nbsp;<?php echo text(substr((string) $newarrive, 11)) ?>
         </td>
 
-        <td class="detail">&nbsp;<?php echo text(substr($newend, 11)) ?>
+        <td class="detail">&nbsp;<?php echo text(substr((string) $newend, 11)) ?>
         </td>
 
             <?php if ($no_visit != 1) { ?>
@@ -546,10 +546,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     <?php
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
                         ?>
-             <td class="detail"><b>&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
+             <td class="detail"><b>&nbsp;<?php echo text(substr((string) $tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
                         <?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr((string) $tracker_elements[$i]['start_datetime'], 11)); ?></td>
                         <?php # figure out the next time of the status
                     }
 
@@ -565,15 +565,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     }
 
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
-                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td><?php
+                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td><?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td>
                         <?php # compute the total time of the status
                     }
 
                     $tracker_time = get_Tracker_Time_Interval($start_tracker_time, $next_tracker_time);
                 # add code to alert if over time interval for status
-                    $timecheck = round(abs(strtotime($start_tracker_time) -  strtotime($next_tracker_time)) / 60, 0);
+                    $timecheck = round(abs(strtotime((string) $start_tracker_time) -  strtotime((string) $next_tracker_time)) / 60, 0);
                     if ($timecheck > $alert_time && ($alert_time != '0')) {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
  <td class="detail font-weight-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php

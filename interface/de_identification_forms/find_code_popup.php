@@ -186,10 +186,10 @@ if ($codetype) {
         "dt.selector LIKE ? ) " .
         "AND d.drug_id = dt.drug_id " .
         "ORDER BY d.name, dt.selector, dt.drug_id";
-        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
+        $res = sqlStatement($query, ['%' . $search_term . '%', '%' . $search_term . '%']);
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
-            $row_count = $row_count + 1;
+            $row_count += 1;
             $drug_id = $row['drug_id'];
             $selector = $row['selector'];
             $desc = $row['name'];
@@ -200,7 +200,7 @@ if ($codetype) {
         $query = "SELECT count(*) as count FROM codes " .
         "WHERE (code_text LIKE ? OR " .
         "code LIKE ?) " ;
-        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
+        $res = sqlStatement($query, ['%' . $search_term . '%', '%' . $search_term . '%']);
         if ($row = sqlFetchArray($res)) {
             $no_of_items = $row['count'];
             if ($no_of_items < 1) {
@@ -218,12 +218,12 @@ if ($codetype) {
             "code LIKE ?) " .
             "ORDER BY code";
           // echo "\n<!-- $query -->\n"; // debugging
-            $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
+            $res = sqlStatement($query, ['%' . $search_term . '%', '%' . $search_term . '%']);
             $row_count = 0;
             while ($row = sqlFetchArray($res)) {
-                $row_count = $row_count + 1;
+                $row_count += 1;
                 $itercode = $row['code'];
-                $itertext = ucfirst(strtolower(trim($row['code_text'])));
+                $itertext = ucfirst(strtolower(trim((string) $row['code_text'])));
                 ?>
                  <input type="checkbox" id="chkbox" value= "<?php echo attr($form_code_type) . ":" . attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
             }

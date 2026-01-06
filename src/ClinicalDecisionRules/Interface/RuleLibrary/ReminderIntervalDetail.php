@@ -22,40 +22,19 @@ class ReminderIntervalDetail
 {
     /**
      *
-     * @var ReminderIntervalType
-     */
-    var $intervalType;
-    /**
-     *
-     * @var ReminderIntervalRange
-     */
-    var $intervalRange;
-    var $amount;
-    /**
-     *
-     * @var TimeUnit
-     */
-    var $timeUnit;
-
-    /**
-     *
-     * @param ReminderIntervalType $type
-     * @param ReminderIntervalRange $range
+     * @param ReminderIntervalType $intervalType
+     * @param ReminderIntervalRange $intervalRange
      * @param integer $amount
-     * @param TimeUnit $unit
+     * @param TimeUnit $timeUnit
      */
-    function __construct($type, $range, $amount, $unit)
+    function __construct(public $intervalType, public $intervalRange, public $amount, public $timeUnit)
     {
-        $this->intervalType = $type;
-        $this->intervalRange = $range;
-        $this->amount = $amount;
-        $this->timeUnit = $unit;
     }
 
     function display()
     {
         $display = xl($this->intervalRange->lbl) . ": "
-            . xl($this->amount) . " " . xl($this->timeUnit->lbl);
+            . $this->amount . " " . xl($this->timeUnit->lbl);
         return $display;
     }
 }

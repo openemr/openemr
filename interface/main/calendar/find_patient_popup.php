@@ -27,7 +27,7 @@ $info_msg = "";
 $result = "";
 if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
     $searchby = $_REQUEST['searchby'];
-    $searchparm = trim($_REQUEST['searchparm']);
+    $searchparm = trim((string) $_REQUEST['searchparm']);
 
     if ($searchby == "Last") {
         $result = getPatientLnames("$searchparm", "*");
@@ -162,7 +162,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
                 <a class="noresult" href='find_patient_popup.php?res=noresult'
                     <?php
-                    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', array('write', 'addonly')))) {
+                    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly']))) {
                         ?> style="display: none;"
                         <?php
                     }

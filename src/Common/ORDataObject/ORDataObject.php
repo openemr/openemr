@@ -66,32 +66,35 @@ class ORDataObject
         foreach ($fields as $field) {
             $func = "get_" . $field;
             //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
-            if (is_callable(array($this,$func))) {
-                $val = call_user_func(array($this,$func));
+            if (is_callable([$this, $func])) {
+                $val = $this->$func();
 
-                if (in_array($field, $pkeys)  && empty($val)) {
-                    $last_id = generate_id();
-                    call_user_func(array(&$this,"set_" . $field), $last_id);
+                if (in_array($field, $pkeys) && empty($val)) {
+                    $last_id = QueryUtils::generateId();
+                    $this->{"set_" . $field}($last_id);
                     $val = $last_id;
                 }
+                // Normalize before deciding to persist
+                if ($val instanceof \DateTime) {
+                    // we are storing up to the second in precision, if we need to store fractional seconds
+                    // that will be more complicated as the mysql datetime needs to specify the decimal seconds
+                    // that can be stored
+                    $val = $val->format("Y-m-d H:i:s");
+                } elseif (is_bool($val)) {
+                    // Ensure boolean false doesn't get treated as empty
+                    $val = $val ? 1 : 0;
+                }
 
-                // TODO: This fails to save any numeric column with a value of 0, such as a status with 0/1 being
-                // false/true, we should change this but we will need to heavily test it.
-                if (!empty($val)) {
-                    if ($val instanceof \DateTime) {
-                        // we are storing up to the second in precision, if we need to store fractional seconds
-                        // that will be more complicated as the mysql datetime needs to specify the decimal seconds
-                        // that can be stored
-                        $val = $val->format("Y-m-d H:i:s");
-                    }
+                // Persist if not NULL and not an empty string (''); allow 0/'0'/false(->0)
+                if ($val !== null && !(is_string($val) && $val === '')) {
                     //echo "s: $field to: $val <br />";
 
-                                        //modified 01-2010 by BGM to centralize to formdata.inc.php
-                            // have place several debug statements to allow standardized testing over next several months
+                    //modified 01-2010 by BGM to centralize to formdata.inc.php
+                    // have place several debug statements to allow standardized testing over next several months
                     $setClause .= " `" . $field . "` = '" . add_escape_custom(strval($val)) . "',";
-                        //DEBUG LINE - error_log("ORDataObject persist after escape: ".add_escape_custom(strval($val)), 0);
-                        //DEBUG LINE - error_log("ORDataObject persist after escape and then stripslashes test: ".stripslashes(add_escape_custom(strval($val))), 0);
-                        //DEBUG LINE - error_log("ORDataObject original before the escape and then stripslashes test: ".strval($val), 0);
+                    //DEBUG LINE - error_log("ORDataObject persist after escape: ".add_escape_custom(strval($val)), 0);
+                    //DEBUG LINE - error_log("ORDataObject persist after escape and then stripslashes test: ".stripslashes(add_escape_custom(strval($val))), 0);
+                    //DEBUG LINE - error_log("ORDataObject original before the escape and then stripslashes test: ".strval($val), 0);
                 }
             }
         }
@@ -122,10 +125,10 @@ class ORDataObject
             foreach ($results as $field_name => $field) {
                 $func = "set_" . $field_name;
                 //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br />";
-                if (is_callable(array($this,$func))) {
+                if (is_callable([$this, $func])) {
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func(array(&$this,$func), $field);
+                        $this->$func($field);
                     }
                 }
             }
@@ -138,7 +141,7 @@ class ORDataObject
         foreach ($fields as $field) {
             $func = "get_" . $field;
             if (is_callable([$this, $func])) {
-                $val = call_user_func([$this, $func]);
+                $val = $this->$func();
                 $values[$field] = $val;
             }
         }
@@ -159,8 +162,8 @@ class ORDataObject
      * Helper function that loads enumerations from the data as an array, this is also efficient
      * because it uses psuedo-class variables so that it doesnt have to do database work for each instance
      *
-     * @param string $field_name name of the enumeration in this objects table
-     * @param boolean $blank optional value to include a empty element at position 0, default is true
+     * @param string  $field_name name of the enumeration in this objects table
+     * @param boolean $blank      optional value to include a empty element at position 0, default is true
      * @return array array of values as name to index pairs found in the db enumeration of this field
      */
     protected function _load_enum($field_name, $blank = true)
@@ -190,7 +193,7 @@ class ORDataObject
 
                 array_unshift($enum, " ");
 
-               //keep indexing consistent whether or not a blank is present
+                //keep indexing consistent whether or not a blank is present
                 if (!$blank) {
                     unset($enum[0]);
                 }
@@ -205,7 +208,7 @@ class ORDataObject
 
     public function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
     {
-        $ar = array();
+        $ar = [];
         if ($blank) {
             $ar[0] = " ";
         }

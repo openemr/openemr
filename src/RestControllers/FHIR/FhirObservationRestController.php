@@ -17,6 +17,9 @@ use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
+/**
+ * @deprecated use FhirGenericRestController
+ */
 class FhirObservationRestController
 {
     private $fhirObservationService;
@@ -50,8 +53,8 @@ class FhirObservationRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirObservationService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        $bundleEntries = [];
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult

@@ -13,8 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/FeeSheet.class.php");
-require_once(dirname(__FILE__) . "/api.inc.php");
+require_once(__DIR__ . "/FeeSheet.class.php");
+require_once(__DIR__ . "/api.inc.php");
 
 class FeeSheetHtml extends FeeSheet
 {
@@ -38,7 +38,7 @@ class FeeSheetHtml extends FeeSheet
         $drow = sqlQuery("SELECT facility_id FROM users where username = ?", [$_SESSION['authUser']]);
         $def_facility = 0 + $drow['facility_id'];
         //
-        $sqlarr = array($def_facility);
+        $sqlarr = [$def_facility];
         $query = "SELECT id, lname, fname, facility_id FROM users WHERE " .
         "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' ";
         if (!$GLOBALS['include_inactive_providers']) {
@@ -129,8 +129,8 @@ class FeeSheetHtml extends FeeSheet
                         $allowed = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
                     }
                     if (
-                        ((strlen($default) == 0 && $lrow['is_default']) ||
-                        (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
+                        ((strlen((string) $default) == 0 && $lrow['is_default']) ||
+                        (strlen((string) $default)  > 0 && $lrow['option_id'] == $default)) &&
                         ($is_sold || $allowed)
                     ) {
                         $s .= " selected";
@@ -173,7 +173,7 @@ class FeeSheetHtml extends FeeSheet
             "FROM list_options AS lo " .
             "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
             "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-            array($pr_id, $pr_selector)
+            [$pr_id, $pr_selector]
         );
         $standardPrice = 0;
         while ($lrow = sqlFetchArray($lres)) {
@@ -187,7 +187,7 @@ class FeeSheetHtml extends FeeSheet
                 // If price level notes contains a percentage,
                 // calculate price as percentage of standard price
                 $notes = $lrow['notes'];
-                if (!empty($notes) && strpos($notes, '%') > -1) {
+                if (!empty($notes) && strpos((string) $notes, '%') > -1) {
                     $percent = intval(str_replace('%', '', $notes));
                     if ($percent > 0) {
                         $price = $standardPrice * ((100 - $percent) / 100);
@@ -201,8 +201,8 @@ class FeeSheetHtml extends FeeSheet
             $s .= "<option value='" . attr($lrow['option_id']) . "'";
             $s .= " id='prc_$price'";
             if (
-                (strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
-                (strlen($default)  > 0 && $lrow['option_id'] == $default)
+                (strlen((string) $default) == 0 && $lrow['is_default'] && !$disabled) ||
+                (strlen((string) $default)  > 0 && $lrow['option_id'] == $default)
             ) {
                 $s .= " selected";
             }
@@ -252,7 +252,7 @@ class FeeSheetHtml extends FeeSheet
             $csrow = sqlQuery(
                 "SELECT COUNT(*) AS count FROM shared_attributes WHERE " .
                 "pid = ? AND field_id = 'cgen_newmauser'",
-                array($this->pid)
+                [$this->pid]
             );
             if ($csrow['count'] == 0) {
                 $s .= "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'>\n";
@@ -333,16 +333,16 @@ function jsLineItemValidation(f) {
     }
    }
    if (!ndcok) {
-    alert('" . xls('Format incorrect for NDC') . "\"' + ndc +
-     '\", " . xls('should be like nnnnn-nnnn-nn') . "');
+    alert(" . xlj('Format incorrect for NDC') . " + '\"' + ndc +
+     '\", ' + " . xlj('should be like nnnnn-nnnn-nn') . ");
     if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
     return false;
    }
    // Check for valid quantity.
    var qty = f[pfx+'[ndcqty]'].value - 0;
    if (isNaN(qty) || qty <= 0) {
-    alert('" . xls('Quantity for NDC') . " \"' + ndc +
-     '\" " . xls('is not valid (decimal fractions are OK).') . "');
+    alert(" . xlj('Quantity for NDC') . " + ' \"' + ndc +
+     '\" ' + " . xlj('is not valid (decimal fractions are OK).') . ");
     if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
     return false;
    }
@@ -365,14 +365,14 @@ function jsLineItemValidation(f) {
     tmp_meth == '4450' || // male condoms
     tmp_meth == '4570');  // male vasectomy
    if (!male_compatible_method) {
-    if (!confirm('" . xls('Warning: Contraceptive method is not compatible with a male patient.') . "'))
+    if (!confirm(" . xlj('Warning: Contraceptive method is not compatible with a male patient.') . "))
      return false;
    }
 ";
         } // end if male patient
         if ($this->patient_age < 10 || $this->patient_age > 65) {
             $s .= "
-   if (!confirm(" . xlj('Warning: Contraception for a patient under 10 or over 65.') . "))
+    if (!confirm(" . xlj('Warning: Contraception for a patient under 10 or over 65.') . "))
     return false;
 ";
         } // end if improper age
@@ -422,7 +422,7 @@ function jsLineItemValidation(f) {
     }
    }
    if (!got_svc) {
-    if (!confirm('" . xls('Warning: There is no service matching the contraceptive product.') . "'))
+    if (!confirm(" . xlj('Warning: There is no service matching the contraceptive product.') . "))
      return false;
    }
   }
@@ -433,7 +433,7 @@ function jsLineItemValidation(f) {
         if (isset($GLOBALS['code_types']['MA'])) {
             $s .= "
  if (required_code_count == 0) {
-  if (!confirm('" . xls('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . "')) {
+  if (!confirm(" . xlj('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . ")) {
    return false;
   }
  }

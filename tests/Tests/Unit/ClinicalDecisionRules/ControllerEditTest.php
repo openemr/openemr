@@ -13,8 +13,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 class ControllerEditTest extends TestCase
 {
     private $controller;
-    private $ruleManagerMock;
-    private $codeManagerMock;
+    private \PHPUnit\Framework\MockObject\MockObject $ruleManagerMock;
+    private \PHPUnit\Framework\MockObject\MockObject $codeManagerMock;
 
     protected function setUp(): void
     {
@@ -43,7 +43,7 @@ class ControllerEditTest extends TestCase
         };
     }
 
-    public function testActionSummary()
+    public function testActionSummary(): void
     {
         $_GET['id'] = 'test_rule_id';
 
@@ -56,7 +56,7 @@ class ControllerEditTest extends TestCase
         $this->assertEquals("summary.php", $this->controller->viewBean->_view);
     }
 
-    public function testActionSubmitSummaryWithNewRule()
+    public function testActionSubmitSummaryWithNewRule(): void
     {
         $values = [
             'title' => 'Test Title'
@@ -106,7 +106,7 @@ class ControllerEditTest extends TestCase
             . '/', $this->controller->viewBean->_redirect);
     }
 
-    public function testActionIntervals()
+    public function testActionIntervals(): void
     {
         $_GET['id'] = 'test_rule_id';
 
@@ -119,7 +119,7 @@ class ControllerEditTest extends TestCase
         $this->assertEquals("intervals.php", $this->controller->viewBean->_view);
     }
 
-    public function testActionSubmitIntervals()
+    public function testActionSubmitIntervals(): void
     {
         $_POST['id'] = 'test_rule_id';
 
@@ -131,7 +131,7 @@ class ControllerEditTest extends TestCase
         $this->markTestIncomplete("Test needs to check if the intervals are updated");
     }
 
-    public function testActionFilter()
+    public function testActionFilter(): void
     {
         $_GET['id'] = 'test_rule_id';
         $_GET['guid'] = 'test_guid';

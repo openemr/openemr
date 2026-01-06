@@ -38,7 +38,7 @@ class ControllerRouter
     public function route(Request $request): Response
     {
         $actionParam = $request->get('action', '');
-        $paramParts = explode('!', $actionParam);
+        $paramParts = explode('!', (string) $actionParam);
         $controller = $paramParts[0] ?? '';
         $action = $paramParts[1] ?? '';
         // TODO: @adunsulag what ACL if any do we need to review the CDR rule?

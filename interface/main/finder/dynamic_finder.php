@@ -16,7 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
@@ -59,7 +59,7 @@ while ($row = sqlFetchArray($res)) {
         $coljson .= ", ";
     }
 
-    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"";
+    $coljson .= "{\"sName\": \"" . addcslashes((string) $colname, "\t\r\n\"\\") . "\"";
     if ($title1 == xl('Name')) {
         $coljson .= ", \"mRender\": wrapInLink";
     }
@@ -67,7 +67,7 @@ while ($row = sqlFetchArray($res)) {
     if ($orderjson) {
         $orderjson .= ", ";
     }
-    $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
+    $orderjson .= "[\"$colcount\", \"" . addcslashes((string) $colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
 $loading = "";
@@ -280,8 +280,8 @@ $loading = "";
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
             <?php // Bring in the translations ?>
-            <?php $translationsDatatablesOverride = array('search' => (xla('Search all columns') . ':')); ?>
-            <?php $translationsDatatablesOverride = array('processing' => $loading); ?>
+            <?php $translationsDatatablesOverride = ['search' => (xla('Search all columns') . ':')]; ?>
+            <?php $translationsDatatablesOverride = ['processing' => $loading]; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
 
@@ -357,21 +357,21 @@ $loading = "";
 <?php
     /** @var EventDispatcher */
     $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
     'expandable' => true,
-    'expandable_files' => array('dynamic_finder_xpd'),//all file names need suffix _xpd
+    'expandable_files' => ['dynamic_finder_xpd'],//all file names need suffix _xpd
     'action' => "search",//conceal, reveal, search, reset, link or back
     'action_title' => "",//only for action link, leave empty for conceal, reveal, search
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
     'help_file_name' => "",
     'page_id' => 'dynamic_finder',
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
-    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event) {
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event): void {
         if ($event->getPageId() !== 'dynamic_finder') {
             return;
         }
@@ -407,7 +407,7 @@ function rp()
     }
     $date_cols = [];
     $datetime_cols = [];
-    foreach ($pd_dtCols as $k => $v) {
+    foreach ($pd_dtCols as $v) {
         if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
         } else if ($v['data_type'] == "date") {
@@ -416,7 +416,7 @@ function rp()
     }
     // Build SQL statement to pull desired columns from patient_data table...
     $pd_sql = "SELECT pid";
-    foreach ($headers as $k => $v) {
+    foreach ($headers as $v) {
         $pd_sql .= ', ';
         $col_name = $v['option_id'];
         $dt_format = '';
@@ -450,7 +450,7 @@ function rp()
     }
     $pd_sql .= " FROM patient_data WHERE pid = ?";
     $pd_data = [];
-    foreach ($rp as $k => $v) {
+    foreach ($rp as $v) {
         $pd_data[] = sqlQuery($pd_sql, $v['pid']);
     }
     return ['headers' => $headers, 'rp' => $pd_data];

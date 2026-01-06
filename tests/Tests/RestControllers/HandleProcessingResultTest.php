@@ -6,9 +6,6 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Validators\ProcessingResult;
 
-/**
- * @coverDefault RestControllerHelper::handleProcessingResult
- */
 class HandleProcessingResultTest extends TestCase
 {
     private $processingResult;
@@ -21,9 +18,9 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result with a validation message
      */
-    public function testWithValidationMessage()
+    public function testWithValidationMessage(): void
     {
-        $this->processingResult->setValidationMessages(array("fname" => "bad value"));
+        $this->processingResult->setValidationMessages(["fname" => "bad value"]);
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 201, false);
 
         $this->assertEquals(400, http_response_code());
@@ -35,7 +32,7 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result with an internal error
      */
-    public function testWithInternalError()
+    public function testWithInternalError(): void
     {
         $this->processingResult->addInternalError("internal error occurred");
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 201, false);
@@ -49,9 +46,9 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result where a single item response is requested
      */
-    public function testWithSingleItemResponse()
+    public function testWithSingleItemResponse(): void
     {
-        $expectedData = array("pid" => 1);
+        $expectedData = ["pid" => 1];
         $this->processingResult->addData($expectedData);
 
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 201, false);
@@ -67,10 +64,10 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result where a multiple item response is requested
      */
-    public function testWithMultiItemResponse()
+    public function testWithMultiItemResponse(): void
     {
-        $this->processingResult->addData(array("fname" => "John"));
-        $this->processingResult->addData(array("fname" => "Jane"));
+        $this->processingResult->addData(["fname" => "John"]);
+        $this->processingResult->addData(["fname" => "Jane"]);
         $expectedData = $this->processingResult->getData();
 
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 200, true);
@@ -86,9 +83,9 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result with an "empty data set" where a multiple item response is requested.
      */
-    public function testWithEmptyMultiItemResponse()
+    public function testWithEmptyMultiItemResponse(): void
     {
-        $expectedData = array();
+        $expectedData = [];
 
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 200, true);
 

@@ -6,7 +6,7 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:date="http://exslt.org/dates-and-times"
                 extension-element-prefixes="date">
- 
+
 <date:month-lengths>
    <date:month>31</date:month>
    <date:month>28</date:month>
@@ -42,7 +42,7 @@
          <xsl:when test="substring($dt-no-neg, $dt-no-neg-length) = 'Z'">Z</xsl:when>
          <xsl:otherwise>
             <xsl:variable name="tz" select="substring($dt-no-neg, $dt-no-neg-length - 5)" />
-            <xsl:if test="(substring($tz, 1, 1) = '-' or 
+            <xsl:if test="(substring($tz, 1, 1) = '-' or
                            substring($tz, 1, 1) = '+') and
                           substring($tz, 4, 1) = ':'">
                <xsl:value-of select="$tz" />
@@ -52,7 +52,7 @@
    </xsl:variable>
    <xsl:variable name="new-dt">
       <xsl:if test="not(string($timezone)) or
-                    $timezone = 'Z' or 
+                    $timezone = 'Z' or
                     (substring($timezone, 2, 2) &lt;= 23 and
                      substring($timezone, 5, 2) &lt;= 59)">
          <xsl:variable name="dt" select="substring($dt-no-neg, 1, $dt-no-neg-length - string-length($timezone))" />
@@ -78,7 +78,7 @@
             <xsl:if test="(not($du-date) or
                            (not(translate($du-date, '0123456789YMD', '')) and
                             not(substring-after($du-date, 'D')) and
-                            (contains($du-date, 'D') or 
+                            (contains($du-date, 'D') or
                              (not(substring-after($du-date, 'M')) and
                               (contains($du-date, 'M') or
                                not(substring-after($du-date, 'Y'))))))) and
@@ -158,11 +158,11 @@
                <xsl:variable name="year" select="substring($dt, 1, 4) * (($dt-neg * -2) + 1)" />
                <xsl:choose>
                   <xsl:when test="$year and
-                                  string($duy) = 'NaN' or 
-                                  string($dum) = 'NaN' or 
-                                  string($dud) = 'NaN' or 
-                                  string($duh) = 'NaN' or 
-                                  string($dumin) = 'NaN' or 
+                                  string($duy) = 'NaN' or
+                                  string($dum) = 'NaN' or
+                                  string($dud) = 'NaN' or
+                                  string($duh) = 'NaN' or
+                                  string($dumin) = 'NaN' or
                                   string($dus) = 'NaN'" />
                   <xsl:when test="$dt-length > 4 or
                                   $dum or $dud or $duh or $dumin or $dus">
@@ -368,7 +368,7 @@
                               <xsl:value-of select="$month-days[$month - 1]" />
                            </xsl:otherwise>
                         </xsl:choose>
-                     </xsl:variable>                     
+                     </xsl:variable>
                      <xsl:value-of select="$new-day + $days-in-new-month" />
                   </xsl:with-param>
                </xsl:call-template>

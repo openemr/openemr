@@ -21,10 +21,10 @@
  $indent = 0;
 
  // Add a string to output with some basic sanitizing.
-function Add($tag, $text)
+function custom_xml_Add($tag, $text): void
 {
     global $out, $indent;
-    $text = trim(str_replace(array("\r", "\n", "\t"), " ", ($text ?? '')));
+    $text = trim(str_replace(["\r", "\n", "\t"], " ", ($text ?? '')));
     if ($text) {
         for ($i = 0; $i < $indent; ++$i) {
             $out .= "\t";
@@ -34,7 +34,7 @@ function Add($tag, $text)
     }
 }
 
-function OpenTag($tag)
+function OpenTag($tag): void
 {
     global $out, $indent;
     for ($i = 0; $i < $indent; ++$i) {
@@ -45,7 +45,7 @@ function OpenTag($tag)
     $out .= "<$tag>\n";
 }
 
-function CloseTag($tag)
+function CloseTag($tag): void
 {
     global $out, $indent;
     --$indent;
@@ -59,13 +59,13 @@ function CloseTag($tag)
  // Remove all non-digits from a string.
 function Digits($field)
 {
-    return preg_replace("/\D/", "", $field);
+    return preg_replace("/\D/", "", (string) $field);
 }
 
  // Translate sex.
 function Sex($field)
 {
-    $sex = strtoupper(substr(trim($field), 0, 1));
+    $sex = strtoupper(substr(trim((string) $field), 0, 1));
     if ($sex != "M" && $sex != "F") {
         $sex = "U";
     }
@@ -80,43 +80,43 @@ function LWDate($field)
 }
 
  // Add an insurance section.
-function addInsurance($row, $seq)
+function addInsurance($row, $seq): void
 {
     if ($row["name$seq"]) {
         OpenTag("insurance");
-        Add("priority", $seq);
-        Add("group", $row["group$seq"]);
-        Add("policy", $row["policy$seq"]);
-        Add("provider", $row["provider$seq"]);
-        Add("name", $row["name$seq"]);
-        Add("street1", $row["street1$seq"]);
-        Add("street2", $row["street2$seq"]);
-        Add("city", $row["city$seq"]);
-        Add("state", $row["state$seq"]);
-        Add("zip", $row["zip$seq"]);
-        Add("country", $row["country$seq"]);
-        Add("type", $row["instype$seq"]);
-        Add("copay", $row["copay$seq"]);
+        custom_xml_Add("priority", $seq);
+        custom_xml_Add("group", $row["group$seq"]);
+        custom_xml_Add("policy", $row["policy$seq"]);
+        custom_xml_Add("provider", $row["provider$seq"]);
+        custom_xml_Add("name", $row["name$seq"]);
+        custom_xml_Add("street1", $row["street1$seq"]);
+        custom_xml_Add("street2", $row["street2$seq"]);
+        custom_xml_Add("city", $row["city$seq"]);
+        custom_xml_Add("state", $row["state$seq"]);
+        custom_xml_Add("zip", $row["zip$seq"]);
+        custom_xml_Add("country", $row["country$seq"]);
+        custom_xml_Add("type", $row["instype$seq"]);
+        custom_xml_Add("copay", $row["copay$seq"]);
         OpenTag("subscriber");
-        Add("relationship", $row["relationship$seq"]);
-        Add("lname", $row["lname$seq"]);
-        Add("fname", $row["fname$seq"]);
-        Add("mname", $row["mname$seq"]);
-        Add("street", $row["sstreet$seq"]);
-        Add("city", $row["scity$seq"]);
-        Add("state", $row["sstate$seq"]);
-        Add("zip", $row["szip$seq"]);
-        Add("country", $row["scountry$seq"]);
-        Add("dob", $row["sdob$seq"]);
-        Add("ss", $row["sss$seq"]);
-        Add("phone", $row["sphone$seq"]);
-        Add("employer", $row["semployer$seq"]);
-        Add("sex", $row["ssex$seq"]);
-        Add("employer_street", $row["semployer_street$seq"]);
-        Add("employer_city", $row["semployer_city$seq"]);
-        Add("employer_state", $row["semployer_state$seq"]);
-        Add("employer_zip", $row["semployer_zip$seq"]);
-        Add("employer_country", $row["semployer_country$seq"]);
+        custom_xml_Add("relationship", $row["relationship$seq"]);
+        custom_xml_Add("lname", $row["lname$seq"]);
+        custom_xml_Add("fname", $row["fname$seq"]);
+        custom_xml_Add("mname", $row["mname$seq"]);
+        custom_xml_Add("street", $row["sstreet$seq"]);
+        custom_xml_Add("city", $row["scity$seq"]);
+        custom_xml_Add("state", $row["sstate$seq"]);
+        custom_xml_Add("zip", $row["szip$seq"]);
+        custom_xml_Add("country", $row["scountry$seq"]);
+        custom_xml_Add("dob", $row["sdob$seq"]);
+        custom_xml_Add("ss", $row["sss$seq"]);
+        custom_xml_Add("phone", $row["sphone$seq"]);
+        custom_xml_Add("employer", $row["semployer$seq"]);
+        custom_xml_Add("sex", $row["ssex$seq"]);
+        custom_xml_Add("employer_street", $row["semployer_street$seq"]);
+        custom_xml_Add("employer_city", $row["semployer_city$seq"]);
+        custom_xml_Add("employer_state", $row["semployer_state$seq"]);
+        custom_xml_Add("employer_zip", $row["semployer_zip$seq"]);
+        custom_xml_Add("employer_country", $row["semployer_country$seq"]);
         CloseTag("subscriber");
         CloseTag("insurance");
     }
@@ -124,10 +124,10 @@ function addInsurance($row, $seq)
 
  // This mess gets all the info for the patient.
  //~Well, now it does...-Art
- $insrow = array();
-foreach (array('primary','secondary','tertiary') as $value) {
+ $insrow = [];
+foreach (['primary','secondary','tertiary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);
 }
 
  $query = "SELECT " .
@@ -185,7 +185,7 @@ foreach (array('primary','secondary','tertiary') as $value) {
   "LEFT OUTER JOIN addresses AS a3 ON a3.foreign_id = c3.id " .
   "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query, array(($insrow[0]['id'] ?? null), ($insrow[1]['id'] ?? null), ($insrow[2]['id'] ?? null), $pid)));
+ $row = sqlFetchArray(sqlStatement($query, [($insrow[0]['id'] ?? null), ($insrow[1]['id'] ?? null), ($insrow[2]['id'] ?? null), $pid]));
 
  $rowed = getEmployerData($pid);
 
@@ -193,45 +193,45 @@ foreach (array('primary','secondary','tertiary') as $value) {
 
  // Patient Section.
  //
- Add("pid", $pid);
- Add("pubpid", $row['pubpid']);
- Add("lname", $row['lname']);
- Add("fname", $row['fname']);
- Add("mname", $row['mname']);
- Add("title", $row['title']);
- Add("ss", Digits($row['ss']));
- Add("dob", LWDate($row['DOB']));
- Add("sex", Sex($row['sex']));
- Add("street", $row['street']);
- Add("city", $row['city']);
- Add("state", $row['state']);
- Add("zip", $row['postal_code']);
- Add("country", $row['country_code']);
- Add("phone_home", Digits($row['phone_home']));
- Add("phone_biz", Digits($row['phone_biz']));
- Add("phone_contact", Digits($row['phone_contact']));
- Add("phone_cell", Digits($row['phone_cell']));
- Add("occupation", $row['occupation']);
- Add("status", $row['status']);
- Add("contact_relationship", $row['contact_relationship']);
- Add("referrer", $row['referrer']);
- Add("referrerID", $row['referrerID']);
- Add("email", $row['email']);
- Add("language", $row['language']);
- Add("ethnoracial", $row['ethnoracial']);
- Add("interpreter", $row['interpretter']);
- Add("migrantseasonal", $row['migrantseasonal']);
- Add("family_size", $row['family_size']);
- Add("monthly_income", $row['monthly_income']);
- Add("homeless", $row['homeless']);
- Add("financial_review", LWDate(substr($row['financial_review'], 0, 10)));
- Add("genericname1", $row['genericname1']);
- Add("genericval1", $row['genericval1']);
- Add("genericname2", $row['genericname2']);
- Add("genericval2", $row['genericval2']);
- Add("billing_note", $row['billing_note']);
- Add("hipaa_mail", $row['hipaa_mail']);
- Add("hipaa_voice", $row['hipaa_voice']);
+ custom_xml_Add("pid", $pid);
+ custom_xml_Add("pubpid", $row['pubpid']);
+ custom_xml_Add("lname", $row['lname']);
+ custom_xml_Add("fname", $row['fname']);
+ custom_xml_Add("mname", $row['mname']);
+ custom_xml_Add("title", $row['title']);
+ custom_xml_Add("ss", Digits($row['ss']));
+ custom_xml_Add("dob", LWDate($row['DOB']));
+ custom_xml_Add("sex", Sex($row['sex']));
+ custom_xml_Add("street", $row['street']);
+ custom_xml_Add("city", $row['city']);
+ custom_xml_Add("state", $row['state']);
+ custom_xml_Add("zip", $row['postal_code']);
+ custom_xml_Add("country", $row['country_code']);
+ custom_xml_Add("phone_home", Digits($row['phone_home']));
+ custom_xml_Add("phone_biz", Digits($row['phone_biz']));
+ custom_xml_Add("phone_contact", Digits($row['phone_contact']));
+ custom_xml_Add("phone_cell", Digits($row['phone_cell']));
+ custom_xml_Add("occupation", $row['occupation']);
+ custom_xml_Add("status", $row['status']);
+ custom_xml_Add("contact_relationship", $row['contact_relationship']);
+ custom_xml_Add("referrer", $row['referrer']);
+ custom_xml_Add("referrerID", $row['referrerID']);
+ custom_xml_Add("email", $row['email']);
+ custom_xml_Add("language", $row['language']);
+ custom_xml_Add("ethnoracial", $row['ethnoracial']);
+ custom_xml_Add("interpreter", $row['interpretter']);
+ custom_xml_Add("migrantseasonal", $row['migrantseasonal']);
+ custom_xml_Add("family_size", $row['family_size']);
+ custom_xml_Add("monthly_income", $row['monthly_income']);
+ custom_xml_Add("homeless", $row['homeless']);
+ custom_xml_Add("financial_review", LWDate(substr((string) $row['financial_review'], 0, 10)));
+ custom_xml_Add("genericname1", $row['genericname1']);
+ custom_xml_Add("genericval1", $row['genericval1']);
+ custom_xml_Add("genericname2", $row['genericname2']);
+ custom_xml_Add("genericval2", $row['genericval2']);
+ custom_xml_Add("billing_note", $row['billing_note']);
+ custom_xml_Add("hipaa_mail", $row['hipaa_mail']);
+ custom_xml_Add("hipaa_voice", $row['hipaa_voice']);
 
  // Insurance Sections.
  //
@@ -244,12 +244,12 @@ foreach (array('primary','secondary','tertiary') as $value) {
 if ($row['providerID']) {
     $query = "select id, fname, mname, lname from users where authorized = 1";
     $query .= " AND id = ?";
-    $prow = sqlFetchArray(sqlStatement($query, array($row['providerID'])));
+    $prow = sqlFetchArray(sqlStatement($query, [$row['providerID']]));
     OpenTag("pcp");
-    Add("id", $prow['id']);
-    Add("lname", $prow['lname']);
-    Add("fname", $prow['fname']);
-    Add("mname", $prow['mname']);
+    custom_xml_Add("id", $prow['id']);
+    custom_xml_Add("lname", $prow['lname']);
+    custom_xml_Add("fname", $prow['fname']);
+    custom_xml_Add("mname", $prow['mname']);
     CloseTag("pcp");
 }
 
@@ -257,12 +257,12 @@ if ($row['providerID']) {
  //
 if (!empty($rowed['id'])) {
     OpenTag("employer");
-    Add("name", $rowed['name']);
-    Add("street", $rowed['street']);
-    Add("zip", $rowed['postal_code']);
-    Add("city", $rowed['city']);
-    Add("state", $rowed['state']);
-    Add("country", $rowed['country']);
+    custom_xml_Add("name", $rowed['name']);
+    custom_xml_Add("street", $rowed['street']);
+    custom_xml_Add("zip", $rowed['postal_code']);
+    custom_xml_Add("city", $rowed['city']);
+    custom_xml_Add("state", $rowed['state']);
+    custom_xml_Add("country", $rowed['country']);
     CloseTag("employer");
 }
 

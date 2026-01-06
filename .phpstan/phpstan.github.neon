@@ -1,0 +1,12 @@
+includes:
+  - extension.neon
+  - phpstan-database-baseline.neon
+  - phpstan-globals-baseline.neon
+  - phpstan-curl-baseline.neon
+  - phpstan-remaining-baseline.neon
+parameters:
+  reportUnmatchedIgnoredErrors: true
+  scanFiles:
+    - ../vendor/phpunit/phpunit/src/Framework/TestCase.php
+  excludePaths:
+    - ../sites/default/documents/smarty

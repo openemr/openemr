@@ -12,35 +12,76 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Validators\ProcessingResult;
-
-require_once(__DIR__ . '/../../../_rest_config.php');
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Supports REST interactions with the FHIR patient resource
  */
 class FhirPatientRestController
 {
-    private $fhirPatientService;
+    use SystemLoggerAwareTrait;
+
+    private ?FhirPatientService $fhirPatientService = null;
     private $fhirService;
     private $fhirValidate;
+
+    private ?OEGlobalsBag $oeGlobalsBag = null;
 
     public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
-        $this->fhirPatientService = new FhirPatientService();
         $this->fhirValidate = new FhirValidationService();
+    }
+    public function getOEGlobals(): OEGlobalsBag
+    {
+        if (!isset($this->oeGlobalsBag)) {
+            $this->oeGlobalsBag = new OEGlobalsBag();
+        }
+        return $this->oeGlobalsBag;
+    }
+
+    public function setOEGlobals(OEGlobalsBag $oeGlobals): void
+    {
+        $this->oeGlobalsBag = $oeGlobals;
+    }
+
+    public function getFhirPatientService(): FhirPatientService
+    {
+        if (!isset($this->fhirPatientService)) {
+            $this->fhirPatientService = new FhirPatientService();
+            $this->fhirPatientService->setGlobalsBag($this->getOEGlobals());
+            if (isset($this->systemLogger)) {
+                $this->fhirPatientService->setSystemLogger($this->systemLogger);
+            }
+        }
+        return $this->fhirPatientService;
+    }
+
+    public function setFhirPatientService(FhirPatientService $fhirPatientService): void
+    {
+        $this->fhirPatientService = $fhirPatientService;
+    }
+
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->getFhirPatientService()->setSystemLogger($systemLogger);
+        $this->systemLogger = $systemLogger;
     }
 
     /**
      * Creates a new FHIR patient resource
-     * @param $fhirJson The FHIR patient resource
+     * @param $fhirJson array The FHIR patient resource
      * @returns 201 if the resource is created, 400 if the resource is invalid
      */
     public function post($fhirJson)
@@ -52,17 +93,17 @@ class FhirPatientRestController
 
         $object = FhirPatientSerializer::deserialize($fhirJson);
 
-        $processingResult = $this->fhirPatientService->insert($object);
+        $processingResult = $this->getFhirPatientService()->insert($object);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
     }
 
     /**
      * Updates an existing FHIR patient resource
-     * @param $fhirId The FHIR patient resource id (uuid)
-     * @param $fhirJson The updated FHIR patient resource (complete resource)
+     * @param string $fhirId The FHIR patient resource id (uuid)
+     * @param array $fhirJson The updated FHIR patient resource (complete resource)
      * @returns 200 if the resource is created, 400 if the resource is invalid
      */
-    public function put($fhirId, $fhirJson)
+    public function put(string $fhirId, array $fhirJson)
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
@@ -70,18 +111,18 @@ class FhirPatientRestController
         }
         $object = FhirPatientSerializer::deserialize($fhirJson);
 
-        $processingResult = $this->fhirPatientService->update($fhirId, $object);
+        $processingResult = $this->getFhirPatientService()->update($fhirId, $object);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
     /**
      * Queries for a single FHIR patient resource by FHIR id
-     * @param $fhirId The FHIR patient resource id (uuid)
-     * @returns 200 if the operation completes successfully
+     * @param string $fhirId The FHIR patient resource id (uuid)
+     * @returns Response 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne(string $fhirId): Response
     {
-        $processingResult = $this->fhirPatientService->getOne($fhirId);
+        $processingResult = $this->getFhirPatientService()->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
@@ -101,13 +142,13 @@ class FhirPatientRestController
      * - phone (home, business, cell)
      * - telecom (email, phone)
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return Response FHIR bundle with query results, if found
      */
-    public function getAll($searchParams, $puuidBind = null)
+    public function getAll(array $searchParams, ?string $puuidBind = null): Response
     {
-        $processingResult = $this->fhirPatientService->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        $processingResult = $this->getFhirPatientService()->getAll($searchParams, $puuidBind);
+        $bundleEntries = [];
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
@@ -116,7 +157,6 @@ class FhirPatientRestController
             array_push($bundleEntries, $fhirBundleEntry);
         }
         $bundleSearchResult = $this->fhirService->createBundle('Patient', $bundleEntries, false);
-        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
-        return $searchResponseBody;
+        return RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
     }
 }

@@ -21,6 +21,7 @@ namespace OpenEMR\Tests\E2e;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
@@ -32,6 +33,7 @@ class AaLoginTest extends PantherTestCase
     private $client;
     private $crawler;
 
+    #[Test]
     public function testGoToOpenemrLoginPage(): void
     {
         $this->base();
@@ -47,6 +49,7 @@ class AaLoginTest extends PantherTestCase
         $this->client->quit();
     }
 
+    #[Test]
     public function testLoginUnauthorized(): void
     {
         $this->base();
@@ -62,7 +65,7 @@ class AaLoginTest extends PantherTestCase
         $this->client->quit();
     }
 
-    /** @test */
+    #[Test]
     public function testurlWithoutTokenShouldRedirectToLoginPage(): void
     {
         $this->base();

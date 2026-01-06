@@ -62,31 +62,26 @@ function format_cvx_code($cvx_code)
 function format_phone($phone)
 {
 
-    $phone = preg_replace("/[^0-9]/", "", $phone);
-    switch (strlen($phone)) {
-        case 7:
-            return tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone));
-        case 10:
-            return tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", $phone));
-        default:
-            return tr("000 0000000");
-    }
+    $phone = preg_replace("/[^0-9]/", "", (string) $phone);
+    return match (strlen((string) $phone)) {
+        7 => tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", (string) $phone)),
+        10 => tr(preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "$1 $2$3", (string) $phone)),
+        default => tr("000 0000000"),
+    };
 }
 
 function format_ethnicity($ethnicity)
 {
 
-    switch ($ethnicity) {
-        case "hisp_or_latin":
-            return ("H^Hispanic or Latino^HL70189");
-        case "not_hisp_or_latin":
-            return ("N^not Hispanic or Latino^HL70189");
-        default: // Unknown
-            return ("U^Unknown^HL70189");
-    }
+    return match ($ethnicity) {
+        "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
+        "not_hisp_or_latin" => "N^not Hispanic or Latino^HL70189",
+        // Unknown
+        default => "U^Unknown^HL70189",
+    };
 }
 
-$sqlBindArray = array();
+$sqlBindArray = [];
 $query =
     "select " .
     "i.patient_id as patientid, " .
@@ -134,7 +129,7 @@ if (!empty($form_to_date)) {
     array_push($sqlBindArray, $form_to_date);
 }
 
-$form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
+$form_code = $_POST['form_code'] ?? [];
 if (empty($form_code)) {
     $query_codes = '';
 } else {
@@ -513,13 +508,16 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         <?php } ?>
     </form>
     <script>
-        
+
         function exportData() {
             let data = <?php echo json_encode($rows ?? ''); ?>;
             let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                data: data,
+                csrf_token_form: csrf_token
+            });
             dlgopen(
-                "../../library/ajax/immunization_export.php?csrf_token_form=" + encodeURIComponent(csrf_token) +
-                    "&data=" + encodeURIComponent(data),
+                "../../library/ajax/immunization_export.php?" + params,
                 'Export',
                 'modal-xs',
                 300,

@@ -1,0 +1,106 @@
+services:
+  mysql:
+    restart: always
+    image: mariadb:11.4
+    command:
+    - mariadbd
+    - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    restart: always
+    image: openemr/openemr:flex-3.20
+    ports:
+    - 8080:80
+    - 8523:443
+    volumes:
+    - ../../:/var/www/localhost/htdocs/openemr
+    environment:
+      EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: "yes"
+      OPENEMR_ENABLE_CI_PHP: "1"
+      OPENEMR_SETTING_couchdb_dbase: example
+      OPENEMR_SETTING_couchdb_host: couchdb
+      OPENEMR_SETTING_couchdb_pass: password
+      OPENEMR_SETTING_couchdb_port: 6984
+      OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
+      OPENEMR_SETTING_couchdb_user: admin
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      # Coverage settings - controlled by ENABLE_COVERAGE variable
+      # Set ENABLE_COVERAGE=true in run.sh to enable coverage collection
+      ENABLE_COVERAGE: "${ENABLE_COVERAGE:-false}"
+      INFERNO_TEST: "${INFERNO_TEST:-false}"
+      XDEBUG_ON: "${XDEBUG_ON:-0}"
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+    depends_on:
+      couchdb:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+  ##
+  # extend the inferno services so that they're in the same docker
+  # network as the openemr service,
+  # but use the onc-certification-g10-test-kit directory for relative mounts.
+  inferno:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: inferno
+    environment:
+      INFERNO_DISABLE_TLS_TEST: "true"
+  worker:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: worker
+    environment:
+      INFERNO_DISABLE_TLS_TEST: "true"
+  nginx:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: nginx
+    # https://docs.docker.com/reference/compose-file/merge/#replace-value
+    ports: !override
+    - 8000:80
+  redis:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: redis
+  hl7_validator_service:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: hl7_validator_service
+  terminology_builder:
+    ##
+    # Use a profile so this only runs when specified
+    profiles:
+    - terminology_builder
+    extends:
+      file: onc-certification-g10-test-kit/terminology_compose.yml
+      service: terminology_builder
+    platform: linux/amd64
+    build:
+      context: onc-certification-g10-test-kit
+      dockerfile: Dockerfile.terminology
+  couchdb:
+    restart: always
+    image: couchdb
+    ports:
+    - 5984:5984
+    - 6984:6984
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password

@@ -24,35 +24,33 @@ use OpenEMR\Common\ORDataObject\Address;
 
 class Pharmacy extends ORDataObject
 {
-    var $id;
-    var $name;
-    var $phone_numbers;
-    var $address;
-    var $transmit_method;
-    var $email;
-    var $transmit_method_array; //set in constructor
-    var $pageno;
-    var $state;
-    var $npi;
-    var $ncpdp;
+    public $name;
+    public $phone_numbers;
+    public $address;
+    public $transmit_method;
+    public $email;
+    public $transmit_method_array; //set in constructor
+    public $pageno;
+    public $state;
+    public $npi;
+    public $ncpdp;
 
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct($id = "", $prefix = "")
+    function __construct(public $id = "", $prefix = "")
     {
-        $this->id = $id;
         $this->state = $this->getState();
         $this->name = "";
         $this->email = "";
         $this->transmit_method = 1;
-        $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx"));
+        $this->transmit_method_array = [xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx")];
         $this->_table = "pharmacies";
         $phone  = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
-        $this->phone_numbers = array($phone);
+        $this->phone_numbers = [$phone];
         $this->address = new Address();
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
@@ -68,7 +66,7 @@ class Pharmacy extends ORDataObject
     function set_form_id($id = "")
     {
         if (!empty($id)) {
-            $this->populate($id);
+            $this->populate();
         }
     }
     function set_fax_id($id)
@@ -219,7 +217,7 @@ class Pharmacy extends ORDataObject
 
     function utility_pharmacy_array()
     {
-        $pharmacy_array = array();
+        $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
             "FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
         $res = sqlQ($sql);
@@ -239,7 +237,7 @@ class Pharmacy extends ORDataObject
     function pharmacies_factory()
     {
         $p = new Pharmacy();
-        $pharmacies = array();
+        $pharmacies = [];
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id ";
@@ -265,19 +263,14 @@ class Pharmacy extends ORDataObject
 
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "Name: " . $this->name . "\n"
         . "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
         . "Email:" . $this->email . "\n"
         . "Address: " . $this->address->toString($html) . "\n"
         . "Method: " . $this->transmit_method_array[$this->transmit_method];
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     function totalPages()

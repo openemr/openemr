@@ -15,6 +15,8 @@ require_once("fee_sheet_queries.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
+use OpenEMR\Forms\FeeSheet\Review\Procedure;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
@@ -39,7 +41,7 @@ if (isset($_REQUEST['task'])) {
 }
 
 if ($task == 'retrieve') {
-    $retval = array();
+    $retval = [];
     if ($_REQUEST['mode'] == 'encounters') {
         $encounters = select_encounters($req_pid, $req_encounter);
         if (isset($_REQUEST['prev_encounter'])) {
@@ -50,8 +52,8 @@ if ($task == 'retrieve') {
             }
         }
 
-        $issues = array();
-        $procedures = array();
+        $issues = [];
+        $procedures = [];
         fee_sheet_items($req_pid, ($prev_enc ?? null), $issues, $procedures);
         $retval['prev_encounter'] = $prev_enc ?? null;
         $retval['encounters'] = $encounters;
@@ -72,22 +74,17 @@ if ($task == 'retrieve') {
 }
 
 if ($task == 'add_diags') {
-    if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode($_REQUEST['diags']);
-    }
+    $json_diags = isset($_REQUEST['diags']) ? json_decode((string) $_REQUEST['diags']) : [];
+    $json_diags = is_array($json_diags) ? $json_diags : [];
+    $diags = array_map(
+        fn($diag) => new CodeInfo($diag->code, $diag->code_type, $diag->description),
+        $json_diags
+    );
 
-    $diags = array();
-    foreach ($json_diags as $diag) {
-        $diags[] = new code_info($diag->code, $diag->code_type, $diag->description);
-    }
-
-    $procs = array();
-    if (isset($_REQUEST['procs'])) {
-        $json_procs = json_decode($_REQUEST['procs']);
-    }
-
-    foreach ($json_procs as $proc) {
-        $procs[] = new procedure(
+    $json_procs = isset($_REQUEST['procs']) ? json_decode((string) $_REQUEST['procs']) : [];
+    $json_procs = is_array($json_procs) ? $json_procs : [];
+    $procs = array_map(
+        fn($proc) => new Procedure(
             $proc->code,
             $proc->code_type,
             $proc->description,
@@ -99,8 +96,9 @@ if ($task == 'add_diags') {
             $proc->mod_size, // mod_size
             $proc->ndc_info ?? '' // ndc_info
             /** ai generated code by google-labs-jules end */
-        );
-    }
+        ),
+        $json_procs
+    );
 
     $database->StartTrans();
     create_diags($req_pid, $req_encounter, $diags);

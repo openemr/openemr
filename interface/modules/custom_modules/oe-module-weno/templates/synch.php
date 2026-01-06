@@ -141,10 +141,10 @@ function downloadWenoLogCsvAndZip()
         RecursiveIteratorIterator::LEAVES_ONLY
     );
 
-    foreach ($files as $name => $file) {
+    foreach ($files as $file) {
         if (!$file->isDir()) {
             $filePath = $file->getRealPath();
-            $relativePath = basename($filePath);
+            $relativePath = basename((string) $filePath);
             $zip->addFile($filePath, $relativePath);
         }
     }

@@ -16,21 +16,12 @@ namespace OpenEMR\Common\Logging;
 
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
-use Waryway\PhpTraitsLibrary\Singleton;
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger
 {
-    use Singleton;
-
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
-
-    /**
-     * @var boolean
-     */
-    private $breakglassUser;
+    use SingletonTrait;
 
     /**
      * Event action codes indicate whether the event is read/write.
@@ -42,6 +33,20 @@ class EventAuditLogger
     private const EVENT_ACTION_CODE_SELECT = 'R';
     private const EVENT_ACTION_CODE_UPDATE = 'U';
     private const EVENT_ACTION_CODE_DELETE = 'D';
+
+    private ?bool $breakglassUser = null;
+
+    protected static function createInstance(): static
+    {
+        return new self(
+            new CryptoGen(),
+        );
+    }
+
+    public function __construct(
+        private readonly CryptoInterface $cryptoGen,
+    ) {
+    }
 
     /**
      * Keep track of the table mapping in a class constant to prevent reloading the data each time the method is called.
@@ -149,11 +154,11 @@ MSG;
      * @param $user
      * @param $groupname
      * @param $success
-     * @param string    $comments
-     * @param null      $patient_id
-     * @param string    $log_from
-     * @param string    $menu_item
-     * @param int       $ccda_doc_id
+     * @param string $comments
+     * @param ?int $patient_id
+     * @param string $log_from
+     * @param string $menu_item
+     * @param int    $ccda_doc_id
      */
     public function newEvent(
         $event,
@@ -176,6 +181,7 @@ MSG;
             $sqlMenuItems = "SELECT * FROM patient_portal_menu";
 
             $resMenuItems = sqlStatement($sqlMenuItems);
+            $menuItems = [];
             for ($iter = 0; $rowMenuItem = sqlFetchArray($resMenuItems); $iter++) {
                 $menuItems[$rowMenuItem['patient_portal_menu_id']] = $rowMenuItem['menu_name'];
             }
@@ -271,7 +277,7 @@ MSG;
                 $sortby = "";  //VicarePlus :: since there is no category field in extended_log
             }
 
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             $columns = "DISTINCT date, event, user, recipient,patient_id,description";
             $sql = "SELECT $columns FROM extended_log WHERE date >= ? AND date <= ?";
             array_push($sqlBindArray, $date1, $date2);
@@ -292,13 +298,13 @@ MSG;
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY " . escape_sql_column_name($sortby, array('extended_log')) . " DESC"; // descending order
+                $sql .= " ORDER BY " . escape_sql_column_name($sortby, ['extended_log']) . " DESC"; // descending order
             }
 
             $sql .= " LIMIT 5000";
         } else {
             // do the query
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             $sql = "SELECT $cols FROM `log_comment_encrypt` as el " .
                 "LEFT OUTER JOIN `log` as l ON el.`log_id` = l.`id` " .
                 "LEFT OUTER JOIN `api_log` as al ON el.`log_id` = al.`log_id` " .
@@ -326,7 +332,7 @@ MSG;
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY `" . escape_sql_column_name($sortby, array('log')) . "`  " . escape_sort_order($direction); // descending order
+                $sql .= " ORDER BY `" . escape_sql_column_name($sortby, ['log']) . "`  " . escape_sort_order($direction); // descending order
             } else {
                 $sql .= " ORDER BY el.`log_id` DESC";
             }
@@ -344,28 +350,16 @@ MSG;
      * @param  $event
      * @return string
      */
-    private function determineRFC3881EventActionCode($event)
+    protected function determineRFC3881EventActionCode($event)
     {
-        switch (substr($event, -7)) {
-            case '-create':
-                return self::EVENT_ACTION_CODE_CREATE;
-                break;
-            case '-insert':
-                return self::EVENT_ACTION_CODE_INSERT;
-                break;
-            case '-select':
-                return self::EVENT_ACTION_CODE_SELECT;
-                break;
-            case '-update':
-                return self::EVENT_ACTION_CODE_UPDATE;
-                break;
-            case '-delete':
-                return self::EVENT_ACTION_CODE_DELETE;
-                break;
-            default:
-                return self::EVENT_ACTION_CODE_EXECUTE;
-                break;
-        }
+        return match (substr((string) $event, -7)) {
+            '-create' => self::EVENT_ACTION_CODE_CREATE,
+            '-insert' => self::EVENT_ACTION_CODE_INSERT,
+            '-select' => self::EVENT_ACTION_CODE_SELECT,
+            '-update' => self::EVENT_ACTION_CODE_UPDATE,
+            '-delete' => self::EVENT_ACTION_CODE_DELETE,
+            default => self::EVENT_ACTION_CODE_EXECUTE,
+        };
     }
 
     /**
@@ -375,22 +369,22 @@ MSG;
      *
      * @param $event
      */
-    private function determineRFC3881EventIdDisplayName($event)
+    protected function determineRFC3881EventIdDisplayName($event)
     {
 
         $eventIdDisplayName = $event;
 
-        if (strpos($event, 'patient-record') !== false) {
+        if (str_contains((string) $event, 'patient-record')) {
             $eventIdDisplayName = 'Patient Record';
-        } elseif (strpos($event, 'view') !== false) {
+        } elseif (str_contains((string) $event, 'view')) {
             $eventIdDisplayName = 'Patient Record';
-        } elseif (strpos($event, 'login') !== false) {
+        } elseif (str_contains((string) $event, 'login')) {
             $eventIdDisplayName = 'Login';
-        } elseif (strpos($event, 'logout') !== false) {
+        } elseif (str_contains((string) $event, 'logout')) {
             $eventIdDisplayName = 'Logout';
-        } elseif (strpos($event, 'scheduling') !== false) {
+        } elseif (str_contains((string) $event, 'scheduling')) {
             $eventIdDisplayName = 'Patient Care Assignment';
-        } elseif (strpos($event, 'security-administration') !== false) {
+        } elseif (str_contains((string) $event, 'security-administration')) {
             $eventIdDisplayName = 'Security Administration';
         }
 
@@ -410,7 +404,7 @@ MSG;
      * @param  $comments
      * @return string
      */
-    private function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
+    protected function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
@@ -451,9 +445,9 @@ MSG;
      * @param  $cafile
      * @return bool|resource
      */
-    private function createTlsConn($host, $port, $localcert, $cafile)
+    protected function createTlsConn($host, $port, $localcert, $cafile)
     {
-        $sslopts = array();
+        $sslopts = [];
         if ($cafile !== null && $cafile != "") {
             $sslopts['cafile'] = $cafile;
             $sslopts['verify_peer'] = true;
@@ -464,7 +458,7 @@ MSG;
             $sslopts['local_cert'] = $localcert;
         }
 
-        $opts = array('tls' => $sslopts, 'ssl' => $sslopts);
+        $opts = ['tls' => $sslopts, 'ssl' => $sslopts];
         $ctx = stream_context_create($opts);
         $timeout = 60;
         $flags = STREAM_CLIENT_CONNECT;
@@ -525,15 +519,10 @@ MSG;
      *
      * @param $statement
      * @param $outcome
-     * @param null      $binds
+     * @param ?array $binds
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        // Set up crypto object that will be used by this singleton class for encryption/decryption (if not set up already)
-        if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
-        }
-
         $user =  $_SESSION['authUser'] ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
@@ -543,14 +532,14 @@ MSG;
             }
         }
 
-        $statement = trim($statement);
+        $statement = trim((string) $statement);
 
         if (
             (stripos($statement, "insert into log") !== false)      // avoid infinite loop
             || (stripos($statement, "insert into `log`") !== false) // avoid infinite loop
             || (stripos($statement, "FROM log ") !== false)         // avoid infinite loop
             || (stripos($statement, "FROM `log` ") !== false)       // avoid infinite loop
-            || (strpos($statement, "sequences") !== false)          // Don't log sequences - to avoid the affect due to GenID calls
+            || (str_contains($statement, "sequences"))          // Don't log sequences - to avoid the affect due to GenID calls
             || (stripos($statement, "SELECT count(") === 0)         // Skip SELECT count() statements.
         ) {
             return;
@@ -558,7 +547,7 @@ MSG;
 
         /* Determine the query type (select, update, insert, delete) */
         $querytype = "select";
-        $querytypes = array("select", "update", "insert", "delete","replace");
+        $querytypes = ["select", "update", "insert", "delete","replace"];
         foreach ($querytypes as $qtype) {
             if (stripos($statement, $qtype) === 0) {
                 $querytype = $qtype;
@@ -621,11 +610,11 @@ MSG;
         }
 
         foreach (self::LOG_TABLES as $table => $value) {
-            if (strpos($truncated_sql, $table) !== false) {
+            if (str_contains($truncated_sql, $table)) {
                 $event = $value;
                 $category = $this->eventCategoryFinder($comments, $event, $table);
                 break;
-            } elseif (strpos($truncated_sql, "form_") !== false) {
+            } elseif (str_contains($truncated_sql, "form_")) {
                 $event = "patient-record";
                 $category = $this->eventCategoryFinder($comments, $event, $table);
                 break;
@@ -649,10 +638,8 @@ MSG;
             }
         }
 
-        if (empty($GLOBALS["audit_events_{$event}"])) {
-            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
-                return;
-            }
+        if (empty($GLOBALS["audit_events_{$event}"]) && (empty($GLOBALS['gbl_force_log_breakglass'] ?? null) || !$this->isBreakglassUser($user))) {
+            return;
         }
 
         $event = $event . "-" . $querytype;
@@ -696,10 +683,10 @@ MSG;
     /**
      * Record the patient disclosures.
      *
-     * @param $dates    - The date when the disclosures are sent to the thrid party.
-     * @param $event    - The type of the disclosure.
-     * @param $pid      - The id of the patient for whom the disclosures are recorded.
-     * @param $comment  - The recipient name and description of the disclosure.
+     * @param $dates   - The date when the disclosures are sent to the third party.
+     * @param $event   - The type of the disclosure.
+     * @param $pid     - The id of the patient for whom the disclosures are recorded.
+     * @param $comment - The recipient name and description of the disclosure.
      * @uname - The username who is recording the disclosure.
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
@@ -710,16 +697,20 @@ MSG;
             "," . $adodb->qstr($recipient) . "," .
             $adodb->qstr($pid) . "," .
             $adodb->qstr($description) . ")";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
     /**
-     * Edit the disclosures that is recorded.
+     * Edit the disclosure record that is stored in the audit log.
      *
-     * @param $dates  - The date when the disclosures are sent to the thrid party.
-     * @param $event  - The type of the disclosure.
-     * param $comment - The recipient and the description of the disclosure are appended.
-     * $logeventid    - The id of the record which is to be edited.
+     * @param $dates - The date when the disclosures are sent to the thrid party.
+     * @param $event - The type of the disclosure.
+     *               param $comment - The
+     *               recipient and the description
+     *               of the disclosure are
+     *               appended. $logeventid    -
+     *               The id of the record which is
+     *               to be edited.
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
@@ -730,7 +721,7 @@ MSG;
                 recipient=" . $adodb->qstr($recipient) . ",
                 description=" . $adodb->qstr($description) . "
                 where id=" . $adodb->qstr($disclosure_id) . "";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
     /**
@@ -741,7 +732,7 @@ MSG;
     public function deleteDisclosure($deletelid)
     {
         $sql = "delete from extended_log where id='" . add_escape_custom($deletelid) . "'";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
     public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)
@@ -751,11 +742,11 @@ MSG;
         }
 
         // Encrypt if applicable
-        if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
-        }
-        $encrypt = 'No';
-        if (!empty($GLOBALS["enable_auditlog_encryption"])) {
+        if (empty($GLOBALS["enable_auditlog_encryption"])) {
+            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+            $comments = base64_encode((string) $comments);
+            $encrypt = 'No';
+        } else {
             // encrypt the comments field
             $comments =  $this->cryptoGen->encryptStandard($comments);
             if (!empty($api)) {
@@ -765,9 +756,6 @@ MSG;
                 $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
             }
             $encrypt = 'Yes';
-        } else {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode($comments);
         }
 
         // Collect timestamp and if pertinent, collect client cert name
@@ -803,7 +791,7 @@ MSG;
         sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $checksumGenerate = hash('sha3-512', implode($logEntry));
+        $checksumGenerate = hash('sha3-512', implode('', $logEntry));
         if (!empty($api)) {
             // api log
             $ipAddress = collectIpAddresses()['ip_string'];
@@ -819,7 +807,7 @@ MSG;
                 $api['response'],
                 $current_datetime
             ];
-            $checksumGenerateApi = hash('sha3-512', implode($apiLogEntry));
+            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogEntry));
         } else {
             $checksumGenerateApi = '';
         }
@@ -891,11 +879,11 @@ MSG;
      * @param  $table
      * @return string
      */
-    private function eventCategoryFinder($sql, $event, $table)
+    protected function eventCategoryFinder($sql, $event, $table)
     {
         if ($event == 'delete') {
-            if (strpos($sql, "lists:") === 0) {
-                $fieldValues    = explode("'", $sql);
+            if (str_starts_with((string) $sql, "lists:")) {
+                $fieldValues    = explode("'", (string) $sql);
                 if (in_array('medical_problem', $fieldValues) === true) {
                     return 'Problem List';
                 } elseif (in_array('medication', $fieldValues) === true) {
@@ -907,7 +895,7 @@ MSG;
         }
 
         if ($table == 'lists' || $table == 'lists_touch') {
-            $trimSQL        = stristr($sql, $table);
+            $trimSQL        = stristr((string) $sql, (string) $table);
             $fieldValues    = explode("'", $trimSQL);
             if (in_array('medical_problem', $fieldValues) === true) {
                 return 'Problem List';
@@ -922,20 +910,20 @@ MSG;
             return "Vitals";
         } elseif ($table == 'history_data') {
             return "Social and Family History";
-        } elseif ($table == 'forms' || $table == 'form_encounter' || strpos($table, 'form_') === 0) {
+        } elseif ($table == 'forms' || $table == 'form_encounter' || str_starts_with((string) $table, 'form_')) {
             return "Encounter Form";
         } elseif ($table == 'insurance_data') {
             return "Patient Insurance";
         } elseif ($table == 'patient_data' || $table == 'employer_data') {
             return "Patient Demographics";
-        } elseif ($table == 'payments' || $table == "billing" || $table == "claims") {
+        } elseif (in_array($table, ['payments', "billing", "claims"])) {
             return "Billing";
         } elseif ($table == 'pnotes') {
             return "Clinical Mail";
         } elseif ($table == 'prescriptions') {
             return "Medication";
         } elseif ($table == 'transactions') {
-            $trimSQL        = stristr($sql, "transactions");
+            $trimSQL        = stristr((string) $sql, "transactions");
             $fieldValues    = explode("'", $trimSQL);
             if (in_array("LBTref", $fieldValues)) {
                 return "Referral";
@@ -960,7 +948,7 @@ MSG;
     // Goal of this function is to increase performance in logging engine to check
     //  if a user is a breakglass user (in this case, will log all activities if the
     //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
-    private function isBreakglassUser($user)
+    protected function isBreakglassUser($user)
     {
         // return false if $user is empty
         if (empty($user)) {
@@ -983,13 +971,7 @@ MSG;
             AND BINARY `gacl_aro`.`value` = ?",
             [$user]
         );
-        if (empty($queryUser)) {
-            // user is not in breakglass group
-            $this->breakglassUser = false;
-        } else {
-            // user is in breakglass group
-            $this->breakglassUser = true;
-        }
+        $this->breakglassUser = !empty($queryUser);
         return $this->breakglassUser;
     }
 }

@@ -85,7 +85,7 @@ $content = $_REQUEST['content'];
                     $res = sqlStatement("SELECT * FROM list_options WHERE list_id = 'nation_notes_replace_buttons' AND activity = 1 ORDER BY seq");
                     while ($row = sqlFetchArray($res)) {
                         ?>
-                    <a href="#" onclick="replace_quest('<?php echo htmlspecialchars($row['option_id'], ENT_QUOTES);?>')" class="btn btn-primary"><span><?php echo htmlspecialchars($row['title'], ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="replace_quest('<?php echo htmlspecialchars((string) $row['option_id'], ENT_QUOTES);?>')" class="btn btn-primary"><span><?php echo htmlspecialchars((string) $row['title'], ENT_QUOTES);?></span></a>
                         <?php
                     }
                     ?>
@@ -93,7 +93,7 @@ $content = $_REQUEST['content'];
             </tr>
             <tr class="text">
                 <td>
-                <textarea name="quest" id="quest" rows="12" cols="70"><?php echo htmlspecialchars($content, ENT_QUOTES);?></textarea>
+                <textarea name="quest" id="quest" rows="12" cols="70"><?php echo htmlspecialchars((string) $content, ENT_QUOTES);?></textarea>
                 </td>
             </tr>
             <tr>

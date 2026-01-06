@@ -78,13 +78,13 @@ class DownloadWenoPharmacies
                 throw new Exception("Error reading header from file: $filePath");
             }
 
-            $columns = implode(", ", array_map(fn($col) => "`$col`", $headers));
+            $columns = implode(", ", array_map(fn($col): string => "`$col`", $headers));
             $placeholders = implode(", ", array_fill(0, count($headers), '?'));
 
             if ($isInsertOnly) {
                 $sql = "INSERT INTO weno_pharmacy ($columns) VALUES ($placeholders)";
             } else {
-                $updates = implode(", ", array_map(fn($col) => "`$col`=VALUES(`$col`)", $headers));
+                $updates = implode(", ", array_map(fn($col): string => "`$col`=VALUES(`$col`)", $headers));
                 $sql = "INSERT INTO weno_pharmacy ($columns) VALUES ($placeholders) ON DUPLICATE KEY UPDATE $updates";
             }
 
@@ -98,12 +98,12 @@ class DownloadWenoPharmacies
             $batchSize = 30000;
             $batchRecords = [];
             foreach ($records as $record) {
-                if (stripos($record['Created'], 'Confidential WENO Exchange') !== false) {
+                if (stripos((string) $record['Created'], 'Confidential WENO Exchange') !== false) {
                     continue;
                 }
                 $rowNumber++;
 
-                $record = array_map(fn($item) => str_replace(['[', ']'], '', trim($item ?? '')), $record);
+                $record = array_map(fn($item): string => str_replace(['[', ']'], '', trim($item ?? '')), $record);
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Created']);
                 $record['Created'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Modified']);
@@ -111,9 +111,9 @@ class DownloadWenoPharmacies
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Deleted']);
                 $record['Deleted'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
 
-                $record['Business_Name'] = ucwords(strtolower($record['Business_Name']));
-                $record['Address_Line_1'] = ucwords(strtolower($record['Address_Line_1']));
-                $record['City'] = ucwords(strtolower($record['City']));
+                $record['Business_Name'] = ucwords(strtolower((string) $record['Business_Name']));
+                $record['Address_Line_1'] = ucwords(strtolower((string) $record['Address_Line_1']));
+                $record['City'] = ucwords(strtolower((string) $record['City']));
 
                 if (count($record) !== count($headers)) {
                     error_log(text("Column count mismatch at row $rowNumber in file: $filePath"));
@@ -219,7 +219,7 @@ class DownloadWenoPharmacies
                     $count = $this->processWenoPharmacyCsv($csvFile);
 
                     if ($count !== false) {
-                        EventAuditLogger::instance()->newEvent(
+                        EventAuditLogger::getInstance()->newEvent(
                             "pharmacy_log",
                             $_SESSION['authUser'],
                             $_SESSION['authProvider'],
@@ -229,7 +229,7 @@ class DownloadWenoPharmacies
                         $wenoLog->insertWenoLog("Pharmacy Directory", "Success $count pharmacies Updated");
                         error_log("Background Task Pharmacy Imported $count Pharmacies");
                     } else {
-                        EventAuditLogger::instance()->newEvent(
+                        EventAuditLogger::getInstance()->newEvent(
                             "pharmacy_log",
                             $_SESSION['authUser'],
                             $_SESSION['authProvider'],
@@ -247,7 +247,7 @@ class DownloadWenoPharmacies
                     }
                     return $count;
                 } else {
-                    EventAuditLogger::instance()->newEvent(
+                    EventAuditLogger::getInstance()->newEvent(
                         "pharmacy_log",
                         $_SESSION['authUser'],
                         $_SESSION['authProvider'],
@@ -262,11 +262,11 @@ class DownloadWenoPharmacies
                 $wenolog = new WenoLogService();
                 $isError = $wenolog->scrapeWenoErrorHtml($scrape);
                 if ($isError['is_error']) {
-                    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
+                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
                     error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
                     $wenolog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
                 } else {
-                    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
+                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
                     error_log("Pharmacy Failed download! Weno error: Other");
                     $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
                 }

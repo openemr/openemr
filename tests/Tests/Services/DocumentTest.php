@@ -21,8 +21,11 @@ class DocumentTest extends TestCase
     /**
      * Checks that a document can be created and the file exists at the location the document says it saves at
      */
-    public function testCreateDocument()
+    public function testCreateDocument(): void
     {
+        // Ensure filesystem storage is used for this test
+        $GLOBALS['document_storage_method'] = Document::STORAGE_METHOD_FILESYSTEM;
+
         $userService = new UserService();
         $apiSystemUser = $userService->getSystemUser();
 
@@ -46,12 +49,13 @@ class DocumentTest extends TestCase
         $this->assertEquals($mimeType, $document->get_mimetype());
 
         $url = $document->get_url();
-        if ($document->get_storagemethod() === Document::STORAGE_METHOD_FILESYSTEM) {
-            // not sure how the couch db tests should work but we are going to verify if the file is stored on the file
-            // system that we did indeed write a file here.
-            if (strpos($url, 'file:') !== false) {
-                $this->assertTrue(file_exists($document->get_url_filepath(), "File should exist at document location"));
-            }
-        }
+        $this->assertTrue(
+            $document->get_storagemethod() === Document::STORAGE_METHOD_FILESYSTEM,
+            "Expected document to use filesystem storage"
+        );
+        $this->assertTrue(str_contains((string) $url, 'file:'), "Expected document url to start with file:");
+        // not sure how the couch db tests should work but we are going to verify if the file is stored on the file
+        // system that we did indeed write a file here.
+        $this->assertTrue(file_exists($document->get_url_filepath()), "File should exist at document location");
     }
 }

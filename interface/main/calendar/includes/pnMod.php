@@ -45,7 +45,7 @@ function pnModGetVar($modname, $name)
         return $pnmodvar[$modname][$name];
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulevarstable = $pntable['module_vars'];
@@ -65,7 +65,7 @@ function pnModGetVar($modname, $name)
         return;
     }
 
-    list($value) = $result->fields;
+    [$value] = $result->fields;
     $result->Close();
 
     $pnmodvar[$modname][$name] = $value;
@@ -85,7 +85,7 @@ function pnModSetVar($modname, $name, $value)
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $curvar = pnModGetVar($modname, $name);
@@ -131,12 +131,12 @@ function pnModGetIDFromName($module)
         return false;
     }
 
-    static $modid = array();
+    static $modid = [];
     if (isset($modid[$module])) {
         return $modid[$module];
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -155,7 +155,7 @@ function pnModGetIDFromName($module)
         return false;
     }
 
-    list($id) = $result->fields;
+    [$id] = $result->fields;
     $result->Close();
 
     $modid[$module] = $id;
@@ -175,12 +175,12 @@ function pnModGetInfo($modid)
         return false;
     }
 
-    static $modinfo = array();
+    static $modinfo = [];
     if (isset($modinfo[$modid])) {
         return $modinfo[$modid];
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -205,13 +205,7 @@ function pnModGetInfo($modid)
         return false;
     }
 
-    list($resarray['name'],
-         $resarray['type'],
-         $resarray['directory'],
-         $resarray['regid'],
-         $resarray['displayname'],
-         $resarray['description'],
-         $resarray['version']) = $result->fields;
+    [$resarray['name'], $resarray['type'], $resarray['directory'], $resarray['regid'], $resarray['displayname'], $resarray['description'], $resarray['version']] = $result->fields;
     $result->Close();
 
     $modinfo[$modid] = $resarray;
@@ -228,13 +222,13 @@ function pnModGetInfo($modid)
  */
 function pnModAPILoad($modname, $type = 'user')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     if (empty($modname)) {
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     if (!empty($loaded["$modname$type"])) {
@@ -259,10 +253,10 @@ function pnModAPILoad($modname, $type = 'user')
         return false;
     }
 
-    list($name, $directory, $state) = $result->fields;
+    [$name, $directory, $state] = $result->fields;
     $result->Close();
 
-    list($osdirectory, $ostype) = pnVarPrepForOS($directory, $type);
+    [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
 
     $osfile = "modules/$osdirectory/pn{$ostype}api.php";
     if (!file_exists($osfile)) {
@@ -292,7 +286,7 @@ function pnModAPILoad($modname, $type = 'user')
  */
 function pnModDBInfoLoad($modname, $directory = '')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     // Check to ensure we aren't doing this twice
     if (isset($loaded[$modname])) {
@@ -301,7 +295,7 @@ function pnModDBInfoLoad($modname, $directory = '')
 
     // Get the directory if we don't already have it
     if (empty($directory)) {
-        list($dbconn) = pnDBGetConn();
+        [$dbconn] = pnDBGetConn();
         $pntable = pnDBGetTables();
         $modulestable = $pntable['modules'];
         $modulescolumn = &$pntable['modules_column'];
@@ -346,13 +340,13 @@ function pnModDBInfoLoad($modname, $directory = '')
  */
 function pnModLoad($modname, $type = 'user')
 {
-    static $loaded = array();
+    static $loaded = [];
 
     if (empty($modname)) {
         return false;
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -377,11 +371,11 @@ function pnModLoad($modname, $type = 'user')
         return false;
     }
 
-    list($directory, $state) = $result->fields;
+    [$directory, $state] = $result->fields;
     $result->Close();
 
     // Load the module and module language files
-    list($osdirectory, $ostype) = pnVarPrepForOS($directory, $type);
+    [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
     $osfile = "modules/$osdirectory/pn$ostype.php";
 
     if (!file_exists($osfile)) {
@@ -412,7 +406,7 @@ function pnModLoad($modname, $type = 'user')
  * @param args - arguments to pass to the function
  * @returns mixed
  */
-function pnModAPIFunc($modname, $type, $func, $args = array())
+function pnModAPIFunc($modname, $type, $func, $args = [])
 {
 
     if (empty($modname)) {
@@ -444,7 +438,7 @@ function pnModAPIFunc($modname, $type, $func, $args = array())
  * @param args - argument array
  * @returns mixed
  */
-function pnModFunc($modname, $type, $func, $args = array())
+function pnModFunc($modname, $type, $func, $args = [])
 {
 
     if (empty($modname)) {
@@ -477,16 +471,14 @@ function pnModFunc($modname, $type, $func, $args = array())
  * @returns string
  * @return absolute URL for call
  */
-function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '')
+function pnModURL($modname, $type = 'user', $func = 'main', $args = [], $path = '')
 {
     if (empty($modname)) {
         return false;
     }
 
-    global $HTTP_SERVER_VARS;
-
     // Hostname
-    $host = $HTTP_SERVER_VARS['HTTP_HOST'] ?? '';
+    $host = $_SERVER['HTTP_HOST'] ?? '';
     if (empty($host)) {
         $host = getenv('HTTP_HOST');
         if (empty($host)) {
@@ -504,7 +496,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
         $urlargs[] = "func=$func";
     }
 
-    $urlargs = join('&', $urlargs);
+    $urlargs = implode('&', $urlargs);
     $url = "index.php?$urlargs";
 
 
@@ -526,7 +518,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
 
     //remove characters not belonging in a path, prevent possible injection
     //this may break windows path accesses?
-    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path);
+    $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", (string) $path);
 
     // The URL
     $final_url = pnGetBaseURL() . $path . $url;
@@ -544,7 +536,7 @@ function pnModAvailable($modname)
         return false;
     }
 
-    static $modstate = array();
+    static $modstate = [];
     if (isset($modstate[$modname])) {
         if ($modstate[$modname] == _PNMODULE_STATE_ACTIVE) {
             return true;
@@ -553,7 +545,7 @@ function pnModAvailable($modname)
         }
     }
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -572,7 +564,7 @@ function pnModAvailable($modname)
         return false;
     }
 
-    list($state) = $result->fields;
+    [$state] = $result->fields;
     $result->Close();
 
     $modstate[$modname] = $state;

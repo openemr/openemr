@@ -3,9 +3,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\FHIR\Organization\FhirOrganizationFacilityService;
@@ -14,6 +13,7 @@ use OpenEMR\Services\FHIR\Organization\FhirOrganizationProcedureProviderService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
+use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -24,7 +24,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Organization Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786@gmail.com>
@@ -38,10 +37,13 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
     use MappedServiceTrait;
+    use SystemLoggerAwareTrait;
+    use VersionedProfileTrait;
 
     const ORGANIZATION_TYPE_INSURANCE = "Ins";
     const ORGANIZATION_TYPE_PAYER = "Pay";
     const ORGANIZATION_TYPE_PROVIDER = "Prov";
+    const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization';
 
     /**
      * @var FhirOrganizationFacilityService
@@ -63,6 +65,17 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         // TODO: ask @brady.miller if we need x12 clearinghouses here for our organization list... eventually yes, but for ONC?
         // TODO: @adunsulag look at adding Pharmacies on here as well... @see C_Pharmacy class
         $this->addMappedService(new FhirOrganizationProcedureProviderService());
+    }
+
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $mappedServices = $this->getMappedServices();
+        foreach ($mappedServices as $service) {
+            if ($service instanceof FhirServiceBase) {
+                $service->setSystemLogger($systemLogger);
+            }
+        }
+        $this->systemLogger = $systemLogger;
     }
 
     /**
@@ -102,7 +115,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         try {
             $fhirSearchResult = $this->searchAllServicesWithSupportedFields($fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            $this->getSystemLogger()->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
@@ -142,6 +155,11 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         return $this->facilityService->insert($fhirResource);
     }
 
+    /**
+     * @param $fhirResourceId string
+     * @param $fhirResource FHIROrganization
+     * @return ProcessingResult
+     */
     public function update($fhirResourceId, $fhirResource): ProcessingResult
     {
 
@@ -154,7 +172,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
                 return $service->update($fhirResourceId, $fhirResource);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
+            $this->getSystemLogger()->error($exception->getMessage(), ['fhirResourceId' => $fhirResourceId, 'trace' => $exception->getTraceAsString()]);
         }
         $processingResult = new ProcessingResult();
         $processingResult->setValidationMessages(['_id' => 'Invalid fhir resource id']);
@@ -200,10 +218,8 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
      * @see https://www.hl7.org/fhir/us/core/CapabilityStatement-us-core-server.html for the list of profiles
      * @return string[]
      */
-    function getProfileURIs(): array
+    public function getProfileURIs(): array
     {
-        return [
-            'http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization'
-        ];
+        return $this->getProfileForVersions(self::USCGI_PROFILE_URI, $this->getSupportedVersions());
     }
 }

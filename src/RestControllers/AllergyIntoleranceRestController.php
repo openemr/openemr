@@ -22,13 +22,13 @@ class AllergyIntoleranceRestController
     /**
      * White list of search/insert fields
      */
-    private const WHITELISTED_FIELDS = array(
+    private const WHITELISTED_FIELDS = [
         'title',
         'begdate',
         'enddate',
         'diagnosis',
         'comments'
-    );
+    ];
 
     public function __construct()
     {
@@ -53,7 +53,7 @@ class AllergyIntoleranceRestController
     /**
      * Returns allergyIntolerance resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = [])
     {
         $processingResult = $this->allergyIntoleranceService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);

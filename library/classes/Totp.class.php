@@ -25,17 +25,13 @@ class Totp
     private $_secret = false;
     /** @var string - issuer mentioned in the QR App  */
     private $_issuer = "OpenEMR";
-    /** @var  string - user name of user stored in QR App */
-    private $_username;
 
     /**
      * @param bool $secret - user secret or false to generate
-     * @param string $username - username to store in QR App
+     * @param string $_username - username to store in QR App
      */
-    public function __construct($secret = false, $username = '')
+    public function __construct($secret = false, private $_username = '')
     {
-        $this->_username = $username;
-
         if (!empty($secret)) {
             $this->_secret = $secret;
         } else {

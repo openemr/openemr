@@ -17,11 +17,23 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
+function getModuleState($modId): bool
+{
+    $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_directory` = ?";
+    $flag = sqlQuery($sql, [$modId]);
+
+    return !empty($flag['mod_active']);
+}
+
 /**
  * Download Weno Pharmacy data called by background service.
  */
 function downloadWenoPharmacy(): void
 {
+    $active = getModuleState('oe-module-weno');
+    if (!$active) {
+        return;
+    }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
     $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
@@ -39,7 +51,7 @@ function downloadWenoPharmacy(): void
     // The breadwinner!
     $status = $localPharmacyJson->storePharmacyData();
 
-    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
+    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
     error_log('Background Initiated Weno pharmacies Updated:' . text($status) . " Pharmacies");
 }
 
@@ -50,10 +62,13 @@ function downloadWenoPharmacy(): void
  */
 function downloadWenoPrescriptionLog(): void
 {
+    $active = getModuleState('oe-module-weno');
+    if (!$active) {
+        return;
+    }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
     $isKey = $wenoValidate->validateAdminCredentials(true);
-
     if ((int)$isKey >= 998) {
         $wenoLog->insertWenoLog("Sync Report", "Failed import Internet problem!");
         handleDownloadError("Sync Report download attempt failed. Internet problem!");
@@ -87,9 +102,9 @@ function downloadWenoPrescriptionLog(): void
  *
  * @param string $errorMessage
  */
-function handleDownloadError(string $errorMessage)
+function handleDownloadError(string $errorMessage): void
 {
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "pharmacy_background",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

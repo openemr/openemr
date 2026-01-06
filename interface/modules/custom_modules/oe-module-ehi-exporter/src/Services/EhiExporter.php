@@ -29,10 +29,12 @@ use OpenEMR\Modules\EhiExporter\Services\EhiExportJobService;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskResultService;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskService;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMailTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\ListService;
@@ -40,6 +42,7 @@ use OpenEMR\Modules\EhiExporter\Models\ExportState;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use Ramsey\Uuid\Rfc4122\UuidV4;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Environment;
 
 use function xl;
@@ -53,7 +56,8 @@ class EhiExporter
      */
     const EHI_DOCUMENT_FOLDER = 'system-ehi-export';
 
-    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything'];
+    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals'
+        , 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything', 'contact'];
     const ZIP_MIME_TYPE = "application/zip";
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
     const CYCLE_MAX_ITERATIONS_LIMIT = 1500;
@@ -61,10 +65,12 @@ class EhiExporter
     // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
     const PATIENT_SIZE_PER_RECORD = 100 * 1024;
 
-    private SystemLogger $logger;
-    private EhiExportJobTaskService $taskService;
-    private CryptoGen $cryptoGen;
-    private EhiExportJobService $jobService;
+    private readonly SystemLogger $logger;
+    private readonly EhiExportJobTaskService $taskService;
+    private readonly CryptoGen $cryptoGen;
+    private readonly EhiExportJobService $jobService;
+
+    private ?Session $session = null;
 
     public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
@@ -73,6 +79,11 @@ class EhiExporter
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
         $this->cryptoGen = new CryptoGen();
+    }
+
+    public function setSession(Session $session): void
+    {
+        $this->session = $session;
     }
 
 
@@ -361,6 +372,8 @@ class EhiExporter
             , ExportClinicalNotesFormTableDefinition::TABLE_NAME
             , ExportFormsGroupsEncounterTableDefinition::TABLE_NAME
             , ExportTrackAnythingFormTableDefinition::TABLE_NAME
+            , ExportContactTableDefinition::TABLE_NAME
+            , ExportPersonTableDefinition::TABLE_NAME
         ];
         foreach ($specialTables as $table) {
             // some tables are not installed yet and must be skipped if they do not exist
@@ -452,6 +465,9 @@ class EhiExporter
         $exportedResult = $exportState->getExportResult();
         $document = $this->generateZipfile($jobTask, $exportedResult, $exportState);
         $documentService = new DocumentService();
+        if (!empty($this->session)) {
+            $documentService->setSession($this->session);
+        }
         $exportedResult->downloadLink = $documentService->getDownloadLink($document->get_id());
         $jobTask->exportedResult = $exportedResult;
         $jobTask->document = $document;
@@ -631,14 +647,10 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = array())
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = [])
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
-        if (!empty($uuidDefinition)) {
-            $convertUuid = true;
-        } else {
-            $convertUuid = false;
-        }
+        $convertUuid = !empty($uuidDefinition) ? true : false;
         if (empty($overrideHeaderColumns)) {
             $columns = QueryUtils::listTableFields($tableName);
         } else {

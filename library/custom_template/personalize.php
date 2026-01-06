@@ -24,23 +24,23 @@ $list_id = $_REQUEST['list_id'] ?: $filter_context;
 
 function Delete_Rows($id): void
 {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($id, $_SESSION['authUserID']));
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$id, $_SESSION['authUserID']]);
 }
 
 function Insert_Rows($id, $order = ""): void
 {
-    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", array($id, $_SESSION['authUserID'], $order));
+    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", [$id, $_SESSION['authUserID'], $order]);
 }
 
 if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     $topersonalized = $_REQUEST['topersonalized'];
     $personalized = $_REQUEST['personalized'];
-    foreach ($topersonalized as $key => $value) {
-        $arr = explode("|", $value);
-        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
+    foreach ($topersonalized as $value) {
+        $arr = explode("|", (string) $value);
+        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $_SESSION['authUserID']]);
         if (sqlNumRows($res)) {
             Delete_Rows($arr[0]);
-            $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
+            $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", [$arr[0]]);
             while ($row = sqlFetchArray($qry)) {
                 Delete_Rows($row['cl_list_slno']);
             }
@@ -48,21 +48,21 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     }
 
     //Add new Categories
-    foreach ($personalized as $key => $value) {
-        $arr = explode("|", $value);
+    foreach ($personalized as $value) {
+        $arr = explode("|", (string) $value);
         if ($arr[1]) {
-            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
+            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $_SESSION['authUserID']]);
             Insert_Rows($arr[0]);
-            $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
+            $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", [$arr[0]]);
             while ($row = sqlFetchArray($qry)) {
-                $qryTU = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($row['cl_list_slno'], $arr[1]));
+                $qryTU = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$row['cl_list_slno'], $arr[1]]);
                 while ($rowTU = sqlFetchArray($qryTU)) {
                     Insert_Rows($rowTU['tu_template_id'], $rowTU['tu_template_order']);
                 }
             }
         } else {
             Insert_Rows($arr[0]);
-            $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", array($arr[0]));
+            $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", [$arr[0]]);
             while ($row = sqlFetchArray($qry)) {
                 Insert_Rows($row['cl_list_slno'], $row['cl_order']);
             }
@@ -313,7 +313,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <option value=''><?php echo xlt('Select a User'); ?></option>
                         <?php
                         $user_sql = "SELECT DISTINCT(tu.tu_user_id),u.fname,u.lname FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu.tu_user_id!=?";
-                        $user_res = sqlStatement($user_sql, array($_SESSION['authUserID']));
+                        $user_res = sqlStatement($user_sql, [$_SESSION['authUserID']]);
                         while ($user_row = sqlFetchArray($user_res)) {
                             echo "<option value='" . attr($user_row['tu_user_id']) . "' ";
                             echo ($filter_users == $user_row['tu_user_id']) ? 'selected' : '';
@@ -353,7 +353,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                     &nbsp;
                 </div>
                 <div class="col-sm-5 text">
-                    <?php $user = sqlQuery("SELECT * FROM users WHERE id=?", array($_SESSION['authUserID'])); ?>
+                    <?php $user = sqlQuery("SELECT * FROM users WHERE id=?", [$_SESSION['authUserID']]); ?>
                     <?php echo xlt('Categories for') . " " . text($user['fname']) . " " . text($user['lname']); ?>
                 </div>
                 <div class="col-sm-5">
@@ -361,8 +361,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <?php
                         $where = '';
                         $join = '';
-                        $arval = array($_SESSION['authUserID']);
-                        $arval1 = array($filter_users, $_SESSION['authUserID']);
+                        $arval = [$_SESSION['authUserID']];
+                        $arval1 = [$filter_users, $_SESSION['authUserID']];
                         if ($filter_context ?? null) {
                             $where .= " AND cl_list_id=?";
                             $arval[] = $filter_context;
@@ -373,7 +373,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                           tu_user_id=?) " . $where . " ORDER BY cl_list_id,tu_user_id,cl_list_item_long";
                         $resTemplates = sqlStatement($sql, $arval);
                         if ($filter_users) {
-                            $sql = "SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE 
+                            $sql = "SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE
                                     tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 AND tu.tu_template_id NOT IN
                                     (SELECT tu_template_id FROM template_users AS tuser WHERE tu_user_id=?)" . $where . " ORDER BY cl_list_id,tu_user_id,c.cl_list_item_long";
                             $resTemplates = sqlStatement($sql, $arval1);
@@ -381,11 +381,11 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         while ($rowTemplates = sqlFetchArray($resTemplates)) {
                             $cntxt = '';
                             if (!$filter_context ?? null) {
-                                $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($rowTemplates['cl_list_id']));
+                                $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", [$rowTemplates['cl_list_id']]);
                                 $cntxt .= $context['cl_list_item_long'] . "->";
                             }
                             if (!$filter_users ?? null) {
-                                $context = sqlQuery("SELECT * FROM users WHERE id=?", array($rowTemplates['tu_user_id']));
+                                $context = sqlQuery("SELECT * FROM users WHERE id=?", [$rowTemplates['tu_user_id']]);
                                 $cntxt .= $context['username'] . "->";
                             }
                             echo "<option value='" . attr($rowTemplates['cl_list_slno'] . "|" . $rowTemplates['tu_user_id']) . "'>" . text($cntxt . $rowTemplates['cl_list_item_long']) . "</option>";
@@ -398,7 +398,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         while ($roworphan = sqlFetchArray($resorphan ?? '')) {
                             $cntxt = '';
                             if (!$filter_context ?? null) {
-                                $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($roworphan['cl_list_id']));
+                                $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", [$roworphan['cl_list_id']]);
                                 $cntxt .= $context['cl_list_item_long'] . "->";
                             }
                             echo "<option value='" . attr($roworphan['cl_list_slno'] . "|") . "'>" . text($cntxt . $roworphan['cl_list_item_long']) . "</option>";
@@ -417,14 +417,14 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         $where = '';
                         if ($filter_context ?? null) {
                             $where .= " AND cl_list_id = ?";
-                            $sqlbind = array($filter_context);
+                            $sqlbind = [$filter_context];
                         }
                         $sql = "SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 " . $where .  " ORDER BY c.cl_list_item_long";
-                        $resTemplates = sqlStatement($sql, array_merge(array($_SESSION['authUserID']), $sqlbind ?? []));
+                        $resTemplates = sqlStatement($sql, array_merge([$_SESSION['authUserID']], $sqlbind ?? []));
                         while ($rowTemplates = sqlFetchArray($resTemplates)) {
                             $cntxt = '';
                             if (!$filter_context ?? null) {
-                                $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($rowTemplates['cl_list_id']));
+                                $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", [$rowTemplates['cl_list_id']]);
                                 $cntxt .= $context['cl_list_item_long'] . "->";
                             }
                             echo "<option value='" . attr($rowTemplates['cl_list_slno'] . "|" . $rowTemplates['tu_user_id']) . "'>" . text($cntxt . $rowTemplates['cl_list_item_long']) . "</option>";

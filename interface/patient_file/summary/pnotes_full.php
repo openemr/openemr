@@ -38,15 +38,15 @@ $patient_id = $pid;
 $userService = new UserService();
 
 if ($docid) {
-    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
+    $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docid]);
     $patient_id = intval($row['foreign_id']);
 } elseif ($orderid) {
-    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
+    $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", [$orderid]);
     $patient_id = intval($row['patient_id']);
 }
 
 // Check authorization.
-if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
     die(xlt('Not authorized'));
 }
 
@@ -108,7 +108,7 @@ if (isset($mode)) {
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
-            if (strncmp($var, 'act', 3) == 0) {
+            if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
                     reappearPnote($id);
@@ -153,7 +153,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $noteid);
+            EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -457,20 +457,16 @@ function restoreSession() {
                                 }
 
                                 $body = $iter['body'];
-                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', $body);
-                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                                $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', (string) $body);
+                                $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', (string) $body);
+                                if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
                                     $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 } else {
-                                    $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                                    $body = text(oeFormatSDFT(strtotime((string) $iter['date'])) . date(' H:i', strtotime((string) $iter['date']))) .
                                     ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                 }
 
-                                if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-                                    $checked = "checked";
-                                } else {
-                                    $checked = "";
-                                }
+                                $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                                 // highlight the row if it's been selected for updating
                                 if (!empty($_REQUEST['noteid']) && ($_REQUEST['noteid'] == $row_note_id)) {
@@ -509,7 +505,7 @@ function restoreSession() {
                                 echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
                                 "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                                echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                                echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                                 echo "  </a></td>\n";
 
                                 echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -623,19 +619,15 @@ function restoreSession() {
                         }
 
                         $body = $iter['body'];
-                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+                        if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', (string) $body)) {
                             $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         } else {
-                            $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date']))) .
+                            $body = text(oeFormatSDFT(strtotime((string) $iter['date'])) . date(' H:i', strtotime((string) $iter['date']))) .
                             ' (' . text($iter['user']) . ') ' . pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                         }
 
-                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                        if (($iter["activity"]) && ($iter['message_status'] != "Done")) {
-                            $checked = "checked";
-                        } else {
-                            $checked = "";
-                        }
+                        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', (string) $body);
+                        $checked = $iter["activity"] && $iter['message_status'] != "Done" ? "checked" : "";
 
                         // highlight the row if it's been selected for updating
                         if ($_REQUEST['noteid'] == $row_note_id) {
@@ -673,7 +665,7 @@ function restoreSession() {
                         echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
                         "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
+                        echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                         echo "  </a></td>\n";
 
                         echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
@@ -743,7 +735,7 @@ if (!empty($_GET['set_pid'])) {
 //
 if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
-    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+    if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', (string) $prow['body'], $matches)) {
         $docid = $matches[1];
         $docname = $matches[2];
         ?>

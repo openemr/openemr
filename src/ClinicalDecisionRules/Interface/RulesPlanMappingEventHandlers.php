@@ -32,7 +32,7 @@ class RulesPlanMappingEventHandlers
 {
     public static function getNonCQMPlans()
     {
-        $plans = array();
+        $plans = [];
 
         $sql_st = "SELECT DISTINCT list_options.title, list_options.option_id as plan_id, clin_plans.pid " .
             "FROM `list_options` list_options " .
@@ -41,14 +41,14 @@ class RulesPlanMappingEventHandlers
             "LEFT JOIN `clinical_rules` clin_rules ON clin_rules.id = clin_plans_rules.rule_id " .
             "WHERE (clin_rules.cqm_flag = 0 OR clin_rules.cqm_flag is NULL) " .
             "AND list_options.option_id NOT LIKE '%plan_cqm' AND clin_plans.pid = 0 AND list_options.list_id = ?;";
-        $result = sqlStatement($sql_st, array('clinical_plans'));
+        $result = sqlStatement($sql_st, ['clinical_plans']);
 
         while ($row = sqlFetchArray($result)) {
             $plan_id = $row['plan_id'];
             $plan_pid = $row['pid'];
             $plan_title = $row['title'];
 
-            $plan_info = array('plan_id' => $plan_id, 'plan_pid' => $plan_pid, 'plan_title' => $plan_title);
+            $plan_info = ['plan_id' => $plan_id, 'plan_pid' => $plan_pid, 'plan_title' => $plan_title];
             array_push($plans, $plan_info);
         }
 
@@ -57,13 +57,13 @@ class RulesPlanMappingEventHandlers
 
     public static function getRulesInPlan($plan_id)
     {
-        $rules = array();
+        $rules = [];
 
         $sql_st = "SELECT lst_opt.option_id as rule_option_id, lst_opt.title as rule_title " .
             "FROM `clinical_plans_rules` cpr " .
             "JOIN `list_options` lst_opt ON lst_opt.option_id = cpr.rule_id " .
             "WHERE cpr.plan_id = ?;";
-        $result = sqlStatement($sql_st, array($plan_id));
+        $result = sqlStatement($sql_st, [$plan_id]);
 
         while ($row = sqlFetchArray($result)) {
             $rules[$row['rule_option_id']] = $row['rule_title'];
@@ -74,7 +74,7 @@ class RulesPlanMappingEventHandlers
 
     public static function getRulesNotInPlan($plan_id)
     {
-        $rules = array();
+        $rules = [];
 
         $sql_st = "SELECT lst_opt.option_id as rule_option_id, lst_opt.title as rule_title " .
             "FROM `clinical_rules` clin_rules " .
@@ -86,7 +86,7 @@ class RulesPlanMappingEventHandlers
             "JOIN `list_options` lst_opt ON lst_opt.option_id = cpr.rule_id " .
             "WHERE cpr.plan_id = ?" .
             "); ";
-        $result = sqlStatement($sql_st, array($plan_id));
+        $result = sqlStatement($sql_st, [$plan_id]);
 
         while ($row = sqlFetchArray($result)) {
             $rules[$row['rule_option_id']] = $row['rule_title'];
@@ -101,7 +101,7 @@ class RulesPlanMappingEventHandlers
         $sql_st = "SELECT `option_id` " .
             "FROM `list_options` " .
             "WHERE `list_id` = 'clinical_plans' AND `title` = ?;";
-        $res = sqlStatement($sql_st, array($plan_name));
+        $res = sqlStatement($sql_st, [$plan_name]);
         $row = sqlFetchArray($res);
         if (!empty($row['option_id'])) {
             throw new \Exception("002");
@@ -115,17 +115,17 @@ class RulesPlanMappingEventHandlers
         $sql_st = "SELECT `option_id` " .
             "FROM `list_options` " .
             "WHERE `option_id` = ?;";
-        $res = sqlStatement($sql_st, array($plan_id));
+        $res = sqlStatement($sql_st, [$plan_id]);
         $row = sqlFetchArray($res);
         if ($row != null) {
             //001 = plan name taken
-            throw new Exception("003");
+            throw new \Exception("003");
         }
 
         //Add plan into clinical_plans table
         $sql_st = "INSERT INTO `clinical_plans` (`id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group`) " .
             "VALUES (?, 0, 1, 0, '');";
-        $res = sqlStatement($sql_st, array($plan_id));
+        $res = sqlStatement($sql_st, [$plan_id]);
 
 
         //Get sequence value
@@ -148,7 +148,7 @@ class RulesPlanMappingEventHandlers
         $sql_st = "INSERT INTO `list_options` " .
             "(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) " .
             "VALUES ('clinical_plans', ?, ?, ?, 0, 0, '', '', '');";
-        $res = sqlStatement($sql_st, array($plan_id, $plan_name, $max_seq));
+        $res = sqlStatement($sql_st, [$plan_id, $plan_name, $max_seq]);
 
 
         //Add rules to plan
@@ -160,33 +160,27 @@ class RulesPlanMappingEventHandlers
     public static function deletePlan($plan_id)
     {
         $sql_st = "DELETE FROM `clinical_plans` WHERE `clinical_plans`.`id` = ?;";
-        $res = sqlStatement($sql_st, array($plan_id));
+        $res = sqlStatement($sql_st, [$plan_id]);
 
         $sql_st = "DELETE FROM `list_options` WHERE `list_id` = 'clinical_plans' AND `option_id` = ?;";
-        $res = sqlStatement($sql_st, array($plan_id));
+        $res = sqlStatement($sql_st, [$plan_id]);
 
         $sql_st = "DELETE FROM `clinical_plans_rules` WHERE `plan_id` = ?;";
-        $res = sqlStatement($sql_st, array($plan_id));
+        $res = sqlStatement($sql_st, [$plan_id]);
     }
 
-    public static function togglePlanStatus($plan_id, $nm_flag)
+    public static function togglePlanStatus($plan_id, bool $nm_flag): void
     {
         $sql_st = "UPDATE clinical_plans SET " .
             "normal_flag = ? " .
             "WHERE id = ? AND pid = 0 ";
-        sqlStatement($sql_st, array($nm_flag, $plan_id));
-        if ($nm_flag = 0) {
-            $nm_chk = 1;
-        }
-
-        if ($nm_flag = 1) {
-            $nm_chk = 0;
-        }
+        sqlStatement($sql_st, [(int) $nm_flag, $plan_id]);
+        $nm_chk = (int) ! $nm_flag;
 
         $sql_check = "SELECT `id` " .
             "FROM `clinical_plans` " .
             "WHERE ((`id` = ?) AND (`pid` = 0) AND (`normal_flag` = ?));";
-        $res_chk = sqlStatement($sql_check, array($plan_id, $nm_chk));
+        $res_chk = sqlStatement($sql_check, [$plan_id, $nm_chk]);
         $row_chk = sqlFetchArray($res_chk);
         if ($row_chk == $plan_id) {
             throw new \Exception("002");
@@ -198,12 +192,12 @@ class RulesPlanMappingEventHandlers
     public static function submitChanges($plan_id, $added_rules, $removed_rules)
     {
         //add
-        if (sizeof($added_rules) > 0) {
+        if (count($added_rules) > 0) {
             self::addRulesToPlan($plan_id, $added_rules);
         }
 
         //remove
-        if (sizeof($removed_rules) > 0) {
+        if (count($removed_rules) > 0) {
             self::removeRulesFromPlan($plan_id, $removed_rules);
         }
     }
@@ -218,10 +212,10 @@ class RulesPlanMappingEventHandlers
             //Check if rule already exists in plan
             $sql_st_check = "SELECT * FROM `clinical_plans_rules` " .
                 "WHERE `plan_id` = ? and `rule_id` = ?";
-            $res_check = sqlStatement($sql_st_check, array($plan_id, $rule));
+            $res_check = sqlStatement($sql_st_check, [$plan_id, $rule]);
             $row = sqlFetchArray($res_check);
             if ($row == null) {
-                $res = sqlStatement($sql_st, array($plan_id, $rule));
+                $res = sqlStatement($sql_st, [$plan_id, $rule]);
             }
         }
     }
@@ -232,7 +226,7 @@ class RulesPlanMappingEventHandlers
             "WHERE `plan_id` = ? AND `rule_id` = ?;";
 
         foreach ($list_of_rules as $rule) {
-            $res = sqlStatement($sql_st, array($plan_id, $rule));
+            $res = sqlStatement($sql_st, [$plan_id, $rule]);
         }
     }
 
@@ -252,7 +246,7 @@ class RulesPlanMappingEventHandlers
             $plan_id += 1;
         }
 
-        $plan_id = $plan_id . '_plan';
+        $plan_id .= '_plan';
 
         return $plan_id;
     }
@@ -263,7 +257,7 @@ class RulesPlanMappingEventHandlers
             "FROM `clinical_plans` " .
             "WHERE `id` = ? AND `pid` = 0;";
 
-        $res = sqlStatement($sql_st, array($plan_id));
+        $res = sqlStatement($sql_st, [$plan_id]);
 
         $row = sqlFetchArray($res);
         if ($row['normal_flag'] == 1) {

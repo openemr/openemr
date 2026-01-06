@@ -33,12 +33,8 @@ if (!empty($_POST)) {
 
 <head>
 <?php
-$logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
-if (isset($_POST['lognext']) && $_POST['lognext']) {
-    $logtop = $logstart + $_POST['lognext'];
-} else {
-    $logtop = 0;
-}
+$logstart = $_POST['logstart'] ?? 0;
+$logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lognext'] : 0;
 ?>
 
 <?php Header::setupHeader(); ?>
@@ -147,7 +143,7 @@ if (!$logtop) {
 } else {
     $res = sqlStatement(
         "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
-        array($logtop - 99,$logtop)
+        [$logtop - 99,$logtop]
     );
 }
 
@@ -201,4 +197,3 @@ while ($row = sqlFetchArray($res)) {
 
 </body>
 </html>
-

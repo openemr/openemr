@@ -1,0 +1,14 @@
+codecov:
+  notify:
+    after_n_builds: 14
+
+coverage:
+  status:
+    project:
+      default:
+        target: 4%        # Require at least 4% overall project coverage
+        threshold: 0      # No tolerance below the 4% target
+    patch:
+      default:
+        target: 0%        # New code doesn't need any coverage
+        threshold: 0

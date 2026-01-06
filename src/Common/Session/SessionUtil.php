@@ -3,9 +3,6 @@
 /**
  * start/destroy session/cookie for OpenEMR or OpenEMR patient-portal or OpenEMR oauth2
  *
- * Note that keeping this class self-sufficient since it is used before the class autoloader
- *  in scripts that need to support both the core OpenEMR and patient portal.
- *
  * OpenEMR session/cookie strategy:
  *  1. The vital difference between the OpenEMR and OpenEMR patient-portal/oauth2 session/cookie is the
  *     cookie_httponly setting.
@@ -51,70 +48,63 @@
  *                            cookie_samesite is set to None)
  *  11. For OpenEMR 6.0.0 added a api session, which requires following settings:
  *      cookie_secure = true (oauth needs to be https, so makes sense to support this setting)
+ *  13. For OpenEMR 7.0.4:
+ *      a. Supported early calls to class with the standard class loader, so can use other classes. Note that this class can be
+ *         used prior to database connection, so beware of that.
+ *      b. Incorporated debug/error logging.
+ *      c. Added support for predis redis sentinel mode for session storage.
  *
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2025 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\Predis\SentinelUtil;
+
 class SessionUtil
 {
-    private const CORE_SESSION_ID = "OpenEMR";
-    private const OAUTH_SESSION_ID = 'authserverOpenEMR';
+    public const CORE_SESSION_ID = "OpenEMR";
+    public const OAUTH_SESSION_ID = 'authserverOpenEMR';
 
-    private static $gc_maxlifetime = 14400;
-    private static $use_strict_mode = true;
-    private static $use_cookies = true;
-    private static $use_only_cookies = true;
-    private static $use_cookie_samesite = "Strict";
-    private static $use_cookie_httponly = true;
-    private static $use_cookie_secure = false;
+    public const API_SESSION_ID = 'apiOpenEMR';
+
+    public const API_WEBROOT = '/apis/';
+
+    public const OAUTH_WEBROOT = '/oauth2/';
+
+    public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
 
     // Following setting have been deprecated in PHP 8.4 and higher
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
-    private static $sid_bits_per_character = 6;
-    private static $sid_length = 48;
+
+    public static function sessionStartWrapper(array $settings = []): bool
+    {
+        if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+            (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
+            (new SentinelUtil(self::DEFAULT_GC_MAXLIFETIME))->configure();
+        }
+        return session_start($settings);
+    }
 
     public static function switchToCoreSession($web_root, $read_only = true): void
     {
         session_write_close();
         session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
         self::coreSessionStart($web_root, $read_only);
+        (new SystemLogger())->debug("SessionUtil: switched to core session");
     }
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        $settings = [
-            'read_and_close' => $read_only,
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => self::CORE_SESSION_ID,
-            'cookie_httponly' => false,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        session_start($settings);
+        $settings = SessionConfigurationBuilder::forCore($web_root, $read_only);
+        self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started core session");
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
@@ -134,6 +124,10 @@ class SessionUtil
             $_SESSION[$session_key_or_array] = $session_value;
         }
         session_write_close();
+        (new SystemLogger())->debug("SessionUtil: set session value", [
+            'session_key_or_array' => $session_key_or_array,
+            'session_value' => $session_value
+        ]);
     }
 
     public static function unsetSession($session_key_or_array): void
@@ -147,6 +141,9 @@ class SessionUtil
             unset($_SESSION[$session_key_or_array]);
         }
         session_write_close();
+        (new SystemLogger())->debug("SessionUtil: unset session value", [
+            'session_key_or_array' => $session_key_or_array
+        ]);
     }
 
     public static function setUnsetSession($setArray, $unsetArray): void
@@ -159,39 +156,21 @@ class SessionUtil
             unset($_SESSION[$value]);
         }
         session_write_close();
+        (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
+        (new SystemLogger())->debug("SessionUtil: unset numerous session values", $unsetArray);
     }
 
     public static function coreSessionDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed core session");
     }
 
     public static function portalSessionStart(): void
     {
-        // Note there is no system logger here since that class does not
-        //  yet exist in this context.
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'PortalOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        session_start($settings);
+        $settings = SessionConfigurationBuilder::forPortal();
+        self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started portal session");
     }
 
     public static function portalSessionCookieDestroy(): void
@@ -199,38 +178,20 @@ class SessionUtil
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed portal session");
     }
 
     public static function apiSessionStart($web_root): void
     {
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => true,
-            'name' => 'apiOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        session_start($settings);
+        $settings = SessionConfigurationBuilder::forApi($web_root);
+        self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started api session");
     }
 
     public static function apiSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed api session");
     }
 
     public static function switchToOAuthSession($web_root): void
@@ -238,73 +199,39 @@ class SessionUtil
         session_write_close();
         session_id($_COOKIE[self::OAUTH_SESSION_ID] ?? '');
         self::oauthSessionStart($web_root);
+        (new SystemLogger())->debug("SessionUtil: switched to oauth session");
     }
 
     public static function oauthSessionStart($web_root): void
     {
-        $settings = [
-            'cookie_samesite' => "None",
-            'cookie_secure' => true,
-            'name' => self::OAUTH_SESSION_ID,
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/oauth2/' : '/oauth2/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        session_start($settings);
+        $settings = SessionConfigurationBuilder::forOAuth($web_root);
+        self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started oauth session");
     }
 
     public static function oauthSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed oauth session");
     }
 
     public static function setupScriptSessionStart(): void
     {
-        $settings = [
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'setupOpenEMR',
-            'cookie_httponly' => self::$use_cookie_httponly,
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies
-        ];
-
-        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
-        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
-        if (version_compare(phpversion(), '8.4.0', '<')) {
-            // Code to run on PHP < 8.4
-            $settings = array_merge([
-                'sid_bits_per_character' => self::$sid_bits_per_character,
-                'sid_length' => self::$sid_length
-            ], $settings);
-        }
-
-        session_start($settings);
+        $settings = SessionConfigurationBuilder::forSetup();
+        self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started setup script session");
     }
 
     public static function setupScriptSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed setup script session");
     }
 
     private static function standardSessionCookieDestroy(): void
     {
+        $sessionName = session_name();
+
         // Destroy the cookie
         $params = session_get_cookie_params();
         setcookie(
@@ -322,5 +249,8 @@ class SessionUtil
 
         // Destroy the session.
         session_destroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed session and cookie", [
+            'session_name' => $sessionName,
+        ]);
     }
 }

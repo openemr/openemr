@@ -41,15 +41,18 @@ if (!empty($_POST['confirm'])) {
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
         $sql = "update forms set deleted=1 where id=?";
-        sqlStatement($sql, array($_POST['id']));
+        sqlStatement($sql, [$_POST['id']]);
       // set the procedure order to deleted
         $sql = "update procedure_order p
-                left join
-                       forms f
+                left join forms f
                 on f.form_id = p.procedure_order_id
                 set activity=0
                 where f.id=?";
-        sqlStatement($sql, array($_POST['id']));
+        sqlStatement($sql, [$_POST['id']]);
+        $sql = "update procedure_specimen p
+                set deleted=1
+                where `procedure_order_id`=?";
+        sqlStatement($sql, [$_POST['id']]);
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
             "DELETE FROM shared_attributes WHERE " .
@@ -58,11 +61,11 @@ if (!empty($_POST['confirm'])) {
             "f.pid = ? AND f.encounter = ? AND f.formdir LIKE 'LBF%' AND " .
             "f.deleted = 0 AND " .
             "lo.form_id = f.formdir AND lo.source = 'E' AND lo.uor > 0)",
-            array($pid, $encounter, $pid, $encounter)
+            [$pid, $encounter, $pid, $encounter]
         );
     }
     // log the event
-    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
+    EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";

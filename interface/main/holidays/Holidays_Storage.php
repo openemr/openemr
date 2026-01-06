@@ -1,5 +1,7 @@
 <?php
 
+require_once "Holidays_Csv.php";
+
 /**
  * interface/main/holidays/Holidays_Storage.php holidays/clinic interaction with the database
  *
@@ -23,9 +25,9 @@ class Holidays_Storage
      * This function selects ALL the holidays from the table calendar_external and returns an array
      * @return array
      */
-    public function get_holidays()
+    public function get_holidays(): array
     {
-        $holidays = array();
+        $holidays = [];
         $sql = "SELECT * FROM " . escape_table_name(self::TABLE_NAME);
         $res = sqlStatement($sql);
         while ($row = sqlFetchArray($res)) {
@@ -37,15 +39,23 @@ class Holidays_Storage
 
     /**
      * Selects  holidays/closed clinic events from the table events in a range of dates
-     * @param $star_date
+     * @param $start_date
      * @param $end_date
      * @return array [0=>"2016/06/16"]
      */
-    public static function get_holidays_by_dates($start_date, $end_date)
+    public static function get_holidays_by_dates(string $start_date, string $end_date): array
     {
-        $holidays = array();
+        $holidays = [];
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
-        $res = sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date));
+        $res = sqlStatement(
+            $sql,
+            [
+                self::CALENDAR_CATEGORY_HOLIDAY,
+                self::CALENDAR_CATEGORY_CLOSED,
+                $start_date,
+                $end_date
+            ]
+        );
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row['pc_eventDate'];
         }
@@ -55,10 +65,10 @@ class Holidays_Storage
 
     /**
      * From an array of holidays creates a row that will be inserted as an event to be used in the calendar
-     * The holidays array must contai the date=>DD/MM/YYY, description=>"string"
+     * The holidays array must contains the date=>DD/MM/YYY, description=>"string"
      * @param array $holidays
      */
-    public function create_events(array $holidays)
+    public function create_events(array $holidays): bool
     {
         $deleted = false;
         foreach ($holidays as $holiday) {
@@ -67,7 +77,7 @@ class Holidays_Storage
                 $deleted = true;
             }
 
-            $row = array(
+            $row = [
                 self::CALENDAR_CATEGORY_HOLIDAY,//catgory
                 0,//authid
                 0,//pid
@@ -77,9 +87,9 @@ class Holidays_Storage
                 "a:6:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";s:6:\"exdate\";s:0:\"\";}",
                 1,//allday
                 1,//status
-                isset($_SESSION['pc_facility']) ? $_SESSION['pc_facility'] : 0,//facility
+                $_SESSION['pc_facility'] ?? 0,//facility
                 2 //SHARING_PUBLIC
-            );
+            ];
 
             $pc_eid = sqlInsert(
                 "INSERT INTO openemr_postcalendar_events ( " .
@@ -100,34 +110,45 @@ class Holidays_Storage
      * 2016/12/24,Christmas
      * @param $file (string containing the file name)
      */
-    public function import_holidays($file)
+    public function import_holidays(string $file): bool
     {
-        $data = array();
         $handle = fopen($file, "r");
+        if ($handle === false) {
+            return false;
+        }
+
         $deleted = false;
-        do {
-            if ($data[0]) {
+
+        try {
+            while (($data = Holidays_Csv::read_next_data_row($handle)) !== null) {
                 if (!$deleted) {
                     $this->delete_calendar_external();
                     $deleted = true;
                 }
 
-                $row = array($data[0],$data[1]);
-                sqlStatement("INSERT INTO " . escape_table_name(self::TABLE_NAME) . "(date,description,source)" . " VALUES (?,?,'csv')", $row);
+                $row = [$data[0], $data[1] ?? ""];
+                sqlStatement(
+                    "INSERT INTO " . escape_table_name(self::TABLE_NAME) . "(date,description,source) VALUES (?,?,'csv')",
+                    $row
+                );
             }
-        } while ($data = fgetcsv($handle, 1000, ",", "'"));
-        return true;
+
+            return true;
+        } finally {
+            fclose($handle);
+        }
     }
 
-    private function delete_calendar_external()
+
+    private function delete_calendar_external(): void
     {
         $sql = "TRUNCATE TABLE " . escape_table_name(self::TABLE_NAME);
         $res = sqlStatement($sql);
     }
 
-    private function delete_holiday_events()
+    private function delete_holiday_events(): void
     {
         $sql = "DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?";
-        sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
+        sqlStatement($sql, [self::CALENDAR_CATEGORY_HOLIDAY]);
     }
 }

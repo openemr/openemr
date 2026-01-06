@@ -21,7 +21,7 @@ if (php_sapi_name() !== 'cli') {
  *
  * Code below translates $argv to $_REQUEST
  */
-foreach ($argv as $argk => $argval) {
+foreach (($argv ?? []) as $argk => $argval) {
     if ($argk == 0) {
         continue;
     }

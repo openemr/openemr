@@ -62,26 +62,26 @@ function smarty_function_mailto($params, &$smarty)
 
     // netscape and mozilla do not decode %40 (@) in BCC field (bug?)
     // so, don't encode it.
-    $search = array('%40', '%2C');
-    $replace  = array('@', ',');
-    $mail_parms = array();
+    $search = ['%40', '%2C'];
+    $replace  = ['@', ','];
+    $mail_parms = [];
     foreach ($params as $var=>$value) {
         switch ($var) {
             case 'cc':
             case 'bcc':
             case 'followupto':
                 if (!empty($value))
-                    $mail_parms[] = $var.'='.str_replace($search,$replace,rawurlencode($value));
+                    $mail_parms[] = $var.'='.str_replace($search,$replace,rawurlencode((string) $value));
                 break;
-                
+
             case 'subject':
             case 'newsgroups':
-                $mail_parms[] = $var.'='.rawurlencode($value);
+                $mail_parms[] = $var.'='.rawurlencode((string) $value);
                 break;
 
             case 'extra':
             case 'text':
-                $$var = $value;
+                ${$var} = $value;
 
             default:
         }
@@ -95,7 +95,7 @@ function smarty_function_mailto($params, &$smarty)
     $address .= $mail_parm_vals;
 
     $encode = (empty($params['encode'])) ? 'none' : $params['encode'];
-    if (!in_array($encode,array('javascript','javascript_charcode','hex','none')) ) {
+    if (!in_array($encode,['javascript','javascript_charcode','hex','none']) ) {
         $smarty->trigger_error("mailto: 'encode' parameter must be none, javascript or hex");
         return;
     }
@@ -114,7 +114,7 @@ function smarty_function_mailto($params, &$smarty)
         $string = '<a href="mailto:'.$address.'" '.$extra.'>'.$text.'</a>';
 
         for($x = 0, $y = strlen($string); $x < $y; $x++ ) {
-            $ord[] = ord($string[$x]);   
+            $ord[] = ord($string[$x]);
         }
 
         $_ret = "<script type=\"text/javascript\" language=\"javascript\">\n";
@@ -125,10 +125,10 @@ function smarty_function_mailto($params, &$smarty)
         $_ret .= "}\n";
         $_ret .= "//-->\n";
         $_ret .= "</script>\n";
-        
+
         return $_ret;
-        
-        
+
+
     } elseif ($encode == 'hex') {
 
         preg_match('!^(.*)(\?.*)$!',$address,$match);
@@ -145,8 +145,8 @@ function smarty_function_mailto($params, &$smarty)
             }
         }
         $text_encode = '';
-        for ($x=0; $x < strlen($text); $x++) {
-            $text_encode .= '&#x' . bin2hex($text[$x]).';';
+        for ($x=0; $x < strlen((string) $text); $x++) {
+            $text_encode .= '&#x' . bin2hex((string) $text[$x]).';';
         }
 
         $mailto = "&#109;&#97;&#105;&#108;&#116;&#111;&#58;";

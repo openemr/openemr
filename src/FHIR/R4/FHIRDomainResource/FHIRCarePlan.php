@@ -209,6 +209,13 @@ class FHIRCarePlan extends FHIRDomainResource implements \JsonSerializable
     public $note = [];
 
     /**
+     * Describes the reason for the care plan being created or for the activities included.
+     * Supports US Core 8.0 and USCDI v5 requirements for documenting health concerns.
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
+     */
+    public $reasonCode = [];
+
+    /**
      * @var string
      */
     private $_fhirElementName = 'CarePlan';
@@ -663,6 +670,26 @@ class FHIRCarePlan extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
+     * Describes the reason for the care plan being created or for the activities included.
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
+     */
+    public function getReasonCode()
+    {
+        return $this->reasonCode;
+    }
+
+    /**
+     * Describes the reason for the care plan being created or for the activities included.
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $reasonCode
+     * @return $this
+     */
+    public function addReasonCode($reasonCode)
+    {
+        $this->reasonCode[] = $reasonCode;
+        return $this;
+    }
+
+    /**
      * General notes about the care plan not covered elsewhere.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation $note
      * @return $this
@@ -839,6 +866,15 @@ class FHIRCarePlan extends FHIRDomainResource implements \JsonSerializable
                 } else {
                     throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
+                if (isset($data['reasonCode'])) {
+                    if (is_array($data['reasonCode'])) {
+                        foreach ($data['reasonCode'] as $d) {
+                            $this->addReasonCode($d);
+                        }
+                    } else {
+                        throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, ' . gettype($data['reasonCode']) . ' seen.');
+                    }
+                }
             }
         } elseif (null !== $data) {
             throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
@@ -849,7 +885,7 @@ class FHIRCarePlan extends FHIRDomainResource implements \JsonSerializable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }
@@ -972,6 +1008,14 @@ class FHIRCarePlan extends FHIRDomainResource implements \JsonSerializable
                 $json['note'][] = $note;
             }
         }
+
+        if (0 < count($this->reasonCode)) {
+            $json['reasonCode'] = [];
+            foreach ($this->reasonCode as $reasonCode) {
+                $json['reasonCode'][] = $reasonCode;
+            }
+        }
+
         return $json;
     }
 
@@ -1083,6 +1127,13 @@ class FHIRCarePlan extends FHIRDomainResource implements \JsonSerializable
                 $note->xmlSerialize(true, $sxe->addChild('note'));
             }
         }
+
+        if (0 < count($this->reasonCode)) {
+            foreach ($this->reasonCode as $reasonCode) {
+                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
+            }
+        }
+
         if ($returnSXE) {
             return $sxe;
         }

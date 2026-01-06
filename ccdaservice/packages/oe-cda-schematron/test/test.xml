@@ -1,0 +1,80 @@
+<xml xmlns="urn:dh">
+	<!-- count of elements -->
+	<test root="A">
+		<element>true</element>
+	</test>
+	<test root="A">
+		<element>false</element>
+		<element>false</element>
+	</test>
+	<!-- attibute equivalence -->
+	<test root="B">
+		<element atttribute="ok">true</element>
+	</test>
+	<test root="B">
+		<element atttribute="notok">false</element>
+	</test>
+	<!-- child presence  -->
+	<test root="C">
+		<element>
+			<child>true</child>
+		</element>
+	</test>
+	<test root="C">
+		<element>
+			<notchild>false</notchild>
+		</element>
+	</test>
+	<!-- conditional child presence  -->
+	<test root="D">
+		<element attribute="needChild">
+			<child>true</child>
+		</element>
+	</test>
+	<test root="D">
+		<element attribute="needNoChild">true</element>
+	</test>
+	<test root="D">
+		<element attribute="needChild">false</element>
+	</test>
+	<!-- OR presence  -->
+	<test root="E">
+		<element>
+			<firstChild>true</firstChild>
+		</element>
+	</test>
+	<test root="E">
+		<element>
+			<secondChild>true</secondChild>
+		</element>
+	</test>
+	<test root="E">
+		<element>
+			<notChild>false</notChild>
+		</element>
+	</test>
+	<!-- AND presence  -->
+	<test root="F">
+		<element>
+			<firstChild>true</firstChild>
+			<secondChild>true</secondChild>
+		</element>
+	</test>
+	<test root="F">
+		<element>
+			<secondChild>false</secondChild>
+		</element>
+	</test>
+	<test root="F">
+		<element>
+			<notChild>false</notChild>
+		</element>
+	</test>
+	<!-- Element value  -->
+	<test root="G">
+		<element>true</element>
+	</test>
+	<test root="G">
+		<element>false</element>
+	</test>
+</xml>

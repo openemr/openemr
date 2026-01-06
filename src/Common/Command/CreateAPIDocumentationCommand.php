@@ -16,6 +16,8 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Yaml;
 
 class CreateAPIDocumentationCommand extends Command
 {
@@ -38,9 +40,35 @@ class CreateAPIDocumentationCommand extends Command
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
         $site = $input->getOption('site') ?? 'default';
 
-        $openapi = \OpenApi\Generator::scan([$routesLocation]);
+        $finder = new Finder();
+        $finder->in($GLOBALS['fileroot'] . '/apis/routes')
+            ->name('*.php');
+        $openapi = \OpenApi\Generator::scan([
+            $routesLocation
+            ,$finder
+        ]);
 
-        $resultYaml = file_put_contents($fileDestinationYaml, $openapi->toYaml());
+        // To have smaller diffs - we force stable order here
+        $data = json_decode($openapi->toJson(), true);
+
+        foreach (['paths', 'components'] as $section) {
+            ksort($data[$section]);
+            foreach ($data[$section] as &$sectionItem) {
+                ksort($sectionItem);
+            }
+        }
+
+        if (isset($data['tags'])) {
+            usort(
+                $data['tags'],
+                static fn($a, $b): int => strcmp((string) $a['name'], (string) $b['name'])
+            );
+        }
+
+        $resultYaml = file_put_contents(
+            $fileDestinationYaml,
+            Yaml::dump($data, 20, 2)
+        );
 
         if ($resultYaml === false) {
             $output->writeln("No write access to " . $fileDestinationYaml);

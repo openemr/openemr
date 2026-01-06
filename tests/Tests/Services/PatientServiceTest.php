@@ -2,14 +2,15 @@
 
 namespace OpenEMR\Tests\Services;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Patient Service Tests
- * @coversDefaultClass OpenEMR\Services\PatientService
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -17,6 +18,7 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
 class PatientServiceTest extends TestCase
 {
     /**
@@ -24,6 +26,8 @@ class PatientServiceTest extends TestCase
      */
     private $patientService;
     private $fixtureManager;
+
+    private array $patientFixture;
 
     protected function setUp(): void
     {
@@ -37,23 +41,21 @@ class PatientServiceTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * @covers ::getFreshPid
-     */
-    public function testGetFreshPid()
+    #[Test]
+    public function testGetFreshPid(): void
     {
         $actualValue = $this->patientService->getFreshPid();
         $this->assertGreaterThan(0, $actualValue);
     }
 
-    /**
-     * @covers ::insert when the data is invalid
-     */
-    public function testInsertFailure()
+    #[Test]
+    public function testInsertFailure(): void
     {
         $this->patientFixture["fname"] = "";
         $this->patientFixture["DOB"] = "12/27/2017";
-        unset($this->patientFixture["sex"]);
+        if (isset($this->patientFixture["sex"])) {
+            unset($this->patientFixture["sex"]);
+        }
 
         $actualResult = $this->patientService->insert($this->patientFixture);
 
@@ -65,10 +67,8 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(3, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::insert when the data is valid
-     */
-    public function testInsertSuccess()
+    #[Test]
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
@@ -86,10 +86,8 @@ class PatientServiceTest extends TestCase
         $this->assertFalse($actualResult->hasInternalErrors());
     }
 
-    /**
-     * @covers ::update when the data is not valid
-     */
-    public function testUpdateFailure()
+    #[Test]
+    public function testUpdateFailure(): void
     {
         $this->patientService->insert($this->patientFixture);
 
@@ -104,10 +102,8 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::update when the data is valid
-     */
-    public function testUpdateSuccess()
+    #[Test]
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
@@ -130,11 +126,8 @@ class PatientServiceTest extends TestCase
         $this->assertEquals("555-111-4444", $result["phone_home"]);
     }
 
-    /**
-     * @cover ::getOne
-     * @cover ::getAll
-     */
-    public function testPatientQueries()
+    #[Test]
+    public function testPatientQueries(): void
     {
         $this->fixtureManager->installPatientFixtures();
 
@@ -166,11 +159,11 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(0, count($actualResult->getData()));
 
         // getAll
-        $actualResult = $this->patientService->getAll(array("postal_code" => "90210"));
+        $actualResult = $this->patientService->getAll(["postal_code" => "90210"]);
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 
-        foreach ($actualResult->getData() as $index => $patientRecord) {
+        foreach ($actualResult->getData() as $patientRecord) {
             $this->assertArrayHasKey("fname", $resultData);
             $this->assertArrayHasKey("lname", $resultData);
             $this->assertArrayHasKey("sex", $resultData);

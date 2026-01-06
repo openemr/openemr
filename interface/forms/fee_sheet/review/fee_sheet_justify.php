@@ -14,6 +14,7 @@ require_once("../../../globals.php");
 require_once("fee_sheet_queries.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
@@ -39,13 +40,13 @@ if (isset($_REQUEST['billing_id'])) {
 }
 
 if ($task == 'retrieve') {
-    $retval = array();
+    $retval = [];
     $patient = issue_diagnoses($req_pid, $req_encounter);
     $common = common_diagnoses();
     $retval['patient'] = $patient;
     $retval['common'] = $common;
-    $fee_sheet_diags = array();
-    $fee_sheet_procs = array();
+    $fee_sheet_diags = [];
+    $fee_sheet_procs = [];
     fee_sheet_items($req_pid, $req_encounter, $fee_sheet_diags, $fee_sheet_procs);
     $retval['current'] = $fee_sheet_diags;
     echo json_encode($retval);
@@ -58,13 +59,13 @@ if ($task == 'update') {
         $skip_issues = $_REQUEST['skip_issues'] == 'true';
     }
 
-    $diags = array();
+    $diags = [];
     if (isset($_REQUEST['diags'])) {
-        $json_diags = json_decode($_REQUEST['diags']);
+        $json_diags = json_decode((string) $_REQUEST['diags']);
     }
 
     foreach ($json_diags as $diag) {
-        $new_diag = new code_info($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
+        $new_diag = new CodeInfo($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
         if (isset($diag->{'prob_id'})) {
             $new_diag->db_id = $diag->{'prob_id'};
         } else {

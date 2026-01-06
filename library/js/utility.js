@@ -393,6 +393,7 @@ function checkPasswordStrength(inputElement) {
         }
     }
 }
+
 /*
 * Universal async BS alert message with promise
 * Note the use of new javaScript translate function xl().
@@ -447,25 +448,23 @@ async function syncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 }
 
 /* Handy function to set values in globals user_settings table */
-if (typeof persistUserOption !== "function") {
-    const persistUserOption = function (option, value) {
-        return $.ajax({
-            url: top.webroot_url + "/library/ajax/user_settings.php",
-            type: 'post',
-            contentType: 'application/x-www-form-urlencoded',
-            data: {
-                csrf_token_form: top.csrf_token_js,
-                target: option,
-                setting: value
-            },
-            beforeSend: function () {
-                top.restoreSession();
-            },
-            error: function (jqxhr, status, errorThrown) {
-                console.log(errorThrown);
-            }
-        });
-    };
+async function persistUserOption(option, value) {
+    return $.ajax({
+        url: top.webroot_url + "/library/ajax/user_settings.php",
+        type: 'post',
+        contentType: 'application/x-www-form-urlencoded',
+        data: {
+            csrf_token_form: top.csrf_token_js,
+            target: option,
+            setting: value
+        },
+        beforeSend: function () {
+            top.restoreSession();
+        },
+        error: function (jqxhr, status, errorThrown) {
+            console.log(errorThrown);
+        }
+    });
 }
 
 /**
@@ -522,29 +521,34 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
     };
 }
 
-(function(window, oeSMART) {
-    oeSMART.initLaunch = function(webroot, csrfToken) {
+(function (window, oeSMART) {
+    oeSMART.initLaunch = function (webroot, csrfToken) {
         // allows this to be lazy defined
-        let xl = window.top.xl || function(text) { return text; };
+        let xl = window.top.xl || function (text) {
+            return text;
+        };
         let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
         for (let launch of smartLaunchers) {
-                launch.addEventListener('click', function (evt) {
-                    let node = evt.target;
-                    let intent = node.dataset.intent;
-                    let clientId = node.dataset.clientId;
-                    if (!intent || !clientId) {
-                        console.error("mising intent parameter or client-id parameter");
-                        return;
-                    }
+            launch.addEventListener('click', function (evt) {
+                let node = evt.target;
+                let intent = node.dataset.intent;
+                let clientId = node.dataset.clientId;
+                if (!intent || !clientId) {
+                    console.error("mising intent parameter or client-id parameter");
+                    return;
+                }
 
-                    let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                        + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                        + "&csrf_token=" + encodeURIComponent(csrfToken);
-                    let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
-                    // we allow external dialog's  here because that is what a SMART app is
-                    let height = window.top.innerHeight; // do our full height here
-                    dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
+                const params = new URLSearchParams({
+                    client_id: clientId,
+                    csrf_token: csrfToken,
+                    intent: intent
                 });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?' + params;
+                let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
+                // we allow external dialog's  here because that is what a SMART app is
+                let height = window.top.innerHeight; // do our full height here
+                dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
+            });
         }
 
         let dsiHelpNodes = document.querySelectorAll(".smart-launch-dsi-info");
@@ -570,22 +574,30 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                         dlgclose();
                         window.top.removeEventListener('message', windowMessageHandler);
                         // loadFrame already handles webroot and /interface/ prefix.
-                        let editUrl = '/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/edit/" + data.dsiId)
-                            + "&csrf_token=" + encodeURIComponent(csrfToken);
+                        const editParams = new URLSearchParams({
+                            csrf_token: csrfToken,
+                            action: "external-cdr/edit/" + data.dsiId
+                        });
+                        let editUrl = '/smart/admin-client.php?' + editParams;
                         window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                     }
                 };
                 window.top.addEventListener('message', windowMessageHandler);
 
-                let url = webroot + '/interface/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/cdr-info")
-                    + '&serviceId=' + encodeURIComponent(dsi)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    action: "external-cdr/cdr-info",
+                    csrf_token: csrfToken,
+                    serviceId: dsi
+                });
+                let url = webroot + '/interface/smart/admin-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
-                dlgopen(url, 'smartDsiEditSource', 'modal-full', height, '', title, {allowExternal: false, onClose: function() {
-                    window.top.removeEventListener('message', windowMessageHandler);
-                }});
+                dlgopen(url, 'smartDsiEditSource', 'modal-full', height, '', title, {
+                    allowExternal: false, onClose: function () {
+                        window.top.removeEventListener('message', windowMessageHandler);
+                    }
+                });
             });
         }
     };
@@ -607,4 +619,59 @@ function isValidEmail(emailAddress) {
     } else {
         return false;
     }
+}
+function normalizeToFilename(str) {
+    const controlCharsRegex = new RegExp(
+        '[' +
+        String.fromCharCode(0) + '-' + String.fromCharCode(31) +
+        String.fromCharCode(128) + '-' + String.fromCharCode(159) +
+        ']',
+        'g'
+    );
+
+    return str
+    .replace(/[<>:"/\\|?*]/g, '') // Remove illegal filename characters
+    .replace(controlCharsRegex, '') // Remove control characters
+    .replace(/[\s.,()[\]]/g, '_') // Replace spaces and punctuation with underscore
+    .replace(/[&+]/g, 'and') // Replace & and + with "and"
+    .replace(/_+/g, '_') // Collapse multiple underscores
+    .replace(/^_|_$/g, '') // Trim leading/trailing underscores
+    .toLowerCase()
+    .substring(0, 100); // Limit length
+}
+
+/*
+* @function js_uniqid()
+* @summary call this function where you need a unique id, based on php uniqid()
+*
+* @param string prefix to go before unique id that is generated
+* @param boolean
+*/
+function js_uniqid(prefix = "", moreEntropy = true) {
+
+    // Get microseconds since Unix epoch
+    const time = Date.now();
+    const micro = (performance.now() * 1000) % 1000000;
+    const uniqidTime = Math.floor(time / 1000) * 1000000 + Math.floor(micro);
+
+    // Convert to hex (PHP uses 8 chars for seconds + 5 for microseconds)
+    let id = uniqidTime.toString(16);
+
+    if (moreEntropy) {
+        // Ensure at least 4 random digits, exactly 13 total
+        const entropyDigits = 4;
+        const timestampDigits = 13 - entropyDigits; // 9 digits
+
+        // Trim timestamp if needed to make room for entropy
+        if (id.length > timestampDigits) {
+            id = id.slice(0, timestampDigits); // Keep the first 9 digits
+        }
+
+        // Generate random hex string
+        const maxEntropy = Math.pow(16, entropyDigits);
+        const entropy = Math.floor(Math.random() * maxEntropy);
+        id += entropy.toString(16).padStart(entropyDigits, '0');
+    }
+
+    return prefix + id;
 }

@@ -30,7 +30,7 @@ class FacilityValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required('name')->lengthBetween(2, 255);
                 $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
                 $context->optional('domain_identifier')->numeric();
@@ -62,19 +62,17 @@ class FacilityValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    function ($rules): void {
+                        foreach ($rules as $chain) {
                             $chain->required(false);
                         }
                     }
                 );
                 // additional euuid validation
-                $context->required("uuid", "Facility UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "facility", $value, true);
-                })->uuid();
+                $context->required("uuid", "Facility UUID")->callback(fn($value) => $this->validateId("uuid", "facility", $value, true))->uuid();
             }
         );
     }

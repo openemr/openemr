@@ -44,7 +44,7 @@ $info_msg = "";
 // Delete rows, with logging, for the specified table using the
 // specified WHERE clause.
 //
-function row_delete($table, $where)
+function row_delete($table, $where): void
 {
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -62,7 +62,7 @@ function row_delete($table, $where)
             $logstring .= $key . "= '" . $value . "' ";
         }
 
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
@@ -79,10 +79,10 @@ function row_delete($table, $where)
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.
 //
-function row_modify($table, $set, $where)
+function row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
-        EventAuditLogger::instance()->newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
+        EventAuditLogger::getInstance()->newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
         $query = "UPDATE " . escape_table_name($table) . " SET $set WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
             echo text($query) . "<br />\n";
@@ -98,11 +98,11 @@ function decorateString($fmt, $str)
 {
     $res = '';
     while ($fmt) {
-        $fc = substr($fmt, 0, 1);
-        $fmt = substr($fmt, 1);
+        $fc = substr((string) $fmt, 0, 1);
+        $fmt = substr((string) $fmt, 1);
         if ($fc == '.') {
-            $res .= substr($str, 0, 1);
-            $str = substr($str, 1);
+            $res .= substr((string) $str, 0, 1);
+            $str = substr((string) $str, 1);
         } else {
             $res .= $fc;
         }
@@ -114,7 +114,7 @@ function decorateString($fmt, $str)
 // Delete and undo product sales for a given patient or visit.
 // This is special because it has to replace the inventory.
 //
-function delete_drug_sales($patient_id, $encounter_id = 0)
+function delete_drug_sales($patient_id, $encounter_id = 0): void
 {
     $where = $encounter_id ? "ds.encounter = '" . add_escape_custom($encounter_id) . "'" :
     "ds.pid = '" . add_escape_custom($patient_id) . "' AND ds.encounter != 0";
@@ -130,11 +130,11 @@ function delete_drug_sales($patient_id, $encounter_id = 0)
 
 // Delete a form's data that is specific to that form.
 //
-function form_delete($formdir, $formid, $patient_id, $encounter_id)
+function form_delete($formdir, $formid, $patient_id, $encounter_id): void
 {
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
-    if (substr($formdir, 0, 3) == 'LBF') {
+    if (str_starts_with((string) $formdir, 'LBF')) {
         row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
         // Delete the visit's "source=visit" attributes that are not used by any other form.
         $where = "pid = '" . add_escape_custom($patient_id) . "' AND encounter = '" .
@@ -148,7 +148,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
         row_delete("shared_attributes", $where);
     } elseif ($formdir == 'procedure_order') {
         $tres = sqlStatement("SELECT procedure_report_id FROM procedure_report " .
-        "WHERE procedure_order_id = ?", array($formid));
+        "WHERE procedure_order_id = ?", [$formid]);
         while ($trow = sqlFetchArray($tres)) {
             $reportid = (int)$trow['procedure_report_id'];
             row_delete("procedure_result", "procedure_report_id = '" . add_escape_custom($reportid) . "'");
@@ -160,10 +160,10 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
     } elseif ($formdir == 'physical_exam') {
         row_delete("form_$formdir", "forms_id = '" . add_escape_custom($formid) . "'");
     } elseif ($formdir == 'eye_mag') {
-        $tables = array('form_eye_base','form_eye_hpi','form_eye_ros','form_eye_vitals',
+        $tables = ['form_eye_base','form_eye_hpi','form_eye_ros','form_eye_vitals',
             'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
             'form_eye_external', 'form_eye_antseg','form_eye_postseg',
-            'form_eye_neuro','form_eye_locking','form_eye_mag_orders');
+            'form_eye_neuro','form_eye_locking','form_eye_mag_orders'];
         foreach ($tables as $table_name) {
             row_delete($table_name, "id = '" . add_escape_custom($formid) . "'");
         }
@@ -178,7 +178,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
 //  Note the specific file is not deleted (instead flagged as deleted), since required to keep file for
 //   ONC certification purposes.
 //
-function delete_document($document)
+function delete_document($document): void
 {
     sqlStatement("UPDATE `documents` SET `deleted` = 1 WHERE id = ?", [$document]);
     row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");
@@ -235,7 +235,7 @@ function popup_close() {
                 row_delete("insurance_data", "pid = '" . add_escape_custom($patient) . "'");
                 row_delete("patient_history", "pid = '" . add_escape_custom($patient) . "'");
 
-                $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
+                $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", [$patient]);
                 while ($row = sqlFetchArray($res)) {
                     row_delete("forms", "pid = '" . add_escape_custom($row['pid']) .
                             "' AND form_id = '" . add_escape_custom($row['form_id']) . "'");
@@ -243,7 +243,7 @@ function popup_close() {
                 }
 
                 // Delete all documents for the patient.
-                $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ? AND deleted = 0", array($patient));
+                $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ? AND deleted = 0", [$patient]);
                 while ($row = sqlFetchArray($res)) {
                     delete_document($row['id']);
                 }
@@ -259,7 +259,7 @@ function popup_close() {
                 row_modify("ar_activity", "deleted = NOW()", "encounter = '" . add_escape_custom($encounterid) . "' AND deleted IS NULL");
                 row_delete("claims", "encounter_id = '" . add_escape_custom($encounterid) . "'");
                 row_delete("issue_encounter", "encounter = '" . add_escape_custom($encounterid) . "'");
-                $res = sqlStatement("SELECT * FROM forms WHERE encounter = ?", array($encounterid));
+                $res = sqlStatement("SELECT * FROM forms WHERE encounter = ?", [$encounterid]);
                 while ($row = sqlFetchArray($res)) {
                     form_delete($row['formdir'], $row['form_id'], $row['pid'], $row['encounter']);
                 }
@@ -270,7 +270,7 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                $row = sqlQuery("SELECT * FROM forms WHERE id = ?", array($formid));
+                $row = sqlQuery("SELECT * FROM forms WHERE id = ?", [$formid]);
                 $formdir = $row['formdir'];
                 if (! $formdir) {
                     die("There is no form with id '" . text($formid) . "'");
@@ -282,7 +282,7 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                $ids = explode(",", $issue);
+                $ids = explode(",", (string) $issue);
                 foreach ($ids as $id) {
                     row_delete("issue_encounter", "list_id = '" . add_escape_custom($id) . "'");
                     row_delete("lists_medication", "list_id = '" . add_escape_custom($id) . "'");
@@ -302,11 +302,11 @@ function popup_close() {
                     }
                 }
 
-                list($patient_id, $timestamp, $ref_id) = explode(".", $payment);
+                [$patient_id, $timestamp, $ref_id] = explode(".", (string) $payment);
                 // if (empty($ref_id)) $ref_id = -1;
                 $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
                 $payres = sqlStatement("SELECT * FROM payments WHERE " .
-                "pid = ? AND dtime = ?", array($patient_id, $timestamp));
+                "pid = ? AND dtime = ?", [$patient_id, $timestamp]);
                 while ($payrow = sqlFetchArray($payres)) {
                     if ($payrow['encounter']) {
                         $ref_id = -1;
@@ -323,12 +323,8 @@ function popup_close() {
                         "deleted IS NULL AND " .
                         "payer_type = 0 AND " .
                         "adj_amount = 0.00 " .
-                        "GROUP BY session_id ORDER BY session_id DESC", array($patient_id, $payrow['encounter']));
+                        "GROUP BY session_id ORDER BY session_id DESC", [$patient_id, $payrow['encounter']]);
                         while ($serow = sqlFetchArray($seres)) {
-                            if (sprintf("%01.2f", $serow['adj_amount']) != 0.00) {
-                                continue;
-                            }
-
                             if (sprintf("%01.2f", $serow['pay_amount'] - $tpmt) == 0.00) {
                                 $ref_id = $serow['session_id'];
                                 break;
@@ -383,7 +379,7 @@ function popup_close() {
                     die("Not authorized!");
                 }
 
-                list($patient_id, $encounter_id) = explode(".", $billing);
+                [$patient_id, $encounter_id] = explode(".", (string) $billing);
 
                 row_modify(
                     "ar_activity",
@@ -409,9 +405,9 @@ function popup_close() {
                 );
                 sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
                 "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
-                "WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+                "WHERE pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
                 sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
-                "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+                "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
             } elseif ($transaction) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -492,7 +488,7 @@ function popup_close() {
                 $type = 'transaction';
             }
 
-            $ids = explode(",", $id);
+            $ids = explode(",", (string) $id);
             if (count($ids) > 1) {
                 $type .= 's';
             }

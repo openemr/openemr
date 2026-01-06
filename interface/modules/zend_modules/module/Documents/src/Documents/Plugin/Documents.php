@@ -32,7 +32,7 @@ class Documents extends AbstractPlugin
    **/
     public function __construct($sm)
     {
-        $sm->get('Laminas\Db\Adapter\Adapter');
+        $sm->get(\Laminas\Db\Adapter\Adapter::class);
         $this->documentsTable = new DocumentsTable();
     }
 
@@ -60,16 +60,12 @@ class Documents extends AbstractPlugin
 	    WHERE cat_doc.category_id = 1";
         $result = $obj->zQuery($query);
         $count  = 0;
-        $module = array();
+        $module = [];
         foreach ($result as $row) {
             $content = self::getDocument($row['id']);
             $module[$count]['doc_id']   = $row['id'];
             if (preg_match("/<ClinicalDocument/", $content)) {
-                if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)) {
-                    $module[$count]['doc_type'] = 'CCD';
-                } else {
-                    $module[$count]['doc_type'] = 'CCDA';
-                }
+                $module[$count]['doc_type'] = preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content) ? 'CCD' : 'CCDA';
             } elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content)) {
                 $module[$count]['doc_type'] = 'CCR';
             }

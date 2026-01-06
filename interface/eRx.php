@@ -24,11 +24,7 @@ set_time_limit(0);
 
 function array_key_exists_default($key, $search, $default = null)
 {
-    if (array_key_exists($key, $search)) {
-        $value = $search[$key];
-    } else {
-        $value = $default;
-    }
+    $value = array_key_exists($key, $search) ? $search[$key] : $default;
 
     return $value;
 }
@@ -125,7 +121,7 @@ if (count($missingExtensions) > 0) {
 
         if (count($errors) > 0) {
             ?>
-        <strong><?php echo xlt('NewCrop call failed'); ?></strong>
+        <strong><?php echo xlt('Ensora call failed'); ?></strong>
         <ul>
             <?php foreach ($errors as $message) {
                 echo '<li>' . text($message) . '</li>';

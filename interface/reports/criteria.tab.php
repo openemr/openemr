@@ -22,30 +22,30 @@ use OpenEMR\Billing\BillingReport;
 
 // TPS = This Page Search
 
-$TPSCriteriaKey = array();
-$TPSCriteriaDataType = array();
-$TPSCriteriaDisplay = array();
-$TPSCriteriaRadioKey = array();
-$TPSCriteriaDisplayRadio = array();
-$TPSCriteriaQueryDropDown = array();
-$TPSCriteriaQueryDropDownDefault = array();
-$TPSCriteriaQueryDropDownDefaultKey = array();
-$TPSCriteriaInclude = array();
+$TPSCriteriaKey = [];
+$TPSCriteriaDataType = [];
+$TPSCriteriaDisplay = [];
+$TPSCriteriaRadioKey = [];
+$TPSCriteriaDisplayRadio = [];
+$TPSCriteriaQueryDropDown = [];
+$TPSCriteriaQueryDropDownDefault = [];
+$TPSCriteriaQueryDropDownDefaultKey = [];
+$TPSCriteriaInclude = [];
 // Filling the input array.
 $TPSCriteriaDisplay = $TPSCriteriaDisplayMaster;
-$TPSCriteriaKey = explode(',', $TPSCriteriaKeyMaster);
-$TPSCriteriaDataType = explode(',', $TPSCriteriaDataTypeMaster);
+$TPSCriteriaKey = explode(',', (string) $TPSCriteriaKeyMaster);
+$TPSCriteriaDataType = explode(',', (string) $TPSCriteriaDataTypeMaster);
 // --------------------------------------------------------------
 // Filling the input array.
 // --------------------------------------------------------------
 $NumberOfRadioTPSCriteria = 0;
 $NumberOfQueryDropDownTPSCriteria = 0;
 $NumberOfIncludeTPSCriteria = 0;
-for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $TPSCriteriaIndex++) {
+for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TPSCriteriaIndex++) {
     if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio_like') {
         $NumberOfRadioTPSCriteria++;
         $TPSCriteriaDisplayRadio[$TPSCriteriaIndex] = $TPSCriteriaDisplayRadioMaster[$NumberOfRadioTPSCriteria];
-        $TPSCriteriaRadioKey[$TPSCriteriaIndex] = explode(',', $TPSCriteriaRadioKeyMaster[$NumberOfRadioTPSCriteria]);
+        $TPSCriteriaRadioKey[$TPSCriteriaIndex] = explode(',', (string) $TPSCriteriaRadioKeyMaster[$NumberOfRadioTPSCriteria]);
     }
     if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'query_drop_down') {
         $NumberOfQueryDropDownTPSCriteria++;
@@ -69,7 +69,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     <label for="choose_this_page_criteria"><?php echo xlt('Select list'); ?>:</label>
                     <select name="choose_this_page_criteria" id="choose_this_page_criteria" title="Choose Criteria" class="form-control" onChange="CriteriaVisible()" size='8'>
                         <?php
-                        for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaKey); $TPSCriteriaIndex++) {
+                        for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaKey); $TPSCriteriaIndex++) {
                             $optionValue = $TPSCriteriaKey[$TPSCriteriaIndex];
                             echo "<option value='" . attr($optionValue) . "'";
                             $optionLabel = $TPSCriteriaDisplay[$TPSCriteriaIndex];
@@ -82,7 +82,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
             <div class="card-footer">
             <!-- Below section comes as per the defined criteria arrays. Initially all are hidden. As per the click the corresponding items gets visible. -->
             <?php
-            for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaKey); $TPSCriteriaIndex++) {
+            for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaKey); $TPSCriteriaIndex++) {
                 if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'date' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'datetime') {
                     $DateNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                     ?>
@@ -183,7 +183,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                         if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio_like') {
                             $RadioSeperator = ' like ';
                         }
-                        for ($TPSCriteriaRadioIndex = 0; $TPSCriteriaRadioIndex < sizeof($TPSCriteriaDisplayRadio[$TPSCriteriaIndex]); $TPSCriteriaRadioIndex++) {
+                        for ($TPSCriteriaRadioIndex = 0; $TPSCriteriaRadioIndex < count($TPSCriteriaDisplayRadio[$TPSCriteriaIndex]); $TPSCriteriaRadioIndex++) {
                             $RadioNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                             if (!empty($_REQUEST["radio_" . $RadioNamePart]) && ($_REQUEST["radio_" . $RadioNamePart] == $TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex])) {
                                 $Checked = ' checked ';
@@ -219,7 +219,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     <select name='final_this_page_criteria[]' id='final_this_page_criteria' class='form-control' size="8" title='Criteria' multiple="multiple">
                         <?php
                         if (!empty($_REQUEST['final_this_page_criteria'])) {
-                            for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
+                            for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < count($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
                                 ?>
                                 <option value="<?php echo attr($_REQUEST['final_this_page_criteria'][$final_this_page_criteria_index]) ?>">
                                     <?php echo xlt($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?></option>
@@ -231,7 +231,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     <select name='final_this_page_criteria_text[]' id='final_this_page_criteria_text' style="display: none" multiple="multiple">
                         <?php
                         if (!empty($_REQUEST['final_this_page_criteria'])) {
-                            for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < sizeof($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
+                            for ($final_this_page_criteria_index = 0; $final_this_page_criteria_index < count($_REQUEST['final_this_page_criteria']); $final_this_page_criteria_index++) {
                                 ?>
                                 <option value="<?php echo attr($_REQUEST['final_this_page_criteria_text'][$final_this_page_criteria_index]) ?>">
                                     1

@@ -12,21 +12,18 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\Psr17Factory;
+use Http\Message\Encoding\GzipEncodeStream;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
-use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationDefinition;
-use OpenEMR\FHIR\R4\FHIRElement\FHIROperationKind;
-use OpenEMR\FHIR\R4\FHIRElement\FHIROperationParameterUse;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRTypeRestfulInteraction;
 use OpenEMR\FHIR\R4\FHIRResource;
@@ -36,6 +33,9 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class RestControllerHelper
 {
@@ -56,11 +56,92 @@ class RestControllerHelper
     // @see https://www.hl7.org/fhir/search.html#table
     const FHIR_SEARCH_CONTROL_PARAM_REV_INCLUDE_PROVENANCE = "Provenance:target";
 
-    private $restURL = "";
-
-    public function __construct($restAPIUrl = "")
+    public function __construct(private readonly string $restURL = "")
     {
-        $this->restURL = $restAPIUrl;
+    }
+
+    const FHIR_PREFER_HEADER_RETURN_VALUES = ['minimal', 'representation', 'OperationOutcome'];
+
+    public static function returnSingleObjectResponse($object, bool $gzipEncoded = false): ResponseInterface
+    {
+        $psrFactory = new Psr17Factory();
+        // should we gzip this?
+
+        $response = $psrFactory->createResponse(200);
+        $stream = $psrFactory->createStream(json_encode($object));
+        $stream->rewind(); // have to rewind the stream.
+        // TODO: @adunsulag the private module this came from supported gzip encoding, but do we want that in the generic core code?
+        if ($gzipEncoded) {
+            $encodedStream = new GzipEncodeStream($stream);
+            $response = $response->withAddedHeader('Content-Encoding', 'gzip')
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($encodedStream);
+        } else {
+            $response = $response->withHeader('Content-Type', 'application/json')
+                ->withBody($stream);
+        }
+        return $response;
+    }
+
+    public static function getEmptyResponse(): ResponseInterface
+    {
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse(200)->withBody($psrFactory->createStream(json_encode([])));
+    }
+
+    public static function getResponseForProcessingResult(ProcessingResult $processingResult): ResponseInterface
+    {
+        $status = 200;
+        $httpResponseBody = [];
+        if (!$processingResult->isValid()) {
+            $status = 400;
+            $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+        } elseif (count($processingResult->getData()) <= 0) {
+            return self::getNotFoundResponse();
+        } elseif ($processingResult->hasInternalErrors()) {
+            $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+        } else {
+            return self::returnSingleObjectResponse($processingResult->getData()[0]);
+        }
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse($status)->withBody($psrFactory->createStream(json_encode($httpResponseBody)));
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public static function getNotFoundResponse(): ResponseInterface
+    {
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse(404)->withBody($psrFactory->createStream(json_encode(['error' => xlt('Not Found')])));
+    }
+
+    public static function addFhirLocationHeader(ResponseInterface $response, string $resourceType, int|string $id): ResponseInterface
+    {
+        $serverConfig = new ServerConfig();
+        $url = $serverConfig->getFhirUrl() . "/" . $resourceType . "/" . $id;
+        return $response->withHeader("Location", $url);
+    }
+
+    public static function getFhirOperationOutcomeSuccessResponse(string $resourceType, int|string $id): ResponseInterface
+    {
+        $operationOutcome = UtilsService::createOperationOutcomeSuccess($resourceType, $id);
+        $psrFactory = new Psr17Factory();
+        return $psrFactory->createResponse(200)->withBody($psrFactory->createStream(json_encode($operationOutcome)));
+    }
+
+    /**
+     * @param  string $preferHeaderValue
+     * @return 'minimal'|'representation'|'OperationOutcome'
+     */
+    public static function getReturnTypeFromPrefer(string $preferHeaderValue): string
+    {
+        $parts = explode("=", $preferHeaderValue);
+        $prefer = end($parts);
+        if (!in_array($prefer, self::FHIR_PREFER_HEADER_RETURN_VALUES)) {
+            return 'minimal';
+        }
+        return $prefer;
     }
 
     /**
@@ -68,23 +149,22 @@ class RestControllerHelper
      *
      * @param $serviceResult
      * @param $customRespPayload
-     * @param $idealStatusCode
-     * @return null
+     * @param int $idealStatusCode
+     * @return Response
      */
-    public static function responseHandler($serviceResult, $customRespPayload, $idealStatusCode)
+    public static function responseHandler($serviceResult, $customRespPayload = null, int $idealStatusCode = Response::HTTP_OK)
     {
         if ($serviceResult) {
-            http_response_code($idealStatusCode);
-
             if ($customRespPayload) {
-                return $customRespPayload;
+                $response = self::getResponseForPayload($customRespPayload);
+            } else {
+                $response = self::getResponseForPayload($serviceResult);
             }
-            return $serviceResult;
+            $response->setStatusCode($idealStatusCode);
+        } else {
+            $response = new Response('', Response::HTTP_NOT_FOUND);
         }
-
-        // if no result is present return a 404 with a null response
-        http_response_code(404);
-        return null;
+        return $response;
     }
 
     public static function validationHandler($validationResult)
@@ -114,10 +194,11 @@ class RestControllerHelper
      * The response data key conveys the data payload for a response. The payload is either a "top level" array for a
      * single result, or an array for multiple results.
      *
-     * @param        $processingResult         - The service processing result.
-     * @param        $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
-     * @param        $isMultipleResultResponse - Indicates if the response contains multiple results.
+     * @param  $processingResult         - The service processing result.
+     * @param  $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
+     * @param  $isMultipleResultResponse - Indicates if the response contains multiple results.
      * @return array[]
+     * @deprecated use createProcessingResultResponse() instead.
      */
     public static function handleProcessingResult(ProcessingResult $processingResult, $successStatusCode, $isMultipleResultResponse = false): array
     {
@@ -167,6 +248,58 @@ class RestControllerHelper
         return $httpResponseBody;
     }
 
+    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false)
+    {
+        $httpResponseBody = [
+            "validationErrors" => [],
+            "internalErrors" => [],
+            "data" => [],
+            "links" => []
+        ];
+        $statusCode = $successStatusCode;
+        if (!$processingResult->isValid()) {
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+        } elseif ($processingResult->hasInternalErrors()) {
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+        } else {
+            $dataResult = $processingResult->getData();
+            $recordsCount = count($dataResult);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
+
+            if (!$isMultipleResultResponse) {
+                $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
+            } else {
+                $pagination = $processingResult->getPagination();
+                // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
+                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($request->server->get('REDIRECT_URL', ''));
+                $getParams = $request->query->all();
+                // cleanup _limit and _offset
+                unset($getParams['_limit']);
+                unset($getParams['_offset']);
+                // cleanup a mod_rewrite piece so the URL is nicer.
+                if (isset($getParams['_REWRITE_COMMAND'])) {
+                    unset($getParams['_REWRITE_COMMAND']);
+                }
+                $queryParams = http_build_query($getParams);
+
+                $pagination->setSearchUri($bundleUrl . '?' . $queryParams);
+                $httpResponseBody['links'] = $processingResult->getPagination()->getLinks();
+            }
+
+            $httpResponseBody["data"] = $dataResult;
+        }
+        // TODO: Do we want to use JsonResponse here? makes it hard to interoperate with other PSR-7 implementations if we go w/ symfony internally
+        $psrFactory = new Psr17Factory();
+        $response = $psrFactory->createResponse($statusCode)
+            ->withHeader("Content-Type", "application/json")
+            ->withBody($psrFactory->createStream(json_encode($httpResponseBody)));
+        return $response;
+    }
+
     /**
      * Parses a service processing result for FHIR endpoints to determine the appropriate HTTP status code and response format
      * for a request.
@@ -175,30 +308,27 @@ class RestControllerHelper
      *
      * @param        $processingResult  - The service processing result.
      * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
-     * @return array|mixed
+     * @return Response
      */
-    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode)
+    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode): Response
     {
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
-            http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            return new JsonResponse($httpResponseBody, Response::HTTP_BAD_REQUEST);
         } elseif (count($processingResult->getData()) <= 0) {
-            http_response_code(404);
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
+            return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
-            http_response_code(500);
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
         } else {
-            http_response_code($successStatusCode);
             $dataResult = $processingResult->getData();
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
-            $httpResponseBody = $dataResult[0];
+            return new JsonResponse($dataResult[0], $successStatusCode);
         }
-
-        return $httpResponseBody;
     }
 
     public function setSearchParams($resource, FHIRCapabilityStatementResource $capResource, $service)
@@ -232,7 +362,7 @@ class RestControllerHelper
             }
 
             foreach ($capResource->getSearchParam() as $searchParam) {
-                if (strcmp($searchParam->getName(), $fhirSearchField) == 0) {
+                if (strcmp($searchParam->getName(), (string) $fhirSearchField) == 0) {
                     $paramExists = true;
                 }
             }
@@ -249,11 +379,12 @@ class RestControllerHelper
     /**
      * Retrieves the fully qualified service class name for a given FHIR resource.  It will only return a class that
      * actually exists.
-     * @param $resource The name of the FHIR resource that we attempt to find the service class for.
-     * @param string $serviceClassNameSpace  The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
+     *
+     * @param  string $resource              The name of the FHIR resource that we attempt to find the service class for.
+     * @param  string $serviceClassNameSpace The namespace to find the class in.  Defaults to self::FHIR_SERVICES_NAMESPACE
      * @return string|null  Returns the fully qualified name if the class is found, otherwise it returns null.
      */
-    public function getFullyQualifiedServiceClassForResource($resource, $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
+    public function getFullyQualifiedServiceClassForResource(string $resource, string $serviceClassNameSpace = self::FHIR_SERVICES_NAMESPACE)
     {
         $serviceClass = $serviceClassNameSpace . $resource . "Service";
         if (class_exists($serviceClass)) {
@@ -287,7 +418,7 @@ class RestControllerHelper
             $definitionName = 'export';
             $operationName = 'export';
             if ($resource != '$export') {
-                $definitionName = strtolower($resource) . '-export';
+                $definitionName = strtolower((string) $resource) . '-export';
             }
             // define export operation
             $fhirOperation = new FHIRCapabilityStatementOperation();
@@ -305,14 +436,14 @@ class RestControllerHelper
             $fhirOperation->setName($operation);
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
-        } elseif (is_string($operation) && strpos($operation, '$') === 0) {
+        } elseif (is_string($operation) && str_starts_with($operation, '$')) {
             (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
 
     public function addRequestMethods($items, FHIRCapabilityStatementResource $capResource)
     {
-        $reqMethod = trim($items[0], " ");
+        $reqMethod = trim((string) $items[0], " ");
         $numberItems = count($items);
         $code = "";
         // we want to skip over $export operations.
@@ -322,11 +453,7 @@ class RestControllerHelper
 
         // now setup our interaction types
         if (strcmp($reqMethod, "GET") == 0) {
-            if (!empty(preg_match('/:/', $items[$numberItems - 1]))) {
-                $code = "read";
-            } else {
-                $code = "search-type";
-            }
+            $code = !empty(preg_match('/:/', (string) $items[$numberItems - 1])) ? "read" : "search-type";
         } elseif (strcmp($reqMethod, "POST") == 0) {
             $code = "create";
         } elseif (strcmp($reqMethod, "PUT") == 0) {
@@ -352,9 +479,9 @@ class RestControllerHelper
         $mode->setValue('server');
         $restItem->setMode($mode);
 
-        $resourcesHash = array();
+        $resourcesHash = [];
         foreach ($routes as $key => $function) {
-            $items = explode("/", $key);
+            $items = explode("/", (string) $key);
             if ($serviceClassNameSpace == self::FHIR_SERVICES_NAMESPACE) {
                 // FHIR routes always have the resource at $items[2]
                 $resource = $items[2];
@@ -364,7 +491,7 @@ class RestControllerHelper
                     $resource = $items[2];
                 } elseif (count($items) < 7) {
                     $resource = $items[4];
-                    if (substr($resource, 0, 1) === ':') {
+                    if (str_starts_with($resource, ':')) {
                         // special behavior needed for the API portal route
                         $resource = $items[3];
                     }
@@ -407,16 +534,41 @@ class RestControllerHelper
             }
         }
 
-        foreach ($resourcesHash as $resource => $capResource) {
+        foreach ($resourcesHash as $capResource) {
             $restItem->addResource($capResource);
         }
         return $restItem;
     }
 
+
+    /**
+     * Given a payload, returns a JsonResponse or Response object based on the type of the payload.  If the payload type is not supported,
+     * a TypeError is thrown.
+     * @param $payload The payload to convert into a response.
+     * @throws \TypeError if the payload is not a supported type
+     * @return JsonResponse|Response
+     */
+    private static function getResponseForPayload($payload)
+    {
+        if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload)) {
+            $response = new JsonResponse($payload);
+        } else if ($payload instanceof \Stringable || is_string($payload)) {
+            $response = new Response((string)$payload, Response::HTTP_OK, ['Content-Type' => 'text/html']);
+        } else {
+            throw new \TypeError(sprintf(
+                'RestControllerHelper::getResponseForPayload() expects a string, array, numeric, or JsonSerializable object, %s given.',
+                get_debug_type($payload)
+            ));
+        }
+        return $response;
+    }
+
+
     /**
      * Given a resource we've pulled from our rest route definitions figure out the type from our valueset
      * for the resource type: http://hl7.org/fhir/2021Mar/valueset-resource-types.html
-     * @param string $resource
+     *
+     * @param  string $resource
      * @return string
      */
     private static function getResourceTypeForResource(string $resource)
@@ -431,8 +583,9 @@ class RestControllerHelper
     /**
      * Fires off a system event for the given API resource to filter the serviceClass.  This gives module writers
      * the opportunity to extend the api, add / remove Implementation Guide profiles and declare different API conformance
-     * @param $resource The api resource that was parsed
-     * @param $serviceClass The service class that was found by default in the system or null if none was found
+     *
+     * @param  $resource     The api resource that was parsed
+     * @param  $serviceClass The service class that was found by default in the system or null if none was found
      * @return string|null The filtered service class property
      */
     private static function filterServiceClassForResource(string $resource, ?string $serviceClass)

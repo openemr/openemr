@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services;
 
-class VersionService extends BaseService
+class VersionService extends BaseService implements VersionServiceInterface
 {
     /**
      * Default constructor.

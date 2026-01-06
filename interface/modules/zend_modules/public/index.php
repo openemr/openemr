@@ -16,6 +16,8 @@
  * to the application root now.
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
 $countUrlArray = count($urlArray);
@@ -28,8 +30,12 @@ $controllerName = $urlArray[$countUrlArray - 2] ?? '';
 if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
     $ignoreAuth_onsite_portal = false;
     if (!empty($_REQUEST['me'])) {
+        // Will continue a session/cookie.
+        //  Need access to classes, so run autoloader now instead of in globals.php.
+        $GLOBALS['already_autoloaded'] = true;
+        require_once(__DIR__ . "/../../../../vendor/autoload.php");
         session_id($_REQUEST['me']);
-        session_start();
+        SessionUtil::sessionStartWrapper();
     }
     if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.
@@ -37,10 +43,13 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
     }
 }
 
-if (!empty($_REQUEST['me']) && $_REQUEST['sent_by_app'] === 'core_api') {
+if (!empty($_REQUEST['me']) && isset($_REQUEST['sent_by_app']) && $_REQUEST['sent_by_app'] === 'core_api') {
     // pick up already running session from api's
+    //  Need access to classes, so run autoloader now instead of in globals.php.
+    $GLOBALS['already_autoloaded'] = true;
+    require_once(__DIR__ . "/../../../../vendor/autoload.php");
     session_id($_REQUEST['me']);
-    session_start();
+    SessionUtil::sessionStartWrapper();
 }
 
 require_once(__DIR__ . "/../../../globals.php");

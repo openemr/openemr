@@ -10,13 +10,12 @@ use OpenEMR\Tests\Api\ApiTestClient;
 
 /**
  * Capability FHIR Endpoint Test Cases.
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class CapabilityFhirTest extends TestCase
 {
@@ -54,28 +53,19 @@ class CapabilityFhirTest extends TestCase
         $this->testClient->cleanupClient();
     }
 
-    /**
-     * @covers ::get with an invalid path
-     */
-    public function testInvalidPathGet()
+    public function testInvalidPathGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT . "ss");
         $this->assertEquals(401, $actualResponse->getStatusCode());
     }
 
-    /**
-     * @covers ::get with an invalid site
-     */
-    public function testInvalidSiteGet()
+    public function testInvalidSiteGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT_INVALID_SITE);
         $this->assertEquals(400, $actualResponse->getStatusCode());
     }
 
-    /**
-     * @covers ::get
-     */
-    public function testGet()
+    public function testGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -99,33 +89,13 @@ class CapabilityFhirTest extends TestCase
         $this->assertArrayHasKey('coding', $securityService, "Rest security.service[].coding object defined");
         $this->assertArrayHasKey('text', $securityService, "Rest security.service[].text object defined");
         $coding = $securityService['coding'][0];
-        $this->assertEquals("http://hl7.org/fhir/restful-security-service", $coding['system'], "Rest security.service[].coding[].system set");
+        $this->assertEquals("http://terminology.hl7.org/CodeSystem/restful-security-service", $coding['system'], "Rest security.service[].coding[].system set");
         $this->assertEquals("SMART-on-FHIR", $coding['code'], "Rest security.service[].coding[].code set");
 
         $this->assertArrayHasKey('extension', $restDef['security'], "Rest security.extension object defined");
-
-        $oauthExtension = $this->getExtension($restDef['security'], "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris");
-        $this->assertNotNull($oauthExtension, "Oauth extension should be defined in capability statement");
-        $this->assertArrayHasKey('extension', $oauthExtension, "Oauth extension should have embedded extensions");
-        $this->assertEquals(4, count($oauthExtension['extension']), "Extension should have token, authorize, manage extensions");
-
-        $tokenUri = $this->oauthBaseUrl . AuthorizationController::getTokenPath();
-        $authorizeUri = $this->oauthBaseUrl . AuthorizationController::getAuthorizePath();
-        $manageUri = $this->oauthBaseUrl . AuthorizationController::getManagePath();
-        $this->assertEquals("token", $oauthExtension['extension'][0]['url'], "OAUTH Extension[0].url should be token");
-//        $this->assertEquals($tokenUri, $oauthExtension['extension'][0]['valueUri'], "OAUTH Extension[0].valueUri does not match server token uri");
-
-        $this->assertEquals("authorize", $oauthExtension['extension'][1]['url'], "OAUTH Extension[1].url should be authorize");
-//        $this->assertEquals($authorizeUri, $oauthExtension['extension'][1]['valueUri'], "OAUTH Extension[1].valueUri does not match server url");
-
-        // found out manage is optional, if we add it back in we can uncomment this.
-//        $this->assertEquals("manage", $oauthExtension['extension'][2]['url'], "OAUTH Extension[2].url should be authorize");
-//        $this->assertEquals($manageUri, $oauthExtension['extension'][2]['valueUri'], "OAUTH Extension[2].valueUri does not match server url");
-
-
         $smartExtensions = $this->getExtensionList($restDef['security'], "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
         $enabledCapabilities = [];
-        foreach ($smartExtensions as $index => $extension) {
+        foreach ($smartExtensions as $extension) {
             $enabledCapabilities[] = $extension['valueCode'];
         }
 
@@ -149,7 +119,7 @@ class CapabilityFhirTest extends TestCase
     {
         $list = [];
         if (!empty($capabilityStatementRestDefinition['extension'])) {
-            foreach ($capabilityStatementRestDefinition['extension'] as $index => $extension) {
+            foreach ($capabilityStatementRestDefinition['extension'] as $extension) {
                 if ($extension['url'] == $extensionUri) {
                     $list[] = $extension;
                 }

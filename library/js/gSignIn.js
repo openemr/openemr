@@ -4,7 +4,7 @@ var GoogleSigin = {
   ele: null,
   hide_element : '.gs-hide-element',
   signin_btn : '.form-google-sign-button',
-  error_container: null, 
+  error_container: null,
   init: function(client_id, params = {}) {
     this.client_id = client_id;
     this.ele = Object.prototype.hasOwnProperty.call(params, 'ele') ? $(params['ele']) : null;
@@ -23,8 +23,8 @@ var GoogleSigin = {
   },
   renderButton: function() {
       google.accounts.id.renderButton(
-        $(this.ele).find("#google-signin")[0], 
-        { 
+        $(this.ele).find("#google-signin")[0],
+        {
           'theme': 'outline',
           'prompt': 'select_account',
           'scope': 'profile email',
@@ -34,9 +34,9 @@ var GoogleSigin = {
       );
   },
   onSignInSuccess: function(googleUser, thisele) {
-      
+
           const id_token = googleUser.credential;
-          
+
           if(thisele.error_container != "") {
              $(thisele.error_container).find("#form-error-container").remove();
           }
@@ -47,10 +47,10 @@ var GoogleSigin = {
           $(thisele.ele).find(this.hide_element).hide();
 
           var element = thisele.ele[0].querySelector(thisele.signin_btn);
-          
+
           element.click();
           element.disabled = true;
-      
+
   },
   onSignInFailure: function(error, thisele) {
     if(thisele.error_container != "") {

@@ -2,15 +2,17 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
-use OpenEMR\Services\FHIR\FhirPractitionerService;
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\Services\FHIR\FhirPractitionerService;
+use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
+use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Practitioner Service Crud Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -18,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 class FhirPractitionerServiceCrudTest extends TestCase
 {
     private $fixtureManager;
@@ -39,6 +42,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();
         $this->fhirPractitionerFixture = FhirPractitionerSerializer::deserialize($fixture);
         $this->fhirPractitionerService = new FhirPractitionerService();
+        $this->fhirPractitionerService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void
@@ -46,12 +50,8 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * Tests a successful insert operation
-     * @covers ::insert
-     * @covers ::insertOpenEMRRecord
-     */
-    public function testInsert()
+    #[Test]
+    public function testInsert(): void
     {
         $this->fhirPractitionerFixture->setId(null);
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
@@ -63,12 +63,8 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertIsString($dataResult['uuid']);
     }
 
-    /**
-     * Tests an insert operation where an error occurs
-     * @covers ::insert
-     * @covers ::insertOpenEMRRecord
-     */
-    public function testInsertWithErrors()
+    #[Test]
+    public function testInsertWithErrors(): void
     {
         $this->fhirPractitionerFixture->name = []; // clear the names TODO: I don't like this public accessor, can we fix it?s
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
@@ -76,12 +72,8 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertEquals(0, count($processingResult->getData()));
     }
 
-    /**
-     * Tests a successful update operation
-     * @covers ::update
-     * @covers ::updateOpenEMRRecord
-     */
-    public function testUpdate()
+    #[Test]
+    public function testUpdate(): void
     {
         $this->fhirPractitionerFixture->setId(null);
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
@@ -103,12 +95,8 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }
 
-    /**
-     * Tests an update operation where an error occurs
-     * @covers ::update
-     * @covers ::updateOpenEMRRecord
-     */
-    public function testUpdateWithErrors()
+    #[Test]
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirPractitionerService->update('bad-uuid', $this->fhirPractitionerFixture);
         $this->assertFalse($actualResult->isValid());

@@ -24,27 +24,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
  */
 class RuleCriteriaDatabaseCustom extends RuleCriteria
 {
-    var $table;
-    var $column;
-    var $valueComparator;
-    var $value;
-    var $frequencyComparator;
-    var $frequency;
-
-    function __construct(
-        $table,
-        $column,
-        $valueComparator,
-        $value,
-        $frequencyComparator,
-        $frequency
-    ) {
-        $this->table = $table;
-        $this->column = $column;
-        $this->valueComparator = $valueComparator;
-        $this->value = $value;
-        $this->frequencyComparator = $frequencyComparator;
-        $this->frequency = $frequency;
+    function __construct(public $table, public $column, public $valueComparator, public $value, public $frequencyComparator, public $frequency)
+    {
     }
 
     function getRequirements()
@@ -74,11 +55,11 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
 
     function getTableNameOptions()
     {
-        $options = array();
+        $options = [];
         $stmts = sqlStatement("SHOW TABLES");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
-            foreach ($row as $key => $value) {
-                array_push($options, array("id" => $value, "label" => xl($value)));
+            foreach ($row as $value) {
+                array_push($options, ["id" => $value, "label" => xl($value)]);
             }
         }
 

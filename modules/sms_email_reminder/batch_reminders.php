@@ -6,13 +6,15 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-// comment below exit if plan to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_BATCH_REMINDERS')) {
+    die('Set OPENEMR_ENABLE_BATCH_REMINDERS=1 environment variable to enable this script');
+}
 
 $backpic = "";
 $ignoreAuth = 1;
 
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 
@@ -70,4 +72,3 @@ use OpenEMR\Core\Header;
 <br /><br />
 </body>
 </html>
-

@@ -41,7 +41,7 @@ function edih_archive_report($period = '')
     $strdt = '';
     // edih_archive_date returns empty string if no period
     $tper =  edih_archive_date($period);
-    $chkdt = ($tper) ? $tper : 'None';
+    $chkdt = $tper ?: 'None';
     $strdt = ($tper) ? substr($chkdt, 0, 4) . '-' . substr($chkdt, 4, 2) . '-' . substr($chkdt, 6, 2) : 'None';
     //
     csv_edihist_log("edih_archive_report: creating archive report with date $chkdt");
@@ -55,7 +55,7 @@ function edih_archive_report($period = '')
 
     //
     $str_html .= "<h3>Report on edi files using archive date " . text($strdt) . "</h3>" . PHP_EOL;
-    foreach ($params as $key => $param) {
+    foreach ($params as $param) {
         $old_ct = 0;
         $clm_ct = 0;
         $dir_ct = 0;
@@ -81,7 +81,7 @@ function edih_archive_report($period = '')
                         continue;
                     }
 
-                    if (substr($fn, 0, 1) == '.') {
+                    if (str_starts_with($fn, '.')) {
                         $dir_ct--;
                         continue;
                     }
@@ -118,7 +118,7 @@ function edih_archive_report($period = '')
                         if ($fntp !== $row['FileName']) {
                             $fntp = $row['FileName'];
                             // count files that would be archived
-                            if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) {
+                            if (($chkdt != 'None') && strcmp((string) $row['Date'], $chkdt) < 0) {
                                 $old_ct++;
                             }
 
@@ -175,17 +175,17 @@ function edih_archive_date($period)
         return $dtpd2;
     }
 
-    $is_period = preg_match('/\d{1,2}(?=m)/', $period, $matches);
+    $is_period = preg_match('/\d{1,2}(?=m)/', (string) $period, $matches);
     //
     if (count($matches)) {
         $gtdt = getdate();
         //
-        if (strpos($period, 'm')) {
+        if (strpos((string) $period, 'm')) {
             // take the number part of 'period'
             // so modstr will be '-N month'
             $modstr = '-' . $matches[0] . ' month';
             $dtstr1 = $gtdt['mon'] . '/01/' . $gtdt['year'];
-        } elseif (strpos($period, 'y')) {
+        } elseif (strpos((string) $period, 'y')) {
             $modstr = '-' . $matches[0] . ' year';
             $dtstr1 = $gtdt['mon'] . '/01/' . $gtdt['year'];
         } else {
@@ -226,7 +226,7 @@ function edih_archive_date($period)
 function edih_archive_filenames($csv_ar, $archive_date)
 {
     //
-    if ($archive_date && strlen($archive_date) == 8 && is_numeric($archive_date)) {
+    if ($archive_date && strlen((string) $archive_date) == 8 && is_numeric($archive_date)) {
         $testdate = (string)$archive_date;
     } else {
         csv_edihist_log("edih_archive_filenames: invalid archive date $archive_date");
@@ -240,9 +240,9 @@ function edih_archive_filenames($csv_ar, $archive_date)
     }
 
     //
-    $fn_ar = array();
+    $fn_ar = [];
     foreach ($csv_ar as $row) {
-        if (strcmp($row['Date'], $archive_date) < 0) {
+        if (strcmp((string) $row['Date'], $archive_date) < 0) {
             $fn_ar[] = $row['FileName'];
         }
     }
@@ -284,9 +284,9 @@ function edih_archive_csv_split($csv_ar, $filename_array)
     //
     // if the to be archived file name is in the row,
     // do not copy it to the new csv array
-    $arch_ar = array();
-    $arch_ar['arch'] = array();
-    $arch_ar['keep'] = array();
+    $arch_ar = [];
+    $arch_ar['arch'] = [];
+    $arch_ar['keep'] = [];
     //
     foreach ($csv_ar as $row) {
         if (in_array($row['FileName'], $filename_array)) {
@@ -323,12 +323,12 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
     $tmp_dir = csv_edih_tmpdir();
     // archive csv rows -- same name as from edih_archive_main
     // $fn_files_arch = $tmp_dir.DS.'arch_'.basename($files_csv);
-    $files_csv_arch = 'arch_' . basename($parameters['files_csv']);
+    $files_csv_arch = 'arch_' . basename((string) $parameters['files_csv']);
     // $fn_claims_arch = $tmp_dir.DS.'arch_'.basename($claim_csv);
-    $claims_csv_arch = 'arch_' . basename($parameters['claims_csv']);
+    $claims_csv_arch = 'arch_' . basename((string) $parameters['claims_csv']);
     //
     $f_max = 200;
-    $fn_ar2 = array();
+    $fn_ar2 = [];
     // to handle possibility of more than 200 files in the archive
     // use the 'chunk' method
     if (count($filename_ar) > $f_max) {
@@ -521,17 +521,13 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
 {
     //
     $str_out = '';
-    $csv_ar = array();
+    $csv_ar = [];
     $tmpdir = csv_edih_tmpdir();
     $tmpcsv = $tmpdir . DS . 'csv';
     //
-    $csvtp = (strpos($csv_type, 'aim')) ? 'claims' : 'files';
+    $csvtp = (strpos((string) $csv_type, 'aim')) ? 'claims' : 'files';
     //
-    if (is_file($filepath)) {
-        $csv_arch_path = $filepath;
-    } else {
-        $csv_arch_path = $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
-    }
+    $csv_arch_path = is_file($filepath) ? $filepath : $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
 
     //
     $ct = 0;
@@ -582,17 +578,17 @@ function edih_archive_csv_combine($filetype, $csvtype)
 {
     //
     $str_out = '';
-    $hdr_ar = array();
+    $hdr_ar = [];
     $bdir = csv_edih_basedir();
     $tmpdir = csv_edih_tmpdir();
     $tmpcsv = $tmpdir . DS . 'csv';
     //
-    $csvtp = (strpos($csvtype, 'aim')) ? 'claims' : 'files';
+    $csvtp = (strpos((string) $csvtype, 'aim')) ? 'claims' : 'files';
     $csv_arch_file = $tmpcsv . DS . 'arch_' . $csvtp . '_' . $filetype . '.csv';
     $csv_new_file = $tmpdir . DS . 'cmb_' . $csvtp . '_' . $filetype . '.csv';
     //
     // arrays used to eliminate duplicate rows
-    $dup_ar = $dup_unique = $dup_keys = array();
+    $dup_ar = $dup_unique = $dup_keys = [];
     // combine files by combining arrays and writing a tmp file
     // get the present csv file contents
     $car1 = csv_assoc_array($filetype, $csvtp);
@@ -602,8 +598,8 @@ function edih_archive_csv_combine($filetype, $csvtype)
     }
 
     // possibility of empty arrays if no data rows in a csv file
-    $hdrc1 = (is_array($car1) && count($car1)) ? array_keys($car1[0]) : array();
-    $hdrc2 = (is_array($car2) && count($car2)) ? array_keys($car2[0]) : array();
+    $hdrc1 = (is_array($car1) && count($car1)) ? array_keys($car1[0]) : [];
+    $hdrc2 = (is_array($car2) && count($car2)) ? array_keys($car2[0]) : [];
     if (count($hdrc1) && ($hdrc1 === $hdrc2)) {
         $hdr_ar = $hdrc1;
     } elseif (empty($hdrc1) && count($hdrc2)) {
@@ -650,11 +646,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
             $car_cmb = array_merge($car2, $car1);
             // now eliminate duplicates
             if ($csvtp == 'files') {
-                if ($filetype == 'f835') {
-                    $ky = 'Trace';
-                } else {
-                    $ky = 'Control';
-                }
+                $ky = $filetype == 'f835' ? 'Trace' : 'Control';
 
                 // array_column() php v5.5
                 foreach ($car_cmb as $idx => $row) {
@@ -1125,7 +1117,7 @@ function edih_archive_main($period)
     }
 
     //
-    foreach ($params as $k => $p) {
+    foreach ($params as $p) {
         //
         $ft = $p['type'];  // could be $k
         //
@@ -1148,13 +1140,13 @@ function edih_archive_main($period)
         //
         // create three csv file paths 'old_', 'arch_', and 'keep_'
         // files csv temporary names
-        $fn_files_old = $tmp_dir . DS . 'old_' . basename($files_csv);
-        $fn_files_arch = $tmp_dir . DS . 'arch_' . basename($files_csv);
-        $fn_files_keep = $tmp_dir . DS . 'keep_' . basename($files_csv);
+        $fn_files_old = $tmp_dir . DS . 'old_' . basename((string) $files_csv);
+        $fn_files_arch = $tmp_dir . DS . 'arch_' . basename((string) $files_csv);
+        $fn_files_keep = $tmp_dir . DS . 'keep_' . basename((string) $files_csv);
         // claims csv temporary names
-        $fn_claims_old = $tmp_dir . DS . 'old_' . basename($claims_csv);
-        $fn_claims_arch = $tmp_dir . DS . 'arch_' . basename($claims_csv);
-        $fn_claims_keep = $tmp_dir . DS . 'keep_' . basename($claims_csv);
+        $fn_claims_old = $tmp_dir . DS . 'old_' . basename((string) $claims_csv);
+        $fn_claims_arch = $tmp_dir . DS . 'arch_' . basename((string) $claims_csv);
+        $fn_claims_keep = $tmp_dir . DS . 'keep_' . basename((string) $claims_csv);
         // table headings
         $fh_ar = csv_table_header($ft, 'file');
         $ch_ar = csv_table_header($ft, 'claim');
@@ -1198,8 +1190,8 @@ function edih_archive_main($period)
         $csv_files_ar = csv_assoc_array($ft, 'file');
         $csv_claims_ar = csv_assoc_array($ft, 'claim');
         // get filenames to be archived
-        $fn_ar = array();
-        $tp_ar = array();
+        $fn_ar = [];
+        $tp_ar = [];
         $fn_ar = edih_archive_filenames($csv_files_ar, $archive_date);
         if (count($fn_ar)) {
             // add type to list

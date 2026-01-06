@@ -18,17 +18,17 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
  */
 class RuleAction
 {
-    var $guid;
-    var $id;
-    var $category;
-    var $categoryLbl;
-    var $item;
-    var $itemLbl;
-    var $reminderLink;
-    var $reminderMessage;
-    var $customRulesInput;
-    var $groupId;
-    var $targetCriteria;
+    public $guid;
+    public $id;
+    public $category;
+    public $categoryLbl;
+    public $item;
+    public $itemLbl;
+    public $reminderLink;
+    public $reminderMessage;
+    public $customRulesInput;
+    public $groupId;
+    public $targetCriteria;
 
     function __construct()
     {

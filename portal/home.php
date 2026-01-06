@@ -23,8 +23,9 @@ require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
@@ -36,8 +37,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
-    require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -103,7 +103,7 @@ $apptLimit = 10;
 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
 $past_appts = fetchXPastAppts($pid, 10);
 
-$appointments = $past_appointments = array();
+$appointments = $past_appointments = [];
 if ($appts) {
     $stringCM = '(' . xl('Comments field entry present') . ')';
     $stringR = '(' . xl('Recurring appointment') . ')';
@@ -111,10 +111,10 @@ if ($appts) {
     foreach ($appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $count++;
-        $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
+        $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr($row['pc_startTime'], 0, 2);
-        $dispmin = substr($row['pc_startTime'], 3, 2);
+        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
+        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -122,11 +122,7 @@ if ($appts) {
             }
         }
 
-        if ($row['pc_hometext'] != '') {
-            $etitle = xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n";
-        } else {
-            $etitle = '';
-        }
+        $etitle = $row['pc_hometext'] != '' ? xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n" : '';
 
         $formattedRecord = [
             'appointmentDate' => $dayname . ', ' . oeFormatShortDate($row['pc_eventDate']) . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
@@ -149,10 +145,10 @@ if ($past_appts) {
     foreach ($past_appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $pastCount++;
-        $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
+        $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr($row['pc_startTime'], 0, 2);
-        $dispmin = substr($row['pc_startTime'], 3, 2);
+        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
+        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -160,11 +156,7 @@ if ($past_appts) {
             }
         }
 
-        if ($row['pc_hometext'] != '') {
-            $etitle = xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n";
-        } else {
-            $etitle = '';
-        }
+        $etitle = $row['pc_hometext'] != '' ? xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n" : '';
 
         $formattedRecord = [
             'appointmentDate' => $dayname . ', ' . oeFormatShortDate($row['pc_eventDate']) . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
@@ -180,13 +172,13 @@ if ($past_appts) {
         $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
-$current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", array($pid, 'portal_theme'))['setting_value'] ?? '';
+$current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", [$pid, 'portal_theme'])['setting_value'] ?? '';
 function collectStyles(): array
 {
     global $webserver_root;
     $theme_dir = "$webserver_root/public/themes";
     $dh = opendir($theme_dir);
-    $styleArray = array();
+    $styleArray = [];
     while (false !== ($tfname = readdir($dh))) {
         if (
             $tfname == 'style_blue.css' ||
@@ -238,7 +230,7 @@ function buildNav($newcnt, $pid, $result): array
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
-                    'url' => $GLOBALS['web_root'] . '/portal/patient/onsitedocuments?pid=' . urlencode($pid),
+                    'url' => $GLOBALS['web_root'] . '/portal/patient/onsitedocuments?pid=' . urlencode((string) $pid),
                     'label' => xl('Forms and Documents'),
                     'icon' => 'fa-file',
                 ],
@@ -325,8 +317,8 @@ $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_dat
     LEFT JOIN users AS u ON u.id = im.administered_by_id
     LEFT JOIN facility AS f ON f.id = u.facility_id
     WHERE im.patient_id=?";
-$result = sqlStatement($query, array($pid));
-$immunRecords = array();
+$result = sqlStatement($query, [$pid]);
+$immunRecords = [];
 while ($row = sqlFetchArray($result)) {
     $immunRecords[] = $row;
 }
@@ -335,7 +327,7 @@ $ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_servic
 // Available Themes
 $styleArray = collectStyles();
 // Is telemetry enabled?
-$isTelemetryAllowed = TelemetryService::isTelemetryEnabled();
+$isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
@@ -360,7 +352,7 @@ try {
         'payment_gateway' => $GLOBALS['payment_gateway'],
         'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
         'portal_two_payments' => $GLOBALS['portal_two_payments'],
-        'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
+        'allow_portal_chat' => $GLOBALS['allow_portal_chat'] ?? false,
         'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
         'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
         'images_static_relative' => $GLOBALS['images_static_relative'],
@@ -405,7 +397,7 @@ try {
 
     echo $twig->render('portal/home.html.twig', $data);
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {
         (new SystemLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
     }

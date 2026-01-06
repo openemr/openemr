@@ -34,8 +34,8 @@
                         </div>
                         <div class="col-md-4">
                             <select class="form-control" name="pc_keywords_andor" id="pc_keywords_andor" disabled>
-                                <option value="AND" [-php-] echo ($_POST['pc_keywords_andor'] == 'AND' || empty($_POST['pc_keywords_andor'])) ? 'selected' : ''; [-/php-]>[-xlt t='AND'-]</option>
-                                <option value="OR" [-php-] echo ($_POST['pc_keywords_andor'] == 'OR') ? 'selected' : ''; [-/php-]>[-xlt t='OR'-]</option>
+                                <option value="AND" [-php-] echo (($_POST['pc_keywords_andor'] ?? 'AND') == 'AND') ? 'selected' : ''; [-/php-]>[-xlt t='AND'-]</option>
+                                <option value="OR" [-php-] echo (($_POST['pc_keywords_andor'] ?? '') == 'OR') ? 'selected' : ''; [-/php-]>[-xlt t='OR'-]</option>
                             </select>
                         </div>
                     </div>

@@ -26,9 +26,9 @@ if (isset($_GET['patients'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $patients = rtrim($_GET['patients'], ";");
+    $patients = rtrim((string) $_GET['patients'], ";");
     $patients = explode(';', $patients);
-    $results = array();
+    $results = [];
     foreach ($patients as $patient) {
         $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;
@@ -141,14 +141,14 @@ if (isset($_GET['patients'])) {
             <tbody id="searchResults">
             <?php
             if (isset($_GET['patients'])) {
-                foreach ($results as $index => $result) {
+                foreach ($results as $result) {
                     echo '<tr id="row' . attr($result['pid']) . '">' .
                             '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
                             '<td>' . text($result['phone_home']) . '</td>' .
                             '<td>' . text($result['ss']) . '</td>' .
                             '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                             '<td>' . text($result['pubpid']) . '</td>' .
-                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes($result['pid'])) . ')"></i></td>' .
+                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes((string) $result['pid'])) . ')"></i></td>' .
                         '<tr>';
                 }
             } ?>

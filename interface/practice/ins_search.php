@@ -74,17 +74,19 @@ td {
 
     $("#form_entry").hide();
     var f = document.forms[0];
-    var search_list = 'ins_list.php' +
-   '?form_name='   + encodeURIComponent(f.form_name.value  ) +
-   '&form_attn='   + encodeURIComponent(f.form_attn.value  ) +
-   '&form_addr1='  + encodeURIComponent(f.form_addr1.value ) +
-   '&form_addr2='  + encodeURIComponent(f.form_addr2.value ) +
-   '&form_city='   + encodeURIComponent(f.form_city.value  ) +
-   '&form_state='  + encodeURIComponent(f.form_state.value ) +
-   '&form_zip='    + encodeURIComponent(f.form_zip.value   ) +
-   '&form_phone='  + encodeURIComponent(f.form_phone.value ) +
-   '&form_cms_id=' + encodeURIComponent(f.form_cms_id.value) +
-   '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    const params = new URLSearchParams({
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+        form_addr1: f.form_addr1.value,
+        form_addr2: f.form_addr2.value,
+        form_attn: f.form_attn.value,
+        form_city: f.form_city.value,
+        form_cms_id: f.form_cms_id.value,
+        form_name: f.form_name.value,
+        form_phone: f.form_phone.value,
+        form_state: f.form_state.value,
+        form_zip: f.form_zip.value
+    });
+    var search_list = 'ins_list.php?' + params;
 
     top.restoreSession();
     $("#form_list").load( search_list ).show();
@@ -184,18 +186,14 @@ if (
         CsrfUtils::csrfNotVerified();
     }
 
-    if (($_POST['form_save'] ?? '') == 'Save as New') {
-        $ins_id = '';
-    } else {
-        $ins_id = $_POST['form_id'];
-    }
+    $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
     $ins_name = $_POST['form_name'];
 
     if ($ins_id) {
        // sql for updating could go here if this script is enhanced to support
        // editing of existing insurance companies.
         $insuranceCompany->update(
-            array(
+            [
             'name' => $ins_name,
             'attn' => $_POST['form_attn'],
             'cms_id' => $_POST['form_cms_id'],
@@ -212,12 +210,12 @@ if (
             'phone' => $_POST['form_phone'],
             'foreign_id' => $ins_id,
             'cqm_sop' => $_POST['form_cqm_sop']
-            ),
+            ],
             $ins_id
         );
     } else {
         $ins_id = $insuranceCompany->insert(
-            array(
+            [
                 'name' => $ins_name,
                 'attn' => $_POST['form_attn'],
                 'cms_id' => $_POST['form_cms_id'],
@@ -234,7 +232,7 @@ if (
                 'phone' => $_POST['form_phone'],
                 'foreign_id' => $ins_id,
                 'cqm_sop' => $_POST['form_cqm_sop']
-            )
+            ]
         );
     }
 
@@ -252,9 +250,10 @@ if (
     echo "</script></body></html>\n";
     exit();
 } else {
-    $ins_co = (new InsuranceCompanyService())->getOneById($_GET['ins']) ?? null;
-    $ins_co_address = (new AddressService())->getOneByForeignId($_GET['ins']) ?? null;
-    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($_GET['ins']) ?? null;
+    $ins_id = $_GET['ins'] ?? null;
+    $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
+    $ins_co_address = (new AddressService())->getOneByForeignId($ins_id) ?? null;
+    $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;
 }
 
  // Query x12_partners.

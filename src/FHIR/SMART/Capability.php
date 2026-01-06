@@ -18,16 +18,38 @@ class Capability
 {
     /**
      * The SMART extension capabilites that our system supports
-     * @see https://hl7.org/fhir/smart-app-launch/conformance/index.html
+     * @see https://hl7.org/fhir/smart-app-launch/STU2/conformance.html for v2
      *
      * All of these capabilities for MU3 are required to be implemented before HIT certification
      * can be complete.
      * @see ONC final rule commentary https://www.federalregister.gov/d/2020-07419/p-1184 Accessed on December 9th 2020
      */
-    const SUPPORTED_CAPABILITIES = [self::LAUNCH_EHR, self::CONTEXT_BANNER, self::CONTEXT_EHR_PATIENT
-        , self::CONTEXT_STYLE, self::SSO_OPENID_CONNECTION, self::CLIENT_CONFIDENTIAL_SYMMETRIC, self::PERMISSION_USER
-        , self::CONTEXT_STANDALONE_PATIENT, self::LAUNCH_STANDALONE, self::PERMISSION_PATIENT
-        , self::PERMISSION_OFFLINE, self::CLIENT_PUBLIC];
+    const SUPPORTED_CAPABILITIES = [
+        self::LAUNCH_EHR
+        , self::LAUNCH_STANDALONE
+        , self::CLIENT_CONFIDENTIAL_SYMMETRIC
+        , self::CLIENT_CONFIDENTIAL_ASYMETRIC
+        , self::CLIENT_PUBLIC
+        , self::CONTEXT_BANNER
+        , self::CONTEXT_EHR_PATIENT
+        , self::CONTEXT_STYLE
+        , self::CONTEXT_STANDALONE_PATIENT
+        , self::SSO_OPENID_CONNECTION
+        , self::PERMISSION_USER
+        , self::PERMISSION_PATIENT
+        , self::PERMISSION_OFFLINE
+        , self::PERMISSION_V1
+        , self::PERMISSION_V2
+        // note that SMART v1 did not have authorize-post capability and this is new in SMART v2
+        // these capabilities are used in the .well-known/smart-configuration endpoint
+        // which in V2 is NOT the same as the /fhir/metadata endpoint used in SMART v1
+        , self::PERMISSION_AUTHORIZE_POST
+        // additional capabilities for SMART v2
+        , self::CONTEXT_EHR_ENCOUNTER
+        // client-confidential-asymmetric - JWT authentication
+        // context-standalone-encounter
+        // permission-v2
+    ];
 
     const FHIR_SUPPORTED_CAPABILITIES = [
         self::LAUNCH_EHR, self::CONTEXT_BANNER_PASSTHROUGH, self::CONTEXT_EHR_PATIENT
@@ -47,6 +69,8 @@ class Capability
 
     // support for SMART’s confidential client profile (symmetric client secret authentication)
     const CLIENT_CONFIDENTIAL_SYMMETRIC = "client-confidential-symmetric";
+
+    const CLIENT_CONFIDENTIAL_ASYMETRIC = 'client-confidential-asymmetric'; //support for SMART’s asymmetric confidential client profile (“JWT authentication”).
 
     // support for SMART’s OpenID Connect profile
     const SSO_OPENID_CONNECTION = "sso-openid-connect";
@@ -98,4 +122,9 @@ class Capability
      * Support for SMART v2 scopes with more granular controls (e.g. patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs)
      */
     const PERMISSION_V2 = "permission-v2";
+
+    /**
+     * Support for SMART's authorize-post capability to allow apps to post authorization requests directly to the authorization endpoint instead of using a GET request
+     */
+    const PERMISSION_AUTHORIZE_POST = "authorize-post";
 }

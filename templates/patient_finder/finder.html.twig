@@ -1,9 +1,9 @@
 <body>
-    {{ pageHeading }}
     <div id="container_div" class="{{ oeContainer|attr }} mt-3">
+        {{ pageHeading }}
          <div class="w-100">
             <div>
-                <ul class="nav nav-tabs mt-3" id="finderTabs" role="tablist">
+                <ul class="nav nav-tabs mt-3" id="finderTabsNav" role="tablist">
                     <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
                     <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true">{{ "Recent Patients"|xlt }}</button></li>
                 </ul>
@@ -73,7 +73,7 @@
           </div>
         </div>
         <!-- form used to open a new top level window when a patient row is clicked -->
-        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site={{ session.side_id|attr_url }}'>
+        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site={{ session.site_id|attr_url }}'>
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>

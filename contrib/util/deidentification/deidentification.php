@@ -69,21 +69,21 @@ echo("\n Successfully connected to database....... Waiting...... \n ");
 
 //random names
 // count of males 33
-$male = array("John", "Joe", "Tony", "Harley", "Kenneth", "Sam", "Lewi", "Jimmy", "Moby", "Donald", "George", "Barack", "Jose", "Fonzy", "Cat", "David", "Scruggs",
+$male = ["John", "Joe", "Tony", "Harley", "Kenneth", "Sam", "Lewi", "Jimmy", "Moby", "Donald", "George", "Barack", "Jose", "Fonzy", "Cat", "David", "Scruggs",
               "Prately","Stabile","Faler","Wolfrum","Hughe","Gustave","Lemar","Zhu","Quihuiz","Krinsky","Cresswell","Vanbergen","Durelli","Carron","Targett","Emmert","Ferrusi"
-             );
+             ];
 
 // count female names 75
-$female = array(
+$female = [
                 "Hillary", "Alison", "Kathy", "Jesse", "Buzz", "Jenny", "Rachael", "Jennifer", "Lauren", "Lisa", "Amy", "Dana", "Blake",
                 "Beatrice", "Beatrix", "Bea", "Bee", "Beattie", "Trixie", "Trissie", "Belinda", "Bel", "Bell", "Belle", "Linda", "Lindy", "Lin", "Lynn",
                 "Belle", "Bell", "Bel", "Bella", "Annabel", "Arabella", "Isabel", "Rosabel", "Belinda", "Berenice", "Bernice", "Bernie",
                 "Bertha", "Berta", "Bertie", "Betty", "Beverly", "Beverley", "Bev", "Blanche", "Blanch", "Bonnie", "Bonny", "Brenda", "Brendie", "Brandy",
                 "Brett", "Bret", "Bretta", "Bridget", "Bridgette", "Brigid", "Brigit", "Biddie", "Biddy", "Bridie", "Bridey", "Brie", "Bree", "Brita",
                 "Brittany", "Brittney", "Britney", "Brit", "Britt", "Brita", "Brie"
-                );
+                ];
 // count of names is: 806
-$lnames = array (
+$lnames =  [
                         "Sandles","Hollifield","Flack","Lussier","Deloe","Thao","Dardenne","Spiro","Futter","Subasic","Shawler","Baehr","Murrillo","Christenbury",
                         "Plourde","Cotty","Suro","Gabe","Davids","Eschrich","Trautmann","Matarrita","Crompton","Pekas","Komo","Monroy","Kortkamp","Klukan","Henrity",
                         "Kindig","Syal","Hurtig","Vangilder","Ronsini","Hutchenson","Alvero","Valeriani","Bendtsen","Hornbarger","Marsili","Burfeind","Torello","Wink",
@@ -132,12 +132,12 @@ $lnames = array (
                         "Brackman","Borruso","Ficklin","Baza","Mercier","Sponholz","Trego","Channell","Vanburen","Zaring","Luken","Komorowski","Fasciano","Drafts","Dar","Callicoat","Callam",
                         "Villaquiran","Vanbrunt","Coiner","Luckenbill","Mcray","Pin","Hayer","Lapenta","Isita","Slaydon","Frondorf","Cavagna","Passalacqua","Lehnertz","Kavadias","Macione",
                         "Sturch","Boes","Albor","Bookamer","Burbine","Bardach","Ghaor","Quartieri","Mcgill","Michelena","Aronson","Brosig","Morganti","Rodewald","Barich","Langelier"
-                  );
+                  ];
 
 /* function to clear the present value if a record's column and replace it with a value if spoecified
    Input: $con, $table, $column, $value = value to replace with
 */
-function removeColumn($con, $table, $column, $value = '')
+function removeColumn($con, $table, $column, $value = ''): void
 {
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
@@ -175,20 +175,20 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
         $i++;
         $string = '';
         //Give the user a new last name in patient_data.lname
-        $last_name = $lnames[rand(0, 800)];
+        $last_name = $lnames[random_int(0, 800)];
 
         //Give the user a new first name
-        $first_name_male = $male[rand(0, 32)];
-        $first_name_female = $female[rand(0, 74)];
+        $first_name_male = $male[random_int(0, 32)];
+        $first_name_female = $female[random_int(0, 74)];
 
         //Change the street address patient_Data.street
-        $street = rand(1, 9999) . " " . rand(0, 200) . " Avenue ";
+        $street = random_int(1, 9999) . " " . random_int(0, 200) . " Avenue ";
 
         //remove the drivers license
-        $drivers_license = rand(2, 999) . rand(0, 999) . rand(0, 99);
+        $drivers_license = random_int(2, 999) . random_int(0, 999) . random_int(0, 99);
 
         //change the patient_data.phone_home
-        $phone_home = rand(200, 999) . "-" . rand(200, 999) . "-" . rand(1000, 9999);
+        $phone_home = random_int(200, 999) . "-" . random_int(200, 999) . "-" . random_int(1000, 9999);
 
         $string = "update patient_data set lname = '$last_name', ";
 
@@ -228,7 +228,7 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 //This function replaces the data stored in the insurance_data table with the random generated name.
 //In order for this to work, this function must be called AFTER the random name generator has been called.
 //Input: $con, $pid
-function deIdInsuranceDataTable($con, $pid)
+function deIdInsuranceDataTable($con, $pid): void
 {
 
     //check if there is
@@ -250,7 +250,7 @@ function deIdInsuranceDataTable($con, $pid)
         if ($result['subscriber_lname'] === '' || $result === null) {
             continue;
         } else {
-            $string = "update insurance_data set 
+            $string = "update insurance_data set
               subscriber_lname = '{$demographic_array['lname']}',
               subscriber_fname = '{$demographic_array['fname']}',
               subscriber_mname = '{$demographic_array['mname']}',
@@ -262,7 +262,7 @@ function deIdInsuranceDataTable($con, $pid)
               subscriber_city = '{$demographic_array['city']}',
               subscriber_state = '{$demographic_array['state']}',
               subscriber_phone = '{$demographic_array['phone_home']}'
-              
+
               where pid = $pid and type = '{$ty}'; ";
 
             $update = mysqli_query($con, $string) or print("update did not work");
@@ -274,7 +274,7 @@ function deIdInsuranceDataTable($con, $pid)
 //This function replaces the facility name with unqiue names so users can
 //see how different facilities have their data and permissions abstracted depending on
 //which facility the user has access too.
-function deIdFacilityTable($con)
+function deIdFacilityTable($con): void
 {
 
 
@@ -287,11 +287,11 @@ function deIdFacilityTable($con)
     $query = "select * from facility";
     $result = mysqli_query($con, $query);
     while ($row = mysqli_fetch_array($result)) {
-        $string = "update facility set 
-          
+        $string = "update facility set
+
               `name`    = 'Facility_{$row['id']}',
               `phone`   = '(000) 000-0000'
-    
+
             where `id` = {$row['id']}";
 
         mysqli_query($con, $string) or print "Error altering facility table \n";
@@ -304,7 +304,7 @@ function deIdFacilityTable($con)
 
 
 //
-function deIdUsersTable($con)
+function deIdUsersTable($con): void
 {
 
 
@@ -335,14 +335,14 @@ function deIdUsersTable($con)
     while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-        if (strpos($row['newcrop_user_role'], 'doctor') !== false) {
-            $string .= "fname = 'Doctor.{$row['id']}', 
+        if (str_contains((string) $row['newcrop_user_role'], 'doctor')) {
+            $string .= "fname = 'Doctor.{$row['id']}',
                        lname = 'Doctor.{$row['id']}' ";
-        } elseif (strpos($row['newcrop_user_role'], 'nurse') !== false) {
-            $string .= "fname = 'Nurse.{$row['id']}', 
+        } elseif (str_contains((string) $row['newcrop_user_role'], 'nurse')) {
+            $string .= "fname = 'Nurse.{$row['id']}',
                        lname = 'Nurse.{$row['id']}' ";
         } else {
-            $string .= "fname = 'noNewCrop', 
+            $string .= "fname = 'noNewCrop',
                        lname = 'Nurse{$row['id']}'";
         }
 
@@ -355,7 +355,7 @@ function deIdUsersTable($con)
 }
 
 //Clears most forms.  User must verify that this function handles all text fields that might hold personal identifying information
-function deIdForms($con)
+function deIdForms($con): void
 {
 
     removeColumn($con, "form_physical_exam", "comments", "no comment, talk to my lawyer");
@@ -374,7 +374,7 @@ function deIdForms($con)
 }
 
 // truncates log tables to remove all hidden information
-function truncateLogs($con)
+function truncateLogs($con): void
 {
 
     $query = mysqli_query($con, "TRUNCATE TABLE log") or print("\n\n log table not truncated \n\n");

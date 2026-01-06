@@ -19,7 +19,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
+require_once(__DIR__ . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -30,7 +30,7 @@ use OpenEMR\Core\Header;
 
 <?php
  // check access controls
-if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
+if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Find Available Appointments")]);
     exit;
 }
@@ -42,10 +42,10 @@ $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 $input_catid = $_REQUEST['catid'];
 
 // Record an event into the slots array for a specified day.
-function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
+function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
-    $udate = strtotime($starttime, $udate);
+    $udate = strtotime((string) $starttime, $udate);
     if ($udate < $slotstime) {
         return;
     }
@@ -95,7 +95,7 @@ $slotsecs = $GLOBALS['calendar_interval'] * 60;
 
 $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
     if ($srow['pc_duration']) {
         $catslots = ceil($srow['pc_duration'] / $slotsecs);
     }
@@ -112,7 +112,7 @@ if (!empty($_REQUEST['searchdays'])) {
 $sdate = ($_REQUEST['startdate']) ? DateToYYYYMMDD($_REQUEST['startdate']) : date("Y-m-d");
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches);
 $edate = date(
     "Y-m-d",
     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
@@ -138,11 +138,7 @@ if (isset($_REQUEST['evdur'])) {
     // if the event duration is less than or equal to zero, use the global calander interval
     // if the global calendar interval is less than or equal to zero, use 10 mins
     if (intval($_REQUEST['evdur']) <= 0) {
-        if (intval($GLOBALS['calendar_interval']) <= 0) {
-                $_REQUEST['evdur'] = 10;
-        } else {
-            $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
-        }
+        $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']) <= 0 ? 10 : intval($GLOBALS['calendar_interval']);
     }
 
     $evslots = 60 * $_REQUEST['evdur'];
@@ -160,9 +156,9 @@ if ($_REQUEST['providerid']) {
     //   bit 2 = reserved
     // So, values may range from 0 to 7.
     //
-    $slots = array_pad(array(), $slotcount, 0);
+    $slots = array_pad([], $slotcount, 0);
 
-    $sqlBindArray = array();
+    $sqlBindArray = [];
 
     // Note there is no need to sort the query results.
     $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
@@ -176,7 +172,7 @@ if ($_REQUEST['providerid']) {
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
     // phyaura whimmel facility filtering
-    if ($_REQUEST['facility'] ?? '' > 0) {
+    if (($_REQUEST['facility'] ?? '') > 0) {
             $facility = $_REQUEST['facility'];
             $query .= " AND pc_facility = ?";
             array_push($sqlBindArray, $facility);

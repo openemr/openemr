@@ -29,10 +29,6 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets;
  */
 class Rule
 {
-    public $ruleTypes;
-    public $id;
-    public string $title;
-
     /**
      * US Regulation 170.315(b)(11)(iv)(A)(1)
      * @var string Bibliographic citation of the intervention (clinical research or
@@ -130,17 +126,27 @@ class Rule
     /**
      * @var ReminderIntervals
      */
-    var $reminderIntervals;
+    public $reminderIntervals;
 
     /**
      * @var RuleFilters
      */
-    var $filters;
+    public $filters;
 
     /**
      * @var RuleTargetActionGroups
      */
-    var $groups;
+    public $groups;
+
+    /**
+     * @var RuleTargets
+     */
+    public $targets;
+
+    /**
+     * @var RuleActions
+     */
+    public $actions;
 
     /**
      * User provided feedback on an applied rule instance
@@ -148,11 +154,8 @@ class Rule
      */
     public ?string $feedback;
 
-    function __construct($id = '', $title = '', $ruleTypes = array())
+    function __construct(public $id = '', public string $title = '', public $ruleTypes = [])
     {
-        $this->id = $id;
-        $this->title = $title;
-        $this->ruleTypes = $ruleTypes;
         $this->bibliographic_citation = '';
         $this->developer = '';
         $this->funding_source = '';
@@ -348,7 +351,7 @@ class Rule
 
     function getRuleTypeLabels()
     {
-        $labels = array();
+        $labels = [];
         foreach ($this->ruleTypes as $ruleType) {
             array_push($labels, RuleType::from($ruleType)->lbl);
         }

@@ -65,7 +65,7 @@ class Mime_Types
      * @var array
      * @access private
      */
-    var $mime_types = array (
+    public $mime_types =  [
             'txt' => 'text/plain',
             'gif' => 'image/gif',
             'jpg' => 'image/jpeg',
@@ -73,14 +73,14 @@ class Mime_Types
             'pdf' => 'application/pdf',
             'doc' => 'application/msword',
             'htm' => 'text/html'
-    );
+    ];
 
     /**
      * Path to file command - empty string disables the use of the file command
      *
      * @var string
      */
-    var $file_cmd = '';
+    public $file_cmd = '';
     // var $file_cmd = '/usr/bin/file';
 
     /**
@@ -92,10 +92,10 @@ class Mime_Types
      *
      * @var array
      */
-    var $file_options = array (
+    public $file_options =  [
             'b' => null,
             'i' => null
-    );
+    ];
 
     /**
      * Constructor
@@ -152,15 +152,11 @@ class Mime_Types
         $mime_types = $this->mime_types;
         asort($mime_types);
         foreach ($mime_types as $ext => $type) {
-            $ext_type = array (
+            $ext_type =  [
                     $ext,
                     $type
-            );
-            if (isset($method)) {
-                $res = $callback [0]->$method($this, $ext_type, $param);
-            } else {
-                $res = $callback($this, $ext_type, $param);
-            }
+            ];
+            $res = isset($method) ? $callback [0]->$method($this, $ext_type, $param) : $callback($this, $ext_type, $param);
 
             if (! $res) {
                 return;
@@ -209,7 +205,7 @@ class Mime_Types
                 $pattern = '[a-z0-9.+_-]';
                 if (preg_match('!((' . $pattern . '+)/' . $pattern . '+)!', $result, $match)) {
                     if (
-                        in_array($match [2], array (
+                        in_array($match [2], [
                             'application',
                             'audio',
                             'image',
@@ -219,7 +215,7 @@ class Mime_Types
                             'video',
                             'chemical',
                             'model'
-                        )) || (substr($match [2], 0, 2) == 'x-')
+                        ]) || (str_starts_with($match [2], 'x-'))
                     ) {
                         $type = $match [1];
                     }
@@ -320,7 +316,7 @@ class Mime_Types
 
             // loop through extensions
         if (! is_array($exts)) {
-            $exts = explode(' ', $exts);
+            $exts = explode(' ', (string) $exts);
         }
 
         foreach ($exts as $ext) {
@@ -411,11 +407,11 @@ class Mime_Types
     function remove_extension($exts)
     {
         if (! is_array($exts)) {
-            $exts = explode(' ', $exts);
+            $exts = explode(' ', (string) $exts);
         }
 
         foreach ($exts as $ext) {
-            $ext = strtolower(trim($ext));
+            $ext = strtolower(trim((string) $ext));
             if (isset($this->mime_types [$ext])) {
                 unset($this->mime_types [$ext]);
             }
@@ -440,7 +436,7 @@ class Mime_Types
     function remove_type($type = null)
     {
         if (! isset($type)) {
-            $this->mime_types = array ();
+            $this->mime_types =  [];
             return;
         }
 
@@ -449,20 +445,17 @@ class Mime_Types
             return;
         }
 
-        $type_info = array (
+        $type_info =  [
                 'last_match' => false,
                 'wildcard' => false,
                 'type' => $type
-        );
+        ];
         if (substr($type, $slash_pos) == '/*') {
             $type_info ['wildcard'] = true;
             $type_info ['type'] = substr($type, 0, $slash_pos);
         }
 
-        $this->scan(array (
-                &$this,
-                '_remove_type_callback'
-        ), $type_info);
+        $this->scan($this->_remove_type_callback(...), $type_info);
     }
 
     /**
@@ -522,9 +515,9 @@ class Mime_Types
     {
         // temporarily we'll put match to false
         $matched = false;
-        list ( $ext, $type ) = $ext_type;
+        [$ext, $type] = $ext_type;
         if ($type_info ['wildcard']) {
-            if (substr($type, 0, strpos($type, '/')) == $type_info ['type']) {
+            if (substr((string) $type, 0, strpos((string) $type, '/')) == $type_info ['type']) {
                 $matched = true;
             }
         } elseif ($type == $type_info ['type']) {

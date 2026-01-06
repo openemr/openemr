@@ -21,16 +21,21 @@ namespace OpenEMR\Common\Http;
  */
 class oeHttpRequest extends oeHttp
 {
+    private string $bodyFormat;
+    private array $options;
+
     public function __construct($client)
     {
         parent::__construct();
 
-        $this->client = $client;
+        self::$client = $client;
         $this->bodyFormat = "json";
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $this->options = [
             'base_uri' => '',
             'http_errors' => false,
-            'verify' => false];
+            'verify' => $httpVerifySsl,
+        ];
 
         /* set here in class as default
         *  otherwise has to be invoked via setDebug().
@@ -45,11 +50,9 @@ class oeHttpRequest extends oeHttp
 
     public function usingHeaders($headers)
     {
-        return $this->tap($this, function ($request) use ($headers) {
-            return $this->options = array_merge_recursive($this->options, [
-                'headers' => $headers
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, [
+            'headers' => $headers
+        ]));
     }
 
     protected function tap($value, $callback)
@@ -60,9 +63,7 @@ class oeHttpRequest extends oeHttp
 
     public function setOptions($options)
     {
-        return $this->tap($this, function ($request) use ($options) {
-            return $this->options = array_merge_recursive($this->options, $options);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, $options));
     }
 
     public static function newArgs(...$args): oeHttpRequest
@@ -89,7 +90,7 @@ class oeHttpRequest extends oeHttp
 
     public function bodyFormat($format)
     {
-        return $this->tap($this, function ($request) use ($format) {
+        return $this->tap($this, function ($request) use ($format): void {
             $this->bodyFormat = $format;
         });
     }
@@ -97,7 +98,7 @@ class oeHttpRequest extends oeHttp
     /* Currently supporting authorization_code grant. Resource grant(password+) will come soon.*/
     public function withOAuth($credentials = [], $endpoints = [], $grant_type = 'authorization_code')
     {
-        return $this->tap($this, function ($request) use ($credentials, $endpoints) {
+        return $this->tap($this, function ($request) use ($credentials, $endpoints): void {
             $this->setAuthBase($endpoints['token_uri']); // required
             $this->setRedirect($endpoints['redirect_uri']); // required
             $this->setAuthOptions([
@@ -113,7 +114,7 @@ class oeHttpRequest extends oeHttp
     public function reAuth()
     {
         $this->apiOAuth = true;
-        return $this->tap($this, function ($request) {
+        return $this->tap($this, function ($request): void {
             $this->initOAuthClient();
         });
     }
@@ -135,21 +136,17 @@ class oeHttpRequest extends oeHttp
 
     public function setParams($params)
     {
-        return $this->tap($this, function ($request) use ($params) {
-            return $this->options = array_merge_recursive($this->options, [
-                'query' => $params,
-            ]);
-        });
+        return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, [
+            'query' => $params,
+        ]));
     }
 
     public function usingBaseUri($baseUri)
     {
-        $baseUri = substr($baseUri, -1) === '/' ? $baseUri : $baseUri . '/';
-        return $this->tap($this, function ($request) use ($baseUri) {
-            return $this->options = array_merge($this->options, [
-                'base_uri' => $baseUri,
-            ]);
-        });
+        $baseUri = str_ends_with((string) $baseUri, '/') ? $baseUri : $baseUri . '/';
+        return $this->tap($this, fn($request): array => $this->options = array_merge($this->options, [
+            'base_uri' => $baseUri,
+        ]));
     }
 
     public function get($url, $queryParams = []): oeHttpResponse
@@ -168,7 +165,7 @@ class oeHttpRequest extends oeHttp
             ]);
         }
 
-        return new oeHttpResponse($this->client->request($method, $url, $this->mergeOptions([
+        return new oeHttpResponse(self::$client->request($method, $url, $this->mergeOptions([
             'query' => $this->parseQueryParams($url),
         ], $options)));
     }
@@ -180,8 +177,8 @@ class oeHttpRequest extends oeHttp
 
     protected function parseQueryParams($url)
     {
-        return $this->tap([], function (&$query) use ($url) {
-            parse_str(parse_url($url, PHP_URL_QUERY), $query);
+        return $this->tap([], function (&$query) use ($url): void {
+            parse_str(parse_url((string) $url, PHP_URL_QUERY), $query);
         });
     }
 

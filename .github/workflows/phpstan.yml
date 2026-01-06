@@ -1,0 +1,83 @@
+name: PHPStan
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+    - name: Composer Cache
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
+    - name: Composer Install
+      run: |
+        composer install --prefer-dist --no-progress
+        # Hack: temporarily uninstall rector, which interferes with PHPStan
+        composer remove --dev --optimize-autoloader rector/rector
+    - name: PHPStan Cache
+      # https://phpstan.org/user-guide/result-cache
+      uses: actions/cache@v5
+      with:
+        path: tmp-phpstan # same as in phpstan.neon
+        key: "phpstan-result-cache-${{ github.run_id }}"
+        restore-keys: |
+          phpstan-result-cache-
+    - name: PHPStan Diagnose
+      run: vendor/bin/phpstan --memory-limit=8G diagnose
+    - name: PHPStan Analyze
+      id: phpstan-analyze
+      run: vendor/bin/phpstan --memory-limit=8G analyze --error-format=github
+      continue-on-error: true
+    # Generate baseline only if analyze step failed
+    - name: PHPStan Baseline
+      if: steps.phpstan-analyze.outcome == 'failure'
+      run: composer run phpstan-baseline
+      continue-on-error: true
+    - name: Upload PHPStan Baseline
+      if: steps.phpstan-analyze.outcome == 'failure'
+      uses: actions/upload-artifact@v6
+      with:
+        name: phpstan-baseline-php${{ matrix.php-version }}
+        path: .phpstan/phpstan-*-baseline.neon
+      continue-on-error: true
+    - name: Check PHPStan Results
+      if: steps.phpstan-analyze.outcome == 'failure'
+      run: false

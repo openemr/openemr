@@ -433,7 +433,7 @@ Work addresses are not typically entered in this property as they are usually ro
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->get_fhirElementName();
     }

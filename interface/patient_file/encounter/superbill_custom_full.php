@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -80,7 +81,7 @@ if (isset($mode) && $thisauthwrite) {
     }
 
     if ($mode == "delete") {
-        sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id));
+        sqlStatement("DELETE FROM codes WHERE id = ?", [$code_id]);
         $code_id = 0;
     } elseif ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
         $crow = sqlQuery("SELECT COUNT(*) AS count FROM codes WHERE " .
@@ -106,20 +107,20 @@ if (isset($mode) && $thisauthwrite) {
                 "reportable = '" . add_escape_custom($reportable) . "' ";
             if ($code_id) {
                 $query = "UPDATE codes SET $sql WHERE id = ?";
-                sqlStatement($query, array($code_id));
+                sqlStatement($query, [$code_id]);
                 sqlStatement("DELETE FROM prices WHERE pr_id = ? AND " .
-                    "pr_selector = ''", array($code_id));
+                    "pr_selector = ''", [$code_id]);
             } else {
                 $code_id = sqlInsert("INSERT INTO codes SET $sql");
             }
 
             if (!$alertmsg) {
                 foreach ($_POST['fee'] as $key => $value) {
-                    $value = $value ?? 0;
+                    $value ??= 0;
                     if ($value) {
                         sqlStatement("INSERT INTO prices ( " .
                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
-                            "?, '', ?, ?)", array($code_id, $key, $value));
+                            "?, '', ?, ?)", [$code_id, $key, $value]);
                     }
                 }
 
@@ -135,7 +136,7 @@ if (isset($mode) && $thisauthwrite) {
         }
     } elseif ($mode == "edit") { // someone clicked [Edit]
         $sql = "SELECT * FROM codes WHERE id = ?";
-        $results = sqlStatement($sql, array($code_id));
+        $results = sqlStatement($sql, [$code_id]);
         while ($row = sqlFetchArray($results)) {
             $code = $row['code'];
             $code_text = $row['code_text'];
@@ -178,7 +179,7 @@ if (isset($mode) && $thisauthwrite) {
     // If codes history is enabled in the billing globals save data to codes history table
     if (
         $GLOBALS['save_codes_history'] && $alertmsg == '' &&
-        ($mode == "add" || $mode == "modify_complete" || $mode == "delete")
+        (in_array($mode, ["add", "modify_complete", "delete"]))
     ) {
         $action_type = empty($_POST['code_id']) ? 'new' : $mode;
         $action_type = ($action_type == 'add') ? 'update' : $action_type;
@@ -194,7 +195,7 @@ if (isset($mode) && $thisauthwrite) {
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
         $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
         $fee = json_encode($_POST['fee']);
-        $code_sql = sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
+        $code_sql = sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", [$code_type]));
         $code_name = '';
 
         if ($code_sql) {
@@ -203,7 +204,7 @@ if (isset($mode) && $thisauthwrite) {
 
         $category_id = $_POST['form_superbill'];
         $category_sql = sqlFetchArray(sqlStatement("SELECT (title) FROM list_options WHERE list_id='superbill'" .
-            " AND option_id=?", array($category_id)));
+            " AND option_id=?", [$category_id]));
 
         $category_name = '';
 
@@ -218,7 +219,7 @@ if (isset($mode) && $thisauthwrite) {
             "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name," .
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
-            array($date, $code, $modifier, $active, $reportable, $financial_reporting, $category_name, $code_name, $code_text, '', $fee, $action_type, $_SESSION['authUser'])
+            [$date, $code, $modifier, $active, $reportable, $financial_reporting, $category_name, $code_name, $code_text, '', $fee, $action_type, $_SESSION['authUser']]
         );
     }
 }
@@ -230,10 +231,10 @@ if (!empty($related_code)) {
 
 $fstart = ($_REQUEST['fstart'] ?? null) + 0;
 if (isset($_REQUEST['filter'])) {
-    $filter = array();
-    $filter_key = array();
+    $filter = [];
+    $filter_key = [];
     foreach ($_REQUEST['filter'] as $var) {
-        $var = $var + 0;
+        $var += 0;
         array_push($filter, $var);
         $var_key = convert_type_id_to_key($var);
         array_push($filter_key, $var_key);
@@ -247,7 +248,7 @@ $search_financial_reporting = $_REQUEST['search_financial_reporting'] ?? null;
 $search_active = $_REQUEST['search_active'] ?? null;
 
 //Build the filter_elements array
-$filter_elements = array();
+$filter_elements = [];
 if (!empty($search_reportable)) {
     $filter_elements['reportable'] = $search_reportable;
 }
@@ -424,14 +425,6 @@ if ($fend > ($count ?? null)) {
             f.submit();
         }
 
-        function submitList(offset) {
-            var f = document.forms[0];
-            var i = parseInt(f.fstart.value) + offset;
-            if (i < 0) i = 0;
-            f.fstart.value = i;
-            f.submit();
-        }
-
         function submitEdit(id) {
             var f = document.forms[0];
             f.mode.value = 'edit';
@@ -489,7 +482,7 @@ if ($fend > ($count ?? null)) {
                 <select name="code_type" id="code_type" class='form-control form-control-sm'>
                     <?php } ?>
 
-                    <?php $external_sets = array(); ?>
+                    <?php $external_sets = []; ?>
                     <?php foreach ($code_types as $key => $value) { ?>
                         <?php if (!($value['external'])) { ?>
                             <?php if ($mode != "modify") { ?>
@@ -579,7 +572,7 @@ if ($fend > ($count ?? null)) {
             <label for="superbill" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Category'); ?>
                 :</label>
             <div class="col-md">
-                <?php generate_form_field(array('data_type' => 1, 'field_id' => 'superbill', 'list_id' => 'superbill', 'smallform' => 'true'), ($superbill ?? '')); ?>
+                <?php generate_form_field(['data_type' => 1, 'field_id' => 'superbill', 'list_id' => 'superbill', 'smallform' => 'true'], ($superbill ?? '')); ?>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable'
@@ -622,7 +615,7 @@ if ($fend > ($count ?? null)) {
             $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
                 "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
                 "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-                "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id));
+                "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", [$code_id]);
             for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
                 echo "<label class='col-form-label col-form-label-sm'>" . text(xl_list_label($prow['title'])) . "</label>";
                 echo "<div class='col-md'><input type='text' class='form-control form-control-sm' size='6' name='fee[" . attr($prow['option_id']) . "]' " .
@@ -635,7 +628,7 @@ if ($fend > ($count ?? null)) {
                 "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
             while ($prow = sqlFetchArray($pres)) {
                 $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-                if (strpos(":$taxrates", $prow['option_id']) !== false) {
+                if (str_contains(":$taxrates", (string) $prow['option_id'])) {
                     $taxline .= " checked";
                 }
 
@@ -667,7 +660,7 @@ if ($fend > ($count ?? null)) {
             <div class="col-md-2">
                 <select name='filter[]' class="form-control form-control-sm" multiple='multiple'>
                     <?php
-                    foreach ($code_types as $key => $value) {
+                    foreach ($code_types as $value) {
                         echo "<option value='" . attr($value['id']) . "'";
                         if (isset($filter) && in_array($value['id'], $filter)) {
                             echo " selected";
@@ -704,18 +697,16 @@ if ($fend > ($count ?? null)) {
                             echo ' checked';
                                 } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
-            <div class="col-md text-right">
-                <?php if ($fstart) { ?>
-                    <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
-                        &lt;&lt;
-                    </a>
-                    &nbsp;&nbsp;
-                <?php } ?>
-                <?php echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count ?? ''); ?>
-                <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
-                    &gt;&gt;
-                </a>
-            </div>
+            <div class="col-md text-right"><?php
+                $paginator = new PaginationUtils();
+                echo $paginator->render(
+                    offset: $fstart,
+                    pageSize: $pagesize,
+                    totalCount: $count ?? 0,
+                    filename: basename(__FILE__),
+                    excludeParams: ['mode']
+                );
+                ?></div>
         </div>
     </div>
 </form>
@@ -765,7 +756,7 @@ if ($fend > ($count ?? null)) {
             $count++;
 
             $has_fees = false;
-            foreach ($code_types as $key => $value) {
+            foreach ($code_types as $value) {
                 if ($value['id'] == $iter['code_type']) {
                     $has_fees = $value['fee'];
                     break;
@@ -788,7 +779,7 @@ if ($fend > ($count ?? null)) {
 
             $sres = sqlStatement("SELECT title " .
                 "FROM list_options AS lo " .
-                "WHERE lo.list_id = 'superbill' AND lo.option_id = ?", array($iter['superbill']));
+                "WHERE lo.list_id = 'superbill' AND lo.option_id = ?", [$iter['superbill']]);
             if ($srow = sqlFetchArray($sres)) {
                 echo "  <td class='text'>" . text($srow['title']) . "</td>\n";
             } else {
@@ -803,9 +794,9 @@ if ($fend > ($count ?? null)) {
             if (related_codes_are_used() && $iter['related_code']) {
                 // Show related codes.
                 echo "  <td class='text'>";
-                $arel = explode(';', $iter['related_code']);
+                $arel = explode(';', (string) $iter['related_code']);
                 foreach ($arel as $tmp) {
-                    list($reltype, $relcode) = explode(':', $tmp);
+                    [$reltype, $relcode] = explode(':', $tmp);
                     $code_description = lookup_code_descriptions($reltype . ":" . $relcode);
                     echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
                 }
@@ -818,7 +809,7 @@ if ($fend > ($count ?? null)) {
             $pres = sqlStatement("SELECT p.pr_price " .
                 "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
                 "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-                "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
+                "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", [$iter['id']]);
             while ($prow = sqlFetchArray($pres)) {
                 echo "<td class='text text-right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
             }

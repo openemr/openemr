@@ -12,14 +12,31 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment below exit command to run this test script
-//  (when done, remember to uncomment it again)
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_INTERNAL_FHIR_TEST')) {
+    die('Set OPENEMR_ENABLE_INTERNAL_FHIR_TEST=1 environment variable to enable this script');
+}
 
-require_once(__DIR__ . "/../../interface/globals.php");
+/**
+ * @var \OpenEMR\Core\OEGlobalsBag
+ */
+$globalsBag = require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\HttpRestRouteHandler;
+use OpenEMR\Common\Http\HttpSessionFactory;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEHttpKernel;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
+use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
+use OpenEMR\Services\FHIR\FhirEncounterService;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+
+
 
 ?>
 <html>
@@ -30,7 +47,7 @@ use OpenEMR\Core\Header;
         function testAjaxApi() {
             $.ajax({
                 type: 'GET',
-                url: '../../apis/fhir/Patient',
+                url: '../../apis/default/fhir/Patient',
                 dataType: 'json',
                 headers: {
                     'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
@@ -45,7 +62,7 @@ use OpenEMR\Core\Header;
         }
 
         function testFetchApi() {
-            fetch('../../apis/fhir/Patient', {
+            fetch('../../apis/default/fhir/Patient', {
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
@@ -88,32 +105,36 @@ echo "<br /><br />";
 // CALL the api via route handler
 //  This allows same notation as the calls in the api (ie. '/api/facility'), but
 //  is limited to get requests at this time.
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Http\HttpRestRouteHandler;
+$getParams = [];
+try {
+    $restRequest = HttpRestRequest::create('/fhir/Organization', 'GET');
+    $restRequest->setRequestUserRole("users");
+    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->get('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
+    $sessionFactory->setUseExistingSessionBridge(true);
+    $restRequest->setSession($sessionFactory->createSession());
+    $getParams = $restRequest->getQueryParams();
+    $kernel = new OEHttpKernel($globalsBag->get('kernel')->getEventDispatcher(), new ControllerResolver());
+    $kernel->setSystemLogger(new SystemLogger());
+    $dispatchHandler = new HttpRestRouteHandler($kernel);
+    $routeFinder = new FhirRouteFinder($kernel);
+    $routes = $routeFinder->find($restRequest);
+    $dispatchRestRequest = $dispatchHandler->dispatch($routes, $restRequest);
+    if (!$dispatchRestRequest->getAttribute("_controller")) {
+        throw new \Exception("No controller found for the route.");
+    }
+    $controller = $dispatchRestRequest->getAttribute("_controller");
+    $response = $controller();
+    if (!$response instanceof FHIRBundle) {
+        throw new \Exception("Controller did not return a valid response.");
+    }
 
-require_once(__DIR__ . "/../../_rest_config.php");
-$gbl = RestConfig::GetInstance();
-$gbl::setNotRestCall();
-$restRequest = new HttpRestRequest($gbl, $_SERVER);
-$restRequest->setRequestMethod("GET");
-$restRequest->setApiType("fhir");
-$restRequest->setRequestPath("/fhir/Patient");
-$restRequest->setIsLocalApi(true);
-$getParams = $restRequest->getQueryParams();
-
-// below will return as json
-echo "<b>api via route handler call returning json:</b><br />";
-echo HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $restRequest, 'direct-json');
+    echo "<b>api via route handler call returning json:</b><br />";
+    echo json_encode($response);
+} catch (\Exception $e) {
+    echo "<b>api via route handler call returned error:</b><br />";
+    echo "Error Message: " . $e->getMessage() . "<br />";
+}
 echo "<br /><br />";
-
-// below will return as php array
-echo "<b>api via route handler call returning php array:</b><br />";
-echo print_r(HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $restRequest, 'direct'));
-echo "<br /><br />";
-
-
-// CALL the underlying service that is used by the api
-use OpenEMR\Services\FHIR\FhirEncounterService;
 
 echo "<b>service call:</b><br />";
 echo json_encode((new FhirEncounterService())->getProfileURIs());
@@ -121,8 +142,6 @@ echo "<br /><br />";
 
 
 // CALL the underlying controller that is used by the api
-use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
-
 echo "<b>controller call:</b><br />";
 echo json_encode((new FhirEncounterRestController())->getAll($getParams));
 echo "<br /><br />";

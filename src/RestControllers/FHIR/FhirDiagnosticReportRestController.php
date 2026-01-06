@@ -11,6 +11,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirDiagnosticReportService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -25,10 +26,11 @@ class FhirDiagnosticReportRestController
      */
     private $service;
 
-    public function __construct()
+    public function __construct(HttpRestRequest $request)
     {
         $this->fhirService = new FhirResourcesService();
         $this->service = new FhirDiagnosticReportService();
+        $this->service->setSession($request->getSession());
     }
 
     /**
@@ -51,8 +53,8 @@ class FhirDiagnosticReportRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->service->getAll($searchParams, $puuidBind);
-        $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        $bundleEntries = [];
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult

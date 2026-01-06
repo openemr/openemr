@@ -28,7 +28,7 @@ function notifyAdmin($pid, $provider): void
 
     $note = xlt("New patient registration received from patient portal. Reminder to check for possible new appointment");
     $title = xlt("New Patient");
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($provider));
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$provider]);
 
     if (empty($user['username'])) {
         $user['username'] = "portal-user";
@@ -183,7 +183,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         // create $encoded_link
         $site_addr = $GLOBALS['portal_onsite_two_address'];
         $site_id = $_SESSION['site_id'];
-        if (stripos($site_addr, $site_id) === false) {
+        if (stripos((string) $site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $_SESSION['site_id']
@@ -214,12 +214,12 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         $mail->AltBody = $plainMessage;
 
         if ($mail->Send()) {
-            EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 1, "The patient registration verification email was successfully sent to " . $email);
+            EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 1, "The patient registration verification email was successfully sent to " . $email);
             (new SystemLogger())->debug("The patient registration verification email was successfully sent to " . $email);
             return true;
         } else {
             $email_status = $mail->ErrorInfo;
-            EventAuditLogger::instance()->newEvent('patient-reg-email-verify', '', '', 0, "The patient registration verification email was not successfully sent to " . $email . " because of following issue: " . $email_status);
+            EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "The patient registration verification email was not successfully sent to " . $email . " because of following issue: " . $email_status);
             (new SystemLogger())->error("The patient registration verification email was not successfully sent to " . $email . " because of following issue: " . $email_status);
             return false;
         }
@@ -250,18 +250,18 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
     );
 
     if (sqlNumRows($sql) > 1) {
-        EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Multiple patients were found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
+        EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Multiple patients were found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
         (new SystemLogger())->error("resetPassword function selected more than 1 patient from patient_data, so was unable to reset the password");
         return 1;
     }
     if (!sqlNumRows($sql)) {
-        EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
+        EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
         (new SystemLogger())->debug("resetPassword function found no patient in patient_data, so was unable to reset the password");
         return 1;
     }
     $row = sqlFetchArray($sql);
     if (empty($row['pid'])) {
-        EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
+        EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
         (new SystemLogger())->debug("resetPassword function found no patient in patient_data, so was unable to reset the password");
         return 1;
     }
@@ -269,18 +269,18 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
 
     $sql = sqlStatement("SELECT `pid` FROM `patient_access_onsite` WHERE `pid`=?", [$tempPid]);
     if (sqlNumRows($sql) > 1) {
-        EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Multiple patients were found in patient_access_onsite for search of pid " . $tempPid);
+        EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Multiple patients were found in patient_access_onsite for search of pid " . $tempPid);
         (new SystemLogger())->error("resetPassword function selected more than 1 patient from patient_access_onsite, so was unable to reset the password");
         return 1;
     }
     if (!sqlNumRows($sql)) {
-        EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_access_onsite for search of pid " . $tempPid);
+        EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_access_onsite for search of pid " . $tempPid);
         (new SystemLogger())->debug("resetPassword function found no patient in patient_access_onsite, so was unable to reset the password");
         return 1;
     }
     $row = sqlFetchArray($sql);
     if (empty($row['pid'])) {
-        EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_access_onsite for search of pid " . $tempPid);
+        EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_access_onsite for search of pid " . $tempPid);
         (new SystemLogger())->debug("resetPassword function found no patient in patient_access_onsite, so was unable to reset the password");
         return 1;
     }
@@ -293,7 +293,7 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
     }
 }
 
-function saveInsurance($pid)
+function saveInsurance($pid): void
 {
     newInsuranceData(
         $pid = $pid,
@@ -332,7 +332,7 @@ function saveInsurance($pid)
 
 function validEmail($email)
 {
-    if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
+    if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", (string) $email)) {
         return true;
     }
 
@@ -343,8 +343,8 @@ function validEmail($email)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
-    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", array($pid));
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($newpd['providerID']));
+    $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
 
     // ensure pid exists
     if (empty($newpd)) {
@@ -352,7 +352,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
             (new SystemLogger())->error("doCredentials function did not find a patient from patient_data for " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
             return true;
         } else { // !$resetPass
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 0, "Patient credential creation failure: Following pid did not exist: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation failure: Following pid did not exist: " . $pid);
             (new SystemLogger())->error("doCredentials function did not find a patient from patient_data for " . $pid . " , so was unable to create credentials");
             return false;
         }
@@ -365,14 +365,14 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
             return true;
         }
         if (!validEmail($resetPassEmail)) {
-            EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Email " . $resetPassEmail . " was not considered valid for pid: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Email " . $resetPassEmail . " was not considered valid for pid: " . $pid);
             (new SystemLogger())->error("doCredentials function with email " . $resetPassEmail . " for pid " . $pid . " that was not valid per validEmail function, so was unable to reset the password");
             return false;
         }
         $newpd['email'] = $resetPassEmail;
     } else { // !$resetPass
         if (!validEmail($newpd['email'])) {
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 0, "Patient password reset failure: Email " . $newpd['email'] . " was not considered valid for pid: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient password reset failure: Email " . $newpd['email'] . " was not considered valid for pid: " . $pid);
             (new SystemLogger())->error("doCredentials function with email " . $newpd['email'] . " for pid " . $pid . " was not valid per validEmail function, so was unable to complete the registration");
             return false;
         }
@@ -394,18 +394,18 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     if (empty($token)) {
         // Serious issue if this is case, so exit.
         if ($resetPass) {
-            EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
             (new SystemLogger())->error("Error : Token encryption failed during patient password reset - exiting");
             return false;
         } else { // !$resetPass
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
             (new SystemLogger())->error("Error : Token encryption failed during patient registration - exiting");
             return false;
         }
     }
     $site_addr = $GLOBALS['portal_onsite_two_address'];
     $site_id = $_SESSION['site_id'];
-    if (stripos($site_addr, $site_id) === false) {
+    if (stripos((string) $site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
             'site' => $_SESSION['site_id']
@@ -420,7 +420,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         $newHash = (new AuthHash('auth'))->passwordHash($clear_pass);
         if (empty($newHash)) {
             // Serious issue if this is case, so exit.
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical hashing error for email " . $newpd['email'] . " and pid: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical hashing error for email " . $newpd['email'] . " and pid: " . $pid);
             (new SystemLogger())->error("Error : Hashing failed during patient registration - exiting");
             return false;
         }
@@ -439,7 +439,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         $res = sqlStatement("SELECT `id` FROM `patient_access_onsite` WHERE `pid` = ?", [$pid]);
         if (sqlNumRows($res)) {
             // this should never happen in current use case where these credentials are created after a new patient registers, so will return error
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary to credentials already existing for email " . $newpd['email'] . " and pid: " . $pid);
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary to credentials already existing for email " . $newpd['email'] . " and pid: " . $pid);
             (new SystemLogger())->error("OpenEMR Error : doCredentials for registration - already credentials exists, so unable to create new credentials.");
             return false;
         } else {
@@ -476,20 +476,20 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 
     if ($mail->Send()) {
         if ($resetPass) {
-            EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 1, "The patient reset email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
+            EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 1, "The patient reset email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
             (new SystemLogger())->debug("The patient reset email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
         } else { // !$resetPass
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 1, "The patient registration credentials email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 1, "The patient registration credentials email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
             (new SystemLogger())->debug("The patient registration credentials email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
         }
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
         if ($resetPass) {
-            EventAuditLogger::instance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: The reset email to " . $newpd['email'] . " for pid " . $pid . " was not successful because of following issue: " . $email_status);
+            EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: The reset email to " . $newpd['email'] . " for pid " . $pid . " was not successful because of following issue: " . $email_status);
             (new SystemLogger())->error("Patient password reset failure: The reset email to " . $newpd['email'] . " for pid " . $pid . " was not successful because of following issue: " . $email_status);
         } else { // !$resetPass
-            EventAuditLogger::instance()->newEvent('patient-registration', '', '', 0, "The patient registration credentials email was not successfully sent to " . $newpd['email'] . " for pid " . $pid . " because of following issue: " . $email_status);
+            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "The patient registration credentials email was not successfully sent to " . $newpd['email'] . " for pid " . $pid . " because of following issue: " . $email_status);
             (new SystemLogger())->error("The patient registration credentials email was not successfully sent to " . $newpd['email'] . " for pid " . $pid . " because of following issue: " . $email_status);
             // notify admin of failure.
             $title = xlt("Failed Registration");
@@ -531,7 +531,7 @@ function getPidHolder($preventRaceCondition = false): int
     }
 }
 
-function cleanupRegistrationSession()
+function cleanupRegistrationSession(): void
 {
     unset($_SESSION['patient_portal_onsite_two']);
     unset($_SESSION['authUser']);

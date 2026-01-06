@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <?php
-$patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
+$patient_id = $_GET['patient_id'] ?: "";
 ?>
 
 <body class='body_top'>
@@ -95,7 +95,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             }
             ?>
           <tr>
-            <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $plan['id']); ?></td>
+            <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'clinical_plans'], $plan['id']); ?></td>
             <td align="center">
                 <?php
 
@@ -151,7 +151,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
-            <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $rule['id']); ?></td>
+            <td><?php echo generate_display_field(['data_type' => '1','list_id' => 'clinical_rules'], $rule['id']); ?></td>
             <td align="center">
                 <?php
                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -286,4 +286,3 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
 </body>
 </html>
-

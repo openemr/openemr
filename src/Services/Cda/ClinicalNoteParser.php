@@ -35,11 +35,7 @@ class ClinicalNoteParser
             '18748-4' => 'imaging_narrative',
             '81222-2' => 'consultation_note',
         ];
-
-        if (isset($options[$code])) {
-            return $options[$code];
-        }
-        return null;
+        return $options[$code] ?? null;
     }
 
     /**
@@ -186,7 +182,7 @@ class ClinicalNoteParser
     {
         $contentLines = [];
         foreach ($item->childNodes as $child) {
-            $child->textContent = (string)str_replace(array("\n\n\n\n", "\n\n", "\r\r", "\r\r\r\r"), "\n", $child->textContent);
+            $child->textContent = str_replace(["\n\n\n\n", "\n\n", "\r\r", "\r\r\r\r"], "\n", $child->textContent);
             $text = trim($child->textContent);
             if ($text) {
                 $contentLines[] = $text;
@@ -257,14 +253,12 @@ class ClinicalNoteParser
     {
         libxml_use_internal_errors(true);
         // Remove extraneous whitespace between tags
-        $textXML = trim(preg_replace('/>\s+</', '><', $textXML));
+        $textXML = trim((string) preg_replace('/>\s+</', '><', $textXML));
         $dom = new DOMDocument();
         if (!$dom->loadXML($textXML)) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            return "Error loading XML: " . implode("; ", array_map(function ($err) {
-                    return trim($err->message);
-            }, $errors));
+            return "Error loading XML: " . implode("; ", array_map(fn($err): string => trim($err->message), $errors));
         }
         $xpath = new DOMXPath($dom);
         // Look up the default namespace and register it (if needed).
@@ -294,10 +288,10 @@ class ClinicalNoteParser
             $paragraphNodes = $xpath->query("ns:paragraph", $item);
             $captionNodes = $xpath->query("ns:caption", $item);
             if ($captionNodes->length > 0) {
-                $paraText = trim($captionNodes->item(0)->nodeValue) . "\n";
+                $paraText = trim((string) $captionNodes->item(0)->nodeValue) . "\n";
             }
             if ($paragraphNodes->length > 0) {
-                $paraText .= trim($paragraphNodes->item(0)->nodeValue);
+                $paraText .= trim((string) $paragraphNodes->item(0)->nodeValue);
             }
             // First table in the item
             $tableNodes = $xpath->query(".//ns:table", $item);
@@ -314,7 +308,7 @@ class ClinicalNoteParser
             $theadRows = $xpath->query("ns:thead/ns:tr", $table);
             if ($theadRows->length > 0) {
                 foreach ($xpath->query("ns:th", $theadRows->item(0)) as $th) {
-                    $headers[] = trim($th->nodeValue);
+                    $headers[] = trim((string) $th->nodeValue);
                 }
             }
             if (empty($headers)) {

@@ -29,18 +29,16 @@ use RuntimeException;
 
 class OneTimeAuth
 {
-    private $scope;
-    private $context;
-    private $profile;
     private $cryptoGen;
     private $systemLogger;
 
-    public function __construct($context = 'portal', $scope = 'redirect', $profile = 'default')
+    /**
+     * @param string $context context = portal, patient etc.
+     * @param string $scope scope = portal/service tasks (reset, register).
+     * @param string $profile
+     */
+    public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
-        // scope = portal/service tasks (reset, register). context = portal, patient etc.
-        $this->context = $context;
-        $this->scope = $scope;
-        $this->profile = $profile;
         $this->cryptoGen = new CryptoGen();
         $this->systemLogger = new SystemLogger();
     }
@@ -88,7 +86,7 @@ class OneTimeAuth
             throw new RuntimeException($err);
         }
 
-        $redirect_raw = trim($p['redirect_link'] ?? null);
+        $redirect_raw = trim((string) ($p['redirect_link'] ?? null));
         if (!empty($redirect_raw) && $encrypt_redirect) {
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
             $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
@@ -100,7 +98,7 @@ class OneTimeAuth
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
-            $site_addr = trim($GLOBALS['portal_onsite_two_address']);
+            $site_addr = trim((string) $GLOBALS['portal_onsite_two_address']);
         } else {
             $err = xlt("Onetime creation failed. Missing site address!");
             $this->systemLogger->error($err);
@@ -153,13 +151,13 @@ class OneTimeAuth
         $one_time = '';
         $t_info = [];
 
-        if (strlen($onetime_token) >= 64) {
+        if (strlen((string) $onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
                 $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, 'drive', 6);
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
-                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", array($t_info['pid']));
+                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
                     }
                 } else {
                     $this->systemLogger->error("Onetime decrypt token failed. Empty!");
@@ -221,7 +219,7 @@ class OneTimeAuth
     private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
     {
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
-        if (stripos($site_addr, "portal") !== false) {
+        if (stripos((string) $site_addr, "portal") !== false) {
             $site_addr = strtok($site_addr, '?');
             if (stripos($site_addr, "index.php") !== false) {
                 $site_addr = dirname($site_addr);
@@ -231,7 +229,7 @@ class OneTimeAuth
             }
         }
         $format = "%s&%s";
-        if (stripos($site_addr, "?") === false) {
+        if (stripos((string) $site_addr, "?") === false) {
             $format = "%s?%s";
         }
         if ($this->scope == 'register') {
@@ -291,7 +289,7 @@ class OneTimeAuth
         $access_ip = $ip ?: $_SERVER['REMOTE_ADDR'] ?? null;
         $sql = "UPDATE `onetime_auth` SET `remote_ip` = ?, `last_accessed` = current_timestamp(), `access_count` = `access_count`+1 WHERE `pid` = ? AND `onetime_token` = ?";
 
-        return sqlQuery($sql, array($access_ip, $pid, $token));
+        return sqlQuery($sql, [$access_ip, $pid, $token]);
     }
 
     /**
@@ -330,7 +328,6 @@ class OneTimeAuth
             }
         } catch (OneTimeAuthExpiredException $e) {
             $this->systemLogger->error("Failed " . $e->getMessage());
-            unset($auth);
             throw new OneTimeAuthException(xlt("Decode Authentication Failed! Contact administrator."));
         }
         if (!empty($auth['error'] ?? null)) {
@@ -357,7 +354,7 @@ class OneTimeAuth
         $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
         $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-';
-        $_SESSION['providerId'] = $patient['providerID'] ? $patient['providerID'] : 'undefined';
+        $_SESSION['providerId'] = $patient['providerID'] ?: 'undefined';
         $_SESSION['ptName'] = $patient['fname'] . ' ' . $patient['lname'];
         // never set authUserID though authUser is used for ACL!
         $_SESSION['authUser'] = 'portal-user';

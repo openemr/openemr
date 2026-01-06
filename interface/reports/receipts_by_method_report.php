@@ -48,19 +48,33 @@ if (!empty($_POST)) {
 // This controls whether we show pt name, policy number and DOS.
 $showing_ppd = true;
 
-$insarray = array();
+$insarray = [];
 
-function thisLineItem(
-    $patient_id,
-    $encounter_id,
-    $memo,
-    $transdate,
-    $rowmethod,
-    $rowpayamount,
-    $rowadjamount,
-    $payer_type = 0,
-    $irnumber = ''
-) {
+/**
+ * Render a line item for the receipts by method html table.
+ *
+ * @param int $patient_id
+ * @param int $encounter_id
+ * @param string $memo
+ * @param string $transdate
+ * @param string $rowmethod
+ * @param float $rowpayamount
+ * @param float $rowadjamount
+ * @param int $payer_type
+ * @param string $irnumber
+ * @return void
+ */
+function receiptsByMethodLineItem(
+    int $patient_id,
+    int $encounter_id,
+    string $memo,
+    string $transdate,
+    string $rowmethod,
+    float $rowpayamount,
+    float $rowadjamount,
+    int $payer_type = 0,
+    string $irnumber = ''
+): void {
 
     global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
 
@@ -83,7 +97,7 @@ function thisLineItem(
   //
     if (!empty($_POST['form_details'])) { // details are wanted
         // Save everything for later sorting.
-        $insarray[] = array(
+        $insarray[] = [
             $patient_id,
             $encounter_id,
             $memo,
@@ -93,10 +107,10 @@ function thisLineItem(
             $rowadjamount,
             $payer_type,
             $irnumber
-        );
+        ];
     } else { // details not wanted
         if (empty($insarray[$rowmethod])) {
-            $insarray[$rowmethod] = array(0, 0);
+            $insarray[$rowmethod] = [0, 0];
         }
 
         $insarray[$rowmethod][0] += $rowpayamount;
@@ -116,7 +130,7 @@ function showLineItem(
     $rowadjamount,
     $payer_type = 0,
     $irnumber = ''
-) {
+): void {
 
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
     $grandpaytotal, $grandadjtotal, $showing_ppd;
@@ -168,7 +182,7 @@ function showLineItem(
                 $pferow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date, fe.id " .
                 "FROM patient_data AS p, form_encounter AS fe WHERE " .
                 "p.pid = ? AND fe.pid = p.pid AND " .
-                "fe.encounter = ? LIMIT 1", array($patient_id, $encounter_id));
+                "fe.encounter = ? LIMIT 1", [$patient_id, $encounter_id]);
             if (!empty($irnumber)) {
                 echo text($invnumber);
             } else {
@@ -180,7 +194,7 @@ function showLineItem(
         </td>
         <?php
         if ($showing_ppd) {
-            $dos = substr($pferow['date'], 0, 10);
+            $dos = substr((string) $pferow['date'], 0, 10);
 
             echo "  <td class='font-weight-bold'>\n";
             echo "   " . text($pferow['lname']) . ", " . text($pferow['fname']) . " " . text($pferow['mname']);
@@ -188,7 +202,7 @@ function showLineItem(
 
             echo "  <td class='font-weight-bold'>\n";
             if ($payer_type) {
-                $ptarr = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
+                $ptarr = [1 => 'primary', 2 => 'secondary', 3 => 'tertiary'];
                 $insrow = getInsuranceDataByDate(
                     $patient_id,
                     $dos,
@@ -229,7 +243,7 @@ function showLineItem(
 // Sorts by payer/date/patient/encounter/memo.
 function payerCmp($a, $b)
 {
-    foreach (array(4,3,0,1,2,7) as $i) {
+    foreach ([4,3,0,1,2,7] as $i) {
         if ($a[$i] < $b[$i]) {
             return -1;
         }
@@ -351,11 +365,11 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             <label for='form_report_by'><?php echo xlt('Report by'); ?></label>
             <?php echo " <select name='form_report_by' id='form_report_by' class='form-control'>\n";
             foreach (
-                    array(
+                    [
                         1 => 'Payer',
                         2 => 'Payment Method',
                         3 => 'Check Number'
-                    ) as $key => $value
+                    ] as $key => $value
             ) {
                 echo "    <option value='" . attr($key) . "'";
                 if ($key == $form_report_by) {
@@ -371,7 +385,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
         <div class="form-group col-auto">
             <label for='form_facility'><?php echo xlt('Facility'); ?></label>
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
-        </div>    
+        </div>
     </div>
     <div class="form-row col-md-6">
         <div class="form-group col-auto">
@@ -411,7 +425,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 echo xlt('Procedure/Service');
             }
             ?>
-            </label>   
+            </label>
             <input type='text' name='form_proc_codefull' id='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Click to select optional procedure code'); ?>'
             <?php
@@ -419,7 +433,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 echo "style='display:none'";
             } ?> />
         </div>
-    </div>    
+    </div>
     <div class="form-row col-md-6">
         <div class="form-group col-auto">
             <label for='form_use_edate'>
@@ -461,7 +475,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             </a>
             <?php } ?>
         </div>
-    </div>    
+    </div>
 </div> <!-- end of parameters -->
 
 <?php
@@ -529,7 +543,7 @@ if (!empty($_POST['form_refresh'])) {
         // billing code.
         //
         if (!$form_proc_code || !$form_proc_codetype) {
-            $sqlBindArray = array();
+            $sqlBindArray = [];
             $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
             "fe.date, fe.facility_id, fe.invoice_refno, fe.provider_id " .
             "FROM billing AS b " .
@@ -555,11 +569,11 @@ if (!empty($_POST['form_refresh'])) {
 
             while ($row = sqlFetchArray($res)) {
                 $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
-                thisLineItem(
+                receiptsByMethodLineItem(
                     $row['pid'],
                     $row['encounter'],
                     $row['code_text'],
-                    substr($row['date'], 0, 10),
+                    substr((string) $row['date'], 0, 10),
                     $rowmethod,
                     0 - $row['fee'],
                     0,
@@ -572,7 +586,7 @@ if (!empty($_POST['form_refresh'])) {
         // Get all other payments and adjustments and their dates, corresponding
         // payers and check reference data, and the encounter dates separately.
         //
-        $sqlBindArray = array();
+        $sqlBindArray = [];
         $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
           "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, fe.provider_id, fe.id, " .
           "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, s.payment_method, i.name " .
@@ -629,11 +643,11 @@ if (!empty($_POST['form_refresh'])) {
         $res = sqlStatement($query, $sqlBindArray);
         while ($row = sqlFetchArray($res)) {
             if ($form_use_edate) {
-                $thedate = substr($row['date'], 0, 10);
+                $thedate = substr((string) $row['date'], 0, 10);
             } elseif (!empty($row['deposit_date'])) {
                 $thedate = $row['deposit_date'];
             } else {
-                $thedate = substr($row['post_time'], 0, 10);
+                $thedate = substr((string) $row['post_time'], 0, 10);
             }
 
           // Compute reporting key: insurance company name or payment method.
@@ -648,7 +662,7 @@ if (!empty($_POST['form_refresh'])) {
                         $insurance_id = (new InsuranceService())->getOneByPid($row['pid'], "tertiary");
                     } elseif ($row['payer_type'] == '0') {
                         $rowmethod = xl('Personal pay');
-                        $rowreference = trim($row['reference']);
+                        $rowreference = trim((string) $row['reference']);
                     } else {
                         $rowmethod = xl('Unnamed insurance company');
                     }
@@ -663,14 +677,14 @@ if (!empty($_POST['form_refresh'])) {
                 }
             } else {
                 if (empty($row['session_id'])) {
-                    $rowmethod = trim($row['memo']);
+                    $rowmethod = trim((string) $row['memo']);
                 } else {
-                    $rowmethod = trim(getListItemTitle('payment_method', $row['payment_method']));
-                    $rowreference = trim($row['reference']);
+                    $rowmethod = trim((string) getListItemTitle('payment_method', $row['payment_method']));
+                    $rowreference = trim((string) $row['reference']);
                 }
             }
 
-            thisLineItem(
+            receiptsByMethodLineItem(
                 $row['pid'],
                 $row['encounter'],
                 ($rowreference ?? ''),
@@ -688,8 +702,8 @@ if (!empty($_POST['form_refresh'])) {
             if ($form_report_by == '1') { // by payer with details
                 // Sort and dump saved info, and consolidate items with all key
                 // fields being the same.
-                usort($insarray, 'payerCmp');
-                $b = array();
+                usort($insarray, payerCmp(...));
+                $b = [];
                 foreach ($insarray as $a) {
                     if (empty($a[4])) {
                         $a[4] = xl('Patient');
@@ -699,7 +713,7 @@ if (!empty($_POST['form_refresh'])) {
                         $b = $a;
                     } else {
                         $match = true;
-                        foreach (array(4,3,0,1,2,7) as $i) {
+                        foreach ([4,3,0,1,2,7] as $i) {
                             if ($a[$i] != $b[$i]) {
                                 $match = false;
                             }

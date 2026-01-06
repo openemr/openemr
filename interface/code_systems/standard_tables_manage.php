@@ -30,13 +30,13 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$db = isset($_GET['db']) ? $_GET['db'] : '0';
-$version = isset($_GET['version']) ? $_GET['version'] : '0';
-$rf = isset($_GET['rf']) ? $_GET['rf'] : '0';
-$file_revision_date = isset($_GET['file_revision_date']) ? $_GET['file_revision_date'] : '0';
-$file_checksum = isset($_GET['file_checksum']) ? $_GET['file_checksum'] : '0';
-$newInstall =   isset($_GET['newInstall']) ? $_GET['newInstall'] : '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower($db);
+$db = $_GET['db'] ?? '0';
+$version = $_GET['version'] ?? '0';
+$rf = $_GET['rf'] ?? '0';
+$file_revision_date = $_GET['file_revision_date'] ?? '0';
+$file_checksum = $_GET['file_checksum'] ?? '0';
+$newInstall =   $_GET['newInstall'] ?? '0';
+$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) $db);
 
 $files_array = scandir($mainPATH);
 array_shift($files_array); // get rid of "."
@@ -44,7 +44,7 @@ array_shift($files_array); // get rid of ".."
 
 foreach ($files_array as $file) {
     $this_file = $mainPATH . "/" . $file;
-    if (strpos($file, ".zip") === false) {
+    if (!str_contains($file, ".zip")) {
         continue;
     }
 

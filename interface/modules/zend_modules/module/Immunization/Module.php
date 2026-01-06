@@ -8,17 +8,17 @@ class Module
 {
     public function getAutoloaderConfig()
     {
-        return array(
-            'Laminas\Loader\ClassMapAutoloader' => array(
+        return [
+            \Laminas\Loader\ClassMapAutoloader::class => [
                 __DIR__ . '/autoload_classmap.php',
-            ),
-            'Laminas\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            ],
+            \Laminas\Loader\StandardAutoloader::class => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     public function getConfig()
@@ -30,14 +30,14 @@ class Module
     {
         // TODO: it needs to be documented why we want to inject the current_controller and current_action here..
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller = $e->getTarget();
             $controller->layout('immunization/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();
-                $controller->getEvent()->getViewModel()->setVariables(array(
+                $controller->getEvent()->getViewModel()->setVariables([
                     'current_controller' => $route->getParam('controller'),
                     'current_action' => $route->getParam('action'),
-                ));
+                ]);
         }, 100);
     }
 }

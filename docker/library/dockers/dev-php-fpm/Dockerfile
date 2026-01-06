@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 
 FROM debian:bullseye-slim
 
@@ -278,7 +279,7 @@ STOPSIGNAL SIGQUIT
 ### Verify
 ###
 RUN set -x \
-	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.5' \
+	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.6' \
 	&& /usr/local/sbin/php-fpm --test \
 	&& PHP_ERROR="$( php -v 2>&1 1>/dev/null )" \
 	&& if [ -n "${PHP_ERROR}" ]; then echo "${PHP_ERROR}"; false; fi

@@ -364,7 +364,7 @@
             });
             document.getElementById('post_to_date').focus();
             return false;
-        } else if (DateCheckGreater(document.getElementById('post_to_date').value, '<?php echo $GLOBALS['post_to_date_benchmark'] == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
+        } else if (DateCheckGreater(document.getElementById('post_to_date').value, '<?php echo $GLOBALS['post_to_date_benchmark'] == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars((string) oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
             '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Post To Date must be greater than the financial close date.') ?>;
             (async (message, time) => {

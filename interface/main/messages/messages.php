@@ -34,11 +34,7 @@ use OpenEMR\OeUI\OemrUI;
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
-if (empty($collectthis)) {
-    $collectthis = "{}";
-} else {
-    $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
-}
+$collectthis = empty($collectthis) ? "{}" : json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
@@ -55,7 +51,7 @@ if ($GLOBALS['medex_enable'] == '1') {
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 //use $uspfx as the first variable for page/script specific user settings instead of '' (which is like a global but you have to request it).
-$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
+$uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
@@ -154,17 +150,17 @@ if (!empty($_REQUEST['go'])) { ?>
         $heading_caption .= ', ' . xlt('Recalls');
     }
 
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title' => $heading_caption,
         'include_patient_name' => false,// use only in appropriate pages
         'expandable' => true,
-        'expandable_files' => array(""),//all file names need suffix _xpd
+        'expandable_files' => [""],//all file names need suffix _xpd
         'action' => "",//conceal, reveal, search, reset, link or back
         'action_title' => "",
         'action_href' => "",//only for actions - reset, link or back
         'show_help_icon' => true,
         'help_file_name' => "message_center_help.php"
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
     echo "<title>" .  xlt('Message Center') . "</title>";
@@ -206,15 +202,11 @@ if (!empty($_REQUEST['go'])) { ?>
                 <div class="col-sm-12">
                     <?php
                     // Check to see if the user has Admin rights, and if so, allow access to See All.
-                    $showall = isset($_GET['show_all']) ? $_GET['show_all'] : "";
-                    if ($showall == "yes") {
-                        $show_all = $showall;
-                    } else {
-                        $show_all = "no";
-                    }
+                    $showall = $_GET['show_all'] ?? "";
+                    $show_all = $showall == "yes" ? $showall : "no";
                     // Collect active variable and applicable html code for links
-                    $form_active = (isset($_REQUEST['form_active']) ? $_REQUEST['form_active'] : false);
-                    $form_inactive = (isset($_REQUEST['form_inactive']) ? $_REQUEST['form_inactive'] : false);
+                    $form_active = ($_REQUEST['form_active'] ?? false);
+                    $form_inactive = ($_REQUEST['form_inactive'] ?? false);
                     if ($form_active) {
                         $active = '1';
                         $activity_string_html = 'form_active=1';
@@ -226,7 +218,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         $activity_string_html = '';
                     }
                     //collect the task setting
-                    $task = isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
+                    $task = $_REQUEST['task'] ?? "";
                     if (AclMain::aclCheckCore('admin', 'super')) {
                         if ($show_all == 'yes') {
                             $showall = "yes";
@@ -295,8 +287,8 @@ if (!empty($_REQUEST['go'])) { ?>
                             $noteid = $_POST['noteid'];
                             $form_note_type = $_POST['form_note_type'];
                             $form_message_status = $_POST['form_message_status'];
-                            $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
-                            $assigned_to_list = explode(';', $_POST['assigned_to']);
+                            $reply_to = explode(';', rtrim((string) $_POST['reply_to'], ';'));
+                            $assigned_to_list = explode(';', (string) $_POST['assigned_to']);
                             $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
@@ -316,7 +308,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             die("getPnoteById() did not find id '" . text($noteid) . "'");
                                         }
                                         $pres = sqlQuery("SELECT lname, fname " .
-                                            "FROM patient_data WHERE pid = ?", array($reply_to[0]));
+                                            "FROM patient_data WHERE pid = ?", [$reply_to[0]]);
                                         $patientname = $pres['lname'] . ", " . $pres['fname'];
                                         $note .= "\n\n$patientname on " . $row['date'] . " wrote:\n\n";
                                         $note .= $row['body'];
@@ -378,15 +370,15 @@ if (!empty($_REQUEST['go'])) { ?>
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
                                 deletePnote($delete_id[$i]);
-                                EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
+                                EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
                             }
                             break;
                     }
                     // This is for sorting the records.
-                    $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
+                    $sort = ["users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status"];
                     $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
                     $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
-                    $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+                    $begin = $_REQUEST['begin'] ?? 0;
 
                     if ($task == "addnew" or $task == "edit") {
                         // Display the Messages page layout.
@@ -424,7 +416,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     $title = "Unassigned";
                                                 }
                                                 // Added 6/2009 by BM to incorporate the patient notes into the list_options listings.
-                                                generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
+                                                generate_form_field(['data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'], $title);
                                                 ?>
                                             </div>
                                             <div class="col-6 col-md-3">
@@ -433,12 +425,12 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 if ($form_message_status == "") {
                                                     $form_message_status = 'New';
                                                 }
-                                                generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
+                                                generate_form_field(['data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'], $form_message_status); ?>
                                             </div>
                                             <div class="col-6 col-md-4">
                                                 <?php
                                                 if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                    <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                    <a class="patLink" onclick="goPid('<?php echo attr(addslashes((string) $result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
                                                     <?php
                                                 } else { ?>
                                                     <span class='<?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
@@ -447,7 +439,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
                                                 if ($reply_to) {
                                                     $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
-                                                        "FROM patient_data WHERE pid = ?", array($reply_to));
+                                                        "FROM patient_data WHERE pid = ?", [$reply_to]);
                                                     $patientname = $prow['lname'] . ", " . $prow['fname'];
                                                 }
                                                 if ($task == "addnew" || $result['pid'] == 0) {
@@ -477,7 +469,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <?php if ($GLOBALS['messages_due_date']) { ?>
                                             <div class="col-6 col-sm-2">
                                                 <label for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
-                                                <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
+                                                <?php generate_form_field(['data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'], empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
                                             </div>
                                             <?php } ?>
                                             <div class="col-6 col-sm-4 d-flex align-items-end flex-wrap">
@@ -521,7 +513,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         $tmp = sqlStatement(
                                             "SELECT id1 FROM gprelations WHERE " .
                                             "type1 = ? AND type2 = ? AND id2 = ?",
-                                            array('2', '6', $noteid)
+                                            ['2', '6', $noteid]
                                         );
                                         if (sqlNumRows($tmp)) {
                                             echo " <tr>\n";
@@ -545,8 +537,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <div class='col-12'>
                                         <?php
                                         if ($noteid) {
-                                            $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                                            $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
+                                            $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', (string) $body);
+                                            $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', (string) $body);
                                             $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
                                             echo "<div style='height: 120px; resize: vertical;' class='border overflow-auto text text-light bg-dark oe-margin-t-3 p-2 mb-2 w-100'>" . $body . "</div>";
                                         }
@@ -1070,7 +1062,13 @@ if (!empty($_REQUEST['go'])) { ?>
                 alert(<?php echo xlj("This patient does not allow SMS messaging!"); ?>);
             } else {
                 top.restoreSession();
-                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
+                const params = new URLSearchParams({
+                    go: 'SMS_bot',
+                    m: m,
+                    nomenu: '1',
+                    pid: pid
+                });
+                window.open('messages.php?' + params, 'SMS_bot', 'width=370,height=600,resizable=0');
             }
         }
 

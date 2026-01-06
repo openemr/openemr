@@ -1,0 +1,227 @@
+{% extends "patient/card/card_base.html.twig" %}
+{% block content %}
+    <html>
+    <head>
+        {% block head %}
+            {{ setupHeader(['no_bootstrap','datetime-picker']) }}
+        {% endblock %}
+        <script>
+            $(function () {
+                let editModeEnabled = false;
+                $('.datepicker').datetimepicker({
+                    timepicker: false,
+                    formatDate: 'Y-m-d',
+                    format: 'Y-m-d'
+                });
+
+                function toggleEditMode(enable = true) {
+                    document.querySelectorAll('.editShow').forEach(el => el.classList.toggle('d-none', !enable));
+                    document.querySelectorAll('.viewOnly').forEach(el => el.classList.toggle('d-none', enable));
+                    editModeEnabled = enable;
+                }
+
+                const existingCareTeam = {{ existing_care_team|js_escape }};
+                const userOptions = {{ user_options|js_escape }};
+                const relatedPersonOptions = {{ related_person_options|js_escape }}; // AI-generated addition
+                const hasRelatedPersons = {{ has_related_persons|js_escape }}; // AI-generated addition
+                const facilityOptions = {{ facility_options|js_escape }};
+                const roleOptions = {{ role_options|js_escape }};
+                const statusOptions = {{ status_options|js_escape }};
+
+                function preloadTeamRows() {
+                    if (!existingCareTeam.length) return;
+                    existingCareTeam.forEach((member, idx) => {
+                        // AI-generated member type handling - Start
+                        const memberType = member.member_type || (member.contact_id ? 'contact' : 'user');
+                        const badgeClass = memberType === 'user' ? 'bg-primary' : 'bg-info';
+                        const badgeText = memberType === 'user' ? {{ translations.provider_member|js_escape }} : {{ translations.related_person_member|js_escape }};
+                        const memberName = memberType === 'user' ? (member.user_display || member.user_name || '') : (member.contact_name || '');
+                        const memberSelectName = memberType === 'user' ? 'user_id' : 'contact_id';
+                        const memberOptions = memberType === 'user' ? userOptions : relatedPersonOptions;
+                        const facilityDisabled = memberType === 'contact' ? 'disabled' : '';
+                        // AI-generated member type handling - End
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <span class="viewOnly badge ${badgeClass}">${badgeText}</span>
+                                <span class="editShow badge ${badgeClass} d-none">${badgeText}</span>
+                                <input type="hidden" name="team[${idx}][member_type]" value="${memberType}">
+                            </td>
+                            <td>
+                                <span class="viewOnly">${memberName}</span>
+                                <select name="team[${idx}][${memberSelectName}]" class="form-control form-control-sm editShow d-none">${memberOptions}</select>
+                            </td>
+                            <td>
+                                <span class="viewOnly">${member.role_display || ''}</span>
+                                <select name="team[${idx}][role]" class="form-control form-control-sm editShow d-none">${roleOptions}</select>
+                            </td>
+                            <td>
+                                <span class="viewOnly">${member.facility_display || ''}</span>
+                                <select name="team[${idx}][facility_id]" class="form-control form-control-sm editShow d-none" ${facilityDisabled}>${facilityOptions}</select>
+                            </td>
+                            <td>
+                                <span class="viewOnly">${member.provider_since || ''}</span>
+                                <input type="text" name="team[${idx}][provider_since]" value="${member.provider_since || ''}" class="datepicker form-control form-control-sm editShow d-none">
+                            </td>
+                            <td>
+                                <span class="viewOnly">${member.status_display || ''}</span>
+                                <select name="team[${idx}][status]" class="form-control form-control-sm editShow d-none">${statusOptions}</select>
+                            </td>
+                            <td>
+                                <span class="viewOnly">${member.note || ''}</span>
+                                <input name="team[${idx}][note]" value="${member.note || ''}" class="form-control form-control-sm editShow d-none">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm float-right editShow d-none" onclick="this.closest('tr').remove()">×</button>
+                            </td>
+                            `;
+                        document.querySelector('#care_team_table tbody').appendChild(row);
+
+                        // Set Edit mode visibility
+                        const memberSel = row.querySelector(`select[name="team[${idx}][${memberSelectName}]"]`);
+                        const roleSel = row.querySelector(`select[name="team[${idx}][role]"]`);
+                        const facilitySel = row.querySelector(`select[name="team[${idx}][facility_id]"]`);
+                        const statusSel = row.querySelector(`select[name="team[${idx}][status]"]`);
+
+                        if (memberType === 'user') {
+                            memberSel.value = member.user_id;
+                        } else {
+                            memberSel.value = member.contact_id;
+                        }
+
+                        roleSel.value = member.role;
+                        facilitySel.value = member.facility_id;
+                        statusSel.value = member.status;
+
+                        // Set view mode text
+                        memberSel.closest('td').querySelector('.viewOnly').textContent = memberSel.selectedOptions[0]?.text || '';
+                        roleSel.closest('td').querySelector('.viewOnly').textContent = roleSel.selectedOptions[0]?.text || '';
+                        facilitySel.closest('td').querySelector('.viewOnly').textContent = facilitySel.selectedOptions[0]?.text || '';
+                        statusSel.closest('td').querySelector('.viewOnly').textContent = statusSel.selectedOptions[0]?.text || '';
+                    });
+
+                    if (existingCareTeam[0]?.team_name) {
+                        document.getElementById("team_name").value = existingCareTeam[0].team_name;
+                    }
+                }
+                // Function to add a new team member row
+                function addTeamRow(memberType = 'user') {
+                    // AI-generated member type validation - Start
+                    if (memberType === 'contact') {
+                        // Check if related persons exist
+                        if (!hasRelatedPersons) {
+                            alert({{ translations.no_related_persons_alert|js_escape }});
+                            return;
+                        }
+                    }
+                    // AI-generated member type validation - End
+
+                    const idx = document.querySelectorAll('#care_team_table tbody tr').length;
+                    const row = document.createElement('tr');
+
+                    // AI-generated row creation by member type - Start
+                    const badgeClass = memberType === 'user' ? 'bg-primary' : 'bg-info';
+                    const badgeText = memberType === 'user' ? {{ translations.provider_member|js_escape }} : {{ translations.related_person_member|js_escape }};
+                    const memberSelectName = memberType === 'user' ? 'user_id' : 'contact_id';
+                    const memberOptions = memberType === 'user' ? userOptions : relatedPersonOptions;
+                    const facilityDisabled = memberType === 'contact' ? 'disabled' : '';
+
+                    row.innerHTML = `
+                    <td>
+                        <span class="badge ${badgeClass}">${badgeText}</span>
+                        <input type="hidden" name="team[${idx}][member_type]" value="${memberType}">
+                    </td>
+                    <td><select name="team[${idx}][${memberSelectName}]" class="form-control form-control-sm" required>${memberOptions}</select></td>
+                    <td><select name="team[${idx}][role]" class="form-control form-control-sm">${roleOptions}</select></td>
+                    <td><select name="team[${idx}][facility_id]" class="form-control form-control-sm" ${facilityDisabled}>${facilityOptions}</select></td>
+                    <td><input type="text" name="team[${idx}][provider_since]" class="datepicker-new form-control form-control-sm" required></td>
+                    <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
+                    <td><input name="team[${idx}][note]" class="form-control form-control-sm"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm float-right" onclick="this.closest('tr').remove()">×</button></td>
+                `;
+                    // AI-generated row creation by member type - End
+
+                    document.querySelector('#care_team_table tbody').appendChild(row);
+                    $(row).find('.datepicker-new').datetimepicker({
+                        timepicker: false,
+                        formatDate: 'Y-m-d',
+                        format: 'Y-m-d'
+                    }).removeClass('datepicker-new').addClass('datepicker');
+                }
+
+                function setupEvents() {
+                    document.querySelector('.btn-add-team-row-user')?.addEventListener('click', () => addTeamRow('user'));
+                    document.querySelector('.btn-add-team-row-contact')?.addEventListener('click', () => addTeamRow('contact'));
+                    document.querySelector('.btn-cancel-edit-mode')?.addEventListener('click', () => toggleEditMode(false));
+                    document.querySelector('.btn-edit-care-team')?.addEventListener('click', () => toggleEditMode(!editModeEnabled));
+                }
+                preloadTeamRows();
+                setupEvents();
+                toggleEditMode(false);
+            });
+        </script>
+    </head>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form method="POST" action="" onsubmit="return confirm({{ translations.save_care_team_confirm|attr_js }});" class="mt-3">
+                    <input type="hidden" name="pid" value="{{ pid|attr }}">
+                    <input type="hidden" name="team_id" value="{{ team_id|default("")|attr }}">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}">
+                    <div class="form-group p-0 col-md-3">
+                        <label for="team_name" class="editShow">{{ translations.care_team_name|text }}</label>
+                        <input type="text" name="team_name" id="team_name" value="{{ team_name|attr }}" class="form-control form-control-sm editShow" required>
+                        <h5 class="viewOnly">{{ team_name|text }}
+                            {% if team_name is not empty %}
+                                <span class="viewOnly badge {{ team_status_badge_class }}">{{ team_status_display|text }}</span>
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <!-- AI-generated addition - Start -->
+                    <div class="form-group p-0 col-md-3 editShow">
+                        <label for="team_status">{{ translations.care_team_status|text }}</label>
+                        <select name="team_status" id="team_status" class="form-control form-control-sm">
+                            {{ team_status_options|raw }}
+                        </select>
+                    </div>
+                    <!-- AI-generated addition - End -->
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped" id="care_team_table">
+                            <thead class="thead-light bg-light text-dark">
+                            <tr>
+                                <th>{{ translations.member_type|text }}</th>
+                                <th>{{ translations.member|text }}</th>
+                                <th>{{ translations.role|text }}</th>
+                                <th>{{ translations.facility|text }}</th>
+                                <th>{{ translations.since|text }}</th>
+                                <th>{{ translations.status|text }}</th>
+                                <th>{{ translations.note|text }}</th>
+                                <th><span class="editOnly">{{ translations.remove|text }}</span></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {# Populated by JS #}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-actions mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm me-2 editShow d-none btn-add-team-row-user">
+                            {{ translations.add_team_member|text }}
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm me-2 editShow d-none btn-add-team-row-contact">
+                            {{ translations.add_related_person|text }}
+                        </button>
+                        <button type="submit" name="save_care_team" class="btn btn-primary btn-sm editShow d-none" value="true">
+                            {{ translations.save_care_team|text }}
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-cancel btn-sm editShow d-none btn-cancel-edit-mode" id="toggleEditBtn">
+                            {{ translations.cancel|text }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </html>
+{% endblock %}

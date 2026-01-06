@@ -2,95 +2,122 @@ name: Styling
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+    - rel-*
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
+    - rel-*
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
 
   php_styling:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: PHP
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-
-      - name: Report PHP Version
-        run: php -v
-
-      - name: Install php_codesniffer
-        run: |
-          failTest=false
-          composer global require "squizlabs/php_codesniffer=3.*" || failTest=true
-          if $failTest; then
-            exit 1
-          fi
-
-      - name: Check PHP Styling
-        run: |
-          failTest=false
-          $HOME/.composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full . || failTest=true
-          if $failTest; then
-            exit 1
-          fi
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Install PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache Composer
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
+    - name: Composer Install
+      run: composer install --prefer-dist --no-progress
+    - name: Check PHP Styling
+      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
 
   css_styling:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: CSS
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        node-version: ['22']
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install npm package
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: npm install
-        run: |
-          failTest=false
-          npm install || failTest=true
-          if $failTest; then
-            exit 1
-          fi
-
-      - name: Check CSS Styling
-        run: |
-          failTest=false
-          npm run stylelint || failTest=true
-          if $failTest; then
-            exit 1
-          fi
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Install npm package
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache node modules
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+          ${{ runner.os }}-node-
+    - name: NPM CI
+      run: npm ci
+    - name: Check CSS Styling
+      run: npm run stylelint
 
   js_linting:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: JS
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        node-version: ['22']
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install npm package
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: npm install
-        run: |
-          failTest=false
-          npm install || failTest=true
-          if $failTest; then
-            exit 1
-          fi
-
-      - name: Check JS Linting
-        run: |
-          failTest=false
-          npm run lint:js || failTest=true
-          if $failTest; then
-            exit 1
-          fi
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Install npm package
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache node modules
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+          ${{ runner.os }}-node-
+    - name: NPM CI
+      run: npm ci
+    - name: Check JS Linting
+      run: npm run lint:js

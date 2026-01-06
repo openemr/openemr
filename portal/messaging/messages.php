@@ -14,9 +14,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(__DIR__ . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
@@ -25,7 +29,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['portal_username']);
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
@@ -56,7 +60,7 @@ $docid = empty($_REQUEST['docid']) ? 0 : (int)$_REQUEST['docid'];
 $orderid = empty($_REQUEST['orderid']) ? 0 : (int)$_REQUEST['orderid'];
 
 $result = getMails(IS_DASHBOARD ?: IS_PORTAL, 'inbox', '', '');
-$theresult = array();
+$theresult = [];
 foreach ($result as $iter) {
     $theresult[] = $iter;
 }
@@ -64,14 +68,14 @@ foreach ($result as $iter) {
 $isSMS = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
 $isEmail = !empty($GLOBALS['oe_enable_email'] ?? 0);
 $showSMS = $isSMS && IS_DASHBOARD;
-$dashuser = array();
+$dashuser = [];
 if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($_SESSION['authUserID']);
 }
 
 function getAuthPortalUsers()
 {
-    $resultpd = $resultusers = $resultpatients = array();
+    $resultpd = $resultusers = $resultpatients = [];
 
     if (IS_DASHBOARD) { // admin can mail anyone
         $authusers = sqlStatement("SELECT users.username as userid,
@@ -84,7 +88,7 @@ function getAuthPortalUsers()
  CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE id = 1");
         }
 
-        $authpatients = sqlStatement("SELECT (CONCAT(patient_data.fname, patient_data.id)) as userid,
+        $authpatients = sqlStatement("SELECT (CONCAT(patient_data.fname, patient_data.lname, patient_data.id)) as userid,
  CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
         while ($row = sqlFetchArray($authpatients)) {
             $resultpatients[] = $row;
@@ -92,7 +96,7 @@ function getAuthPortalUsers()
 
         $resultpd = array_merge($resultusers, $resultpatients);
     } else { // patient gets only portal users
-        $resultpd = array();
+        $resultpd = [];
         $authusers = sqlStatement("SELECT users.username as userid, CONCAT(users.fname,' ',users.lname) as username FROM users WHERE active = 1 AND portal_user = 1");
         while ($row = sqlFetchArray($authusers)) {
             $resultpd[] = $row;
@@ -345,13 +349,19 @@ function getAuthPortalUsers()
                 };
 
                 $scope.renderMessageBody = function (html) {
-                    html = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+                    html = DOMPurify.sanitize(html, {
+                        USE_PROFILES: { html: true },
+                        FORBID_TAGS: ['a', 'img']
+                    });
                     return html;
                 };
 
                 $scope.htmlToText = function (html) {
                     const hold = document.createElement('DIV');
-                    hold.innerHTML = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+                    hold.innerHTML = DOMPurify.sanitize(html, {
+                        USE_PROFILES: { html: true },
+                        FORBID_TAGS: ['a', 'img']
+                    });
                     return jsText(hold.textContent || hold.innerText || '');
                 };
 

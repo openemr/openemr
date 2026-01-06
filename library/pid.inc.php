@@ -13,7 +13,7 @@
 use OpenEMR\Common\Session\PatientSessionUtil;
 
 // Function called to set the global session variable for patient id (pid) number.
-function setpid($new_pid)
+function setpid($new_pid): void
 {
     PatientSessionUtil::setPid($new_pid);
 }

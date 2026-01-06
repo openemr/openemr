@@ -61,7 +61,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         }
 
         $mstatus = true;
-        $mstatus = @mail($to, $subject, $vBody, $headers);
+        $mstatus = @mail((string) $to, (string) $subject, (string) $vBody, $headers);
         // larry :: debug
         //echo "\nDEBUG :email: send email from=".$from." to=".$to." sbj=".$subject." body=".$vBody." head=".$headers."\n";
         //echo "\nDEBUG :email: send status=".$mstatus."\n";
@@ -78,11 +78,11 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $sender_line = __LINE__;
         $strTo = $to;
         $recipient_line = __LINE__;
-        if (strlen($strFrom) == 0) {
+        if (strlen((string) $strFrom) == 0) {
             return( false );
         }
 
-        if (strlen($strTo) == 0) {
+        if (strlen((string) $strTo) == 0) {
             return( false );
         }
 
@@ -115,7 +115,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         // Windows or any other platform
         if ($smtp->direct_delivery) {
             if (!function_exists("GetMXRR")) {
-                $_NAMESERVERS = array();
+                $_NAMESERVERS = [];
                 include("getmxrr.php");
             }
         }
@@ -123,13 +123,13 @@ function cron_SendMail($to, $subject, $vBody, $from)
         if (
             $smtp->SendMessage(
                 $strFrom,
-                array( $strTo ),
-                array(
+                [ $strTo ],
+                [
                 "From: $strFrom",
                 "To: $strTo",
                 "Subject: $subject",
                 "Date Time :" . date("d M, Y  h:i:s")
-                ),
+                ],
                 $vBody
             )
         ) {
@@ -150,7 +150,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
 // Function:    WriteLog
 // Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
-function WriteLog($data)
+function WriteLog($data): void
 {
     global $log_folder_path;
 
@@ -175,7 +175,7 @@ function WriteLog($data)
 // define my_print_r - used for debuging - if not defined
 ////////////////////////////////////////////////////////////////////
 if (!function_exists('my_print_r')) {
-    function my_print_r($data)
+    function my_print_r($data): void
     {
         echo "<pre>";
         echo(text(print_r($data, true)));
@@ -212,7 +212,7 @@ function cron_SendSMS($to, $subject, $vBody, $from)
 // Function:    cron_updateentry
 // Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid)
+function cron_updateentry($type, $pid, $pc_eid): void
 {
     // larry :: this was commented - i remove comment - what it means * in this field ?
     //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - somthing to follow ?
@@ -267,17 +267,17 @@ function cron_getAlertpatientData($type)
     $query = "select $patient_field pd.pid,ope.pc_eid,ope.pc_pid,ope.pc_title,
 			ope.pc_hometext,ope.pc_eventDate,ope.pc_endDate,
 			ope.pc_duration,ope.pc_alldayevent,ope.pc_startTime,ope.pc_endTime
-		from 
-			openemr_postcalendar_events as ope ,patient_data as pd 
-		where 
-			ope.pc_pid=pd.pid $ssql 
-		order by 
+		from
+			openemr_postcalendar_events as ope ,patient_data as pd
+		where
+			ope.pc_pid=pd.pid $ssql
+		order by
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
 
     //echo "<br />".$query;
 
     $db_patient = (sqlStatement($query));
-    $patient_array = array();
+    $patient_array = [];
     $cnt = 0;
     while ($prow = sqlFetchArray($db_patient)) {
         $patient_array[$cnt] = $prow;
@@ -307,7 +307,7 @@ function cron_getNotificationData($type)
 // Function:    cron_InsertNotificationLogEntry
 // Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
-function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
+function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg): void
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;
     if ($type == 'SMS') {
@@ -361,8 +361,8 @@ function cron_setmessage($prow, $db_email_msg)
     $DATE = date('l F j, Y', $dtWrk);
     $STARTTIME = date('g:i A', $dtWrk);
     $ENDTIME = $prow['pc_endTime'];
-    $find_array = array("***NAME***","***PROVIDER***","***DATE***","***STARTTIME***","***ENDTIME***");
-    $replare_array = array($NAME,$PROVIDER,$DATE,$STARTTIME,$ENDTIME);
+    $find_array = ["***NAME***","***PROVIDER***","***DATE***","***STARTTIME***","***ENDTIME***"];
+    $replare_array = [$NAME,$PROVIDER,$DATE,$STARTTIME,$ENDTIME];
     $message = str_replace($find_array, $replare_array, $db_email_msg['message']);
     // larry :: debug
     //echo "DEBUG :2: msg=".$message."\n";

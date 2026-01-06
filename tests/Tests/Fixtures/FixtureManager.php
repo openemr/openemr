@@ -53,7 +53,7 @@ class FixtureManager
      */
     private function loadJsonFile($fileName)
     {
-        $filePath = dirname(__FILE__) . "/" . $fileName;
+        $filePath = __DIR__ . "/" . $fileName;
         $jsonData = file_get_contents($filePath);
         $parsedRecords = json_decode($jsonData, true);
         return $parsedRecords;
@@ -94,9 +94,9 @@ class FixtureManager
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
 
-        foreach ($fixtures as $index => $fixture) {
+        foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
-            $sqlBinds = array();
+            $sqlBinds = [];
 
             foreach ($fixture as $field => $fieldValue) {
                 // not sure I like table specific comparisons here...
@@ -210,7 +210,7 @@ class FixtureManager
      */
     public function installSinglePatientFixture($patientFixture)
     {
-        return $this->installFixtures("patient_data", array($patientFixture));
+        return $this->installFixtures("patient_data", [$patientFixture]);
     }
 
     /**
@@ -229,7 +229,7 @@ class FixtureManager
 
         // remove the patients
         $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
-        sqlStatement($delete, array($bindVariable));
+        sqlStatement($delete, [$bindVariable]);
     }
 
     public function installAllergyIntoleranceFixtures()

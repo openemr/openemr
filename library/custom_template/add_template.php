@@ -100,7 +100,7 @@ $list_id = $_REQUEST['list_id'];
                             <?php
                             $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
                             while ($row = sqlFetchArray($res)) {
-                                echo "<option value='" . htmlspecialchars($row['cl_list_id'], ENT_QUOTES) . "'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</option>";
+                                echo "<option value='" . htmlspecialchars((string) $row['cl_list_id'], ENT_QUOTES) . "'>" . htmlspecialchars((string) $row['cl_list_item_long'], ENT_QUOTES) . "</option>";
                             }
                             ?>
                         </select>

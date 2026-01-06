@@ -54,7 +54,7 @@ class Form_Controller extends Abstract_Controller
         $this->render();
     }
 
-    public function esign_log_view()
+    public function esign_log_view(): never
     {
         $formId = $this->getRequest()->getParam('formId', '');
         $formDir = $this->getRequest()->getParam('formDir', '');
@@ -101,7 +101,7 @@ class Form_Controller extends Abstract_Controller
         // If google sign-in enable then valid google sign-in
         if ($force_google ===  1) {
             $valid = false;
-            $uPayload = AuthUtils::verifyGoogleSignIn($googleSigninToken, false);
+            $uPayload = AuthUtils::verifyGoogleSignIn($googleSigninToken);
             if (!empty($uPayload) && isset($uPayload['id']) && $uPayload['id'] == $_SESSION['authUserID']) {
                 $valid = true;
             }

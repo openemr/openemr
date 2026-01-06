@@ -2,38 +2,53 @@ name: JS Unit Test
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+    - rel-*
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
+    - rel-*
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
 
   js_unit_test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: JS Unit Test
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        node-version: ['22']
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install npm package
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: npm install
-        run: |
-          failTest=false
-          npm install || failTest=true
-          if $failTest; then
-            exit 1
-          fi
-
-      - name: Run Unit Tests
-        run: |
-          failTest=false
-          npm run test:js || failTest=true
-          if $failTest; then
-            exit 1
-          fi
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Install npm package
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache node modules
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+          ${{ runner.os }}-node-
+    - name: NPM CI
+      run: npm ci
+    - name: Run Unit Tests
+      run: npm run test:js

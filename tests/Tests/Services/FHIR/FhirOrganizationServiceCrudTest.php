@@ -2,15 +2,17 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
+use Monolog\Level;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
-use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
+use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
+use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Organization Service Crud Tests
- * @coversDefaultClass \OpenEMR\Services\FHIR\FhirOrganizationService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -18,6 +20,7 @@ use OpenEMR\Services\FHIR\FhirOrganizationService;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 class FhirOrganizationServiceCrudTest extends TestCase
 {
     /**
@@ -37,6 +40,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $fixture = (array) $this->fixtureManager->getSingleFhirFacilityFixture();
         $this->fhirOrganizationFixture = FhirOrganizationSerializer::deserialize($fixture);
         $this->fhirOrganizationService = new FhirOrganizationService();
+        $this->fhirOrganizationService->setSystemLogger(new SystemLogger(Level::Critical));
     }
 
     protected function tearDown(): void
@@ -44,11 +48,8 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * Tests a successful insert operation
-     * @covers ::insert
-     */
-    public function testInsert()
+    #[Test]
+    public function testInsert(): void
     {
         $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -60,11 +61,8 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $this->assertIsString($dataResult['uuid']);
     }
 
-    /**
-     * Tests an insert operation where an error occurs
-     * @covers ::insert
-     */
-    public function testInsertWithErrors()
+    #[Test]
+    public function testInsertWithErrors(): void
     {
         $this->fhirOrganizationFixture->setName(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -72,11 +70,8 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $this->assertEquals(0, count($processingResult->getData()));
     }
 
-    /**
-     * Tests a successful update operation
-     * @covers ::update
-     */
-    public function testUpdate()
+    #[Test]
+    public function testUpdate(): void
     {
         $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -98,11 +93,8 @@ class FhirOrganizationServiceCrudTest extends TestCase
         $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }
 
-    /**
-     * Tests an update operation where an error occurs
-     * @covers ::update
-     */
-    public function testUpdateWithErrors()
+    #[Test]
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirOrganizationService->update('bad-uuid', $this->fhirOrganizationFixture);
         $this->assertFalse($actualResult->isValid());

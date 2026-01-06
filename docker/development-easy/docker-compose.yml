@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
+    image: mariadb:11.8
     command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - 8320:3306
@@ -59,7 +59,12 @@ services:
       # setting xdebug client host for cases where xdebug.discover_client_host fails
       XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
-      GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
+      GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
+      GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
+      SELENIUM_USE_GRID: "true"
+      SELENIUM_HOST: selenium
+      SELENIUM_FORCE_HEADLESS: "false"
+      SELENIUM_BASE_URL: "http://openemr"
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
       OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
       OPENEMR_SETTING_oauth_password_grant: 3
@@ -77,6 +82,15 @@ services:
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
+      OPENEMR_SETTING_EMAIL_METHOD: SMTP
+      OPENEMR_SETTING_SMTP_HOST: mailpit
+      OPENEMR_SETTING_SMTP_PORT: 1025
+      OPENEMR_SETTING_SMTP_USER: openemr
+      OPENEMR_SETTING_SMTP_PASS: openemr
+      OPENEMR_SETTING_SMTP_SECURE: ''
+      OPENEMR_SETTING_SMTP_Auth: 'TRUE'
+      OPENEMR_SETTING_practice_return_email_path: 'noreply@openemr.local'
+      OPENEMR_SETTING_Patient_Reminder_Sender_Name: 'OpenEMR Reminders'
     depends_on:
       mysql:
         condition: service_healthy
@@ -89,10 +103,30 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       start_period: 3m
       start_interval: 10s
       interval: 1m
+      timeout: 5s
+      retries: 3
+  selenium:
+    restart: always
+    image: selenium/standalone-chromium:4.39.0
+    ports:
+    - 4444:4444    # Selenium WebDriver interface
+    - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
+    environment:
+      SE_VNC_PASSWORD: openemr123
+      SE_SCREEN_WIDTH: 1920
+      SE_SCREEN_HEIGHT: 1080
+      SE_SCREEN_DEPTH: 24
+      SE_START_XVFB: true
+    volumes:
+    - /dev/shm:/dev/shm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      start_period: 30s
+      interval: 30s
       timeout: 5s
       retries: 3
   phpmyadmin:
@@ -128,6 +162,25 @@ services:
       LDAP_TLS_CA_CRT_FILENAME: ca.pem
       LDAP_TLS_CRT_FILENAME: server-cert.pem
       LDAP_TLS_KEY_FILENAME: server-key.pem
+  mailpit:
+    restart: unless-stopped
+    image: axllent/mailpit:latest
+    ports:
+    - 8025:8025    # Web UI and API
+    - 1025:1025    # SMTP server
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+    - mailpitvolume:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025/api/v1/messages"]
+      start_period: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3
 volumes:
   databasevolume: {}
   assetvolume: {}
@@ -138,3 +191,4 @@ volumes:
   ccdanodemodules: {}
   logvolume: {}
   couchdbvolume: {}
+  mailpitvolume: {}

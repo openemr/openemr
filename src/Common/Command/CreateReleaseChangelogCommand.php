@@ -78,7 +78,7 @@ class CreateReleaseChangelogCommand extends Command
             $uniqueCategories = [];
             $categorizedIssues = array_map(function ($issue) use (&$uniqueCategories) {
                 // note the limit here means to limit our array elements to a maximum of two values, the last value will be the remainder of the string
-                $categoryParts = explode(":", $issue['title'], 2);
+                $categoryParts = explode(":", (string) $issue['title'], 2);
                 $title = $issue['title'];
                 $category = "bug";
                 $isDevelopment = false;
@@ -88,9 +88,7 @@ class CreateReleaseChangelogCommand extends Command
                     $uniqueCategories[$category] = $category;
                 }
                 if (!empty($issue['labels'])) {
-                    $filteredLabels = array_filter($issue['labels'], function ($label) {
-                        return $label['name'] == 'developers';
-                    });
+                    $filteredLabels = array_filter($issue['labels'], fn($label): bool => $label['name'] == 'developers');
                     $isDevelopment = !empty($filteredLabels);
                 }
 
@@ -98,12 +96,8 @@ class CreateReleaseChangelogCommand extends Command
                     , 'url' => $issue['html_url'], 'isDevelopment' => $isDevelopment];
             }, $issues);
 
-            $developerIssues = array_filter($categorizedIssues, function ($issue) {
-                return $issue['isDevelopment'];
-            });
-            $standardIssues = array_filter($categorizedIssues, function ($issue) {
-                return !$issue['isDevelopment'];
-            });
+            $developerIssues = array_filter($categorizedIssues, fn($issue): bool => $issue['isDevelopment']);
+            $standardIssues = array_filter($categorizedIssues, fn($issue): bool => !$issue['isDevelopment']);
 
             $this->printIssues($standardIssues, $uniqueCategories);
             echo "### OpenEMR Developer Changes\n\n";
@@ -235,7 +229,7 @@ class CreateReleaseChangelogCommand extends Command
                     throw new \RuntimeException("Error getting milestones from github.  Too many API calls\n");
                 }
                 return false;
-            } else if ($response->getStatusCode() === 403) {
+            } elseif ($response->getStatusCode() === 403) {
                 $this->printRateLimitMessage($response);
                 throw new \RuntimeException("Error getting milestones from github\n");
             } else {
@@ -255,9 +249,7 @@ class CreateReleaseChangelogCommand extends Command
     }
     private function filterIssuesByCategory(&$issues, $category)
     {
-        return array_filter($issues, function ($issue) use ($category) {
-            return $issue['category'] == $category;
-        });
+        return array_filter($issues, fn($issue): bool => $issue['category'] == $category);
     }
 
     private function printIssues(&$issues, $uniqueCategories)
@@ -276,9 +268,7 @@ class CreateReleaseChangelogCommand extends Command
 
     private function filterOtherIsssues(&$issues, $categories)
     {
-        return array_filter($issues, function ($issue) use ($categories) {
-            return !in_array($issue['category'], $categories);
-        });
+        return array_filter($issues, fn($issue): bool => !in_array($issue['category'], $categories));
     }
 
     private function printIssuesForCategory($issues, $categoryLabel)
@@ -305,7 +295,7 @@ class CreateReleaseChangelogCommand extends Command
 
         $link = $headers['Link'][0] ?? null;
         if (!empty($link)) {
-            $linkParts = explode(",", $link);
+            $linkParts = explode(",", (string) $link);
             foreach ($linkParts as $linkPart) {
                 $linkPart = trim($linkPart);
                 $linkPartParts = explode(";", $linkPart);
@@ -361,7 +351,7 @@ class CreateReleaseChangelogCommand extends Command
                     $headers = $response->getHeaders();
                     $issues = array_merge($issues, json_decode($response->getBody(), true));
                     $nextLink = $this->getNextLink($headers);
-                } else if ($response->getStatusCode() === 403) {
+                } elseif ($response->getStatusCode() === 403) {
                     $this->printRateLimitMessage($response);
                     $nextLink = false;
                 } else {
@@ -371,16 +361,14 @@ class CreateReleaseChangelogCommand extends Command
             if ($loopBreak >= self::MAX_API_FETCH_COUNT) {
                 throw new \RuntimeException("Error getting issues from github.  Too many API calls\n");
             }
-        } else if ($response->getStatusCode() === 403) {
+        } elseif ($response->getStatusCode() === 403) {
             $this->printRateLimitMessage($response);
         } else {
             echo "Error getting issues from github\n";
             return [];
         }
         // sort the issues
-        usort($issues, function ($a, $b) {
-            return strcmp($a['title'], $b['title']);
-        });
+        usort($issues, fn($a, $b): int => strcmp((string) $a['title'], (string) $b['title']));
         return $issues;
     }
 }

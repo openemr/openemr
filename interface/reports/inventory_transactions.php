@@ -27,7 +27,14 @@ if (!empty($_POST)) {
     }
 }
 
-function thisLineItem($row, $xfer = false)
+/**
+ * Render a line item for the inventory transactions report HTML table.
+ *
+ * @param array $row
+ * @param bool $xfer
+ * @return void
+ */
+function inventoryTransactionsLineItem(array $row, bool $xfer = false): void
 {
     global $grandtotal, $grandqty, $encount, $form_action;
 
@@ -128,7 +135,7 @@ function thisLineItem($row, $xfer = false)
         $row['warehouse'] = $row['warehouse_2'];
         $row['quantity'] = 0 - $row['quantity'];
         $row['fee'] = 0 - $row['fee'];
-        thisLineItem($row, true);
+        inventoryTransactionsLineItem($row, true);
     }
 } // end function
 
@@ -142,7 +149,7 @@ $form_action = $_POST['form_action'];
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
+$form_trans_type = $_POST['form_trans_type'] ?? '0';
 
 $encount = 0;
 
@@ -260,14 +267,14 @@ if ($form_action == 'export') {
       <select name='form_trans_type' onchange='trans_type_changed()'>
     <?php
     foreach (
-        array(
+        [
         '0' => xl('All'),
         '2' => xl('Purchase/Return'),
         '1' => xl('Sale'),
         '6' => xl('Distribution'),
         '4' => xl('Transfer'),
         '5' => xl('Adjustment'),
-        ) as $key => $value
+        ] as $key => $value
     ) {
         echo "       <option value='" . attr($key) . "'";
         if ($key == $form_trans_type) {
@@ -287,7 +294,7 @@ if ($form_action == 'export') {
        value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
      </td>
      <td class='label_custom'>
-        <?php xl('To{{Range}}', 'e'); ?>:
+        <?php echo xl('To{{Range}}'); ?>:
      </td>
      <td nowrap>
       <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />
@@ -400,9 +407,9 @@ if ($form_action) { // if submit or export
 
     $query .= "ORDER BY s.sale_date, s.sale_id";
   //
-    $res = sqlStatement($query, array($from_date, $to_date));
+    $res = sqlStatement($query, [$from_date, $to_date]);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row);
+        inventoryTransactionsLineItem($row);
     }
 
   // Grand totals line.

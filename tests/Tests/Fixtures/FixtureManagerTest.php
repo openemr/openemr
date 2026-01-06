@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
 /**
- * @coversDefaultClass \OpenEMR\Tests\Fixtures\FixtureManager
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -31,14 +29,14 @@ class FixtureManagerTest extends TestCase
     {
         $this->assertNotNull($patientFixture);
 
-        $expectedFields = array("pubpid", "title", "fname", "mname",
+        $expectedFields = ["pubpid", "title", "fname", "mname",
          "lname", "ss", "street", "contact_relationship",
          "postal_code", "city", "state", "phone_contact",
          "phone_home", "phone_biz", "email", "DOB",
-         "sex", "status", "drivers_license");
+         "sex", "status", "drivers_license"];
 
         $message = "Patient is missing";
-        foreach ($expectedFields as $index => $expectedField) {
+        foreach ($expectedFields as $expectedField) {
             $this->assertArrayHasKey($expectedField, $patientFixture, $message . " " . $expectedField);
         }
 
@@ -63,8 +61,8 @@ class FixtureManagerTest extends TestCase
         $actualIdentifiers = $fhirPatientFixture['identifier'];
         $this->assertEquals(2, count($actualIdentifiers));
 
-        $actualIdentifierCodes = array();
-        foreach ($actualIdentifiers as $index => $actualIdentifier) {
+        $actualIdentifierCodes = [];
+        foreach ($actualIdentifiers as $actualIdentifier) {
             $actualCode = $actualIdentifier['type']['coding'][0]['code'];
             array_push($actualIdentifierCodes, $actualCode);
         }
@@ -84,7 +82,7 @@ class FixtureManagerTest extends TestCase
         $this->assertGreaterThanOrEqual(1, count($actualName['prefix']));
 
         $this->assertGreaterThanOrEqual(1, count($fhirPatientFixture['telecom']));
-        foreach ($fhirPatientFixture['telecom'] as $index => $telecom) {
+        foreach ($fhirPatientFixture['telecom'] as $telecom) {
             $this->assertNotNull($telecom['system']);
             $this->assertNotNull($telecom['value']);
             $this->assertNotNull($telecom['use']);
@@ -94,7 +92,7 @@ class FixtureManagerTest extends TestCase
         $this->assertNotNull($fhirPatientFixture['birthDate']);
 
         $this->assertGreaterThanOrEqual(1, count($fhirPatientFixture['address']));
-        foreach ($fhirPatientFixture['address'] as $index => $address) {
+        foreach ($fhirPatientFixture['address'] as $address) {
             $this->assertGreaterThanOrEqual(1, count($address['line']));
             $this->assertNotNull($address['city']);
             $this->assertNotNull($address['state']);
@@ -102,34 +100,24 @@ class FixtureManagerTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::getPatientFixtures
-     */
-    public function testGetPatientFixtures()
+    public function testGetPatientFixtures(): void
     {
         $patientFixtures = $this->fixtureManager->getPatientFixtures();
         $this->assertIsArray($patientFixtures);
         $this->assertGreaterThan(0, count($patientFixtures));
 
-        foreach ($patientFixtures as $index => $patientFixture) {
+        foreach ($patientFixtures as $patientFixture) {
             $this->assertPatientFields($patientFixture);
         }
     }
 
-    /**
-     * @covers ::getSinglePatientFixture
-     */
-    public function testGetPatientFixture()
+    public function testGetPatientFixture(): void
     {
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->assertPatientFields($patientFixture);
     }
 
-    /**
-     * @covers ::installPatientFixtures
-     * @covers ::removePatientFixtures
-     */
-    public function testInstallAndRemovePatientFixtures()
+    public function testInstallAndRemovePatientFixtures(): void
     {
         $actualCount = $this->fixtureManager->installPatientFixtures();
         $this->assertGreaterThan(0, $actualCount);
@@ -137,16 +125,13 @@ class FixtureManagerTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
 
         $recordCountSql = "SELECT COUNT(*) FROM patient_data WHERE pubpid LIKE ?";
-        $recordCountResult = sqlQueryNoLog($recordCountSql, array("test-fixture%"));
+        $recordCountResult = sqlQueryNoLog($recordCountSql, ["test-fixture%"]);
         $recordCount = array_values($recordCountResult)[0];
 
         $this->assertEquals(0, $recordCount);
     }
 
-    /**
-     * @covers ::getFhirPatientFixtures
-     */
-    public function testGetFhirPatientFixtures()
+    public function testGetFhirPatientFixtures(): void
     {
         $fhirPatientFixtures = $this->fixtureManager->getFhirPatientFixtures();
         $this->assertIsArray($fhirPatientFixtures);
@@ -154,7 +139,7 @@ class FixtureManagerTest extends TestCase
         $actualCount = count($fhirPatientFixtures);
         $this->assertGreaterThanOrEqual(0, $actualCount);
 
-        foreach ($fhirPatientFixtures as $index => $fhirPatientFixture) {
+        foreach ($fhirPatientFixtures as $fhirPatientFixture) {
             $this->assertFhirPatientFields($fhirPatientFixture);
         }
     }

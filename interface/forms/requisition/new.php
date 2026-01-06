@@ -25,7 +25,7 @@ formHeader("Form:Lab Requisition");
 $returnurl = 'encounter_top.php';
 
 $formid = (int) ($_GET['id'] ?? 0);
-$obj = $formid ? formFetch("form_requisition", $formid) : array();
+$obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
@@ -157,7 +157,7 @@ table, th, td {
                 if (!empty($storeBar)) {
                     $bar = $storeBar['req_id'];
                 } else {
-                    $bar = rand(1000, 999999);
+                    $bar = random_int(1000, 999999);
                     saveBarCode($bar, $pid, $order[0]);
                 }
 
@@ -373,4 +373,3 @@ function printDiv(divname)
 </script>
 </body>
 </html>
-

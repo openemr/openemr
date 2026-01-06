@@ -81,9 +81,9 @@ class ControllerReview extends BaseController
         $rule->setFeedback(Common::post('feedback'));
         // note some browser implementations appear to screw up on html maxlength attribute due to line breaks and other wierd characters
         // so we need to check the length here, but note that the client side may see a different length in certain edge cases.
-        if (mb_strlen($rule->getFeedback()) > 2048) {
+        if (mb_strlen((string) $rule->getFeedback()) > 2048) {
             (new SystemLogger())->errorLogCaller("Rule length exceeded, client side should have caught this", ['ruleId' => $ruleId]);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode($pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken())
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
                 . '&message=' . self::ERROR_MESSAGE_INVALID);
         }
         $this->viewBean->rule = $rule;
@@ -97,18 +97,18 @@ class ControllerReview extends BaseController
         , 'active_reminder_popup', $pid, $_SESSION['authUserID']]);
         $deserializeData = [];
         foreach ($data as $record) {
-            $record['valueArray'] = json_decode($record['value'], true);
+            $record['valueArray'] = json_decode((string) $record['value'], true);
             $deserializeData[] = $record;
         }
         $clinicalRuleLog = $this->findClinicalRuleLog($deserializeData, $rule);
         if (!empty($clinicalRuleLog)) {
             $this->insertFeedbackForClinicalRuleLog($clinicalRuleLog, $rule, $pid, $_SESSION['authUserID']);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode($pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken())
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
                 . '&message=' . self::ERROR_MESSAGE_SUCCESS);
         } else {
             // TODO: if there is no feedback... we never should have gotten here... log an error and throw an exception
             (new SystemLogger())->errorLogCaller("No rule found in clinical rule log. This should never have been reached", ['ruleId' => $ruleId]);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode($pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken())
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
                 . '&message=' . self::ERROR_MESSAGE_FAILED);
         }
     }
@@ -118,7 +118,7 @@ class ControllerReview extends BaseController
         // note this assumes the rule_id is NEVER a substring of the JSON structure of value itself other than the actual rule id
         $otherMatchingRow = null;
         foreach ($data as $row) {
-            foreach ($row['valueArray'] as $key => $ruleItem) {
+            foreach ($row['valueArray'] as $ruleItem) {
                 if ($ruleItem['rule_id'] === $rule->id) {
                     if ($row['category'] == 'clinical_reminder_widget') {
                         return $row;
@@ -148,6 +148,6 @@ class ControllerReview extends BaseController
         $newValue = '';
         sqlStatement("INSERT INTO `clinical_rules_log` " .
             "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
-            "VALUES (NOW(),?,?,?,?,?)", array($patientId,$userId,$clinicalRuleLog['category'], $updatedValue,$newValue));
+            "VALUES (NOW(),?,?,?,?,?)", [$patientId,$userId,$clinicalRuleLog['category'], $updatedValue,$newValue]);
     }
 }

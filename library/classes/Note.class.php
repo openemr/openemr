@@ -11,59 +11,50 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 class Note extends ORDataObject
 {
     /*
-    *   Database unique identifier
-    *   @var id
-    */
-    var $id;
-
-    /*
     *   DB unique identifier reference to some other table, this is not unique in the notes table
     *   @var int
     */
-    var $foreign_id;
+    public $foreign_id;
 
     /*
     *   Narrative comments about whatever object is represented by the foreign id this note is associated with
     *   @var string upto 255 character string
     */
-    var $note;
+    public $note;
 
     /*
     *   Foreign key identifier of who initially persisited the note,
     *   potentially ownership could be changed but that would be up to an external non-document object process
     *   @var int
     */
-    var $owner;
+    public $owner;
 
     /*
     *   Date the note was first persisted
     *   @var date
     */
-    var $date;
+    public $date;
 
     /*
     *   Timestamp of the last time the note was changed and persisted, auto maintained by DB, manually change at your own peril
     *   @var int
     */
-    var $revision;
+    public $revision;
 
     /**
      * Constructor sets all Note attributes to their default value
      * @param int $id optional existing id of a specific note, if omitted a "blank" note is created
      */
-    function __construct($id = "")
+    function __construct(public $id = "")
     {
         //call the parent constructor so we have a _db to work with
         parent::__construct();
-
-        //shore up the most basic ORDataObject bits
-        $this->id = $id;
         $this->_table = "notes";
 
         $this->note = "";
         $this->date = date("Y-m-d H:i:s");
 
-        if ($id != "") {
+        if ($this->id != "") {
             $this->populate();
         }
     }
@@ -75,9 +66,9 @@ class Note extends ORDataObject
      */
     public static function notes_factory($foreign_id = "")
     {
-        $notes = array();
+        $notes = [];
 
-        $sqlArray = array();
+        $sqlArray = [];
 
         if (empty($foreign_id)) {
             $foreign_id_sql = " like '%'";
@@ -86,7 +77,7 @@ class Note extends ORDataObject
             $sqlArray[] = strval($foreign_id);
         }
 
-        $d = new note();
+        $d = new Note();
         $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id " . $foreign_id_sql . " ORDER BY DATE DESC";
         //echo $sql;
         $result = $d->_db->Execute($sql, $sqlArray);
@@ -114,19 +105,14 @@ class Note extends ORDataObject
      */
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "FID: " . $this->foreign_id . "\n"
         . "note: " . $this->note . "\n"
         . "date: " . $this->date . "\n"
         . "owner: " . $this->owner . "\n"
         . "revision: " . $this->revision . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     /**#@+

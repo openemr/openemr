@@ -27,13 +27,13 @@ class PatientValidator extends BaseValidator
     {
         try {
             $uuidLookup = UuidRegistry::uuidToBytes($uuid);
-        } catch (InvalidUuidStringException $e) {
+        } catch (InvalidUuidStringException) {
             return false;
         }
 
         $result = sqlQuery(
             'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
-            array($uuidLookup)
+            [$uuidLookup]
         );
 
         $existingUuid = $result['uuid'] ?? null;
@@ -52,16 +52,14 @@ class PatientValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required("fname", "First Name")->lengthBetween(1, 255);
                 $context->required("lname", 'Last Name')->lengthBetween(2, 255);
                 $context->required("sex", 'Gender')->lengthBetween(4, 30);
                 $context->required("DOB", 'Date of Birth')->datetime('Y-m-d');
                 // callback functions are not called for optional parameters unless allowEmpty is false
                 $context->optional("email", "Email")
-                ->required(function ($values) {
-                    return array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null;
-                })
+                ->required(fn($values): bool => array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null)
                 ->callback(function ($value) {
                     // Validator->email() does not cover unicode characters in the local part so we use
                     // the OpenEMR email validator for this.
@@ -76,11 +74,11 @@ class PatientValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    function ($rules): void {
+                        foreach ($rules as $chain) {
                             $chain->required(false);
                         }
                     }

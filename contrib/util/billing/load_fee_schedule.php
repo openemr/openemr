@@ -10,13 +10,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-// comment this out when using this script (and then uncomment it again when done using script)
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_LOAD_FEE_SCHEDULE')) {
+    die('Set OPENEMR_ENABLE_LOAD_FEE_SCHEDULE=1 environment variable to enable this script');
+}
 
 if (php_sapi_name() !== 'cli') {
     echo "Only php cli can execute command\n";
     echo "example use: php default feesched.txt 10 33 2023-10-01\n";
     die;
+}
+
+if (!isset($argv[4])) {
+    throw new RuntimeException("This script requires at least 4 arguments");
 }
 
 $_GET['site'] = $argv[1];
@@ -39,7 +45,7 @@ $header = $reader->getHeader();
 $insurance_company_id = $argv[4];
 $effective_date = $argv[5] ?? '';
 $records = $reader->getRecords($header);
-foreach ($records as $offset => $record) {
+foreach ($records as $record) {
     if (trim($record['type'] ?? '') == "VT") {
         $sched_plan = trim($record['plan'] ?? '');
         $sched_code = trim($record['code'] ?? '');
@@ -63,7 +69,7 @@ foreach ($records as $offset => $record) {
         ) {
             $sql = "INSERT INTO `fee_schedule` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `fee`, `effective_date`)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
-            sqlQuery($sql, array($insurance_company_id, $sched_plan, $sched_code, $sched_mod, $sched_type, $sched_fee, $effective_date));
+            sqlQuery($sql, [$insurance_company_id, $sched_plan, $sched_code, $sched_mod, $sched_type, $sched_fee, $effective_date]);
             if ($codes_sql['fee'] < $sched_fee) {
                 $ceil_fee = number_format(ceil($sched_fee), 2, '.', '');
                 echo "*** existing fee " . sprintf("%7.2f", $our_fee) . " for $our_code:$our_mod " .

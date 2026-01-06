@@ -76,60 +76,51 @@ EOF;
     $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
     $output->Text($header);
     $output->Text(postcalendar_adminmenu("category"));
-    list($id, $del, $name, $constantid, $value_cat_type, $desc, $color,
-        $event_repeat, $event_repeat_freq,
-        $event_repeat_freq_type, $event_repeat_on_num,
-        $event_repeat_on_day, $event_repeat_on_freq, $durationh, $durationm,
-        $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco,
-        $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_repeat_freq,
-        $new_event_repeat_freq_type, $new_event_repeat_on_num, $new_event_repeat_on_day,
-        $new_event_repeat_on_freq, $new_durationh, $new_durationm, $new_limitid, $new_end_date_flag,
-        $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco
-        ) = pnVarCleanFromInput(
-            'id',
-            'del',
-            'name',
-            'constantid',
-            'value_cat_type',
-            'desc',
-            'color',
-            'event_repeat',
-            'event_repeat_freq',
-            'event_repeat_freq_type',
-            'event_repeat_on_num',
-            'event_repeat_on_day',
-            'event_repeat_on_freq',
-            'durationh',
-            'durationm',
-            'end_date_flag',
-            'end_date_type',
-            'end_date_freq',
-            'end_all_day',
-            'active',
-            'sequence',
-            'aco',
-            'newname',
-            'newconstantid',
-            'newdesc',
-            'newcolor',
-            'newevent_repeat',
-            'newevent_repeat_freq',
-            'newevent_repeat_freq_type',
-            'newevent_repeat_on_num',
-            'newevent_repeat_on_day',
-            'newevent_repeat_on_freq',
-            'newdurationh',
-            'newdurationm',
-            'newlimitid',
-            'newend_date_flag',
-            'newend_date_type',
-            'newend_date_freq',
-            'newend_all_day',
-            'newvalue_cat_type',
-            'newactive',
-            'newsequence',
-            'newaco'
-        );
+    [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat, $event_repeat_freq, $event_repeat_freq_type, $event_repeat_on_num, $event_repeat_on_day, $event_repeat_on_freq, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_repeat_freq, $new_event_repeat_freq_type, $new_event_repeat_on_num, $new_event_repeat_on_day, $new_event_repeat_on_freq, $new_durationh, $new_durationm, $new_limitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
+        'id',
+        'del',
+        'name',
+        'constantid',
+        'value_cat_type',
+        'desc',
+        'color',
+        'event_repeat',
+        'event_repeat_freq',
+        'event_repeat_freq_type',
+        'event_repeat_on_num',
+        'event_repeat_on_day',
+        'event_repeat_on_freq',
+        'durationh',
+        'durationm',
+        'end_date_flag',
+        'end_date_type',
+        'end_date_freq',
+        'end_all_day',
+        'active',
+        'sequence',
+        'aco',
+        'newname',
+        'newconstantid',
+        'newdesc',
+        'newcolor',
+        'newevent_repeat',
+        'newevent_repeat_freq',
+        'newevent_repeat_freq_type',
+        'newevent_repeat_on_num',
+        'newevent_repeat_on_day',
+        'newevent_repeat_on_freq',
+        'newdurationh',
+        'newdurationm',
+        'newlimitid',
+        'newend_date_flag',
+        'newend_date_type',
+        'newend_date_freq',
+        'newend_all_day',
+        'newvalue_cat_type',
+        'newactive',
+        'newsequence',
+        'newaco'
+    );
     //data validation
     foreach ($name as $i => $item) {
         if (empty($item)) {
@@ -141,13 +132,13 @@ EOF;
             return $output->GetOutput();
         }
         $tmp = $constantid[$i];
-        if (strpos(trim($tmp), ' ')) {
+        if (strpos(trim((string) $tmp), ' ')) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }
         $tmp = $color[$i];
-        if (strlen($tmp) != 7 || $tmp[0] != "#") {
-            $e = $tmp . " size " . strlen($tmp) . " at 0 " . $tmp[0];
+        if (strlen((string) $tmp) != 7 || $tmp[0] != "#") {
+            $e = $tmp . " size " . strlen((string) $tmp) . " at 0 " . $tmp[0];
             $output->Text(postcalendar_admin_categories($msg, "You entered an invalid color(USE Pick) $e!"));
             return $output->GetOutput();
         }
@@ -210,7 +201,7 @@ EOF;
             $output->Text(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
             return $output->GetOutput();
         }
-        if (strpos(trim($newconstantid), ' ')) {
+        if (strpos(trim((string) $newconstantid), ' ')) {
             $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
             return $output->GetOutput();
         }
@@ -264,53 +255,47 @@ function postcalendar_admin_categoriesUpdate()
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
-    list($dbconn) = pnDBGetConn();
+    [$dbconn] = pnDBGetConn();
     $pntable = pnDBGetTables();
 
-    list($id,$del,$name,$constantid,$value_cat_type,$desc,$color,
-        $event_repeat_array,$event_recurrspec_array,$dels,$durationh,$durationm,
-        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,$newname,$newconstantid,$newdesc,$newcolor,
-        $new_event_repeat,$new_event_recurrspec,$new_event_recurrfreq,
-        $new_duration,$new_dailylimitid,$new_end_date_flag,$new_end_date_type,
-        $new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence,$newaco
-        ) = pnVarCleanFromInput(
-            'id',
-            'del',
-            'name',
-            'constantid',
-            'value_cat_type',
-            'desc',
-            'color',
-            'event_repeat',
-            'event_recurrspec',
-            'dels',
-            'durationh',
-            'durationm',
-            'end_date_flag',
-            'end_date_type',
-            'end_date_freq',
-            'end_all_day',
-            'active',
-            'sequence',
-            'aco',
-            'newname',
-            'newconstantid',
-            'newdesc',
-            'newcolor',
-            'newevent_repeat',
-            'newevent_recurrspec',
-            'newevent_recurrfreq',
-            'newduration',
-            'newlimitid',
-            'newend_date_flag',
-            'newend_date_type',
-            'newend_date_freq',
-            'newend_all_day',
-            'newvalue_cat_type',
-            'newactive',
-            'newsequence',
-            'newaco'
-        );
+    [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat_array, $event_recurrspec_array, $dels, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_recurrspec, $new_event_recurrfreq, $new_duration, $new_dailylimitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
+        'id',
+        'del',
+        'name',
+        'constantid',
+        'value_cat_type',
+        'desc',
+        'color',
+        'event_repeat',
+        'event_recurrspec',
+        'dels',
+        'durationh',
+        'durationm',
+        'end_date_flag',
+        'end_date_type',
+        'end_date_freq',
+        'end_all_day',
+        'active',
+        'sequence',
+        'aco',
+        'newname',
+        'newconstantid',
+        'newdesc',
+        'newcolor',
+        'newevent_repeat',
+        'newevent_recurrspec',
+        'newevent_recurrfreq',
+        'newduration',
+        'newlimitid',
+        'newend_date_flag',
+        'newend_date_type',
+        'newend_date_freq',
+        'newend_all_day',
+        'newvalue_cat_type',
+        'newactive',
+        'newsequence',
+        'newaco'
+    );
 
     $id = unserialize($id, ['allowed_classes' => false]);
     $del = unserialize($del, ['allowed_classes' => false]);
@@ -330,7 +315,7 @@ function postcalendar_admin_categoriesUpdate()
     $active = unserialize($active, ['allowed_classes' => false]);
     $sequence = unserialize($sequence, ['allowed_classes' => false]);
     $aco = unserialize($aco, ['allowed_classes' => false]);
-    $updates = array();
+    $updates = [];
 
     if (isset($id)) {
         foreach ($id as $k => $i) {
@@ -390,11 +375,11 @@ function postcalendar_admin_categoriesUpdate()
 
     $delete = "DELETE FROM $pntable[postcalendar_categories] WHERE pc_catid IN ($dels)";
     $e =  $msg = '';
-    if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'updateCategories', array('updates' => $updates))) {
+    if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'updateCategories', ['updates' => $updates])) {
         $e .= 'UPDATE FAILED';
     }
     if (isset($dels)) {
-        if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'deleteCategories', array('delete' => $delete))) {
+        if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'deleteCategories', ['delete' => $delete])) {
             $e .= 'DELETE FAILED';
         }
     }
@@ -413,12 +398,12 @@ function postcalendar_admin_categoriesUpdate()
                 __POSTCALENDAR__,
                 'admin',
                 'addCategories',
-                array('name' => $newname,'constantid' => $newconstantid,'desc' => $newdesc,'value_cat_type' => $new_value_cat_type,'color' => $newcolor,'active' => $newactive,'sequence' => $newsequence, 'aco' => $newaco,
+                ['name' => $newname,'constantid' => $newconstantid,'desc' => $newdesc,'value_cat_type' => $new_value_cat_type,'color' => $newcolor,'active' => $newactive,'sequence' => $newsequence, 'aco' => $newaco,
                 'repeat' => $new_event_repeat,'spec' => $new_event_recurrspec,
                 'recurrfreq' => $new_recurrfreq ?? '','duration' => $new_duration,'limitid' => $new_dailylimitid,
                 'end_date_flag' => $new_end_date_flag,'end_date_type' => $new_end_date_flag,
                 'end_date_freq' => $new_end_date_freq,
-                'end_all_day' => $new_end_all_day)
+                'end_all_day' => $new_end_all_day]
             )
         ) {
             $e .= 'INSERT FAILED';
@@ -435,7 +420,7 @@ function postcalendar_admin_categoriesUpdate()
 /**
 * Creates a new category
 */
-function postcalendar_admin_categories($msg = '', $e = '', $args = array())
+function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 {
     extract($args);
     unset($args);
@@ -550,13 +535,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
 
     unset($in);
-    $in = array(_PC_EVERY,_PC_EVERY_OTHER,_PC_EVERY_THIRD,_PC_EVERY_FOURTH);
-    $keys = array(REPEAT_EVERY,REPEAT_EVERY_OTHER,REPEAT_EVERY_THIRD,REPEAT_EVERY_FOURTH);
-    $repeat_freq = array();
+    $in = [_PC_EVERY,_PC_EVERY_OTHER,_PC_EVERY_THIRD,_PC_EVERY_FOURTH];
+    $keys = [REPEAT_EVERY,REPEAT_EVERY_OTHER,REPEAT_EVERY_THIRD,REPEAT_EVERY_FOURTH];
+    $repeat_freq = [];
     foreach ($in as $k => $v) {
-        array_push($repeat_freq, array('value' => $keys[$k],
+        array_push($repeat_freq, ['value' => $keys[$k],
                                       'selected' => ($keys[$k] == ($event_repeat_freq ?? null) ? 'selected' : ''),
-                                      'name' => $v));
+                                      'name' => $v]);
     }
     $tpl->assign('InputRepeatFreq', 'event_repeat_freq');
     if (empty($event_repeat_freq) || $event_repeat_freq < 1) {
@@ -566,13 +551,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $tpl->assign('repeat_freq', $event_repeat_freq);
     unset($in);
 
-    $in = array(_PC_EVERY_DAY,_PC_EVERY_WORKDAY,_PC_EVERY_WEEK,_PC_EVERY_MONTH,_PC_EVERY_YEAR);
-    $keys = array(REPEAT_EVERY_DAY,REPEAT_EVERY_WORK_DAY,REPEAT_EVERY_WEEK,REPEAT_EVERY_MONTH,REPEAT_EVERY_YEAR);
-    $repeat_freq_type = array();
+    $in = [_PC_EVERY_DAY,_PC_EVERY_WORKDAY,_PC_EVERY_WEEK,_PC_EVERY_MONTH,_PC_EVERY_YEAR];
+    $keys = [REPEAT_EVERY_DAY,REPEAT_EVERY_WORK_DAY,REPEAT_EVERY_WEEK,REPEAT_EVERY_MONTH,REPEAT_EVERY_YEAR];
+    $repeat_freq_type = [];
     foreach ($in as $k => $v) {
-        array_push($repeat_freq_type, array('value' => $keys[$k],
+        array_push($repeat_freq_type, ['value' => $keys[$k],
                                            'selected' => ($keys[$k] == ($event_repeat_freq_type ?? null) ? 'selected' : ''),
-                                           'name' => $v));
+                                           'name' => $v]);
     }
     $tpl->assign('InputRepeatFreqType', 'event_repeat_freq_type');
     $tpl->assign('InuptRepeatFreq', '' . 'event_repeat_freq');
@@ -600,12 +585,12 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $tpl->assign('ValueEnd', '1');
 
     if (empty($end_date_type)) {
-        $end_date_type = array();
+        $end_date_type = [];
     }
     foreach ($in as $k => $v) {
-        array_push($end_date_type, array('value' => $keys[$k],
+        array_push($end_date_type, ['value' => $keys[$k],
                                            'selected' => ($keys[$k] == $end_date_type ? 'selected' : ''),
-                                           'name' => $v));
+                                           'name' => $v]);
     }
     unset($in);
 
@@ -614,49 +599,49 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
 
     unset($in);
-    $in = array(_PC_EVERY_1ST,_PC_EVERY_2ND,_PC_EVERY_3RD,_PC_EVERY_4TH,_PC_EVERY_LAST);
-    $keys = array(REPEAT_ON_1ST,REPEAT_ON_2ND,REPEAT_ON_3RD,REPEAT_ON_4TH,REPEAT_ON_LAST);
-    $repeat_on_num = array();
+    $in = [_PC_EVERY_1ST,_PC_EVERY_2ND,_PC_EVERY_3RD,_PC_EVERY_4TH,_PC_EVERY_LAST];
+    $keys = [REPEAT_ON_1ST,REPEAT_ON_2ND,REPEAT_ON_3RD,REPEAT_ON_4TH,REPEAT_ON_LAST];
+    $repeat_on_num = [];
     foreach ($in as $k => $v) {
-        array_push($repeat_on_num, array('value' => $keys[$k],
+        array_push($repeat_on_num, ['value' => $keys[$k],
                                         'selected' => ($keys[$k] == ($event_repeat_on_num ?? null) ? 'selected' : ''),
-                                        'name' => $v));
+                                        'name' => $v]);
     }
     $tpl->assign('InputRepeatOnNum', 'event_repeat_on_num');
     $tpl->assign('repeat_on_num', $repeat_on_num);
 
     unset($in);
-    $in = array(_PC_EVERY_SUN,_PC_EVERY_MON,_PC_EVERY_TUE,_PC_EVERY_WED,_PC_EVERY_THU,_PC_EVERY_FRI,_PC_EVERY_SAT);
-    $keys = array(REPEAT_ON_SUN,REPEAT_ON_MON,REPEAT_ON_TUE,REPEAT_ON_WED,REPEAT_ON_THU,REPEAT_ON_FRI,REPEAT_ON_SAT);
-    $repeat_on_day = array();
+    $in = [_PC_EVERY_SUN,_PC_EVERY_MON,_PC_EVERY_TUE,_PC_EVERY_WED,_PC_EVERY_THU,_PC_EVERY_FRI,_PC_EVERY_SAT];
+    $keys = [REPEAT_ON_SUN,REPEAT_ON_MON,REPEAT_ON_TUE,REPEAT_ON_WED,REPEAT_ON_THU,REPEAT_ON_FRI,REPEAT_ON_SAT];
+    $repeat_on_day = [];
     foreach ($in as $k => $v) {
-        array_push($repeat_on_day, array('value' => $keys[$k],
+        array_push($repeat_on_day, ['value' => $keys[$k],
                                         'selected' => ($keys[$k] == ($event_repeat_on_day ?? null) ? 'selected' : ''),
-                                        'name' => $v));
+                                        'name' => $v]);
     }
     $tpl->assign('InputRepeatOnDay', 'event_repeat_on_day');
     $tpl->assign('repeat_on_day', $repeat_on_day);
 
     unset($in);
-    $in = array(_PC_CAT_PATIENT,_PC_CAT_PROVIDER,_PC_CAT_CLINIC,_PC_CAT_THERAPY_GROUP);
-    $keys = array(TYPE_ON_PATIENT,TYPE_ON_PROVIDER,TYPE_ON_CLINIC,TYPE_ON_THERAPY_GROUP);
-    $cat_type = array();
+    $in = [_PC_CAT_PATIENT,_PC_CAT_PROVIDER,_PC_CAT_CLINIC,_PC_CAT_THERAPY_GROUP];
+    $keys = [TYPE_ON_PATIENT,TYPE_ON_PROVIDER,TYPE_ON_CLINIC,TYPE_ON_THERAPY_GROUP];
+    $cat_type = [];
     foreach ($in as $k => $v) {
-        array_push($cat_type, array('value' => $keys[$k],
+        array_push($cat_type, ['value' => $keys[$k],
                                         'selected' => ($keys[$k] == ($value_cat_type ?? null) ? 'selected' : ''),
-                                        'name' => $v));
+                                        'name' => $v]);
     }
     $tpl->assign('InputCatType', 'value_cat_type');
     $tpl->assign('cat_type', $cat_type);
 
     unset($in);
-    $in = array(_PC_OF_EVERY_MONTH,_PC_OF_EVERY_2MONTH,_PC_OF_EVERY_3MONTH,_PC_OF_EVERY_4MONTH,_PC_OF_EVERY_6MONTH,_PC_OF_EVERY_YEAR);
-    $keys = array(REPEAT_ON_MONTH,REPEAT_ON_2MONTH,REPEAT_ON_3MONTH,REPEAT_ON_4MONTH,REPEAT_ON_6MONTH,REPEAT_ON_YEAR);
-    $repeat_on_freq = array();
+    $in = [_PC_OF_EVERY_MONTH,_PC_OF_EVERY_2MONTH,_PC_OF_EVERY_3MONTH,_PC_OF_EVERY_4MONTH,_PC_OF_EVERY_6MONTH,_PC_OF_EVERY_YEAR];
+    $keys = [REPEAT_ON_MONTH,REPEAT_ON_2MONTH,REPEAT_ON_3MONTH,REPEAT_ON_4MONTH,REPEAT_ON_6MONTH,REPEAT_ON_YEAR];
+    $repeat_on_freq = [];
     foreach ($in as $k => $v) {
-        array_push($repeat_on_freq, array('value' => $keys[$k],
+        array_push($repeat_on_freq, ['value' => $keys[$k],
                                          'selected' => ($keys[$k] == ($event_repeat_on_freq ?? null) ? 'selected' : ''),
-                                         'name' => $v));
+                                         'name' => $v]);
     }
     $tpl->assign('InputRepeatOnFreq', 'event_repeat_on_freq');
     if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) {
@@ -783,7 +768,7 @@ function postcalendar_admin_clearCache()
 
     if (!file_exists($tpl->compile_dir)) {
         $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' doesn't exist!<br />";
-    } elseif (!is_writeable($tpl->compile_dir)) {
+    } elseif (!is_writable($tpl->compile_dir)) {
         $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br />";
     }
 
@@ -802,46 +787,30 @@ function postcalendar_admin_testSystem()
     unset($modinfo);
 
     $tpl = new pcSmarty();
-    $infos = array();
+    $infos = [];
 
     $__SERVER =& $_SERVER;
     $__ENV    =& $_ENV;
 
-    if (defined('_PN_VERSION_NUM')) {
-        $pnVersion = _PN_VERSION_NUM;
-    } else {
-        $pnVersion = pnConfigGetVar('Version_Num');
-    }
+    $pnVersion = defined('_PN_VERSION_NUM') ? _PN_VERSION_NUM : pnConfigGetVar('Version_Num');
 
-    array_push($infos, array('CMS Version', $pnVersion));
-    array_push($infos, array('Sitename', pnConfigGetVar('sitename')));
-    array_push($infos, array('url', pnGetBaseURL()));
-    array_push($infos, array('PHP Version', phpversion()));
-    if ((bool) ini_get('safe_mode')) {
-        $safe_mode = "On";
-    } else {
-        $safe_mode = "Off";
-    }
-    array_push($infos, array('PHP safe_mode', $safe_mode));
-    if ((bool) ini_get('safe_mode_gid')) {
-        $safe_mode_gid = "On";
-    } else {
-        $safe_mode_gid = "Off";
-    }
-    array_push($infos, array('PHP safe_mode_gid', $safe_mode_gid));
+    array_push($infos, ['CMS Version', $pnVersion]);
+    array_push($infos, ['Sitename', pnConfigGetVar('sitename')]);
+    array_push($infos, ['url', pnGetBaseURL()]);
+    array_push($infos, ['PHP Version', phpversion()]);
+    $safe_mode = (bool) ini_get('safe_mode') ? "On" : "Off";
+    array_push($infos, ['PHP safe_mode', $safe_mode]);
+    $safe_mode_gid = (bool) ini_get('safe_mode_gid') ? "On" : "Off";
+    array_push($infos, ['PHP safe_mode_gid', $safe_mode_gid]);
     $base_dir = ini_get('open_basedir');
-    if (!empty($base_dir)) {
-        $open_basedir = "$base_dir";
-    } else {
-        $open_basedir = "NULL";
-    }
-    array_push($infos, array('PHP open_basedir', $open_basedir));
-    array_push($infos, array('SAPI', php_sapi_name()));
-    array_push($infos, array('OS', php_uname()));
-    array_push($infos, array('WebServer', $__SERVER['SERVER_SOFTWARE']));
-    array_push($infos, array('Module dir', "modules/$pcDir"));
+    $open_basedir = !empty($base_dir) ? "$base_dir" : "NULL";
+    array_push($infos, ['PHP open_basedir', $open_basedir]);
+    array_push($infos, ['SAPI', php_sapi_name()]);
+    array_push($infos, ['OS', php_uname()]);
+    array_push($infos, ['WebServer', $__SERVER['SERVER_SOFTWARE']]);
+    array_push($infos, ['Module dir', "modules/$pcDir"]);
 
-    $modversion = array();
+    $modversion = [];
     include  "modules/$pcDir/pnversion.php";
 
     $error = '';
@@ -850,10 +819,10 @@ function postcalendar_admin_testSystem()
         $error .= "new version $modversion[version] installed but not updated!";
         $error .= '</div>';
     }
-    array_push($infos, array('Module version', $version . " $error"));
-    array_push($infos, array('smarty version', $tpl->_version));
-    array_push($infos, array('smarty location',  SMARTY_DIR));
-    array_push($infos, array('smarty template dir', $tpl->template_dir));
+    array_push($infos, ['Module version', $version . " $error"]);
+    array_push($infos, ['smarty version', $tpl->_version]);
+    array_push($infos, ['smarty location',  SMARTY_DIR]);
+    array_push($infos, ['smarty template dir', $tpl->template_dir]);
 
     $info = $tpl->compile_dir;
     $error = '';
@@ -861,14 +830,14 @@ function postcalendar_admin_testSystem()
         $error .= " compile dir doesn't exist! [" . text($tpl->compile_dir) . "]<br />";
     } else {
         // dir exists -> check if it's writeable
-        if (!is_writeable($tpl->compile_dir)) {
+        if (!is_writable($tpl->compile_dir)) {
             $error .= " compile dir not writeable! [" . text($tpl->compile_dir) . "]<br />";
         }
     }
     if (strlen($error) > 0) {
         $info .= "<br /><div class='text-danger'>$error</div>";
     }
-    array_push($infos, array('smarty compile dir',  $info));
+    array_push($infos, ['smarty compile dir',  $info]);
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";

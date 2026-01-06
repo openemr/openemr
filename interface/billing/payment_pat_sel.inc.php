@@ -42,9 +42,9 @@ if (isset($_POST["mode"])) {
             FROM billing AS b,form_encounter AS fe, code_types AS ct
             WHERE b.encounter=fe.encounter AND b.code_type=ct.ct_key AND ct.ct_diag=0
             AND b.activity!=0 AND fe.pid =? AND b.pid =?
-            " . ($StringForQuery ?? '') . " ORDER BY fe.`date`, fe.encounter,b.code,b.modifier", array($hidden_patient_code, $hidden_patient_code));
+            " . ($StringForQuery ?? '') . " ORDER BY fe.`date`, fe.encounter,b.code,b.modifier", [$hidden_patient_code, $hidden_patient_code]);
         $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-                         where pid =?", array($hidden_patient_code));
+                         where pid =?", [$hidden_patient_code]);
         $row = sqlFetchArray($res);
         $fname = $row['fname'] ?? '';
         $lname = $row['lname'] ?? '';
@@ -91,7 +91,7 @@ if (isset($_POST["mode"])) {
                         </div>
                     </fieldset>
                 <?php //New distribution section
-                //$CountIndex=0;
+                $CountIndex = 0;
                 $CountIndexBelow = 0;
                 $PreviousEncounter = 0;
                 $PreviousPID = 0;
@@ -121,15 +121,14 @@ if (isset($_POST["mode"])) {
                                 </thead>
                         <?php
                         do {
-                            $CountIndex = $CountIndex ?? null;
                             $CountIndex++;
                             $CountIndexBelow++;
                             $Ins = 0;
                             // Determine the next insurance level to be billed.
                             $ferow = sqlQuery("SELECT date, last_level_closed " .
                               "FROM form_encounter WHERE " .
-                              "pid = ? AND encounter = ?", array($hidden_patient_code, $RowSearch['encounter']));
-                            $date_of_service = substr($ferow['date'], 0, 10);
+                              "pid = ? AND encounter = ?", [$hidden_patient_code, $RowSearch['encounter']]);
+                            $date_of_service = substr((string) $ferow['date'], 0, 10);
                             $new_payer_type = 0 + $ferow['last_level_closed'];
                             if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0) {
                                 ++$new_payer_type;
@@ -143,16 +142,12 @@ if (isset($_POST["mode"])) {
                             }
 
 
-                            $ServiceDateArray = explode(' ', $RowSearch['date']);
+                            $ServiceDateArray = explode(' ', (string) $RowSearch['date']);
                             $ServiceDate = oeFormatShortDate($ServiceDateArray[0]);
                             $Codetype = $RowSearch['code_type'];
                             $Code = $RowSearch['code'];
                             $Modifier = $RowSearch['modifier'];
-                            if ($Modifier != '') {
-                                $ModifierString = ", $Modifier";
-                            } else {
-                                $ModifierString = "";
-                            }
+                            $ModifierString = $Modifier != '' ? ", $Modifier" : "";
                             $Fee = $RowSearch['fee'];
                             $Encounter = $RowSearch['encounter'];
 
@@ -161,7 +156,7 @@ if (isset($_POST["mode"])) {
                             $resId = sqlStatement("SELECT b.id FROM billing AS b, code_types AS ct
                                                    WHERE b.code_type=ct.ct_key AND ct.ct_diag=0 AND
                                                    b.pid=? AND b.encounter=?
-                                                   AND b.activity!=0 ORDER BY id", array($hidden_patient_code, $Encounter));
+                                                   AND b.activity!=0 ORDER BY id", [$hidden_patient_code, $Encounter]);
                             $rowId = sqlFetchArray($resId);
                             $Id = $rowId['id'];
 
@@ -169,7 +164,7 @@ if (isset($_POST["mode"])) {
                                 $Copay = 0.00;
                             } else {
                                 $resCopay = sqlStatement("SELECT sum(fee) as copay FROM billing where code_type='COPAY' and
-                                pid =? and  encounter  =? and billing.activity!=0", array($hidden_patient_code, $Encounter));
+                                pid =? and  encounter  =? and billing.activity!=0", [$hidden_patient_code, $Encounter]);
                                 $rowCopay = sqlFetchArray($resCopay);
                                 $Copay = $rowCopay['copay'] * -1;
 
@@ -177,12 +172,12 @@ if (isset($_POST["mode"])) {
                                     "SELECT sum(pay_amount) as PatientPay FROM ar_activity where " .
                                     "deleted IS NULL AND pid = ? and encounter = ? and payer_type = 0 and " .
                                     "account_code = 'PCP'",
-                                    array($hidden_patient_code, $Encounter)
+                                    [$hidden_patient_code, $Encounter]
                                 );//new fees screen copay gives account_code='PCP'
                                 $rowMoneyGot = sqlFetchArray($resMoneyGot);
                                 $PatientPay = $rowMoneyGot['PatientPay'];
 
-                                $Copay = $Copay + $PatientPay;
+                                $Copay += $PatientPay;
                             }
                             //payer_type!=0, supports both mapped and unmapped code_type in ar_activity
                             $resMoneyGot = sqlStatement(
@@ -190,7 +185,7 @@ if (isset($_POST["mode"])) {
                                 "deleted IS NULL AND pid = ? and (code_type = ? or code_type = '') and " .
                                 "code = ? and modifier = ? and encounter = ? and ! (payer_type = 0 and " .
                                 "account_code = 'PCP')",
-                                array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter)
+                                [$hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter]
                             );//new fees screen copay gives account_code='PCP'
                             $rowMoneyGot = sqlFetchArray($resMoneyGot);
                             $MoneyGot = $rowMoneyGot['MoneyGot'];
@@ -199,7 +194,7 @@ if (isset($_POST["mode"])) {
                                 "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where " .
                                 "deleted IS NULL AND pid = ? and (code_type = ? or code_type = '') and " .
                                 "code = ? and modifier = ? and encounter = ?",
-                                array($hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter)
+                                [$hidden_patient_code, $Codetype, $Code, $Modifier, $Encounter]
                             );
                             $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                             $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
