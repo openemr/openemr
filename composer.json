@@ -217,7 +217,8 @@
             "ext-zip": "8.2",
             "ext-zlib": "8.2",
             "php": "8.2"
-        }
+        },
+        "sort-packages": true
     },
     "extra": {
         "composer-normalize": {
