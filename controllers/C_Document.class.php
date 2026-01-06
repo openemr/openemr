@@ -416,7 +416,7 @@ class C_Document extends Controller
                 $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
             }
             if (!file_exists($temp_url)) {
-                echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.') . ' ' . $temp_url;
+                echo xlt('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.') . ' ' . text($temp_url);
             }
             $url = $temp_url;
             $pdetails = getPatientData($patient_id);

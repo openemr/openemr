@@ -1,0 +1,8 @@
+# Health check endpoints for Kubernetes liveness/readiness probes and Docker healthchecks
+# Access restriction should be configured at the infrastructure level (firewall/load balancer)
+
+# Enable URL rewriting for clean paths
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

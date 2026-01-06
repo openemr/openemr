@@ -77,7 +77,7 @@ class Note extends ORDataObject
             $sqlArray[] = strval($foreign_id);
         }
 
-        $d = new note();
+        $d = new Note();
         $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id " . $foreign_id_sql . " ORDER BY DATE DESC";
         //echo $sql;
         $result = $d->_db->Execute($sql, $sqlArray);

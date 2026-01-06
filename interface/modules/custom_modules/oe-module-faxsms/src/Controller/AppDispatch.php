@@ -202,7 +202,7 @@ abstract class AppDispatch
      * This is where we decide which Api to use.
      *
      * @param string $type
-     * @return EtherFaxActions|TwilioSMSClient|RCFaxClient|ClickatellSMSClient|EmailClient|void|null
+     * @return EtherFaxActions|TwilioSMSClient|RCFaxClient|ClickatellSMSClient|EmailClient|SignalWireClient|void|null
      */
     static function getApiService(string $type)
     {
@@ -225,7 +225,7 @@ abstract class AppDispatch
      * @param string $type
      * @return void
      */
-    static function setApiService($type): void
+    static function setApiService(string $type): void
     {
         try {
             if (empty($type)) {
@@ -252,42 +252,29 @@ abstract class AppDispatch
     static function getServiceInstance($type)
     {
         $s = self::getServiceType();
-        if ($type == 'sms') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 1:
-                    return new RCFaxClient();
-                    break;
-                case 2:
-                    return new TwilioSMSClient();
-                case 5:
-                    return new ClickatellSMSClient();
-            }
-        } elseif ($type == 'fax') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 1:
-                    return new RCFaxClient();
-                    break;
-                case 3:
-                    return new EtherFaxActions();
-            }
-        } elseif ($type == 'email') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 4:
-                    return new EmailClient();
-            }
-        } elseif ($type == 'voice') {
-            switch ($s) {
-                case 0:
-                    break;
-                case 6:
-                    return new VoiceClient();
-            }
+
+        $factoryMap = [
+            'sms' => [
+                1 => fn() => new RCFaxClient(),
+                2 => fn() => new TwilioSMSClient(),
+                5 => fn() => new ClickatellSMSClient(),
+            ],
+            'fax' => [
+                1 => fn() => new RCFaxClient(),
+                3 => fn() => new EtherFaxActions(),
+                6 => fn() => new SignalWireClient(),
+            ],
+            'email' => [
+                4 => fn() => new EmailClient(),
+            ],
+            'voice' => [
+                6 => fn() => new VoiceClient(),
+            ],
+        ];
+
+        $factory = $factoryMap[$type][$s] ?? null;
+        if (is_callable($factory)) {
+            return $factory();
         }
 
         http_response_code(404);
@@ -396,6 +383,13 @@ abstract class AppDispatch
             $smsMessage = $this->getRequest('smsmessage');
             $smsHours = $this->getRequest('smshours');
             $jwt = $this->getRequest('jwt');
+            // SignalWire specific fields
+            $spaceUrl = $this->getRequest('space_url');
+            $projectId = $this->getRequest('project_id');
+            $apiToken = $this->getRequest('api_token');
+            $faxNumberRaw = $this->getRequest('fax_number');
+            $faxNumber = !empty($faxNumberRaw) ? $this->formatPhoneForSave($faxNumberRaw) : '';
+
             $setup = [
                 'username' => "$username",
                 'extension' => "$ext",
@@ -412,6 +406,11 @@ abstract class AppDispatch
                 'smsHours' => $smsHours,
                 'smsMessage' => $smsMessage,
                 'jwt' => $jwt ?? '',
+                // SignalWire credentials
+                'space_url' => $spaceUrl ?? '',
+                'project_id' => $projectId ?? '',
+                'api_token' => $apiToken ?? '',
+                'fax_number' => $faxNumber,
             ];
         }
 
@@ -565,7 +564,13 @@ abstract class AppDispatch
                 'smsHours' => "50",
                 'smsMessage' => "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.",
                 'jwt' => '',
+                // SignalWire fields
+                'space_url' => '',
+                'project_id' => '',
+                'api_token' => '',
+                'fax_number' => ''
             ];
+            return $credentials;
         } else {
             $credentials = $credentials['credentials'];
         }
@@ -612,6 +617,7 @@ abstract class AppDispatch
      */
     public function mailEmail($email, $from_name, $body, $subject = '', $htmlContent = ''): string
     {
+        $status = 'Error: ' . xlt('Unknown error occurred');
         try {
             $mail = new MyMailer();
             $smtpEnabled = $mail::isConfigured();
@@ -634,7 +640,9 @@ abstract class AppDispatch
                 $mail->MsgHTML(text($htmlContent));
                 $mail->IsHTML(true);
             }
-            $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+            if ($mail->Send()) {
+                $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+            }
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $status = 'Error: ' . $message;

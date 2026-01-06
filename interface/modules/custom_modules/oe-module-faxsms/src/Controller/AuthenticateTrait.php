@@ -18,6 +18,9 @@ use RingCentral\SDK\SDK;
 
 trait AuthenticateTrait
 {
+    private static int $authAttemptCount = 0;
+    private static int $lastAuthAttempt = 0;
+
     public function authenticate($acl = []): bool|int|string
     {
         if (empty($this->credentials['appKey'])) {

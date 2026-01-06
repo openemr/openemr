@@ -263,7 +263,7 @@ function row_delete($table, $where): void
             $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
-        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
@@ -279,7 +279,7 @@ function row_delete($table, $where): void
 function row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "deactivate",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],

@@ -19,16 +19,15 @@ require_once(__DIR__ . "/../../../globals.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
 $assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
-$title = $service == "1" ? xlt('RingCentral') : '';
-$title = $service == "2" ? xlt('Twilio SMS') : $title;
-$title = $service == "3" ? xlt('etherFAX') : $title;
-$title = $service == "4" ? xlt('Email') : $title;
+$serviceEnum = ServiceType::fromValue($service);
+$title = $serviceEnum?->getTranslatedDisplayName() ?? '';
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>
 <!DOCTYPE html>
@@ -70,10 +69,17 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 $(".rc-hide").hide();
             } else if (currentService == '2') {
                 $(".etherfax").hide();
+                $(".signalwire").hide();
             } else if (currentService == '3') {
                 $(".twilio").hide();
                 $(".etherfax-hide").hide();
                 $(".etherfax").show();
+                $(".signalwire").hide();
+            } else if (currentService == '6') {
+                $(".twilio").hide();
+                $(".etherfax").hide();
+                $(".rc-hide").hide();
+                $(".signalwire").show();
             }
             if (serviceType == 'sms') {
                 $(".sms-hide").hide();
@@ -175,6 +181,53 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             });
             return false;
         };
+
+        // Store the current fax id for assignment; used by setpatient callback
+        let currentFaxForAssignment = null;
+
+        // Callback that patient finder calls on opener
+        function setpatient(pid, lname, fname, dob) {
+            if (!currentFaxForAssignment) {
+                alertMsg(<?php echo xlj('No fax selected for assignment'); ?>);
+                return;
+            }
+            $.post('assignFax?type=fax', {
+                'fax_id': currentFaxForAssignment,
+                'patient_id': pid
+            }, function (response) {
+                if (response && response.success) {
+                    alertMsg(<?php echo xlj('Fax assigned successfully'); ?>);
+                    retrieveMsgs();
+                } else {
+                    alertMsg((response && response.error) || <?php echo xlj('Failed to assign fax'); ?>);
+                }
+            }, 'json').fail(function () {
+                alertMsg(<?php echo xlj('Error assigning fax'); ?>);
+            }).always(function () {
+                currentFaxForAssignment = null;
+            });
+        }
+
+        const assignFaxToPatient = function (faxQueueId) {
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
+            currentFaxForAssignment = faxQueueId;
+            // Open standard patient finder which calls opener.setpatient(...)
+            dlgopen('../../../main/calendar/find_patient_popup.php', '_blank', 750, 550, false, <?php echo xlj('Select Patient'); ?>);
+        };
+
+        function base64ToArrayBuffer(_base64Str) {
+            let binaryString = window.atob(_base64Str);
+            let binaryLen = binaryString.length;
+            let bytes = new Uint8Array(binaryLen);
+            for (let i = 0; i < binaryLen; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
 
         function showPrint(base64, _contentType = 'image/tiff') {
             const binary = atob(base64.replace(/\s/g, ''));
@@ -977,7 +1030,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                         <tr>
                                             <th><?php echo xlt("Date") ?></th>
                                             <th><?php echo xlt("Type") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
+                                            <th><?php echo xlt("Send By") ?></th>
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Result") ?></th>
                                             <th class="other"><?php echo xlt("Download") ?></th>

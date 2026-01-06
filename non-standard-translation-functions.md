@@ -13,9 +13,8 @@ Adapter class for OpenEMR language conversion within the Zend module system.
 
 | Line | Function | Wraps |
 |------|----------|-------|
-| 59 | `z_xl($str)` | `xl()` |
-| 69 | `z_xlt($str)` | `xlt()` |
-| 79 | `z_xla($str)` | `xla()` |
+| 59 | `z_xlt($str)` | `xlt()` |
+| 69 | `z_xla($str)` | `xla()` |
 
 ## interface/modules/zend_modules/module/Application/src/Application/Helper/TranslatorViewHelper.php
 

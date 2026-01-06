@@ -595,18 +595,18 @@ class AclExtended
                 //                         Translate return value
                 //                         Translate description
                 $message .= "\t<acl>\n" .
-                    "\t\t<value>" . $value . "</value>\n" .
-                    "\t\t<title>" . xl_gacl_group($value) . "</title>\n" .
-                    "\t\t<returnid>" . $ret  . "</returnid>\n" .
-                    "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n" .
-                    "\t\t<note>" . xl($note)  . "</note>\n" .
+                    "\t\t<value>" . xmlEscape($value) . "</value>\n" .
+                    "\t\t<title>" . xmlEscape(xl_gacl_group($value)) . "</title>\n" .
+                    "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n" .
+                    "\t\t<returntitle>" . xlx($ret)  . "</returntitle>\n" .
+                    "\t\t<note>" . xlx($note)  . "</note>\n" .
                     "\t</acl>\n";
             }
         }
 
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -650,7 +650,7 @@ class AclExtended
 
                         // Modified 6-2009 by BM - Translate gacl aco section name
                         $message .= "\t\t<section>\n" .
-                            "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+                            "\t\t\t<name>" . xlx($aco_section_title) . "</name>\n";
                     }
 
                     $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
@@ -659,9 +659,9 @@ class AclExtended
                     $message .= "\t\t\t<aco>\n";
 
                     // Modified 6-2009 by BM - Translate gacl aco name
-                    $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+                    $message .= "\t\t\t\t<title>" . xlx($aco_title) . "</title>\n";
 
-                    $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
+                    $message .= "\t\t\t\t<id>" . xmlEscape($aco_id) . "</id>\n";
                     $message .= "\t\t\t</aco>\n";
                 }
             }
@@ -679,7 +679,7 @@ class AclExtended
 
             // Modified 6-2009 by BM - Translate gacl aco section name
             $message .= "\t\t<section>\n" .
-                "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+                "\t\t\t<name>" . xlx($aco_section_title) . "</name>\n";
 
             foreach ($active_aco_objects[$key] as $value2) {
                 $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
@@ -688,9 +688,9 @@ class AclExtended
                 $message .= "\t\t\t<aco>\n";
 
                 // Modified 6-2009 by BM - Translate gacl aco name
-                $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+                $message .= "\t\t\t\t<title>" . xlx($aco_title) . "</title>\n";
 
-                $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
+                $message .= "\t\t\t\t<id>" . xmlEscape($aco_id) . "</id>\n";
                 $message .= "\t\t\t</aco>\n";
             }
 
@@ -700,7 +700,7 @@ class AclExtended
         $message .= "\t</active>\n";
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 
@@ -727,8 +727,8 @@ class AclExtended
                 if (!in_array($ret, $returns)) {
                     // Modified 6-2009 by BM - Translate return value
                     $message .= "\t<return>\n";
-                    $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
-                    $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n";
+                    $message .= "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n";
+                    $message .= "\t\t<returntitle>" . xlx($ret)  . "</returntitle>\n";
                     $message .= "\t</return>\n";
 
                     array_push($returns, $ret);
@@ -738,7 +738,7 @@ class AclExtended
 
         if (isset($err)) {
             foreach ($err as $value) {
-                $message .= "\t<error>" . $value . "</error>\n";
+                $message .= "\t<error>" . xmlEscape($value) . "</error>\n";
             }
         }
 

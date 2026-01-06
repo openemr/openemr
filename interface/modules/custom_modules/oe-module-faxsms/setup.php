@@ -81,9 +81,15 @@ $mode = $_REQUEST['mode'] ?? null;
 
             if (currentService == '2') {
                 $(".etherfax").hide();
+                $(".signalwire").hide();
             } else if (currentService == '3') {
                 $(".twilio").hide();
                 $(".etherfax").show();
+                $(".signalwire").hide();
+            } else if (currentService == '6') {
+                $(".twilio").hide();
+                $(".etherfax").hide();
+                $(".signalwire").show();
             }
         });
     </script>
@@ -244,6 +250,40 @@ $mode = $_REQUEST['mode'] ?? null;
                             </span>
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
                                 value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
+                    <?php } elseif ($service == '6') {
+                        ?> <!-- SignalWire -->
+                        <div class="checkbox">
+                            <label>
+                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                <?php echo xlt("Production Mode") ?>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_space_url"><?php echo xlt("Space URL") ?> *</label>
+                            <input id="form_space_url" type="text" name="space_url" class="form-control"
+                                placeholder="<?php echo xla('example.signalwire.com') ?>"
+                                required="required" value='<?php echo attr($c['space_url'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire Space URL (without https://)") ?></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_project_id"><?php echo xlt("Project ID") ?> *</label>
+                            <input id="form_project_id" type="text" name="project_id" class="form-control"
+                                required="required" value='<?php echo attr($c['project_id'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire Project ID (UUID format)") ?></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_api_token"><?php echo xlt("API Token") ?> *</label>
+                            <input id="form_api_token" type="password" name="api_token" class="form-control"
+                                required="required" value='<?php echo attr($c['api_token'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire API Token") ?></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_fax_number"><?php echo xlt("Fax Number") ?> *</label>
+                            <input id="form_fax_number" type="text" name="fax_number" class="form-control"
+                                placeholder="<?php echo xla('+1XXXXXXXXXX') ?>"
+                                required="required" value='<?php echo attr($c['fax_number'] ?? '') ?>' />
+                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire fax number in E.164 format") ?></small>
                         </div>
                     <?php } ?>
                     <div>

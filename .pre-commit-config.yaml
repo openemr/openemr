@@ -1,0 +1,93 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+exclude: (^|/)(composer\.lock|package-lock\.json)$|\.min\.(js|css)$|\.js\.map$|\.css\.map$
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-added-large-files
+  - id: check-merge-conflict
+  - id: check-json
+  - id: pretty-format-json
+    args:
+    - --autofix
+    - --indent=2
+    - --no-sort-keys
+    exclude: ^composer\.json$
+  - id: mixed-line-ending
+    args:
+    - --fix=lf
+
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.14.0
+  hooks:
+  - id: pretty-format-yaml
+    args:
+    - --autofix
+    - --indent=2
+
+- repo: local
+  hooks:
+  - id: php-syntax-check
+    name: PHP Syntax Check
+    entry: php -l
+    language: system
+    types:
+    - inc
+    - php
+
+  - id: composer-validate
+    name: Validate composer.json
+    entry: composer validate --strict
+    language: system
+    files: ^composer\.json$
+    pass_filenames: false
+
+  - id: composer-normalize
+    name: Normalize composer.json
+    entry: composer normalize
+    language: system
+    files: ^composer\.json$
+    pass_filenames: false
+
+  - id: phpcbf
+    name: PHP Code Beautifier and Fixer
+    entry: php -d memory_limit=1g ./vendor/bin/phpcbf --standard=ci/phpcs.xml
+    language: system
+    types:
+    - inc
+    - php
+
+  - id: phpcs
+    name: PHP_CodeSniffer
+    entry: php -d memory_limit=1g ./vendor/bin/phpcs --standard=ci/phpcs.xml
+    language: system
+    types:
+    - inc
+    - php
+
+  - id: phpstan
+    name: PHPStan Static Analysis
+    entry: php -d memory_limit=1g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist
+    language: system
+    types:
+    - inc
+    - php
+
+  - id: rector
+    name: Rector
+    entry: php -d memory_limit=1g ./vendor/bin/rector process
+    language: system
+    types:
+    - inc
+    - php
+
+  - id: composer-require-checker
+    name: Composer Require Checker
+    entry: composer run-script require-checker
+    language: system
+    files: ^(composer\.json|.*\.(php|inc))$
+    pass_filenames: false

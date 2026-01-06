@@ -304,7 +304,7 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
+                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
                                             $cryptoGen = new CryptoGen();
 
@@ -395,7 +395,7 @@ if (!empty($_GET)) {
 
                                         if (($eventname == "disclosure") || ($gev == "")) {
                                             $eventname = "disclosure";
-                                            if ($ret = EventAuditLogger::instance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
+                                            if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>

@@ -4336,7 +4336,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <code_text>" . xmlEscape($row['codetext']) . "</code_text>
                 <date>" . xmlEscape($row['date']) . "</date>
                 <date_formatted>" . xmlEscape(str_replace("-", '', $row['date'])) . "</date_formatted>
-                <assessment>" . xmlEscape(xl('Encounter')) . "</assessment>
+                <assessment>" . xlx('Encounter') . "</assessment>
              </concern>";
             }
             // Goal (SNOMED CT or LOINC)

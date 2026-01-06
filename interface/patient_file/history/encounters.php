@@ -225,7 +225,7 @@ function todocument(docid) {
   const params = new URLSearchParams({
     doc_id: docid,
     document: '',
-    patient_id: '<?php echo attr_js($pid); ?>',
+    patient_id: <?php echo js_escape($pid); ?>,
     view: ''
   });
   h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
