@@ -126,7 +126,8 @@ class FeeSheetClassesTest extends TestCase
             'ICD10:A01.0',
             '25',
             1,
-            2
+            2,
+            ''
         );
 
         $this->assertEquals('99213', $procedure->code);
@@ -150,7 +151,8 @@ class FeeSheetClassesTest extends TestCase
             'ICD10:A01.0',
             '25',
             1,
-            2
+            2,
+            ''
         );
 
         // Test inherited methods from CodeInfo
@@ -169,7 +171,8 @@ class FeeSheetClassesTest extends TestCase
             'ICD10:A01.0',
             '25',
             1,
-            2
+            2,
+            ''
         );
         $params = ['existing'];
 
