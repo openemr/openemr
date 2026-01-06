@@ -292,12 +292,25 @@ function common_diagnoses($limit = 10)
 function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
 {
     $param = [$encounter];
-    /** ai generated code by google-labs-jules starts */
-    $sql = "SELECT code,code_type,code_text,fee,modifier,justify,units,ndc_info,ct_diag,ct_fee,ct_mod "
-    /** ai generated code by google-labs-jules end */
-          . " FROM billing, code_types as ct "
-          . " WHERE encounter=? AND billing.activity>0 AND ct.ct_key=billing.code_type "
-          . " ORDER BY id";
+    $sql = <<<'SQL'
+        SELECT code,
+               code_type,
+               code_text,
+               fee,
+               modifier,
+               justify,
+               units,
+               ndc_info, -- added by google-labs-jules
+               ct_diag,
+               ct_fee,
+               ct_mod
+          FROM billing,
+               code_types as ct
+         WHERE encounter = ?
+           AND billing.activity > 0
+           AND ct.ct_key = billing.code_type
+      ORDER BY id
+    SQL;
     $results = sqlStatement($sql, $param);
     while ($res = sqlFetchArray($results)) {
         $code = $res['code'];
