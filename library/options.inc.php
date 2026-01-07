@@ -3,6 +3,27 @@
 /**
  * Functions for managing the lists and layouts
  *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @link      https://opencoreemr.com
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Andrew Moore <amoore@cpan.org>
+ * @author    Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2007-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
+ * @copyright Copyright (c) 2010 Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
+ * @copyright Copyright (c) 2017-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright 2026 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * 
  * Note: there are translation wrappers for the lists and layout labels
  * at library/translation.inc.php. The functions are titled xl_list_label()
  * and xl_layout_label() and are controlled by the $GLOBALS['translate_lists']
@@ -35,27 +56,6 @@
  *
  * Note: isOption() returns true/false
  * NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @link      https://opencoreemr.com
- * @author    Rod Roark <rod@sunsetsystems.com>
- * @author    Andrew Moore <amoore@cpan.org>
- * @author    Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
- * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @author    Robert Down <robertdown@live.com>
- * @author    David Eschelbacher <psoas@tampabay.rr.com>
- * @author    Stephen Waite <stephen.waite@open-emr.org
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2007-2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
- * @copyright Copyright (c) 2010 Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
- * @copyright Copyright (c) 2017-2021 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
- * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
- * @copyright 2026 OpenCoreEMR Inc
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("user.inc.php");
