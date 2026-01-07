@@ -161,7 +161,8 @@
             "library/formatting.inc.php",
             "library/date_functions.php",
             "library/validation/validate_core.php",
-            "library/translation.inc.php"
+            "library/translation.inc.php",
+            "library/amc.php"
         ],
         "exclude-from-classmap": [
             "src/Common/Compatibility/Checker.php",
