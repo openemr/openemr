@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:bullseye-slim
+FROM debian:trixie-slim
 
 # prevent Debian's PHP packages from being installed
 # https://github.com/docker-library/php/pull/542
@@ -208,6 +208,8 @@ RUN set -eux; \
 	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark; \
 	find /usr/local -type f -executable -exec ldd '{}' ';' \
 		| awk '/=>/ { print $(NF-1) }' \
+		| sort -u \
+		| xargs -r realpath 2>/dev/null \
 		| sort -u \
 		| xargs -r dpkg-query --search \
 		| cut -d: -f1 \
