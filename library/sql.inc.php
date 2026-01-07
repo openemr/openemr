@@ -460,7 +460,8 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
         if ($throw_exception_on_error) {
             throw new \OpenEMR\Common\Database\SqlQueryException(
                 $statement,
-                "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+                "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement
+            );
         } else {
             HelpfulDieDbal($e);
         }
