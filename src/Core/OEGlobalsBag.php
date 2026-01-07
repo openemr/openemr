@@ -57,7 +57,6 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
-        // If in compatibility mode and key not in bag, try $GLOBALS
         if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
             return $GLOBALS[$key];
         }
