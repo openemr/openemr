@@ -49,12 +49,10 @@ class AmcTrackingControllerTest extends TestCase
         // Setup mock to return srcdir
         $this->mockGlobalsBag
             ->method('get')
-            ->willReturnCallback(function ($key) {
-                return match ($key) {
-                    'srcdir' => __DIR__ . '/../../../../library',
-                    'kernel' => null,
-                    default => null,
-                };
+            ->willReturnCallback(fn($key) => match ($key) {
+                'srcdir' => __DIR__ . '/../../../../library',
+                'kernel' => null,
+                default => null,
             });
 
         // Initialize controller with mocked OEGlobalsBag
@@ -149,7 +147,7 @@ class AmcTrackingControllerTest extends TestCase
         $this->markTestIncomplete(
             'This test requires database access and should be run as an integration test'
         );
-        
+
         // $providers = $this->controller->getProviders();
         // $this->assertIsArray($providers);
     }
@@ -288,7 +286,7 @@ class AmcTrackingControllerTest extends TestCase
         $this->markTestIncomplete(
             'This test requires database access and amc.php file, should be run as integration test'
         );
-        
+
         // In integration test:
         // $results = $this->controller->getTrackingResults('send_sum_amc', '20240101', '20241231', '');
         // $this->assertIsArray($results);
@@ -301,15 +299,15 @@ class AmcTrackingControllerTest extends TestCase
     {
         // Verify that the mock was called for srcdir when needed
         // This is implicit in the constructor test, but we can be explicit
-        
+
         $this->mockGlobalsBag
             ->expects($this->atLeastOnce())
             ->method('get')
             ->with('srcdir');
-        
+
         // This would trigger the srcdir access in getTrackingResults
         // but we can't test that without database access
-        
+
         $this->assertTrue(true); // Placeholder assertion
     }
 
