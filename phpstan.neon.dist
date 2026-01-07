@@ -4,6 +4,7 @@ includes:
 parameters:
   bootstrapFiles:
   - .phpstan/phpstan_panther_alias.php
+  - .phpstan/phpstan_include_paths.php
   level: 1
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
@@ -41,3 +42,4 @@ parameters:
   - ./.phpstan
   scanFiles:
   - library/sql.inc.php
+  - interface/modules/custom_modules/oe-module-faxsms/.phpstan/SignalWireStubs.php

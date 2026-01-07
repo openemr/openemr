@@ -31,7 +31,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
         <div class="esign-log-row header"><?php echo xlt('eSign Log'); ?></div>
 
         <?php if (!$this->verified) {
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "esign",
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],

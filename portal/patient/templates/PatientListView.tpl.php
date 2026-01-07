@@ -1,4 +1,5 @@
 <?php
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * import_template.php
@@ -11,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+    $globalsBag = OEGlobalsBag::getInstance(true);
     //require_once ("./../verify_session.php");
     require_once("../../library/options.inc.php");
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
@@ -28,16 +30,16 @@ if ($this->exclude) {
     $exclude = $this->exclude;
 }
 
-    echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
+    echo "<script>var register='" . attr($this->register) . "';var recid='" . attr($this->recid) . "';var webRoot='" . $globalsBag->getString('web_root') . "';var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';</script>";
 
     $this->display('_modalFormHeader.tpl.php');
 ?>
 
 <script>
     // bring in the datepicker and datetimepicker localization and setting elements
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
+    <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
 
-    $LAB.script("scripts/app/patientdata.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
+    $LAB.script("scripts/app/patientdata.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>").wait(function(){
         $(function () {
             page.init();
         });

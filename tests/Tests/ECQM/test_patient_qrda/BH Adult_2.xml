@@ -110,7 +110,7 @@
   </assignedEntity>
 </legalAuthenticator><participant typeCode="DEV">
   <associatedEntity classCode="RGPR">
-    <!-- CMS EHR Certification Number (formerly known as Office of the 
+    <!-- CMS EHR Certification Number (formerly known as Office of the
         National Coordinator Certification Number) -->
     <id extension="123456789" root="2.16.840.1.113883.3.2074.1"/>
   </associatedEntity>
@@ -162,7 +162,7 @@
   <structuredBody>
     <component>
       <section>
-        <!-- 
+        <!--
           *****************************************************************
           Measure Section
           *****************************************************************
@@ -448,13 +448,13 @@
               <!-- Patient Characteristic Payer -->
               <observation classCode="OBS" moodCode="EVN">
                 <templateId root="2.16.840.1.113883.10.20.24.3.55"/>
-                <id root="062430b0-b10a-0139-66cd-2cde48001122"/> 
-                <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/> 
+                <id root="062430b0-b10a-0139-66cd-2cde48001122"/>
+                <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/>
                 <statusCode code="completed"/>
                   <!-- QDM Attribute: Relevant Period -->
                   <effectiveTime><low value='19940215194500'/><high nullFlavor='UNK'/></effectiveTime>
                   <value xsi:type="CD" code="1" codeSystem="2.16.840.1.113883.3.221.5" codeSystemName="Source of Payment Typology"/>
-              </observation>            
+              </observation>
             </entry>
         </section>
       </component>

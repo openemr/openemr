@@ -51,9 +51,9 @@ function handleUpdateReportingPeriod()
     }
 
     // Validate the period exists in list_options
-    $sql = "SELECT COUNT(*) as count FROM list_options 
-            WHERE list_id = 'ecqm_reporting_period' 
-                AND option_id = ? 
+    $sql = "SELECT COUNT(*) as count FROM list_options
+            WHERE list_id = 'ecqm_reporting_period'
+                AND option_id = ?
                 AND activity = 1";
 
     $result = sqlQuery($sql, [$period]);

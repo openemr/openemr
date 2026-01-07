@@ -51,7 +51,7 @@ function downloadWenoPharmacy(): void
     // The breadwinner!
     $status = $localPharmacyJson->storePharmacyData();
 
-    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
+    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
     error_log('Background Initiated Weno pharmacies Updated:' . text($status) . " Pharmacies");
 }
 
@@ -104,7 +104,7 @@ function downloadWenoPrescriptionLog(): void
  */
 function handleDownloadError(string $errorMessage): void
 {
-    EventAuditLogger::instance()->newEvent(
+    EventAuditLogger::getInstance()->newEvent(
         "pharmacy_background",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

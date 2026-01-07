@@ -505,4 +505,3 @@ function checkAll(bx) {
     </div>
 </body>
 </html>
-

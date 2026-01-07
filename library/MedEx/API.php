@@ -292,15 +292,17 @@ class Events extends Base
         $count_clinical_reminders = 0;
         $count_gogreen = 0;
 
-        $sqlQuery = "SELECT * FROM medex_icons";
+        $sqlQuery = "SELECT msg_type, msg_status, i_html FROM medex_icons";
         $result = sqlStatement($sqlQuery);
+        $matches = [];
         while ($icons = sqlFetchArray($result)) {
-            $title = preg_match('/title=\"(.*)\"/', (string) $icons['i_html']);
+            preg_match('/title="([^"]*)"/', (string) $icons['i_html'], $matches);
+            $title = $matches[1] ?? '';
             $xl_title = xla($title);
             $icons['i_html'] = str_replace($title, $xl_title, $icons['i_html']);
             $icon[$icons['msg_type']][$icons['msg_status']] = $icons['i_html'];
         }
-        $sql2 = "SELECT * FROM medex_prefs";
+        $sql2 = "SELECT ME_facilities, ME_providers FROM medex_prefs";
         $prefs = sqlQuery($sql2);
 
         foreach ($events as $event) {
@@ -1451,7 +1453,7 @@ class Callback extends Base
     }
 }
 
-class Logging extends base
+class Logging extends Base
 {
     public function log_this($data)
     {
@@ -1478,7 +1480,7 @@ class Logging extends base
     }
 }
 
-class Display extends base
+class Display extends Base
 {
     public function navigation($logged_in)
     {

@@ -12,4 +12,3 @@
   top.restoreSession();
   window.location = "<?php echo $_redirect ?>";
 </script>
-

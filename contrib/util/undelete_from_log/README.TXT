@@ -1,11 +1,11 @@
 // Utility developed by Jason Brooks for Medical Information Integration, www.mi-squared.com
-// 
+//
 
-This procedure will restore all records deleted on a given date/time) that are in the log table  
+This procedure will restore all records deleted on a given date/time) that are in the log table
 
-First, you must look into the admin/logs screen and determine the date that the delete occured on. 
+First, you must look into the admin/logs screen and determine the date that the delete occured on.
 
-Adjust the time accordingly 
+Adjust the time accordingly
 
 use the mysql monitor:
 ========================================
@@ -25,5 +25,3 @@ verify insert statements
 import data:
 
 mysql <database> < restore.sql
-
-

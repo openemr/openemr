@@ -66,4 +66,3 @@ class EncounterRecommended extends QDMBaseType
 
     public $_type = 'QDM::EncounterRecommended';
 }
-

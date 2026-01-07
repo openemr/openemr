@@ -110,7 +110,11 @@ $display_div = "style='display:block;'";
                 return false;
             }
         }
-        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?form_from_doc_date=' + encodeURIComponent(frmdate) + '&form_to_doc_date=' + encodeURIComponent(todate);
+        const params = new URLSearchParams({
+            form_from_doc_date: frmdate,
+            form_to_doc_date: todate
+        });
+        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?' + params;
     }
 
 </script>

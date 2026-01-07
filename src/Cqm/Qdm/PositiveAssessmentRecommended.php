@@ -26,4 +26,3 @@ class PositiveAssessmentRecommended extends AssessmentRecommended
 
     public $_type = 'QDM::PositiveAssessmentRecommended';
 }
-

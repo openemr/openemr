@@ -412,7 +412,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $ownerContact = $contactService->getForEntity($foreign_table, $foreign_id);
             if ($ownerContact) {
                 $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
-                $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+                $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
                 // For each relationship, get addresses and telecoms
                 foreach ($relatedPersonRecords as $record) {
                     // Get target person's contact record
@@ -3595,7 +3595,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                             ob_start();
                             if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
                                 include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
-                                call_user_func($formTables_details[2] . "_report", $pid, $encounter, 2, $value);
+                                ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
                             }
 
                             $res[0][$value] = ob_get_clean();
@@ -4336,7 +4336,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <code_text>" . xmlEscape($row['codetext']) . "</code_text>
                 <date>" . xmlEscape($row['date']) . "</date>
                 <date_formatted>" . xmlEscape(str_replace("-", '', $row['date'])) . "</date_formatted>
-                <assessment>" . xmlEscape(xl('Encounter')) . "</assessment>
+                <assessment>" . xlx('Encounter') . "</assessment>
              </concern>";
             }
             // Goal (SNOMED CT or LOINC)

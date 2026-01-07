@@ -356,7 +356,7 @@ class QrdaReportController
         $this->cleanupDirectory($zip_directory);
 
         // Log the event
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "qrda3-export",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -449,7 +449,7 @@ class QrdaReportController
             // Save file locally. Placeholder for future use.
 
             // Log the event
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-export",
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],

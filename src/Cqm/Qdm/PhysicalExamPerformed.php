@@ -58,7 +58,7 @@ class PhysicalExamPerformed extends QDMBaseType
      * @property array $components
      */
     public $components = [
-        
+
     ];
 
     /**
@@ -70,7 +70,7 @@ class PhysicalExamPerformed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -100,4 +100,3 @@ class PhysicalExamPerformed extends QDMBaseType
 
     public $_type = 'QDM::PhysicalExamPerformed';
 }
-
