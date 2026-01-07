@@ -3134,14 +3134,6 @@ parameters:
       path: ../interface/reports/amc_full_report.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/reports/amc_tracking.php
-    - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/reports/amc_tracking.php
-    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../interface/reports/appointments_report.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'

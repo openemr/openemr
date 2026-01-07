@@ -1731,10 +1731,6 @@ parameters:
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
       count: 2
-      path: ../interface/reports/amc_tracking.php
-    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
-      identifier: openemr.forbiddenGlobalsAccess
-      count: 2
       path: ../interface/reports/appointments_report.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
