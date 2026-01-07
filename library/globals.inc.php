@@ -3602,6 +3602,8 @@ $GLOBALS_METADATA = [
                 1 => xl('Care Coordination Only'),
                 2 => xl('Portal Only'),
                 3 => xl('Both'),
+                4 => xl('Use New CCDA Engine'),
+                5=> xl('New CCDA Engine and Debugging'),
             ],
             '0',
             xl('Enable C-CDA Service')
