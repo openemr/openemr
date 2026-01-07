@@ -1,53 +1,62 @@
 <?php
 
-// Copyright (C) 2007-2021 Rod Roark <rod@sunsetsystems.com>
-// Copyright © 2010 by Andrew Moore <amoore@cpan.org>
-// Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
-// Copyright (c) 2017 - 2021 Jerry Padgett <sjpadgett@gmail.com>
-// Copyright (c) 2021 Robert Down <robertdown@live.com>
-// Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// Functions for managing the lists and layouts
-//
-// Note: there are translation wrappers for the lists and layout labels
-//   at library/translation.inc.php. The functions are titled
-//   xl_list_label() and xl_layout_label() and are controlled by the
-//   $GLOBALS['translate_lists'] and $GLOBALS['translate_layout']
-//   flags in globals.php
-
-// Documentation for layout_options.edit_options:
-//
-// A = Age as years or "xx month(s)"
-// B = Gestational age as "xx week(s) y day(s)"
-// C = Capitalize first letter of each word (text fields)
-// D = Check for duplicates in New Patient form
-// G = Graphable (for numeric fields in forms supporting historical data)
-// H = Read-only field copied from static history (this is obsolete)
-// J = Jump to Next Row
-// K = Prepend Blank Row
-// L = Lab Order ("ord_lab") types only (address book)
-// M = Radio Group Master (currently for radio buttons only)
-// m = Radio Group Member (currently for radio buttons only)
-// N = Show in New Patient form
-// O = Procedure Order ("ord_*") types only (address book)
-// P = Default to previous value when current value is not yet set
-// R = Distributor types only (address book)
-// T = Use description as default Text
-// DAP = Use description as placeholder
-// U = Capitalize all letters (text fields)
-// V = Vendor types only (address book)
-// 0 = Read Only - the input element's "disabled" property is set
-// 1 = Write Once (not editable when not empty) (text fields)
-// 2 = Show descriptions instead of codes for billing code input
-
-// note: isOption() returns true/false
-
-// NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
+/**
+ * Functions for managing the lists and layouts
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @link      https://opencoreemr.com
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Andrew Moore <amoore@cpan.org>
+ * @author    Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2007-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
+ * @copyright Copyright (c) 2010 Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
+ * @copyright Copyright (c) 2017-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright 2026 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * Note: there are translation wrappers for the lists and layout labels
+ * at library/translation.inc.php. The functions are titled xl_list_label()
+ * and xl_layout_label() and are controlled by the $GLOBALS['translate_lists']
+ * and $GLOBALS['translate_layout'] flags in globals.php
+ *
+ * Documentation for layout_options.edit_options:
+ *
+ * A = Age as years or "xx month(s)"
+ * B = Gestational age as "xx week(s) y day(s)"
+ * C = Capitalize first letter of each word (text fields)
+ * D = Check for duplicates in New Patient form
+ * G = Graphable (for numeric fields in forms supporting historical data)
+ * H = Read-only field copied from static history (this is obsolete)
+ * J = Jump to Next Row
+ * K = Prepend Blank Row
+ * L = Lab Order ("ord_lab") types only (address book)
+ * M = Radio Group Master (currently for radio buttons only)
+ * m = Radio Group Member (currently for radio buttons only)
+ * N = Show in New Patient form
+ * O = Procedure Order ("ord_*") types only (address book)
+ * P = Default to previous value when current value is not yet set
+ * R = Distributor types only (address book)
+ * T = Use description as default Text
+ * DAP = Use description as placeholder
+ * U = Capitalize all letters (text fields)
+ * V = Vendor types only (address book)
+ * 0 = Read Only - the input element's "disabled" property is set
+ * 1 = Write Once (not editable when not empty) (text fields)
+ * 2 = Show descriptions instead of codes for billing code input
+ *
+ * Note: isOption() returns true/false
+ * NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
+ */
 
 require_once("user.inc.php");
 require_once("patient.inc.php");
@@ -246,7 +255,7 @@ function generate_select_list(
                 (strlen($currvalue ?? '') > 0 && in_array($lrow['option_id'], $selectedValues))
             ) {
                 // Deselect the initial empty option if a real selection is made.
-                if (!$multiple && $_options[0]['value'] === '' && $_options[0]['isSelected']) {
+                if (!$multiple && ($_options[0]['value'] ?? '') === '') {
                     $_options[0]['isSelected'] = false;
                 }
                 //  ai gen'ed code ends
@@ -781,7 +790,7 @@ function generate_form_field($frow, $currvalue): void
         // help chrome users avoid autocomplete interfere with datepicker widget display
         if ($autoComplete !== false) {
             echo " autocomplete='" . attr($autoComplete) . "'";
-        } else if ($frow['field_id'] == 'DOB') {
+        } elseif ($frow['field_id'] == 'DOB') {
             echo " autocomplete='off'";
         }
         echo " $onchange_string $lbfonchange $disabled />";
@@ -2877,7 +2886,7 @@ function generate_plaintext_field($frow, $currvalue)
         }
     } elseif ($data_type == 2 || $data_type == 3) { // simple or long text field
         $s = $currvalue;
-    } else if ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) {
+    } elseif ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) {
         $billingCodeType = new BillingCodeType();
         $s = $billingCodeType->buildPlaintextView($frow, $currvalue);
     } elseif ($data_type == 4) { // date
