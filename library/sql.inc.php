@@ -362,23 +362,27 @@ function sqlInsert($statement, $binds = false)
 */
 function sqlQuery($statement, $binds = false)
 {
-    if ($binds === false) {
-        $binds = [];
+    // Below line is to avoid a nasty bug in windows.
+    if (empty($binds)) {
+        $binds = false;
     }
 
-    try {
-        $row = \OpenEMR\BC\Database::instance()
-            ->fetchOneRow($statement, $binds);
-    } catch (DBALException $e) {
-        HelpfulDieDbal($e);
+    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
+
+    if ($recordset === false) {
+        HelpfulDie("query failed: $statement", getSqlLastError());
     }
 
-    if ($row === null) {
-        // Match existing API
+    if ($recordset->EOF) {
         return false;
     }
 
-    return $row;
+    $rez = $recordset->FetchRow();
+    if ($rez == false) {
+        return false;
+    }
+
+    return $rez;
 }
 
 
@@ -403,6 +407,30 @@ function HelpfulDieDbal(DBALException $e): never
 }
 
 /**
+ * BC hook that allows getSqlLastError() and getSqlLastErrorNo() to continue to
+ * work on the doctrine/dbal path.
+ */
+function populateLegacyGlobalsWithSqlErrorInfo(DBALException $e): void
+{
+    while ($inner = $e->getPrevious()) {
+        $e = $inner;
+    }
+    if (!($e instanceof PDOException)) {
+        // This shouldn't be reachable without very weird driver settings
+        return;
+    }
+    $info = $e->errorInfo;
+    if ($info === null) {
+        return;
+    }
+    [$sqlstate, $driverCode, $driverMessage] = $info;
+
+    // See getSqlLastError() and ADODB_mysqli_log class
+    $GLOBALS['last_mysql_error'] = $driverMessage;
+    $GLOBALS['last_mysql_error_no'] = $sqlstate;
+}
+
+/**
 * Specialized sql query in OpenEMR that bypasses the auditing engine
 * and only returns the first row of query results as an associative array.
 *
@@ -420,31 +448,30 @@ function HelpfulDieDbal(DBALException $e): never
 */
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
+    if ($binds === false) {
+        $binds = [];
     }
 
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-
-    if ($recordset === false) {
+    try {
+        $row = \OpenEMR\BC\Database::instance()
+            ->fetchOneRow($statement, $binds);
+    } catch (DBALException $e) {
+        populateLegacyGlobalsWithSqlErrorInfo($e);
         if ($throw_exception_on_error) {
-            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+            throw new \OpenEMR\Common\Database\SqlQueryException(
+                $statement,
+                "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
         } else {
-            HelpfulDie("query failed: $statement", getSqlLastError());
+            HelpfulDieDbal($e);
         }
     }
 
-    if ($recordset->EOF) {
+    if ($row === null) {
+        // Match existing API
         return false;
     }
 
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
+    return $row;
 }
 
 /**
