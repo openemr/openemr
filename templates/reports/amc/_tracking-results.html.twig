@@ -86,10 +86,10 @@
                                 <td class="checkbox-cell">
                                     {% if rule == 'send_sum_amc' %}
                                         <div class="form-check form-switch d-inline-block">
-                                            <input 
-                                                type="checkbox" 
-                                                class="form-check-input" 
-                                                id="send_sum_flag_{{ result.pid }}_{{ result.id }}" 
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                id="send_sum_flag_{{ result.pid }}_{{ result.id }}"
                                                 onclick="send_sum({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
                                                 role="switch"
                                             />
@@ -99,10 +99,10 @@
                                         </div>
                                     {% elseif rule == 'provide_rec_pat_amc' %}
                                         <div class="form-check form-switch d-inline-block">
-                                            <input 
-                                                type="checkbox" 
-                                                class="form-check-input" 
-                                                id="provide_rec_pat_flag_{{ result.pid }}" 
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                id="provide_rec_pat_flag_{{ result.pid }}"
                                                 onclick="provide_rec_pat({{ result.pid|js_escape }}, {{ result.date|js_escape }})"
                                                 role="switch"
                                             />
@@ -112,10 +112,10 @@
                                         </div>
                                     {% else %}
                                         <div class="form-check form-switch d-inline-block">
-                                            <input 
-                                                type="checkbox" 
-                                                class="form-check-input" 
-                                                id="provide_sum_pat_flag_{{ result.pid }}_{{ result.id }}" 
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                id="provide_sum_pat_flag_{{ result.pid }}_{{ result.id }}"
                                                 onclick="provide_sum_pat({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
                                                 role="switch"
                                             />
@@ -128,10 +128,10 @@
                                 {% if rule == 'send_sum_amc' %}
                                     <td class="checkbox-cell">
                                         <div class="form-check form-switch d-inline-block">
-                                            <input 
-                                                type="checkbox" 
-                                                class="form-check-input" 
-                                                id="send_sum_elec_flag_{{ result.pid }}_{{ result.id }}" 
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                id="send_sum_elec_flag_{{ result.pid }}_{{ result.id }}"
                                                 onclick="send_sum_elec({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
                                                 role="switch"
                                             />

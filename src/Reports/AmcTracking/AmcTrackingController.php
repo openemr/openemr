@@ -54,8 +54,8 @@ class AmcTrackingController
      */
     public function getProviders(): array
     {
-        $query = "SELECT id, lname, fname FROM users 
-                  WHERE authorized = 1 
+        $query = "SELECT id, lname, fname FROM users
+                  WHERE authorized = 1
                   ORDER BY lname, fname";
 
         $results = QueryUtils::fetchRecords($query);
