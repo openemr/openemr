@@ -14,7 +14,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
-use OpenEMR\RestControllers\Config\RestConfig;
+use OpenEMR\RestControllers\Authorization\RestApiAclPermissionChecker;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
@@ -95,7 +95,7 @@ class FhirGenericRestController implements IGlobalsAware {
         } else {
             // perform ACL checks
             foreach ($this->aclChecks as $aclCheck) {
-                RestConfig::request_authorization_check($this->getHttpRestRequest(), $aclCheck['section'], $aclCheck['subSection'], $aclCheck['aclPermission']);
+                RestApiAclPermissionChecker::getInstance()->check($this->getHttpRestRequest(), $aclCheck['section'], $aclCheck['subSection'], $aclCheck['aclPermission']);
             }
             $puuidBind = null;
         }
