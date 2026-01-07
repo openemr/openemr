@@ -6,6 +6,7 @@
  * @package   OpenEMR
  * @link      https://open-emr.org/
  * @link      https://opencoreemr.com/
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
