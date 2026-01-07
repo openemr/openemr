@@ -23,7 +23,7 @@
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
  * @copyright 2026 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- * 
+ *
  * Note: there are translation wrappers for the lists and layout labels
  * at library/translation.inc.php. The functions are titled xl_list_label()
  * and xl_layout_label() and are controlled by the $GLOBALS['translate_lists']
