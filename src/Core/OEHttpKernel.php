@@ -16,10 +16,15 @@ class OEHttpKernel extends HttpKernel
 
     private readonly OEGlobalsBag $globalsBag;
 
-    public function __construct(EventDispatcherInterface $dispatcher, ControllerResolverInterface $resolver, ?RequestStack $requestStack = null, ?ArgumentResolverInterface $argumentResolver = null, bool $handleAllThrowables = false)
-    {
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ControllerResolverInterface $resolver,
+        ?RequestStack $requestStack = null,
+        ?ArgumentResolverInterface $argumentResolver = null,
+        bool $handleAllThrowables = false
+    ) {
         parent::__construct($dispatcher, $resolver, $requestStack, $argumentResolver, $handleAllThrowables);
-        $this->globalsBag = new OEGlobalsBag([]);
+        $this->globalsBag = OEGlobalsBag::getInstance();
     }
 
     public function getGlobalsBag(): OEGlobalsBag
