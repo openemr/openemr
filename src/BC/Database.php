@@ -26,6 +26,8 @@ use PDO;
  *
  * In the future, the DBAL `Connection` may be made avaible through a DI
  * container, and/or something like `doctrine/orm` for most interactions.
+ *
+ * @internal
  */
 class Database
 {
@@ -50,11 +52,10 @@ class Database
     }
 
     /**
-     * This is private to force access through `instance()`. Future
-     * DBAL-related integration should use its connection directly, rather than
-     * go through this backwards-compatibility layer.
+     * This is public only for unit-testing purposes, consider it private. All
+     * access should run through `Database::instance()`.
      */
-    private function __construct(
+    public function __construct(
         private readonly Connection $connection,
     ) {
     }

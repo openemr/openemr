@@ -7,6 +7,6 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
-$_GET['site'] = 'default';
-$ignoreAuth = true;
-require_once(__DIR__ . "/../interface/globals.php");
+// $_GET['site'] = 'default';
+// $ignoreAuth = true;
+// require_once(__DIR__ . "/../interface/globals.php");
