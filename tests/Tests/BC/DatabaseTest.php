@@ -16,9 +16,6 @@ class DatabaseTest extends TestCase
 {
     public function testFetchOneRowSuccess(): void
     {
-        $c = self::createMock(Connection::class);
-        $d = new Database($c);
-
         $sql = 'SELECT * FROM foobars WHERE foo_id = ?';
         $output = ['a', 'b', 'c'];
 
@@ -35,20 +32,19 @@ class DatabaseTest extends TestCase
             ->method('executeQuery')
             ->willReturn($result);
 
+        $c = self::createMock(Connection::class);
 
         $c->expects(self::once())
             ->method('prepare')
             ->with($sql)
             ->willReturn($statement);
 
-        self::assertSame($output, $d->fetchOneRow($sql, ['foo']));
+        $db = new Database($c);
+        self::assertSame($output, $db->fetchOneRow($sql, ['foo']));
     }
 
     public function testFetchOneRowEmpty(): void
     {
-        $c = self::createMock(Connection::class);
-        $d = new Database($c);
-
         $sql = 'SELECT * FROM foobars WHERE foo_id = ?';
 
         $result = self::createMock(Result::class);
@@ -64,12 +60,30 @@ class DatabaseTest extends TestCase
             ->method('executeQuery')
             ->willReturn($result);
 
-
+        $c = self::createMock(Connection::class);
         $c->expects(self::once())
             ->method('prepare')
             ->with($sql)
             ->willReturn($statement);
 
-        self::assertNull($d->fetchOneRow($sql, ['foo']));
+        $db = new Database($c);
+        self::assertNull($db->fetchOneRow($sql, ['foo']));
+    }
+
+    public function testGenerateSequentialId(): void
+    {
+        // Note: this test is very brittle, but for now we just want to match
+        // the previous implementation.
+        $c = self::createMock(Connection::class);
+        $c->expects(self::once())
+            ->method('executeStatement')
+            ->with('UPDATE foo_bars SET id=LAST_INSERT_ID(id+1)');
+
+        $c->expects(self::once())
+            ->method('lastInsertId')
+            ->willReturn(42);
+
+        $db = new Database($c);
+        self::assertSame(42, $db->generateSequentialId('foo_bars'));
     }
 }
