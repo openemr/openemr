@@ -135,3 +135,10 @@ repos:
     language: system
     files: ^(composer\.json|.*\.(php|inc))$
     pass_filenames: false
+
+  - id: conventional-commits
+    name: Conventional Commits
+    entry: composer conventional-commits:check --
+    language: system
+    stages:
+    - commit-msg

@@ -133,6 +133,7 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/php-code-coverage": "^11.0",
         "phpunit/phpunit": "^11.0",
+        "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/panther": "^2.0"
@@ -224,6 +225,31 @@
         "composer-normalize": {
             "indent-size": 4,
             "indent-style": "space"
+        },
+        "ramsey/conventional-commits": {
+            "config": {
+                "bodyRequired": false,
+                "bodyWrapWidth": 72,
+                "descriptionCase": null,
+                "descriptionEndMark": null,
+                "requiredFooters": [],
+                "scopeCase": "kebab",
+                "scopeRequired": false,
+                "typeCase": "lower",
+                "types": [
+                    "build",
+                    "chore",
+                    "ci",
+                    "docs",
+                    "feat",
+                    "fix",
+                    "perf",
+                    "refactor",
+                    "revert",
+                    "style",
+                    "test"
+                ]
+            }
         }
     },
     "scripts": {
@@ -232,6 +258,7 @@
             "composer normalize --dry-run"
         ],
         "code-quality": [
+            "@conventional-commits:check",
             "@php-syntax-check",
             "@phpcbf",
             "@phpcs",
@@ -239,6 +266,7 @@
             "@rector-check",
             "@require-checker"
         ],
+        "conventional-commits:check": "./vendor/bin/conventional-commits validate",
         "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
         "phpcs": "php -d memory_limit=4g ./vendor/bin/phpcs --standard=ci/phpcs.xml .",
