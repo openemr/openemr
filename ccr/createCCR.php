@@ -22,7 +22,6 @@ if (isset($_GET['portal_auth'])) {
 
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
-    $GLOBALS['already_autoloaded'] = true;
     require_once(__DIR__ . "/../vendor/autoload.php");
     SessionUtil::portalSessionStart();
 
