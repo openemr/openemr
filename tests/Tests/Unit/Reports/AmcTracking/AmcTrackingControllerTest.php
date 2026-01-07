@@ -45,7 +45,7 @@ class AmcTrackingControllerTest extends TestCase
 
         // Create mock OEGlobalsBag
         $this->mockGlobalsBag = $this->createMock(OEGlobalsBag::class);
-        
+
         // Setup mock to return srcdir
         $this->mockGlobalsBag
             ->method('get')
@@ -65,7 +65,7 @@ class AmcTrackingControllerTest extends TestCase
     protected function tearDown(): void
     {
         $_POST = $this->postBackup;
-        
+
         foreach ($this->globalsBackup as $key => $value) {
             if ($value === null) {
                 unset($GLOBALS[$key]);
@@ -73,7 +73,7 @@ class AmcTrackingControllerTest extends TestCase
                 $GLOBALS[$key] = $value;
             }
         }
-        
+
         parent::tearDown();
     }
 
@@ -84,7 +84,7 @@ class AmcTrackingControllerTest extends TestCase
     {
         // This should use the singleton
         $controller = new AmcTrackingController();
-        
+
         $this->assertInstanceOf(AmcTrackingController::class, $controller);
     }
 
@@ -102,15 +102,15 @@ class AmcTrackingControllerTest extends TestCase
     public function testGetFormParametersEmpty(): void
     {
         $_POST = [];
-        
+
         $params = $this->controller->getFormParameters();
-        
+
         $this->assertIsArray($params);
         $this->assertArrayHasKey('begin_date', $params);
         $this->assertArrayHasKey('end_date', $params);
         $this->assertArrayHasKey('rule', $params);
         $this->assertArrayHasKey('provider', $params);
-        
+
         $this->assertEquals('', $params['begin_date']);
         $this->assertEquals('', $params['end_date']);
         $this->assertEquals('', $params['rule']);
@@ -128,9 +128,9 @@ class AmcTrackingControllerTest extends TestCase
             'form_rule' => 'send_sum_amc',
             'form_provider' => '5',
         ];
-        
+
         $params = $this->controller->getFormParameters();
-        
+
         $this->assertNotEmpty($params['begin_date']);
         $this->assertNotEmpty($params['end_date']);
         $this->assertEquals('send_sum_amc', $params['rule']);
@@ -159,13 +159,13 @@ class AmcTrackingControllerTest extends TestCase
     {
         $sendSumName = $this->controller->getRuleDisplayName('send_sum_amc');
         $this->assertStringContainsString('Referral', $sendSumName);
-        
+
         $provideRecName = $this->controller->getRuleDisplayName('provide_rec_pat_amc');
         $this->assertStringContainsString('Medical Records', $provideRecName);
-        
+
         $provideSumName = $this->controller->getRuleDisplayName('provide_sum_pat_amc');
         $this->assertStringContainsString('Visit', $provideSumName);
-        
+
         $unknownName = $this->controller->getRuleDisplayName('unknown_rule');
         $this->assertStringContainsString('Unknown', $unknownName);
     }
@@ -177,13 +177,13 @@ class AmcTrackingControllerTest extends TestCase
     {
         $sendSumHeader = $this->controller->getDateColumnHeader('send_sum_amc');
         $this->assertStringContainsString('Referral', $sendSumHeader);
-        
+
         $provideRecHeader = $this->controller->getDateColumnHeader('provide_rec_pat_amc');
         $this->assertStringContainsString('Request', $provideRecHeader);
-        
+
         $provideSumHeader = $this->controller->getDateColumnHeader('provide_sum_pat_amc');
         $this->assertStringContainsString('Encounter', $provideSumHeader);
-        
+
         $unknownHeader = $this->controller->getDateColumnHeader('unknown_rule');
         $this->assertStringContainsString('Date', $unknownHeader);
     }
@@ -195,10 +195,10 @@ class AmcTrackingControllerTest extends TestCase
     {
         $sendSumHeader = $this->controller->getIdColumnHeader('send_sum_amc');
         $this->assertStringContainsString('Referral', $sendSumHeader);
-        
+
         $provideRecHeader = $this->controller->getIdColumnHeader('provide_rec_pat_amc');
         $this->assertEquals('', $provideRecHeader);
-        
+
         $provideSumHeader = $this->controller->getIdColumnHeader('provide_sum_pat_amc');
         $this->assertStringContainsString('Encounter', $provideSumHeader);
     }
@@ -210,10 +210,10 @@ class AmcTrackingControllerTest extends TestCase
     {
         $sendSumHeader = $this->controller->getCheckboxColumnHeader('send_sum_amc');
         $this->assertStringContainsString('Summary of Care', $sendSumHeader);
-        
+
         $provideRecHeader = $this->controller->getCheckboxColumnHeader('provide_rec_pat_amc');
         $this->assertStringContainsString('Medical Records', $provideRecHeader);
-        
+
         $provideSumHeader = $this->controller->getCheckboxColumnHeader('provide_sum_pat_amc');
         $this->assertStringContainsString('Medical Summary', $provideSumHeader);
     }
@@ -229,9 +229,9 @@ class AmcTrackingControllerTest extends TestCase
             'rule' => '',
             'provider' => '',
         ];
-        
+
         $data = $this->controller->prepareTemplateData($params, false);
-        
+
         $this->assertIsArray($data);
         $this->assertArrayHasKey('csrf_token', $data);
         $this->assertArrayHasKey('csrf_token_raw', $data);
@@ -243,7 +243,7 @@ class AmcTrackingControllerTest extends TestCase
         $this->assertArrayHasKey('show_results', $data);
         $this->assertArrayHasKey('results', $data);
         $this->assertArrayHasKey('oemrUiSettings', $data);
-        
+
         $this->assertFalse($data['show_results']);
         $this->assertEmpty($data['results']);
     }
@@ -259,19 +259,19 @@ class AmcTrackingControllerTest extends TestCase
             'rule' => 'send_sum_amc',
             'provider' => '5',
         ];
-        
+
         $data = $this->controller->prepareTemplateData($params, false);
-        
+
         // Verify oemrUiSettings structure
         $this->assertArrayHasKey('oemrUiSettings', $data);
         $settings = $data['oemrUiSettings'];
-        
+
         $this->assertArrayHasKey('heading_title', $settings);
         $this->assertArrayHasKey('include_patient_name', $settings);
         $this->assertArrayHasKey('expandable', $settings);
         $this->assertArrayHasKey('action', $settings);
         $this->assertArrayHasKey('action_href', $settings);
-        
+
         $this->assertFalse($settings['include_patient_name']);
         $this->assertFalse($settings['expandable']);
         $this->assertEquals('conceal', $settings['action']);
@@ -318,12 +318,12 @@ class AmcTrackingControllerTest extends TestCase
     {
         // PHP 8.1+ readonly properties cannot be modified after construction
         // This test verifies the property exists and is properly typed
-        
+
         $reflection = new \ReflectionClass($this->controller);
         $property = $reflection->getProperty('globalsBag');
-        
+
         $this->assertTrue($property->isPrivate());
-        
+
         // Check if readonly (PHP 8.1+)
         if (method_exists($property, 'isReadOnly')) {
             $this->assertTrue($property->isReadOnly());
