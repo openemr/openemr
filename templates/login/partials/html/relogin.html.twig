@@ -13,7 +13,7 @@ If the user must relogin, display this message.
 {% if relogin == 1 %}
 {% block relogin %}
 <div class="{{ relogin_container_class_list|default(['text-center', 'relogin'])|join(' ') }}">
-    <p class="text-danger font-weight-bold">{{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}</p>
+    <p class="text-danger fw-bold">{{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}</p>
 </div>
 {% endblock %}
 {% endif %}

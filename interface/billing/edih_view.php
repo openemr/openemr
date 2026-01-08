@@ -51,33 +51,33 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         <div class="container-fluid mb-3">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-item nav-link font-weight-bold active" id="nav-newfiles-tab" data-toggle="tab" href="#nav-newfiles" role="tab" aria-controls="nav-newfiles" aria-selected="true">
+                    <a class="nav-item nav-link fw-bold active" id="nav-newfiles-tab" data-bs-toggle="tab" href="#nav-newfiles" role="tab" aria-controls="nav-newfiles" aria-selected="true">
                         <?php echo xlt("New Files"); ?>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-item nav-link font-weight-bold" id="nav-csvtables-tab" data-toggle="tab" href="#nav-csvtables" role="tab" aria-controls="nav-csvtables" aria-selected="false">
+                    <a class="nav-item nav-link fw-bold" id="nav-csvtables-tab" data-bs-toggle="tab" href="#nav-csvtables" role="tab" aria-controls="nav-csvtables" aria-selected="false">
                         <?php echo xlt("CSV Tables"); ?>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-item nav-link font-weight-bold" id="nav-edifile-tab" data-toggle="tab" href="#nav-edifile" role="tab" aria-controls="nav-edifile" aria-selected="false">
+                    <a class="nav-item nav-link fw-bold" id="nav-edifile-tab" data-bs-toggle="tab" href="#nav-edifile" role="tab" aria-controls="nav-edifile" aria-selected="false">
                         <?php echo xlt("EDI File"); ?>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-item nav-link font-weight-bold" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">
+                    <a class="nav-item nav-link fw-bold" id="nav-notes-tab" data-bs-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">
                         <?php echo xlt("Notes"); ?>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-item nav-link font-weight-bold" id="nav-archive-tab" data-toggle="tab" href="#nav-archive" role="tab" aria-controls="nav-archive" aria-selected="false">
+                    <a class="nav-item nav-link fw-bold" id="nav-archive-tab" data-bs-toggle="tab" href="#nav-archive" role="tab" aria-controls="nav-archive" aria-selected="false">
                         <?php echo xlt("Archive"); ?>
                     </a>
                 </li>
             </ul>
 
-            <div class="tab-content jumbotron py-4" id="nav-tabContent">
+            <div class="tab-content bg-body-tertiary rounded-3 py-4" id="nav-tabContent">
                 <!-- New Files Section -->
                 <div class="tab-pane fade show active" id="nav-newfiles" role="tabpanel" aria-labelledby="nav-newfiles-tab">
                     <div class="container">
@@ -161,11 +161,11 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                                 </select>
                                             </td>
                                             <!-- datekeyup(e, defcc, withtime)  dateblur(e, defcc, withtime) -->
-                                            <td class='text-left'>
+                                            <td class='text-start'>
                                                 <input type='text' size='10' class='datepicker' name="csv_date_start" id="caldte1" value="" title="<?php echo xla('yyyy-mm-dd Start Date'); ?>" />
                                                 <input type="text" size="10" class="datepicker" name="csv_date_end" id="caldte2" value="" title="<?php echo xla('yyyy-mm-dd End Date'); ?>" />
                                             </td>
-                                            <td class='text-left'>
+                                            <td class='text-start'>
                                                 <input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable" />
                                                 <button type="submit" class="btn btn-primary btn-add" id="csvshow" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>">
                                                     <?php echo xlt("Submit"); ?>
@@ -220,17 +220,17 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <h4><?php echo xlt("View EDI x12 file"); ?>:</h4>
                                     <table>
                                         <tr>
-                                            <td class='text-left'><label for="x12htm"><?php echo xlt("Report?"); ?></label></td>
+                                            <td class='text-start'><label for="x12htm"><?php echo xlt("Report?"); ?></label></td>
                                             <td class='text-center'><label for="x12file"><?php echo xlt("Choose File"); ?>:</label></td>
-                                            <td class='text-left'><label for="x12_filebtn"><?php echo xlt("Submit"); ?>:</label></td>
+                                            <td class='text-start'><label for="x12_filebtn"><?php echo xlt("Submit"); ?>:</label></td>
                                             <td class='text-center'><label for="x12_filereset"><?php echo xlt("Reset"); ?>:</label></td>
                                         </tr>
                                         <tr>
-                                            <td class='text-left'>
+                                            <td class='text-start'>
                                                 <input type="hidden" name="viewx12Files" value="view_x12" />
                                                 <input type="checkbox" id="x12htm" name="x12_html" value="html" />
                                             </td>
-                                            <td class='text-left'>
+                                            <td class='text-start'>
                                                 <div class="custom-file">
                                                     <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
                                                     <input id="x12file" type="file" class="custom-file-input" size=30 name="fileUplx12" />
@@ -286,7 +286,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                                     <h4><?php echo xlt("Notes"); ?></h4>
                                     <label for="notesget"><?php echo xlt("Notes"); ?></label>
-                                    <div class="btn-group ml-2">
+                                    <div class="btn-group ms-2">
                                         <button type="button" class="btn btn-primary" id="notesget" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>">
                                             <?php echo xlt("Open"); ?>
                                         </button>

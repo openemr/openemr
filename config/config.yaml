@@ -36,8 +36,8 @@ assets:
         autoload: true
         # RTL only for no_main-theme which is rare
         rtl:
-            basePath: '%assets_static_relative%/bootstrap-rtl/dist/'
-            link: css/bootstrap-rtl.min.css
+            basePath: '%assets_static_relative%/bootstrap/dist/'
+            link: css/bootstrap.min.css
     # keep utility and javaScript translations near top of load order.
     i18next:
         basePath: '%assets_static_relative%/i18next/dist/umd/'

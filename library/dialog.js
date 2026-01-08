@@ -286,7 +286,7 @@ function inDom(dependency, type, remove) {
 }
 
 // test to see if bootstrap theming is loaded (via standard or custom bootstrap library)
-//  Will check for the badge-secondary class
+//  Will check for the bg-secondary class
 //   - if exist, then assume bootstrap loaded
 //   - if not exist, then assume bootstrap not loaded
 function isBootstrapCss() {

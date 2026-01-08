@@ -181,7 +181,7 @@ $(function () {
                 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Requested Date'); ?></label>
                         <?php if (! $onlyRead) { ?>
                             <input type='text' size='10' class='form-control datepicker' name="amendment_date" id="amendment_date"
@@ -194,12 +194,12 @@ $(function () {
                         <?php } ?>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Requested By'); ?></label>
                         <?php echo generate_select_list("form_amendment_by", "amendment_from", ($amendment_by ?? ''), 'Amendment Request By', ' ', '', '', '', $customAttributes); ?>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Request Description'); ?></label>
                         <textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" class="form-control" name="desc" rows="4" cols="30"><?php
                         if (!empty($amendment_id)) {
@@ -210,12 +210,12 @@ $(function () {
                         ?></textarea>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Request Status'); ?></label>
                         <?php echo generate_select_list("form_amendment_status", "amendment_status", ($amendment_status ?? ''), 'Amendment Status', ' ', '', '', '', $customAttributes); ?>
                     </div>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Comments'); ?></label>
                         <textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" class="form-control" name="note" rows="4" cols="30"><?php
                         if (!empty($amendment_id)) {
@@ -238,7 +238,7 @@ $(function () {
 
             <table class="table table-bordered table-hover">
                 <!-- some columns are sortable -->
-                <thead class="table-primary font-weight-bold">
+                <thead class="table-primary fw-bold">
                     <tr>
                         <th><?php echo xlt('Date'); ?></th>
                         <th><?php echo xlt('By'); ?></th>

@@ -13,7 +13,7 @@ A block to render if the login attempt failed
 {% if loginFail == 1 %}
 {% block login_failure %}
 <div class="{{ login_failure_container_class_list|default(['text-center', 'login-failure'])|join(' ') }}">
-    <p class="text-danger font-weight-bold">{{ "Invalid username or password"|xlt }}</p>
+    <p class="text-danger fw-bold">{{ "Invalid username or password"|xlt }}</p>
 </div>
 {% endblock %}
 {% endif %}

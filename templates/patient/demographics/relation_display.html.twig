@@ -33,12 +33,12 @@
     }
 </style>
 
-<div id="{{ table_id|attr }}" class="form-row mt-3">
+<div id="{{ table_id|attr }}" class="row g-2 mt-3">
     <div class="table_text_relations col-12">
-        <div class="text_relations_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
+        <div class="text_relations_header label_custom ps-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
             <div>{{ 'Related Persons'|xlt }}</div>
             {% if relatedPersons|length > 0 %}
-            <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+            <div class="form-check me-3" style="margin-bottom: 0; display: flex; align-items: center;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_relations_display_{{ table_id|attr }}" onchange="toggleInactiveRelationsDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
                 <label class="form-check-label" for="show_inactive_relations_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
                     {{ 'Show Inactive'|xlt }}
@@ -56,7 +56,7 @@
 
         {% if not has_active_relations %}
         <div class="no_relations">
-            <span class="text data pl-1">{{ 'NO RELATED PERSONS'|xlt }}</span>
+            <span class="text data ps-1">{{ 'NO RELATED PERSONS'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
         {% endif %}
@@ -69,7 +69,7 @@
                     <h5 class="mb-0">
                         {{ relatedPerson.first_name|text }} {{ relatedPerson.last_name|text }}
                         {% if is_inactive %}
-                            <span class="badge badge-secondary  text-white ml-2">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge bg-secondary  text-white ms-2">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </h5>
                     <small class="text-muted">
@@ -90,12 +90,12 @@
                         {% endif %}
                     </small>
                 </div>
-                <div class="text-right">
+                <div class="text-end">
                     {% if relatedPerson.is_emergency_contact %}
-                        <span class="badge badge-danger">{{ 'Emergency Contact'|xlt }}</span>
+                        <span class="badge bg-danger">{{ 'Emergency Contact'|xlt }}</span>
                     {% endif %}
                     {% if relatedPerson.is_primary_contact %}
-                        <span class="badge badge-primary">{{ 'Primary Contact'|xlt }}</span>
+                        <span class="badge bg-primary">{{ 'Primary Contact'|xlt }}</span>
                     {% endif %}
                     {% if relatedPerson.can_make_medical_decisions %}
                         <p class="mb-1"><i class="fas fa-check-circle text-success"></i> {{ 'Can Make Medical Decisions'|xlt }}</p>

@@ -20,7 +20,7 @@
     </tr>
     {% for row in procedureOrders %}
         <tr>
-            <td class='text text-left'>
+            <td class='text text-start'>
                 <label class="d-block"><input id="procedure_{{ id|attr }}" type='checkbox' name='procedures[]' value='{{ row.id|attr }}' />&nbsp;&nbsp;
                 </label>
             </td>

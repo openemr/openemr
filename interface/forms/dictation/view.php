@@ -44,7 +44,7 @@ $obj = formFetch("form_dictation", $_GET["id"]);
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend class=""><?php echo xlt('Dictation')?></legend>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-10 offset-sm-1">
                             <textarea name="dictation" class="form-control" cols="80" rows="15" ><?php echo text($obj["dictation"]);?></textarea>
                         </div>
@@ -52,13 +52,13 @@ $obj = formFetch("form_dictation", $_GET["id"]);
                 </fieldset>
                 <fieldset>
                     <legend class=""><?php echo xlt('Additional Notes'); ?></legend>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-10 offset-sm-1">
                             <textarea name="additional_notes" class="form-control" cols="80" rows="5" ><?php echo text($obj["additional_notes"]);?></textarea>
                         </div>
                     </div>
                 </fieldset>
-                <div class="form-group clearfix">
+                <div class="mb-3 clearfix">
                     <div class="col-sm-12 offset-sm-1 position-override">
                         <div class="btn-group" role="group">
                             <button type='submit' onclick='top.restoreSession()' class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
