@@ -34,7 +34,6 @@ use Twig\Error\SyntaxError;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$globalsBag->set('already_autoloaded', true);
 $srcdir = $globalsBag->getString('srcdir');
 $web_root = $globalsBag->getString('web_root');
 

@@ -39,7 +39,6 @@ use OpenEMR\Services\LogoService;
 //  Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$globalsBag->set('already_autoloaded', true);
 SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php

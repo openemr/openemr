@@ -4,10 +4,13 @@
  * CodeInfo - encapsulation of code, code_type and description representing a code
  *
  * @package   OpenEMR
+ * @link      https://open-emr.org/
  * @link      https://opencoreemr.com/
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @copyright Copyright (c) 2026 OpenCoreEmr Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */

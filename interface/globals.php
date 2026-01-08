@@ -201,9 +201,7 @@ $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
-if (empty($GLOBALS['already_autoloaded'])) {
-    require_once $GLOBALS['vendor_dir'] . "/autoload.php";
-}
+require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.

@@ -5664,9 +5664,13 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/ORDataObject/Contact.php
+    - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../src/Common/ORDataObject/ORDataObject.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
-      count: 2
+      count: 1
       path: ../src/Common/ORDataObject/ORDataObject.php
     - message: '#^Use QueryUtils\:\:fetchRecordsNoLog\(\) instead of sqlStatementNoLog\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
