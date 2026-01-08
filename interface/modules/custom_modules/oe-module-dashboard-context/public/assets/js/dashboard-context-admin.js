@@ -27,7 +27,7 @@ const ContextAdmin = {
     bindEvents: function() {
         const self = this;
 
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
             const target = $(e.target).attr('href');
             if (target === '#users') self.loadUsers();
             else if (target === '#roles') self.loadRoleDefaults();
@@ -94,7 +94,7 @@ const ContextAdmin = {
                         <div class="card-body">
                             <h6 class="card-title">
                                 ${this.escapeHtml(ctx.context_name)}
-                                <span class="badge ${badgeClass} float-right">${badgeText}</span>
+                                <span class="badge ${badgeClass} float-end">${badgeText}</span>
                             </h6>
                             <p class="card-text small text-muted">${this.escapeHtml(ctx.description || '')}</p>
                             <p class="card-text small"><strong>Key:</strong> ${this.escapeHtml(ctx.context_key)}</p>
@@ -559,7 +559,7 @@ const ContextAdmin = {
     showAlert: function(message, type) {
         const $alert = $(`
             <div class="alert alert-${type} alert-dismissible fade show" style="position:fixed;top:10px;right:10px;z-index:9999;">
-                ${jsText(message)}<button type="button" class="close" data-dismiss="alert">&times;</button>
+                ${jsText(message)}<button type="button" class="close" data-bs-dismiss="alert">&times;</button>
             </div>
         `);
         $('body').append($alert);
