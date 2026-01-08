@@ -2,14 +2,11 @@
 
 namespace OpenEMR\Common\Session;
 
-use OpenEMR\Common\Session\Trait\SessionToJwt;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class PHPSessionWrapper implements SessionWrapperInterface
 {
-    use SessionToJwt;
-
     public function __construct()
     {
         $globalsBag = OEGlobalsBag::getInstance(true);

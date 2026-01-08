@@ -319,7 +319,6 @@ class SessionUtil
             [
                 'expires' => time() + 3600,
                 'path' => '/',
-        //        'domain' => // TODO check how to use proper domain here
                 'secure' => true,
                 'httponly' => true,
                 'samesite' => Cookie::SAMESITE_STRICT
