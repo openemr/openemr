@@ -2490,7 +2490,6 @@ parameters:
       path: ../modules/sms_email_reminder/sms_tmb4.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-<<<<<<< HEAD
       count: 10
       path: ../portal/account/account.lib.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
@@ -2687,8 +2686,6 @@ parameters:
       path: ../portal/verify_session.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-=======
->>>>>>> master
       count: 32
       path: ../sites/default/config.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'

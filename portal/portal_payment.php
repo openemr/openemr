@@ -529,14 +529,9 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             font-weight: normal
         }
     </style>
-<<<<<<< HEAD
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="portal_payment.js"></script>
-=======
     <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
->>>>>>> master
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -1085,13 +1080,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-<<<<<<< HEAD
                     <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere' && $GLOBALS['payment_gateway'] != 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/lib/paylib.php'>
-=======
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
-                    <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
->>>>>>> master
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
@@ -1241,7 +1231,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
     </script>
 
-<<<<<<< HEAD
     <?php
     if ($GLOBALS['payment_gateway'] == 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
         // Include Authorize.Net dependency to tokenize card.
@@ -1252,176 +1241,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Begin Include Stripe
         echo '<script src="portal_payment.stripe.js"></script>';
     } elseif ($GLOBALS['payment_gateway'] == 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
-=======
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
-        // Include Authorize.Net dependency to tokenize card.
-        // Will return a token to use for payment request keeping
-        // credit info off the server.
-        ?>
-        <script>
-            function sendPaymentDataToAnet(e) {
-                e.preventDefault();
-                const authData = {};
-                authData.clientKey = publicKey;
-                authData.apiLoginID = apiKey;
-
-                const cardData = {};
-                cardData.cardNumber = document.getElementById("cardNumber").value;
-                cardData.month = document.getElementById("expMonth").value;
-                cardData.year = document.getElementById("expYear").value;
-                cardData.cardCode = document.getElementById("cardCode").value;
-                cardData.fullName = document.getElementById("cardHolderName").value;
-                cardData.zip = document.getElementById("cczip").value;
-
-                const secureData = {};
-                secureData.authData = authData;
-                secureData.cardData = cardData;
-
-                Accept.dispatchData(secureData, acceptResponseHandler);
-
-                function acceptResponseHandler(response) {
-                    if (response.messages.resultCode === "Error") {
-                        let i = 0;
-                        let errorMsg = '';
-                        while (i < response.messages.message.length) {
-                            errorMsg = errorMsg + response.messages.message[i].code + ": " +response.messages.message[i].text;
-                            console.log(errorMsg);
-                            i = i + 1;
-                        }
-                        alert(errorMsg);
-                    } else {
-                        paymentFormUpdate(response.opaqueData);
-                    }
-                }
-            }
-
-            function paymentFormUpdate(opaqueData) {
-                // this is card tokenized
-                document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-                document.getElementById("dataValue").value = opaqueData.dataValue;
-                let oForm = document.forms['paymentForm'];
-                oForm.elements['mode'].value = "AuthorizeNet";
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-                document.getElementById("invValues").value = inv_values;
-
-                // empty out the fields before submitting to server.
-                document.getElementById("cardNumber").value = "";
-                document.getElementById("expMonth").value = "";
-                document.getElementById("expYear").value = "";
-                document.getElementById("cardCode").value = "";
-
-                // Submit payment to server
-                fetch('./lib/paylib.php', {
-                    method: 'POST',
-                    body: new FormData(oForm)
-                }).then(function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.text();
-                }).then(function(data) {
-                    if(data !== 'ok') {
-                        alert(data);
-                        return;
-                    }
-                    alert(chargeMsg);
-                    window.location.reload(false);
-                }).catch(function(error) {
-                    alert(error)
-                });
-            }
-        </script>
-    <?php }  // end authorize.net ?>
-
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
-        <script>
-            const stripe = Stripe(publicKey);
-            const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
-            const style = {
-                base: {
-                    color: '#32325d',
-                    lineHeight: '1.2rem',
-                    fontSmoothing: 'antialiased',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: '#8e8e8e'
-                    }
-                },
-                invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a'
-                }
-
-            };
-            // Create an instance of the card Element.
-            const card = elements.create('card', {style: style});
-            // Add an instance of the card Element into the `card-element` <div>.
-            card.mount('#card-element');
-            // Handle real-time validation errors from the card Element.
-            card.addEventListener('change', function (event) {
-                let displayError = document.getElementById('card-errors');
-                if (event.error) {
-                    displayError.textContent = event.error.message;
-                } else {
-                    displayError.textContent = '';
-                }
-            });
-            // Handle form submission.
-            let form = document.getElementById('stripeSubmit');
-            form.addEventListener('click', function (event) {
-                event.preventDefault();
-                stripe.createToken(card).then(function (result) {
-                    if (result.error) {
-                        // Inform the user if there was an error.
-                        let errorElement = document.getElementById('card-errors');
-                        errorElement.textContent = result.error.message;
-                    } else {
-                        // Send the token to server.
-                        stripeTokenHandler(result.token);
-                    }
-                });
-            });
-            // Submit the form with the token ID.
-            function stripeTokenHandler(token) {
-                // Insert the token ID into the form so it gets submitted to the server
-                let oForm = document.forms['payment-form'];
-                oForm.elements['mode'].value = "Stripe";
-
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-                document.getElementById("invValues").value = inv_values;
-
-                let hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'stripeToken');
-                hiddenInput.setAttribute('value', token.id);
-                oForm.appendChild(hiddenInput);
-
-                // Submit payment to server
-                fetch('./lib/paylib.php', {
-                    method: 'POST',
-                    body: new FormData(oForm)
-                }).then(function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.text();
-                }).then(function(data) {
-                    if(data !== 'ok') {
-                        alert(data);
-                        return;
-                    }
-                    alert(chargeMsg);
-                    window.location.reload(false);
-                }).catch(function(error) {
-                    alert(error)
-                });
-            }
-        </script>
-    <?php } ?>
-
-    <?php
-    if ($globalsBag->get('payment_gateway') === 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
->>>>>>> master
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     } elseif ($GLOBALS['payment_gateway'] == 'Rainforest' && isset($_SESSION['patient_portal_onsite_two'])) {
         if (!!$GLOBALS['gateway_mode_production']) {
