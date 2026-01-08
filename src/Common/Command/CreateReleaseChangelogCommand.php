@@ -229,7 +229,7 @@ class CreateReleaseChangelogCommand extends Command
                     throw new \RuntimeException("Error getting milestones from github.  Too many API calls\n");
                 }
                 return false;
-            } else if ($response->getStatusCode() === 403) {
+            } elseif ($response->getStatusCode() === 403) {
                 $this->printRateLimitMessage($response);
                 throw new \RuntimeException("Error getting milestones from github\n");
             } else {
@@ -351,7 +351,7 @@ class CreateReleaseChangelogCommand extends Command
                     $headers = $response->getHeaders();
                     $issues = array_merge($issues, json_decode($response->getBody(), true));
                     $nextLink = $this->getNextLink($headers);
-                } else if ($response->getStatusCode() === 403) {
+                } elseif ($response->getStatusCode() === 403) {
                     $this->printRateLimitMessage($response);
                     $nextLink = false;
                 } else {
@@ -361,7 +361,7 @@ class CreateReleaseChangelogCommand extends Command
             if ($loopBreak >= self::MAX_API_FETCH_COUNT) {
                 throw new \RuntimeException("Error getting issues from github.  Too many API calls\n");
             }
-        } else if ($response->getStatusCode() === 403) {
+        } elseif ($response->getStatusCode() === 403) {
             $this->printRateLimitMessage($response);
         } else {
             echo "Error getting issues from github\n";

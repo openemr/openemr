@@ -73,8 +73,8 @@ class PersonPatientLinkService extends BaseService
             }
 
             // Create the link
-            $sql = "INSERT INTO person_patient_link 
-                    (person_id, patient_id, linked_by, link_method, notes, active) 
+            $sql = "INSERT INTO person_patient_link
+                    (person_id, patient_id, linked_by, link_method, notes, active)
                     VALUES (?, ?, ?, ?, ?, 1)";
 
             $result = QueryUtils::sqlInsert($sql, [
@@ -120,8 +120,8 @@ class PersonPatientLinkService extends BaseService
         $processingResult = new ProcessingResult();
 
         try {
-            $sql = "UPDATE person_patient_link 
-                    SET active = 0 
+            $sql = "UPDATE person_patient_link
+                    SET active = 0
                     WHERE person_id = ? AND patient_id = ? AND active = 1";
 
             $result = QueryUtils::sqlStatementThrowException($sql, [$personId, $patientId]);
@@ -152,13 +152,13 @@ class PersonPatientLinkService extends BaseService
      */
     public function getActiveLink(int $personId, int $patientId): ?array
     {
-        $sql = "SELECT ppl.*, 
+        $sql = "SELECT ppl.*,
                        u.username as linked_by_username,
                        CONCAT(u.fname, ' ', u.lname) as linked_by_name
                 FROM person_patient_link ppl
                 LEFT JOIN users u ON u.id = ppl.linked_by
-                WHERE ppl.person_id = ? 
-                  AND ppl.patient_id = ? 
+                WHERE ppl.person_id = ?
+                  AND ppl.patient_id = ?
                   AND ppl.active = 1";
 
         return QueryUtils::querySingleRow($sql, [$personId, $patientId]) ?: null;
@@ -169,7 +169,7 @@ class PersonPatientLinkService extends BaseService
      */
     public function getLink(int $linkId): ?array
     {
-        $sql = "SELECT ppl.*, 
+        $sql = "SELECT ppl.*,
                        u.username as linked_by_username,
                        CONCAT(u.fname, ' ', u.lname) as linked_by_name,
                        p.first_name as person_first_name,
@@ -226,29 +226,29 @@ class PersonPatientLinkService extends BaseService
         string $last_name,
         string $birthDate
     ): array {
-        $sql = "SELECT p.*, 
+        $sql = "SELECT p.*,
                        c.id as contact_id,
                        COUNT(DISTINCT cr.id) as relationship_count,
                        GROUP_CONCAT(
                            DISTINCT CONCAT(
-                               cr.relationship, 
-                               ' of ', 
-                               pd_related.fname, ' ', pd_related.lname, 
+                               cr.relationship,
+                               ' of ',
+                               pd_related.fname, ' ', pd_related.lname,
                                ' (', pd_related.pid, ')'
-                           ) 
+                           )
                            SEPARATOR '; '
                        ) as relationships_summary
                 FROM person p
                 LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
-                LEFT JOIN patient_data pd_related ON 
-                    cr.target_table = 'patient_data' AND 
+                LEFT JOIN patient_data pd_related ON
+                    cr.target_table = 'patient_data' AND
                     cr.target_id = pd_related.id
-                WHERE p.first_name = ? 
-                  AND p.last_name = ? 
+                WHERE p.first_name = ?
+                  AND p.last_name = ?
                   AND p.birth_date = ?
                   AND NOT EXISTS (
-                      SELECT 1 FROM person_patient_link ppl 
+                      SELECT 1 FROM person_patient_link ppl
                       WHERE ppl.person_id = p.id AND ppl.active = 1
                   )
                 GROUP BY p.id
@@ -269,7 +269,7 @@ class PersonPatientLinkService extends BaseService
      */
     public function getRelationshipsForPatient(int $patientId): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     cr.*,
                     p_related.first_name as related_person_first_name,
                     p_related.last_name as related_person_last_name,
@@ -283,18 +283,18 @@ class PersonPatientLinkService extends BaseService
                 JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 LEFT JOIN contact c_related ON c_related.id = (
-                    SELECT c2.id FROM contact c2 
-                    WHERE c2.foreign_table = cr.target_table 
+                    SELECT c2.id FROM contact c2
+                    WHERE c2.foreign_table = cr.target_table
                       AND c2.foreign_id = cr.target_id
                     LIMIT 1
                 )
-                LEFT JOIN person p_related ON 
-                    cr.target_table = 'person' AND 
+                LEFT JOIN person p_related ON
+                    cr.target_table = 'person' AND
                     c_related.foreign_id = p_related.id
-                LEFT JOIN patient_data pd_related ON 
-                    cr.target_table = 'patient_data' AND 
+                LEFT JOIN patient_data pd_related ON
+                    cr.target_table = 'patient_data' AND
                     c_related.foreign_id = pd_related.id
-                WHERE ppl.patient_id = ? 
+                WHERE ppl.patient_id = ?
                   AND ppl.active = 1
                 ORDER BY cr.contact_priority, cr.relationship";
 
@@ -314,7 +314,7 @@ class PersonPatientLinkService extends BaseService
      */
     public function findUnlinkedPersonsWhoArePatients(int $limit = 100): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     p.id as person_id,
                     p.first_name,
                     p.last_name,
@@ -324,14 +324,14 @@ class PersonPatientLinkService extends BaseService
                     pd.regdate,
                     COUNT(DISTINCT cr.id) as relationship_count
                 FROM person p
-                JOIN patient_data pd ON 
-                    pd.fname = p.first_name AND 
-                    pd.lname = p.last_name AND 
+                JOIN patient_data pd ON
+                    pd.fname = p.first_name AND
+                    pd.lname = p.last_name AND
                     pd.DOB = p.birth_date
                 LEFT JOIN contact c ON c.foreign_table_name = 'person' AND c.foreign_id = p.id
                 LEFT JOIN contact_relation cr ON cr.contact_id = c.id AND cr.active = 1
                 WHERE NOT EXISTS (
-                    SELECT 1 FROM person_patient_link ppl 
+                    SELECT 1 FROM person_patient_link ppl
                     WHERE ppl.person_id = p.id AND ppl.patient_id = pd.id AND ppl.active = 1
                 )
                 GROUP BY p.id, pd.id
@@ -403,7 +403,7 @@ class PersonPatientLinkService extends BaseService
      */
     public function getAllActiveLinks(int $limit = 50, int $offset = 0): array
     {
-        $sql = "SELECT 
+        $sql = "SELECT
                     ppl.*,
                     p.first_name as person_first_name,
                     p.last_name as person_last_name,
@@ -453,9 +453,9 @@ class PersonPatientLinkService extends BaseService
 
         // Links by method
         $methodCounts = QueryUtils::sqlStatementThrowException(
-            "SELECT link_method, COUNT(*) as cnt 
-             FROM person_patient_link 
-             WHERE active = 1 
+            "SELECT link_method, COUNT(*) as cnt
+             FROM person_patient_link
+             WHERE active = 1
              GROUP BY link_method"
         );
 
@@ -466,15 +466,15 @@ class PersonPatientLinkService extends BaseService
 
         // Persons linked to patients
         $stats['persons_linked'] = QueryUtils::querySingleRow(
-            "SELECT COUNT(DISTINCT person_id) as cnt 
-             FROM person_patient_link 
+            "SELECT COUNT(DISTINCT person_id) as cnt
+             FROM person_patient_link
              WHERE active = 1"
         )['cnt'] ?? 0;
 
         // Patients with linked person records
         $stats['patients_linked'] = QueryUtils::querySingleRow(
-            "SELECT COUNT(DISTINCT patient_id) as cnt 
-             FROM person_patient_link 
+            "SELECT COUNT(DISTINCT patient_id) as cnt
+             FROM person_patient_link
              WHERE active = 1"
         )['cnt'] ?? 0;
 

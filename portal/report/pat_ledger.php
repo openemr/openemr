@@ -16,17 +16,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("./../verify_session.php");
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
-
+$globalsBag = OEGlobalsBag::getInstance();
+$srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/appointments.inc.php");
 
-use OpenEMR\Core\Header;
 
 $enc_units = $total_units = 0;
 $enc_chg = $total_chg = 0;
@@ -280,14 +283,15 @@ if (!isset($_REQUEST['form_refresh'])) {
     $_REQUEST['form_refresh'] = '';
 }
 
-if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+$ledger_begin_date = $globalsBag->getString('ledger_begin_date');
+if (str_starts_with($ledger_begin_date, 'Y')) {
+    $ledger_time = substr($ledger_begin_date, 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with($ledger_begin_date, 'M')) {
+    $ledger_time = substr($ledger_begin_date, 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with($ledger_begin_date, 'D')) {
+    $ledger_time = substr($ledger_begin_date, 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -302,7 +306,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
 <html>
 <head>
     <?php Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']); ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $globalsBag->getString('webroot') ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
     <script>
         function checkSubmit() {
             document.forms[0].elements['form_refresh'].value = true;
@@ -361,7 +365,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -604,7 +608,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 <td></td>
             </tr>
             <br /><br />
-                    <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+                    <?php if ($globalsBag->get('print_next_appointment_on_ledger') == 1) {
                         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
 # add one day to date so it will not get todays appointment
                         $current_date2 = date('Y-m-d', $next_day);

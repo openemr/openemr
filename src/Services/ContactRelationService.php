@@ -867,8 +867,8 @@ class ContactRelationService extends BaseService
 
                 $person_metadata = [
                     'first_name' => $relatedPerson['first_name'] ?? '',
-                    'middle_name' => $relatedPerson['middle_name'] ?? '',              
-                    'last_name' => $relatedPerson['last_name'] ?? '',    
+                    'middle_name' => $relatedPerson['middle_name'] ?? '',
+                    'last_name' => $relatedPerson['last_name'] ?? '',
                     'gender' => $relatedPerson['gender'] ?? '',
                     'birth_date' => $relatedPerson['birth_date'] ?? ''
                 ];

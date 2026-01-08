@@ -15,11 +15,12 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
 SessionUtil::portalSessionStart();
 
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -41,7 +42,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_DASHBOARD', $_SESSION['authUser']);
     define('IS_PORTAL', false);
 }
-
+$srcdir = $globalsBag->getString('srcdir');
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
@@ -51,7 +52,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Messaging\SendSmsEvent;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
@@ -65,8 +66,8 @@ foreach ($result as $iter) {
     $theresult[] = $iter;
 }
 
-$isSMS = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
-$isEmail = !empty($GLOBALS['oe_enable_email'] ?? 0);
+$isSMS = !empty($globalsBag->get('oefax_enable_sms') ?? 0);
+$isEmail = !empty($globalsBag->get('oe_enable_email') ?? 0);
 $showSMS = $isSMS && IS_DASHBOARD;
 $dashuser = [];
 if (IS_DASHBOARD) {
@@ -544,7 +545,7 @@ function getAuthPortalUsers()
 
         <?php
         if ($showSMS) {
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
+            $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
         }
         ?>
     </script>
@@ -575,7 +576,7 @@ function getAuthPortalUsers()
                                 <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isTrashSelected()"><span class="badge float-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
+                                <a class="nav-link" href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
                             </li>
                             <!--<li class="nav-item">
                                 <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php /*echo $GLOBALS['web_root'] */ ?>/portal/home.php")' ng-show="isPortal"><?php /*echo xlt('Exit'); */ ?></a>
@@ -592,7 +593,7 @@ function getAuthPortalUsers()
                             </button>
                             <?php
                             if ($showSMS) {
-                                $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                                $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                             }
                             ?>
                             <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
@@ -613,7 +614,7 @@ function getAuthPortalUsers()
                                         <a href="javascript:;" onclick='window.location.replace("./messages.php")' ng-show="isPortal" class="dropdown-item"><i class="fa fa-sync"></i> <?php echo xlt('Refresh'); ?></a>
                                     </li>
                                     <li>
-                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i> <?php echo xlt('Return Home'); ?></a>
+                                        <a href="<?php echo $globalsBag->getString('web_root') ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i> <?php echo xlt('Return Home'); ?></a>
                                     </li>
                                 </ul>
                             </div>

@@ -41,4 +41,3 @@ class PatientCharacteristicSex extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicSex';
 }
-

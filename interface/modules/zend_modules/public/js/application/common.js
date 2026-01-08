@@ -37,5 +37,3 @@
     });
     return resultTranslated;
   }
-
-

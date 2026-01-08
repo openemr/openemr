@@ -466,4 +466,3 @@ var responsibleParty = exports.responsibleParty = {
     dataKey: "responsible_party",
     existsWhen: condition.propertyValueNotEmpty("name.last")
 };
-

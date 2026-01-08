@@ -15,6 +15,7 @@ require_once(__DIR__ . '/../../interface/globals.php');
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ApplicationTable
 {
@@ -199,7 +200,8 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
-        $groupname = $GLOBALS['groupname'] ?? 'none';
+        $globalsBag = OEGlobalsBag::getInstance();
+        $groupname = $globalsBag->get('groupname') ?? 'none';
         $user = $_SESSION['portal_username'] ?? $_SESSION['authUser'] ?? null;
         $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
         if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser'])) {

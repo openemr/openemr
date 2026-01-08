@@ -14,7 +14,7 @@ var no_qs = 8; // number of questions in the form
  // 'cause the server side doesn't parse this file and execute the php before sending to client
 
 var all_scores = [0,0,0,0,0,0,0,0];
-var changes_made = false; 
+var changes_made = false;
 var q8_gone = true; // if question 8 has been removed - or on startup when it's not displayed automatically
 var question = null;  //the element that holds the 8th question
 var all_answered = [false, false, false, false, false, false, false];
@@ -73,7 +73,7 @@ function update_score(index, new_score) {  //index is the number of the question
     var score = new_score;
     var explanation ='';
     var total_string = '';
-     
+
     if (index == 'undef'){
         // display score  - called from view on startup - 'new_score' is previous total
         gad7_score = score;
@@ -123,4 +123,3 @@ function update_score(index, new_score) {  //index is the number of the question
 function record_score_q8 (score) {
     all_scores[7] = Number(score); // record the scores for a review/edit of the form
 }
-
