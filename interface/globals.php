@@ -201,9 +201,7 @@ $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
-if (empty($GLOBALS['already_autoloaded'])) {
-    require_once $GLOBALS['vendor_dir'] . "/autoload.php";
-}
+require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
@@ -222,7 +220,7 @@ if (empty($restRequest)) {
 }
 if (empty($globalsBag)) {
     // Initially this was too early. We now reinit at bottom to ensure all values are collected.
-    $globalsBag = OEGlobalsBag::getInstance(true);
+    $globalsBag = OEGlobalsBag::getInstance();
 }
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
@@ -844,7 +842,7 @@ if ($globalsBag->getInt('user_debug', 0) > 1) {
 
 // CRITICAL: Reset and reinitialize the singleton to capture ALL $GLOBALS
 OEGlobalsBag::resetInstance();
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 
 // Re-set the local variables that aren't in $GLOBALS
 $globalsBag->set('webserver_root', $webserver_root);

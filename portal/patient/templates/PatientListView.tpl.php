@@ -12,7 +12,7 @@ use OpenEMR\Core\OEGlobalsBag;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    $globalsBag = OEGlobalsBag::getInstance(true);
+    $globalsBag = OEGlobalsBag::getInstance();
     //require_once ("./../verify_session.php");
     require_once("../../library/options.inc.php");
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));

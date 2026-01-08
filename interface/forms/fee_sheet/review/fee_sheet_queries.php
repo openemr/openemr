@@ -6,8 +6,10 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -187,11 +189,13 @@ function create_procs($req_pid, $req_encounter, $procs): void
             "modifier,  units,      fee,        ndc_info, " .
             "justify,   notecodes" .
             ") values ";
+    /** ai generated code by google-labs-jules starts */
     $param = "(NOW(),?,?,?," . // date, encounter, code_type, code
             "?,?,?,?," .     // code_text,pid,authorized,user
             "?,1,0,?," .     // groupname,activity,billed,provider_id
-            "?,?,?,''," .     // modifier, units, fee, ndc_info
+            "?,?,?,?," .     // modifier, units, fee, ndc_info
             "?,'')";        // justify, notecodes
+    /** ai generated code by google-labs-jules end */
     foreach ($procs as $proc) {
         $insert_params = [];
         array_push($insert_params, $req_encounter);
@@ -290,10 +294,25 @@ function common_diagnoses($limit = 10)
 function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
 {
     $param = [$encounter];
-    $sql = "SELECT code,code_type,code_text,fee,modifier,justify,units,ct_diag,ct_fee,ct_mod "
-          . " FROM billing, code_types as ct "
-          . " WHERE encounter=? AND billing.activity>0 AND ct.ct_key=billing.code_type "
-          . " ORDER BY id";
+    $sql = <<<'SQL'
+        SELECT code,
+               code_type,
+               code_text,
+               fee,
+               modifier,
+               justify,
+               units,
+               ndc_info, -- added by google-labs-jules
+               ct_diag,
+               ct_fee,
+               ct_mod
+          FROM billing,
+               code_types as ct
+         WHERE encounter = ?
+           AND billing.activity > 0
+           AND ct.ct_key = billing.code_type
+      ORDER BY id
+    SQL;
     $results = sqlStatement($sql, $param);
     while ($res = sqlFetchArray($results)) {
         $code = $res['code'];
@@ -306,9 +325,14 @@ function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
             $justify = $res['justify'];
             $modifiers = $res['modifier'];
             $units = $res['units'];
+            /** ai generated code by google-labs-jules starts */
+            $ndc_info = $res['ndc_info'];
+            /** ai generated code by google-labs-jules end */
             $selected = true;
             $mod_size = $res['ct_mod'];
-            $procedures[] = new Procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $selected);
+            /** ai generated code by google-labs-jules starts */
+            $procedures[] = new Procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $ndc_info, $selected);
+            /** ai generated code by google-labs-jules end */
         }
     }
 }

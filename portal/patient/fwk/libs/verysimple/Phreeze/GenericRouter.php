@@ -73,7 +73,7 @@ class GenericRouter implements IRouter
      */
     public function GetRoute($uri = "")
     {
-        $globalsBag = OEGlobalsBag::getInstance(true);
+        $globalsBag = OEGlobalsBag::getInstance();
         // reset the uri cache
         $this->uri = '';
 

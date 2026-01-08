@@ -25,8 +25,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
-$globalsBag = OEGlobalsBag::getInstance(true);
-$globalsBag->set('already_autoloaded', true);
+$globalsBag = OEGlobalsBag::getInstance();
 
 require_once("./verify_session.php");
 /**
