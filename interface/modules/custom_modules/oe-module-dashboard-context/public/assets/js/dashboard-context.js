@@ -309,7 +309,7 @@
                 <div class="alert ${alertClass} alert-dismissible fade show" role="alert"
                      style="position:fixed;top:10px;right:10px;z-index:9999;">
                     ${this.escapeHtml(message)}
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <button type="button" class="close" data-bs-dismiss="alert">&times;</button>
                 </div>
             `);
 
