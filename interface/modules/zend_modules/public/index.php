@@ -16,11 +16,7 @@
  * to the application root now.
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-
-$GLOBALS['already_autoloaded'] = true;
-require_once(__DIR__ . "/../../../../vendor/autoload.php");
+use OpenEMR\Common\Session\SessionUtil;
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
@@ -40,8 +36,7 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
         session_id($_REQUEST['me']);
         SessionUtil::sessionStartWrapper();
     }
-    $session = SessionWrapperFactory::instance()->getWrapper();
-    if ($session->get('pid') && $session->get('sessionUser') === '-patient-' && $session->get('portal_init')) {
+    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
         // Onsite portal was validated and patient authorized and re-validated via forwarded session.
         $ignoreAuth_onsite_portal = true;
     }
