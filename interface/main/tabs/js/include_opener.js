@@ -38,7 +38,11 @@ window.close =
             if(call){
                 wframe.setCallBack(call, args);
             }
-            dialogModal.modal('hide');
+            var bsRef = (typeof top !== 'undefined' && top.bootstrap && top.bootstrap.Modal) ? top.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
+                var modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
+                if (modalInstance) { modalInstance.hide(); }
+            }
         }
 
     };
@@ -58,7 +62,11 @@ var dlgclose =
             if(call){
                 wframe.setCallBack(call, args);
             }
-            dialogModal.modal('hide');
+            var bsRef = (typeof top !== 'undefined' && top.bootstrap && top.bootstrap.Modal) ? top.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
+                var modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
+                if (modalInstance) { modalInstance.hide(); }
+            }
         }
 
     };
