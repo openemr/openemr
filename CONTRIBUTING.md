@@ -2,6 +2,59 @@ Thank you for your contribution. OpenEMR (and global healthcare) continues to ge
 
 The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
+## Commit Messages
+
+OpenEMR uses [Conventional Commits](https://www.conventionalcommits.org/) for all commits merged to `master` and `rel-*` branches. Your PR title must follow this format:
+
+```
+<type>(<scope>): <description>
+```
+
+### Types
+
+| Type | Description |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `style` | Code style (formatting, whitespace) |
+| `refactor` | Code refactoring (no feature/fix) |
+| `perf` | Performance improvement |
+| `test` | Adding/updating tests |
+| `build` | Build system or dependencies |
+| `ci` | CI configuration |
+| `chore` | Maintenance tasks |
+| `revert` | Revert a previous commit |
+
+### Examples
+
+- `feat(api): add PATCH support for patient resource`
+- `fix(calendar): correct date parsing for recurring events`
+- `docs(readme): update installation instructions`
+- `chore(deps): bump monolog/monolog from 3.9.0 to 3.10.0`
+
+### Scopes
+
+Scopes are optional but encouraged. Use them to indicate the area of the codebase affected (e.g., `api`, `calendar`, `patient`, `billing`, `deps`).
+
+### Breaking Changes
+
+For breaking changes, add `!` after the type/scope or include a `BREAKING CHANGE:` footer:
+
+```
+feat(api)!: change patient endpoint response format
+
+BREAKING CHANGE: The patient endpoint now returns a different JSON structure.
+```
+
+### Local Validation
+
+If you use [pre-commit](https://pre-commit.com/), install the commit-msg hook to validate locally:
+
+```sh
+pre-commit install --hook-type commit-msg
+```
+
 ## Code Contributions (local development)
 
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
