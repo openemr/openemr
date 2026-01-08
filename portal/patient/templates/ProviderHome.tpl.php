@@ -21,7 +21,7 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     die(xlt("Unauthorized"));
     exit;
 }
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 $web_root = $globalsBag->getString('web_root');
 $assets_static_relative = $globalsBag->getString('assets_static_relative');
 $v_js_includes = $globalsBag->get('v_js_includes');

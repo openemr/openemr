@@ -58,7 +58,7 @@ class OnsiteDocumentController extends AppBasePortalController
         }
         // only allow patient to see themselves
 
-        $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+        $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
         if (!empty($bootstrapPid)) {
             $pid = (int)$bootstrapPid;
@@ -115,7 +115,7 @@ class OnsiteDocumentController extends AppBasePortalController
             $pid = RequestUtil::Get('patientId');
 
             // only allow patient to see themself
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
             if (!empty($bootstrapPid)) {
                 $pid = $bootstrapPid;
@@ -210,7 +210,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
         // only allow patient to see themself
 
-        $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+        $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
         if (!empty($bootstrapPid)) {
             $pid = $bootstrapPid;
@@ -242,7 +242,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // only allow patient to see themself
 
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
             if (!empty($bootstrapPid) && $bootstrapPid != $onsitedocument->Pid) {
                 $error = 'Unauthorized';
@@ -282,7 +282,7 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument = new OnsiteDocument($this->Phreezer);
 
             // only allow patient to add to themselves
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid');
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
@@ -340,7 +340,7 @@ class OnsiteDocumentController extends AppBasePortalController
         try {
             $json = json_decode(RequestUtil::GetBody());
 
-            $globalsBag = OEGlobalsBag::getInstance(true);
+            $globalsBag = OEGlobalsBag::getInstance();
 
             if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
@@ -441,7 +441,7 @@ class OnsiteDocumentController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
             if (!empty($bootstrapPid) && (int)$bootstrapPid !== (int)$onsitedocument->Pid) {
                 $error = 'Unauthorized';

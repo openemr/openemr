@@ -15,7 +15,7 @@
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 $assets_static_relative = $globalsBag->getString('assets_static_relative');
 $web_root = $globalsBag->getString('web_root');
 $v_js_includes = $globalsBag->get('v_js_includes');

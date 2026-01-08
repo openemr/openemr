@@ -54,7 +54,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $criteria = new OnsitePortalActivityCriteria();
 
             // only allow patient to see their own activity
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             $pid = !empty($bootstrapPid) ? $bootstrapPid : RequestUtil::Get('patientId');
 
             $activity = RequestUtil::Get('activity');
@@ -111,7 +111,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
             // only allow patient to update onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             if (!empty($bootstrapPid) && $bootstrapPid != $onsiteportalactivity->PatientId) {
                 $error = 'Unauthorized';
                 throw new Exception($error);
@@ -144,7 +144,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date')));
 
             // only allow patient to create onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             $onsiteportalactivity->PatientId = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'patientId');
 
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity');
@@ -189,7 +189,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
 
             // only allow patient to update onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance(true)->get('bootstrap_pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             if (!empty($bootstrapPid)) {
                 if ($bootstrapPid != $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId)) {
                     throw new Exception('Bad PID');

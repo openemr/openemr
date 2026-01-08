@@ -23,7 +23,7 @@ require_once("./../verify_session.php");
 $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
 require_once("$srcdir/patient.inc.php");
