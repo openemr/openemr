@@ -14,14 +14,11 @@
 require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
-
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 header('Content-Type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken(($_POST['csrf_token'] ?? ''), 'default', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
 }
@@ -47,7 +44,6 @@ exit;
  */
 function handleUpdateReportingPeriod()
 {
-    global $session;
     $period = $_POST['period'] ?? '';
 
     if (empty($period)) {
@@ -64,7 +60,7 @@ function handleUpdateReportingPeriod()
 
     if ($result['count'] > 0) {
         // Update session
-        $session->set('selected_ecqm_period', $period);
+        $_SESSION['selected_ecqm_period'] = $period;
 
         // Update global
         $GLOBALS['cqm_performance_period'] = $period;

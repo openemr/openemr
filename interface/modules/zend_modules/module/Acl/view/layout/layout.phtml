@@ -10,9 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-
 echo $this->doctype();
 ?>
 
@@ -24,7 +21,7 @@ echo $this->doctype();
         <!-- Le styles -->
         <?php
 
-        $css_treeview = $session->get('language_direction') != 'rtl' ? $this->basePath() . '/css/jquery.treeview-1.4.1/jquery.treeview.css' :  $this->basePath() . '/css/jquery.treeview-1.4.1/rtl-treeview/jquery.treeview.rtl.css';
+        $css_treeview = $_SESSION['language_direction'] != 'rtl' ? $this->basePath() . '/css/jquery.treeview-1.4.1/jquery.treeview.css' :  $this->basePath() . '/css/jquery.treeview-1.4.1/rtl-treeview/jquery.treeview.rtl.css';
 
         echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
         		->prependStylesheet($this->basePath() . '/css/acl.css')

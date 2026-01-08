@@ -21,7 +21,6 @@
 namespace Multipledb\Model;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Db\Sql\Predicate;
@@ -63,9 +62,8 @@ class MultipledbTable
     {
         $rowset = $this->tableGateway->select(['namespace' => $namespace]);
         $count = $rowset->count();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-        if ($count and $session->get('multiple_edit_id') == 0) {
+        if ($count and $_SESSION['multiple_edit_id'] == 0) {
             return 1;
         } else {
             return 0;
