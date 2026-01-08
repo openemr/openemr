@@ -92,7 +92,7 @@ $CPR = 4; // cells per row
             $('.swapIns').hide();
 
             $(".select-previous-names").select2({
-                theme: "bootstrap4",
+                theme: "bootstrap5",
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -139,7 +139,7 @@ $CPR = 4; // cells per row
 
             // careteam select2
             $(".select-dropdown").select2({
-                theme: "bootstrap4",
+                theme: "bootstrap5",
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -447,7 +447,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
             <div class="row">
                 <div class="col-12">
                     <div class="section-header">
-                        <span class="text font-weight-bold"><?php echo xlt("Demographics") ?></span>
+                        <span class="text fw-bold"><?php echo xlt("Demographics") ?></span>
                     </div>
                     <ul class="tabNav">
                         <?php display_layout_tabs('DEM', $result, $result2); ?>
@@ -606,7 +606,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 duplicateFieldsArray['#form_' + flds[i]] = fval;
             }
             $(".sel2").select2({
-                theme: "bootstrap4",
+                theme: "bootstrap5",
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>

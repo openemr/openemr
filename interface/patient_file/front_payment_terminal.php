@@ -280,7 +280,7 @@ $total = $_GET['total'] ?? null;
             <button id="refund-button" class="btn btn-primary btn-transmit m-1 d-none"><?php echo xlt("Cancel Payment")?></button>
         </div>
         <hr />
-        <div class="row ml-2"><h5><?php echo xlt("Transaction Progress") ?></h5></div>
+        <div class="row ms-2"><h5><?php echo xlt("Transaction Progress") ?></h5></div>
         <div class="col-sm-12 p-2 bg-secondary" id="logs"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
 
     </div>

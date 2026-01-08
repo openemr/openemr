@@ -118,27 +118,27 @@ if ($result) {
             <input type="Hidden" name="type" value="Email">
             <input type="Hidden" name="notification_id" value="<?php echo attr($notification_id);?>">
             <div class="row">
-                <div class="col-md-4 form-group">
+                <div class="col-md-4 mb-3">
                     <label for="email_sender"><?php echo xlt('Email Sender')?>:</label>
                     <input class="form-control" type="text" name="email_sender" size="40" value="<?php echo attr($email_sender); ?>" placeholder="<?php xla('sender name'); ?>">
                 </div>
-                <div class="col-md-4 form-group">
+                <div class="col-md-4 mb-3">
                     <label for="email_subject"><?php echo xlt('Email Subject')?>:</label>
                     <input class="form-control" type="text" name="email_subject" size="40" value="<?php echo attr($email_subject); ?>" placeholder="<?php xla('email subject'); ?>">
                 </div>
-                <div class="col-md-4 form-group">
+                <div class="col-md-4 mb-3">
                     <label for="provider_name"><?php echo xlt('Name of Provider')?>:</label>
                     <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 mb-3">
                     <label for="message"><?php echo xlt('Email Text Usable Tags'); ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
                     <textarea class="form-control" cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 mb-3">
                     <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>

@@ -1016,7 +1016,7 @@ class RCFaxClient extends AppDispatch
                         $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($fromName) . "</td><td>" . text($toName) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
                     } elseif ($direction === "inbound" && $type === $serviceType && $serviceType === "fax") {
                         $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
-                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
+                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-start'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
                     } elseif ($direction === "outbound" && $type === $serviceType && $serviceType === "fax") {
                         $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
                         $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) .
@@ -1031,12 +1031,12 @@ class RCFaxClient extends AppDispatch
 
     private function generateActionLinks($id, $uri): array
     {
-        $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
-        $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(0) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
-        $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
-        $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
-        $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
-        $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
+        $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple me-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
+        $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(0) . ")\"> <i class='fa fa-paper-plane me-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
+        $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download me-2' title='" . xla("Download and delete fax") . "'></i></a>";
+        $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf me-2' title='" . xla("View fax document") . "'></i></a>";
+        $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash me-2' title='" . xla("Delete this fax document") . "'></i></a>";
+        $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward me-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
         return [
             'inbound' => $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink,
             'outbound' => $viewLink . $downloadLink . $deleteLink

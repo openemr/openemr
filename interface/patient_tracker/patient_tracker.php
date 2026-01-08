@@ -164,7 +164,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     <div class="container-fluid mt-3">
         <div id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
-            <div class="jumbotron p-4">
+            <div class="bg-body-tertiary rounded-3 p-4">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
@@ -268,11 +268,11 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 } ?>
                             <div class="col-4 mt-3 nowrap row" style="<?php echo $style; ?>">
 
-                              <label class="col-form-label col-sm-3 text-right" for="flow_from"><?php echo xlt('From'); ?>:</label>
+                              <label class="col-form-label col-sm-3 text-end" for="flow_from"><?php echo xlt('From'); ?>:</label>
                               <div class="col-sm-9">
                                 <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
                               </div>
-                              <label class="col-form-label col-sm-3 text-right" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
+                              <label class="col-form-label col-sm-3 text-end" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
                               <div class="col-sm-9">
                                   <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>"/>
                               </div>
@@ -315,7 +315,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
             <div class="text-center row mx-auto divTable">
                 <div class="col-sm-12" id="loader">
                     <div class="spinner-border" role="status">
-                        <span class="sr-only"><?php echo xlt('Loading data'); ?>...</span>
+                        <span class="visually-hidden"><?php echo xlt('Loading data'); ?>...</span>
                     </div>
                     <h2><?php echo xlt('Loading data'); ?>...</h2>
                 </div>
@@ -341,22 +341,22 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                 <div class=" d-sm-block">
                     <span id="status_summary">
                         <?php
-                        $statuses_output = "<span class='text badge badge-light'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
+                        $statuses_output = "<span class='text badge bg-light text-dark'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
                         unset($appointments_status['count_all']);
                         foreach ($appointments_status as $status_symbol => $count) {
-                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge badge-light'>" . text($count) . "</span></span>";
+                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge bg-light text-dark'>" . text($count) . "</span></span>";
                         }
                         echo $statuses_output;
                         ?>
                     </span>
                 </div>
-                <div id="pull_kiosk_right" class="text-right">
+                <div id="pull_kiosk_right" class="text-end">
                     <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();" title="<?php echo xla('Show/Hide the Selection Area'); ?>" style="color:<?php echo $color = ($setting_selectors == 'none') ? 'var(--danger)' : 'var(--black)'; ?>;">
                         <i class="far fa-square fa-stack-2x"></i>
                         <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                     </span>
 
-                    <a class="btn btn-primary btn-setting" data-toggle="collapse" href="#collapseSetting">
+                    <a class="btn btn-primary btn-setting" data-bs-toggle="collapse" href="#collapseSetting">
                         <?php echo xlt('Setting'); ?>
                     </a>
                     <a class='btn btn-primary btn-refresh' id='refreshme'><?php echo xlt('Refresh'); ?></a>
@@ -372,7 +372,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div class="table-responsive mt-3">
                     <table class="table table-bordered">
                     <thead class="table-primary">
-                    <tr class="small font-weight-bold text-center">
+                    <tr class="small fw-bold text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
@@ -1103,7 +1103,7 @@ function myLocalJS(): void
                 refreshMe();
             });
 
-            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-bs-toggle="tooltip"]').tooltip();
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>

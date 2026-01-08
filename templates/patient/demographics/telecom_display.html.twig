@@ -11,9 +11,9 @@
     }
 </style>
 
-<div id="{{ table_id|attr }}" class="form-row mt-3">
+<div id="{{ table_id|attr }}" class="row g-2 mt-3">
     <div class="table_text_telecoms col-12">
-        <div class="text_telecoms_header label_custom pl-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
+        <div class="text_telecoms_header label_custom ps-1" style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; background-color: var(--gray300)">
             <div>
                 {% if foreign_table == 'patient_data' %}
                     {{ 'Additional Telecom Contacts'|xlt }}
@@ -22,7 +22,7 @@
                 {% endif %}
             </div>
             {% if telecoms|length > 0 %}
-            <div class="form-check mr-3" style="margin-bottom: 0; display: flex; align-items: center;">
+            <div class="form-check me-3" style="margin-bottom: 0; display: flex; align-items: center;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_display_{{ table_id|attr }}" onchange="toggleInactiveTelecomsDisplay('{{ table_id|attr }}')" style="margin-top: 0; position: static; margin-right: 0.25rem;">
                 <label class="form-check-label" for="show_inactive_telecoms_display_{{ table_id|attr }}" style="font-size: 0.9em; margin-bottom: 0;">
                     {{ 'Show Inactive'|xlt }}
@@ -40,21 +40,21 @@
 
         {% if not has_active_telecoms %}
         <div class="no_telecoms">
-            <span class="text data pl-1">{{ 'NONE'|xlt }}</span>
+            <span class="text data ps-1">{{ 'NONE'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
         {% endif %}
 
         {% for telecom in telecoms %}
         {% set is_inactive = telecom.status != 'A' %}
-        <div class="text_telecoms_row form-group mb-0 {{ is_inactive ? 'telecom-inactive-display d-none' : '' }}" data-status="{{ telecom.status|attr }}">
-            <div class="text_telecoms_subrow form-row pl-1">
+        <div class="text_telecoms_row mb-3 mb-0 {{ is_inactive ? 'telecom-inactive-display d-none' : '' }}" data-status="{{ telecom.status|attr }}">
+            <div class="text_telecoms_subrow row g-2 ps-1">
                 <div class="col-2 text data">
                     <span class="text_telecoms_system">
-                        <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} mr-1"></i>
+                        <i class="fas fa-{{ telecom.system == 'phone' or telecom.system == 'mobile' ? 'phone' : (telecom.system == 'email' ? 'envelope' : (telecom.system == 'fax' ? 'fax' : 'link')) }} me-1"></i>
                         {{ list_telecom_systems[telecom.system]|text }}
                         {% if is_inactive %}
-                            <span class="badge  text-white ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge  text-white ms-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </span>
                 </div>
@@ -76,13 +76,13 @@
                 </div>
                 <div class="col-3 text data">
                     {% if telecom.is_primary == 'Y' %}
-                        <span class="badge badge-primary">{{ 'Primary'|xlt }}</span>
+                        <span class="badge bg-primary">{{ 'Primary'|xlt }}</span>
                     {% endif %}
                 </div>
             </div>
 
             {% if telecom.notes %}
-            <div class="text_telecoms_notes form-row pl-1">
+            <div class="text_telecoms_notes row g-2 ps-1">
                 <div class="col-12 text data">
                     <small class="text-muted">{{ telecom.notes|text }}</small>
                 </div>

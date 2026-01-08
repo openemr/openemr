@@ -20,7 +20,7 @@ $usage_category = $medication['usage_category'] ?? null;
 $request_intent = $medication['request_intent'] ?? null;
 $isPrimaryRecord = $medication['is_primary_record'] ?? '1';
 ?>
-<div class="form-group col-sm-12 col-md-6">
+<div class="mb-3 col-sm-12 col-md-6">
     <label class="col-form-label" for="medication[usage_category]"><?php echo xlt('Medication Usage'); ?>:</label>
     <?php
     generate_form_field(['data_type' => 1, 'field_id' => 'medication[usage_category]', 'list_id' => 'medication-usage-category', 'empty_title' => 'SKIP'], $usage_category); ?>
@@ -29,12 +29,12 @@ $isPrimaryRecord = $medication['is_primary_record'] ?? '1';
     generate_form_field(['data_type' => 1, 'field_id' => 'medication[request_intent]', 'list_id' => 'medication-request-intent'], $request_intent);
     ?>
 </div>
-<div class="form-group col-sm-12 col-md-6">
+<div class="mb-3 col-sm-12 col-md-6">
     <label class="col-form-label" for="form_medication[drug_dosage_instructions]"><?php echo xlt('Medication Dosage Instructions'); ?>:</label>
     <textarea class="form-control" name='form_medication[drug_dosage_instructions]' id='form_medication[drug_dosage_instructions]'
               rows="4"><?php echo text($medication['drug_dosage_instructions'] ?? '') ?></textarea>
 </div>
-<div class="form-group col-sm-12">
+<div class="mb-3 col-sm-12">
     <label class="col-form-label" for="form_medication[is_primary_record]"><?php echo xlt('Is Primary Record (not reported by secondary source)?'); ?>:</label>
     <radiogroup name="form_medication[is_primary_record]" id="form_medication[is_primary_record]">
         <label class="radio-inline">
@@ -49,7 +49,7 @@ $isPrimaryRecord = $medication['is_primary_record'] ?? '1';
         </label>
     </radiogroup>
 </div>
-<div class="form-group col-sm-12 <?php if ($isPrimaryRecord) { ?>d-none<?php } ?>" id="medication-reported-by-container">
+<div class="mb-3 col-sm-12 <?php if ($isPrimaryRecord) { ?>d-none<?php } ?>" id="medication-reported-by-container">
     <label class="col-form-label" for="medication[reported_by]"><?php echo xlt('Reported By (Address Book User)'); ?>:</label>
     <?php
     generate_form_field(['data_type' => 14, 'field_id' => 'medication[reporting_source_record_id]'], $medication['reporting_source_record_id'] ?? null);

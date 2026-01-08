@@ -8,7 +8,7 @@
 
 <div class="col-12">
     {# Header Row 1 #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-3 label_custom">
             {{ 'Address Use'|xlt }}
         </div>
@@ -24,7 +24,7 @@
     </div>
 
     {# Values Row 1 #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-3">
             {{ generateFormField({
                 'data_type': widget_constants.listWithAddButton,
@@ -62,7 +62,7 @@
     </div>
 
     {# Header Row 2 #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-3 label_custom">
             {{ 'Address'|xlt }}
         </div>
@@ -78,7 +78,7 @@
     </div>
 
     {# Values Row 2 #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-3">
             {{ generateFormField({
                 'data_type': widget_constants.textbox,
@@ -110,7 +110,7 @@
     </div>
 
     {# Header Row 3 #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-3 label_custom">
             {{ 'State'|xlt }}
         </div>
@@ -126,7 +126,7 @@
     </div>
 
     {# Values Row 3 #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-3">
             {{ generateFormField({
                 'data_type': widget_constants.listWithAddButton,
@@ -164,12 +164,12 @@
     </div>
 
     {# Notes Row #}
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12 label_custom">
             {{ 'Notes'|xlt }}
         </div>
     </div>
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
             <textarea class="form-control form_addresses_notes"
                       name="{{ name_field_id|attr }}[{{address_index}}][notes]"

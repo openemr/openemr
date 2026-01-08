@@ -16,7 +16,9 @@
     const registrationTranslations = {{ regTranslations|json_encode }};
     const registrationConstants = {{ regConstants|json_encode }};
 
-    $(document).ready(init());
+    $(function() {
+        init();
+    });
 
     function init() {
         var productRegistrationController = new ProductRegistrationController();

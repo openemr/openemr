@@ -160,7 +160,7 @@ while ($file = sqlFetchArray($fres)) {
                 <?php } ?>
             </div>
             <div class="row">
-                <div class="col-12 text-right mb-2">
+                <div class="col-12 text-end mb-2">
                     <button type="submit" class="btn btn-primary mt-1"><?php echo xlt("Download Selected Documents"); ?></button>
                 </div>
                 <div class="col-12">

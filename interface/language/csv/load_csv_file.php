@@ -43,7 +43,7 @@ while ($row = sqlFetchArray($resLanguages)) {
     onsubmit="return top.restoreSession()">
 
     <!-- Select Language. Cloned from lang_definition.php. -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="selectLanguage"><?php echo xlt('Select Language') . ":"; ?></label>
         <select class="form-control" name='language_id' id="selectLanguage">
             <?php
@@ -74,14 +74,14 @@ while ($row = sqlFetchArray($resLanguages)) {
     </div>
 
     <!-- File Upload Control -->
-    <div class="form-group">
+    <div class="mb-3">
         <p><?php echo xlt('Select a CSV file with translation information to review.'); ?>
         <?php echo xlt('It should be UTF-8 encoded with comma separated values.'); ?></p>
         <input type="file" name="language_file" id="language_file"></input>
     </div>
 
     <!-- Submit Button -->
-    <div class="form-group">
+    <div class="mb-3">
         <input type="submit" class="btn btn-primary" name="submit" value="<?php echo xla('Submit'); ?>">
     </div>
 

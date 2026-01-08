@@ -282,7 +282,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
     }
 
     $newPlan = function () {
-        $('#new_plan_container').append('<label>' + jsText(<?php echo xlj('Plan Name'); ?>) + ': </label>').append('<input class="col-4 form-control ml-1" id="new_plan_name" type="text" name="new_plan_name" />');
+        $('#new_plan_container').append('<label>' + jsText(<?php echo xlj('Plan Name'); ?>) + ': </label>').append('<input class="col-4 form-control ms-1" id="new_plan_name" type="text" name="new_plan_name" />');
 
         $("#cdr-rules_cont").removeClass("overlay");
     }
@@ -348,12 +348,12 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
     <div id="cdr_mappings_form-div" class="cdr-form">
         <div class="cdr-plans input-group">
             <label><?php echo xlt('Plan') . ':'; ?></label>
-            <select id="cdr-plans-select" name="cdr-plans-select" class="cdr-plans-select-class col-4 form-control ml-1 mb-2">
+            <select id="cdr-plans-select" name="cdr-plans-select" class="cdr-plans-select-class col-4 form-control ms-1 mb-2">
                 <option id="select_plan" value="select_plan">- <?php echo xlt('Select Plan'); ?> -</option>
                 <option id="divider" class="divider" value="divider" disabled></option>
                 <option id="add_new_plan" value="add_new_plan"><?php echo xlt('Add New Plan'); ?></option>
             </select>
-            <span class="ml-1">
+            <span class="ms-1">
                 <button title="<?php echo xla('Delete Plan'); ?>" id="delete_plan" class="btn btn-outline-danger delete_button mt-2" type="button" style="display: none;"></button>
             </span>
         </div>
