@@ -11,8 +11,6 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$globalsBag = OEGlobalsBag::getInstance(true);
-$globalsBag->set('already_autoloaded', true);
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
