@@ -1531,6 +1531,9 @@ function make_insurance() {
                                 </fieldset>
                             </form>
                         <?php }
+                        elseif ($GLOBALS['payment_gateway'] === 'Rainforest') {
+                            ?><div>RAINFOREST</div><?
+                        }
                         if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                             <form class="form" method="post" name="payment-form" id="payment-form">
                                 <fieldset>
