@@ -17,6 +17,7 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
@@ -27,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class HttpRestRouteHandler
 {
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     private readonly OEGlobalsBag $globalsBag;
 
@@ -168,6 +169,7 @@ class HttpRestRouteHandler
                 "GET" =>  $this->getGetRequestPermission($parsedRoute)
                 , "POST" => 'c'
                 , "PUT" => 'u'
+                , "PATCH" => 'u'
                 , "DELETE" => 'd'
                 , default => throw new HttpException(Response::HTTP_NOT_IMPLEMENTED, "Not implemented")
             };

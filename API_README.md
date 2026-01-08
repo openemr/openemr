@@ -395,4 +395,3 @@ OpenEMR is an open-source project. To contribute to this documentation:
 
 **Last Updated:** November 2025
 **License:** GPL v3
-

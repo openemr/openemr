@@ -164,7 +164,7 @@ class EligibilityData
                     LEFT JOIN users AS d on
                         p.providerID = d.id
                     INNER JOIN facility AS f on
-                        f.id = d.facility_id	
+                        f.id = d.facility_id
                     WHERE p.pid = ?
                     LIMIT 1";
 

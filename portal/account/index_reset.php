@@ -13,12 +13,13 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
 SessionUtil::portalSessionStart();
 
 $landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id'] ?? '');
@@ -42,7 +43,7 @@ use OpenEMR\Core\Header;
 
 $logit = new ApplicationTable();
 //exit if portal is turned off
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
@@ -117,7 +118,7 @@ $vars = [
     ,'isSaved' => $isSaved
 ];
 try {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Exception $exception) {
     (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     die(xlt("Failed to render twig file"));

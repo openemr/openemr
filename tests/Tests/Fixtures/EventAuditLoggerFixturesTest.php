@@ -58,7 +58,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         $GLOBALS['enable_auditlog'] = true;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
-        $this->eventAuditLogger = EventAuditLogger::instance();
+        $this->eventAuditLogger = EventAuditLogger::getInstance();
 
         // Install patient portal menu fixtures
         $this->installPatientPortalMenuFixtures();
@@ -148,6 +148,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         // Create a partial mock to capture recordLogItem calls
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // Expect recordLogItem to be called with the correct menu_item_id
@@ -195,6 +196,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         // Test dashboard lookup
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -228,6 +230,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
         // Test messages lookup
         $loggerMock2 = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         $loggerMock2->expects($this->once())
@@ -266,6 +269,7 @@ final class EventAuditLoggerFixturesTest extends TestCase
     {
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
+            ->disableOriginalConstructor()
             ->getMock();
 
         // When menu item is not found, array_search returns false

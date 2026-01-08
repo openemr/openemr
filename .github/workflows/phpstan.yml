@@ -69,15 +69,14 @@ jobs:
     # Generate baseline only if analyze step failed
     - name: PHPStan Baseline
       if: steps.phpstan-analyze.outcome == 'failure'
-      run: vendor/bin/phpstan --memory-limit=8G --generate-baseline=baseline.neon
+      run: composer run phpstan-baseline
       continue-on-error: true
-    # Upload baseline only if baseline.neon file exists
     - name: Upload PHPStan Baseline
-      if: hashFiles('baseline.neon') != ''
+      if: steps.phpstan-analyze.outcome == 'failure'
       uses: actions/upload-artifact@v6
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
-        path: baseline.neon
+        path: .phpstan/phpstan-*-baseline.neon
       continue-on-error: true
     - name: Check PHPStan Results
       if: steps.phpstan-analyze.outcome == 'failure'

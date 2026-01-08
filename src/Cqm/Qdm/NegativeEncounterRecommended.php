@@ -26,4 +26,3 @@ class NegativeEncounterRecommended extends EncounterRecommended
 
     public $_type = 'QDM::NegativeEncounterRecommended';
 }
-

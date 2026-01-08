@@ -164,11 +164,11 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
     /**
      * Get UUID - returns BINARY for database operations, STRING for API/display
-     * 
+     *
      * CRITICAL FIX: This method must return the raw binary value so that
      * ORDataObject::persist() can save it correctly to the BINARY(16) column.
      * The conversion to string happens in get_uuid_string() or toArray().
-     * 
+     *
      * @return string|null Binary UUID (16 bytes) or null
      */
     public function get_uuid(): ?string
@@ -181,7 +181,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     /**
      * Get UUID as human-readable string (36 characters with hyphens)
      * Use this for API responses, logging, and display purposes
-     * 
+     *
      * @return string|null UUID string like "550e8400-e29b-41d4-a716-446655440000"
      */
     public function get_uuid_string(): ?string
@@ -191,7 +191,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
     /**
      * Set UUID - accepts either binary (16 bytes) or string (36 chars)
-     * 
+     *
      * @param string|null $uuid Either binary (16 bytes) or string format
      * @return self
      */
@@ -210,7 +210,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
             error_log("Person::set_uuid() - Invalid UUID format: length=" . strlen($uuid));
             $this->uuid = null;
         }
-        
+
         $this->setIsObjectModified(true);
         return $this;
     }

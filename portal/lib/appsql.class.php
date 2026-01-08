@@ -15,6 +15,7 @@ require_once(__DIR__ . '/../../interface/globals.php');
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ApplicationTable
 {
@@ -51,7 +52,7 @@ class ApplicationTable
         }
 
         if ($log) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;
@@ -98,7 +99,7 @@ class ApplicationTable
         }
 
         if ($oelog) {
-            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $audit);
+            EventAuditLogger::getInstance()->auditSQLEvent($sql, $result, $audit);
         }
 
         if ($rtn == 'last') {
@@ -199,7 +200,8 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
-        $groupname = $GLOBALS['groupname'] ?? 'none';
+        $globalsBag = OEGlobalsBag::getInstance();
+        $groupname = $globalsBag->get('groupname') ?? 'none';
         $user = $_SESSION['portal_username'] ?? $_SESSION['authUser'] ?? null;
         $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
         if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser'])) {
@@ -366,6 +368,6 @@ class ApplicationTable
 
     public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
-        EventAuditLogger::instance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
+        EventAuditLogger::getInstance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
     }
 }// app query class

@@ -8,11 +8,12 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

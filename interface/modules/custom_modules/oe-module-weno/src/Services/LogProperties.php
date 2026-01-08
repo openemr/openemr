@@ -194,7 +194,7 @@ class LogProperties
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
                 error_log('Prescription download failed: ' . errorLogEscape($error));
-                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
+                EventAuditLogger::getInstance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
                 // if background task then return false
                 if ($tasked == 'background') {
                     $wenoLog->insertWenoLog("Sync Report", $error);
@@ -211,7 +211,7 @@ class LogProperties
             }
         } else {
             // yes record failures.
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ("$statusCode"));
+            EventAuditLogger::getInstance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ("$statusCode"));
             error_log("Prescription download failed: errorLogEscape($statusCode)");
             $wenoLog->insertWenoLog("Sync Report", "Failed http_error_$statusCode");
             return false;

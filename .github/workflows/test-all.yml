@@ -24,8 +24,31 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  check-skip:
+    runs-on: ubuntu-24.04
+    # Check for skip marker (see issue #10132)
+    if: github.event_name == 'pull_request'
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Check for Skip-Slow-Tests trailer
+      id: check
+      run: |
+        TRAILER=$(git log -1 --format='%(trailers:key=Skip-Slow-Tests,valueonly)')
+        echo "skip=${TRAILER:-false}" >> "$GITHUB_OUTPUT"
+    - name: Fail to indicate tests were skipped
+      if: steps.check.outputs.skip == 'true'
+      run: |
+        echo "::error::Slow tests skipped due to Skip-Slow-Tests trailer"
+        exit 1
   collect:
     runs-on: ubuntu-24.04
+    needs: check-skip
+    if: '!failure()'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6

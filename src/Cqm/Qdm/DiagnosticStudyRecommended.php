@@ -56,4 +56,3 @@ class DiagnosticStudyRecommended extends QDMBaseType
 
     public $_type = 'QDM::DiagnosticStudyRecommended';
 }
-

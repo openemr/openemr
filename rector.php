@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
+use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\ValueObject\PhpVersion;
@@ -56,7 +57,7 @@ return RectorConfig::configure()
     // but that doesn't seem to be working, so hard-coding for now.
     ->withPhpVersion(PhpVersion::PHP_82)
     ->withRules([
-        // add rules one at a time until we can replace them with a named ruleset
+        CallUserFuncArrayToVariadicRector::class,
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()

@@ -13,11 +13,12 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
 SessionUtil::portalSessionStart();
 
 if (
@@ -43,7 +44,7 @@ $action = $_REQUEST['action'] ?? '';
 
 if ($action == 'verify_email') {
     if (!empty($_SESSION['verifyPortalEmail']) && ($_SESSION['verifyPortalEmail'] === true)) {
-        if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+        if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf')) {
                 CsrfUtils::csrfNotVerified(true, true, false);
@@ -104,7 +105,7 @@ if ($action == 'userIsUnique') {
 if ($action == 'reset_password') {
     if (($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
         $rtn = 0;
-        if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+        if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf')) {
                 CsrfUtils::csrfNotVerified(true, true, false);
@@ -128,7 +129,7 @@ if ($action == 'reset_password') {
 
 if ($action == 'do_signup') {
     if (($_SESSION['register_silo_ajax'] ?? null) === true && ($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
-        if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+        if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder();
             if ($pidHolder == 0) {
                 (new SystemLogger())->error("account.php action do_signup failed because unable to collect pid from pid_holder");
@@ -159,7 +160,7 @@ if ($action == 'do_signup') {
 
 if ($action == 'new_insurance') {
     if (($_SESSION['register_silo_ajax'] ?? null) === true && ($_SESSION['register'] ?? null) === true && isset($_SESSION['pid'])) {
-        if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) {
+        if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder(true);
             if ($pidHolder == 0) {
                 (new SystemLogger())->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");

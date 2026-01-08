@@ -26,4 +26,3 @@ class NegativeProcedureOrder extends ProcedureOrder
 
     public $_type = 'QDM::NegativeProcedureOrder';
 }
-

@@ -20,10 +20,10 @@ $required_buttons = $this->required_butons;
 $download_format = $this->download_format;
 
 $ecqm_reporting_periods = sqlStatement("
-    SELECT option_id, title, is_default 
-    FROM list_options 
-    WHERE list_id = 'ecqm_reporting_period' 
-        AND activity = 1 
+    SELECT option_id, title, is_default
+    FROM list_options
+    WHERE list_id = 'ecqm_reporting_period'
+        AND activity = 1
     ORDER BY seq ASC
 ");
 

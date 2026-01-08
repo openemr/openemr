@@ -61,4 +61,3 @@ class DeviceRecommended extends QDMBaseType
 
     public $_type = 'QDM::DeviceRecommended';
 }
-

@@ -272,7 +272,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                 echo "<div class='form-row align-items-end mb-2'>";
                                 echo "  <div class='form-group col-md'>";
                                 echo "    <label>" . text($label) . "</label>";
-                                render_list_select("dscale[$fieldKey][code]", $yesNoList, call_user_func($get, $fieldKey), 'Select...');
+                                render_list_select("dscale[$fieldKey][code]", $yesNoList, $get($fieldKey), 'Select...');
                                 echo "  </div>";
                                 echo "</div>";
                             }

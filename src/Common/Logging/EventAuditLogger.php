@@ -16,15 +16,13 @@ namespace OpenEMR\Common\Logging;
 
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use Waryway\PhpTraitsLibrary\Singleton;
+use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger
 {
-    use Singleton;
-
-    private CryptoGen $cryptoGen;
-    private ?bool $breakglassUser = null;
+    use SingletonTrait;
 
     /**
      * Event action codes indicate whether the event is read/write.
@@ -37,17 +35,18 @@ class EventAuditLogger
     private const EVENT_ACTION_CODE_UPDATE = 'U';
     private const EVENT_ACTION_CODE_DELETE = 'D';
 
-    /**
-     * Get the CryptoGen instance, initializing it if necessary
-     *
-     * @return CryptoGen
-     */
-    protected function getCryptoGen(): CryptoGen
+    private ?bool $breakglassUser = null;
+
+    protected static function createInstance(): static
     {
-        if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
-        }
-        return $this->cryptoGen;
+        return new self(
+            new CryptoGen(),
+        );
+    }
+
+    public function __construct(
+        private readonly CryptoInterface $cryptoGen,
+    ) {
     }
 
     /**
@@ -765,12 +764,12 @@ MSG;
             $encrypt = 'No';
         } else {
             // encrypt the comments field
-            $comments =  $this->getCryptoGen()->encryptStandard($comments);
+            $comments =  $this->cryptoGen->encryptStandard($comments);
             if (!empty($api)) {
                 // api log
-                $api['request_url'] = (!empty($api['request_url'])) ? $this->getCryptoGen()->encryptStandard($api['request_url']) : '';
-                $api['request_body'] = (!empty($api['request_body'])) ? $this->getCryptoGen()->encryptStandard($api['request_body']) : '';
-                $api['response'] =  (!empty($api['response'])) ? $this->getCryptoGen()->encryptStandard($api['response']) : '';
+                $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
+                $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
+                $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
             }
             $encrypt = 'Yes';
         }
