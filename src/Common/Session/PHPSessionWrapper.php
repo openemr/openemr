@@ -9,7 +9,7 @@ class PHPSessionWrapper implements SessionWrapperInterface
 {
     public function __construct()
     {
-        $globalsBag = OEGlobalsBag::getInstance(true);
+        $globalsBag = OEGlobalsBag::getInstance();
         $webroot = $globalsBag->get('webroot');
         if ($webroot !== null && session_status() !== PHP_SESSION_ACTIVE) {
             SessionUtil::coreSessionStart($webroot, false);
