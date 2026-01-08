@@ -12,9 +12,6 @@
  */
 
 use OpenEMR\Services\Qrda\QrdaReportService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $status_title = array('0' => 'Pending', '1' => 'Completed', '2' => 'Secure Transfer', '3' => 'View');
 $status_details = array();
@@ -462,10 +459,10 @@ foreach ($this->status_details as $row_status) {
                                             <?php } ?>
                                         </td>
                                         <td style="padding: 5px;">
-                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $session->get('authUserID'); ?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
                                                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA'); ?>">
                                             </a>
-                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=qrda&recipient=self&param=<?php echo $session->get('authUserID'); ?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=qrda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
                                                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View QRDA'); ?>">
                                             </a>
                                         </td>

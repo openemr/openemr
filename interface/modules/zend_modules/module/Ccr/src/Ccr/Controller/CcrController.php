@@ -20,7 +20,6 @@ use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
 use Documents\Plugin\Documents;
 use Ccr\Model\CcrTable;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcrController extends AbstractActionController
 {
@@ -38,7 +37,6 @@ class CcrController extends AbstractActionController
     */
     public function indexAction()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $request = $this->getRequest();
         $action = $request->getPost('action');
         $am_id  = $request->getPost('am_id');
@@ -51,7 +49,7 @@ class CcrController extends AbstractActionController
         $time_start     = date('Y-m-d H:i:s');
         $docid          = $this->documentsController->uploadAction($request);
         $uploaded_documents     = [];
-        $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
+        $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
 
         if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
