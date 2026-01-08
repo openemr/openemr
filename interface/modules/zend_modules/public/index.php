@@ -18,7 +18,6 @@
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Auth\JWT\JwtService;
 
 $GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../../../vendor/autoload.php");
