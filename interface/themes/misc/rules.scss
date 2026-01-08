@@ -145,11 +145,11 @@ root {
 
 .field_err {
   &_marker {
-    background-color: var(--danger);
+    background-color: var(--bs-danger);
   }
 
   &_lbl_marker {
-    color: var(--danger);
+    color: var(--bs-danger);
   }
 }
 
