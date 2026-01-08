@@ -302,12 +302,18 @@ function sel_related(e) {
     } ?>', '_blank', 500, 400);
 }
 
+// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+ const params = new URLSearchParams({
+  transaction: <?php echo js_escape($transid); ?>,
+  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+ });
+ dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
  return false;
 }
+// AI-generated code end
 
 // Called by the deleteme.php window on a successful delete.
 function imdeleted() {
@@ -355,7 +361,7 @@ function submitme() {
 }
 
 <?php if (function_exists($form_id . '_javascript')) {
-    call_user_func($form_id . '_javascript');
+    ($form_id . '_javascript')();
 } ?>
 
 </script>
@@ -640,7 +646,7 @@ var skipArray = [
 // titleChanged();
 <?php
 if (function_exists($form_id . '_javascript_onload')) {
-    call_user_func($form_id . '_javascript_onload');
+    ($form_id . '_javascript_onload')();
 }
 ?>
 

@@ -25,7 +25,6 @@ use Documents\Plugin\Documents;
 use Laminas\Db\Adapter\AdapterInterface;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use Matrix\Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -36,7 +35,6 @@ use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Services\DemographicsRelatedPersonsService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Services\PatientNameHistoryService;
@@ -414,7 +412,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $ownerContact = $contactService->getForEntity($foreign_table, $foreign_id);
             if ($ownerContact) {
                 $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
-                $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+                $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
                 // For each relationship, get addresses and telecoms
                 foreach ($relatedPersonRecords as $record) {
                     // Get target person's contact record
@@ -1969,7 +1967,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
         $rows = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -2090,7 +2088,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " po.encounter_id IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " po.encounter_id IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -2206,7 +2204,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -3006,7 +3004,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $first_encounter = null;
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") ";
+            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") ";
             $first_encounter = reset($this->encounterFilterList);
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
@@ -3014,6 +3012,35 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return "<vitals_list></vitals_list>";
         }
 
+        $vitalIds = QueryUtils::fetchRecords("SELECT `form_id` FROM `forms` WHERE `form_name` = 'Vitals' AND `deleted` = 0 AND `pid` = ?", [$pid]);
+        $form_ids = array_column($vitalIds, 'form_id');
+        $bpMean = null;
+        $avg_systolic = null;
+        $avg_diastolic = null;
+        if (!empty($form_ids)) {
+            $bpMean = $this->calculateBPMeanForIds($form_ids);
+        }
+        // Compute Average Blood Pressures
+        $bp_avg_value = '';
+        try {
+            if (!empty($bpMean['components'])) {
+                foreach ($bpMean['components'] as $comp) {
+                    if (($comp['vitals_column'] ?? '') === 'bps') {
+                        $avg_systolic = (float)$comp['value'];
+                    }
+                    if (($comp['vitals_column'] ?? '') === 'bpd') {
+                        $avg_diastolic = (float)$comp['value'];
+                    }
+                }
+                if ($avg_systolic !== null && $avg_diastolic !== null) {
+                    // Mean Arterial Pressure (MAP) as the Average Blood Pressure value
+                    $bp_avg_value = round(($avg_systolic + (2.0 * $avg_diastolic)) / 3.0, 1);
+                }
+            }
+        } catch (\Throwable) {
+            // do not fail CCDA generation if calculation service errors
+            $bp_avg_value = '';
+        }
 
         $vitals = '';
         $query = "SELECT DATE(fe.date) AS date, fe.encounter, fv.id, fv.*
@@ -3025,7 +3052,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 ORDER BY fe.date DESC";
         $appTable = new ApplicationTable();
         $res = $appTable->zQuery($query, [$pid]);
-
 
         $vitals .= "<vitals_list>";
         foreach ($res as $row) {
@@ -3069,6 +3095,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             <extension_bpd>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bpd')) . "</extension_bpd>
             <bps>" . xmlEscape(($row['bps'] ?: '')) . "</bps>
             <extension_bps>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bps')) . "</extension_bps>
+            <bp_avg>" . xmlEscape(($bp_avg_value !== '' ? $bp_avg_value : '')) . "</bp_avg>
+            <extension_bp_avg>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'bp_avg')) . "</extension_bp_avg>
+            <avg_systolic>" . xmlEscape(($avg_systolic !== null ? round($avg_systolic, 1) : '')) . "</avg_systolic>
+            <extension_avg_systolic>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'avg_systolic')) . "</extension_avg_systolic>
+            <avg_diastolic>" . xmlEscape(($avg_diastolic !== null ? round($avg_diastolic, 1) : '')) . "</avg_diastolic>
+            <extension_avg_diastolic>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'avg_diastolic')) . "</extension_avg_diastolic>
+
             <head_circ>" . xmlEscape(((float)$row['head_circ'] ?: '')) . "</head_circ>
             <extension_head_circ>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['id'] . 'head_circ')) . "</extension_head_circ>
             <pulse>" . xmlEscape(((float)$row['pulse'] ?: '')) . "</pulse>
@@ -3101,6 +3134,47 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $vitals .= "</vitals_list>";
         return $vitals;
+    }
+
+    /**
+     * Borrowed from OpenEMR\Services\VitalsCalculatedService.
+     * TODO sjp need to refactor out to use the services
+     * @param array $ids
+     * @return array|null
+     */
+    public function calculateBPMeanForIds(array $ids): ?array
+    {
+        $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+        $sql = "SELECT AVG(CAST(bps AS DECIMAL(10,2))) as avg_systolic, AVG(CAST(bpd AS DECIMAL(10,2))) as avg_diastolic,
+                MIN(date) as date_start, MAX(date) as date_end
+                FROM form_vitals WHERE id IN ($placeholders)";
+
+        $test = [3, 4, 1235];
+        $records = QueryUtils::fetchRecords($sql, $ids);
+
+        if (empty($records) || $records[0]['avg_systolic'] === null || $records[0]['avg_diastolic'] === null) {
+            return null;
+        }
+
+        return [
+            'date_start' => $records[0]['date_start'],
+            'date_end' => $records[0]['date_end'],
+            'vitals' => $ids,
+            'components' => [
+                [
+                    'vitals_column' => 'bps',
+                    'value' => round($records[0]['avg_systolic'], 1),
+                    'value_unit' => 'mm[Hg]',
+                    'component_order' => 0
+                ],
+                [
+                    'vitals_column' => 'bpd',
+                    'value' => round($records[0]['avg_diastolic'], 1),
+                    'value_unit' => 'mm[Hg]',
+                    'component_order' => 1
+                ]
+            ]
+        ];
     }
 
     /*
@@ -3521,7 +3595,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                             ob_start();
                             if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
                                 include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
-                                call_user_func($formTables_details[2] . "_report", $pid, $encounter, 2, $value);
+                                ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
                             }
 
                             $res[0][$value] = ob_get_clean();
@@ -4176,7 +4250,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
 
         if (!empty($this->encounterFilterList)) {
-            $wherCon = " AND f.encounter IN (" . implode(",", array_map("intval", $this->encounterFilterList)) . ")";
+            $wherCon = " AND f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ")";
         } elseif ($this->searchFiltered) {
             // there are no encounters to filter on in the form and we are filtering the data...
             return "<planofcare></planofcare><goals></goals><health_concerns></health_concerns>";
@@ -4262,7 +4336,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <code_text>" . xmlEscape($row['codetext']) . "</code_text>
                 <date>" . xmlEscape($row['date']) . "</date>
                 <date_formatted>" . xmlEscape(str_replace("-", '', $row['date'])) . "</date_formatted>
-                <assessment>" . xmlEscape(xl('Encounter')) . "</assessment>
+                <assessment>" . xlx('Encounter') . "</assessment>
              </concern>";
             }
             // Goal (SNOMED CT or LOINC)
@@ -4549,7 +4623,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
 
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -4609,7 +4683,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($this->encounterFilterList)) {
                 return "<clinical_notes></clinical_notes>";
             } else {
-                $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+                $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
             }
         } elseif ($encounter) {
             $wherCon = " f.encounter = ? AND ";
@@ -4685,7 +4759,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list

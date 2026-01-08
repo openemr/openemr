@@ -10,7 +10,7 @@ feature must be explained and managed at the clinic location and at the clinic's
 
 * The follow text is printed on all print-to-faxes as addes security
 	"Please do not accept this prescription unless it was received via facsimile."
- 
+
 Manual steps:
 - edit includes/config.php and make sure the following are set:
 
@@ -20,6 +20,6 @@ $GLOBALS['oer_config']['prescriptions']['addendum_file'] = __DIR__ .
   "/../custom/rx_addendum.txt";
 
 "dr_signature.png" must exist in ./interface/pic/ to have the contents of rx_addendum.txt appear. Note that the pre-existing ability to
-add {userid} somewhere in the signature image filename still works. 
+add {userid} somewhere in the signature image filename still works.
 
-You may edit custom/rx_addendum.txt to be any additional addendum text. 
+You may edit custom/rx_addendum.txt to be any additional addendum text.

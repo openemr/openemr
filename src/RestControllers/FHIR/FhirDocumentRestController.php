@@ -19,6 +19,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
@@ -41,7 +42,7 @@ class FhirDocumentRestController
      */
     private $defaultMimeTypeHandler;
 
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     private readonly SessionInterface $session;
 

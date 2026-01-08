@@ -3537,7 +3537,8 @@ CREATE TABLE `lang_definitions` (
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
-  KEY `cons_id` (`cons_id`)
+  KEY `cons_id` (`cons_id`),
+  KEY `lang_cons` (`lang_id`, `cons_id`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -7453,146 +7454,141 @@ INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value
 
 -- Spouse/Partner
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','SPS','spouse',10,0,1),
-    ('related_person_relationship','HUSB','husband',20,0,1),
-    ('related_person_relationship','WIFE','wife',30,0,1),
-    ('related_person_relationship','DOMPART','domestic partner',40,0,1),
-    ('related_person_relationship','SIGOTHR','significant other',50,0,1),
-    ('related_person_relationship','FMRSPS','former spouse',60,0,1);
+    ('related_person_relationship','SPS','Spouse',10,0,1),
+    ('related_person_relationship','HUSB','Husband',20,0,1),
+    ('related_person_relationship','WIFE','Wife',30,0,1),
+    ('related_person_relationship','DOMPART','Domestic Partner',40,0,1),
+    ('related_person_relationship','SIGOTHR','Significant Other',50,0,1),
+    ('related_person_relationship','FMRSPS','Former Spouse',60,0,1);
 
 -- Parents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','PRN','parent',70,0,1),
-    ('related_person_relationship','NPRN','natural parent',80,0,1),
-    ('related_person_relationship','FTH','father',90,0,1),
-    ('related_person_relationship','NFTH','natural father',100,0,1),
-    ('related_person_relationship','MTH','mother',110,0,1),
-    ('related_person_relationship','NMTH','natural mother',120,0,1),
-    ('related_person_relationship','ADOPTF','adoptive father',130,0,1),
-    ('related_person_relationship','ADOPTM','adoptive mother',140,0,1),
-    ('related_person_relationship','ADOPTP','adoptive parent',150,0,1),
-    ('related_person_relationship','FTHFOST','foster father',160,0,1),
-    ('related_person_relationship','MTHFOST','foster mother',170,0,1),
-    ('related_person_relationship','PRNFOST','foster parent',180,0,1),
-    ('related_person_relationship','STPFTH','stepfather',190,0,1),
-    ('related_person_relationship','STPMTH','stepmother',200,0,1),
-    ('related_person_relationship','STPPRN','step parent',210,0,1),
-    ('related_person_relationship','GESTM','gestational mother',220,0,1);
+    ('related_person_relationship','PRN','Parent',70,0,1),
+    ('related_person_relationship','NPRN','Parent Natural',80,0,1),
+    ('related_person_relationship','FTH','Father',90,0,1),
+    ('related_person_relationship','NFTH','Father Natural',100,0,1),
+    ('related_person_relationship','MTH','Mother',110,0,1),
+    ('related_person_relationship','NMTH','Mother Natural',120,0,1),
+    ('related_person_relationship','ADOPTF','Father Adoptive',130,0,1),
+    ('related_person_relationship','ADOPTM','Mother Adoptive',140,0,1),
+    ('related_person_relationship','ADOPTP','Parent Adoptive',150,0,1),
+    ('related_person_relationship','FTHFOST','Father Foster',160,0,1),
+    ('related_person_relationship','MTHFOST','Mother Foster',170,0,1),
+    ('related_person_relationship','PRNFOST','Parent Foster',180,0,1),
+    ('related_person_relationship','STPFTH','Stepfather',190,0,1),
+    ('related_person_relationship','STPMTH','Stepmother',200,0,1),
+    ('related_person_relationship','STPPRN','Step Parent',210,0,1),
+    ('related_person_relationship','GESTM','Mother Gestational',220,0,1);
 
 -- Children
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','CHILD','Child',230,0,1),
-    ('related_person_relationship','NCHILD','natural child',240,0,1),
-    ('related_person_relationship','DAUC','daughter',250,0,1),
-    ('related_person_relationship','DAU','natural daughter',260,0,1),
-    ('related_person_relationship','SONC','son',270,0,1),
-    ('related_person_relationship','SON','natural son',280,0,1),
-    ('related_person_relationship','CHLDADOPT','Adopted Child',290,0,1),
-    ('related_person_relationship','DAUADOPT','Adopted Daughter',300,0,1),
-    ('related_person_relationship','SONADOPT','Adopted Son',310,0,1),
-    ('related_person_relationship','CHLDFOST','Foster Child',320,0,1),
-    ('related_person_relationship','DAUFOST','foster daughter',330,0,1),
-    ('related_person_relationship','SONFOST','foster son',340,0,1),
-    ('related_person_relationship','STPCHLD','step child',350,0,1),
-    ('related_person_relationship','STPDAU','stepdaughter',360,0,1),
-    ('related_person_relationship','STPSON','stepson',370,0,1);
+    ('related_person_relationship','NCHILD','Child Natural',240,0,1),
+    ('related_person_relationship','DAUC','Daughter',250,0,1),
+    ('related_person_relationship','DAU','Daughter Natural',260,0,1),
+    ('related_person_relationship','SONC','Son',270,0,1),
+    ('related_person_relationship','SON','Son Natural',280,0,1),
+    ('related_person_relationship','CHLDADOPT','Child Adopted',290,0,1),
+    ('related_person_relationship','DAUADOPT','Daughter Adopted',300,0,1),
+    ('related_person_relationship','SONADOPT','Son Adopted',310,0,1),
+    ('related_person_relationship','CHLDFOST','Child Foster',320,0,1),
+    ('related_person_relationship','DAUFOST','Daughter Foster',330,0,1),
+    ('related_person_relationship','SONFOST','Son Foster',340,0,1),
+    ('related_person_relationship','STPCHLD','Step Child',350,0,1),
+    ('related_person_relationship','STPDAU','Stepdaughter',360,0,1),
+    ('related_person_relationship','STPSON','Stepson',370,0,1);
 
 -- Siblings
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','SIB','sibling',380,0,1),
-    ('related_person_relationship','NSIB','natural sibling',390,0,1),
-    ('related_person_relationship','BRO','brother',400,0,1),
-    ('related_person_relationship','NBRO','natural brother',410,0,1),
-    ('related_person_relationship','SIS','sister',420,0,1),
-    ('related_person_relationship','NSIS','natural sister',430,0,1),
-    ('related_person_relationship','HBRO','half-brother',440,0,1),
-    ('related_person_relationship','HSIS','half-sister',450,0,1),
-    ('related_person_relationship','HSIB','half-sibling',460,0,1),
-    ('related_person_relationship','STPBRO','stepbrother',470,0,1),
-    ('related_person_relationship','STPSIS','stepsister',480,0,1),
-    ('related_person_relationship','STPSIB','step sibling',490,0,1),
-    ('related_person_relationship','TWIN','twin',500,0,1),
-    ('related_person_relationship','TWINBRO','twin brother',510,0,1),
-    ('related_person_relationship','TWINSIS','twin sister',520,0,1),
-    ('related_person_relationship','FTWIN','fraternal twin',530,0,1),
-    ('related_person_relationship','FTWINBRO','fraternal twin brother',540,0,1),
-    ('related_person_relationship','FTWINSIS','fraternal twin sister',550,0,1),
-    ('related_person_relationship','ITWIN','identical twin',560,0,1),
-    ('related_person_relationship','ITWINBRO','identical twin brother',570,0,1),
-    ('related_person_relationship','ITWINSIS','identical twin sister',580,0,1);
+    ('related_person_relationship','SIB','Sibling',380,0,1),
+    ('related_person_relationship','NSIB','Sibling Natural',390,0,1),
+    ('related_person_relationship','BRO','Brother',400,0,1),
+    ('related_person_relationship','NBRO','Brother Natural',410,0,1),
+    ('related_person_relationship','SIS','Sister',420,0,1),
+    ('related_person_relationship','NSIS','Sister Natural',430,0,1),
+    ('related_person_relationship','HBRO','Half-Brother',440,0,1),
+    ('related_person_relationship','HSIS','Half-Sister',450,0,1),
+    ('related_person_relationship','HSIB','Half-Sibling',460,0,1),
+    ('related_person_relationship','STPBRO','Stepbrother',470,0,1),
+    ('related_person_relationship','STPSIS','Stepsister',480,0,1),
+    ('related_person_relationship','STPSIB','Step Sibling',490,0,1),
+    ('related_person_relationship','TWIN','Twin',500,0,1),
+    ('related_person_relationship','TWINBRO','Brother Twin',510,0,1),
+    ('related_person_relationship','TWINSIS','Sister Twin',520,0,1),
+    ('related_person_relationship','FTWIN','Twin Fraternal',530,0,1),
+    ('related_person_relationship','FTWINBRO','Brother Twin Fraternal',540,0,1),
+    ('related_person_relationship','FTWINSIS','Sister Twin Fraternal',550,0,1),
+    ('related_person_relationship','ITWIN','Twin Identical',560,0,1),
+    ('related_person_relationship','ITWINBRO','Brother Identical Twin',570,0,1),
+    ('related_person_relationship','ITWINSIS','Sister Identical Twin',580,0,1);
 
 -- Grandparents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GRPRN','grandparent',590,0,1),
-    ('related_person_relationship','GRFTH','grandfather',600,0,1),
-    ('related_person_relationship','GRMTH','grandmother',610,0,1),
-    ('related_person_relationship','MGRPRN','maternal grandparent',620,0,1),
-    ('related_person_relationship','MGRFTH','maternal grandfather',630,0,1),
-    ('related_person_relationship','MGRMTH','maternal grandmother',640,0,1),
-    ('related_person_relationship','PGRPRN','paternal grandparent',650,0,1),
-    ('related_person_relationship','PGRFTH','paternal grandfather',660,0,1),
-    ('related_person_relationship','PGRMTH','paternal grandmother',670,0,1);
+    ('related_person_relationship','GRPRN','Grandparent',590,0,1),
+    ('related_person_relationship','GRFTH','Grandfather',600,0,1),
+    ('related_person_relationship','GRMTH','Grandmother',610,0,1),
+    ('related_person_relationship','MGRPRN','Grandparent Maternal',620,0,1),
+    ('related_person_relationship','MGRFTH','Grandfather Maternal',630,0,1),
+    ('related_person_relationship','MGRMTH','Grandmother Maternal',640,0,1),
+    ('related_person_relationship','PGRPRN','Grandparent Paternal',650,0,1),
+    ('related_person_relationship','PGRFTH','Grandfather Paternal',660,0,1),
+    ('related_person_relationship','PGRMTH','Grandmother Paternal',670,0,1);
 
 -- Great Grandparents
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GGRPRN','great grandparent',680,0,1),
-    ('related_person_relationship','GGRFTH','great grandfather',690,0,1),
-    ('related_person_relationship','GGRMTH','great grandmother',700,0,1),
-    ('related_person_relationship','MGGRPRN','maternal great-grandparent',710,0,1),
-    ('related_person_relationship','MGGRFTH','maternal great-grandfather',720,0,1),
-    ('related_person_relationship','MGGRMTH','maternal great-grandmother',730,0,1),
-    ('related_person_relationship','PGGRPRN','paternal great-grandparent',740,0,1),
-    ('related_person_relationship','PGGRFTH','paternal great-grandfather',750,0,1),
-    ('related_person_relationship','PGGRMTH','paternal great-grandmother',760,0,1);
+    ('related_person_relationship','GGRPRN','Great-Grandparent',680,0,1),
+    ('related_person_relationship','GGRFTH','Great-Grandfather',690,0,1),
+    ('related_person_relationship','GGRMTH','Great-Grandmother',700,0,1),
+    ('related_person_relationship','MGGRPRN','Great-Grandparent Maternal',710,0,1),
+    ('related_person_relationship','MGGRFTH','Great-Grandfather Maternal',720,0,1),
+    ('related_person_relationship','MGGRMTH','Great-Grandmother Maternal',730,0,1),
+    ('related_person_relationship','PGGRPRN','Great-Grandparent Paternal',740,0,1),
+    ('related_person_relationship','PGGRFTH','Great-Grandfather Paternal',750,0,1),
+    ('related_person_relationship','PGGRMTH','Great-Grandmother Paternal',760,0,1);
 
 -- Grandchildren
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','GRNDCHILD','grandchild',770,0,1),
-    ('related_person_relationship','GRNDDAU','granddaughter',780,0,1),
-    ('related_person_relationship','GRNDSON','grandson',790,0,1);
+    ('related_person_relationship','GRNDCHILD','Grandchild',770,0,1),
+    ('related_person_relationship','GRNDDAU','Granddaughter',780,0,1),
+    ('related_person_relationship','GRNDSON','Grandson',790,0,1);
 
 -- Extended Family
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
     ('related_person_relationship','FAMMEMB','Family Member',800,0,1),
-    ('related_person_relationship','EXT','extended family member',810,0,1),
-    ('related_person_relationship','AUNT','aunt',820,0,1),
-    ('related_person_relationship','MAUNT','maternal aunt',830,0,1),
-    ('related_person_relationship','PAUNT','paternal aunt',840,0,1),
-    ('related_person_relationship','UNCLE','uncle',850,0,1),
-    ('related_person_relationship','MUNCLE','maternal uncle',860,0,1),
-    ('related_person_relationship','PUNCLE','paternal uncle',870,0,1),
-    ('related_person_relationship','COUSN','maternal cousin',880,0,1),
-    ('related_person_relationship','MCOUSN','maternal cousin',890,0,1),
-    ('related_person_relationship','PCOUSN','paternal cousin',900,0,1),
-    ('related_person_relationship','NEPHEW','nephew',910,0,1),
-    ('related_person_relationship','NIECE','niece',920,0,1);
+    ('related_person_relationship','EXT','Family Member Extended',810,0,1),
+    ('related_person_relationship','AUNT','Aunt',820,0,1),
+    ('related_person_relationship','MAUNT','Aunt Maternal',830,0,1),
+    ('related_person_relationship','PAUNT','Aunt Paternal',840,0,1),
+    ('related_person_relationship','UNCLE','Uncle',850,0,1),
+    ('related_person_relationship','MUNCLE','Uncle Maternal',860,0,1),
+    ('related_person_relationship','PUNCLE','Uncle Paternal',870,0,1),
+    ('related_person_relationship','COUSN','Cousin Maternal',880,0,1),
+    ('related_person_relationship','MCOUSN','Cousin Maternal',890,0,1),
+    ('related_person_relationship','PCOUSN','Cousin Paternal',900,0,1),
+    ('related_person_relationship','NEPHEW','Nephew',910,0,1),
+    ('related_person_relationship','NIECE','Niece',920,0,1);
 
--- In-Laws
+ -- In-Laws
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','INLAW','inlaw',930,0,1),
-    ('related_person_relationship','PRNINLAW','parent in-law',940,0,1),
-    ('related_person_relationship','FTHINLAW','father-in-law',950,0,1),
-    ('related_person_relationship','MTHINLAW','mother-in-law',960,0,1),
-    ('related_person_relationship','SIBINLAW','sibling in-law',970,0,1),
-    ('related_person_relationship','BROINLAW','brother-in-law',980,0,1),
-    ('related_person_relationship','SISINLAW','sister-in-law',990,0,1),
-    ('related_person_relationship','DAUINLAW','daughter in-law',1000,0,1),
-    ('related_person_relationship','SONINLAW','son in-law',1010,0,1);
-
--- Legal/Guardian Relationships
--- INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
--- ('related_person_relationship','GUADLTM','guardian ad lidem',1030,0,1),
--- ('related_person_relationship','SPOWATT','special power of attorney',1050,0,1);
+    ('related_person_relationship','INLAW','Inlaw',930,0,1),
+    ('related_person_relationship','PRNINLAW','Parent-In-Law',940,0,1),
+    ('related_person_relationship','FTHINLAW','Father-In-Law',950,0,1),
+    ('related_person_relationship','MTHINLAW','Mother-In-Law',960,0,1),
+    ('related_person_relationship','SIBINLAW','Sibling-In-Law',970,0,1),
+    ('related_person_relationship','BROINLAW','Brother-In-Law',980,0,1),
+    ('related_person_relationship','SISINLAW','Sister-In-Law',990,0,1),
+    ('related_person_relationship','DAUINLAW','Daughter-In-Law',1000,0,1),
+    ('related_person_relationship','SONINLAW','Son-In-Law',1010,0,1);
 
 -- Other Relationships
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','FRND','unrelated friend',1070,0,1),
-    ('related_person_relationship','NBOR','neighbor',1080,0,1),
+    ('related_person_relationship','FRND','Friend Unrelated',1070,0,1),
+    ('related_person_relationship','NBOR','Neighbor',1080,0,1),
     ('related_person_relationship','ROOM','Roommate',1090,0,1);
 
 -- Self
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES
-    ('related_person_relationship','ONESELF','self',1100,0,1);
+    ('related_person_relationship','ONESELF','Self',1100,0,1);
 
 -- Related Person Roles
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','related_person_role','Related Person Role',0, 1, 0);
@@ -7634,7 +7630,7 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','telecom_uses','Telecom Uses',0, 1, 0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity)
 VALUES
-    ('telecom_uses','mobile','Mobile',10,0,1),    
+    ('telecom_uses','mobile','Mobile',10,0,1),
     ('telecom_uses','home','Home',20,0,1),
     ('telecom_uses','work','Work',30,0,1),
     ('telecom_uses','temp','Temp',40,0,1),
@@ -15084,48 +15080,48 @@ CREATE TABLE `form_history_sdoh`
     `encounter`                       int(10) UNSIGNED             DEFAULT NULL,
     `created_at`                      datetime            NOT NULL DEFAULT current_timestamp(),
     `updated_at`                      datetime            NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `created_by`                      int(10) UNSIGNED             DEFAULT NULL,
-    `updated_by`                      int(10) UNSIGNED             DEFAULT NULL,
+    `created_by`                      int(10) UNSIGNED             DEFAULT NULL COMMENT 'fk to users.id user that created this record',
+    `updated_by`                      int(10) UNSIGNED             DEFAULT NULL COMMENT 'fk to users.id user that last modified this record',
     `assessment_date`                 date                         DEFAULT NULL,
-    `screening_tool`                  varchar(255)                 DEFAULT NULL,
-    `assessor`                        varchar(255)                 DEFAULT NULL,
-    `food_insecurity`                 varchar(50)                  DEFAULT NULL,
+    `screening_tool`                  varchar(255)                 DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_instruments represents the assessment tool used to administer this assessment',
+    `assessor`                        varchar(255)                 DEFAULT NULL COMMENT 'fk to users.username the user that administered the assessment',
+    `food_insecurity`                 varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
     `food_insecurity_notes`           text,
-    `housing_instability`             varchar(50)                  DEFAULT NULL,
+    `housing_instability`             varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_housing_worry',
     `housing_instability_notes`       text,
-    `transportation_insecurity`       varchar(50)                  DEFAULT NULL,
+    `transportation_insecurity`       varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_transportation_barrier',
     `transportation_insecurity_notes` text,
-    `utilities_insecurity`            varchar(50)                  DEFAULT NULL,
+    `utilities_insecurity`            varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_utilities_shutoff',
     `utilities_insecurity_notes`      text,
-    `interpersonal_safety`            varchar(50)                  DEFAULT NULL,
+    `interpersonal_safety`            varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
     `interpersonal_safety_notes`      text,
-    `financial_strain`                varchar(50)                  DEFAULT NULL,
+    `financial_strain`                varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_financial_strain',
     `financial_strain_notes`          text,
-    `social_isolation`                varchar(50)                  DEFAULT NULL,
+    `social_isolation`                varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_social_isolation_freq',
     `social_isolation_notes`          text,
-    `childcare_needs`                 varchar(50)                  DEFAULT NULL,
+    `childcare_needs`                 varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_childcare_needs',
     `childcare_needs_notes`           text,
-    `digital_access`                  varchar(50)                  DEFAULT NULL,
+    `digital_access`                  varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_digital_access',
     `digital_access_notes`            text,
-    `employment_status`               varchar(50)                  DEFAULT NULL,
-    `education_level`                 varchar(50)                  DEFAULT NULL,
-    `caregiver_status`                varchar(20)                  DEFAULT NULL,
-    `veteran_status`                  varchar(20)                  DEFAULT NULL,
-    `pregnancy_status`                varchar(20)                  DEFAULT NULL,
-    `pregnancy_edd`                   date                         DEFAULT NULL,
-    `pregnancy_intent`                VARCHAR(32)                  DEFAULT NULL COMMENT 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)',
-    `postpartum_status`               varchar(20)                  DEFAULT NULL,
-    `postpartum_end`                  date                         DEFAULT NULL,
+    `employment_status`               varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
+    `education_level`                 varchar(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_education_level',
+    `caregiver_status`                varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
+    `veteran_status`                  varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=sdoh_food_insecurity_risk',
+    `pregnancy_status`                varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=pregnancy_status',
+    `pregnancy_edd`                   date                         DEFAULT NULL COMMENT 'Estimated due date for pregnancy',
+    `pregnancy_intent`                VARCHAR(32)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=pregnancy_intent Pregnancy Intent Over Next Year (codes from PregnancyIntent list)',
+    `postpartum_status`               varchar(20)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=postpartum_status',
+    `postpartum_end`                  date                         DEFAULT NULL COMMENT 'PostPartum end date',
     `goals`                           text,
     `interventions`                   text,
     `instrument_score`                INT                          DEFAULT NULL,
     `positive_domain_count`           INT                          DEFAULT NULL,
     `declined_flag`                   TINYINT(1)                   DEFAULT NULL,
-    `disability_status`               VARCHAR(50)                  DEFAULT NULL,
+    `disability_status`               VARCHAR(50)                  DEFAULT NULL COMMENT 'fk to list_options.option_id WHERE list_id=disability_status',
     `disability_status_notes`         TEXT,
     `disability_scale`                TEXT,
-    `hunger_q1`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88122-7 response',
-    `hunger_q2`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88123-5 response',
+    `hunger_q1`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88122-7 response' COMMENT 'fk to list_options.option_id WHERE list_id=vital_signs_answers',
+    `hunger_q2`                       VARCHAR(50)                  DEFAULT NULL COMMENT 'LOINC 88123-5 response'COMMENT 'fk to list_options.option_id WHERE list_id=vital_signs_answers',
     `hunger_score`                    INT                          DEFAULT NULL COMMENT 'Calculated HVS score',
     PRIMARY KEY (`id`),
     KEY `uuid_idx` (`uuid`),
@@ -15175,17 +15171,17 @@ DROP TABLE IF EXISTS `patient_treatment_intervention_preferences`;
 CREATE TABLE `patient_treatment_intervention_preferences` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `uuid` binary(16) DEFAULT NULL,
-    `patient_id` int(11) NOT NULL,
+    `patient_id` int(11) NOT NULL COMMENT 'fk to patient_data.pid',
     `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
     `observation_code_text` varchar(255) DEFAULT NULL,
     `value_type` enum('coded','text','boolean') DEFAULT 'coded',
-    `value_code` varchar(50) DEFAULT NULL,
-    `value_code_system` varchar(255) DEFAULT NULL,
-    `value_display` varchar(255) DEFAULT NULL,
+    `value_code` varchar(50) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_code',
+    `value_code_system` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_system',
+    `value_display` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_display',
     `value_text` text,
     `value_boolean` tinyint(1) DEFAULT NULL,
     `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `status` varchar(20) DEFAULT 'final',
+    `status` varchar(20) DEFAULT 'final' COMMENT 'valid options are final,amended,preliminary',
     `note` text,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unq_uuid` (`uuid`),
@@ -15203,20 +15199,20 @@ CREATE TABLE `patient_care_experience_preferences` (
     `observation_code` varchar(50) NOT NULL COMMENT 'LOINC code',
     `observation_code_text` varchar(255) DEFAULT NULL,
     `value_type` enum('coded','text','boolean') DEFAULT 'coded',
-    `value_code` varchar(50) DEFAULT NULL,
-    `value_code_system` varchar(255) DEFAULT NULL,
-    `value_display` varchar(255) DEFAULT NULL,
+    `value_code` varchar(50) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_code',
+    `value_code_system` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_system',
+    `value_display` varchar(255) DEFAULT NULL COMMENT 'fk to preference_value_sets.answer_display',
     `value_text` text,
     `value_boolean` tinyint(1) DEFAULT NULL,
     `effective_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `status` varchar(20) DEFAULT 'final',
+    `status` varchar(20) DEFAULT 'final' COMMENT 'valid options are final,amended,preliminary',
     `note` text,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unq_uuid` (`uuid`),
     KEY `patient_id` (`patient_id`),
     KEY `observation_code` (`observation_code`),
     KEY `status` (`status`)
-    ) ENGINE=InnoDB;
+) ENGINE=InnoDB;
 
     -- ------------------------------------- Parent lists under `lists`--------------------------------------------------------------------
     INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`)

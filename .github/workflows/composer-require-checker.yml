@@ -72,7 +72,7 @@ jobs:
 
     - name: "Restore vendor artifacts"
       id: vendor-cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -94,7 +94,7 @@ jobs:
     - name: "Restore composer downloads"
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -108,14 +108,14 @@ jobs:
 
     - name: "Save composer cache"
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         path: ${{ steps.composer-cache.outputs.dir }}
 
     - name: "Save vendor artifacts"
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         key: ${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         path: vendor/

@@ -268,11 +268,13 @@ class QueryUtils
 
     public static function generateId()
     {
+        // @phpstan-ignore openemr.deprecatedSqlFunction
         return \generate_id();
     }
 
     public static function ediGenerateId()
     {
+        // @phpstan-ignore openemr.deprecatedSqlFunction
         return \edi_generate_id();
     }
 

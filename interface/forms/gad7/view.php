@@ -99,8 +99,8 @@ return ( conf );
     </select>
 <script>
      // set the default to the previous value - so it is displayed in the menue box
-    document.my_form.nervous_score.options[<?php echo text($obj['nervous_score']); ?>].defaultSelected=true;
-    var i = <?php echo text($obj['nervous_score']); ?> ; //the value from last time
+    document.my_form.nervous_score.options[<?php echo js_escape($obj['nervous_score']); ?>].defaultSelected=true;
+    var i = <?php echo js_escape($obj['nervous_score']); ?> ; //the value from last time
     gad7_score += i;
     all_scores[0] = i;
 </script>
@@ -119,7 +119,7 @@ return ( conf );
  </select>
 <script>
      // set the default to the previous value - so it is displayed in the menue box
-     var i = <?php echo text($obj['control_worry_score']); ?>; //the value from last time
+     var i = <?php echo js_escape($obj['control_worry_score']); ?>; //the value from last time
    document.my_form.control_worry_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[1] = i;
@@ -139,7 +139,7 @@ return ( conf );
     </select>
        <script>
      // set the previous value to the default - so it is displayed in the menue box
-      var i = <?php echo text($obj['worry_score']); ?> ; //the value from last time
+      var i = <?php echo js_escape($obj['worry_score']); ?> ; //the value from last time
     document.my_form.worry_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[2] = i;
@@ -158,7 +158,7 @@ return ( conf );
  </select>
 <script>
      // set the previous value to the default - so it is displayed in the menue box
-      var i = <?php echo text($obj['relax_score']); ?> ; //the value from last time
+      var i = <?php echo js_escape($obj['relax_score']); ?> ; //the value from last time
     document.my_form.relax_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[3] = i;
@@ -177,7 +177,7 @@ return ( conf );
     </select>
 <script>
      // set the previous value to the default - so it is displayed in the menue box
-     var i = <?php echo text($obj['restless_score']); ?> ; //the value from last time
+     var i = <?php echo js_escape($obj['restless_score']); ?> ; //the value from last time
     document.my_form.restless_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[4] = i;
@@ -196,7 +196,7 @@ return ( conf );
     </select>
 <script>
      // set the previous value to the default - so it is displayed in the menue box
-       var i = <?php echo text($obj['irritable_score']); ?> ; //the value from last time
+       var i = <?php echo js_escape($obj['irritable_score']); ?> ; //the value from last time
     document.my_form.irritable_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[5] = i;
@@ -215,7 +215,7 @@ return ( conf );
     </select>
 <script>
      // set the previous value to the default - so it is displayed in the menue box
-     var i = <?php echo text($obj['fear_score']);?> ; //the value from last time
+     var i = <?php echo js_escape($obj['fear_score']);?> ; //the value from last time
     document.my_form.fear_score.options[i].defaultSelected=true;
     gad7_score += i;
     all_scores[6] = i;
@@ -244,7 +244,7 @@ return ( conf );
   <SCRIPT>
 // only display the final question if the score is > 0
 // pass the function the answer previously entered onto the form
-manage_question_8 ("<?php echo text($obj["difficulty"]); ?>"); //do we need q8
+manage_question_8 (<?php echo js_escape($obj["difficulty"]); ?>); //do we need q8
 update_score ("undef",gad7_score); //display total from last time
  </script>
  <br>

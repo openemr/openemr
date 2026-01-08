@@ -365,16 +365,16 @@ function ippfReceiptDetailLine(
     echo "  <td>" . text($code) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
     echo "  <td class='text-center'>" . ($isadjust ? '' : $quantity) . "</td>\n";
-    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false, true)) . "</td>\n";
+    echo "  <td class='text-right'>" . text(oeFormatMoney($price, false)) . "</td>\n";
 
     if (!empty($GLOBALS['gbl_checkout_charges'])) {
-        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false, true)) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false)) . "</td>\n";
     }
 
     if (!$TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
@@ -386,13 +386,13 @@ function ippfReceiptDetailLine(
     // Adjustment and its description.
     if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
         echo "  <td class='text-right'>" . text($memo) . "</td>\n";
-        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false, true)) . "</td>\n";
+        echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false)) . "</td>\n";
     }
 
     if ($TAXES_AFTER_ADJUSTMENT) {
         // Write tax amounts.
         foreach ($aTaxes as $tax) {
-            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false, true)) . "</td>\n";
+            echo "  <td class='text-right'>" . text(oeFormatMoney($tax, false)) . "</td>\n";
         }
     }
 
@@ -563,11 +563,17 @@ function generate_receipt($patient_id, $encounter = 0): void
         printme('*');
     }
 
+    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Process click on Delete button.
     function deleteme() {
-        dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+        const params = new URLSearchParams({
+            billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        });
+        dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
         return false;
     }
+    // AI-generated code end
 
     // Called by the deleteme.php window on a successful delete.
     function imdeleted() {
@@ -576,18 +582,24 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     var voidaction  = ''; // saves action argument from voidme()
 
+    // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Submit the form to complete a void operation.
     function voidwrap(form_reason, form_notes) {
         top.restoreSession();
-        document.location.href = 'pos_checkout.php?ptid=' + <?php echo js_url($patient_id); ?> +
-          '&' + encodeURIComponent(voidaction) + '=' + <?php echo js_url($encounter); ?> +
-          '&form_checksum=' + <?php echo js_url($current_checksum); ?> +
-          '&form_reason=' + encodeURIComponent(form_reason) +
-          '&form_notes='  + encodeURIComponent(form_notes) +
-          '<?php if (!empty($_GET['framed'])) {
-                echo '&framed=1';} ?>';
+        const params = new URLSearchParams({
+            ptid: <?php echo js_escape($patient_id); ?>,
+            form_checksum: <?php echo js_escape($current_checksum); ?>,
+            form_reason: form_reason,
+            form_notes: form_notes
+        });
+        params.append(voidaction, <?php echo js_escape($encounter); ?>);
+        <?php if (!empty($_GET['framed'])) { ?>
+        params.append('framed', '1');
+        <?php } ?>
+        document.location.href = 'pos_checkout.php?' + params.toString();
         return false;
     }
+    // AI-generated code end
 
     // Process click on a void option.
     // action can be 'regen', 'void' or 'voidall'.

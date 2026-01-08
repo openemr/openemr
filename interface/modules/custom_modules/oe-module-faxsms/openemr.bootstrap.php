@@ -29,8 +29,7 @@ use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 // some flags
@@ -53,7 +52,7 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
  */
 
 /**
- * @global EventDispatcher $dispatcher Injected by the OpenEMR module loader;
+ * @global EventDispatcherInterface $dispatcher Injected by the OpenEMR module loader;
  */
 $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
@@ -62,10 +61,10 @@ $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 // The Globals are set to the module services enabled status in module Setup.
 // Be aware that the Globals are set to the service vendor identifier(int) values in the module setup.
 // So not true/false booleans.
-$GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] : false;
-$GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] : false;
-$GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] : false;
-$GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] : false;
+$GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] ?? null : false;
+$GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] ?? null : false;
+$GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] ?? null : false;
+$GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] ?? null : false;
 // Set local variables for use in this bootstrap.
 $allowFax = $GLOBALS['oefax_enable_fax'];
 $allowSMS = $GLOBALS['oefax_enable_sms'];
@@ -124,7 +123,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = $fax_label;
+    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : ($allowFax == '6' ? xlt("SignalWire Fax") : xlt("RingCentral FAX"));
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "demo"];

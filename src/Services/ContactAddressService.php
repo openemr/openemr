@@ -164,6 +164,7 @@ class ContactAddressService extends BaseService
                 }
 
                 // Set additional fields
+                $contactAddress->set_status($address['status'] ?? '');
                 $contactAddress->set_notes($address['notes'] ?? '');
                 $contactAddress->set_priority($address['priority'] ?? 0);
                 $contactAddress->set_inactivated_reason($address['inactivated_reason'] ?? '');

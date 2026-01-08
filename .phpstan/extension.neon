@@ -3,6 +3,9 @@
 # This extension registers custom rules to enforce modern database patterns:
 # 1. Forbid laminas-db usage outside zend_modules
 # 2. Forbid legacy sql.inc.php functions in src/ directory
+# 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
+# 4. Forbid @covers annotations on test classes and methods
+# 5. Forbid raw curl_* functions in favor of GuzzleHttp
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -17,5 +20,20 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenFunctionsRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenMethodsRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenGlobalsAccessRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\NoCoversAnnotationRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\NoCoversAnnotationOnClassRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenCurlFunctionsRule
   tags:
   - phpstan.rules.rule

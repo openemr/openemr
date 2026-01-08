@@ -258,7 +258,7 @@ class SLEOB
 
     // Make this invoice re-billable, new style.
     //
-    public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
+    public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0): void
     {
         if ($crossover == 1) {
             //if claim forwarded setting a new status
@@ -290,7 +290,5 @@ class SLEOB
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
             }
         }
-
-        return xl("Encounter ") . $encounter_id . xl(" is ready for re-billing.");
     }
 }

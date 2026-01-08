@@ -10,15 +10,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
@@ -377,11 +381,17 @@ function renderEditorHtml($template_id, $content): void
                     <ul class='list-group list-group-flush pl-1 mb-5'>
                         <?php
                         foreach ($lists as $list) {
-                            echo '<input class="list-group-item p-1" value="' . attr($list) . '">';
+                            // list item is both clickable and draggable
+                            echo '<li class="list-group-item p-1 directive-item"'
+                                . ' draggable="true"'
+                                . ' data-directive="' . attr($list) . '">'
+                                . text($list)
+                                . '</li>';
                         }
                         ?>
                     </ul>
                 </div>
+
             </div>
         </div>
     </body>
@@ -420,8 +430,98 @@ function renderEditorHtml($template_id, $content): void
         });
     </script>
     <script>
+        // … your existing JS (dialogs, Summernote init, etc.) …
+
+        function initDirectiveHelpers() {
+            var $template = $('#templateContent');
+
+            if (!$template.length) {
+                return;
+            }
+
+            /**
+             * Insert a directive string at the current caret position.
+             * Uses Summernote if active, else falls back to plain textarea insertion.
+             */
+            function insertDirective(text) {
+                if (!text) {
+                    return;
+                }
+
+                // Summernote active: use its editor API
+                if ($template.next('.note-editor').length && $template.data('summernote')) {
+                    $template.summernote('focus');
+                    $template.summernote('editor.insertText', text);
+                    return;
+                }
+
+                // Fallback: plain textarea
+                var el = $template.get(0);
+                if (!el) {
+                    return;
+                }
+
+                var start = el.selectionStart || 0;
+                var end = el.selectionEnd || 0;
+                var value = el.value || '';
+
+                el.value = value.substring(0, start) + text + value.substring(end);
+                var caret = start + text.length;
+                el.selectionStart = el.selectionEnd = caret;
+                el.focus();
+            }
+
+            // CLICK: insert on click for accessibility / speed
+            $(document).on('click', '.directive-item', function (e) {
+                e.preventDefault();
+                var text = $(this).data('directive') || '';
+                insertDirective(text);
+            });
+
+            // DRAG: start dragging directive text
+            $(document).on('dragstart', '.directive-item', function (e) {
+                var text = $(this).data('directive') || '';
+                if (!text) {
+                    return;
+                }
+
+                var dt = e.originalEvent.dataTransfer;
+                dt.setData('text/plain', text);
+                dt.effectAllowed = 'copy';
+            });
+
+            // Fallback: drop directly on the underlying textarea (if visible)
+            $template.on('dragover', function (e) {
+                e.preventDefault();
+            }).on('drop', function (e) {
+                e.preventDefault();
+                var dt = e.originalEvent.dataTransfer;
+                var text = dt.getData('text/plain');
+                insertDirective(text);
+            });
+
+            // Summernote editor surface: accept drops on the content area
+            $template.on('summernote.init', function () {
+                var $editable = $(this).next('.note-editor').find('.note-editable');
+
+                $editable.on('dragover', function (e) {
+                    e.preventDefault();
+                }).on('drop', function (e) {
+                    e.preventDefault();
+                    var dt = e.originalEvent.dataTransfer;
+                    var text = dt.getData('text/plain');
+                    insertDirective(text);
+                });
+            });
+        }
+
+        $(function () {
+            // Ensure this runs after Summernote init code
+            initDirectiveHelpers();
+        });
     </script>
-    </html>
+
+</html>
 <?php }
 
 /**
@@ -429,7 +529,7 @@ function renderEditorHtml($template_id, $content): void
  */
 function renderProfileHtml(): void
 {
-    global $templateService;
+    global $templateService, $globalsBag;
 
     $category_list = $templateService->fetchDefaultCategories();
     $profile_list = $templateService->fetchDefaultProfiles();
@@ -438,11 +538,11 @@ function renderProfileHtml(): void
     <html>
     <head>
         <?php
-        if (empty($GLOBALS['openemr_version'] ?? null)) {
+        if (empty($globalsBag->get('openemr_version'))) {
             Header::setupHeader(['opener', 'sortablejs']);
         } else {
             Header::setupHeader(['opener']); ?>
-            <script src="<?php echo $GLOBALS['web_root']; ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+            <script src="<?php echo $globalsBag->getString('web_root'); ?>/portal/public/assets/sortablejs/Sortable.min.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>"></script>
         <?php } ?>
     </head>
     <style>

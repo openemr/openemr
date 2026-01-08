@@ -108,16 +108,15 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempFile = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
-            !file_exists($purifyTempFile) &&
-            !is_dir($purifyTempFile)
+            !is_dir($purifyTempDir)
         ) {
-            if (!mkdir($purifyTempFile)) {
-                (new SystemLogger())->error("Could not create directory ", [$purifyTempFile]);
+            if (!mkdir($purifyTempDir, 0700, true)) {
+                (new SystemLogger())->error("Could not create directory ", [$purifyTempDir]);
             }
         }
-        $config->set('Cache.SerializerPath', $purifyTempFile);
+        $config->set('Cache.SerializerPath', $purifyTempDir);
         $config->set('Core.Encoding', 'UTF-8');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
@@ -197,7 +196,7 @@ class DocumentTemplateRender
                     $formname = '';
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
-                $content_fetch = $this->templateService->fetchTemplate($form_id, $formname)['template_content'];
+                $content_fetch = $this->templateService->fetchTemplate($form_id)['template_content'];
                 $content = 'data:application/pdf;base64,' . base64_encode((string) $content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";

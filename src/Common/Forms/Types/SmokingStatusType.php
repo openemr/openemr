@@ -53,21 +53,21 @@ class SmokingStatusType implements IOptionFormType {
             " size='$fldlength'" .
             " class='under form-control'" .
             " value='$smoking_status_title' /></td>";
-        $printView .= "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars((string) xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
+        $printView .= "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
 
         $printView .= "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             $printView .= " checked";
         }
 
-        $printView .= "/>" . htmlspecialchars((string) xl('Current'), ENT_NOQUOTES) . "&nbsp;</td>";
+        $printView .= "/>" . htmlspecialchars(xl('Current'), ENT_NOQUOTES) . "&nbsp;</td>";
 
         $printView .= "<td><input type='radio' class='form-check-inline'";
         if ($restype == "current" . $field_id) {
             $printView .= " checked";
         }
 
-        $printView .= "/>" . htmlspecialchars((string) xl('Quit'), ENT_NOQUOTES) . "&nbsp;</td>";
+        $printView .= "/>" . htmlspecialchars(xl('Quit'), ENT_NOQUOTES) . "&nbsp;</td>";
 
         $printView .= "<td><input type='text' size='6'" .
             " value='$resdate'" .
@@ -79,14 +79,14 @@ class SmokingStatusType implements IOptionFormType {
             $printView .= " checked";
         }
 
-        $printView .= " />" . htmlspecialchars((string) xl('Never'), ENT_NOQUOTES) . "</td>";
+        $printView .= " />" . htmlspecialchars(xl('Never'), ENT_NOQUOTES) . "</td>";
 
         $printView .= "<td><input type='radio' class='form-check-inline'";
         if ($restype == "not_applicable" . $field_id) {
             $printView .= " checked";
         }
 
-        $printView .= " />" . htmlspecialchars((string) xl('N/A'), ENT_NOQUOTES) . "&nbsp;</td>";
+        $printView .= " />" . htmlspecialchars(xl('N/A'), ENT_NOQUOTES) . "&nbsp;</td>";
         $printView .= "<td><input type='text' size='6'" .
             " value='" . attr($smokingQuantity) . "' class='under form-control'" .
             " /></td>";
@@ -196,7 +196,7 @@ class SmokingStatusType implements IOptionFormType {
             $s .= "<td class='text align-top'>" . htmlspecialchars((string) $resnote, ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
         }
         if (!empty($res)) {
-            $s .= "<td class='text align-top'><strong>" . htmlspecialchars((string) xl('Status'), ENT_NOQUOTES) . "</strong>:&nbsp;" . htmlspecialchars((string) $res, ENT_NOQUOTES) . "&nbsp;</td>";
+            $s .= "<td class='text align-top'><strong>" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . "</strong>:&nbsp;" . htmlspecialchars($res, ENT_NOQUOTES) . "&nbsp;</td>";
         }
 
         if ($restype == "quit" . $field_id) {
@@ -244,7 +244,7 @@ class SmokingStatusType implements IOptionFormType {
 
         $field_id_esc = htmlspecialchars((string) $field_id, ENT_QUOTES);
         // Added 5-09 by BM - Translate description if applicable
-        $description = (isset($frow['description']) ? htmlspecialchars((string) xl_layout_label($frow['description']), ENT_QUOTES) : '');
+        $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $disabled = LayoutsUtils::isOption($edit_options, '0') === false ? '' : 'disabled';
 
         $lbfchange = (

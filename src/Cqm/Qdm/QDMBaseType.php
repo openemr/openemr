@@ -36,4 +36,3 @@ class QDMBaseType extends \OpenEMR\Cqm\Qdm\BaseTypes\DataElement
 
     public $_type = 'QDM::QDMBaseType';
 }
-

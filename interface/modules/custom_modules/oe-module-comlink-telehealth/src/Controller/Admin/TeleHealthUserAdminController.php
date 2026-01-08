@@ -21,7 +21,7 @@ use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserEditRenderEvent;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 class TeleHealthUserAdminController
@@ -30,7 +30,7 @@ class TeleHealthUserAdminController
     {
     }
 
-    public function subscribeToEvents(EventDispatcher $dispatcher)
+    public function subscribeToEvents(EventDispatcherInterface $dispatcher)
     {
 
         $dispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, $this->saveTelehealthUserAction(...));

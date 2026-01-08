@@ -42,9 +42,10 @@ class MaviqClient
         }
 
         // initialize a new curl object
+        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
         $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         switch (strtoupper((string) $method)) {
             case "GET":

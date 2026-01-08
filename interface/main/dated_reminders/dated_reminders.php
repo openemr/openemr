@@ -108,7 +108,11 @@ function openAddScreen(id){
     dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
   } else {
     top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>', '_drAdd', 700, 500);
+    const params = new URLSearchParams({
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+        mID: id
+    });
+    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
   }
 }
 
@@ -134,7 +138,7 @@ function updateme(id){
     },
     function(data) {
     if (data == 'error') {
-      alert("<?php echo xls('Error Removing Message') ?>");
+      alert(<?php echo xlj('Error Removing Message') ?>);
     } else {
       if (id > 0) {
         $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');

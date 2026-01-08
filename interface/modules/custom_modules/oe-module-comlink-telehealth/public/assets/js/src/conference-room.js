@@ -559,7 +559,11 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
 
     this.getTelehealthLaunchData = function(data)
     {
-        var scriptLocation = this.getRemoteScriptLocation() + '?action=get_telehealth_launch_data&eid=' + encodeURIComponent(data.pc_eid);
+        const params = new URLSearchParams({
+            action: 'get_telehealth_launch_data',
+            eid: data.pc_eid
+        });
+        const scriptLocation = this.getRemoteScriptLocation() + '?' + params;
         window.top.restoreSession();
         return window.fetch(scriptLocation, {redirect: "manual"});
     };
@@ -1026,9 +1030,13 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.updateLocalParticipantList = function() {
-        let eid = conf.telehealthSessionData.pc_eid;
+        const eid = conf.telehealthSessionData.pc_eid;
+        const params = new URLSearchParams({
+            action: 'get_participant_list',
+            pc_eid: eid
+        });
         window.top.restoreSession();
-        window.fetch(conf.getRemoteScriptLocation() + '?action=get_participant_list&pc_eid=' + encodeURIComponent(eid), {redirect: "manual"})
+        window.fetch(conf.getRemoteScriptLocation() + '?' + params, {redirect: "manual"})
             .then((request) => {
                 if (request.ok) {
                     return request.json();
@@ -1043,10 +1051,14 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     this.updateConferenceRoomSession = function() {
-        let appt = conf.callerSettings.appointment || {};
-        let pc_eid = appt.eid || {};
+        const appt = conf.callerSettings.appointment || {};
+        const pc_eid = appt.eid || {};
+        const params = new URLSearchParams({
+            action: 'conference_session_update',
+            pc_eid: pc_eid
+        });
         window.top.restoreSession();
-        window.fetch(conf.getRemoteScriptLocation() + '?action=conference_session_update&pc_eid=' + encodeURIComponent(pc_eid), {redirect: "manual"})
+        window.fetch(conf.getRemoteScriptLocation() + '?' + params, {redirect: "manual"})
             .then((request) => {
                 if (request.ok) {
                     return request.json();

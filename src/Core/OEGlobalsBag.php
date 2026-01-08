@@ -1,51 +1,75 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ *
+ * @link      http://www.open-emr.org
+ *
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Core;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Traversable;
 
-class OEGlobalsBag extends ParameterBag implements \IteratorAggregate, \Countable
+use function array_key_exists;
+
+class OEGlobalsBag extends ParameterBag
 {
-    private static $instance = null;
+    private static ?OEGlobalsBag $instance = null;
 
-    public static function getInstance()
+    /**
+     * Get the singleton instance of OEGlobalsBag
+     *
+     * @return OEGlobalsBag
+     */
+    public static function getInstance(): OEGlobalsBag
     {
-        if (self::$instance === null) {
-            self::$instance = new OEGlobalsBag();
+        if (null === self::$instance) {
+            self::$instance = new OEGlobalsBag($GLOBALS);
         }
+
         return self::$instance;
     }
 
-    public function __construct(array $parameters = [], private readonly bool $compatabilityMode = false)
+    /**
+     * Reset the singleton instance (useful for testing)
+     */
+    public static function resetInstance(): void
+    {
+        self::$instance = null;
+    }
+
+    public function __construct(array $parameters = [])
     {
         parent::__construct($parameters);
     }
 
     public function set(string $key, mixed $value): void
     {
-        $this->parameters[$key] = $value;
-        if ($this->compatabilityMode) {
-            // In compatibility mode, also set the value in the global $_GLOBALS array
-            $GLOBALS[$key] = $value;
+        parent::set($key, $value);
+
+        // Push the value into GLOBALS for backwards compatibility. Eventually
+        // this should be removed.
+        $GLOBALS[$key] = $value;
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
+            return $GLOBALS[$key];
         }
+
+        return parent::get($key, $default);
     }
 
-    /**
-     * Returns an iterator for parameters.
-     *
-     * @return \ArrayIterator<string, mixed>
-     */
-    public function getIterator(): \ArrayIterator
+    public function has(string $key): bool
     {
-        return new \ArrayIterator($this->parameters);
-    }
+        if (parent::has($key)) {
+            return true;
+        }
 
-    /**
-     * Returns the number of parameters.
-     */
-    public function count(): int
-    {
-        return \count($this->parameters);
+        return array_key_exists($key, $GLOBALS);
     }
 }

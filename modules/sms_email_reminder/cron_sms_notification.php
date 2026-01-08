@@ -24,9 +24,9 @@ $ignoreAuth = 1;
 include_once("../../interface/globals.php");
 include_once("cron_functions.php");
 
-// check command line for quite option
+// check command line for option
 $bTestRun = 0;
-if ($argc > 1 && $argv[1] == 'test') {
+if (($argc ?? 0) > 1 && ($argv[1] ?? '') == 'test') {
     $bTestRun = 1;
 }
 
@@ -62,7 +62,7 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 // create sms object
 $mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
 
-$db_patient = cron_getAlertpatientData($TYPE);
+$db_patient = cron_getAlertpatientData();
 echo "\n<br />Total " . text(count($db_patient)) . " Records Found";
 
 // for every event found

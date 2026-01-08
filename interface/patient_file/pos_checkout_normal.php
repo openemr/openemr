@@ -200,11 +200,17 @@ function generate_receipt($patient_id, $encounter = 0): void
             divstyle.display = 'none';
         }
 
+        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         // Process click on Delete button.
         function deleteme() {
-            dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+            const params = new URLSearchParams({
+                billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            });
+            dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
             return false;
         }
+        // AI-generated code end
 
         // Called by the deleteme.php window on a successful delete.
         function imdeleted() {

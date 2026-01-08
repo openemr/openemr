@@ -7,101 +7,119 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CDADocumentService;
 
-// authenticate for portal or main- never know where it gets used
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
-require_once(__DIR__ . "/../vendor/autoload.php");
+require_once __DIR__ . "/../vendor/autoload.php";
 SessionUtil::portalSessionStart();
 
 $sessionAllowWrite = true;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if (isset($_SESSION['pid'], $_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once(__DIR__ . "/../interface/globals.php");
+    require_once __DIR__ . "/../interface/globals.php";
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
-    require_once(__DIR__ . "/../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
-        $landingpage = "index.php";
-        header('Location: ' . $landingpage);
+    require_once __DIR__ . "/../interface/globals.php";
+    if (empty($_SESSION['authUserID'])) {
+        header('Location: index.php');
         exit;
     }
     define('IS_DASHBOARD', $_SESSION['authUserID']);
     define('IS_PORTAL', false);
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"] ?? '')) {
     CsrfUtils::csrfNotVerified();
 }
 
-if (empty($GLOBALS['ccda_alt_service_enable'])) {
-    die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
-}
-if (IS_PORTAL && $GLOBALS['ccda_alt_service_enable'] < 2) {
-    die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
-}
-if (IS_DASHBOARD && ($GLOBALS['ccda_alt_service_enable'] != 1 && $GLOBALS['ccda_alt_service_enable'] != 3)) {
-    die("Cda generation service turned off: Verify in Administration->Globals! Click back to return home."); // Die an honorable death!!
+if (!isServiceEnabled()) {
+    die(xlt("CDA generation service is disabled. Verify in Administration->Globals."));
 }
 
-if (!isset($_SESSION['site_id'])) {
-    $_SESSION ['site_id'] = 'default';
-}
-
+$_SESSION['site_id'] ??= 'default';
 session_write_close();
 
-$cdaService = new CDADocumentService();
+$action = $_REQUEST['action'] ?? '';
+$pid ??= 0;
 
-if ($_REQUEST['action'] === 'dl') {
-    $ccda_xml = $cdaService->portalGenerateCCDZip($pid);
-    // download zip containing CCDA.xml, CCDA.html and cda.xsl files
-    header("Cache-Control: public");
-    header("Content-Description: File Transfer");
-    header("Content-Disposition: attachment; filename=SummaryofCare.zip");
-    header("Content-Type: application/zip");
-    header("Content-Transfer-Encoding: binary");
-    echo $ccda_xml;
-    exit;
-}
-if ($_REQUEST['action'] === 'view') {
-    $ccda_xml = $cdaService->portalGenerateCCD($pid);
-    // CCM returns viewable CCD html file
-    // that displays to new tab opened from home
-    echo $ccda_xml;
-    exit;
-}
-if ($_REQUEST['action'] === 'report_ccd_view') {
-    $ccda_xml = $cdaService->generateCCDHtml($pid);
-    if (stripos($ccda_xml, '/interface/login_screen.php') !== false) {
-        echo(xlt("Error. Not Authorized."));
-        exit;
+try {
+    $cdaService = new CDADocumentService();
+
+    switch ($action) {
+        case 'dl':
+        case 'report_ccd_download':
+            sendZipDownload($cdaService->generateCCDZip($pid));
+            break;
+
+        case 'view':
+            echo $cdaService->generateCCDHtml($pid);
+            break;
+
+        case 'report_ccd_view':
+            $html = $cdaService->generateCCDHtml($pid);
+            if (stripos($html, '/interface/login_screen.php') !== false) {
+                http_response_code(401);
+                echo xlt("Error: Not Authorized");
+                exit;
+            }
+            echo $html;
+            break;
+
+        default:
+            http_response_code(400);
+            die(xlt("Error: Invalid action requested."));
     }
-    echo $ccda_xml;
-
-    exit;
+} catch (Exception $e) {
+    (new SystemLogger())->errorLogCaller($e->getMessage(), ['action' => $action, 'pid' => $pid]);
+    http_response_code(500);
+    die(xlt("Error generating CDA document. Please contact support."));
 }
-if ($_REQUEST['action'] === 'report_ccd_download') {
-    $ccda_xml = $cdaService->generateCCDZip($pid);
-    // download zip containing CCDA.xml, CCDA.html and cda.xsl files
+
+/**
+ * Check if CDA service is enabled for current context.
+ */
+function isServiceEnabled(): bool
+{
+    $setting = OEGlobalsBag::getInstance()->getInt('ccda_alt_service_enable', 0);
+
+    if (empty($setting)) {
+        return false;
+    }
+    if (IS_PORTAL && $setting < 2) {
+        return false;
+    }
+    if (IS_DASHBOARD && $setting != 1 && $setting != 3) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Send ZIP file as download response.
+ */
+function sendZipDownload(string $content): void
+{
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
     header("Content-Disposition: attachment; filename=SummaryofCare.zip");
     header("Content-Type: application/zip");
     header("Content-Transfer-Encoding: binary");
-    echo $ccda_xml;
+    header("Content-Length: " . strlen($content));
+    echo $content;
     exit;
 }
-die(xlt("Error. Nothing to do."));

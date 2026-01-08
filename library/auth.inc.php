@@ -82,9 +82,9 @@ if (
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
         if ((isset($_GET['timeout'])) && ($_GET['timeout'] == "1")) {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
+            EventAuditLogger::getInstance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         } else {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
+            EventAuditLogger::getInstance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
         }
     }
     authCloseSession();
@@ -93,7 +93,7 @@ if (
     // Check if session is valid (already logged in user)
     if (!AuthUtils::authCheckSession()) {
         // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'] ?? '', $_SESSION['authProvider'] ?? '', 0, "authCheckSession() check failed, so force logout");
+        EventAuditLogger::getInstance()->newEvent("logout", $_SESSION['authUser'] ?? '', $_SESSION['authProvider'] ?? '', 0, "authCheckSession() check failed, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }
@@ -109,7 +109,7 @@ if (empty($skipSessionExpirationCheck) && empty($_REQUEST['skip_timeout_reset'])
         SessionTracker::updateSessionExpiration();
     } else {
         // User has timed out.
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
+        EventAuditLogger::getInstance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }

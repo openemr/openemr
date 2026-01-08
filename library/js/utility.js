@@ -538,9 +538,12 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                     return;
                 }
 
-                let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                    + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    client_id: clientId,
+                    csrf_token: csrfToken,
+                    intent: intent
+                });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
@@ -571,16 +574,22 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                         dlgclose();
                         window.top.removeEventListener('message', windowMessageHandler);
                         // loadFrame already handles webroot and /interface/ prefix.
-                        let editUrl = '/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/edit/" + data.dsiId)
-                            + "&csrf_token=" + encodeURIComponent(csrfToken);
+                        const editParams = new URLSearchParams({
+                            csrf_token: csrfToken,
+                            action: "external-cdr/edit/" + data.dsiId
+                        });
+                        let editUrl = '/smart/admin-client.php?' + editParams;
                         window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
                     }
                 };
                 window.top.addEventListener('message', windowMessageHandler);
 
-                let url = webroot + '/interface/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/cdr-info")
-                    + '&serviceId=' + encodeURIComponent(dsi)
-                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                const params = new URLSearchParams({
+                    action: "external-cdr/cdr-info",
+                    csrf_token: csrfToken,
+                    serviceId: dsi
+                });
+                let url = webroot + '/interface/smart/admin-client.php?' + params;
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
@@ -644,25 +653,25 @@ function js_uniqid(prefix = "", moreEntropy = true) {
     const time = Date.now();
     const micro = (performance.now() * 1000) % 1000000;
     const uniqidTime = Math.floor(time / 1000) * 1000000 + Math.floor(micro);
-    
+
     // Convert to hex (PHP uses 8 chars for seconds + 5 for microseconds)
     let id = uniqidTime.toString(16);
-    
+
     if (moreEntropy) {
         // Ensure at least 4 random digits, exactly 13 total
         const entropyDigits = 4;
         const timestampDigits = 13 - entropyDigits; // 9 digits
-        
+
         // Trim timestamp if needed to make room for entropy
         if (id.length > timestampDigits) {
             id = id.slice(0, timestampDigits); // Keep the first 9 digits
         }
-        
+
         // Generate random hex string
         const maxEntropy = Math.pow(16, entropyDigits);
         const entropy = Math.floor(Math.random() * maxEntropy);
         id += entropy.toString(16).padStart(entropyDigits, '0');
     }
-    
+
     return prefix + id;
 }

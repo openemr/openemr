@@ -130,7 +130,11 @@ a, a:visited, a:hover {
 
 // Process click on destroyed drug.
 function doclick(id, lot) {
- dlgopen('../drugs/destroy_lot.php?drug=' + encodeURIComponent(id) + '&lot=' + encodeURIComponent(lot), '_blank', 600, 475);
+ const params = new URLSearchParams({
+     drug: id,
+     lot: lot
+ });
+ dlgopen('../drugs/destroy_lot.php?' + params, '_blank', 600, 475);
 }
 
 $(function () {

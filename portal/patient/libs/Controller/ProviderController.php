@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /** import supporting libraries */
 require_once("AppBasePortalController.php");
 
@@ -45,7 +47,8 @@ class ProviderController extends AppBasePortalController
             exit;
         }
 
-        $this->Assign('cpid', $GLOBALS['pid']);
+        $pid = OEGlobalsBag::getInstance()->get('pid');
+        $this->Assign('cpid', $pid);
         $this->Assign('cuser', $cuser);
 
         $this->Render();

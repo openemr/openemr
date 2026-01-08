@@ -56,7 +56,7 @@ $comment = "User Initiated Unscheduled Daily Pharmacy Import";
 if ($data['Daily'] == 'N') {
     $comment = "User Initiated Unscheduled Weekly Pharmacy Import";
 }
-EventAuditLogger::instance()->newEvent(
+EventAuditLogger::getInstance()->newEvent(
     "pharmacy_log",
     $_SESSION['authUser'],
     $_SESSION['authProvider'],
@@ -95,7 +95,7 @@ if ($zip->open($storeLocation) === true) {
             $wenoLog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
             die(js_escape($isError['messageText']));
         }
-        EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($isError['messageText']));
+        EventAuditLogger::getInstance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($isError['messageText']));
         $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
         // no need to continue so send error to UI alert and die.
         die(js_escape('Pharmacy download failed.'));
@@ -116,7 +116,7 @@ if ($zip->open($storeLocation) === true) {
     }
     // log success if it has count imports
     if ($count !== false) {
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "pharmacy_log",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -126,7 +126,7 @@ if ($zip->open($storeLocation) === true) {
         $wenoLog->insertWenoLog("Pharmacy Directory", "Success " . text($count) . " pharmacies Updated");
         error_log("User Initiated Pharmacy Imported " . text($count) . " Pharmacies");
     } else {
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "pharmacy_log",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -137,7 +137,7 @@ if ($zip->open($storeLocation) === true) {
         error_log("User Initialed Pharmacy Import Failed");
     }
 } else {
-    EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy download zip open failed.");
+    EventAuditLogger::getInstance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy download zip open failed.");
     error_log('Pharmacy download zip open failed.');
     $wenoLog->insertWenoLog("Pharmacy Directory", "Pharmacy download zip open failed.");
     // no need to continue so send error to UI alert and die.

@@ -40,7 +40,7 @@ jobs:
           composer config cache-files-dir
         } >> $GITHUB_OUTPUT
     - name: Composer Cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
@@ -54,7 +54,7 @@ jobs:
         composer remove --dev --optimize-autoloader rector/rector
     - name: PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
         key: "phpstan-result-cache-${{ github.run_id }}"
@@ -69,15 +69,14 @@ jobs:
     # Generate baseline only if analyze step failed
     - name: PHPStan Baseline
       if: steps.phpstan-analyze.outcome == 'failure'
-      run: vendor/bin/phpstan --memory-limit=8G --generate-baseline=baseline.neon
+      run: composer run phpstan-baseline
       continue-on-error: true
-    # Upload baseline only if baseline.neon file exists
     - name: Upload PHPStan Baseline
-      if: hashFiles('baseline.neon') != ''
-      uses: actions/upload-artifact@v5
+      if: steps.phpstan-analyze.outcome == 'failure'
+      uses: actions/upload-artifact@v6
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
-        path: baseline.neon
+        path: .phpstan/phpstan-*-baseline.neon
       continue-on-error: true
     - name: Check PHPStan Results
       if: steps.phpstan-analyze.outcome == 'failure'
