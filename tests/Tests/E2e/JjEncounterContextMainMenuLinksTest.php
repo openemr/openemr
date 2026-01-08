@@ -66,6 +66,7 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
             }
             $this->base();
             try {
+                $this->annotateVideo("TEST START: Encounter Menu - $menuLink", 2000, '#4CAF50');
                 $this->login(LoginTestData::username, LoginTestData::password);
                 $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false);
                 $this->encounterOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false, false);
@@ -75,7 +76,9 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
                 } else {
                     $this->assertActiveTab($expectedTabPopupTitle, $loading, $looseTabTitle);
                 }
+                $this->annotateVideo("TEST COMPLETE: $menuLink verified", 2000, '#4CAF50');
             } catch (\Throwable $e) {
+                $this->annotateVideo("TEST FAILED: $menuLink - " . $e->getMessage(), 3000, '#F44336');
                 // Close client
                 $this->client->quit();
                 if ($counter > 2) {
