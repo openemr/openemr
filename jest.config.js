@@ -27,5 +27,5 @@ const config = {
         'vendor'
     ]
 };
-  
+
 module.exports = config;

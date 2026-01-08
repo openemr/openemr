@@ -26,4 +26,3 @@ class NegativePhysicalExamRecommended extends PhysicalExamRecommended
 
     public $_type = 'QDM::NegativePhysicalExamRecommended';
 }
-

@@ -812,7 +812,7 @@ class PatientService extends BaseService
     public function getProviderIDsForPatientPids(array $patientPids)
     {
         // get integer only filtered pids for sql safety
-        $pids = array_map('intval', $patientPids);
+        $pids = array_map(intval(...), $patientPids);
         $pids = array_filter($pids, fn($pid): bool => $pid > 0);
 
         $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "

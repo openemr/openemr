@@ -286,4 +286,3 @@ $patient_id = $_GET['patient_id'] ?: "";
 
 </body>
 </html>
-

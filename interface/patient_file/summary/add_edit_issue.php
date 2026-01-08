@@ -1067,18 +1067,18 @@ function getCodeText($code)
     tabbify();
 
     function toggleBtnExpOpts() {
-        let btnExpOpts = document.querySelector('button[data-target="#expanded_options"]');
-        let isOpen = btnExpOpts.toggleAttribute('data-open');
-        let txtShowHide = isOpen ? <?php echo xlj("Hide More Fields"); ?> : <?php echo xlj("Show More Fields"); ?>;
-        let iconShowHide = isOpen ? "fa-angles-up" : "fa-angles-down";
-        btnExpOpts.innerHTML = `${txtShowHide}&nbsp;<i class='fa ${iconShowHide}'></i>`;
+        const btnExpOpts = document.querySelector('button[data-target="#expanded_options"]');
+        const expanded = $('#expanded_options').hasClass('show'); // Bootstrap tells the truth
+        const txtShowHide = expanded ? <?php echo xlj("Hide More Fields"); ?> : <?php echo xlj("Show More Fields"); ?>;
+        const iconShowHide = expanded ? "fa-angles-up" : "fa-angles-down";
+        btnExpOpts.innerHTML = `${txtShowHide}&nbsp;<i class="fa ${iconShowHide}"></i>`;
     }
 
     $(function() {
         // Include bs3 / bs4 classes here.  Keep html tags functional.
         $('table').addClass('table table-sm');
         $('.select2').select2({theme: 'bootstrap4'});
-        $('button[data-target="#expanded_options"]').on('click', () => {toggleBtnExpOpts()});
+        $('#expanded_options').on('shown.bs.collapse hidden.bs.collapse', toggleBtnExpOpts);
 
         onCodeSelectionChange()
     });

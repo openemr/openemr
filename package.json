@@ -38,10 +38,10 @@
   ],
   "devDependencies": {
     "@types/jest": "29.5.14",
-    "autoprefixer": "10.4.22",
+    "autoprefixer": "10.4.23",
     "colors": "1.4.0",
     "del": "6.1.1",
-    "eslint": "9.39.1",
+    "eslint": "9.39.2",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jest": "28.14.0",
     "glob": "11.1.0",
@@ -64,7 +64,7 @@
     "stylelint-config-sass-guidelines": "12.1.0",
     "stylelint-config-standard": "37.0.0",
     "stylelint-order": "6.0.4",
-    "stylelint-scss": "6.13.0"
+    "stylelint-scss": "6.14.0"
   },
   "dependencies": {
     "@eastdesire/jscolor": "2.5.2",
@@ -87,7 +87,7 @@
     "datatables.net-jqui": "1.13.11",
     "datatables.net-scroller": "2.4.3",
     "datatables.net-scroller-jqui": "2.4.3",
-    "dompurify": "3.3.0",
+    "dompurify": "3.3.1",
     "dropzone": "5.9.3",
     "dwv": "0.27.1",
     "flot": "4.2.6",
@@ -99,7 +99,7 @@
     "jquery": "3.7.1",
     "jquery-datetimepicker": "2.5.21",
     "jquery-validation": "1.21.0",
-    "jspdf": "3.0.4",
+    "jspdf": "4.0.0",
     "jszip": "3.10.1",
     "knockout": "3.5.1",
     "konva": "9.3.22",

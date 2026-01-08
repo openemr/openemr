@@ -89,7 +89,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -119,7 +119,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -149,7 +149,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -179,7 +179,8 @@ services:
       # setting xdebug client host for cases where xdebug.discover_client_host fails
       XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
-      GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
+      GITHUB_COMPOSER_TOKEN_ENCODED: Z2hwX0NpbnJ4aXlNd0NzcGZXWG1UWFUwcXhGa040elFKSDJoZGJXVw==
+      GITHUB_COMPOSER_TOKEN_ENCODED_ALTERNATE: '103 104 112 95 57 54 108 115 88 116 87 72 51 75 81 105 69 88 88 119 97 79 80 78 109 69 66 115 85 97 106 78 112 71 49 81 90 102 74 121'
       SELENIUM_USE_GRID: "true"
       SELENIUM_HOST: selenium
       SELENIUM_FORCE_HEADLESS: "false"
@@ -218,7 +219,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -248,7 +249,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -279,7 +280,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -310,7 +311,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -341,7 +342,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -372,7 +373,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -403,7 +404,7 @@ services:
       - --location
       - --show-error
       - --silent
-      - https://localhost/
+      - https://localhost/meta/health/readyz
       interval: 1m
       retries: 3
       start_interval: 10s
@@ -454,7 +455,7 @@ services:
   mariadb-old:
     restart: always
     image: mariadb:11.4
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: ['mariadbd','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
     healthcheck:
@@ -713,7 +714,7 @@ services:
     - 9443:9443
   selenium:
     restart: always
-    image: selenium/standalone-chromium:4.38.0
+    image: selenium/standalone-chromium:4.39.0
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)

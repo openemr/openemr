@@ -8,8 +8,10 @@
  * @link      http://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Providence Healthtech
  * @copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,6 +34,13 @@ class PageHeadingRenderEvent extends Event
      * @var MenuItems
      */
     private readonly MenuItems $primary_menu;
+
+    /**
+     * HTML content to inject into the title nav area (between page title and action buttons)
+     *
+     * @var string
+     */
+    private string $titleNavContent = '';
 
     /**
      * UserEditRenderEvent constructor.
@@ -130,6 +139,41 @@ class PageHeadingRenderEvent extends Event
         }
 
         $this->actions = $actions;
+        return $this;
+    }
+
+    /**
+     * Get HTML content to be injected into the title nav area
+     * (between the page title and the action buttons)
+     *
+     * @return string
+     */
+    public function getTitleNavContent(): string
+    {
+        return $this->titleNavContent;
+    }
+
+    /**
+     * Set HTML content to be injected into the title nav area
+     *
+     * @param string $content HTML content to inject
+     * @return PageHeadingRenderEvent
+     */
+    public function setTitleNavContent(string $content): PageHeadingRenderEvent
+    {
+        $this->titleNavContent = $content;
+        return $this;
+    }
+
+    /**
+     * Append HTML content to the title nav area
+     *
+     * @param string $content HTML content to append
+     * @return PageHeadingRenderEvent
+     */
+    public function appendTitleNavContent(string $content): PageHeadingRenderEvent
+    {
+        $this->titleNavContent .= $content;
         return $this;
     }
 }

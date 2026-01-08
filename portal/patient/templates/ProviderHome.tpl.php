@@ -15,16 +15,20 @@ $this->assign('nav', 'home');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     die(xlt("Unauthorized"));
     exit;
 }
-
+$globalsBag = OEGlobalsBag::getInstance();
+$web_root = $globalsBag->getString('web_root');
+$assets_static_relative = $globalsBag->getString('assets_static_relative');
+$v_js_includes = $globalsBag->get('v_js_includes');
 ?>
 <!DOCTYPE html>
 <!-- Language grabbed by PDF var that has the correct format !-->
-<html lang="<?php echo $GLOBALS['pdf_language']; ?>">
+<html lang="<?php echo $globalsBag->getString('pdf_language'); ?>">
 <head>
     <title><?php $this->eprint($this->title); ?></title>
     <meta name="description" content="Provider Portal" />
@@ -32,20 +36,20 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
 
     <?php
     Header::setupHeader(['datetime-picker']);
-    echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
+    echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cuser) . "';var webRoot='" . $web_root . "';</script>";
     ?>
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+    <link href="<?php echo $web_root; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet">
+    <script src="<?php echo $web_root; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $web_root; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
 
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+    <script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
     <script>
-        $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js")
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+        $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js")
+        .script("<?php echo $assets_static_relative; ?>/moment/moment.js")
+        .script("<?php echo $assets_static_relative; ?>/backbone/backbone-min.js")
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>")
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>").wait()
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>")
         .wait(function () {
             $(function () {
                 console.log('*** Provider Template Load Done ***');
@@ -86,15 +90,15 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     <div class="row">
         <div class="col">
             <h4><i class="icon-cogs"></i><?php echo xlt('Templates') ?></h4>
-            <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?></a>
+            <a class="btn btn-success btn-sm" href="<?php echo $web_root;?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?></a>
         </div>
         <div class="col">
             <h4><i class="icon-th"></i><?php echo xlt('Audits') ?></h4>
-            <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/patient/onsiteactivityviews"><?php echo xlt('Review Audits') ?></a>
+            <a class="btn btn-success btn-sm" href="<?php echo $web_root;?>/portal/patient/onsiteactivityviews"><?php echo xlt('Review Audits') ?></a>
         </div>
         <div class="col">
             <h4><i class="icon-cogs"></i><?php echo xlt('Mail') ?></h4>
-            <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/messages.php"><?php echo xlt('Secure Mail') ?></a>
+            <a class="btn btn-success btn-sm" href="<?php echo $web_root;?>/portal/messaging/messages.php"><?php echo xlt('Secure Mail') ?></a>
         </div>
         <div class="col">
             <h4><i class="icon-signin"></i><?php echo xlt('Signature') ?></h4>

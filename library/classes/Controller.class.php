@@ -144,17 +144,17 @@ class Controller extends Smarty
         if (isset($_POST['process']) && ($_POST['process'] == "true")) {
             if (is_callable([&$c_obj, $c_action . "_action_process"]) && method_exists($c_obj, $c_action . "_action_process")) {
                 //echo "ca: " . $c_action . "_action_process";
-                $output .= call_user_func_array([&$c_obj,$c_action . "_action_process"], $args_array);
+                $output .= $c_obj->{$c_action . "_action_process"}(...$args_array);
                 if ($c_obj->_state == false) {
                     return $output;
                 }
             }
 
             //echo "ca: " . $c_action . "_action";
-            $output .=  call_user_func_array([&$c_obj,$c_action . "_action"], $args_array);
+            $output .=  $c_obj->{$c_action . "_action"}(...$args_array);
         } elseif (is_callable([&$c_obj, $c_action . "_action"]) && method_exists($c_obj, $c_action . "_action")) {
             //echo "ca: " . $c_action . "_action";
-            $output .=  call_user_func_array([&$c_obj,$c_action . "_action"], $args_array);
+            $output .=  $c_obj->{$c_action . "_action"}(...$args_array);
         } else {
             echo "The action trying to be performed: " . $c_action . " does not exist controller: " . $name;
         }

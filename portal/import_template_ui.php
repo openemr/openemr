@@ -12,23 +12,27 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../interface/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
 
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+// Need access to classes, so run autoloader now instead of in globals.php.
+require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
+
+require_once("../interface/globals.php");
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 
 // Service
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');
@@ -190,7 +194,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($globalsBag->getString('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();
@@ -391,6 +395,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(2000).then(rtn => {
@@ -417,6 +422,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -439,6 +445,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 method: 'POST',
                 body: data,
             }).then(rtn => rtn.text()).then((rtn) => {
+                rtn = jsText(rtn);
                 (async (time) => {
                     await asyncAlertMsg(rtn, time, 'success', 'lg');
                 })(1500).then(rtn => {
@@ -728,8 +735,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <!-- Repository -->
             <div class='row'>
-                <div class='col col-12'>
-                    <div class="h5"><i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#repository-collapse' role='button' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
+                <div class='col col-12' data-toggle='collapse' data-target='#repository-collapse' role='button'>
+                    <div class="h5"><i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Repository templates panel.'); ?>"></i><?php echo xlt('Template Repository') ?>
                         <span>
                         <button type='button' id='upload-nav-button' name='upload-nav-button' class='btn btn-sm btn-primary' data-toggle='collapse' data-target='#upload-nav'>
                             <i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></button>
@@ -933,8 +940,8 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <div class='row'>
                 <div class='col col-12'>
-                    <div class='h5'>
-                        <i class='fa fa-eye mr-1' data-toggle='collapse' data-target='#assigned_collapse' role='button' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
+                    <div class='h5' data-toggle='collapse' data-target='#assigned_collapse' role='button'>
+                        <i class='fa fa-eye mr-1' title="<?php echo xla('Click to expand or collapse Assigned Patients panel.'); ?>"></i><?php echo xlt('Patient Assigned Templates') ?>
                     </div>
                 </div>
                 <!-- Assigned table -->

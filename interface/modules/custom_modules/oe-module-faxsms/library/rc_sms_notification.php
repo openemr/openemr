@@ -33,7 +33,9 @@ $error = '';
 $runtime = [];
 
 // Check for other arguments and perform your script logic
-if (($argc ?? null) > 1) {
+$argc ??= 0;
+$argv ??= [];
+if ($argc > 1) {
     foreach ($argv as $k => $v) {
         if ($k == 0) {
             continue;

@@ -167,10 +167,7 @@ class Dispatcher
         // do not call the requested method/route if the controller request has been cancelled
         if (! $controller->IsTerminated()) {
             // file, class and method all are ok, go ahead and call it
-            call_user_func([
-                    &$controller,
-                    $method_param
-            ]);
+            $controller->$method_param();
         }
 
         // reset error handling back to whatever it was

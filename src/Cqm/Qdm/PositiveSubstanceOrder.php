@@ -26,4 +26,3 @@ class PositiveSubstanceOrder extends SubstanceOrder
 
     public $_type = 'QDM::PositiveSubstanceOrder';
 }
-

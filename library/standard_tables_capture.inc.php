@@ -580,7 +580,7 @@ function icd_import($type)
         sqlStatementNoLog("SET autocommit=1");
         closedir($handle);
     } else {
-        echo htmlspecialchars((string) xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
         return;
     }
 
@@ -742,13 +742,13 @@ function handle_zip_file($mode, $file): void
 {
         // 1. copy the file to temp directory
     if (!temp_copy($file, $mode)) {
-        echo htmlspecialchars((string) xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars(xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($mode);
         exit;
     }
         // 2. unarchive the file
     if (!temp_unarchive($file, $mode)) {
-        echo htmlspecialchars((string) xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES) . "<br />";
+        echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES) . "<br />";
         temp_dir_cleanup($mode);
         exit;
     }

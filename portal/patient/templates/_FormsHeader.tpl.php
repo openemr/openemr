@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <!DOCTYPE html>
@@ -26,6 +27,11 @@ use OpenEMR\Core\Header;
 <!-- Styles -->
 
 <?php
+$globalsBag = OEGlobalsBag::getInstance();
+$assets_static_relative = $globalsBag->getString('assets_static_relative');
+$web_root = $globalsBag->getString('web_root');
+$v_js_includes = $globalsBag->get('v_js_includes');
+
 if ($_SESSION['patient_portal_onsite_two'] ?? 0) {
     Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'moment']);
 } else {
@@ -33,13 +39,13 @@ if ($_SESSION['patient_portal_onsite_two'] ?? 0) {
 }
 ?>
 
-<script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+<script src="<?php echo $web_root; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script>
-    $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait();
+    $LAB.script("<?php echo $assets_static_relative; ?>/underscore/underscore-min.js").wait()
+        .script("<?php echo $assets_static_relative; ?>/backbone/backbone-min.js")
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>")
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>").wait()
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait();
 </script>
 
 </head>

@@ -3984,8 +3984,9 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
                             if ($display !== "fullscreen") { ?>
                                     <li class="divider"></li>
                                     <li id="menu_fullscreen" name="menu_fullscreen" <?php echo ($fullscreen ?? ''); ?>>
+                                        <!-- AI-generated code (GitHub Copilot) - Refactored to use URLSearchParams -->
                                         <a class="nav-link black"
-                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&display=fullscreen&encounter=' + <?php echo attr_js(urlencode((string) $encounter)); ?>);"
+                                           onclick="openNewForm(<?php echo attr_js($GLOBALS['webroot']); ?> + '/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();(function(){const p=new URLSearchParams({display:'fullscreen',encounter:<?php echo attr_js(urlencode((string) $encounter)); ?>});dopopup(<?php echo attr_js($_SERVER['REQUEST_URI']); ?> + '&' + p.toString());})();"
                                            href="JavaScript:void(0);"
                                            ><?php echo xlt('Fullscreen'); ?></a>
                                     </li>
@@ -4798,10 +4799,11 @@ function cmp($a, $b)
  *
  * @param int    $pid
  * @param string $bywhat == byday or byhour
- * @return void
+ * @return string
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 {
+    ob_start();
     global $PMSFH;
     global $form_folder;
     global $priors;
@@ -4984,9 +4986,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     }
 
     $date_OU = array_unique($list);
-    usort($date_OU, "cmp");
+    usort($date_OU, cmp(...));
     $times_OU = $time_OU;
-    usort($times_OU, "cmp");
+    usort($times_OU, cmp(...));
 
     for ($a = 0; $a < count($date_OU); $a++) {
         if (!empty($GONIO_date)) {
@@ -5606,12 +5608,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
             } ?>
         </div>
     </div>
-            <?php
+    <?php
+    return ob_get_clean();
 }
 
 
 /**
- *
  * This function displays today + historical visual acuity measurements
  * I imagined this as a condensed table with top row = types of acuities
  *   Date | sc | CC | Ph | AR | MR | CR | CTL | comments
@@ -5621,11 +5623,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
  * and 3rd row on: the leftmost/first column containing Date of visit, then the actual measurements obtained
  *
  * @param int $pid
- * @return void
- *
-*/
-function display_VisualAcuities($pid = 0): void
+ * @return string
+ */
+function display_VisualAcuities($pid = 0): string
 {
+    ob_start();
     global $priors;
     global $visit_date;
     global $dated;
@@ -6081,6 +6083,7 @@ function display_VisualAcuities($pid = 0): void
             </table>
         </div>
     <?php
+    return ob_get_clean();
 }
 
 

@@ -226,7 +226,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
             // No match
             if (!$case_sens_match) {
                 // Attempt a case insensitive match
-                $ok_UPPER = array_map("strtoupper", $ok);
+                $ok_UPPER = array_map(strtoupper(...), $ok);
                 $key = array_search(strtoupper($s), $ok_UPPER);
             }
 

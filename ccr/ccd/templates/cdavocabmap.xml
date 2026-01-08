@@ -148,7 +148,7 @@ License :
             <cdadisplayname>Undifferentiated</cdadisplayname>
             <cdacode>UN</cdacode>
         </item>
-    </domain>    
+    </domain>
     <domain name="RouteOfAdministration" codeSystemName="HL7 Route of Administration" codeSystem="2.16.840.1.113883.5.112">
         <item>
             <ccrtext>swallow, oral</ccrtext>

@@ -15,6 +15,8 @@
 require_once(__DIR__ . '/calendar.inc.php');
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
+use OpenEMR\Common\Database\QueryUtils;
+
 //===============================================================================
 //This section handles the events of payment screen.
 //===============================================================================
@@ -37,7 +39,7 @@ function calendar_arrived($form_pid)
     $appts = fetchAppointments($today, $today, $form_pid);
     $appt_count = count($appts); //
     if ($appt_count == 0) {
-        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars((string) xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars((string) xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
+        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     } elseif ($appt_count == 1) {
         $enc = todaysEncounterCheck($form_pid);
@@ -47,7 +49,7 @@ function calendar_arrived($form_pid)
             update_event($appts[0]['pc_eid']);
         }
     } elseif ($appt_count > 1) {
-        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars((string) xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars((string) xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
+        echo "<br /><br /><br /><h2 class='text-center'>" . htmlspecialchars(xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     }
     return $enc;
@@ -88,8 +90,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", [$facility_id])['pos_code'];
     $visit_cat = $cat ?: '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Patient Encounter",
@@ -148,8 +149,7 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
     $visit_cat = $cat ?: '(NULL)';
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     addForm(
         $encounter,
         "New Therapy Group Encounter",
@@ -227,8 +227,7 @@ function todaysEncounter($patient_id, $reason = '')
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $tmprow['facility_id'];
-    $conn = $GLOBALS['adodb']['db'];
-    $encounter = $conn->GenID("sequences");
+    $encounter = QueryUtils::generateId();
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     addForm(
         $encounter,

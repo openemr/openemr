@@ -1,0 +1,65 @@
+name: Docker Compose Linting
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  dclint:
+    name: Docker Compose Linting
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Get changed docker compose files
+      id: changed-files
+      continue-on-error: true
+      uses: tj-actions/changed-files@v47
+      with:
+        files: |
+          **/*compose*.yml
+          **/*compose*.yaml
+        files_ignore: |
+          .github/**
+
+    - name: Determine files to check
+      id: files-to-check
+      run: |
+        set -x
+
+        # If the changed-files step failed or returned empty,
+        # use find to locate all docker compose files in the repo.
+        if [[ "${{ steps.changed-files.outcome }}" = success && "${{ steps.changed-files.outputs.any_changed }}" = true ]]; then
+          echo 'Changed files found, checking only those.'
+          # Store files in a way that handles spaces properly
+          echo "mode=files" >> "$GITHUB_OUTPUT"
+          echo "files=${{ steps.changed-files.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
+        else
+          echo 'No changed files found, checking all docker compose files in the repo.'
+          # Use recursive mode in dclint to find all compose files
+          echo "mode=recursive" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Run dclint on changed files
+      if: steps.files-to-check.outputs.mode == 'files'
+      run: |
+        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 ${{ steps.files-to-check.outputs.files }} --exclude .github
+
+    - name: Run dclint recursively
+      if: steps.files-to-check.outputs.mode == 'recursive'
+      run: |
+        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 ci/ docker/ --recursive --exclude .github

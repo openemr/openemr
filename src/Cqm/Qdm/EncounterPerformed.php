@@ -43,14 +43,14 @@ class EncounterPerformed extends QDMBaseType
      * @property array $facilityLocations
      */
     public $facilityLocations = [
-        
+
     ];
 
     /**
      * @property array $diagnoses
      */
     public $diagnoses = [
-        
+
     ];
 
     /**
@@ -72,7 +72,7 @@ class EncounterPerformed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -102,4 +102,3 @@ class EncounterPerformed extends QDMBaseType
 
     public $_type = 'QDM::EncounterPerformed';
 }
-

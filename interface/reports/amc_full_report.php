@@ -128,7 +128,7 @@ function collectItemizedPatientData($report_id, $itemized_test_id)
     }
 
     // now grab all the patients and let's populate here
-    $sanitizedPids = array_map('intval', array_keys($reportDataByPid));
+    $sanitizedPids = array_map(intval(...), array_keys($reportDataByPid));
     $totalPids = count($sanitizedPids);
     $aggregatedPatientRecords = [];
     if (!empty($sanitizedPids)) {
@@ -195,7 +195,7 @@ if (!empty($report_view)) {
 
 // See if showing an old report or creating a new report
     // now we are going to create our report
-    $dataSheet = formatPatientReportData($report_id, $report_view['data'], true, false, $type_report, $amc_report_data);
+    $dataSheet = formatPatientReportData($report_id, $report_view['data'], true, false);
     $form_provider = $_POST['form_provider'] ?? '';
 
     $subTitle = '';

@@ -124,20 +124,20 @@ ALTER TABLE `users` ADD COLUMN `email_direct` varchar(255) NOT NULL default '';
 
 #IfNotTable erx_ttl_touch
 CREATE TABLE `erx_ttl_touch` (
-  `patient_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'Patient record Id', 
+  `patient_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'Patient record Id',
   `process` ENUM('allergies','medications') NOT NULL COMMENT 'NewCrop eRx SOAP process',
-  `updated` DATETIME NOT NULL COMMENT 'Date and time of last process update for patient', 
-  PRIMARY KEY (`patient_id`, `process`) ) 
+  `updated` DATETIME NOT NULL COMMENT 'Date and time of last process update for patient',
+  PRIMARY KEY (`patient_id`, `process`) )
 ENGINE = InnoDB COMMENT = 'Store records last update per patient data process';
 #EndIf
 
 #IfMissingColumn form_misc_billing_options box_14_date_qual
-ALTER TABLE `form_misc_billing_options` 
+ALTER TABLE `form_misc_billing_options`
 ADD COLUMN `box_14_date_qual` CHAR(3) NULL DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn form_misc_billing_options box_15_date_qual
-ALTER TABLE `form_misc_billing_options` 
+ALTER TABLE `form_misc_billing_options`
 ADD COLUMN `box_15_date_qual` CHAR(3) NULL DEFAULT NULL;
 #EndIf
 
@@ -2877,7 +2877,7 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id amendment_status
-	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` ) 
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` )
 	VALUES ('lists' ,'amendment_status','Amendment Status');
 
 	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES
@@ -2885,8 +2885,8 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 	('amendment_status' ,'rejected','Rejected', 20, 0);
 #EndIf
 
-#IfNotRow2D list_options list_id lists option_id amendment_from	
-	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` ) 
+#IfNotRow2D list_options list_id lists option_id amendment_from
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` )
 	VALUES ('lists' ,'amendment_from','Amendment From');
 
 	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES

@@ -666,6 +666,20 @@ $GLOBALS_METADATA = [
             xl('This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)')
         ],
 
+        'disable_translation' => [
+            xl('Disable Translation Engine'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Completely disable the translation engine. When enabled, xl() returns the input string unchanged. Use this for English-only deployments to eliminate translation overhead.')
+        ],
+
+        'translation_preload_cache' => [
+            xl('Preload Translation Cache'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Load all translations into memory at the start of each request. This uses more memory but eliminates database queries for translations, improving performance for sites with many translated strings.')
+        ],
+
         'translate_layout' => [
             xl('Translate Layouts'),
             'bool',                           // data type
@@ -3269,7 +3283,7 @@ $GLOBALS_METADATA = [
             xl('Site Address Override (if needed for OAuth2, FHIR, CCDA, or Payment Processing)'),
             'text',
             '',
-            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR, CCDA, or Payment Processing. Example is') . ' https://localhost:8300 .'
+            xl('The hostname for OAuth2, FHIR, CCDA, and Payment Processing, pointing back back to this OpenEMR instance. e.g. https://localhost:9300.')
         ],
 
         GlobalConnectorsEnum::REST_FHIR_API->value => [
@@ -3470,14 +3484,13 @@ $GLOBALS_METADATA = [
             xl('Enable NewCrop eRx Service'),
             'bool',
             '0',
-            xl('Enable NewCrop eRx Service.') . ' ' .
-            xl('Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.')
+            xl('Enable NewCrop eRx Service.')
         ],
 
         'erx_newcrop_path' => [
             xl('NewCrop eRx Site Address'),
             'text',
-            'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
+            'https://secure.newcropaccounts.com/ux2/InterfaceV7/RxEntry.aspx',
             xl('URL for NewCrop eRx Site Address.')
         ],
 
@@ -3690,18 +3703,18 @@ $GLOBALS_METADATA = [
             xl('Easipro Server Password')
         ],
 
-        'usps_webtools_enable' => [
-            xl('Enable USPS Web Tools API'),
-            'bool',                           // data type
-            '0',
-            xl('Enable USPS Web Tools API')
+        'usps_apiv3_client_id' => [
+            xl('USPS API Client ID'),
+            'encrypted',
+            '',
+            xl('Client ID for USPS API v3')
         ],
 
-        'usps_webtools_username' => [
-            xl('USPS Web Tools API Username'),
-            'text',                           // data type
+        'usps_apiv3_client_secret' => [
+            xl('USPS API Client Secret'),
+            'encrypted',
             '',
-            xl('USPS Web Tools API Username')
+            xl('Client Secret for USPS API v3')
         ],
 
         'ccda_validation_disable' => [

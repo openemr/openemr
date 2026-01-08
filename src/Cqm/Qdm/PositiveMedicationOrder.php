@@ -26,4 +26,3 @@ class PositiveMedicationOrder extends MedicationOrder
 
     public $_type = 'QDM::PositiveMedicationOrder';
 }
-

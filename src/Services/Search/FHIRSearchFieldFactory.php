@@ -273,7 +273,7 @@ class FHIRSearchFieldFactory
                 // for now let's treat everything as a string...
                 // we won't give any modifier here for now
                 // not sure how we handle modifiers here...
-                $childField = $this->buildSearchField($childDefinition, $fieldName, $fhirSearchValues);
+                $childField = $this->buildSearchField($childDefinition, $fieldName);
                 $composite->addChild($childField);
             }
         }

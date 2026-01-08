@@ -29,8 +29,7 @@ use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 // some flags
@@ -53,7 +52,7 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
  */
 
 /**
- * @global EventDispatcher $dispatcher Injected by the OpenEMR module loader;
+ * @global EventDispatcherInterface $dispatcher Injected by the OpenEMR module loader;
  */
 $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
@@ -124,7 +123,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = $fax_label;
+    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : ($allowFax == '6' ? xlt("SignalWire Fax") : xlt("RingCentral FAX"));
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "demo"];

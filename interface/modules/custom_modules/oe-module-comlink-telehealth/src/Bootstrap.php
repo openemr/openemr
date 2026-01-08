@@ -39,8 +39,7 @@ use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Services\Globals\GlobalSetting;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -112,11 +111,11 @@ class Bootstrap
     private $serviceRegistry = [];
 
     /**
-     * @param EventDispatcher $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
+     * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
      * @param ?Kernel $kernel
      */
     public function __construct(
-        private readonly EventDispatcher $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
         ?Kernel $kernel = null
     ) {
         global $GLOBALS;
@@ -130,7 +129,7 @@ class Bootstrap
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
-        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName, $this->twig);
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->twig);
     }
 
     public function getGlobalConfig(): TelehealthGlobalConfig

@@ -26,4 +26,3 @@ class PositiveLaboratoryTestOrder extends LaboratoryTestOrder
 
     public $_type = 'QDM::PositiveLaboratoryTestOrder';
 }
-

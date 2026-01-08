@@ -8,6 +8,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -30,7 +31,6 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\SessionAwareInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
 
@@ -66,9 +66,9 @@ class FhirOperationExportRestController
     const FHIR_DOCUMENT_CATEGORY = 'FHIR Export Document';
 
     /**
-     * @var SystemLogger
+     * @var LoggerInterface
      */
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var IFhirExportableResourceService[] hashmap of resources to service classes that can be exported
@@ -356,7 +356,7 @@ class FhirOperationExportRestController
             }
             // if we've reached our shutdown point, every subsequent resource we just fail immediately
             if ($shutdownImminent) {
-                $errorResult[] = $this->getExportTimeoutExportError($resource);
+                $errorResult[] = $this->getExportTimeoutExportError();
                 continue;
             }
 
@@ -386,7 +386,7 @@ class FhirOperationExportRestController
             } catch (ExportWillShutdownException $exception) {
                 // we ran out of time and need to mark everything as failed
                 $shutdownImminent = true;
-                $errorOutcome = $this->getExportTimeoutExportError($resource);
+                $errorOutcome = $this->getExportTimeoutExportError();
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);
                 $this->logger->error("FhirExportRestController->processResourceExportForJob() Export reached "
                     . "maximum execution time.", [

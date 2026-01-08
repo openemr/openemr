@@ -259,16 +259,19 @@ $CPR = 4; // cells per row
 
         function address_verify() {
             top.restoreSession();
-            var f = document.demographics_form;
+            const f = document.demographics_form;
 
-            dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(f.form_street.value) +
-                '&address2=' + encodeURIComponent(f.form_street_line_2.value) +
-                '&city=' + encodeURIComponent(f.form_city.value) +
-                '&state=' + encodeURIComponent(f.form_state.value) +
-                '&zip5=' + encodeURIComponent(f.form_postal_code.value.substring(0, 5)) +
-                '&zip4=' + encodeURIComponent(f.form_postal_code.value.substring(5, 9))
-                , '_blank', 400, 150, '', xl('Address Verify'));
+            const params = new URLSearchParams({
+                address1: f.form_street.value,
+                address2: f.form_street_line_2.value,
+                city: f.form_city.value,
+                state: f.form_state.value,
+                zip4: f.form_postal_code.value.substring(5, 9),
+                zip5: f.form_postal_code.value.substring(0, 5)
+            });
 
+            dlgopen('../../practice/address_verify.php?' + params,
+                '_blank', 400, 150, '', xl('Address Verify'));
             return false;
         }
 
@@ -602,7 +605,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
-            <?php if ($GLOBALS['usps_webtools_enable']) { ?>
+            <?php if ($GLOBALS['usps_apiv3_client_id']) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>
