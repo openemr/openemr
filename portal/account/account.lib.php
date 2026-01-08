@@ -40,7 +40,7 @@ function notifyAdmin($pid, $provider): void
 
 function processRecaptcha($gRecaptchaResponse): bool
 {
-    $globalsBag = OEGlobalsBag::getInstance(true);
+    $globalsBag = OEGlobalsBag::getInstance();
 
     if (empty($gRecaptchaResponse)) {
         (new SystemLogger())->error("processRecaptcha function: gRecaptchaResponse is empty, so unable to verify recaptcha");
@@ -94,7 +94,7 @@ function processRecaptcha($gRecaptchaResponse): bool
 //  (this is done so a bad actor can not see if certain patients exist in the instance)
 function verifyEmail(string $languageChoice, string $fname, string $mname, string $lname, string $dob, string $email): bool
 {
-    $globalsBag = OEGlobalsBag::getInstance(true);
+    $globalsBag = OEGlobalsBag::getInstance();
 
     if (empty($languageChoice) || empty($fname) || empty($lname) || empty($dob) || empty($email)) {
         // only optional setting is the mname
@@ -348,7 +348,7 @@ function validEmail($email)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
-    $globalsBag = OEGlobalsBag::getInstance(true);
+    $globalsBag = OEGlobalsBag::getInstance();
 
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);

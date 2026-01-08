@@ -24,7 +24,7 @@ require_once("verysimple/Phreeze/Dispatcher.php");
 // the global config is used for all dependency injection
 $gc = GlobalConfig::GetInstance();
 
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 
 try {
     if (!empty($_SESSION['register'])) {

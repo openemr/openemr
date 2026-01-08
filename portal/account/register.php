@@ -21,7 +21,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 
 if ($portalRegistrationAuthorization !== true) {
     (new SystemLogger())->debug("Attempted to use register.php directly, so failed");

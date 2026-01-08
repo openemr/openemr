@@ -21,7 +21,7 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     die(xlt("Unauthorized"));
 }
 
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 
 $this->display('_FormsHeader.tpl.php');
 echo "<script>var cuser='" . $this->cuser . "';</script>";
