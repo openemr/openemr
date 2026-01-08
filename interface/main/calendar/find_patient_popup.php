@@ -126,7 +126,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
             <form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
                 echo "pflag=0";
                                                                                            } ?>'>
-                <div class="form-row">
+                <div class="row gx-2">
                     <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo text(xl('Search by:')); ?></label>
                     <select name='searchby' id='searchby' class="form-control form-control-sm col">
                         <option value="Last"><?php echo text(xl('Name')); ?></option>

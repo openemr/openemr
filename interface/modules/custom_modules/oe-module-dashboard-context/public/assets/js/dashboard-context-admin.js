@@ -493,7 +493,7 @@ const ContextAdmin = {
                 <tr>
                     <td>${this.escapeHtml(log.created_at)}</td>
                     <td>${this.escapeHtml(log.user_fname + ' ' + log.user_lname)}</td>
-                    <td><span class="badge badge-secondary">${this.escapeHtml(log.action)}</span></td>
+                    <td><span class="badge bg-secondary">${this.escapeHtml(log.action)}</span></td>
                     <td>${this.escapeHtml(log.old_context || '-')}</td>
                     <td>${this.escapeHtml(log.new_context || '-')}</td>
                     <td>${this.escapeHtml(log.performer_username || '-')}</td>

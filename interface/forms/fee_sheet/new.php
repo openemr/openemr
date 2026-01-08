@@ -240,7 +240,7 @@ function echoServiceLines(): void
 
                     // Price display is conditional.
                     if ($fs->pricesAuthorized()) {
-                        echo "  <td class='billcell text-right'>" .
+                        echo "  <td class='billcell text-end'>" .
                             "<input type='text' class='form-control form-control-sm' name='bill[$lino][price]' " .
                             "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
                         if (!AclMain::aclCheckCore('acct', 'disc')) {
@@ -255,7 +255,7 @@ function echoServiceLines(): void
 
                     echo "  <td class='billcell text-center'>";
                     if ($codetype != 'COPAY') {
-                        echo "<input type='text' class='form-control form-control-sm text-right' name='bill[" . attr($lino) . "][units]' " .
+                        echo "<input type='text' class='form-control form-control-sm text-end' name='bill[" . attr($lino) . "][units]' " .
                         "value='" . attr($li['units']) . "' size='2'>";
                     } else {
                         echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "' />";
@@ -316,7 +316,7 @@ function echoServiceLines(): void
             echo "<input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
             "size='11' />";
             echo " &nbsp;Qty:&nbsp;";
-            echo "<input type='text' class='form-control form-control-sm text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
+            echo "<input type='text' class='form-control form-control-sm text-start' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
             echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
@@ -398,12 +398,12 @@ function echoProductLines(): void
 
                 // Price display is conditional.
                 if ($fs->pricesAuthorized()) {
-                    echo "  <td class='billcell text-right'>" . text(oeFormatMoney($price)) . "</td>\n";
+                    echo "  <td class='billcell text-end'>" . text(oeFormatMoney($price)) . "</td>\n";
                 } else {
                     echo "  <td class='billcell' style='display:none'>&nbsp;</td>\n";
                 }
 
-                echo "  <td class='billcell text-right'>" . text($units) . "</td>\n";
+                echo "  <td class='billcell text-end'>" . text($units) . "</td>\n";
             }
 
             if (justifiers_are_used()) { // KHY Evaluate proper position/usage of if justifiers
@@ -434,7 +434,7 @@ function echoProductLines(): void
 
                 // Price display is conditional.
                 if ($fs->pricesAuthorized()) {
-                    echo "  <td class='billcell text-right'>" .
+                    echo "  <td class='billcell text-end'>" .
                     "<input type='text' class='form-control' name='prod[" . attr($lino) . "][price]' " .
                     "value='" . attr($price) . "' size='6' onchange='setSaveAndClose()'";
                     if (!AclMain::aclCheckCore('acct', 'disc')) {
@@ -1021,7 +1021,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ?>
                         <fieldset>
                         <legend><?php echo xlt('Set Price Level'); ?></legend>
-                            <div class='form-group mx-5 text-center'>
+                            <div class='mb-3 mx-5 text-center'>
                                 <?php
                                 // Allow the patient price level to be fixed here.
                                 $plres = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -1156,7 +1156,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <fieldset>
                             <legend><?php echo xlt("Search for Additional Codes")?></legend>
                                 <div class="text-center">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <?php
                                         $nofs_code_types = [];
                                         foreach ($code_types as $key => $value) {
@@ -1168,7 +1168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
                                         ?>
 
-                                        <div class="btn-group" data-toggle="buttons">
+                                        <div class="btn-group" data-bs-toggle="buttons">
                                             <?php
                                             foreach ($nofs_code_types as $key => $value) {
                                                 echo"<label class='radio-inline btn btn-secondary'>";
@@ -1186,9 +1186,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="mx-5 mb-3 text-center">
                                     <div class="input-group">
                                         <input type='text' class="form-control" name='search_term' value='' />
-                                        <div class="input-group-append">
-                                            <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
-                                        </div>
+                                        <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
                                     </div>
                                 </div>
 
@@ -1239,7 +1237,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <tr>
                                     <?php
                                     if ($fs->ALLOW_COPAYS) { ?>
-                                        <td class='col-md-6 float-right'>
+                                        <td class='col-md-6 float-end'>
                                             <button type="button" class="btn btn-primary btn-add" value='<?php echo xla('Add Copay'); ?>'
                                                 onclick='copayselect()'>
                                                 <?php echo xlt('Add Copay'); ?>
@@ -1667,7 +1665,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <fieldset>
                         <legend><?php echo xlt("Select Providers"); ?></legend>
                         <div class="row mx-5">
-                            <div class="form-row col">
+                            <div class="row gx-2 col">
                                 <label class="col-form-label col-2"><?php echo  xlt('Rendering'); ?></label>
                                 <div class="col-10">
                                     <?php
@@ -1691,7 +1689,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     ?>
                                 </div>
                             </div>
-                            <div class="form-row col">
+                            <div class="row gx-2 col">
                                 <?php
                                 // Supervising Provider (skip for IPPF).
                                 if (!$GLOBALS['ippf_specific']) { ?>
@@ -1718,7 +1716,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group" role="group">
                                 <button type='button' class='btn btn-primary btn-calendar' onclick='newEvt()'>

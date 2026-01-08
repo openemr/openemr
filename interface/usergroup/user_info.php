@@ -105,25 +105,25 @@ $row = sqlFetchArray($res);
                 <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
                 <fieldset>
                     <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
                         <div class="col-sm-10">
                             <p class="form-control-static"><?php echo text($iter["fname"]) . " " . text($iter["lname"]) ?></p>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label class='control-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
                         <div class="col-sm-10">
                             <p class="form-control-static"><?php echo text($iter["username"]) ?></p>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for='curPass' class='control-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control'  name='curPass'  id='curPass' value="" autocomplete='off'>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
@@ -134,14 +134,14 @@ $row = sqlFetchArray($res);
                             <div id="password_strength_text"></div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label class='control-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control' name=newPass2  value="" autocomplete='off'>
                         </div>
                     </div>
                 </fieldset>
-                <div class="form-group">
+                <div class="mb-3">
                     <div class='offset-sm-2 col-sm-10'>
                         <button type="Submit" class='btn btn-secondary btn-save'><?php echo xlt('Save Changes'); ?></button>
                     </div>
