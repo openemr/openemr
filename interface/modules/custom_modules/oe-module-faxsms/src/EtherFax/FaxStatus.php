@@ -27,6 +27,7 @@ class FaxStatus
     public $CompletedOn;
     public int $Result;
     public $Message;
+    public $FaxImage;
 
     /**
      * Default constructor.

@@ -412,7 +412,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $ownerContact = $contactService->getForEntity($foreign_table, $foreign_id);
             if ($ownerContact) {
                 $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContact->get_id(), false);
-                $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+                $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
                 // For each relationship, get addresses and telecoms
                 foreach ($relatedPersonRecords as $record) {
                     // Get target person's contact record
@@ -1967,7 +1967,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
         $rows = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -2088,7 +2088,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " po.encounter_id IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " po.encounter_id IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -2204,7 +2204,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -3004,7 +3004,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $first_encounter = null;
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") ";
+            $wherCon .= " AND fe.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") ";
             $first_encounter = reset($this->encounterFilterList);
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
@@ -3595,7 +3595,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                             ob_start();
                             if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
                                 include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
-                                call_user_func($formTables_details[2] . "_report", $pid, $encounter, 2, $value);
+                                ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
                             }
 
                             $res[0][$value] = ob_get_clean();
@@ -4250,7 +4250,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
 
         if (!empty($this->encounterFilterList)) {
-            $wherCon = " AND f.encounter IN (" . implode(",", array_map("intval", $this->encounterFilterList)) . ")";
+            $wherCon = " AND f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ")";
         } elseif ($this->searchFiltered) {
             // there are no encounters to filter on in the form and we are filtering the data...
             return "<planofcare></planofcare><goals></goals><health_concerns></health_concerns>";
@@ -4336,7 +4336,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <code_text>" . xmlEscape($row['codetext']) . "</code_text>
                 <date>" . xmlEscape($row['date']) . "</date>
                 <date_formatted>" . xmlEscape(str_replace("-", '', $row['date'])) . "</date_formatted>
-                <assessment>" . xmlEscape(xl('Encounter')) . "</assessment>
+                <assessment>" . xlx('Encounter') . "</assessment>
              </concern>";
             }
             // Goal (SNOMED CT or LOINC)
@@ -4623,7 +4623,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $sqlBindArray = [];
 
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list
@@ -4683,7 +4683,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if (empty($this->encounterFilterList)) {
                 return "<clinical_notes></clinical_notes>";
             } else {
-                $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+                $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
             }
         } elseif ($encounter) {
             $wherCon = " f.encounter = ? AND ";
@@ -4759,7 +4759,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         $sqlBindArray = [];
         if (!empty($this->encounterFilterList)) {
-            $wherCon .= " f.encounter IN (" . implode(",", array_map('intval', $this->encounterFilterList)) . ") AND ";
+            $wherCon .= " f.encounter IN (" . implode(",", array_map(intval(...), $this->encounterFilterList)) . ") AND ";
         } elseif ($this->searchFiltered) {
             // if we are filtering our results, if there is no connected procedures to an encounter that fits within our
             // date range then we want to return an empty procedures list

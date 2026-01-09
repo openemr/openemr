@@ -254,7 +254,10 @@ var bindFetch = '';
 //
 $(function () {
     let url = top.webroot_url ? top.webroot_url : webRoot;
-    url += "/portal/sign/assets/signer_modal.php?isPortal=" + encodeURIComponent(isPortal);
+    const params = new URLSearchParams({
+        isPortal: isPortal
+    });
+    url += "/portal/sign/assets/signer_modal.php?" + params;
     fetch(url, {
         credentials: 'include'
     }).then(jsonTemplate => jsonTemplate.json()).then(jsonTemplate => {

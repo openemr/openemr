@@ -653,7 +653,6 @@ function era_callback(array &$out): void
                         debug: $debug,
                         time: '',
                         codetype: $codetype,
-                        // Note: $out['payer_claim_id'] was being passed but function only has 10 params
                     );
                     $invoice_total -= $adj['amount'];
                 }
@@ -842,7 +841,7 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
     <?php echo xlt('Amount'); ?>&nbsp;
       </td>
       <td class="dehead" align="right">
-    <?php echo xl('Balance'); ?>&nbsp;
+    <?php echo xlt('Balance'); ?>&nbsp;
       </td>
      </tr>
 

@@ -16,11 +16,12 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../vendor/autoload.php");
+$globalsBag = OEGlobalsBag::getInstance();
 SessionUtil::portalSessionStart();
 
 $isPortal = false;
@@ -39,7 +40,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         exit();
     }
 }
-
+$srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/payment.inc.php");
@@ -51,8 +52,11 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+
+$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 $cryptoGen = new CryptoGen();
 
@@ -420,7 +424,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     ?>
 
     <title><?php echo xlt('Receipt for Payment'); ?></title>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery/dist/jquery.min.js"></script>
     <script>
 
         function goHome() {
@@ -525,8 +529,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             font-weight: normal
         }
     </style>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+    <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="portal_payment.js"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
@@ -534,8 +538,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
-        var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_public_key'))); ?>;
+        var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -610,7 +614,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             $("#mode").val("portal-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            let extra = "&inv_values=" + encodeURIComponent(inv_values) + "&extra_values=" + encodeURIComponent(extra_values);
+            const params = new URLSearchParams({
+                extra_values: extra_values,
+                inv_values: inv_values
+            });
+            let extra = "&" + params;
             let flag = 0
             let liburl = './lib/paylib.php';
             $.ajax({
@@ -668,7 +676,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             let extra = "&inv_values=" + inv_values + "&extra_values=" + extra_values;
 
             let flag = 0
-            let liburl = '<?php echo $GLOBALS["webroot"] ?>/portal/lib/paylib.php';
+            let liburl = '<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php';
             $.ajax({
                 type: "POST",
                 url: liburl,
@@ -703,7 +711,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <body class="skin-blue" onunload='imclosing()' onLoad="cursor_pointer();"
           style="text-align: center; margin: auto;">
 
-    <form id="invoiceForm" method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/portal_payment.php'>
+    <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
         <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
@@ -1040,7 +1048,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <?php
         if (!isset($_SESSION['authUserID'])) {
             if (!isset($ccdata["cardHolderName"])) {
-                if ($GLOBALS['payment_gateway'] == 'Sphere') {
+                if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
                 } else {
                     echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
@@ -1072,8 +1080,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere') { ?>
-                    <form id='paymentForm' method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/lib/paylib.php'>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
@@ -1100,33 +1108,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                         <div class="col-md-4">
                                             <select name="month" id="expMonth" class="form-control">
                                                 <option value=""><?php echo xlt('Select Month'); ?></option>
-                                                <option value="01"><?php echo xlt('January'); ?></option>
-                                                <option value="02"><?php echo xlt('February'); ?></option>
-                                                <option value="03"><?php echo xlt('March'); ?></option>
-                                                <option value="04"><?php echo xlt('April'); ?></option>
-                                                <option value="05"><?php echo xlt('May'); ?></option>
-                                                <option value="06"><?php echo xlt('June'); ?></option>
-                                                <option value="07"><?php echo xlt('July'); ?></option>
-                                                <option value="08"><?php echo xlt('August'); ?></option>
-                                                <option value="09"><?php echo xlt('September'); ?></option>
-                                                <option value="10"><?php echo xlt('October'); ?></option>
-                                                <option value="11"><?php echo xlt('November'); ?></option>
-                                                <option value="12"><?php echo xlt('December'); ?></option>
+                                                <?=$twig->render('forms/month_dropdown.html.twig')?>
                                             </select>
                                         </div>
                                         <div class="col-md-4">
                                             <select name="year" id="expYear" class="form-control">
                                                 <option value=""><?php echo xlt('Select Year'); ?></option>
-                                                <option value="2019">2019</option>
-                                                <option value="2020">2020</option>
-                                                <option value="2021">2021</option>
-                                                <option value="2022">2022</option>
-                                                <option value="2023">2023</option>
-                                                <option value="2024">2024</option>
-                                                <option value="2025">2025</option>
-                                                <option value="2026">2026</option>
-                                                <option value="2027">2027</option>
-                                                <option value="2028">2028</option>
+                                                <?=$twig->render('forms/exp_year_dropdown.html.twig')?>
                                             </select>
                                         </div>
                                         <div class="col-md-4">
@@ -1192,13 +1180,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <div class="button-group">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                         <?php
-                        if ($GLOBALS['payment_gateway'] == 'InHouse') { ?>
+                        if ($globalsBag->get('payment_gateway') === 'InHouse') { ?>
                             <button id="paySubmit" class="btn btn-primary"><?php echo xlt('Send Payment'); ?></button>
-                        <?php } elseif ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                        <?php } elseif ($globalsBag->get('payment_gateway') === 'AuthorizeNet') { ?>
                             <button id="payAurhorizeNet" class="btn btn-primary"
                                     onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
                         <?php }
-                        if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                        if ($globalsBag->get('payment_gateway') === 'Stripe') { ?>
                             <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
                                                 <?php } ?>
                     </div>
@@ -1243,7 +1231,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
     </script>
 
-    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1323,7 +1311,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($GLOBALS['payment_gateway'] == 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
         <script>
             const stripe = Stripe(publicKey);
             const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
@@ -1410,7 +1398,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php } ?>
 
     <?php
-    if ($GLOBALS['payment_gateway'] == 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($globalsBag->get('payment_gateway') === 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     }
     ?>

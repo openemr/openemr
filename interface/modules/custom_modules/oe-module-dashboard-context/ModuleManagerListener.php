@@ -99,13 +99,13 @@ class ModuleManagerListener extends AbstractModuleActionListener
         self::setModuleState($modId, '0', '1');
 
         // Create dashboard context globals in the database if they don't exist
-        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
-                VALUES ('dashboard_context_show_widget', 0, '1') 
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+                VALUES ('dashboard_context_show_widget', 0, '1')
                 ON DUPLICATE KEY UPDATE `gl_value` = '1'";
         QueryUtils::sqlInsert($sql);
 
-        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
-                VALUES ('dashboard_context_user_can_switch', 0, '1') 
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+                VALUES ('dashboard_context_user_can_switch', 0, '1')
                 ON DUPLICATE KEY UPDATE `gl_value` = '1'";
         QueryUtils::sqlInsert($sql);
 
@@ -151,13 +151,13 @@ class ModuleManagerListener extends AbstractModuleActionListener
         self::setModuleState($modId, '1', '0');
 
         // Ensure globals are set in database
-        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
-                VALUES ('dashboard_context_show_widget', 0, '1') 
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+                VALUES ('dashboard_context_show_widget', 0, '1')
                 ON DUPLICATE KEY UPDATE `gl_value` = '1'";
         QueryUtils::sqlInsert($sql);
 
-        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) 
-                VALUES ('dashboard_context_user_can_switch', 0, '1') 
+        $sql = "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+                VALUES ('dashboard_context_user_can_switch', 0, '1')
                 ON DUPLICATE KEY UPDATE `gl_value` = '1'";
         QueryUtils::sqlInsert($sql);
 

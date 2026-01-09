@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * import supporting libraries
  */
@@ -52,9 +54,11 @@ class PatientController extends AppBasePortalController
             $pid = (int) $_GET['pid'];
         }
 
+        $globalsBag = OEGlobalsBag::getInstance();
         // only allow patient to see themself
-        if (!empty($GLOBALS['bootstrap_pid'])) {
-            $pid = $GLOBALS['bootstrap_pid'];
+        $bootstrapPid = $globalsBag->get('bootstrap_pid');
+        if (!empty($bootstrapPid)) {
+            $pid = $bootstrapPid;
         }
 
         if (isset($_GET['user'])) {
@@ -70,7 +74,7 @@ class PatientController extends AppBasePortalController
         }
 
         // force register to pid of 0 and register of true
-        if (!empty($GLOBALS['bootstrap_register'])) {
+        if (!empty($globalsBag->get('bootstrap_register'))) {
             $pid = 0;
             $register = true;
         }
@@ -140,12 +144,14 @@ class PatientController extends AppBasePortalController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
+            $globalsBag = OEGlobalsBag::getInstance();
             // only allow patient to see themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                $pid = $GLOBALS['bootstrap_pid'];
+            $bootstrapPid = $globalsBag->get('bootstrap_pid');
+            if (!empty($bootstrapPid)) {
+                $pid = $bootstrapPid;
             }
             // force register to pid of 0
-            if (!empty($GLOBALS['bootstrap_register'])) {
+            if (!empty($globalsBag->get('bootstrap_register'))) {
                 $pid = 0;
             }
 

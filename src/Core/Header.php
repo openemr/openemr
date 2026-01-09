@@ -126,9 +126,8 @@ class Header
 
         if ($echoOutput) {
             echo $output;
-        } else {
-            return $output;
         }
+        return $output;
     }
 
     public static function getFavIcon()
@@ -184,7 +183,7 @@ class Header
         }
 
         // Filter out any empty strings in case assets array contains them
-        $assets = array_filter($assets, fn ($asset) => is_string($asset) && trim($asset) !== '');
+        $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
         $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
@@ -421,6 +420,7 @@ class Header
         } catch (ParseException $e) {
             error_log(errorLogEscape($e->getMessage()));
             // @TODO need to handle this better. RD 2017-05-24
+            return [];
         }
     }
 

@@ -49,14 +49,14 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
             exit;
         }
         //update the recorded disclosure in the extended_log table.
-        EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+        EventAuditLogger::getInstance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
         if (!$authWrite && !$authAddonly) {
             echo xlt('Not Authorized');
             exit;
         }
         //insert the disclosure records in the extended_log table.
-        EventAuditLogger::instance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
+        EventAuditLogger::getInstance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
     // added ajax submit to record_disclosure thus an exit() 12/19/17
     exit();
@@ -74,7 +74,7 @@ if (isset($_GET['deletelid'])) {
 
     $deletelid = $_GET['deletelid'];
     //function to delete the recorded disclosures
-    EventAuditLogger::instance()->deleteDisclosure($deletelid);
+    EventAuditLogger::getInstance()->deleteDisclosure($deletelid);
 }
 ?>
 <html>
@@ -241,5 +241,3 @@ function refreshme() {
 </script>
 </body>
 </html>
-
-

@@ -16,4 +16,3 @@ CREATE TABLE IF NOT EXISTS `form_functional_cognitive_status` (
   `description` text,
   `external_id` VARCHAR(30) DEFAULT NULL
 ) ENGINE=InnoDB;
-

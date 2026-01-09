@@ -21,7 +21,7 @@
 function smarty_modifier_capitalize($string, $uc_digits = false)
 {
     smarty_modifier_capitalize_ucfirst(null, $uc_digits);
-    return preg_replace_callback('!\'?\b\w(\w|\')*\b!', 'smarty_modifier_capitalize_ucfirst', (string) $string);
+    return preg_replace_callback('!\'?\b\w(\w|\')*\b!', smarty_modifier_capitalize_ucfirst(...), (string) $string);
 }
 
 function smarty_modifier_capitalize_ucfirst($string, $uc_digits = null)

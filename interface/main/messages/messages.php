@@ -370,7 +370,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
                                 deletePnote($delete_id[$i]);
-                                EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
+                                EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
                             }
                             break;
                     }
@@ -1062,7 +1062,13 @@ if (!empty($_REQUEST['go'])) { ?>
                 alert(<?php echo xlj("This patient does not allow SMS messaging!"); ?>);
             } else {
                 top.restoreSession();
-                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
+                const params = new URLSearchParams({
+                    go: 'SMS_bot',
+                    m: m,
+                    nomenu: '1',
+                    pid: pid
+                });
+                window.open('messages.php?' + params, 'SMS_bot', 'width=370,height=600,resizable=0');
             }
         }
 

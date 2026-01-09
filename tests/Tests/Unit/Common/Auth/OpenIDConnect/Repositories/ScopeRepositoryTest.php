@@ -21,7 +21,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
 
 class ScopeRepositoryTest extends TestCase
@@ -33,8 +32,6 @@ class ScopeRepositoryTest extends TestCase
 
     public function setUp(): void
     {
-        $mock = new MockRestConfig();
-        $mock::$systemScopesEnabled = true;
         $mock = $this->createMock(ServerConfig::class);
         $mock->method('areSystemScopesEnabled')
             ->willReturn(true);

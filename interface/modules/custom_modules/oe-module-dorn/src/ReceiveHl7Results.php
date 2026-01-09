@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\Dorn;
 use Document;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\ReceiveResultsResponseModel;
 
@@ -1058,7 +1059,7 @@ class ReceiveHl7Results
         if ($fatal) {
             $rhl7_return['mssgs'][] = '*' . $msg;
             $rhl7_return['fatal'] = true;
-            EventAuditLogger::instance()->newEvent(
+            EventAuditLogger::getInstance()->newEvent(
                 "lab-results-error",
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],
@@ -1622,7 +1623,7 @@ class ReceiveHl7Results
 
         foreach (['-', '\''] as $delimiter) {
             if (str_contains($string, $delimiter)) {
-                $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
+                $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
             }
         }
         return $string;

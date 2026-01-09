@@ -154,7 +154,7 @@ class FhirObservationTreatmentInterventionPreferenceService extends FhirServiceB
             " ORDER BY p.effective_datetime DESC, p.id DESC";
 
         $rows = QueryUtils::fetchRecords($sql, $sqlBindArray) ?? [];
-        $result->setData(array_map([$this, 'transformRow'], $rows));
+        $result->setData(array_map($this->transformRow(...), $rows));
         return $result;
     }
 

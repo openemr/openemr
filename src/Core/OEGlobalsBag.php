@@ -13,6 +13,8 @@ namespace OpenEMR\Core;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+use function array_key_exists;
+
 class OEGlobalsBag extends ParameterBag
 {
     private static ?OEGlobalsBag $instance = null;
@@ -20,15 +22,12 @@ class OEGlobalsBag extends ParameterBag
     /**
      * Get the singleton instance of OEGlobalsBag
      *
-     * @param bool $compatibilityMode Enable two-way sync with $GLOBALS array
      * @return OEGlobalsBag
      */
-    public static function getInstance(bool $compatibilityMode = false): OEGlobalsBag
+    public static function getInstance(): OEGlobalsBag
     {
         if (null === self::$instance) {
-            // In compatibility mode, import existing $GLOBALS into the bag
-            $initialParams = $compatibilityMode ? $GLOBALS : [];
-            self::$instance = new OEGlobalsBag($initialParams, $compatibilityMode);
+            self::$instance = new OEGlobalsBag($GLOBALS);
         }
 
         return self::$instance;
@@ -42,7 +41,7 @@ class OEGlobalsBag extends ParameterBag
         self::$instance = null;
     }
 
-    public function __construct(array $parameters = [], private readonly bool $compatibilityMode = false)
+    public function __construct(array $parameters = [])
     {
         parent::__construct($parameters);
     }
@@ -51,16 +50,14 @@ class OEGlobalsBag extends ParameterBag
     {
         parent::set($key, $value);
 
-        if ($this->compatibilityMode) {
-            // In compatibility mode, also set the value in the global $GLOBALS array
-            $GLOBALS[$key] = $value;
-        }
+        // Push the value into GLOBALS for backwards compatibility. Eventually
+        // this should be removed.
+        $GLOBALS[$key] = $value;
     }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        // If in compatibility mode and key not in bag, try $GLOBALS
-        if ($this->compatibilityMode && !parent::has($key) && array_key_exists($key, $GLOBALS)) {
+        if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
             return $GLOBALS[$key];
         }
 
@@ -69,13 +66,10 @@ class OEGlobalsBag extends ParameterBag
 
     public function has(string $key): bool
     {
-        $hasInBag = parent::has($key);
-
-        // In compatibility mode, also check $GLOBALS
-        if ($this->compatibilityMode && !$hasInBag) {
-            return array_key_exists($key, $GLOBALS);
+        if (parent::has($key)) {
+            return true;
         }
 
-        return $hasInBag;
+        return array_key_exists($key, $GLOBALS);
     }
 }

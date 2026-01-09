@@ -14,6 +14,7 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
 
@@ -21,10 +22,10 @@ class FormLocator
 {
     private array $pathCache = [];
     private readonly string $fileRoot;
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     // AI GENERATED CODE: HEADER END
-    public function __construct(?SystemLogger $logger = null)
+    public function __construct(?LoggerInterface $logger = null)
     {
         if (!$logger) {
             $logger = new SystemLogger();

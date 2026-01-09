@@ -29,7 +29,7 @@ class Provider extends ORDataObject
         /**
          * Constructor sets all Prescription attributes to their default value
          */
-    function __construct(public $id = "", $prefix = "")
+    function __construct(public $id = "")
     {
         $this->federal_drug_id = "";
         $this->_table = "users";

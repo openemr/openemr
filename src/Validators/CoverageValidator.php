@@ -208,7 +208,7 @@ class CoverageValidator extends BaseValidator
                             }
                         }
                         return false;
-                    }, null, true)
+                    })
                     ->datetime('Y-m-d')
                     ->callback(fn($value, $values): true => true);
             }

@@ -43,7 +43,7 @@ class CommunicationPerformed extends QDMBaseType
      * @property array $relatedTo
      */
     public $relatedTo = [
-        
+
     ];
 
     /**
@@ -88,4 +88,3 @@ class CommunicationPerformed extends QDMBaseType
 
     public $_type = 'QDM::CommunicationPerformed';
 }
-

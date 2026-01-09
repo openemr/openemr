@@ -112,4 +112,3 @@ while (my $line = <STDIN>) {
 print "\nInserted $countnew rows, updated $countup rows.\n";
 
 $dbh->disconnect;
-

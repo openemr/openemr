@@ -196,6 +196,18 @@ When updating the shared configuration files:
 - Make sure your changes are backward compatible or update the individual environment files as needed
 - Test the changes across multiple environments to ensure they work correctly
 
+### Skipping Slow Tests During Development
+
+When iterating on a PR, you may want to skip the slow `Test All Configurations` workflow to get faster feedback from linting and static analysis. To do this, add the `Skip-Slow-Tests: true` trailer to your commit:
+
+```sh
+git commit --trailer "Skip-Slow-Tests: true" -m "fix: correct date parsing"
+```
+
+When this trailer is present, the workflow will fail immediately. This failed status prevents accidental merging without running the full test suite.
+
+Before merging, push a commit without the trailer to trigger the full tests.
+
 ### Troubleshooting CI
 
 If tests are failing in CI but passing locally, check:

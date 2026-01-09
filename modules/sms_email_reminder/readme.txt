@@ -7,4 +7,3 @@ every hour.
 notifications settings and adjust interface/globals.php accordingly.
 
  Also need to comment out the exit command from the beginning of the scripts.
-

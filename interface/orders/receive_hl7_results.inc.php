@@ -73,7 +73,7 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
-        EventAuditLogger::instance()->newEvent(
+        EventAuditLogger::getInstance()->newEvent(
             "lab-results-error",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -682,7 +682,7 @@ function ucname($string)
 
     foreach (['-', '\''] as $delimiter) {
         if (str_contains($string, $delimiter)) {
-            $string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
+            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
         }
     }
     return $string;
