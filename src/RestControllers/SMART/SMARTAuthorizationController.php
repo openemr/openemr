@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -38,9 +39,9 @@ use Twig\Environment;
 class SMARTAuthorizationController
 {
     /**
-     * @var SystemLogger
+     * @var LoggerInterface
      */
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var EventDispatcherInterface

@@ -22,7 +22,6 @@ if (isset($_GET['portal_auth'])) {
 
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
-    $GLOBALS['already_autoloaded'] = true;
     require_once(__DIR__ . "/../vendor/autoload.php");
     SessionUtil::portalSessionStart();
 
@@ -391,7 +390,7 @@ if ($_POST['ccrAction']) {
     if (str_starts_with((string) $raw, "send")) {
         $send_to = trim(stripslashes(substr((string) $raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
-            echo(htmlspecialchars((string) xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
+            echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
 

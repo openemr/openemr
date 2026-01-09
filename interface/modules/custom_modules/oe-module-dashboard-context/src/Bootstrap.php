@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\DashboardContext;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
@@ -53,7 +54,12 @@ class Bootstrap
     {
         $this->registerMenuItems();
         $this->registerPageHeadingWidget();
-        // $this->registerDashboardWidget(); // TODO sjp Save if we want to allow user to move the dropdown to top of view.
+        //$this->registerDashboardWidget(); // TODO sjp Save if we want to allow user to move the dropdown to top of view.
+    }
+
+    public function registerDashboardWidget(): void
+    {
+        $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, $this->renderDashboardWidget(...));
     }
 
     /**
@@ -132,9 +138,9 @@ class Bootstrap
         try {
             $controller = new ContextWidgetController();
             $navHtml = $controller->renderNavbarDropdown();
-            
+
             $this->logger->debug("DashboardContext: Appending titleNavContent", ['length' => strlen($navHtml)]);
-            
+
             // Append HTML content to be injected into the title nav area
             // This will appear between the page title and the action buttons
             // Let modules be modules ...

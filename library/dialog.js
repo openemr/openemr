@@ -327,8 +327,8 @@ if (typeof top.set_opener !== "function") {
 if (typeof alertMsg !== "function") {
     /* eslint-disable-next-line no-inner-declarations */
     function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '', hideDismiss = false) {
-        const gotIt  = xl("Dismiss Forever");
-        const title  = xl("Alert");
+        const gotIt   = xl("Dismiss Forever");
+        const title   = xl("Alert");
         const dismiss = xl("Dismiss");
 
         $('#alert_box').remove();
@@ -339,22 +339,23 @@ if (typeof alertMsg !== "function") {
         const oSize = (size === 'lg') ? 'left:10%;width:80%;' : 'left:30%;width:40%;';
         const style = `position:fixed;top:25%;${oSize}bottom:0;z-index:9999;`;
 
-        $('body').prepend(`<div class="container text-center" id="alert_box" style="${style}"></div>`);
+        $('body').prepend(`<div class="container text-center" id="alert_box" style="${jsAttr(style)}"></div>`);
 
-        const mHtml =
-            `<div id="alertmsg" class="alert alert-${type} alert-dismissible" role="alert">
-         <h5 class="alert-heading text-center">${title}!</h4>
-         <hr>
-         <p class="text-dark">${message}</p>
+        const mHtml = `
+        <div id="alertmsg" class="alert alert-${jsAttr(type)} alert-dismissible" role="alert">
+            <h5 class="alert-heading text-center">${jsText(title)}!</h5>
+            <hr>
+            <p class="text-dark">${jsText(message)}</p>
 
-         <button type="button" class="btn btn-link" id="dontShowAgain" data-dismiss="alert"${hiddenAttr}>
-           ${gotIt}
-         </button>
+            <button type="button" class="btn btn-link" id="dontShowAgain" data-dismiss="alert"${hiddenAttr}>
+                ${jsText(gotIt)}
+            </button>
 
-         <button type="button" id="alertDismissButton" class="btn btn-link float-right" data-dismiss="alert" aria-label="${dismiss}">
-           ${dismiss}
-         </button>
-       </div>`;
+            <button type="button" id="alertDismissButton" class="btn btn-link float-right"
+                data-dismiss="alert" aria-label="${jsAttr(dismiss)}">
+                ${jsText(dismiss)}
+            </button>
+        </div>`;
 
         $('#alert_box').append(mHtml);
 

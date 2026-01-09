@@ -3,8 +3,10 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 function code_entry(json_source) {
@@ -31,6 +33,9 @@ function procedure(json_source) {
     retval.fee = ko.observable(json_source.fee);
     retval.modifiers = ko.observable(json_source.modifiers);
     retval.units = ko.observable(json_source.units);
+    /** ai generated code by google-labs-jules starts */
+    retval.ndc_info = ko.observable(json_source.ndc_info);
+    /** ai generated code by google-labs-jules end */
     retval.mod_size = ko.observable(json_source.mod_size);
     retval.justify = ko.observableArray();
     if (json_source.justify !== null) {
@@ -81,6 +86,10 @@ function procedure(json_source) {
         json_return.fee = this.fee();
         json_return.modifiers = this.modifiers();
         json_return.units = this.units();
+        /** ai generated code by google-labs-jules starts */
+        json_return.ndc_info = this.ndc_info();
+        json_return.mod_size = this.mod_size();
+        /** ai generated code by google-labs-jules end */
         json_return.justify = this.genJustify();
         return json_return;
     }

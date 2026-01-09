@@ -45,7 +45,7 @@ final class EventAuditLoggerBreakglassTest extends TestCase
         $this->assertGreaterThan(0, $insertCount, 'GACL fixtures should be installed');
 
         // Get EventAuditLogger singleton instance
-        $eventAuditLogger = EventAuditLogger::instance();
+        $eventAuditLogger = EventAuditLogger::getInstance();
 
         // Use reflection to access private properties and methods
         $reflectionClass = new \ReflectionClass($eventAuditLogger);

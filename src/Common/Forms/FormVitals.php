@@ -87,7 +87,7 @@ class FormVitals extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    public function __construct($id = "", $_prefix = "")
+    public function __construct($id = "")
     {
         parent::__construct();
         if ($id > 0) {
@@ -483,7 +483,7 @@ class FormVitals extends ORDataObject
                     // if we have a number 0 we want to let it through.  Originally this failed due to the empty check.
                     if (is_numeric($field) || !empty($field)) {
                         //echo "s: $field_name to: $field <br />";
-                        call_user_func([&$this,$func], $field);
+                        $this->$func($field);
                     }
                 }
             }

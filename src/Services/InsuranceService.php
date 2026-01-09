@@ -220,7 +220,7 @@ class InsuranceService extends BaseService
         if (!empty($type)) {
             return sqlQuery("Select `id` From `insurance_data` Where pid = ? And type = ?", [$pid, $type])['id'] ?? null;
         }
-        return $this->getOne($pid, $type) !== false;
+        return $this->getOne($pid) !== false;
     }
 
     public function update($data)

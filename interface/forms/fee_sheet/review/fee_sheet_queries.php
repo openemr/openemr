@@ -6,16 +6,20 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once('fee_sheet_classes.php');
 require_once("$srcdir/../custom/code_types.inc.php");
 require_once("$srcdir/../library/lists.inc.php");
 require_once("code_check.php");
 
+use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
+use OpenEMR\Forms\FeeSheet\Review\EncounterInfo;
+use OpenEMR\Forms\FeeSheet\Review\Procedure;
 use OpenEMR\Services\PatientIssuesService;
 
 /**
@@ -185,11 +189,13 @@ function create_procs($req_pid, $req_encounter, $procs): void
             "modifier,  units,      fee,        ndc_info, " .
             "justify,   notecodes" .
             ") values ";
+    /** ai generated code by google-labs-jules starts */
     $param = "(NOW(),?,?,?," . // date, encounter, code_type, code
             "?,?,?,?," .     // code_text,pid,authorized,user
             "?,1,0,?," .     // groupname,activity,billed,provider_id
-            "?,?,?,''," .     // modifier, units, fee, ndc_info
+            "?,?,?,?," .     // modifier, units, fee, ndc_info
             "?,'')";        // justify, notecodes
+    /** ai generated code by google-labs-jules end */
     foreach ($procs as $proc) {
         $insert_params = [];
         array_push($insert_params, $req_encounter);
@@ -232,7 +238,7 @@ function issue_diagnoses($pid, $encounter)
             $diagnosis = explode(":", $code_key);
             $code = $diagnosis[1] ?? '';
             $code_type = $diagnosis[0];
-            $new_info = new code_info($code, $code_type, $title, $res['selected'] != 0);
+            $new_info = new CodeInfo($code, $code_type, $title, $res['selected'] != 0);
 
             //ensure that a diagnostic element is allowed to be created from a problem element
             if ($new_info->allowed_to_create_diagnosis_from_problem != "TRUE") {
@@ -269,7 +275,7 @@ function common_diagnoses($limit = 10)
         $title = $res['code_text'];
         $code = $res['code'];
         $code_type = $res['code_type'];
-        $retval[] = new code_info($code, $code_type, $title, 0);
+        $retval[] = new CodeInfo($code, $code_type, $title, 0);
     }
 
     return $retval;
@@ -288,25 +294,45 @@ function common_diagnoses($limit = 10)
 function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
 {
     $param = [$encounter];
-    $sql = "SELECT code,code_type,code_text,fee,modifier,justify,units,ct_diag,ct_fee,ct_mod "
-          . " FROM billing, code_types as ct "
-          . " WHERE encounter=? AND billing.activity>0 AND ct.ct_key=billing.code_type "
-          . " ORDER BY id";
+    $sql = <<<'SQL'
+        SELECT code,
+               code_type,
+               code_text,
+               fee,
+               modifier,
+               justify,
+               units,
+               ndc_info, -- added by google-labs-jules
+               ct_diag,
+               ct_fee,
+               ct_mod
+          FROM billing,
+               code_types as ct
+         WHERE encounter = ?
+           AND billing.activity > 0
+           AND ct.ct_key = billing.code_type
+      ORDER BY id
+    SQL;
     $results = sqlStatement($sql, $param);
     while ($res = sqlFetchArray($results)) {
         $code = $res['code'];
         $code_type = $res['code_type'];
         $code_text = $res['code_text'];
         if ($res['ct_diag'] == '1') {
-            $diagnoses[] = new code_info($code, $code_type, $code_text);
+            $diagnoses[] = new CodeInfo($code, $code_type, $code_text);
         } elseif ($res['ct_fee'] == 1) {
             $fee = $res['fee'];
             $justify = $res['justify'];
             $modifiers = $res['modifier'];
             $units = $res['units'];
+            /** ai generated code by google-labs-jules starts */
+            $ndc_info = $res['ndc_info'];
+            /** ai generated code by google-labs-jules end */
             $selected = true;
             $mod_size = $res['ct_mod'];
-            $procedures[] = new procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $selected);
+            /** ai generated code by google-labs-jules starts */
+            $procedures[] = new Procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $ndc_info, $selected);
+            /** ai generated code by google-labs-jules end */
         }
     }
 }
@@ -329,7 +355,7 @@ function select_encounters($pid, $encounter)
          " ORDER BY date DESC";
     $results = sqlStatement($sql, $parameters);
     while ($res = sqlFetchArray($results)) {
-        $retval[] = new encounter_info($res['encounter'], $res['date']);
+        $retval[] = new EncounterInfo($res['encounter'], $res['date']);
     }
 
     return $retval;

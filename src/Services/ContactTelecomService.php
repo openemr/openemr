@@ -159,6 +159,7 @@ class ContactTelecomService extends BaseService
                 }
 
                 // Set value and metadata
+                $contactTelecom->set_status($telecom['status'] ?? '');
                 $contactTelecom->set_value($telecom['value'] ?? '');
                 $contactTelecom->set_notes($telecom['notes'] ?? '');
                 $contactTelecom->set_rank($telecom['rank'] ?? 1);

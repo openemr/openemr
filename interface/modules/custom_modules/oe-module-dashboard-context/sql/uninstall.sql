@@ -19,5 +19,3 @@ DROP TABLE IF EXISTS `dashboard_context_assignments`;
 DROP TABLE IF EXISTS `dashboard_context_definitions`;
 DROP TABLE IF EXISTS `user_dashboard_context_config`;
 DROP TABLE IF EXISTS `user_dashboard_context`;
--- DROP TABLE IF EXISTS `dashboard_widget_order`;
--- DROP TABLE IF EXISTS `dashboard_context_facility_defaults`;

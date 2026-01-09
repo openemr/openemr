@@ -545,7 +545,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>', "\n");
+                        $this->echo('<p>Starting conversion of *TEXT types to use default NULL.</p>');
                         $this->flush_echo();
                     }
                     if (!empty($item['column_comment'])) {
@@ -587,7 +587,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     }
                     if ($skipping) {
                         $skipping = false;
-                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>', "\n");
+                        $this->echo('<p>Starting migration to InnoDB, please wait.</p>');
                         $this->flush_echo();
                     }
 
@@ -673,7 +673,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     try {
                         QueryUtils::startTransaction();
                         foreach ($pidChunks as $chunk) {
-                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map('intval', $chunk)) . ")";
+                            $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map(intval(...), $chunk)) . ")";
                             $encounters = sqlStatementNoLog($encStatement);
 
                             while ($row = sqlFetchArray($encounters)) {
@@ -747,7 +747,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
             } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
-                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated 
+                $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
                     AND TABLE_NAME = 'patient_data' AND COLUMN_NAME = 'care_team_status';";
@@ -1540,7 +1540,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         ];
         $providers = explode("|", $record['care_team_provider'] ?? '');
         $facilities = explode("|", $record['care_team_facility'] ?? '');
-        $facilitiesIds = array_filter(array_map('intval', $facilities));
+        $facilitiesIds = array_filter(array_map(intval(...), $facilities));
         foreach ($providers as $providerId) {
             // skip invalid provider ids
             if (intval($providerId) <= 0) {
@@ -1548,7 +1548,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             }
             $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "
                 . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE fui.field_id='provider_id' AND u.id = ? ", [$providerId]);
-            $userRoleFacilityIds = array_map(fn($item) => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
+            $userRoleFacilityIds = array_map(static fn($item): int => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
             if (!empty($facilitiesIds)) {
                 // intersect user role facilities with care team facilities
                 $facilitiesIds = array_values(array_intersect($facilitiesIds, $userRoleFacilityIds));

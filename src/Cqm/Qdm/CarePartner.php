@@ -31,4 +31,3 @@ class CarePartner extends Entity
 
     public $_type = 'QDM::CarePartner';
 }
-

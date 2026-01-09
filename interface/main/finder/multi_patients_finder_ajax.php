@@ -30,7 +30,7 @@ switch ($type) {
         $results = getPatientId("$search%", 'pubpid as text, pid as id', 'pubpid');
         foreach ($results as $key => $result) {
             //clean data using 'text' function
-            $results[$key] = array_map('text', $result);
+            $results[$key] = array_map(text(...), $result);
         }
         break;
     case 'by-name':
@@ -38,13 +38,13 @@ switch ($type) {
         $results = getPatientLnames("%$search%", 'pid as id, CONCAT(lname, ", ",fname)  as text', 'lname ASC, fname ASC');
         foreach ($results as $key => $result) {
             //clean data using 'text' function
-            $results[$key] = array_map('text', $result);
+            $results[$key] = array_map(text(...), $result);
         }
         break;
     case 'patient-by-id':
         $results = getPatientData($search, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         //clean data using 'text' function
-        $results = array_map('text', $results);
+        $results = array_map(text(...), $results);
         $results['DOB'] = oeFormatShortDate($results['DOB']);
         break;
 }
