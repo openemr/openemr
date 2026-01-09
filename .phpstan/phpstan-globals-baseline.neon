@@ -2690,7 +2690,7 @@ parameters:
       path: ../src/Common/Http/oeOAuth.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 20
+      count: 17
       path: ../src/Common/Logging/EventAuditLogger.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
