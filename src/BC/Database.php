@@ -62,7 +62,7 @@ class Database
 
     private static function readLegacyConfig(): array
     {
-        $bag = OEGlobalsBag::getInstance(true);
+        $bag = OEGlobalsBag::getInstance();
         $sqlconf = $bag->get('sqlconf');
         if (empty($sqlconf)) {
             throw new LogicException(
