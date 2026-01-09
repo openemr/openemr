@@ -267,7 +267,7 @@ function getImmunizationObservationLists($k)
 
 function getImmunizationObservationResults()
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $obs_res_q = "SELECT
                   *
                 FROM
@@ -285,7 +285,7 @@ function getImmunizationObservationResults()
 
 function saveImmunizationObservationResults($id, $immunizationdata): void
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $imm_obs_data = getImmunizationObservationResults();
     if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
         foreach ($imm_obs_data as $val) {

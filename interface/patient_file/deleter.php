@@ -49,7 +49,7 @@ $info_msg = "";
 //
 function row_delete($table, $where): void
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -86,7 +86,7 @@ function row_delete($table, $where): void
 //
 function row_modify($table, $set, $where): void
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::getInstance()->newEvent("deactivate", $session->get('authUser'), $session->get('authProvider'), 1, "$table: $where");

@@ -136,7 +136,9 @@ function receiptPaymentLine($paydate, $amount, $description = ''): void
 function generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
-    global $sl_err, $sl_cash_acc, $details, $facilityService, $session;
+    global $sl_err, $sl_cash_acc, $details, $facilityService;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);

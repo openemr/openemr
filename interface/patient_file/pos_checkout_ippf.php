@@ -489,7 +489,8 @@ function generate_receipt($patient_id, $encounter = 0): void
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
     global $TAXES_AFTER_ADJUSTMENT;
     global $facilityService, $alertmsg;
-    global $session;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     // Get the most recent invoice data or that for the specified encounter.
     if ($encounter) {

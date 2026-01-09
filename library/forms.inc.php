@@ -5,7 +5,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FormService;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @deprecated Use FormService::getFormByEncounter() instead
@@ -137,7 +136,7 @@ function getFormNameByFormdir($formdir)
 
 function getDocumentsByEncounter($patientID = null, $encounterID = null)
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $allDocuments = null;
     $currentEncounter = $encounterID ?: $session->get('encounter');
     $currentPatient = $patientID ?: $session->get('pid');
