@@ -43,7 +43,6 @@ use Twig\Error\SyntaxError;
 require_once(__DIR__ . "/../../vendor/autoload.php");
 
 $globalsBag = OEGlobalsBag::getInstance();
-$globalsBag->set('already_autoloaded', true);
 
 SessionUtil::setAppCookie(SessionUtil::CORE_SESSION_ID);
 
