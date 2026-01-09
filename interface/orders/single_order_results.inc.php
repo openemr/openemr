@@ -318,7 +318,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
 
 function generate_order_report($orderid, $input_form = false, $genstyles = true, $finals_only = false)
 {
-    global $aNotes, $session;
+    global $aNotes;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');

@@ -821,7 +821,8 @@ function strterm($string, $length)
 // Helper function to generate an image URL that defeats browser/proxy caching when needed.
 function UrlIfImageExists($filename, $append = true)
 {
-    global $webserver_root, $web_root, $session;
+    global $webserver_root, $web_root;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $path = "sites/" . $session->get('site_id') . "/images/$filename";
     // @ in next line because a missing file is not an error.
     if ($stat = @stat("$webserver_root/$path")) {

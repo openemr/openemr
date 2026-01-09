@@ -152,7 +152,7 @@ function generate_select_list(
     $include_inactive = false,
     $tabIndex = false
 ) {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $attributes = [];
     $_options = [];
     $_metadata = [];
@@ -583,7 +583,9 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 //
 function generate_form_field($frow, $currvalue): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number, $session;
+    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $currescaped = htmlspecialchars($currvalue ?? '', ENT_QUOTES);
 
@@ -1684,7 +1686,9 @@ function generate_form_field($frow, $currvalue): void
 
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
-    global $rootdir, $date_init, $ISSUE_TYPES, $session;
+    global $rootdir, $date_init, $ISSUE_TYPES;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $currescaped = htmlspecialchars((string) $currvalue, ENT_QUOTES);
 
@@ -2345,7 +2349,9 @@ function generate_list_map($list_id, $translate = false)
 
 function generate_display_field($frow, $currvalue)
 {
-    global $ISSUE_TYPES, $facilityService, $session;
+    global $ISSUE_TYPES, $facilityService;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $data_type  = $frow['data_type'];
     $field_id   = $frow['field_id'] ?? null;
@@ -3443,7 +3449,9 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
 
 function display_layout_rows($formtype, $result1, $result2 = ''): void
 {
-    global $item_count, $cell_count, $last_group, $CPR, $session;
+    global $item_count, $cell_count, $last_group, $CPR;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     if ('HIS' == $formtype) {
         $formtype .= '%'; // TBD: DEM also?
@@ -4550,7 +4558,7 @@ function dropdown_facility(
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false): void
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     if ($fixedWidth) {
         echo "<div class='section-header'>";
     } else {

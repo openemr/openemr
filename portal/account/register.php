@@ -53,7 +53,7 @@ $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 // Prepare data for the template
 $data = [
 'global' => $globalsBag->all(),
-'session' => $_SESSION, // TODO this seems as not used inside of template
+'session' => $session->all(),
 'languageRegistration' => $languageRegistration ?? '',
 'fnameRegistration' => $fnameRegistration ?? '',
 'mnameRegistration' => $mnameRegistration ?? '',

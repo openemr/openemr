@@ -290,7 +290,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            global $session;
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
             EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
                 $session->get('authUser'),
@@ -337,7 +337,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function resolveDuplicateEncounters($targets): void
         {
-            global $PRODUCTION, $session;
+            global $PRODUCTION;
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
 
             $target_pid = $targets[0]['pid'];
             $target = $targets[0]['encounter'];

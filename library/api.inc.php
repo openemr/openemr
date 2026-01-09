@@ -16,8 +16,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-
 function formHeader($title = "My Form"): void
 {
     ?>
@@ -40,7 +38,9 @@ function formFooter(): void
 
 function formSubmit($tableName, $values, $id, $authorized = "0")
 {
-    global $attendant_type, $session;
+    global $attendant_type;
+
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
     $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, [$tableName]) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
@@ -75,7 +75,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
-    global $session;
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
