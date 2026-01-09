@@ -99,7 +99,7 @@ if (!empty($count)) {
         $record['pid'] = $_SESSION['pid'];
         $record['encounter'] = $_SESSION['encounter'];
         $record['authorized'] = $userauthorized;
-        $record['date'] = $code_date[$key];
+        $record['date'] = DateToYYYYMMDD($code_date[$key]);
         $record['groupname'] = $_SESSION["authProvider"];
         $record['activity'] = ClinicalNotesService::ACTIVITY_ACTIVE;
 
