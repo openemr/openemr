@@ -795,7 +795,7 @@ class EtherFaxActions extends AppDispatch
         $uid = $_SESSION['authUserID'];
         $jobId = $faxDetails->JobId;
 
-        // avoid duplicates
+        // avoid duplicates, Claude helped craft the query
         $existing = QueryUtils::querySingleRow("SELECT `id` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]);
         if ($existing !== false && !empty($existing['id'])) {
             return (int)$existing['id'];  // Return existing ID instead of inserting
