@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
@@ -34,16 +35,18 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+$globalsBag = OEGlobalsBag::getInstance();
+$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
+        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
         exit;
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
         exit;
     }
 }
@@ -1484,33 +1487,13 @@ function make_insurance() {
                                             <div class="col-md-4">
                                                 <select name="month" id="expMonth" class="form-control">
                                                     <option value=""><?php echo xlt('Select Month'); ?></option>
-                                                    <option value="01"><?php echo xlt('January'); ?></option>
-                                                    <option value="02"><?php echo xlt('February'); ?></option>
-                                                    <option value="03"><?php echo xlt('March'); ?></option>
-                                                    <option value="04"><?php echo xlt('April'); ?></option>
-                                                    <option value="05"><?php echo xlt('May'); ?></option>
-                                                    <option value="06"><?php echo xlt('June'); ?></option>
-                                                    <option value="07"><?php echo xlt('July'); ?></option>
-                                                    <option value="08"><?php echo xlt('August'); ?></option>
-                                                    <option value="09"><?php echo xlt('September'); ?></option>
-                                                    <option value="10"><?php echo xlt('October'); ?></option>
-                                                    <option value="11"><?php echo xlt('November'); ?></option>
-                                                    <option value="12"><?php echo xlt('December'); ?></option>
+                                                    <?=$twig->render('forms/month_dropdown.html.twig')?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
                                                 <select name="year" id="expYear" class="form-control">
                                                     <option value=""><?php echo xlt('Select Year'); ?></option>
-                                                    <option value="2021">2021</option>
-                                                    <option value="2022">2022</option>
-                                                    <option value="2023">2023</option>
-                                                    <option value="2024">2024</option>
-                                                    <option value="2025">2025</option>
-                                                    <option value="2026">2026</option>
-                                                    <option value="2027">2027</option>
-                                                    <option value="2028">2028</option>
-                                                    <option value="2028">2029</option>
-                                                    <option value="2028">2030</option>
+                                                    <?=$twig->render('forms/exp_year_dropdown.html.twig')?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
