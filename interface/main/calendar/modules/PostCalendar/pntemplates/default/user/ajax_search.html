@@ -16,7 +16,7 @@
             [-php-]
                 echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='btn btn-secondary btn-lg' onclick='top.restoreSession()'>";
             [-/php-]
-            <i class="fa fa-arrow-left mr-1"></i> [-xlt t='Return to Calendar'-]</a>
+            <i class="fa fa-arrow-left me-1"></i> [-xlt t='Return to Calendar'-]</a>
         </div>
         <div class="col-12">
             <h2>[-xlt t='Searching for appointments'-]</h2>
@@ -24,9 +24,9 @@
         <div class="col-12">
             <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                 <!-- Keywords -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
-                    <div class="form-row">
+                    <div class="row gx-2">
                         <div class="col-md-8">
                             <input type="text" class="form-control" name="pc_keywords" id="pc_keywords"
                                 placeholder= "[-xla t='Search patients, providers, appointments, or comments'-]"
@@ -39,10 +39,10 @@
                             </select>
                         </div>
                     </div>
-                    <small class="form-text text-muted">[-xlt t='For multiple words, separate with spaces and select AND/OR'-]</small>
+                    <small class="form-text text-body-secondary">[-xlt t='For multiple words, separate with spaces and select AND/OR'-]</small>
                 </div>
                 <!-- In Category -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="pc_category">[-xlt t='In'-]:</label>
                     <select class="form-control" name="pc_category" id="pc_category">
                         <option value="">[-xlt t='Any Category'-]</option>
@@ -51,7 +51,7 @@
                 </div>
                 <!-- Topic -->
                 [-if $USE_TOPICS-]
-                <div class="form-group">
+                <div class="mb-3">
                     <select name="pc_topic">
                         <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
                         [-$TOPIC_OPTIONS-]
@@ -60,7 +60,7 @@
                 [-/if-]
                 <br />
                 <!-- Between -->
-                <div class="form-row">
+                <div class="row gx-2">
                     <div class="col">
                         <label for="start">[-xlt t='Between'-]:</label>
                         <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
@@ -72,7 +72,7 @@
                 </div>
                 <br />
                 <!-- For At -->
-                <div class="form-row">
+                <div class="row gx-2">
                     <div class="col">
                         <label for="provider_id">[-xlt t='For'-]</label>
                         <select class="form-control" name="provider_id" id="provider_id">

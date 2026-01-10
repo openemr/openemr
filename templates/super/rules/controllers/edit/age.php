@@ -16,13 +16,13 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 ?>
 <!-- age -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-fld="fld_value"><?php echo xlt('Age'); ?> <?php echo xlt($criteria->getType()); ?></span>
     <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="form-control field short" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
 </p>
 
 <!-- age unit -->
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-fld="fld_timeunit"><?php echo xlt('Unit');?></span>
     <span class="end_col">
     <?php echo RuleTemplateExtension::timeunit_select(array( "context" => "rule_age_intervals", "target" => "fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit )); ?>

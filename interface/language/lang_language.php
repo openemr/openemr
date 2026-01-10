@@ -66,17 +66,17 @@ if (!empty($_POST['add'])) {
 <form name="lang_form" method="post" action="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <!-- Language Code -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="languageCode"><?php  echo xlt('Language Code'); ?>:</label>
         <input type="text" class="form-control" id="languageCode" name="lang_code" size="2" maxlength="2" value="<?php echo attr($val_lang_code ?? ''); ?>">
     </div>
     <!-- Language Name -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="languageName"><?php  echo xlt('Language Name'); ?>:</label>
         <input type="text" class="form-control" id="languageName" name="lang_name" size="24" value="<?php echo attr($val_lang_name ?? ''); ?>">
     </div>
     <!-- Submit Button -->
-    <div class="form-group">
+    <div class="mb-3">
         <input type="submit" class="btn btn-primary" name="add" value="<?php echo xla('Add'); ?>">
     </div>
 </form>

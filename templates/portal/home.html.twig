@@ -55,7 +55,7 @@
       }
 
       @media (max-width: 768px) {
-        .jumbotron {
+        .bg-body-tertiary {
           padding: 1rem;
         }
         .card {
@@ -213,13 +213,13 @@
 
             {% endif %}
 
-            $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
+            $('#topNav [data-bs-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
                 updateWindowTitle(e.target);
             });
 
-            $('#quickstart-card [data-parent="#cardgroup"]' +
-                ', #reports-list-card [data-parent="#cardgroup"]'
+            $('#quickstart-card [data-bs-parent="#cardgroup"]' +
+                ', #reports-list-card [data-bs-parent="#cardgroup"]'
                 + ',.reports-list-back-btn').on('click', (e) => {
                 // we use currentTarget, so we grab the event with the original data-parent, if there are buttons or
                 // other stuff inside we want to go to the href.
@@ -235,8 +235,8 @@
             });
 
             if ($('body').css('direction') === "rtl") {
-                $('.float-left').each(function () {
-                    $(this).addClass('float-right').removeClass('float-left');
+                $('.float-start').each(function () {
+                    $(this).addClass('float-end').removeClass('float-start');
                 });
                 $('.dropdown-menu-right').each(function () {
                     $(this).removeClass('dropdown-menu-right');
@@ -420,10 +420,10 @@
                     var screen = "";
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
+                            screen = screen + `<label class="fw-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
+                                screen = screen + `<div class="row gx-2"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
                             }
                         }
                     }
@@ -454,10 +454,10 @@
                     $('.assessment-row').toggleClass('d-none');
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
+                            screen = screen + `<label class="fw-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
+                                screen = screen + `<div class="row gx-2"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
                             }
                         }
                     }
@@ -493,7 +493,7 @@
         <div id="popwait" class="alert alert-warning d-none"><strong>{{ 'Working!' | xlt }}</strong>{{ 'Please wait...' | xlt }}</div>
 
         <!-- Dashboard Quickstart Card Main Screen originally shown -->
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+        <div class="card collapse overflow-auto" data-bs-parent="#cardgroup" id="quickstart-card">
             <div id="quickstart-div" class="card-body p-0 p-sm-2">
                 <script>
                     $(function () {
@@ -535,7 +535,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h4 class="modal-title">{{ 'About Portal Dashboard' | xlt }}</h4>
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
                                     <div>
@@ -545,19 +545,19 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button id="okButton" data-dismiss="modal" class="btn btn-primary">{{ 'Close' | xlt }}</button>
+                                    <button id="okButton" data-bs-dismiss="modal" class="btn btn-primary">{{ 'Close' | xlt }}</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="container-fluid p-0 p-sm-3">
-                        <div class="jumbotron jumbotron-fluid text-center mb-1 p-1">
+                        <div class="bg-body-tertiary text-center mb-1 p-1">
                             <h2>{{ 'Dashboard' | xlt }}</h2>
                             {# <p>
-                                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
+                                <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
                             </p> #}
                         </div>
-                        <div class='jumbotron jumbotron-fluid p-4'>
+                        <div class='bg-body-tertiary rounded-3 p-4'>
 
                             <div class="row" id="inject_card">
                                 <!-- Forms and Documents -->
@@ -784,9 +784,9 @@
         } %}
 
         <!-- Reports List Card -->
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reports-list-card">
+        <div class="card collapse overflow-auto" data-bs-parent="#cardgroup" id="reports-list-card">
             <header class="card-header p-1 bg-dark text-light h3">{{ 'Medical Reports' | xlt }}</header>
-            <div class="row no-gutters">
+            <div class="row g-0">
                 {% if ccdaOk %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
@@ -834,42 +834,42 @@
         </div>
 
         <!-- Custom Itemised Report Card -->
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
+        <div class="card collapse overflow-auto" data-bs-parent="#cardgroup" id="reportcard">
             <header class="card-header p-1 bg-dark text-light h3">
                 <a href="#reports-list-card"
-                     data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false"
+                     data-bs-toggle="collapse" data-bs-parent="#cardgroup" aria-expanded="false"
                      class="reports-list-back-btn btn btn-light text-dark d-none"><i class="fa fa-arrow-left"></i> {{ "Back"|xlt }}</a>
                 {{ 'Customized Medical History Report' | xlt }}</header>
             <div id="reports" class="card-body">{% include "portal/partial/_alert_loading.html.twig" %}</div>
         </div>
 
         <!-- Settings Card -->
-        <div class="card collapse" data-parent="#cardgroup" id="settings-card">
+        <div class="card collapse" data-bs-parent="#cardgroup" id="settings-card">
             <header class="card-header p-1 bg-dark text-light h3">{{ 'Settings' | xlt }}</header>
             <div>
                 <!-- Signature -->
-                <div class="card d-flex mr-1 mb-1">
+                <div class="card d-flex me-1 mb-1">
                     <div class="card-body row">
                         <h4 class="card-title d-flex align-items-center btn-link">
-                            <a role="button" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature" data-parent="#cardgroup">
-                                <i class="fas fa-file-signature mr-1"></i>{{ 'Default Digital Signature' | xlt }}</a>
+                            <a role="button" href="#openSignModal" data-bs-toggle="modal" data-bs-backdrop="true" data-bs-target="#openSignModal" data-type="patient-signature" data-bs-parent="#cardgroup">
+                                <i class="fas fa-file-signature me-1"></i>{{ 'Default Digital Signature' | xlt }}</a>
                         </h4>
                     </div>
                 </div>
                 <!-- Password -->
-                <div class="card d-flex mr-1 mb-1">
+                <div class="card d-flex me-1 mb-1">
                     <div class="card-body row">
-                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
+                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw me-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
                     </div>
                 </div>
                 <!-- Theme -->
-                <div class="card d-flex mr-1 mb-1">
+                <div class="card d-flex me-1 mb-1">
                     <div class="card-body row">
-                        <h4 class="card-title d-flex align-items-center btn-link" data-toggle="collapse" data-target="#settings-content" role="button">
+                        <h4 class="card-title d-flex align-items-center btn-link" data-bs-toggle="collapse" data-bs-target="#settings-content" role="button">
                             <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
                         </h4>
                         <div id="settings-content" class="collapse col-12">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="col">
                                     <label class="" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
                                     <div class="input-group">
@@ -882,9 +882,7 @@
                                                 {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
                                             {% endfor %}
                                         </select>
-                                        <div class="input-group-append">
-                                            <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
-                                        </div>
+                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -895,14 +893,14 @@
         </div>
 
         <!-- Profile Card -->
-        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
+        <div class="card collapse" data-bs-parent="#cardgroup" id="profilecard">
             <div id="profilereport" class="card-body p-2 bg-light">
                 {% include "portal/partial/_alert_loading.html.twig" %}
             </div>
         </div>
 
         <!-- Secure Messages Card -->
-        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
+        <div class="collapse" data-bs-parent="#cardgroup" id="secure-msgs-card">
             <div class="card">
                 <div id="secure-msgs" class="card-body">
                     <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
@@ -917,7 +915,7 @@
 
         <!-- Payments Card -->
         {% if portal_two_payments %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
+            <div class="collapse overflow-auto" data-bs-parent="#cardgroup" id="paymentcard">
                 <div class="card">
                     <header class="card-header p-1 bg-dark text-light h3">{{ 'Payments' | xlt }}</header>
                     <div id="payment" class="card-body p-2 bg-light">{% include "portal/partial/_alert_loading.html.twig" %}</div>
@@ -927,10 +925,10 @@
 
         <!-- Download Documents Card -->
         {% if portal_onsite_document_download %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
+            <div class="card collapse overflow-auto" data-bs-parent="#cardgroup" id="downloadcard">
                 <header class="card-header p-1 bg-dark text-light h3">
                     <a href="#reports-list-card"
-                       data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false"
+                       data-bs-toggle="collapse" data-bs-parent="#cardgroup" aria-expanded="false"
                        class="reports-list-back-btn btn btn-light text-dark d-none"><i class="fa fa-arrow-left"></i> {{ "Back"|xlt }}</a>
                     {{ 'Download Documents From Medical Record' | xlt }}
                 </header>
@@ -944,7 +942,7 @@
 
         <!-- Billing Summary Card -->
         {% if portal_two_ledger %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
+            <div class="collapse overflow-auto" data-bs-parent="#cardgroup" id="ledgercard">
                 <div class="card">
                     <header class="card-header p-1 bg-dark text-light h3">{{ 'Billing Summary' | xlt }}</header>
                     <div id="patledger" class="card-body">
@@ -956,7 +954,7 @@
 
         <!-- Assessments PRO Card -->
         {% if isEasyPro %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
+            <div class="card collapse overflow-auto" data-bs-parent="#cardgroup" id="procard">
                 <header class="card-header p-1 bg-dark text-light h3">{{ 'Patient Reported Outcomes' | xlt }}</header>
                 <div id="pro" class="card-body p-2 bg-light">{% include "portal/partial/_alert_loading.html.twig" %}</div>
             </div>

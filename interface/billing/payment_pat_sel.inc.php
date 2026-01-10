@@ -214,14 +214,14 @@ if (isset($_POST["mode"])) {
                             }
                             ?>
                             <tr class="text" bgcolor='<?php echo attr($bgcolor); ?>' id="trCharges<?php echo attr($CountIndex); ?>">
-                                <td class="text-left">
+                                <td class="text-start">
                                     <input name="HiddenIns<?php echo attr($CountIndex); ?>" id="HiddenIns<?php echo attr($CountIndex); ?>" value="<?php echo attr($Ins); ?>" type="hidden"/>
                                     <?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', 'oe-payment-select form-input-sm', 'ActionOnInsPat("' . $CountIndex . '")');?>
                                 </td>
                                 <td>
                                     <?php echo text($ServiceDate); ?>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <input name="HiddenEncounter<?php echo attr($CountIndex); ?>" value="<?php echo attr($Encounter); ?>" type="hidden" />
                                     <?php echo text($Encounter); ?>
                                 </td>
@@ -231,34 +231,34 @@ if (isset($_POST["mode"])) {
                                     <?php echo text($Codetype . "-" . $Code . $ModifierString); ?>
                                     <input name="HiddenModifier<?php echo attr($CountIndex); ?>" value="<?php echo attr($Modifier); ?>" type="hidden" />
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <input name="HiddenChargeAmount<?php echo attr($CountIndex); ?>" id="HiddenChargeAmount<?php echo attr($CountIndex); ?>" value="<?php echo attr($Fee); ?>" type="hidden"/>
                                     <?php echo text($Fee); ?>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <input name="HiddenCopayAmount<?php echo attr($CountIndex); ?>" id="HiddenCopayAmount<?php echo attr($CountIndex); ?>" value="<?php echo attr($Copay); ?>" type="hidden" />
                                     <?php echo text(number_format($Copay, 2)); ?>
                                 </td>
-                                <td class="text-right" id="RemainderTd<?php echo attr($CountIndex); ?>">
+                                <td class="text-end" id="RemainderTd<?php echo attr($CountIndex); ?>">
                                     <?php echo text(round($Remainder, 2)); ?>
                                 </td>
                                 <input name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" value="<?php echo attr(round($Remainder, 2)); ?>" type="hidden" />
                                 <td>
-                                    <input name="Allowed<?php echo attr($CountIndex); ?>" id="Allowed<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right amt_input" />
+                                    <input name="Allowed<?php echo attr($CountIndex); ?>" id="Allowed<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-end amt_input" />
                                 </td>
                                 <td>
-                                    <input type="text" name="Payment<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off"  id="Payment<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"  class="text-right amt_input" />
+                                    <input type="text" name="Payment<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off"  id="Payment<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"  class="text-end amt_input" />
                                 </td>
                                 <td>
-                                    <input name="AdjAmount<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right amt_input" />
+                                    <input name="AdjAmount<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-end amt_input" />
                                 </td>
                                 <td>
-                                    <input name="Deductible<?php echo attr($CountIndex); ?>" id="Deductible<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');" autocomplete="off" type="text" class="text-right amt_input" />
+                                    <input name="Deductible<?php echo attr($CountIndex); ?>" id="Deductible<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');" autocomplete="off" type="text" class="text-end amt_input" />
                                 </td>
                                 <td>
-                                    <input name="Takeback<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-right amt_input" />
+                                    <input name="Takeback<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js(($CountIndexAbove ?? null) * 1 + 1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" type="text" class="text-end amt_input" />
                                 </td>
-                                <td class="text-left">
+                                <td class="text-start">
                                     <input name="HiddenReasonCode<?php echo attr($CountIndex); ?>" id="HiddenReasonCode<?php echo attr($CountIndex); ?>"  value="<?php echo attr($ReasonCodeDB ?? ''); ?>" type="hidden" />
                                     <?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--", "oe-payment-select"); ?>
                                 </td>
@@ -272,7 +272,7 @@ if (isset($_POST["mode"])) {
                             <?php
                         } while ($RowSearch = sqlFetchArray($ResultSearchNew)); ?>
                      <tr class="text">
-                        <td class="text-right text-dark text-left" colspan="7"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
+                        <td class="text-end text-dark text-start" colspan="7"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
                         <td class="bg-dark text-secondary text-center" id="initialallowtotal">0</td>
                         <td class="bg-dark text-secondary text-center" id="initialpaymenttotal">0</td>
                         <td class="bg-dark text-secondary text-center" id="initialAdjAmounttotal" >0</td>

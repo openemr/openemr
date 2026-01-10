@@ -170,7 +170,7 @@ $('#results-table').hide();
 
 //Initial select2 library for auto completing using ajax
 $('#by-id, #by-name').select2({
-    theme: "bootstrap4",
+    theme: "bootstrap-5",
     ajax: {
         beforeSend: top.restoreSession,
         url: 'multi_patients_finder_ajax.php',

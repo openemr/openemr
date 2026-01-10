@@ -607,7 +607,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
 }
 
 if ($form_step == 101) {
-    echo "<p class='font-weight-bold'>&nbsp;" . xlt('Select the configuration items to export') . ":</p>";
+    echo "<p class='fw-bold'>&nbsp;" . xlt('Select the configuration items to export') . ":</p>";
 
     echo "<table cellspacing='10' cellpadding='0'>\n<tr>\n<td valign='top' nowrap>\n";
 

@@ -326,7 +326,7 @@ $vendors = $boot->getVendorGlobals();
 </head>
 <body>
     <div class="w-100 container-xl">
-        <div class="form-group m-2 p-2 bg-dark">
+        <div class="mb-3 m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
                 <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
@@ -351,7 +351,7 @@ $vendors = $boot->getVendorGlobals();
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <div class="form-group">
+                <div class="mb-3">
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                     <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
                         <strong>
@@ -362,7 +362,7 @@ $vendors = $boot->getVendorGlobals();
                             <?php } ?>
                         </strong>
                         <?php echo text($permissions_message ?? xlt("User permissions have been saved successfully!")); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -372,7 +372,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="alert alert-success text-center" role="alert">
                         <i class="fa fa-user-check"></i>
                             <?php echo xlt("You are the current primary user. You can manage all settings."); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -381,14 +381,14 @@ $vendors = $boot->getVendorGlobals();
                         <i class="fa fa-user-times"></i>
                             <?php echo xlt("No primary user set. Any authorized user can manage settings."); ?>
                         <br><small><?php echo xlt("Consider setting a primary user for better security control."); ?></small>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <?php } ?>
-                    <div class="row col form-group">
+                    <div class="row col mb-3">
                         <label for="editingUser" class="form-inline"><?php echo xlt("Editing Service Credentials for User"); ?></label>
-                        <div class="ml-2" title="User to setup credentials.">
+                        <div class="ms-2" title="User to setup credentials.">
                             <select class="form-control persist" name="editingUser" id="editingUser">
                                 <option value="0"><?php echo xlt("Default (You)"); ?></option>
                                 <?php foreach ($active_users as $user) {
@@ -414,7 +414,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
                     <hr>
                     <div class="clearfix"></div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="sms_vendor" class="col-sm-6"><?php echo xlt("Enable SMS Module"); ?></label>
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
                             <select class="form-control persist" name="sms_vendor" id="sms_vendor">
@@ -425,7 +425,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
@@ -435,7 +435,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
@@ -444,7 +444,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="voice_vendor" class="col-sm-6"><?php echo xlt("Enable Voice Widgets") ?></label>
                         <div class="col-sm-6" title="Enable Voice Widgets Support.">
                             <select class="form-control persist" name="voice_vendor" id="voice_vendor">
@@ -453,20 +453,20 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable Send SMS Dialog"); ?></label>
                         <div class="col-sm-6" title="Enable Send SMS Dialog Support. Various opportunities in UI.">
                             <input type="checkbox" class="checkbox persist" name="allow_dialog" id="allow_dialog" value="1" <?php echo $vendors['oesms_send'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="restrict" class="col-sm-6"><?php echo xlt("Individual User Accounts"); ?></label>
                         <div class="col-sm-6" title="Restrict Users to their own account credentials. Usage accounting is tagged to username.">
                             <input type="checkbox" class="checkbox persist" name="restrict" id="restrict" value="1" <?php echo $vendors['oerestrict_users'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right d-none" value="Save"><?php echo xlt("Save"); ?></button>
+                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-end d-none" value="Save"><?php echo xlt("Save"); ?></button>
                     </div>
                 </div>
             </form>
@@ -486,7 +486,7 @@ $vendors = $boot->getVendorGlobals();
                         Whichever one is used, Create or Enable, and the task already exists, it will be updated with the execute interval input value and enabled if Enable or the task last state if Create.
                         Whenever a new service task is created and enabled, the task will run initial notifications within 2 minutes so, be prepared.')); ?></div>
                     </div>
-                    <div class="pl-2 form-group clearfix">
+                    <div class="ps-2 mb-3 clearfix">
                         <?php foreach ($services as $service) {
                             if (empty($service)) {
                                 continue;
@@ -499,7 +499,7 @@ $vendors = $boot->getVendorGlobals();
                             </label>
                         <?php }
                         if ($showFlag) { ?>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary" name="action" value="create"><?php echo xlt('Create and Run'); ?></button>
                                 <?php echo xlt('Every'); ?> <input type="text" name="period" id="period_input" class="" style="display:inline-block; max-width: 125px;" maxlength="4"
                                     placeholder="<?php echo xla('Execute Interval'); ?>"
@@ -572,7 +572,7 @@ $vendors = $boot->getVendorGlobals();
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-success text-center" role="alert">
                             <?php echo xlt("User permissions have been saved successfully!"); ?>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -613,7 +613,7 @@ $vendors = $boot->getVendorGlobals();
                                 <th class="text-center">
                                     <?php echo xlt("Primary User"); ?>
                                     <br>
-                                    <small class="text-muted"><?php echo xlt("(One Only)"); ?></small>
+                                    <small class="text-body-secondary"><?php echo xlt("(One Only)"); ?></small>
                                     <br>
                                     <input type="radio"
                                         name="primary_user"

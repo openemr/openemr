@@ -120,7 +120,7 @@ if (($_POST['save'] ?? false) == 'true') {
                 <?php } ?>
                 </tbody>
             </table>
-            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno Location ID"); ?></button>
+            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-end d-none" value="true"><?php echo xlt("Update Users Weno Location ID"); ?></button>
         </form>
     </div>
 </body>

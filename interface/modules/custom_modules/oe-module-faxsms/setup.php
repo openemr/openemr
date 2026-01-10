@@ -57,7 +57,7 @@ $mode = $_REQUEST['mode'] ?? null;
                             const messageAlert = 'alert-' + (err !== 0 ? 'danger' : 'success');
                             const messageText = data;
                             const alertBox = '<div class="alert ' + messageAlert + ' alert-dismissable"><button type="button" ' +
-                                'class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
+                                'class="btn-close" data-bs-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
                             if (messageAlert && messageText) {
                                 $(window).scrollTop(0);
                                 // inject the alert to .messages div in our form
@@ -105,21 +105,21 @@ $mode = $_REQUEST['mode'] ?? null;
                 <div class="col">
                     <?php if ($service == '5') {
                         ?> <!-- Clickatell -->
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_extension"><?php echo xlt("Account Sending Number") ?> *</label>
                             <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('') ?>" required />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_key"><?php echo xlt("Account API Key") ?> *</label>
                             <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xla('') ?>" required />
                         </div>
-                        <div class=" form-group">
+                        <div class=" mb-3">
                             <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
                             <input id="form_nhours" type="text" name="smshours" class="form-control"
                                 placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
                                 required="required" value='<?php echo attr($c['smsHours']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
                             <span style="font-size:12px;font-style: italic">&nbsp;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
@@ -135,25 +135,25 @@ $mode = $_REQUEST['mode'] ?? null;
                                 <?php echo xlt("Demo Mode") ?>
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_username"><?php echo xlt("Account Id") ?> *</label>
                             <input id="form_username" type="text" name="account" class="form-control" value='<?php echo attr($c['account']) ?>' required />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_username"><?php echo xlt("Account Username") ?></label>
                             <input id="form_username" type="text" name="username" class="form-control"
                                 value='<?php echo attr($c['username']) ?>' placeholder="<?php echo xla('Optional if not using Account API Key') ?>" />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_password"><?php echo xlt("Account Password") ?></label>
                             <input id="form_password" type="password" name="password" class="form-control"
                                 value='<?php echo attr($c['password']) ?>' placeholder="<?php echo xla('Optional if not using Account API Key') ?>" /'>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_extension"><?php echo xlt("Account Fax Number") ?> *</label>
                             <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('Number where you will receive faxes.') ?>" required />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_key"><?php echo xlt("Account API Key - Recommended") ?></label>
                             <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xla('Most secure! Use only your API Key and Account Id.') ?>" />
                         </div>
@@ -165,38 +165,38 @@ $mode = $_REQUEST['mode'] ?? null;
                                 <?php echo xlt("Production Check") ?>
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
                             <input id="form_username" type="text" name="username" class="form-control"
                                 required="required" value='<?php echo attr($c['username']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
                             <input id="form_password" type="password" name="password" class="form-control"
                                 required="required" value='<?php echo attr($c['password']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
                             <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
                                 value='<?php echo attr($c['smsNumber']) ?>' required />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
                             <input id="form_key" type="text" name="key" class="form-control"
                                 required="required" value='<?php echo attr($c['appKey']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
                             <input id="form_secret" type="password" name="secret" class="form-control"
                                 required="required" value='<?php echo attr($c['appSecret']) ?>' />
                         </div>
-                        <div class=" form-group">
+                        <div class=" mb-3">
                             <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
                             <input id="form_nhours" type="text" name="smshours" class="form-control"
                                 placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
                                 required="required" value='<?php echo attr($c['smsHours']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
                             <span style="font-size:12px;font-style: italic">&nbsp;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
@@ -212,38 +212,38 @@ $mode = $_REQUEST['mode'] ?? null;
                                 <?php echo xlt("Production Check") ?>
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
                             <input id="form_username" type="text" name="username" class="form-control"
                                 required="required" value='<?php echo attr($c['username']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
                             <input id="form_password" type="password" name="password" class="form-control"
                                 required="required" value='<?php echo attr($c['password']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
                             <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
                                 value='<?php echo attr($c['smsNumber']) ?>' required />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
                             <input id="form_key" type="text" name="key" class="form-control"
                                 required="required" value='<?php echo attr($c['appKey']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
                             <input id="form_secret" type="password" name="secret" class="form-control"
                                 required="required" value='<?php echo attr($c['appSecret']) ?>' />
                         </div>
-                        <div class=" form-group">
+                        <div class=" mb-3">
                             <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
                             <input id="form_nhours" type="text" name="smshours" class="form-control"
                                 placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
                                 required="required" value='<?php echo attr($c['smsHours']) ?>' />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
                             <span style="font-size:12px;font-style: italic">&nbsp;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
@@ -259,26 +259,26 @@ $mode = $_REQUEST['mode'] ?? null;
                                 <?php echo xlt("Production Mode") ?>
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_space_url"><?php echo xlt("Space URL") ?> *</label>
                             <input id="form_space_url" type="text" name="space_url" class="form-control"
                                 placeholder="<?php echo xla('example.signalwire.com') ?>"
                                 required="required" value='<?php echo attr($c['space_url'] ?? '') ?>' />
                             <small class="form-text text-muted"><?php echo xlt("Your SignalWire Space URL (without https://)") ?></small>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_project_id"><?php echo xlt("Project ID") ?> *</label>
                             <input id="form_project_id" type="text" name="project_id" class="form-control"
                                 required="required" value='<?php echo attr($c['project_id'] ?? '') ?>' />
                             <small class="form-text text-muted"><?php echo xlt("Your SignalWire Project ID (UUID format)") ?></small>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_api_token"><?php echo xlt("API Token") ?> *</label>
                             <input id="form_api_token" type="password" name="api_token" class="form-control"
                                 required="required" value='<?php echo attr($c['api_token'] ?? '') ?>' />
                             <small class="form-text text-muted"><?php echo xlt("Your SignalWire API Token") ?></small>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_fax_number"><?php echo xlt("Fax Number") ?> *</label>
                             <input id="form_fax_number" type="text" name="fax_number" class="form-control"
                                 placeholder="<?php echo xla('+1XXXXXXXXXX') ?>"
@@ -287,8 +287,8 @@ $mode = $_REQUEST['mode'] ?? null;
                         </div>
                     <?php } ?>
                     <div>
-                        <span class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </span>
-                        <button type="submit" class="btn btn-success float-right" value=""><?php echo xlt("Save") ?></button>
+                        <span class="text-body-secondary"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </span>
+                        <button type="submit" class="btn btn-success float-end" value=""><?php echo xlt("Save") ?></button>
                     </div>
                 </div>
             </div>

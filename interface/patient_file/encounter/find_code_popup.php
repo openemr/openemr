@@ -105,7 +105,7 @@ $focus = "document.theform.search_term.select();";
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="input-group mt-1">
                 <?php
                 if (!empty($allowed_codes)) { ?>
@@ -150,18 +150,16 @@ $focus = "document.theform.search_term.select();";
                         value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
-                    <div class="input-group-append">
-                        <button type='submit' class='btn btn-primary btn-search'
-                            name='bn_search' value='Search'></button>
-                        <?php if (!empty($target_element)) { ?>
-                        <button type='button' class='btn btn-primary btn-delete' value=''
-                            onclick="selcode_target('', '', '', '',
-                                <?php echo attr_js($target_element); ?>)"></button>
-                        <?php } else { ?>
-                        <button type='button' class='btn btn-danger btn-delete' value=''
-                            onclick="selcode('', '', '', '')"></button>
-                        <?php } ?>
-                    </div>
+                    <button type='submit' class='btn btn-primary btn-search'
+                        name='bn_search' value='Search'></button>
+                    <?php if (!empty($target_element)) { ?>
+                    <button type='button' class='btn btn-primary btn-delete' value=''
+                        onclick="selcode_target('', '', '', '',
+                            <?php echo attr_js($target_element); ?>)"></button>
+                    <?php } else { ?>
+                    <button type='button' class='btn btn-danger btn-delete' value=''
+                        onclick="selcode('', '', '', '')"></button>
+                    <?php } ?>
                 </div>
             </div>
             <?php
@@ -173,8 +171,8 @@ $focus = "document.theform.search_term.select();";
                 <div class="table-responsive">
                 <table class='table table-striped table-responsive-sm'>
                     <thead>
-                        <th class='font-weight-bold'><?php echo xlt('Code'); ?></th>
-                        <th class='font-weight-bold'><?php echo xlt('Description'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Code'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Description'); ?></th>
                     </thead>
                     <tbody>
                     <?php
