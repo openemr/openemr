@@ -238,7 +238,6 @@ if (session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
     SessionUtil::coreSessionStart($web_root, $read_only);
     //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
 }
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
