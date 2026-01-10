@@ -286,6 +286,8 @@
         ],
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
-        "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json"
+        "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json",
+        "sql-lint": "sqruff lint --config .config/sqruff/.sqruff sql/ interface/ -f json",
+        "sql-lint-php": "git grep -l -zE '(sqlStatement|sqlQuery|sqlInsert|QueryUtils::|->Execute|->GetOne|->GetAll|->GetRow)' -- '*.php' '*.inc' | xargs -0 php .config/sqruff/lint-php-sql.php"
     }
 }

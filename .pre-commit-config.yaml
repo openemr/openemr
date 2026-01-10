@@ -142,3 +142,17 @@ repos:
     language: system
     stages:
     - commit-msg
+
+  - id: sql-lint
+    name: SQL Lint (sqruff)
+    entry: sqruff lint --config .config/sqruff/.sqruff
+    language: system
+    types:
+    - sql
+
+  - id: sql-lint-php
+    name: SQL Lint (PHP embedded)
+    entry: .config/sqruff/lint-php-sql-filter.sh
+    language: system
+    types:
+    - php

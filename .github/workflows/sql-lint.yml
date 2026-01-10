@@ -1,0 +1,127 @@
+name: SQL Lint
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  sql-lint:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Get changed SQL files
+      id: changed-sql
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BASE="${{ github.event.pull_request.base.sha }}"
+        else
+          BASE="${{ github.event.before }}"
+        fi
+        FILES=$(git diff --name-only --diff-filter=ACMR "$BASE" HEAD -- '*.sql' | tr '\n' ' ')
+        echo "files=$FILES" >> $GITHUB_OUTPUT
+        if [[ -n "$FILES" ]]; then
+          echo "has_files=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_files=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Install sqruff
+      if: steps.changed-sql.outputs.has_files == 'true'
+      run: |
+        curl -fsSL https://github.com/quarylabs/sqruff/releases/latest/download/sqruff-linux-x86_64-musl.tar.gz | tar xz
+        sudo mv sqruff /usr/local/bin/
+        sqruff --version
+
+    - name: Lint changed SQL files
+      if: steps.changed-sql.outputs.has_files == 'true'
+      run: sqruff lint --config .config/sqruff/.sqruff ${{ steps.changed-sql.outputs.files }} -f github-annotation-native
+
+  php-sql-lint:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Get changed PHP files with SQL
+      id: changed-php
+      env:
+        SQL_PATTERN: (sqlStatement|sqlQuery|sqlInsert|QueryUtils::|->Execute|->GetOne|->GetAll|->GetRow)
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BASE="${{ github.event.pull_request.base.sha }}"
+        else
+          BASE="${{ github.event.before }}"
+        fi
+        # Get changed PHP files that contain SQL-calling functions
+        FILES=""
+        for file in $(git diff --name-only --diff-filter=ACMR "$BASE" HEAD -- '*.php' '*.inc'); do
+          if [[ -f "$file" ]] && grep -qE "$SQL_PATTERN" "$file"; then
+            FILES="$FILES $file"
+          fi
+        done
+        echo "files=$FILES" >> $GITHUB_OUTPUT
+        if [[ -n "$FILES" ]]; then
+          echo "has_files=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_files=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Setup PHP
+      if: steps.changed-php.outputs.has_files == 'true'
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        coverage: none
+
+    - name: Get composer cache directory
+      if: steps.changed-php.outputs.has_files == 'true'
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+
+    - name: Composer Cache
+      if: steps.changed-php.outputs.has_files == 'true'
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-8.2-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-8.2-
+          ${{ runner.os }}-composer-
+
+    - name: Composer Install
+      if: steps.changed-php.outputs.has_files == 'true'
+      run: composer install --prefer-dist --no-progress
+
+    - name: Install sqruff
+      if: steps.changed-php.outputs.has_files == 'true'
+      run: |
+        curl -fsSL https://github.com/quarylabs/sqruff/releases/latest/download/sqruff-linux-x86_64-musl.tar.gz | tar xz
+        sudo mv sqruff /usr/local/bin/
+        sqruff --version
+
+    - name: Lint SQL in changed PHP files
+      if: steps.changed-php.outputs.has_files == 'true'
+      run: php .config/sqruff/lint-php-sql.php --format=github ${{ steps.changed-php.outputs.files }}
