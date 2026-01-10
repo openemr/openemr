@@ -897,7 +897,8 @@ class Document extends ORDataObject
         $tmpfile = null,
         $date_expires = null,
         $foreign_reference_id = null,
-        $foreign_reference_table = null
+        $foreign_reference_table = null,
+        $eid = "",
     ) {
         if (
             !empty($foreign_reference_id) && empty($foreign_reference_table)
@@ -932,7 +933,7 @@ class Document extends ORDataObject
             $has_thumbnail = false;
         }
 
-        $encounter_id = '';
+        $encounter_id = $eid;
         $this->storagemethod = $GLOBALS['document_storage_method'];
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
@@ -1082,6 +1083,7 @@ class Document extends ORDataObject
         $this->type  = $this->type_array['file_url'];
         $this->owner = $owner ?: $_SESSION['authUserID'] ?? null;
         $this->date_expires = $date_expires;
+        $this->encounter_id = $encounter_id;
         $this->set_foreign_id($patient_id);
         $this->persist();
         $this->populate();

@@ -35,6 +35,7 @@ class DocumentTest extends TestCase
         $categoryId = null;
         $fileName = "Patient-" . $jobId . ".ndjson";
         $fullPath =  $folder . DIRECTORY_SEPARATOR . $fileName;
+        $eid = 12345;
 
         $data = json_encode(['id' => $jobId]);
 
@@ -42,11 +43,12 @@ class DocumentTest extends TestCase
         $higherLevelPath = "";
         $pathDepth = 1;
         $owner = $apiSystemUser['id'];  // userID, if we didn't have one it would default to the session
-        $document->createDocument($jobId, $categoryId, $fullPath, $mimeType, $data, $higherLevelPath, $pathDepth, $owner);
+        $document->createDocument($jobId, $categoryId, $fullPath, $mimeType, $data, $higherLevelPath, $pathDepth, $owner, eid: $eid);
 
         $this->assertNotEmpty($document->get_id(), "database id should be populated");
         $this->assertEquals($folder . '/' . $fileName, $document->get_name(), "Saved document should have a matching name");
         $this->assertEquals($mimeType, $document->get_mimetype());
+        $this->assertEquals($eid, $document->get_encounter_id());
 
         $url = $document->get_url();
         $this->assertTrue(
