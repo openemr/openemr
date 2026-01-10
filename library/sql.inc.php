@@ -39,6 +39,9 @@ require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(__DIR__ . "/ADODB_mysqli_log.php");
 
+use Doctrine\DBAL\Exception as DBALException;
+use OpenEMR\Common\Database\QueryUtils;
+
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
 }
@@ -384,6 +387,64 @@ function sqlQuery($statement, $binds = false)
 }
 
 /**
+ * Extracts SQL error info from the dbal exception stack without direct access
+ * to the connection. For backwards-compatibility only, do not use outside of
+ * this file.
+ *
+ * Returns a tuple of [sqlstate code, driver error code, driver error message]
+ *
+ * @link https://www.php.net/manual/en/pdostatement.errorinfo.php
+ *
+ * @return array{
+ *   0: string,
+ *   1: string,
+ *   2: string,
+ * }
+ */
+function extractSqlErrorFromDBAL(DBALException $e): ?array
+{
+    while ($inner = $e->getPrevious()) {
+        $e = $inner;
+    }
+    if ($e instanceof PDOException) {
+        return $e->errorInfo;
+    }
+    // This shouldn't be reachable without very weird driver settings
+    return null;
+}
+
+/**
+ * Mimics the behavior from ADOdb connections when errors occur on the
+ * doctrine/dbal path through the BC wrapper.
+ */
+function HelpfulDieDbal(DBALException $e): never
+{
+    $sql = $e->getQuery()->getSQL();
+    $sqlInfo = $e->getMessage();
+    if ($info = extractSqlErrorFromDBAL($e)) {
+        $sqlInfo = $info[2];
+    }
+    HelpfulDie("query failed: $sql", $sqlInfo);
+}
+
+/**
+ * BC hook that allows getSqlLastError() and getSqlLastErrorNo() to continue to
+ * work on the doctrine/dbal path.
+ */
+function populateLegacyGlobalsWithSqlErrorInfo(DBALException $e): void
+{
+    $info = extractSqlErrorFromDBAL($e);
+    if ($info === null) {
+        return;
+    }
+    [$sqlstate, $driverCode, $driverMessage] = $info;
+
+    // See getSqlLastError() and ADODB_mysqli_log class
+    $GLOBALS['last_mysql_error'] = $driverMessage;
+    $GLOBALS['last_mysql_error_no'] = $sqlstate;
+}
+
+/**
 * Specialized sql query in OpenEMR that bypasses the auditing engine
 * and only returns the first row of query results as an associative array.
 *
@@ -401,31 +462,31 @@ function sqlQuery($statement, $binds = false)
 */
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) {
-        $binds = false;
+    if ($binds === false) {
+        $binds = [];
     }
 
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
-
-    if ($recordset === false) {
+    try {
+        $row = \OpenEMR\BC\Database::instance()
+            ->fetchOneRow($statement, $binds);
+    } catch (DBALException $e) {
+        populateLegacyGlobalsWithSqlErrorInfo($e);
         if ($throw_exception_on_error) {
-            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
+            throw new \OpenEMR\Common\Database\SqlQueryException(
+                $statement,
+                "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement
+            );
         } else {
-            HelpfulDie("query failed: $statement", getSqlLastError());
+            HelpfulDieDbal($e);
         }
     }
 
-    if ($recordset->EOF) {
+    if ($row === null) {
+        // Match existing API
         return false;
     }
 
-    $rez = $recordset->FetchRow();
-    if ($rez == false) {
-        return false;
-    }
-
-    return $rez;
+    return $row;
 }
 
 /**
@@ -617,11 +678,9 @@ function HelpfulDie($statement, $sqlerr = ''): never
 *
 * @return integer
 */
-function generate_id()
+function generate_id(): int
 {
-    $database = $GLOBALS['adodb']['db'];
-    // @phpstan-ignore openemr.deprecatedSqlFunction
-    return $database->GenID("sequences");
+    return QueryUtils::generateId();
 }
 
 /**
