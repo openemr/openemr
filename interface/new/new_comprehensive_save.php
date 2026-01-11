@@ -111,6 +111,69 @@ if (!empty($addressFieldsToSave)) {
  */
 $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
 
+// Save patient photo if provided via webcam capture
+$photoBase64 = $_POST['patient_photo_base64'] ?? '';
+if (!empty($photoBase64)) {
+    try {
+        // Extract base64 data (remove data URL prefix if present)
+        $photoData = $photoBase64;
+        $imageType = 'jpeg';
+        if (preg_match('/^data:image\/(\w+);base64,/', $photoBase64, $matches)) {
+            $imageType = $matches[1];
+            $photoData = substr($photoBase64, strpos($photoBase64, ',') + 1);
+        }
+
+        // Decode base64 to binary
+        $binaryData = base64_decode($photoData);
+
+        if ($binaryData !== false && strlen($binaryData) > 0) {
+            // Get the Patient Photograph category ID
+            $categoryName = $GLOBALS['patient_photo_category_name'] ?? 'Patient Photograph';
+            $categoryResult = sqlQuery(
+                "SELECT id FROM categories WHERE name = ? LIMIT 1",
+                [$categoryName]
+            );
+
+            if (!empty($categoryResult['id'])) {
+                $categoryId = $categoryResult['id'];
+
+                // Generate filename
+                $filename = 'patient_photo_' . $pid . '_' . date('Ymd_His') . '.' . $imageType;
+                $mimetype = 'image/' . $imageType;
+
+                // Create and save the document
+                require_once(__DIR__ . "/../../library/classes/Document.class.php");
+                $doc = new Document();
+                $result = $doc->createDocument(
+                    $pid,           // patient_id
+                    $categoryId,    // category_id
+                    $filename,      // filename
+                    $mimetype,      // mimetype
+                    $binaryData     // binary data (NOT base64)
+                );
+
+                if (!empty($result)) {
+                    // Log error but don't block patient creation
+                    (new SystemLogger())->error(
+                        "Failed to save patient photo document",
+                        ['pid' => $pid, 'error' => $result]
+                    );
+                }
+            } else {
+                (new SystemLogger())->warning(
+                    "Patient Photograph category not found",
+                    ['categoryName' => $categoryName]
+                );
+            }
+        }
+    } catch (Exception $e) {
+        // Log error but don't block patient creation
+        (new SystemLogger())->error(
+            "Exception while saving patient photo",
+            ['pid' => $pid, 'error' => $e->getMessage()]
+        );
+    }
+}
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
