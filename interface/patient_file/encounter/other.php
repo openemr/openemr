@@ -13,7 +13,10 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 //the number of rows to display before resetting and starting a new column:
 $N = 10
@@ -32,7 +35,7 @@ $N = 10
 
 <dl>
 
-<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"
+<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 <script>
 function clearform(atrib){

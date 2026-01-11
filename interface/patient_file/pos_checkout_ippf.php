@@ -60,11 +60,14 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
@@ -487,6 +490,8 @@ function generate_receipt($patient_id, $encounter = 0): void
     global $TAXES_AFTER_ADJUSTMENT;
     global $facilityService, $alertmsg;
 
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+
     // Get the most recent invoice data or that for the specified encounter.
     if ($encounter) {
         $ferow = sqlQuery(
@@ -568,7 +573,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     function deleteme() {
         const params = new URLSearchParams({
             billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
         });
         dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
         return false;
@@ -1510,7 +1515,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -1626,7 +1631,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     $sequence_no['increment'],
                     $code_type,
                     $code,
-                    $_SESSION['authUserID'],
+                    $session->get('authUserID'),
                     $this_bill_date,
                     $postdate,
                     $memo,
@@ -1680,7 +1685,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             $patient_id,
             $encounter_id,
             $sequence_no['increment'],
-            $_SESSION['authUserID'],
+            $session->get('authUserID'),
             $this_bill_date,
             $postdate,
             $memo,
@@ -2317,7 +2322,7 @@ if (!empty($_GET['framed'])) {
 echo "' onsubmit='return validate()'>\n";
 echo "<input type='hidden' name='form_pid' value='" . attr($patient_id) . "' />\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
 
 <center>
 

@@ -426,7 +426,7 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     /**
      * @return string
      */
-    public function get_author(): string
+    public function get_author(): ?string
     {
         return $this->author;
     }

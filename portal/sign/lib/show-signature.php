@@ -22,17 +22,18 @@ $signer = '';
 $ignoreAuth = false;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
     // Will start the (patient) portal OpenEMR session/cookie.
     // Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../../../vendor/autoload.php");
-    SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // authorized by patient portal
-        $req_pid = $_SESSION['pid'];
+        $req_pid = $session->get('pid');
         $ignoreAuth_onsite_portal = true;
     } else {
         SessionUtil::portalSessionCookieDestroy();

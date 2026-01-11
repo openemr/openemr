@@ -25,7 +25,10 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
@@ -56,7 +59,7 @@ $financial_reporting = 0;
 $revenue_code = '';
 
 if (isset($mode) && $thisauthwrite) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -219,7 +222,7 @@ if (isset($mode) && $thisauthwrite) {
             "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name," .
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
-            [$date, $code, $modifier, $active, $reportable, $financial_reporting, $category_name, $code_name, $code_text, '', $fee, $action_type, $_SESSION['authUser']]
+            [$date, $code, $modifier, $active, $reportable, $financial_reporting, $category_name, $code_name, $code_text, '', $fee, $action_type, $session->get('authUser')]
         );
     }
 }
@@ -467,7 +470,7 @@ if ($fend > ($count ?? null)) {
 <body class="body_top">
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"/>
 
     <input type='hidden' name='mode' value=''/>
 

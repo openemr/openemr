@@ -23,6 +23,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -32,6 +33,8 @@ if (!AclMain::aclCheckForm('fee_sheet')) { ?>
     <?php
     formJump();
 }
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
@@ -516,8 +519,8 @@ if (isset($_POST['form_checksum'])) {
         $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
         EventAuditLogger::getInstance()->newEvent(
             "checksum",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             $comment,
             $pid,
@@ -1671,12 +1674,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     if (empty($GLOBALS['default_rendering_provider'])) {
                                         $default_rid = $fs->provider_id ?: 0;
                                         if (!$default_rid && $userauthorized) {
-                                            $default_rid = $_SESSION['authUserID'];
+                                            $default_rid = $session->get('authUserID');
                                         }
                                     } elseif ($GLOBALS['default_rendering_provider'] == '1') {
                                         $default_rid = $fs->provider_id;
                                     } else {
-                                        $default_rid = $_SESSION['authUserID'] ?? $fs->provider_id;
+                                        $default_rid = $session->get('authUserID') ?? $fs->provider_id;
                                     }
                                     echo $fs->genProviderSelect(
                                         'ProviderID',

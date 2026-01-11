@@ -17,6 +17,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\UserService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 ?>
 
@@ -28,10 +31,10 @@ use OpenEMR\Services\UserService;
 
     <?php
     if (!isset($pid)) {
-        $pid = $_SESSION['pid'];
+        $pid = $session->get('pid');
     }
     if ($_POST['form_yesno']) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -39,7 +42,7 @@ use OpenEMR\Services\UserService;
         $form_adreviewed = DateTimeToYYYYMMDDHHMMSS(filter_input(INPUT_POST, 'form_adreviewed'));
         QueryUtils::sqlStatementThrowException("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ?"
         . " ,advance_directive_user_authenticator = ? where pid = ?"
-            , [$form_yesno,$form_adreviewed, $_SESSION['authUserID'], $pid]);
+            , [$form_yesno,$form_adreviewed, $session->get('authUserID'), $pid]);
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script>\n";
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -50,7 +53,7 @@ use OpenEMR\Services\UserService;
 
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
     $userService = new UserService();
-    $userRecord = $userService->getUser($_SESSION['authUserID']);
+    $userRecord = $userService->getUser($session->get('authUserID'));
     $myrow = sqlQuery($sql, [$pid]);
     if ($myrow) {
         $form_completedad = $myrow['completed_ad'];
@@ -92,7 +95,7 @@ use OpenEMR\Services\UserService;
         <div class="row">
             <div class="col-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                     <div class="form-group">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
                         <?php generate_form_field(['data_type' => 1,'field_id' => 'yesno','list_id' => 'yesno','empty_title' => 'SKIP'], $form_completedad); ?>

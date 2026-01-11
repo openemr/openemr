@@ -40,7 +40,10 @@ require_once($GLOBALS["srcdir"] . "/api.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Labs")]);
@@ -83,7 +86,7 @@ $main_spell .= "ORDER BY procedure_report.date_collected DESC ";
 
 <?php Header::setupHeader('dygraphs'); ?>
 
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') === "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -341,7 +344,7 @@ function checkAll(bx) {
                                                 track:  thetitle,
                                                 items:  theitem,
                                                 thecheckboxes: checkboxfake,
-                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
                                             },
                                         dataType: "json",
                                         success: function(returnData){

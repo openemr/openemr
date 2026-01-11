@@ -24,6 +24,8 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $info_msg = "";
 
@@ -69,7 +71,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 "bProcessing": true,
                 // Next 2 lines invoke server side processing
                 "bServerSide": true,
-                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
                 // Vertical length options and their default
                 "aLengthMenu": [15, 25, 50, 100],
                 "iDisplayLength": 50,

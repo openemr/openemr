@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * import supporting libraries
  */
@@ -45,9 +47,10 @@ class OnsiteActivityViewController extends AppBasePortalController
      */
     public function ListView()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $user = 0;
-        if (isset($_SESSION['authUser'])) {
-            $user = $_SESSION['authUser'];
+        if ($session->has('authUser')) {
+            $user = $session->get('authUser');
         } else {
             header("refresh:5;url= ./provider");
             echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br /> Shared session not allowed!.';

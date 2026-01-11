@@ -17,6 +17,7 @@ namespace OpenEMR\Common\Logging;
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Traits\SingletonTrait;
 
@@ -524,7 +525,8 @@ MSG;
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $user =  $_SESSION['authUser'] ?? "";
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $user =  $session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
         if (empty($GLOBALS['enable_auditlog'])) {
@@ -634,8 +636,9 @@ MSG;
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($event == "patient-record") {
-            if (array_key_exists('pid', $_SESSION) && $_SESSION['pid'] != '') {
-                $pid = $_SESSION['pid'];
+            $sessionPid = $session->get('pid');
+            if ($sessionPid !== null && $sessionPid != '') {
+                $pid = $sessionPid;
             }
         }
 
@@ -645,7 +648,7 @@ MSG;
 
         $event = $event . "-" . $querytype;
 
-        $group = $_SESSION['authProvider'] ?? "";
+        $group = $session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
@@ -658,8 +661,9 @@ MSG;
      */
     public function auditSQLAuditTamper($setting, $enable)
     {
-        $user =  $_SESSION['authUser'] ?? "";
-        $group = $_SESSION['authProvider'] ?? "";
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $user =  $session->get('authUser') ?? "";
+        $group = $session->get('authProvider') ?? "";
         $pid = 0;
         $success = 1;
         $event = "security-administration" . "-" . "insert";
@@ -853,6 +857,7 @@ MSG;
      */
     public function logHttpRequest()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
         if (empty($GLOBALS['enable_auditlog']) || empty($GLOBALS['audit_events_http-request'])) {
             return;
@@ -879,11 +884,11 @@ MSG;
         // Record the log entry
         $this->newEvent(
             "http-request-$event",  // event
-            $_SESSION['authUser'] ?? null, // user
-            $_SESSION['authProvider'] ?? null, // groupname
+            $session->get('authUser') ?? null, // user
+            $session->get('authProvider') ?? null, // groupname
             1, // success
             $comment, // comments
-            $_SESSION['pid'] ?? null // patient_id
+            $session->get('pid') ?? null // patient_id
         );
     }
 
