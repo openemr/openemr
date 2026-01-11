@@ -71,11 +71,11 @@ $portalPatient = '';
 $query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data " .
     "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
     "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
-$portalPatient = sqlQueryNoLog($query, $pid);
+$portalPatient = sqlQueryNoLog($query, [$pid]);
 if ($session->get('authUserID', '')) {
     $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
         "FROM users WHERE id = ?";
-    $adminUser = sqlQueryNoLog($query, $session->get('authUserID'));
+    $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
 $edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
