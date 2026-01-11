@@ -28,7 +28,7 @@ $auth_anything = $auth_lots                           ||
     AclMain::aclCheckCore('inventory', 'sales') ||
     AclMain::aclCheckCore('inventory', 'reporting');
 if (!$auth_anything) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
     exit;
 }
 // Note if user is restricted to any facilities and/or warehouses.

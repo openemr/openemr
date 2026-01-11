@@ -47,7 +47,7 @@ if (empty($_REQUEST['list_id'] ?? null) && empty($_REQUEST['list_id_container'] 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("List Editor")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("List Editor")]);
     exit;
 }
 

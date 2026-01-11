@@ -342,7 +342,6 @@ $styleArray = collectStyles();
 $isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
-$twig = (new TwigContainer('', $globalsBag->get('kernel')))->getTwig();
 try {
     $healthSnapshot = [
         'immunizationRecords' => $immunRecords,
@@ -407,7 +406,7 @@ try {
         ]
     ];
 
-    echo $twig->render('portal/home.html.twig', $data);
+    echo TwigContainer::getInstance()->getTwig()->render('portal/home.html.twig', $data);
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {

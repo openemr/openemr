@@ -53,9 +53,8 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
-    $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
+    $modal = TwigContainer::getInstance()->getTwig()->render("portal/partial/_signer_modal.html.twig", $twigVars);
 } catch (Exception $exception) {
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     // we want the json to fail

@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 // Control access
 if (!AclMain::aclCheckCore('patients', 'disclosure')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Disclosures")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Disclosures")]);
     exit;
 }
 $authWrite = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');

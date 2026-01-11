@@ -29,11 +29,11 @@ $order = isset($_GET['order']) ? $_GET['order'] + 0 : 0;
 $labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
 
 if (!$popup && !AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
     exit;
 }
 if ($popup && !AclMain::aclCheckCore('patients', 'lab') && !AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
     exit;
 }
 

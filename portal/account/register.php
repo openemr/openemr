@@ -60,9 +60,8 @@ $data = [
 ];
 
 // Render Register Twig template
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
-    echo $twig->render('portal/registration/portal_register.html.twig', $data);
+    echo TwigContainer::getInstance()->getTwig()->render('portal/registration/portal_register.html.twig', $data);
 } catch (LoaderError | SyntaxError | RuntimeError $e) {
     (new SystemLogger())->error($e->getMessage());
     echo text($e->getMessage());

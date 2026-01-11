@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 $tab = "routes";
 $pageTitle = xl("DORN - Routes");
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+    echo TwigContainer::getInstance()->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     exit;
 }
 

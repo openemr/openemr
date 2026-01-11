@@ -106,8 +106,8 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         (new SystemLogger())->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
         return true;
     }
-    $twigContainer = new TwigContainer(null, $globalsBag->get('kernel'));
-    $twig = $twigContainer->getTwig();
+
+    $twig = TwigContainer::getInstance()->getTwig();
     $templateData = [];
     $template = 'verify-failed';
     $emailPrepSend = false;
@@ -454,8 +454,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
 
-    $twigContainer = new TwigContainer(null, $globalsBag->get('kernel'));
-    $twig = $twigContainer->getTwig();
+    $twig = TwigContainer::getInstance()->getTwig();
     $fhirServerConfig = new ServerConfig();
 
     $data = [

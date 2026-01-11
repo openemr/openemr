@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Twig\TwigExtension;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
@@ -21,6 +22,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 #[Group('isolated')]
 #[Group('twig')]
@@ -31,7 +33,6 @@ class TwigContainerIsolatedTest extends TestCase
 {
     protected function setUp(): void
     {
-        $GLOBALS['fileroot'] = __DIR__ . '/../../../../../'; // @todo Remove this workaround after removal from TwigContainer
         $GLOBALS['date_display_format'] ??= 0;
     }
 
@@ -42,14 +43,17 @@ class TwigContainerIsolatedTest extends TestCase
         string $templateAsString,
         string $expectedRenderedHtml,
     ): void {
-
         $globalsBag = OEGlobalsBag::getInstance();
+
+        // @todo Remove this workaround after removal from TwigContainer
+        $globalsBag->set('kernel', new Kernel(new EventDispatcher()));
+        $globalsBag->set('fileroot', __DIR__ . '/../../../../../');
+
         foreach ($globals as $key => $value) {
             $globalsBag->set($key, $value);
         }
 
-        $twigContainer = new TwigContainer();
-        $twigEnvironment = $twigContainer->getTwig();
+        $twigEnvironment = TwigContainer::getInstance()->getTwig();
         $template = $twigEnvironment->createTemplate($templateAsString);
         $this->assertEquals($expectedRenderedHtml, $template->render());
     }

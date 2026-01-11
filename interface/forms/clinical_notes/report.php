@@ -34,7 +34,5 @@ function clinical_notes_report($pid, $encounter, $cols, $id): void
         'notes' => $data
     ];
 
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
-    $t = $twig->getTwig();
-    echo $t->render('templates/report.html.twig', $viewArgs);
+    echo TwigContainer::getInstance()->addPath(__DIR__)->getTwig()->render('templates/report.html.twig', $viewArgs);
 }

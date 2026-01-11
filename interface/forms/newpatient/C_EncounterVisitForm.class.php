@@ -66,9 +66,7 @@ class C_EncounterVisitForm
         private readonly string $rootdir,
         private readonly string $pageName = 'newpatient/common.php'
     ) {
-        // Initialize Twig
-        $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
-        $this->twig = $twig->getTwig();
+        $this->twig = TwigContainer::getInstance()->addPath($templatePath . '/templates/')->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
         $this->eventDispatcher = $kernel->getEventDispatcher();

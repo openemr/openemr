@@ -25,7 +25,7 @@ $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
 
 try {
-    $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+    $twig = TwigContainer::getInstance()->getTwig();
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf"])) {
         http_response_code(403);
         CsrfUtils::csrfNotVerified(true, true, false);
