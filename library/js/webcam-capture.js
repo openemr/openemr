@@ -4,6 +4,10 @@
  * Provides webcam capture functionality with base64 output for patient photo capture.
  * Uses modern browser APIs (navigator.mediaDevices.getUserMedia).
  *
+ * Supports two modes:
+ * 1. Form mode: Stores captured photo in a hidden form field
+ * 2. AJAX mode: Uploads photo directly via AJAX endpoint
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    AI-Generated
@@ -14,9 +18,13 @@
 (function(window, $) {
     'use strict';
 
-    var WebcamCapture = {
-        // Configuration
-        config: {
+    /**
+     * Create a new WebcamCapture instance
+     * @param {Object} options - Configuration options
+     */
+    function WebcamCapture(options) {
+        this.config = $.extend({
+            // Video constraints
             videoConstraints: {
                 video: {
                     width: { ideal: 640 },
@@ -25,102 +33,115 @@
                 },
                 audio: false
             },
+            // Output settings
             outputFormat: 'image/jpeg',
-            outputQuality: 0.9
-        },
+            outputQuality: 0.9,
 
-        // State
-        stream: null,
-        capturedData: null,
+            // Element selectors
+            modalSelector: '#webcamModal',
+            videoSelector: '#webcamVideo',
+            canvasSelector: '#webcamCanvas',
+            capturedImageSelector: '#capturedImage',
+            errorContainerSelector: '#webcamError',
+            webcamContainerSelector: '#webcamContainer',
+            capturedImageContainerSelector: '#capturedImageContainer',
+            btnCaptureSelector: '#btnCapture',
+            btnRetakeSelector: '#btnRetake',
+            btnUsePhotoSelector: '#btnUsePhoto',
 
-        // DOM Elements (set during init)
-        elements: {
-            video: null,
-            canvas: null,
-            capturedImage: null,
-            errorContainer: null,
-            webcamContainer: null,
-            capturedImageContainer: null,
-            btnCapture: null,
-            btnRetake: null,
-            btnUsePhoto: null,
-            modal: null,
-            targetInput: null,
-            previewContainer: null,
-            previewImage: null
-        },
+            // Form mode elements (optional)
+            triggerSelector: '#btnTakePicture',
+            targetInputSelector: '#patient_photo_base64',
+            previewContainerSelector: '#photoPreviewContainer',
+            previewImageSelector: '#photoPreview',
+            btnRemoveSelector: '#btnRemovePhoto',
 
-        /**
-         * Initialize the webcam capture module
-         * @param {Object} options - Configuration options
-         */
-        init: function(options) {
-            // Merge options with defaults
-            if (options) {
-                $.extend(this.config, options);
-            }
+            // Callbacks
+            onPhotoUsed: null,      // function(base64Data) - called when photo is used
+            onPhotoCaptured: null,  // function(base64Data) - called when photo is captured
+            onError: null,          // function(error) - called on error
+            onModalOpen: null,      // function() - called when modal opens
+            onModalClose: null      // function() - called when modal closes
+        }, options);
 
-            // Cache DOM elements
-            this.cacheElements();
+        this.stream = null;
+        this.capturedData = null;
+        this.elements = {};
 
-            // Bind events
-            this.bindEvents();
-        },
+        this._cacheElements();
+        this._bindEvents();
+    }
 
+    WebcamCapture.prototype = {
         /**
          * Cache jQuery references to DOM elements
          */
-        cacheElements: function() {
-            this.elements.video = document.getElementById('webcamVideo');
-            this.elements.canvas = document.getElementById('webcamCanvas');
-            this.elements.capturedImage = $('#capturedImage');
-            this.elements.errorContainer = $('#webcamError');
-            this.elements.webcamContainer = $('#webcamContainer');
-            this.elements.capturedImageContainer = $('#capturedImageContainer');
-            this.elements.btnCapture = $('#btnCapture');
-            this.elements.btnRetake = $('#btnRetake');
-            this.elements.btnUsePhoto = $('#btnUsePhoto');
-            this.elements.modal = $('#webcamModal');
-            this.elements.targetInput = $('#patient_photo_base64');
-            this.elements.previewContainer = $('#photoPreviewContainer');
-            this.elements.previewImage = $('#photoPreview');
+        _cacheElements: function() {
+            this.elements.modal = $(this.config.modalSelector);
+            this.elements.video = $(this.config.videoSelector)[0];
+            this.elements.canvas = $(this.config.canvasSelector)[0];
+            this.elements.capturedImage = $(this.config.capturedImageSelector);
+            this.elements.errorContainer = $(this.config.errorContainerSelector);
+            this.elements.webcamContainer = $(this.config.webcamContainerSelector);
+            this.elements.capturedImageContainer = $(this.config.capturedImageContainerSelector);
+            this.elements.btnCapture = $(this.config.btnCaptureSelector);
+            this.elements.btnRetake = $(this.config.btnRetakeSelector);
+            this.elements.btnUsePhoto = $(this.config.btnUsePhotoSelector);
+            this.elements.trigger = $(this.config.triggerSelector);
+            this.elements.targetInput = $(this.config.targetInputSelector);
+            this.elements.previewContainer = $(this.config.previewContainerSelector);
+            this.elements.previewImage = $(this.config.previewImageSelector);
+            this.elements.btnRemove = $(this.config.btnRemoveSelector);
         },
 
         /**
          * Bind event handlers
          */
-        bindEvents: function() {
+        _bindEvents: function() {
             var self = this;
 
-            // Open modal and start camera
-            $('#btnTakePicture').on('click', function() {
-                self.openModal();
-            });
+            // Trigger button opens modal
+            if (this.elements.trigger.length) {
+                this.elements.trigger.on('click', function() {
+                    self.openModal();
+                });
+            }
 
-            // Capture photo
+            // Capture button
             this.elements.btnCapture.on('click', function() {
                 self.capturePhoto();
             });
 
-            // Retake photo
+            // Retake button
             this.elements.btnRetake.on('click', function() {
                 self.retakePhoto();
             });
 
-            // Use captured photo
+            // Use photo button
             this.elements.btnUsePhoto.on('click', function() {
                 self.usePhoto();
             });
 
-            // Remove photo
-            $('#btnRemovePhoto').on('click', function() {
-                self.removePhoto();
-            });
+            // Remove button (form mode)
+            if (this.elements.btnRemove.length) {
+                this.elements.btnRemove.on('click', function() {
+                    self.removePhoto();
+                });
+            }
 
             // Stop camera when modal closes
             this.elements.modal.on('hidden.bs.modal', function() {
                 self.stopCamera();
-                self.resetModalState();
+                self._resetModalState();
+                if (typeof self.config.onModalClose === 'function') {
+                    self.config.onModalClose();
+                }
+            });
+
+            this.elements.modal.on('shown.bs.modal', function() {
+                if (typeof self.config.onModalOpen === 'function') {
+                    self.config.onModalOpen();
+                }
             });
         },
 
@@ -133,6 +154,13 @@
         },
 
         /**
+         * Close the modal
+         */
+        closeModal: function() {
+            this.elements.modal.modal('hide');
+        },
+
+        /**
          * Start the webcam stream
          */
         startCamera: function() {
@@ -140,13 +168,13 @@
 
             // Check for browser support
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                this.showError(window.xljs_webcam_not_supported || 'Your browser does not support webcam access. Please use a modern browser like Chrome, Firefox, or Edge.');
+                this._showError(window.xljs_webcam_not_supported || 'Your browser does not support webcam access. Please use a modern browser like Chrome, Firefox, or Edge.');
                 return;
             }
 
             // Check for HTTPS (required for getUserMedia except on localhost)
             if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                this.showError(window.xljs_webcam_https_required || 'Webcam access requires a secure connection (HTTPS). Please contact your administrator.');
+                this._showError(window.xljs_webcam_https_required || 'Webcam access requires a secure connection (HTTPS). Please contact your administrator.');
                 return;
             }
 
@@ -154,7 +182,7 @@
                 .then(function(stream) {
                     self.stream = stream;
                     self.elements.video.srcObject = stream;
-                    self.hideError();
+                    self._hideError();
                 })
                 .catch(function(err) {
                     console.error('Webcam error:', err);
@@ -168,7 +196,10 @@
                     } else {
                         message = (window.xljs_webcam_error || 'Unable to access webcam: ') + err.message;
                     }
-                    self.showError(message);
+                    self._showError(message);
+                    if (typeof self.config.onError === 'function') {
+                        self.config.onError(err);
+                    }
                 });
         },
 
@@ -222,6 +253,10 @@
             this.elements.btnCapture.addClass('d-none');
             this.elements.btnRetake.removeClass('d-none');
             this.elements.btnUsePhoto.removeClass('d-none');
+
+            if (typeof this.config.onPhotoCaptured === 'function') {
+                this.config.onPhotoCaptured(this.capturedData);
+            }
         },
 
         /**
@@ -244,45 +279,75 @@
                 return;
             }
 
-            // Store base64 data in hidden field
-            this.elements.targetInput.val(this.capturedData);
-
-            // Show preview thumbnail
-            this.elements.previewImage.attr('src', this.capturedData);
-            this.elements.previewContainer.show();
+            // If callback is provided, use it (AJAX mode)
+            if (typeof this.config.onPhotoUsed === 'function') {
+                this.config.onPhotoUsed(this.capturedData);
+            } else {
+                // Default form mode behavior
+                this._usePhotoFormMode();
+            }
 
             // Close modal
-            this.elements.modal.modal('hide');
+            this.closeModal();
         },
 
         /**
-         * Remove the captured photo
+         * Default form mode: store in hidden field and show preview
+         */
+        _usePhotoFormMode: function() {
+            if (this.elements.targetInput.length) {
+                this.elements.targetInput.val(this.capturedData);
+            }
+            if (this.elements.previewImage.length) {
+                this.elements.previewImage.attr('src', this.capturedData);
+            }
+            if (this.elements.previewContainer.length) {
+                this.elements.previewContainer.show();
+            }
+        },
+
+        /**
+         * Remove the captured photo (form mode)
          */
         removePhoto: function() {
-            this.elements.targetInput.val('');
-            this.elements.previewImage.attr('src', '');
-            this.elements.previewContainer.hide();
+            if (this.elements.targetInput.length) {
+                this.elements.targetInput.val('');
+            }
+            if (this.elements.previewImage.length) {
+                this.elements.previewImage.attr('src', '');
+            }
+            if (this.elements.previewContainer.length) {
+                this.elements.previewContainer.hide();
+            }
             this.capturedData = null;
+        },
+
+        /**
+         * Get the captured photo data
+         * @returns {string|null} Base64 encoded image data
+         */
+        getCapturedData: function() {
+            return this.capturedData;
         },
 
         /**
          * Reset modal to initial state
          */
-        resetModalState: function() {
+        _resetModalState: function() {
             this.capturedData = null;
             this.elements.webcamContainer.removeClass('d-none');
             this.elements.capturedImageContainer.addClass('d-none');
             this.elements.btnCapture.removeClass('d-none');
             this.elements.btnRetake.addClass('d-none');
             this.elements.btnUsePhoto.addClass('d-none');
-            this.hideError();
+            this._hideError();
         },
 
         /**
          * Show error message
          * @param {string} message - Error message to display
          */
-        showError: function(message) {
+        _showError: function(message) {
             this.elements.errorContainer
                 .text(message)
                 .removeClass('d-none');
@@ -292,7 +357,7 @@
         /**
          * Hide error message
          */
-        hideError: function() {
+        _hideError: function() {
             this.elements.errorContainer.addClass('d-none');
             this.elements.webcamContainer.removeClass('d-none');
         }

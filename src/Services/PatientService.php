@@ -655,7 +655,8 @@ class PatientService extends BaseService
                    ON doc.id = cate_to_doc.document_id
                  JOIN categories cate
                    ON cate.id = cate_to_doc.category_id
-                WHERE cate.name LIKE ? and doc.foreign_id = ?";
+                WHERE cate.name LIKE ? and doc.foreign_id = ?
+                ORDER BY doc.date DESC";
 
         $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
 

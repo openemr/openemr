@@ -1009,9 +1009,9 @@ while ($lrow = sqlFetchArray($lres)) {
   });
 
 
-  // Initialize webcam capture module
+  // Initialize webcam capture module (form mode)
   if (typeof WebcamCapture !== 'undefined') {
-      WebcamCapture.init();
+      new WebcamCapture();
   }
 
 }); // end document.ready
