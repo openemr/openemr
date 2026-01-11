@@ -75,6 +75,7 @@ $fres = getLayoutRes();
 <html>
 <head>
 <?php Header::setupHeader(['common','datetime-picker','select2', 'erx']); ?>
+<script src="<?php echo $GLOBALS['webroot']; ?>/library/js/webcam-capture.js"></script>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <style>
 .form-group {
@@ -382,6 +383,20 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 <h2><?php echo xlt('Search or Add Patient');?></h2>
             </div>
         </div>
+        <!-- Patient Photo Capture -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-outline-secondary" id="btnTakePicture">
+                    <i class="fa fa-camera mr-1"></i><?php echo xlt('Take Picture'); ?>
+                </button>
+                <div id="photoPreviewContainer" class="ml-3 align-middle" style="display: none;">
+                    <img id="photoPreview" src="" class="img-thumbnail" style="max-width: 80px; max-height: 80px;" alt="<?php echo xla('Patient Photo'); ?>" />
+                    <button type="button" class="btn btn-sm btn-outline-danger ml-1" id="btnRemovePhoto" title="<?php echo xla('Remove Photo'); ?>">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="<?php echo $BS_COL_CLASS; ?>-12">
                 <div class="accordion" id="dem_according">
@@ -390,6 +405,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
                     <!--  Was: class='form-inline' -->
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="patient_photo_base64" id="patient_photo_base64" value="" />
 
                     <table class='table table-sm w-100' cellspacing='8'>
                     <tr>
@@ -993,6 +1009,11 @@ while ($lrow = sqlFetchArray($lres)) {
   });
 
 
+  // Initialize webcam capture module
+  if (typeof WebcamCapture !== 'undefined') {
+      WebcamCapture.init();
+  }
+
 }); // end document.ready
 
 // callback for new patient save confirm from new_search_popup.php
@@ -1023,5 +1044,44 @@ include_once("$srcdir/validation/validation_script.js.php");?>
         checkSkipConditions();
     });
 </script>
+
+<!-- Webcam Capture Modal -->
+<div class="modal fade" id="webcamModal" tabindex="-1" role="dialog" aria-labelledby="webcamModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="webcamModalLabel"><?php echo xlt('Capture Patient Photo'); ?></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="webcamError" class="alert alert-danger d-none"></div>
+                <div id="webcamContainer">
+                    <video id="webcamVideo" autoplay playsinline class="img-fluid border" style="max-height: 400px; background: #000;"></video>
+                    <canvas id="webcamCanvas" class="d-none"></canvas>
+                </div>
+                <div id="capturedImageContainer" class="d-none">
+                    <img id="capturedImage" src="" class="img-fluid border" style="max-height: 400px;" alt="<?php echo xla('Captured Photo'); ?>" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <?php echo xlt('Cancel'); ?>
+                </button>
+                <button type="button" class="btn btn-warning d-none" id="btnRetake">
+                    <i class="fa fa-redo mr-1"></i><?php echo xlt('Retake'); ?>
+                </button>
+                <button type="button" class="btn btn-primary" id="btnCapture">
+                    <i class="fa fa-camera mr-1"></i><?php echo xlt('Capture'); ?>
+                </button>
+                <button type="button" class="btn btn-success d-none" id="btnUsePhoto">
+                    <i class="fa fa-check mr-1"></i><?php echo xlt('Use Photo'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
