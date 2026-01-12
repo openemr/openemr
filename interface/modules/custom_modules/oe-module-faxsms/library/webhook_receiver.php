@@ -30,8 +30,100 @@ use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 // Capture raw input first (can only be read once)
 $rawInput = file_get_contents('php://input');
 
-// Get site ID from query parameter
-$siteId = $_SESSION['site_id'] ?? $_GET['site'] ?? 'default';
+/**
+ * Validation helper functions for webhook input
+ */
+function validateFaxId(string $faxId): string
+{
+    // Remove any characters that aren't alphanumeric, hyphens, or underscores
+    $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $faxId);
+    // Limit length to prevent DoS
+    return substr($sanitized ?? '', 0, 255);
+}
+
+function validateFaxStatus(string $status): string
+{
+    $allowedStatuses = [
+        'queued', 'processing', 'sending', 'sent', 'delivered',
+        'receiving', 'received', 'failed', 'no-answer', 'busy',
+        'canceled', 'unknown'
+    ];
+    $status = strtolower(trim($status));
+    return in_array($status, $allowedStatuses, true) ? $status : 'unknown';
+}
+
+function validatePhoneNumber(string $phone): string
+{
+    // Remove all characters except digits and + for international format
+    $sanitized = preg_replace('/[^0-9+]/', '', $phone);
+    // Limit length (E.164 max is 15 digits + country code)
+    return substr($sanitized ?? '', 0, 20);
+}
+
+function validateInteger(mixed $value, int $min, int $max): int
+{
+    $intValue = filter_var($value, FILTER_VALIDATE_INT);
+    if ($intValue === false) {
+        return $min;
+    }
+    return max($min, min($max, $intValue));
+}
+
+function validateDirection(string $direction): string
+{
+    $allowedDirections = ['inbound', 'outbound', 'outbound-api', 'outbound-call'];
+    $direction = strtolower(trim($direction));
+    return in_array($direction, $allowedDirections, true) ? $direction : 'inbound';
+}
+
+function validateString(string $input, int $maxLength): string
+{
+    // Remove control characters but preserve newlines for error messages
+    $sanitized = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $input);
+    return substr($sanitized ?? '', 0, $maxLength);
+}
+
+function validateSiteId(string $siteId): string
+{
+    // Sanitize to prevent path traversal and injection attacks
+    $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $siteId);
+    return !empty($sanitized) ? $sanitized : 'default';
+}
+
+function isValidSignalWireUrl(string $url): bool
+{
+    // Parse and validate URL structure
+    $parsedUrl = parse_url($url);
+    
+    if ($parsedUrl === false || !isset($parsedUrl['scheme']) || !isset($parsedUrl['host'])) {
+        return false;
+    }
+    
+    // Only allow HTTPS protocol to prevent file:// and other protocol attacks
+    if ($parsedUrl['scheme'] !== 'https') {
+        return false;
+    }
+    
+    // Whitelist of allowed SignalWire domains to prevent SSRF
+    $allowedDomains = [
+        'files.signalwire.com',
+        'api.signalwire.com'
+    ];
+    
+    $host = strtolower($parsedUrl['host']);
+    
+    // Check if host matches allowed domains exactly or is a subdomain
+    foreach ($allowedDomains as $allowedDomain) {
+        if ($host === $allowedDomain || str_ends_with($host, '.' . $allowedDomain)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Get site ID from query parameter and validate
+$siteId = validateSiteId($_SESSION['site_id'] ?? $_GET['site'] ?? 'default');
 
 // Handle JSON payloads (SignalWire sends JSON for some webhooks)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
@@ -81,16 +173,16 @@ if ($vendor !== 'signalwire' || $type !== 'fax') {
     exit('Invalid request');
 }
 
-// Get webhook payload - initialize all variables explicitly for PHPStan
-$faxSid = $_POST['FaxSid'] ?? $_POST['Sid'] ?? '';
-$status = $_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown';
-$from = $_POST['From'] ?? $_POST['RemoteStationId'] ?? '';
-$to = $_POST['To'] ?? $_POST['OriginalTo'] ?? '';
-$numPages = $_POST['NumPages'] ?? $_POST['Pages'] ?? 0;
-$mediaUrl = $_POST['MediaUrl'] ?? '';
-$direction = $_POST['Direction'] ?? 'inbound';
-$errorCode = $_POST['ErrorCode'] ?? '';
-$errorMessage = $_POST['ErrorMessage'] ?? '';
+// Get webhook payload - validate and sanitize all input
+$faxSid = validateFaxId($_POST['FaxSid'] ?? $_POST['Sid'] ?? '');
+$status = validateFaxStatus($_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown');
+$from = validatePhoneNumber($_POST['From'] ?? $_POST['RemoteStationId'] ?? '');
+$to = validatePhoneNumber($_POST['To'] ?? $_POST['OriginalTo'] ?? '');
+$numPages = validateInteger($_POST['NumPages'] ?? $_POST['Pages'] ?? 0, 0, 9999);
+$mediaUrl = validateString($_POST['MediaUrl'] ?? '', 2048);
+$direction = validateDirection($_POST['Direction'] ?? 'inbound');
+$errorCode = validateString($_POST['ErrorCode'] ?? '', 100);
+$errorMessage = validateString($_POST['ErrorMessage'] ?? '', 1000);
 
 // Handle webhook validation/test (empty POST body)
 if (empty($_POST) || empty($faxSid)) {
@@ -183,6 +275,12 @@ function downloadAndStoreFaxMedia(
     int $patientId = 0
 ): void {
     try {
+        // Validate mediaUrl to prevent SSRF attacks
+        if (!isValidSignalWireUrl($mediaUrl)) {
+            error_log("SignalWire Webhook: Invalid or unauthorized media URL: " . $mediaUrl);
+            return;
+        }
+
         // Get SignalWire credentials
         $vendor = '_signalwire';
         $credentials = QueryUtils::querySingleRow(
