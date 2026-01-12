@@ -280,13 +280,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/billing/edi_270.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 5
-      path: ../interface/billing/edit_payment.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 24
+      path: ../interface/billing/edit_payment.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 5
+      path: ../interface/billing/edit_payment.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 5
       path: ../interface/billing/edit_payment.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -295,10 +299,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 47
-      path: ../interface/billing/edit_payment.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 5
       path: ../interface/billing/edit_payment.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -1164,7 +1164,15 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 4
       path: ../interface/forms/procedure_order/delete.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/forms/procedure_order/handle_deletions.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/forms/procedure_order/handle_deletions.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/forms/procedure_order/handle_deletions.php
@@ -1172,25 +1180,21 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/forms/procedure_order/handle_deletions.php
-    - message: '#^Use QueryUtils\:\:rollbackTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/forms/procedure_order/handle_deletions.php
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 5
       path: ../interface/forms/procedure_order/handle_deletions.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/forms/procedure_order/handle_deletions.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/forms/procedure_order/procedure_order_save_functions.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 3
+      path: ../interface/forms/procedure_order/procedure_order_save_functions.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/forms/procedure_order/procedure_order_save_functions.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
       path: ../interface/forms/procedure_order/procedure_order_save_functions.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -1203,10 +1207,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 12
-      path: ../interface/forms/procedure_order/procedure_order_save_functions.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
       path: ../interface/forms/procedure_order/procedure_order_save_functions.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -1696,11 +1696,15 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../interface/modules/custom_modules/oe-module-dorn/src/ProcedureSqlStatements.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
-    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
@@ -1715,10 +1719,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
-      path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
       path: ../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2076,11 +2076,19 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/Configuration.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
@@ -2088,27 +2096,19 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 7
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Use QueryUtils\:\:rollbackTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php
-    - message: '#^Use QueryUtils\:\:rollbackTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php
@@ -2320,13 +2320,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../interface/orders/qoe.inc.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../interface/orders/receive_hl7_results.inc.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
+      path: ../interface/orders/receive_hl7_results.inc.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../interface/orders/receive_hl7_results.inc.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
       path: ../interface/orders/receive_hl7_results.inc.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2339,10 +2343,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 3
-      path: ../interface/orders/receive_hl7_results.inc.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
       path: ../interface/orders/receive_hl7_results.inc.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2536,13 +2536,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../interface/patient_file/encounter/trend_form.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 3
-      path: ../interface/patient_file/front_payment.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 11
+      path: ../interface/patient_file/front_payment.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 3
+      path: ../interface/patient_file/front_payment.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 3
       path: ../interface/patient_file/front_payment.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2555,10 +2559,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 16
-      path: ../interface/patient_file/front_payment.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 3
       path: ../interface/patient_file/front_payment.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2656,13 +2656,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 15
       path: ../interface/patient_file/merge_patients.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
-      path: ../interface/patient_file/pos_checkout_ippf.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 15
+      path: ../interface/patient_file/pos_checkout_ippf.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
+      path: ../interface/patient_file/pos_checkout_ippf.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
       path: ../interface/patient_file/pos_checkout_ippf.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2672,17 +2676,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 19
       path: ../interface/patient_file/pos_checkout_ippf.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
-      path: ../interface/patient_file/pos_checkout_ippf.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
-      path: ../interface/patient_file/pos_checkout_normal.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 11
+      path: ../interface/patient_file/pos_checkout_normal.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
+      path: ../interface/patient_file/pos_checkout_normal.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
       path: ../interface/patient_file/pos_checkout_normal.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -2695,10 +2699,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 14
-      path: ../interface/patient_file/pos_checkout_normal.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
       path: ../interface/patient_file/pos_checkout_normal.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -3824,13 +3824,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../library/ESign/Form/Signable.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../library/FeeSheet.class.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 3
+      path: ../library/FeeSheet.class.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../library/FeeSheet.class.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
       path: ../library/FeeSheet.class.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -3843,10 +3847,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 26
-      path: ../library/FeeSheet.class.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
       path: ../library/FeeSheet.class.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -4704,13 +4704,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../library/patientvalidation.inc.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 5
-      path: ../library/payment.inc.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
+      path: ../library/payment.inc.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 5
+      path: ../library/payment.inc.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 5
       path: ../library/payment.inc.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -4723,10 +4727,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 9
-      path: ../library/payment.inc.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 5
       path: ../library/payment.inc.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5144,13 +5144,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../portal/patient/templates/OnsiteDocumentListView.tpl.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 3
-      path: ../portal/portal_payment.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 9
+      path: ../portal/portal_payment.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 3
+      path: ../portal/portal_payment.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 3
       path: ../portal/portal_payment.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) instead of sqlQueryNoLog\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5167,10 +5171,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 13
-      path: ../portal/portal_payment.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 3
       path: ../portal/portal_payment.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5304,13 +5304,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 6
       path: ../src/Billing/BillingReport.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../src/Billing/BillingUtilities.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 3
+      path: ../src/Billing/BillingUtilities.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../src/Billing/BillingUtilities.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
       path: ../src/Billing/BillingUtilities.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5324,10 +5328,6 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 20
       path: ../src/Billing/BillingUtilities.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../src/Billing/BillingUtilities.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 3
@@ -5368,13 +5368,17 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 4
       path: ../src/Billing/InvoiceSummary.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
-      path: ../src/Billing/SLEOB.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
+      path: ../src/Billing/SLEOB.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
+      path: ../src/Billing/SLEOB.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
       path: ../src/Billing/SLEOB.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5387,10 +5391,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 3
-      path: ../src/Billing/SLEOB.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
       path: ../src/Billing/SLEOB.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5600,10 +5600,6 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Crypto/CryptoGen.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../src/Common/Database/QueryUtils.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 7
@@ -5612,17 +5608,21 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../src/Common/Database/QueryUtils.php
-    - message: '#^Use QueryUtils\:\:rollbackTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../src/Common/Database/QueryUtils.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../src/Common/Database/QueryUtils.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Database/QueryUtils.php
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) instead of global sqlStatementThrowException\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
-      path: ../src/Common/Database/QueryUtils.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
       path: ../src/Common/Database/QueryUtils.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
@@ -5688,10 +5688,6 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Uuid/UniqueInstallationUuid.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 1
-      path: ../src/Common/Uuid/UuidMapping.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
@@ -5700,18 +5696,18 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 4
       path: ../src/Common/Uuid/UuidMapping.php
-    - message: '#^Use QueryUtils\:\:rollbackTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Uuid/UuidMapping.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Uuid/UuidMapping.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
-      path: ../src/Common/Uuid/UuidRegistry.php
+      path: ../src/Common/Uuid/UuidMapping.php
     - message: '#^Use QueryUtils\:\:fetchRecords\(\) or QueryUtils\:\:fetchArrayFromResultSet\(\) instead of sqlFetchArray\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
@@ -5720,11 +5716,15 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 6
       path: ../src/Common/Uuid/UuidRegistry.php
-    - message: '#^Use QueryUtils\:\:rollbackTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Uuid/UuidRegistry.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 1
+      path: ../src/Common/Uuid/UuidRegistry.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlRollbackTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
       path: ../src/Common/Uuid/UuidRegistry.php
@@ -6228,7 +6228,11 @@ parameters:
       identifier: openemr.deprecatedSqlFunction
       count: 7
       path: ../src/Services/PatientTrackerService.php
-    - message: '#^Use QueryUtils\:\:commitTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
+      identifier: openemr.deprecatedSqlFunction
+      count: 2
+      path: ../src/Services/PatientTransactionService.php
+    - message: '#^Use QueryUtils\:\:inTransaction\(\) instead of sqlCommitTrans\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 2
       path: ../src/Services/PatientTransactionService.php
@@ -6239,10 +6243,6 @@ parameters:
     - message: '#^Use QueryUtils\:\:sqlStatementThrowException\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlStatement\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
       count: 1
-      path: ../src/Services/PatientTransactionService.php
-    - message: '#^Use QueryUtils\:\:startTransaction\(\) instead of sqlBeginTrans\(\)\.$#'
-      identifier: openemr.deprecatedSqlFunction
-      count: 2
       path: ../src/Services/PatientTransactionService.php
     - message: '#^Use QueryUtils\:\:querySingleRow\(\) or QueryUtils\:\:fetchRecords\(\) instead of sqlQuery\(\)\.$#'
       identifier: openemr.deprecatedSqlFunction
