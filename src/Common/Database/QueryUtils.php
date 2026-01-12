@@ -293,6 +293,22 @@ class QueryUtils
         \sqlRollbackTrans();
     }
 
+    /**
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function inTransaction(callable $action): mixed
+    {
+        self::startTransaction();
+
+        $return = $action();
+
+        self::commitTransaction();
+
+        return $action;
+    }
+
     public static function getLastInsertId()
     {
         return \sqlGetLastInsertId();
