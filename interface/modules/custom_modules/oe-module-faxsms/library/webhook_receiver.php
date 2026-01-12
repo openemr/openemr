@@ -166,6 +166,44 @@ try {
 }
 
 /**
+ * Validate that a URL is a legitimate SignalWire media URL
+ *
+ * @param string $url The URL to validate
+ * @return bool True if valid SignalWire URL, false otherwise
+ */
+function isValidSignalWireUrl(string $url): bool
+{
+    // Parse the URL
+    $parsedUrl = parse_url($url);
+    
+    if ($parsedUrl === false || !isset($parsedUrl['scheme']) || !isset($parsedUrl['host'])) {
+        return false;
+    }
+    
+    // Only allow HTTPS protocol
+    if ($parsedUrl['scheme'] !== 'https') {
+        return false;
+    }
+    
+    // Whitelist of allowed SignalWire domains
+    $allowedDomains = [
+        'files.signalwire.com',
+        'api.signalwire.com'
+    ];
+    
+    $host = strtolower($parsedUrl['host']);
+    
+    // Check if host matches allowed domains exactly or is a subdomain
+    foreach ($allowedDomains as $allowedDomain) {
+        if ($host === $allowedDomain || str_ends_with($host, '.' . $allowedDomain)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
  * Download fax media from SignalWire and store using FaxDocumentService
  *
  * @param string $faxSid
@@ -183,6 +221,12 @@ function downloadAndStoreFaxMedia(
     int $patientId = 0
 ): void {
     try {
+        // Validate mediaUrl to prevent SSRF attacks
+        if (!isValidSignalWireUrl($mediaUrl)) {
+            error_log("SignalWire Webhook: Invalid or unauthorized media URL: " . $mediaUrl);
+            return;
+        }
+
         // Get SignalWire credentials
         $vendor = '_signalwire';
         $credentials = QueryUtils::querySingleRow(
