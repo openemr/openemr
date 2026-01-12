@@ -48,7 +48,7 @@ jobs:
   collect:
     runs-on: ubuntu-24.04
     needs: check-skip
-    if: '!failure()'
+    if: success() || skipped()
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
