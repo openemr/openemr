@@ -94,31 +94,31 @@ function isValidSignalWireUrl(string $url): bool
 {
     // Parse and validate URL structure
     $parsedUrl = parse_url($url);
-    
+
     if ($parsedUrl === false || !isset($parsedUrl['scheme']) || !isset($parsedUrl['host'])) {
         return false;
     }
-    
+
     // Only allow HTTPS protocol to prevent file:// and other protocol attacks
     if ($parsedUrl['scheme'] !== 'https') {
         return false;
     }
-    
+
     // Whitelist of allowed SignalWire domains to prevent SSRF
     $allowedDomains = [
         'files.signalwire.com',
         'api.signalwire.com'
     ];
-    
+
     $host = strtolower($parsedUrl['host']);
-    
+
     // Check if host matches allowed domains exactly or is a subdomain
     foreach ($allowedDomains as $allowedDomain) {
         if ($host === $allowedDomain || str_ends_with($host, '.' . $allowedDomain)) {
             return true;
         }
     }
-    
+
     return false;
 }
 
