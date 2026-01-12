@@ -30,8 +30,65 @@ use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 // Capture raw input first (can only be read once)
 $rawInput = file_get_contents('php://input');
 
-// Get site ID from query parameter
+// Validation helper functions
+function validateAndSanitizeFaxId(string $faxId): string
+{
+    // Remove any non-alphanumeric characters except hyphens and underscores
+    $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $faxId);
+    // Limit length to prevent DoS
+    return substr($sanitized ?? '', 0, 255);
+}
+
+function validateFaxStatus(string $status): string
+{
+    $allowedStatuses = [
+        'queued', 'processing', 'sending', 'sent', 'delivered',
+        'receiving', 'received', 'failed', 'no-answer', 'busy',
+        'canceled', 'unknown'
+    ];
+    $status = strtolower(trim($status));
+    return in_array($status, $allowedStatuses, true) ? $status : 'unknown';
+}
+
+function validatePhoneNumber(string $phone): string
+{
+    // Remove all non-digit characters except + (for international)
+    $sanitized = preg_replace('/[^0-9+]/', '', $phone);
+    // Limit length
+    return substr($sanitized ?? '', 0, 50);
+}
+
+function validateInteger(mixed $value, int $min, int $max): int
+{
+    $intValue = filter_var($value, FILTER_VALIDATE_INT);
+    if ($intValue === false) {
+        return $min;
+    }
+    return max($min, min($max, $intValue));
+}
+
+function validateDirection(string $direction): string
+{
+    $direction = strtolower(trim($direction));
+    return in_array($direction, ['inbound', 'outbound', 'outbound-api', 'outbound-call'], true) 
+        ? $direction 
+        : 'inbound';
+}
+
+function validateString(string $input, int $maxLength): string
+{
+    // Remove control characters but keep newlines for error messages
+    $sanitized = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $input);
+    return substr($sanitized ?? '', 0, $maxLength);
+}
+
+// Get site ID from query parameter and validate
 $siteId = $_SESSION['site_id'] ?? $_GET['site'] ?? 'default';
+// Sanitize site ID to prevent path traversal and injection
+$siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', $siteId);
+if (empty($siteId)) {
+    $siteId = 'default';
+}
 
 // Handle JSON payloads (SignalWire sends JSON for some webhooks)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
@@ -82,15 +139,15 @@ if ($vendor !== 'signalwire' || $type !== 'fax') {
 }
 
 // Get webhook payload - initialize all variables explicitly for PHPStan
-$faxSid = $_POST['FaxSid'] ?? $_POST['Sid'] ?? '';
-$status = $_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown';
-$from = $_POST['From'] ?? $_POST['RemoteStationId'] ?? '';
-$to = $_POST['To'] ?? $_POST['OriginalTo'] ?? '';
-$numPages = $_POST['NumPages'] ?? $_POST['Pages'] ?? 0;
-$mediaUrl = $_POST['MediaUrl'] ?? '';
-$direction = $_POST['Direction'] ?? 'inbound';
-$errorCode = $_POST['ErrorCode'] ?? '';
-$errorMessage = $_POST['ErrorMessage'] ?? '';
+$faxSid = validateAndSanitizeFaxId($_POST['FaxSid'] ?? $_POST['Sid'] ?? '');
+$status = validateFaxStatus($_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown');
+$from = validatePhoneNumber($_POST['From'] ?? $_POST['RemoteStationId'] ?? '');
+$to = validatePhoneNumber($_POST['To'] ?? $_POST['OriginalTo'] ?? '');
+$numPages = validateInteger($_POST['NumPages'] ?? $_POST['Pages'] ?? 0, 0, 9999);
+$mediaUrl = trim($_POST['MediaUrl'] ?? '');
+$direction = validateDirection($_POST['Direction'] ?? 'inbound');
+$errorCode = validateString($_POST['ErrorCode'] ?? '', 255);
+$errorMessage = validateString($_POST['ErrorMessage'] ?? '', 1000);
 
 // Handle webhook validation/test (empty POST body)
 if (empty($_POST) || empty($faxSid)) {
