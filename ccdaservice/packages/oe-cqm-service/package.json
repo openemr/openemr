@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "bluebird": "3.5.1",
+    "bluebird": "3.7.2",
     "compression": "1.8.1",
     "cqm-execution": "4.4.0",
     "cqm-models": "4.3.0",
