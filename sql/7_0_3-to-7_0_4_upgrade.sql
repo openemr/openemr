@@ -1434,7 +1434,7 @@ SET @seq_start := 0;
 UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='gender_identity' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES
-    ('DEM','sex_identified',@group_id,'Sex',@seq_add_to+10,1,1,20,0,'administrative_sex',1,1,'UNK','sex_identified',"Sex",1,'','[\"N\"]','Sex',0,'');
+    ('DEM','sex_identified',@group_id,'Sex',@seq_add_to+10,1,1,20,0,'administrative_sex',1,1,'UNK','[\"N\"]',"Sex",0,'','F','',0,'');
 #EndIf
 
 #IfNotRow list_options list_id yes_no_unknown

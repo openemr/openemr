@@ -116,3 +116,7 @@
 #IfNotIndex lang_definitions lang_cons
 CREATE INDEX `lang_cons` ON `lang_definitions` (`lang_id`, `cons_id`);
 #EndIf
+
+#IfRow3D layout_options form_id DEM field_id sex_identified conditions Sex
+UPDATE `layout_options` SET `edit_options` = '[\"N\"]', `source` = 'F', `fld_rows` = 0, `conditions` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'sex_identified';
+#EndIf
