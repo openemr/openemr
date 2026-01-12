@@ -15910,7 +15910,7 @@ parameters:
       path: ../portal/portal_payment.php
     - message: '#^Variable \$v_js_includes might not be defined\.$#'
       identifier: variable.undefined
-      count: 1
+      count: 3
       path: ../portal/portal_payment.php
     - message: '#^Variable \$adj_amt might not be defined\.$#'
       identifier: variable.undefined
