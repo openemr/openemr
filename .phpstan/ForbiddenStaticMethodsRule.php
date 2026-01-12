@@ -1,14 +1,11 @@
 <?php
 
 /**
- * Custom PHPStan Rule to Forbid Legacy SQL Functions in Modern Code
- *
- * This rule prevents use of legacy sql.inc.php functions in the src/ directory.
- * Contributors should use QueryUtils or DatabaseQueryTrait instead.
+ * Custom PHPStan Rule to block certain static method calls.
  *
  * @package   OpenEMR
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,7 +30,6 @@ class ForbiddenStaticMethodsRule implements Rule
      */
     private const FORBIDDEN_METHODS = [
         QueryUtils::class => [
-
             'startTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
             'commitTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
             'rollbackTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
