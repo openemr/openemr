@@ -3,7 +3,7 @@
     "bluebird": "3.7.2",
     "compression": "1.8.1",
     "cqm-execution": "4.4.0",
-    "cqm-models": "4.3.0",
+    "cqm-models": "4.3.1",
     "express": "4.22.1",
     "logform": "1.10.0",
     "luxon": "1.28.1",
