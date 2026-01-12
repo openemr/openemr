@@ -49,11 +49,39 @@ BREAKING CHANGE: The patient endpoint now returns a different JSON structure.
 
 ### Local Validation
 
-If you use [pre-commit](https://pre-commit.com/), install the commit-msg hook to validate locally:
+If you use [pre-commit](https://pre-commit.com/), install hooks to validate locally:
 
 ```sh
-pre-commit install --hook-type commit-msg
+pre-commit install --hook-type commit-msg  # Validates commit message format
+pre-commit install                          # Enables all code quality hooks
 ```
+
+The full pre-commit suite (`.pre-commit-config.yaml`) includes:
+- Trailing whitespace, line endings, JSON/YAML formatting
+- PHP syntax checking, phpcs, phpcbf, phpstan, rector
+- Composer validation and normalization
+
+## Code Quality on Host
+
+If you have PHP and Node.js installed locally, you can run code quality checks without Docker:
+
+```sh
+# Run all PHP checks (phpcs, phpstan, rector)
+composer code-quality
+
+# Individual checks (these handle memory limits automatically)
+composer phpstan          # Static analysis
+composer phpcs            # Code style check
+composer phpcbf           # Code style auto-fix
+composer rector-check     # Code modernization (dry-run)
+
+# JavaScript/CSS
+npm run lint:js           # ESLint
+npm run lint:js-fix       # ESLint auto-fix
+npm run stylelint         # CSS/SCSS linting
+```
+
+These provide higher memory limits than Docker devtools and are what CI runs.
 
 ## Code Contributions (local development)
 
@@ -85,7 +113,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - (optional) It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
 2. `cd openemr/docker/development-easy`
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
-    - (optional) If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
+    - (recommended) [Install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for shorthand commands that work from any directory. Examples: `openemr-cmd ut` (unit-test), `openemr-cmd at` (api-test), `openemr-cmd et` (e2e-test), `openemr-cmd php-log`. Use `openemr-cmd-h` to search available commands.
     - (optional) If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
     - (optional) If you want to migrate the running docker environment, please try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator)
     - (optional) If you want to set up with orchestration tool, please try [OpenEMR Kubernetes Orchestrations](https://github.com/openemr/openemr-devops/tree/master/kubernetes/minikube)
@@ -126,6 +154,26 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```
 
 9. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+
+### After You Submit
+
+**For first-time contributors:** A maintainer must approve your PR before CI checks will run. This is a GitHub security measure for external contributors.
+
+**Automated checks** include:
+- Conventional commit validation (PR title format)
+- PHP syntax, phpcs, phpstan, rector
+- Unit, API, E2E, and integration tests across multiple PHP/database versions
+- JavaScript tests, Docker linting, and more
+
+See `ci/README.md` for details on the CI system.
+
+**Tip:** During development, you can add `Skip-Slow-Tests: true` as a commit trailer to skip the full test matrix and get faster feedback from linting:
+```sh
+git commit --trailer "Skip-Slow-Tests: true" -m "fix: work in progress"
+```
+You must remove any `Skip-Slow-Tests` or `skip-ci` trailers before your PR can be merged.
+
+**Review process:** A maintainer will review your PR. Please respond to feedback and push updates to the same branch—the PR will update automatically.
 
 We look forward to your contribution...
 
