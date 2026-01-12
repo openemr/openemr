@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * Custom PHPStan Rule to Forbid Legacy SQL Functions in Modern Code
+ *
+ * This rule prevents use of legacy sql.inc.php functions in the src/ directory.
+ * Contributors should use QueryUtils or DatabaseQueryTrait instead.
+ *
+ * @package   OpenEMR
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\PHPStan\Rules;
+
+use PhpParser\Node;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
+use PHPStan\Analyser\Scope;
+use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
+use OpenEMR\Common\Database\QueryUtils;
+
+/**
+ * @implements Rule<StaticCall>
+ */
+class ForbiddenStaticMethodsRule implements Rule
+{
+    /**
+     * Map of forbidden classes and static methods to their error messages
+     */
+    private const FORBIDDEN_METHODS = [
+        QueryUtils::class => [
+
+            'startTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
+            'commitTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
+            'rollbackTransaction' => 'Use QueryUtils::inTransaction() wrapper instead.',
+        ],
+    ];
+
+    public function getNodeType(): string
+    {
+        return StaticCall::class;
+    }
+
+    /**
+     * @param StaticCall $node
+     * @return array<\PHPStan\Rules\RuleError>
+     */
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $className = $node->class->toString();
+        $functionName = $node->name->toString();
+
+        // Check if the class has any deprecated methods
+        if (!array_key_exists($className, self::FORBIDDEN_METHODS)) {
+            return [];
+        }
+
+        // If it does, check if the actual call is one of them
+        $forbiddenClassMethods = self::FORBIDDEN_METHODS[$className];
+        if (!array_key_exists($functionName, $forbiddenClassMethods)) {
+            return [];
+        }
+
+        $message = sprintf(
+            '%s::%s() is deprecated. %s',
+            $className,
+            $functionName,
+            $forbiddenClassMethods[$functionName],
+        );
+
+        return [
+            RuleErrorBuilder::message($message)
+                ->identifier('openemr.deprecatedSqlFunction')
+                ->build()
+        ];
+    }
+}
