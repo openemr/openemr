@@ -1236,11 +1236,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Will return a token to use for payment request keeping
         // credit info off the server.
         ?>
-        <script src="portal_payment.authorizenet.js"></script>
+        <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
 
     <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
-        <script src="portal_payment.stripe.js"></script>
+        <script src="portal_payment.stripe.js?v=<?=$v_js_includes?>"></script>
     <?php } ?>
 
     <?php
