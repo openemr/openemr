@@ -120,13 +120,13 @@ Access Your Patient Portal
 Accident
 Account
 Account Id
-Account Id issued for Ensora eRx service, used to separate multi-facility accounts.
+Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.
 Account Id issued for Weno eRx service.
 Account Id issued for Your clinics eRx service.
 Account is validated. Send new credentials?
 Account Name
-Account Name issued for Ensora eRx service.
-Account Password issued for Ensora eRx service.
+Account Name issued for NewCrop eRx service.
+Account Password issued for NewCrop eRx service.
 Account Registration
 Accounting
 Accounting (acct)
@@ -2268,8 +2268,8 @@ Contact Lens Refraction
 Contact Lenses
 Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.
 Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service
-Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the Ensora eRx service.
-Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the Ensora eRx service.
+Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.
+Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.
 Contact name
 Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.
 Contact or Notify Phone
@@ -2788,7 +2788,7 @@ Default Method
 Default Password Expiration Days
 Default password expiration period in days. 0 means this feature is disabled.
 Default Patient Country
-Default Patient Country sent to Ensora eRx, only if patient country is not set.
+Default Patient Country sent to NewCrop eRx, only if patient country is not set.
 Default Patient Templates
 Default Price Level
 Default Priority
@@ -2887,7 +2887,7 @@ Dependency Modules
 Dependency Problem
 Depending on the level of access you can View/Edit the Transaction
 Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.
-Depending on whether or not Ensora eRx module is enabled the method of entry will vary
+Depending on whether or not NewCrop eRx module is enabled the method of entry will vary
 Deposit Date
 Deposit Date Cannot be greater than Today
 Deposit Date:
@@ -3120,12 +3120,12 @@ Dizziness:
 Do not allow insurance eligibility report log download
 Do not allow SQL queries to be outputted to screen.
 Do not change
-Do not display Allergies uploaded after visiting Ensora eRx.
-Do not display Allergy uploaded to Ensora
-Do not display Medications uploaded after visiting Ensora eRx.
-Do not display Medications uploaded to Ensora
-Do not display Ensora eRx Allergy uploaded
-Do not display Ensora eRx Medications uploaded
+Do not display Allergies uploaded after visiting NewCrop eRx.
+Do not display Allergy uploaded to NewCrop
+Do not display Medications uploaded after visiting NewCrop eRx.
+Do not display Medications uploaded to NewCrop
+Do not display NewCrop eRx Allergy uploaded
+Do not display NewCrop eRx Medications uploaded
 Do not display the calendar.
 Do not display the patient flow board.
 Do not display the Recall Board.
@@ -3582,8 +3582,8 @@ Enable Google Sign-In
 Enable Group Therapy
 Enable Help Modal
 Enable Hylafax Support
-Enable import status message after visiting Ensora eRx.
-Enable import status message for Ensora erx
+Enable import status message after visiting NewCrop eRx.
+Enable import status message for NewCrop erx
 Enable Itemization of AMC Reports
 Enable Itemization of CQM Reports
 Enable Itemization of Standard Clinical Rules Reports
@@ -3599,9 +3599,9 @@ Enable logging of patient record modifications.
 Enable logging of scheduling activities.
 Enable logging of security and administration activities.
 Enable MedEx Communication Service
-Enable Ensora eRx import status message
-Enable Ensora eRx Service
-Enable Ensora eRx Service.
+Enable NewCrop eRx import status message
+Enable NewCrop eRx Service
+Enable NewCrop eRx Service.
 Enable OAuth2 Password Grant (Not considered secure)
 Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.
 Enable Office Ally Insurance Eligibility
@@ -5109,7 +5109,7 @@ If enabled, uses the specified active directory for login and authentication.
 if entered, select only those who have had this service
 If it it still active i.e. End Date is not entered it will be displayed in red, if the problem has an end Date then it will be displayed in black
 If name, any part of lastname or lastname,firstname
-If Ensora eRx - the electronic prescription module, is enabled the Ensora MedEntry and Ensora Account Status buttons will be appear here
+If NewCrop eRx - the electronic prescription module, is enabled the NewCrop MedEntry and NewCrop Account Status buttons will be appear here
 If not listed you can add the drug to the Title text-box
 If nothing is selected here then all are permitted.
 If only capture the QR code but do not register the TOTP key with OpenEMR this feature will not be enabled at login
@@ -5187,7 +5187,7 @@ If you have entered a Pay Date in the search page, this will override the postin
 If you have followed all the above steps correctly you should see Serum Uric Acid under Name, it will be preceded by a vertical bar indicating the absence of descendants or children to this entry
 If you have followed the above steps correctly the Serum Uric Acid Test should now have a + sign preceding the Name indicating the presence of successors or children
 If you have lost your Smartphone those with administrator privileges can delete the keys by going to Administration > Users and checking the Clear 2FA checkbox and clicking Save
-If you have Ensora eRx module enabled then the allergies have to be entered on the Ensora MedEntry page
+If you have NewCrop eRx module enabled then the allergies have to be entered on the NewCrop MedEntry page
 If you have not already done some pre-configuration, including adding providers, do so by going to Procedures > Providers
 If you have the need to order individual components of the panel you will have to create a separate Procedure Order for each individual component of the panel and store the returned result under a Discrete Result created in a fashion similar to that used earlier to create an order for Serum Uric Acid
 If you hit the refresh button without setting any filters then all dated reminders for the user will appear below
@@ -6145,7 +6145,7 @@ Lock e-signed encounters and their forms
 Lock?
 Locked
 Locked Payment Pending
-Log all Ensora eRx Requests and / or Responses.
+Log all NewCrop eRx Requests and / or Responses.
 Log entire document
 Log In
 Log in
@@ -6902,30 +6902,30 @@ New User
 New Value
 New Visit
 New/Search
-Ensora Account Status
-Ensora Admin
-Ensora call failed
-Ensora Doctor
-Ensora eRx Account Id
-Ensora eRx Account Name
-Ensora eRx Debug Setting
-Ensora eRx Default Patient Country
-Ensora eRx Name
-Ensora eRx Partner Name
-Ensora eRx Password
-Ensora eRX Role
-Ensora eRx Role
-Ensora eRx Site Address
-Ensora eRx SOAP Request Time-To-Live for Allergies
-Ensora eRx SOAP Request Time-To-Live for Medications
-Ensora eRx User Role
-Ensora eRx User Role * invalid selection *
-Ensora eRx Web Service Address
-Ensora Manager
-Ensora MedEntry
-Ensora Midlevel Prescriber
-Ensora Nurse
-Ensora Supervising Doctor
+NewCrop Account Status
+NewCrop Admin
+NewCrop call failed
+NewCrop Doctor
+NewCrop eRx Account Id
+NewCrop eRx Account Name
+NewCrop eRx Debug Setting
+NewCrop eRx Default Patient Country
+NewCrop eRx Name
+NewCrop eRx Partner Name
+NewCrop eRx Password
+NewCrop eRX Role
+NewCrop eRx Role
+NewCrop eRx Site Address
+NewCrop eRx SOAP Request Time-To-Live for Allergies
+NewCrop eRx SOAP Request Time-To-Live for Medications
+NewCrop eRx User Role
+NewCrop eRx User Role * invalid selection *
+NewCrop eRx Web Service Address
+NewCrop Manager
+NewCrop MedEntry
+NewCrop Midlevel Prescriber
+NewCrop Nurse
+NewCrop Supervising Doctor
 Newer
 NewRx
 Newspaper
@@ -7454,8 +7454,8 @@ Once completed, view and store this encounter as a PDF file
 Once finished editing, click Save. The procedure forms current procedure diagnoses will fill exactly as built in this dialog.
 Once saved the entity for a Custom Favorite Group cannot be changed. If you need to change the entity you have to delete this entry and create a new one
 Once the app captures the QR code it will show the OpenEMR user name in the app
-Once the Primary Business Facility is set, changing the facility id will affect Ensora ePrescription.
-Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in Ensora ePrescription.
+Once the Primary Business Facility is set, changing the facility id will affect NewCrop ePrescription.
+Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.
 Once this feature is enabled you will be required to type in the 6 digit key at each login
 Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user's authenticator app
 Once this step is completed you can proceed to next step - to configure the tests that can be ordered from the system
@@ -7498,7 +7498,7 @@ Only Show Active Codes
 Only Show Diagnosis Reporting Codes
 Only Show Service Code Finance Reporting Codes
 Only upload active prescriptions
-Only upload active prescriptions to Ensora eRx.
+Only upload active prescriptions to NewCrop eRx.
 Onset
 Onset of Current Symptoms or Illness
 Onset of Illness:
@@ -7789,7 +7789,7 @@ participants
 Participants
 Partner
 Partner Name
-Partner Name issued for Ensora eRx service.
+Partner Name issued for NewCrop eRx service.
 Partner not configured
 Pashto, Pushto
 Pass Phrase
@@ -8403,8 +8403,8 @@ Please select a default provider.
 Please select a format
 Please select a language
 Please Select a Patient.
-Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
-Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
+Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Please select a procedure provider
 Please Select A Recipient
 Please Select a Recipient for Message.
@@ -8660,8 +8660,8 @@ Pricelevel
 Prices
 Primary
 Primary Business Entity
-Primary Business Entity tax id is used as account id for Ensora ePrescription. Changing the facility will affect the working in Ensora.
-Primary Business Entity tax id is used as the account id for Ensora ePrescription.
+Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.
+Primary Business Entity tax id is used as the account id for NewCrop ePrescription.
 Primary Care
 Primary Care Provider
 Primary Diagnosis
@@ -11170,7 +11170,7 @@ The new list
 The new password can not be the same as the current password.
 The new password fields are not the same.
 The new password is the same as the current password. Click Okay to accept anyway.
-The Ensora eRx Partner Name, Ensora eRx Name and Ensora eRx Password will be provided by the vendor
+The NewCrop eRx Partner Name, NewCrop eRx Name and NewCrop eRx Password will be provided by the vendor
 The next box is Body Site, not relevant for a blood test but may be more useful in say tracking injections or ordering X-rays
 The next few lines will list all the E/M and CPT codes that were billed, one line per code
 The next group consists of the ICD codes
@@ -11186,7 +11186,7 @@ The options for Outline and Border will either wrap a row in thin border or add 
 The order in which the Category, Procedure or Result appears
 The other 4 transaction types are simple transaction types - Patient Request, Physician Request, Legal and Billing
 The other Segments contain additional information in a strictly structured fashion
-The page will be redirected to Demographics. You can edit the country field and clickthrough to Ensora again.
+The page will be redirected to Demographics. You can edit the country field and clickthrough to NewCrop again.
 The page you requested was not found. Please check that you typed the URL correctly.
 The parts of the program to which access can be controlled are called Access Control Objects (ACOs).
 The password must be at least eight characters, and should
@@ -11222,7 +11222,7 @@ The reminders that are past the due date will have a red exclamation triangle ic
 The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it
 The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.
 The rest may be left blank if so preferred
-The rest of the boxes related to the Ensora eRx service can be left at default values
+The rest of the boxes related to the NewCrop eRx service can be left at default values
 The Result Line will begin with a Name Serum Uric Acid that will be preceded by a vertical bar indicating no successors or children
 The results could not be loaded
 The results, Discrete Result, will be the fruit on this branch and we will create one such Discrete Result for each of the component tests, Sodium, Potassium, Chloride and Carbon Dioxide
@@ -11513,7 +11513,7 @@ This message text is not saved automatically. Copy and save it as appropriate fo
 This method will however result in the data becoming non-structured and one would loose the ability to document the reply in an electronic format
 This module is being used by
 This module is in test mode. The database will not be changed.
-This module is subscription based and needs to be enabled from Administration > Globals > Connectors > Enable Ensora eRx Service
+This module is subscription based and needs to be enabled from Administration > Globals > Connectors > Enable NewCrop eRx Service
 This module is well integrated with openEMR, there are however two non-subscription based alternatives, Weno and Allscripts that can be used instead
 This module promotes efficient entry of EOB data.
 This Month to Date
@@ -11649,8 +11649,8 @@ Time slot is open, saving event
 Time Zone
 Time-To-Live for Allergies SOAP Request in seconds
 Time-To-Live for Medications SOAP Request in seconds
-Time-To-Live for Ensora eRx Allergies SOAP Request in seconds.
-Time-To-Live for Ensora eRx Medications SOAP Request in seconds.
+Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.
+Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.
 Timed event
 Times array (N/A)
 Timestamp and Text
@@ -12231,14 +12231,14 @@ Urine Microalbumin
 Urine Stream
 Urine Urgency
 URL
-URL for Ensora eRx Site Address.
+URL for NewCrop eRx Site Address.
 URL for OpenEMR support.
 URL for Phone Gateway.
 URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
 URL for the WordPress site that supports the portal
 URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.
 URL to a support page.
-URLs for Ensora eRx Service Address, separated by a semi-colon.
+URLs for NewCrop eRx Service Address, separated by a semi-colon.
 Uruguay ASSE Token
 Uruguay ASSE URL
 Uruguay SINADI statistical report.
@@ -12949,14 +12949,14 @@ You should be running this test if this claim appeared to generate successfully 
 You should not make Discrete Result for Potassium be a descendant of a preceding Discrete Result i.e Sodium , i.e have a Tier value of 5
 You should select at least one context
 You should select at least one Provider
-You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to Ensora again.
+You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to NewCrop again.
 You will be notified when the payment transaction is confirmed.
 You will be notified when your payment is applied for this invoice.
 You will need Administrator privileges to edit this form
 You will need Administrator privileges to enable the patient portal
 You will need Administrator Privileges to install the ICD10 code set
 You will need Administrator privileges to setup phiMail Direct Messaging
-You will need Administrator privileges to setup the Ensora service and has to be setup in conjunction with technical support from the Ensora eRx service
+You will need Administrator privileges to setup the NewCrop service and has to be setup in conjunction with technical support from the NewCrop eRx service
 Your account has been successfully created however, we were unable to send the account information.
 Your browser does not support HTML5 audio
 Your Clinical Report

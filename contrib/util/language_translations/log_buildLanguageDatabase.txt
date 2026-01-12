@@ -376,8 +376,8 @@ Following constant not same:
 	original- val:Please enter at least the track's name
 	spreadsheet- ID:8348 val:Please enter at least the track\'s name
 Following constant not same:
-	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
-	spreadsheet- ID:8406 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
+	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:8406 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Following constant not same:
 	original- val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user's Message Center
 	spreadsheet- ID:9107 val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user\'s Message Center
@@ -953,8 +953,8 @@ Following constant not same:
 	original- val:Please enter at least the track's name
 	spreadsheet- ID:8348 val:Please enter at least the track\'s name
 Following constant not same:
-	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
-	spreadsheet- ID:8406 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the Ensora system.
+	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:8406 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
 Following constant not same:
 	original- val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user's Message Center
 	spreadsheet- ID:9107 val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user\'s Message Center
