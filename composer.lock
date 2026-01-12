@@ -4864,29 +4864,28 @@
         },
         {
             "name": "mobiledetect/mobiledetectlib",
-            "version": "4.8.09",
+            "version": "4.8.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/serbanghita/Mobile-Detect.git",
-                "reference": "a06fe2e546a06bb8c2639d6823d5250b2efb3209"
+                "reference": "96b1e1fa9a968de7660a031106ab529f659d0192"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/serbanghita/Mobile-Detect/zipball/a06fe2e546a06bb8c2639d6823d5250b2efb3209",
-                "reference": "a06fe2e546a06bb8c2639d6823d5250b2efb3209",
+                "url": "https://api.github.com/repos/serbanghita/Mobile-Detect/zipball/96b1e1fa9a968de7660a031106ab529f659d0192",
+                "reference": "96b1e1fa9a968de7660a031106ab529f659d0192",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.0",
-                "psr/cache": "^3.0",
                 "psr/simple-cache": "^3"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^v3.65.0",
+                "friendsofphp/php-cs-fixer": "^v3.75.0",
                 "phpbench/phpbench": "^1.2",
-                "phpstan/phpstan": "^1.12.x-dev",
-                "phpunit/phpunit": "^9.6.18",
-                "squizlabs/php_codesniffer": "^3.11.1"
+                "phpstan/phpstan": "^2.1.11",
+                "phpunit/phpunit": "^9.6.22",
+                "squizlabs/php_codesniffer": "^3.12.1"
             },
             "type": "library",
             "autoload": {
@@ -4917,7 +4916,7 @@
             ],
             "support": {
                 "issues": "https://github.com/serbanghita/Mobile-Detect/issues",
-                "source": "https://github.com/serbanghita/Mobile-Detect/tree/4.8.09"
+                "source": "https://github.com/serbanghita/Mobile-Detect/tree/4.8.10"
             },
             "funding": [
                 {
@@ -4925,7 +4924,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-12-10T15:32:06+00:00"
+            "time": "2026-01-09T16:21:59+00:00"
         },
         {
             "name": "moneyphp/money",
@@ -16264,5 +16263,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
