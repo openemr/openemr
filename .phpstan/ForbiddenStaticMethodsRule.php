@@ -14,6 +14,7 @@
 
 namespace OpenEMR\PHPStan\Rules;
 
+use OpenEMR\Common\Database\QueryUtils;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
@@ -21,7 +22,6 @@ use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use OpenEMR\Common\Database\QueryUtils;
 
 /**
  * @implements Rule<StaticCall>
@@ -51,6 +51,13 @@ class ForbiddenStaticMethodsRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!($node->name instanceof Name)) {
+            return [];
+        }
+        if (!($node->class instanceof Name)) {
+            return [];
+        }
+
         $className = $node->class->toString();
         $functionName = $node->name->toString();
 
