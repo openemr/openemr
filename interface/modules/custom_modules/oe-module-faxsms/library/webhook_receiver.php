@@ -19,7 +19,7 @@ $sessionAllowWrite = true;
 $_GET['auth'] = 'portal';  // Enable site selection
 $_GET['site'] ??= 'default';
 
-require_once(__DIR__ . "/../../../../globals.php");
+require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
