@@ -80,4 +80,3 @@ function stripeTokenHandler(token) {
         alert(error)
     });
 }
-

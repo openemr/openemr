@@ -69,4 +69,3 @@ function paymentFormUpdate(opaqueData) {
         alert(error)
     });
 }
-
