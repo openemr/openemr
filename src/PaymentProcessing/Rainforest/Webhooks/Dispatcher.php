@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenEMR\PaymentProcessing\Rainforest\Webhooks;
 
 // use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 readonly class Dispatcher
@@ -15,21 +16,32 @@ readonly class Dispatcher
     public function __construct(
         private array $processors,
         private string $merchantId,
+        private LoggerInterface $logger,
     ) {
     }
 
     public function dispatch(Webhook $webhook): void
     {
         if ($webhook->getMerchantId() !== $this->merchantId) {
-            // log this
+            $this->logger->notice(
+                'Received webhook for different merchant, ignoring',
+            );
             return;
         }
 
+        $processingError = false;
         foreach ($this->getProcessorsFor($webhook->eventType) as $processor) {
             try {
                 $processor->handle($webhook);
             } catch (Throwable $e) {
+                $processingError = true;
+                $this->logger->error('', [
+                    'exception' => $e,
+                ]);
             }
+        }
+
+        if ($processingError) {
         }
     }
 
