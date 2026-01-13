@@ -17,7 +17,16 @@ use function substr;
 
 use const JSON_THROW_ON_ERROR;
 
-// https://docs.svix.com/receiving/verifying-payloads/how-manual
+/**
+ * Verify and parse webhooks based on their cryptographic signatures.
+ * This is based on the Svix verification process, which is apparently what
+ * Rainforest uses.
+ *
+ * https://docs.svix.com/receiving/verifying-payloads/how-manual
+ *
+ * Future scope: source IP allowlist?
+ * https://docs.rainforestpay.com/docs/webhooks-and-notifications#webhook-source-ip-addresses
+ */
 class WebhookVerifier
 {
     private string $secretBytes;
@@ -32,6 +41,12 @@ class WebhookVerifier
         $this->secretBytes = base64_decode($data);
     }
 
+    /**
+     * Parses a raw PSR-7 request body, performs cryptographic signature
+     * verification, and (if verified) returns a data structure representing
+     * the body of the webhook. Throws an exception upon signature matches and
+     * other verification failures.
+     */
     public function verify(ServerRequestInterface $request): Webhook
     {
         $id = $request->getHeaderLine('svix-id');
