@@ -115,7 +115,10 @@ try {
                         'country' => $addr['country'] ?? '',
                         'district' => $addr['district'] ?? '',
                         'status' => $addr['status'] ?? 'A',
-                        'is_primary' => $addr['is_primary'] ?? 'N'
+                        'is_primary' => $addr['is_primary'] ?? 'N',
+                        'notes' => $addr['notes'] ?? '',
+                        'period_start' => $addr['period_start'] ?? date('Y-m-d H:i:s'),
+                        'period_end' => $addr['period_end'] ?? null, // null means no end date
                     ];
                 }
 
