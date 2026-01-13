@@ -15,6 +15,8 @@ class RecordPayment implements ProcessorInterface
 
     public function handle(Webhook $webhook): void
     {
+        // This SHOULD delegate to a payment service, but creating that too is
+        // probably excessive scope creep.
         // TODO:
         // insert into ar_session
         // insert into ar_activity
