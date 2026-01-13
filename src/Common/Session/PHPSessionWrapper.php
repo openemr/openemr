@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * PHPSessionWrapper is a simple wrapper around PHP session handling, intended to provide
+ * a consistent interface for session management between different parts of the OpenEMR application, core, and portal.
+ * The challenge was to ensure that we can handle session in shared files using the same API while we are porting
+ * portal to use Symfony Session. Once when the core is ported, we can remove this wrapper and use Symfony Session directly.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
+ * @copyright Copyright (c) Milan Zivkovic
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\Session;
 
 use OpenEMR\Core\OEGlobalsBag;
