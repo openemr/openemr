@@ -29,7 +29,7 @@ class WebhookVerifier
             throw new UnexpectedValueException('Invalid secret');
         }
         [$prefix, $data] = explode('_', $webhookSecret, 2);
-        $this->secretBytes = base64_decode($webhookSecret);
+        $this->secretBytes = base64_decode($data);
     }
 
     public function verify(ServerRequestInterface $request): Webhook
@@ -38,6 +38,7 @@ class WebhookVerifier
         $timestamp = $request->getHeaderLine('svix-timestamp');
 
         $body = (string) $request->getBody();
+
 
         $signedContent = sprintf(
             '%s.%s.%s',
@@ -51,6 +52,7 @@ class WebhookVerifier
             key: $this->secretBytes,
             binary: true,
         );
+        $signatureB64 = base64_encode($signature);
 
 
         // Perform the verification in constant time.
@@ -70,7 +72,7 @@ class WebhookVerifier
             }
             $testSig = substr($signatureWithVersion, 3);
 
-            if (hash_equals($signature, $testSig)) {
+            if (hash_equals($signatureB64, $testSig)) {
                 $verified = true;
             }
         }
