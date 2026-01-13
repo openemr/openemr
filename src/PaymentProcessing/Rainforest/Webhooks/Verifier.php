@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\PaymentProcessing\Rainforest;
+namespace OpenEMR\PaymentProcessing\Rainforest\Webhooks;
 
 use SensitiveParameter;
 use UnexpectedValueException;
@@ -30,7 +30,7 @@ use const JSON_THROW_ON_ERROR;
  * Future scope: make this less Rainforest-specific? The only thing specific to
  * them is the webhook body format.
  */
-class WebhookVerifier
+class Verifier
 {
     private string $secretBytes;
 

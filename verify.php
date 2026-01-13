@@ -4,7 +4,7 @@ chdir(__DIR__);
 require 'vendor/autoload.php';
 header('Content-type: text/plain');
 
-use OpenEMR\PaymentProcessing\Rainforest\WebhookVerifier;
+use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Verifier;
 use Http\Discovery\Psr17Factory;
 
 \Dotenv\Dotenv::createImmutable('.')->load();
@@ -14,7 +14,7 @@ if ($mid === null) {
     throw new InvalidArgumentException('RAINFOREST_MERCHANT_ID envvar is missing.');
 }
 
-$whv = new WebhookVerifier($_ENV['RAINFOREST_WEBHOOK_SECRET']);
+$whv = new Verifier($_ENV['RAINFOREST_WEBHOOK_SECRET']);
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
 
