@@ -78,8 +78,6 @@ use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 
 $facilityService = new FacilityService();
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-
 $date_init = "";
 $membership_group_number = 0;
 
@@ -2827,19 +2825,19 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 54) {
-        $pid = $session->get('pid') ?? null;
+        $pid = $session->get('pid');
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
         include "templates/address_display.php";
     } elseif ($data_type == 55) {
-        $pid = $session->get('pid') ?? null;
+        $pid = $session->get('pid');
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
         include "templates/telecom_display.php";
     } elseif ($data_type == 56) {
-        $pid = $session->get('pid') ?? null;
+        $pid = $session->get('pid');
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
