@@ -24,6 +24,9 @@ require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $facilityService = new FacilityService();
 
@@ -103,10 +106,10 @@ $pid_list = [];
 $apptdate_list = [];
 
 
-if (!empty($_SESSION['pidList']) and $form_fill == 2) {
-    $pid_list = $_SESSION['pidList'];
+if (!empty($session->get('pidList')) and $form_fill == 2) {
+    $pid_list = $session->get('pidList');
     // If PID list is in Session, then Appt. Date list is expected to be a parallel array
-    $apptdate_list = $_SESSION['apptdateList'];
+    $apptdate_list = $session->get('apptdateList');
 } elseif ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
@@ -350,7 +353,7 @@ if (empty($frow)) {
 }
 
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 $logo = is_file("$webserver_root/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS

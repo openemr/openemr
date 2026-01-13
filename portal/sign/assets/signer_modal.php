@@ -11,25 +11,26 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-$is_portal = (isset($_SESSION['patient_portal_onsite_two']) && $_SESSION['authUser'] == 'portal-user') ? 1 : $_GET['isPortal'];
+$is_portal = ($session->isSymfonySession() && $session->has('patient_portal_onsite_two') && $session->get('authUser') === 'portal-user') ? 1 : $_GET['isPortal'];
 
 if (empty($is_portal)) {
     SessionUtil::portalSessionCookieDestroy();
 } else {
-    //landing page definition -- where to go if something goes wrong
-    $landingpage = "index.php?site=" . urlencode((string) ($_SESSION['site_id'] ?? null));
-    //
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $pid = $_SESSION['pid'];
+    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+        $pid = $session->get('pid');
     } else {
+        //landing page definition -- where to go if something goes wrong
+        $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id', null));
+        //
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');
         exit;
@@ -43,9 +44,9 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 
 $aud = "admin-signature";
-$cuser = attr($_SESSION['authUserID'] ?? "-patient-");
-$cpid = attr($_SESSION['pid'] ?? "0");
-$api_id = $_SESSION['api_csrf_token'] ?? ''; // portal doesn't do remote
+$cuser = attr($session->get('authUserID', null) ?? "-patient-");
+$cpid = attr($session->get('pid', null) ?? "0");
+$api_id = $session->get('api_csrf_token', ''); // portal doesn't do remote
 
 $twigVars = [
     'is_portal' => $is_portal

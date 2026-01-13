@@ -101,4 +101,6 @@ class EncounterPerformed extends QDMBaseType
     public $qdmStatus = 'performed';
 
     public $_type = 'QDM::EncounterPerformed';
+
+    public $negationRationale = null;
 }
