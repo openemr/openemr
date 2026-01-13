@@ -840,10 +840,6 @@ if ($globalsBag->getInt('user_debug', 0) > 1) {
     ini_set('display_errors', 1);
 }
 
-// CRITICAL: Reset and reinitialize the singleton to capture ALL $GLOBALS
-OEGlobalsBag::resetInstance();
-$globalsBag = OEGlobalsBag::getInstance();
-
 // Re-set the local variables that aren't in $GLOBALS
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
