@@ -131,6 +131,8 @@ try {
                         'rank' => $telecom['rank'] ?? 1,
                         'status' => $telecom['status'] ?? 'A',
                         'is_primary' => $telecom['is_primary'] ?? 'N',
+                        'period_start' => $telecom['period_start'] ?? date('Y-m-d H:i:s'),
+                        'period_end' => $telecom['period_end'] ?? null, // null means no end date
                         'notes' => $telecom['notes'] ?? ''
                     ];
                 }
