@@ -7,14 +7,14 @@ header('Content-type: text/plain');
 use OpenEMR\PaymentProcessing\Rainforest\WebhookVerifier;
 use Http\Discovery\Psr17Factory;
 
-\Dotenv\Dotenv::createUnsafeImmutable('.')->load();
+\Dotenv\Dotenv::createImmutable('.')->load();
 
-$mid = getenv('RAINFOREST_MERCHANT_ID');
-if ($mid === false) {
+$mid = $_ENV['RAINFOREST_MERCHANT_ID'] ?? null;
+if ($mid === null) {
     throw new InvalidArgumentException('RAINFOREST_MERCHANT_ID envvar is missing.');
 }
 
-$whv = new WebhookVerifier(getenv('RAINFOREST_WEBHOOK_SECRET'));
+$whv = new WebhookVerifier($_ENV['RAINFOREST_WEBHOOK_SECRET']);
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
 

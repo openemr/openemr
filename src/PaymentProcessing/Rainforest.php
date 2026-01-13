@@ -114,9 +114,9 @@ class Rainforest
         // $apiKey = (new CryptoGen())->decryptStandard($bag->get('rainforestpay_api_key'));
         // $mid = $bag->get('rainforestpay_merchant_id');
         // $pid = $bag->get('rainforestpay_platform_id');
-        $apiKey = getenv('RAINFOREST_API_KEY');
-        $mid = getenv('RAINFOREST_MERCHANT_ID');
-        $pid = getenv('RAINFOREST_PLATFORM_ID');
+        $apiKey = $_ENV['RAINFOREST_API_KEY'];
+        $mid = $_ENV['RAINFOREST_MERCHANT_ID'];
+        $pid = $_ENV['RAINFOREST_PLATFORM_ID'];
 
         $prod = $bag->get('gateway_mode_production') === '1';
         $client = self::makeClient($prod);
