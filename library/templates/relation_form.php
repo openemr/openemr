@@ -166,6 +166,7 @@ $smallform ??= false;
 // Prepare template variables
 $widgetConstants = [
     'listWithAddButton' => 26,
+    'list' => 1,
     'textDate' => 4,
     'textbox' => 2
 ];
