@@ -38,7 +38,6 @@
         <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
         <delete dir="${dir.vendor}/knplabs/knp-snappy/doc" verbose="true"/>
         <delete dir="${dir.vendor}/markbaker/complex/examples" verbose="true"/>
-        <delete dir="${dir.vendor}/mobiledetect/mobiledetectlib/docs" verbose="true"/>
         <delete dir="${dir.vendor}/myclabs/deep-copy/doc" verbose="true"/>
         <delete dir="${dir.vendor}/phenx/php-font-lib/tests" verbose="true"/>
         <delete dir="${dir.vendor}/phenx/php-svg-lib/tests" verbose="true"/>
