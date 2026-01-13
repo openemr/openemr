@@ -4,7 +4,8 @@ chdir(__DIR__);
 require 'vendor/autoload.php';
 header('Content-type: text/plain');
 
-use OpenEMR\PaymentProcessing\Rainforest\Webhooks\Verifier;
+use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{Dispatcher, Verifier};
+use Monolog\Logger;
 use Http\Discovery\Psr17Factory;
 
 \Dotenv\Dotenv::createImmutable('.')->load();
@@ -20,12 +21,17 @@ $req = (new Psr17Factory())->createServerRequestFromGlobals();
 
 try {
     $wh = $whv->verify($req);
-    if ($wh->getMerchantId() !== $mid) {
-        error_log('Webhook for other merchant, ignoring');
-        header('HTTP/1.1 204 No Content');
-        exit;
-    }
+    // In the future, we may want this to have an async "save for later and
+    // write into a queue" receiver, and immediately yield a 2xx. As long as
+    // the Webhook structure is serializable, the processors should work just
+    // fine asynchronously.
+    $disp = new Dispatcher(
+        processors: [],
+        merchantId: $mid,
+        logger: new Logger('OpenEMR'),
+    );
     print_r($wh);
+    $disp->dispatch($wh);
     // TODO: figure out the processing rules here.
     // More or less, when payin.authorized (or .succeeded?), look up the ar_ data
     // and update it so it shows the payment has cleared.
