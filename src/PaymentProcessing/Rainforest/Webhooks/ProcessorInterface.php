@@ -15,5 +15,10 @@ namespace OpenEMR\PaymentProcessing\Rainforest\Webhooks;
  */
 interface ProcessorInterface
 {
+    /**
+     * @return string[]
+     */
+    public function getEventTypes(): array;
+
     public function handle(Webhook $webhook): void;
 }
