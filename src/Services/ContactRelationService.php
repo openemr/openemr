@@ -415,6 +415,7 @@ class ContactRelationService extends BaseService
                 c.id as owner_contact_id,
                 c.foreign_table_name as owner_table,
                 c.foreign_id as owner_id,
+                cr.notes AS relation_notes,
                 target_contact.id AS target_contact_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id

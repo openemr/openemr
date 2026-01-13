@@ -91,7 +91,8 @@ try {
                 'active' => $record['active'] ?? true,
                 'start_date' => $record['start_date'] ?? '',
                 'end_date' => $record['end_date'] ?? '',
-                'notes' => $record['notes'] ?? '',
+                // we don't want the person notes, but the notes on the relationship
+                'notes' => $record['relation_notes'] ?? '',
                 'addresses' => [],
                 'telecoms' => []
             ];
@@ -197,6 +198,7 @@ $templateVars = [
     'csrfToken' => CsrfUtils::collectCsrfToken()
 ];
 
+// TODO: @adunsulag - Remove debug log after testing
 $logger->debug("Sending to TWIG", [
                     'relatedPersons' => $relatedPersons,
                     'name_field_id' => $name_field_id,
