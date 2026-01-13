@@ -3403,7 +3403,7 @@ $GLOBALS_METADATA = [
             '',
             xl('Mainly Authorize.Net uses two keys')
         ],
-
+        /*
         'rainforestpay_api_key' => [
             'API Key for Rainforest',
             'encrypted',
@@ -3422,6 +3422,7 @@ $GLOBALS_METADATA = [
             '',
             '',
         ],
+         */
 
         'sphere_clinicfront_trxcustid' => [
             xl('Sphere Clinicfront over phone (MOTO) Transaction CustID'),
