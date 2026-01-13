@@ -6,7 +6,17 @@ namespace OpenEMR\PaymentProcessing\Rainforest;
 
 readonly class Webhook
 {
-    public function __construct(public array $data)
+    public array $data;
+    public string $eventType;
+
+    public function __construct(array $body)
     {
+        $this->data = $body['data'];
+        $this->eventType = $body['event_type'];
+    }
+
+    public function getMerchantId(): ?string
+    {
+        return $this->data['merchant_id'];
     }
 }
