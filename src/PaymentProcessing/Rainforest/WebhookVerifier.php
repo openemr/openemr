@@ -49,6 +49,13 @@ class WebhookVerifier
      */
     public function verify(ServerRequestInterface $request): Webhook
     {
+        if (
+            !$request->hasHeader('svix-id')
+            || !$request->hasHeader('svix-timestamp')
+            || !$request->hasHeader('svix-signature')
+        ) {
+            throw new UnexpectedValueException('Request is missing signing headers');
+        }
         $id = $request->getHeaderLine('svix-id');
         $timestamp = $request->getHeaderLine('svix-timestamp');
 
