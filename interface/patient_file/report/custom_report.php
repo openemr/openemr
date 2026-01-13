@@ -32,10 +32,13 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
@@ -64,7 +67,7 @@ if ($PDF_OUTPUT) {
     $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
     $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -224,8 +227,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                  * $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
                  *******************************************************************/
                 $facility = null;
-                if ($_SESSION['pc_facility']) {
-                    $facility = $facilityService->getById($_SESSION['pc_facility']);
+                if ($session->get('pc_facility')) {
+                    $facility = $facilityService->getById($session->get('pc_facility'));
                 } else {
                     $facility = $facilityService->getPrimaryBillingLocation();
                 }
@@ -251,7 +254,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename((string) $practice_logo);
                 }
 
-                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo); ?>
+                echo genFacilityTitle(getPatientName($pid), $session->get('pc_facility'), $logo); ?>
 
             <?php } else { // not printable
                 ?>

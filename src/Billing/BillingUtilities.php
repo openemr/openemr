@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class BillingUtilities
 {
     public const CLAIM_STATUS_CODES_CLP02 = [
@@ -1447,6 +1449,7 @@ class BillingUtilities
         $revenue_code = "",
         $payer_id = ""
     ) {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (!$authorized) {
             $authorized = "0";
         }
@@ -1466,7 +1469,7 @@ class BillingUtilities
             "NOW(), ?, ?, ?, ?, ?, ?, ?, ?,  1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         return sqlInsert($sql, [$encounter_id, $code_type, $code, $code_text, $pid, $authorized,
-            $_SESSION['authUserID'], $_SESSION['authProvider'], $billed, $provider, $modifier, $units, $fee,
+            $session->get('authUserID'), $session->get('authProvider'), $billed, $provider, $modifier, $units, $fee,
             $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code, $payer_id]);
     }
 
@@ -1783,12 +1786,13 @@ class BillingUtilities
     //
     public static function getInvoiceRefNumber()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $trow = sqlQuery(
             "SELECT lo.notes " .
             "FROM users AS u, list_options AS lo " .
             "WHERE u.username = ? AND " .
             "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
-            [$_SESSION['authUser']]
+            [$session->get('authUser')]
         );
         return empty($trow['notes']) ? '' : $trow['notes'];
     }
@@ -1799,6 +1803,7 @@ class BillingUtilities
     //
     public static function updateInvoiceRefNumber()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $irnumber = self::getInvoiceRefNumber();
         // Here "?" specifies a minimal match, to get the most digits possible:
         if (preg_match('/^(.*?)(\d+)(\D*)$/', (string) $irnumber, $matches)) {
@@ -1809,7 +1814,7 @@ class BillingUtilities
                 "SET lo.notes = ? WHERE " .
                 "u.username = ? AND " .
                 "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool",
-                [$newnumber, $_SESSION['authUser']]
+                [$newnumber, $session->get('authUser')]
             );
         }
 
@@ -1821,6 +1826,7 @@ class BillingUtilities
     //
     public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = '')
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
         $adjustments = 0;
@@ -1891,7 +1897,7 @@ class BillingUtilities
                 $patient_id,
                 $encounter_id,
                 $what_voided,
-                $_SESSION['authUserID'],
+                $session->get('authUserID'),
                 $adjustments,
                 $payments,
                 $old_invoice_refno,

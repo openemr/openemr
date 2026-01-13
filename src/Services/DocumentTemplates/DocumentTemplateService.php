@@ -14,6 +14,7 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use RuntimeException;
 
 /**
@@ -338,14 +339,14 @@ class DocumentTemplateService extends QuestionnaireService
     {
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
-
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         try {
             sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
             $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
 
             foreach ($profile_groups as $profile => $groups) {
                 foreach ($groups as $group) {
-                    $rtn = sqlInsert($sql, [$profile, $_SESSION['authUserID'] ?? null, $group['group'] ?? '', $group['active']]);
+                    $rtn = sqlInsert($sql, [$profile, $session->get('authUserID'), $group['group'] ?? '', $group['active']]);
                 }
             }
         } catch (Exception $e) {
@@ -577,6 +578,8 @@ class DocumentTemplateService extends QuestionnaireService
             throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+
         $name = null;
         if (!empty($pid)) {
             $name = sqlQuery("SELECT `pid`, Concat_Ws(', ', `lname`, `fname`) as name FROM `patient_data` WHERE `pid` = ?", [$pid])['name'] ?? '';
@@ -589,7 +592,7 @@ class DocumentTemplateService extends QuestionnaireService
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE `pid` = ?, `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW(), `mime` = ?";
 
-        return sqlInsert($sql, [$pid, ($_SESSION['authUserID'] ?? null), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen((string) $content), $mimetype, $pid, ($_SESSION['authUserID'] ?? null), $content, strlen((string) $content), $mimetype]);
+        return sqlInsert($sql, [$pid, $session->get('authUserID'), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen((string) $content), $mimetype, $pid, $session->get('authUserID'), $content, strlen((string) $content), $mimetype]);
     }
 
     /**
@@ -741,6 +744,7 @@ class DocumentTemplateService extends QuestionnaireService
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
         try {
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
             sqlQuery("DELETE FROM `document_template_profiles` WHERE `template_id` > 0");
             $rtn = false;
             foreach ($profiles_array as $profile_array) {
@@ -752,7 +756,7 @@ class DocumentTemplateService extends QuestionnaireService
                     "INSERT INTO `document_template_profiles`
             (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`, `notify_trigger`, `notify_period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [$profile_array['id'], $profile_array['profile'],
-                        $profile_array['name'], $profile_array['category'], ($_SESSION['authUserID'] ?? null),
+                        $profile_array['name'], $profile_array['category'], $session->get('authUserID'),
                         $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
                 );
             }
