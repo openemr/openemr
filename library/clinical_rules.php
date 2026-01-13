@@ -25,8 +25,6 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-
 /**
  * Return listing of CDR reminders in log.
  *
