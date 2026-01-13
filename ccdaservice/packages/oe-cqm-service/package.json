@@ -7,7 +7,7 @@
     "express": "4.22.1",
     "logform": "1.10.0",
     "luxon": "1.28.1",
-    "mocha": "11.7.1",
+    "mocha": "11.7.5",
     "oe-cqm-parsers": "openemr/oe-cqm-parsers#ecqm-v7.0.4",
     "regexp-clone": "1.2.0",
     "sliced": "1.0.1",
