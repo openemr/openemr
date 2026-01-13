@@ -15,31 +15,36 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Header;
+use OpenEMR\Events\Messaging\SendSmsEvent;
+
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
-    define('IS_PORTAL', $_SESSION['portal_username']);
+    define('IS_PORTAL', $session->get('portal_username'));
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (empty($session->get('authUserID'))) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
     }
 
-    define('IS_DASHBOARD', $_SESSION['authUser']);
+    define('IS_DASHBOARD', $session->get('authUser'));
     define('IS_PORTAL', false);
 }
 $srcdir = $globalsBag->getString('srcdir');
@@ -47,10 +52,6 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc.php");
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\Events\Messaging\SendSmsEvent;
 
 if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
@@ -71,7 +72,7 @@ $isEmail = !empty($globalsBag->get('oe_enable_email') ?? 0);
 $showSMS = $isSMS && IS_DASHBOARD;
 $dashuser = [];
 if (IS_DASHBOARD) {
-    $dashuser = getUserIDInfo($_SESSION['authUserID']);
+    $dashuser = getUserIDInfo($session->get('authUserID'));
 }
 
 function getAuthPortalUsers()
@@ -146,7 +147,7 @@ function getAuthPortalUsers()
                 $scope.deletedItems = [];
                 $scope.inboxItems = [];
                 $scope.inboxItems = <?php echo json_encode($theresult);?>;
-                $scope.userproper = <?php echo !empty($_SESSION['ptName']) ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
+                $scope.userproper = <?php echo !empty($session->get('ptName', null)) ? js_escape($session->get('ptName')) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
                 $scope.isPortal = "<?php echo IS_PORTAL;?>";
                 $scope.isDashboard = "<?php echo IS_DASHBOARD ?: 0;?>";
                 $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;
@@ -158,7 +159,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>;
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>;
                 $scope.isInit = false;
 
                 $scope.init = function () {
@@ -593,7 +594,7 @@ function getAuthPortalUsers()
                             </button>
                             <?php
                             if ($showSMS) {
-                                $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                                $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new SendSmsEvent($session->get('pid', 0)), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                             }
                             ?>
                             <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>

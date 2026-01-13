@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0d99aa151defb337799d8b9696b9d10",
+    "content-hash": "24d1007e54a57ad1448b7d386b9da536",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1207,16 +1207,16 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v6.11.1",
+            "version": "v7.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66"
+                "reference": "5645b43af647b6947daac1d0f659dd1fbe8d3b65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
-                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/5645b43af647b6947daac1d0f659dd1fbe8d3b65",
+                "reference": "5645b43af647b6947daac1d0f659dd1fbe8d3b65",
                 "shasum": ""
             },
             "require": {
@@ -1264,26 +1264,26 @@
             ],
             "support": {
                 "issues": "https://github.com/firebase/php-jwt/issues",
-                "source": "https://github.com/firebase/php-jwt/tree/v6.11.1"
+                "source": "https://github.com/firebase/php-jwt/tree/v7.0.2"
             },
-            "time": "2025-04-09T20:32:01+00:00"
+            "time": "2025-12-16T22:17:28+00:00"
         },
         {
             "name": "google/apiclient",
-            "version": "v2.18.4",
+            "version": "v2.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client.git",
-                "reference": "5b51fdb2cbd2a96088e3dfc6f565bdf6fb0af94b"
+                "reference": "b18fa8aed7b2b2dd4bcce74e2c7d267e16007ea9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client/zipball/5b51fdb2cbd2a96088e3dfc6f565bdf6fb0af94b",
-                "reference": "5b51fdb2cbd2a96088e3dfc6f565bdf6fb0af94b",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client/zipball/b18fa8aed7b2b2dd4bcce74e2c7d267e16007ea9",
+                "reference": "b18fa8aed7b2b2dd4bcce74e2c7d267e16007ea9",
                 "shasum": ""
             },
             "require": {
-                "firebase/php-jwt": "^6.0",
+                "firebase/php-jwt": "^6.0||^7.0",
                 "google/apiclient-services": "~0.350",
                 "google/auth": "^1.37",
                 "guzzlehttp/guzzle": "^7.4.5",
@@ -1333,22 +1333,22 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client/issues",
-                "source": "https://github.com/googleapis/google-api-php-client/tree/v2.18.4"
+                "source": "https://github.com/googleapis/google-api-php-client/tree/v2.19.0"
             },
-            "time": "2025-09-30T04:23:07+00:00"
+            "time": "2026-01-09T19:59:47+00:00"
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.417.0",
+            "version": "v0.428.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "d09f54168a8886ed758b5973e5231abefb5d5667"
+                "reference": "94a3c50a80a36cafb76e32fb76b8007e9f572deb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/d09f54168a8886ed758b5973e5231abefb5d5667",
-                "reference": "d09f54168a8886ed758b5973e5231abefb5d5667",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/94a3c50a80a36cafb76e32fb76b8007e9f572deb",
+                "reference": "94a3c50a80a36cafb76e32fb76b8007e9f572deb",
                 "shasum": ""
             },
             "require": {
@@ -1377,26 +1377,26 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.417.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.428.0"
             },
-            "time": "2025-10-20T00:54:22+00:00"
+            "time": "2026-01-12T00:58:26+00:00"
         },
         {
             "name": "google/auth",
-            "version": "v1.48.1",
+            "version": "v1.50.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-auth-library-php.git",
-                "reference": "023f41a2c80fb98a493dfb9dffcab643481a7ab0"
+                "reference": "e1c26a718198e16d8a3c69b1cae136b73f959b0f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/023f41a2c80fb98a493dfb9dffcab643481a7ab0",
-                "reference": "023f41a2c80fb98a493dfb9dffcab643481a7ab0",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/e1c26a718198e16d8a3c69b1cae136b73f959b0f",
+                "reference": "e1c26a718198e16d8a3c69b1cae136b73f959b0f",
                 "shasum": ""
             },
             "require": {
-                "firebase/php-jwt": "^6.0",
+                "firebase/php-jwt": "^6.0||^7.0",
                 "guzzlehttp/guzzle": "^7.4.5",
                 "guzzlehttp/psr7": "^2.4.5",
                 "php": "^8.1",
@@ -1406,14 +1406,15 @@
             },
             "require-dev": {
                 "guzzlehttp/promises": "^2.0",
-                "kelvinmo/simplejwt": "0.7.1",
+                "kelvinmo/simplejwt": "^1.1.0",
                 "phpseclib/phpseclib": "^3.0.35",
                 "phpspec/prophecy-phpunit": "^2.1",
                 "phpunit/phpunit": "^9.6",
                 "sebastian/comparator": ">=1.2.3",
                 "squizlabs/php_codesniffer": "^4.0",
+                "symfony/filesystem": "^6.3||^7.3",
                 "symfony/process": "^6.0||^7.0",
-                "webmozart/assert": "^1.11"
+                "webmozart/assert": "^1.11||^2.0"
             },
             "suggest": {
                 "phpseclib/phpseclib": "May be used in place of OpenSSL for signing strings or for token management. Please require version ^2."
@@ -1438,9 +1439,9 @@
             "support": {
                 "docs": "https://cloud.google.com/php/docs/reference/auth/latest",
                 "issues": "https://github.com/googleapis/google-auth-library-php/issues",
-                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.48.1"
+                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.50.0"
             },
-            "time": "2025-09-30T04:22:33+00:00"
+            "time": "2026-01-08T21:33:57+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -2397,16 +2398,16 @@
         },
         {
             "name": "laminas/laminas-form",
-            "version": "3.24.0",
+            "version": "3.24.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-form.git",
-                "reference": "f8d04284db03a0cc6cc712e565c2b012179ec196"
+                "reference": "3a77700c6709fc9044fb0ad6b447b2f0560a7d16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-form/zipball/f8d04284db03a0cc6cc712e565c2b012179ec196",
-                "reference": "f8d04284db03a0cc6cc712e565c2b012179ec196",
+                "url": "https://api.github.com/repos/laminas/laminas-form/zipball/3a77700c6709fc9044fb0ad6b447b2f0560a7d16",
+                "reference": "3a77700c6709fc9044fb0ad6b447b2f0560a7d16",
                 "shasum": ""
             },
             "require": {
@@ -2492,7 +2493,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2025-12-15T13:11:28+00:00"
+            "time": "2026-01-08T08:21:18+00:00"
         },
         {
             "name": "laminas/laminas-http",
@@ -2727,16 +2728,16 @@
         },
         {
             "name": "laminas/laminas-inputfilter",
-            "version": "2.34.0",
+            "version": "2.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-inputfilter.git",
-                "reference": "5589fcfa366de04f34a5634b43c6c66e69bd2fe8"
+                "reference": "326d2dac38814f70902a3a9e0062f740d06f89c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-inputfilter/zipball/5589fcfa366de04f34a5634b43c6c66e69bd2fe8",
-                "reference": "5589fcfa366de04f34a5634b43c6c66e69bd2fe8",
+                "url": "https://api.github.com/repos/laminas/laminas-inputfilter/zipball/326d2dac38814f70902a3a9e0062f740d06f89c5",
+                "reference": "326d2dac38814f70902a3a9e0062f740d06f89c5",
                 "shasum": ""
             },
             "require": {
@@ -2753,11 +2754,10 @@
             "require-dev": {
                 "ext-json": "*",
                 "laminas/laminas-coding-standard": "^3.1.0",
-                "phpunit/phpunit": "^11.5.42",
+                "phpunit/phpunit": "^11.5.46",
                 "psalm/plugin-phpunit": "^0.19.5",
                 "psr/http-message": "^2.0",
-                "vimeo/psalm": "^6.13.1",
-                "webmozart/assert": "^1.11"
+                "vimeo/psalm": "^6.14.3"
             },
             "suggest": {
                 "psr/http-message-implementation": "PSR-7 is required if you wish to validate PSR-7 UploadedFileInterface payloads"
@@ -2798,7 +2798,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2025-10-14T19:52:47+00:00"
+            "time": "2026-01-10T15:07:43+00:00"
         },
         {
             "name": "laminas/laminas-json",
@@ -3571,16 +3571,16 @@
         },
         {
             "name": "laminas/laminas-translator",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-translator.git",
-                "reference": "c4c1637ea56afe812f1af3212656fd6f9c02c551"
+                "reference": "1d6bf7d857c3fc310a30f5ea028731b9bf8be9db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-translator/zipball/c4c1637ea56afe812f1af3212656fd6f9c02c551",
-                "reference": "c4c1637ea56afe812f1af3212656fd6f9c02c551",
+                "url": "https://api.github.com/repos/laminas/laminas-translator/zipball/1d6bf7d857c3fc310a30f5ea028731b9bf8be9db",
+                "reference": "1d6bf7d857c3fc310a30f5ea028731b9bf8be9db",
                 "shasum": ""
             },
             "require": {
@@ -3588,7 +3588,8 @@
             },
             "require-dev": {
                 "laminas/laminas-coding-standard": "~3.1.0",
-                "vimeo/psalm": "^6.13.1"
+                "phpunit/phpunit": "^11.5.46",
+                "vimeo/psalm": "^6.14.3"
             },
             "type": "library",
             "autoload": {
@@ -3620,7 +3621,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2025-10-14T20:58:42+00:00"
+            "time": "2025-12-30T14:26:45+00:00"
         },
         {
             "name": "laminas/laminas-uri",
@@ -6675,16 +6676,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "5.3.0",
+            "version": "5.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "4d597c1aacdde1805a33c525b9758113ea0d90df"
+                "reference": "48f2fe37d64c2dece0ef71fb2ac55497566782af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/4d597c1aacdde1805a33c525b9758113ea0d90df",
-                "reference": "4d597c1aacdde1805a33c525b9758113ea0d90df",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/48f2fe37d64c2dece0ef71fb2ac55497566782af",
+                "reference": "48f2fe37d64c2dece0ef71fb2ac55497566782af",
                 "shasum": ""
             },
             "require": {
@@ -6692,6 +6693,7 @@
                 "ext-ctype": "*",
                 "ext-dom": "*",
                 "ext-fileinfo": "*",
+                "ext-filter": "*",
                 "ext-gd": "*",
                 "ext-iconv": "*",
                 "ext-libxml": "*",
@@ -6706,13 +6708,12 @@
                 "markbaker/complex": "^3.0",
                 "markbaker/matrix": "^3.0",
                 "php": "^8.1",
-                "psr/http-client": "^1.0",
-                "psr/http-factory": "^1.0",
                 "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "dev-main",
                 "dompdf/dompdf": "^2.0 || ^3.0",
+                "ext-intl": "*",
                 "friendsofphp/php-cs-fixer": "^3.2",
                 "mitoteam/jpgraph": "^10.5",
                 "mpdf/mpdf": "^8.1.1",
@@ -6726,7 +6727,7 @@
             },
             "suggest": {
                 "dompdf/dompdf": "Option for rendering PDF with PDF Writer",
-                "ext-intl": "PHP Internationalization Functions, required for NumberFormat Wizard",
+                "ext-intl": "PHP Internationalization Functions, required for NumberFormat Wizard and StringHelper::setLocale()",
                 "mitoteam/jpgraph": "Option for rendering charts, or including charts with PDF or HTML Writers",
                 "mpdf/mpdf": "Option for rendering PDF with PDF Writer",
                 "tecnickcom/tcpdf": "Option for rendering PDF with PDF Writer"
@@ -6759,6 +6760,9 @@
                 },
                 {
                     "name": "Adrien Crivelli"
+                },
+                {
+                    "name": "Owen Leibman"
                 }
             ],
             "description": "PHPSpreadsheet - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
@@ -6775,9 +6779,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.3.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.4.0"
             },
-            "time": "2025-11-24T15:47:10+00:00"
+            "time": "2026-01-11T04:52:00+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -8474,16 +8478,16 @@
         },
         {
             "name": "robthree/twofactorauth",
-            "version": "v3.0.2",
+            "version": "v3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/RobThree/TwoFactorAuth.git",
-                "reference": "6d70f9ca8e25568f163a7b3b3ff77bd8ea743978"
+                "reference": "85408c4e775dba7c0802f2d928efd921d530bc5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/RobThree/TwoFactorAuth/zipball/6d70f9ca8e25568f163a7b3b3ff77bd8ea743978",
-                "reference": "6d70f9ca8e25568f163a7b3b3ff77bd8ea743978",
+                "url": "https://api.github.com/repos/RobThree/TwoFactorAuth/zipball/85408c4e775dba7c0802f2d928efd921d530bc5b",
+                "reference": "85408c4e775dba7c0802f2d928efd921d530bc5b",
                 "shasum": ""
             },
             "require": {
@@ -8551,7 +8555,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-24T15:14:25+00:00"
+            "time": "2026-01-05T13:17:41+00:00"
         },
         {
             "name": "rospdf/pdf-php",
@@ -11463,16 +11467,16 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "8.10.0",
+            "version": "8.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php",
-                "reference": "218e4eacedd5e65be5565d7db649d675baafba77"
+                "reference": "84fc8e4b2b5ff32d20e73b17718b13e5ed56bc8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/218e4eacedd5e65be5565d7db649d675baafba77",
-                "reference": "218e4eacedd5e65be5565d7db649d675baafba77",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/84fc8e4b2b5ff32d20e73b17718b13e5ed56bc8c",
+                "reference": "84fc8e4b2b5ff32d20e73b17718b13e5ed56bc8c",
                 "shasum": ""
             },
             "require": {
@@ -11509,7 +11513,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2025-12-17T06:41:12+00:00"
+            "time": "2026-01-07T09:28:54+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

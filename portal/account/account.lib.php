@@ -23,6 +23,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function notifyAdmin($pid, $provider): void
 {
@@ -94,8 +96,8 @@ function processRecaptcha($gRecaptchaResponse): bool
 //  (this is done so a bad actor can not see if certain patients exist in the instance)
 function verifyEmail(string $languageChoice, string $fname, string $mname, string $lname, string $dob, string $email): bool
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $globalsBag = OEGlobalsBag::getInstance();
-
     if (empty($languageChoice) || empty($fname) || empty($lname) || empty($dob) || empty($email)) {
         // only optional setting is the mname
         (new SystemLogger())->error("a required verifyEmail function parameter is empty");
@@ -187,11 +189,11 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
 
         // create $encoded_link
         $site_addr = $globalsBag->get('portal_onsite_two_address');
-        $site_id = $_SESSION['site_id'];
+        $site_id = $session->get('site_id');
         if (stripos((string) $site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
-                'site' => $_SESSION['site_id']
+                'site' => $site_id
             ]));
         } else {
             $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
@@ -348,8 +350,8 @@ function validEmail($email)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $globalsBag = OEGlobalsBag::getInstance();
-
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
 
@@ -411,11 +413,11 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
     $site_addr = $globalsBag->get('portal_onsite_two_address');
-    $site_id = $_SESSION['site_id'];
+    $site_id = $session->get('site_id');
     if (stripos((string) $site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
-            'site' => $_SESSION['site_id']
+            'site' => $site_id
         ]));
     } else {
         $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
@@ -517,14 +519,16 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 //  just not store the insurance info in worst case scenario).
 function getPidHolder($preventRaceCondition = false): int
 {
-    if (empty($_SESSION['token_id_holder'])) {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $tokenIdHolder = $session->get('token_id_holder');
+    if (empty($tokenIdHolder)) {
         (new SystemLogger())->debug("getPidHolder function failed because token_id_holder session variable was not set");
         return 0;
     }
     if ($preventRaceCondition) {
         sleep(1);
     }
-    $sql = sqlQueryNoLog("SELECT `pid_holder` FROM `verify_email` WHERE `id` = ?", [$_SESSION['token_id_holder']]);
+    $sql = sqlQueryNoLog("SELECT `pid_holder` FROM `verify_email` WHERE `id` = ?", [$tokenIdHolder]);
     if (!empty($sql['pid_holder'])) {
         return $sql['pid_holder'];
     } else {
@@ -540,11 +544,12 @@ function getPidHolder($preventRaceCondition = false): int
 
 function cleanupRegistrationSession(): void
 {
-    unset($_SESSION['patient_portal_onsite_two']);
-    unset($_SESSION['authUser']);
-    unset($_SESSION['pid']);
-    unset($_SESSION['site_id']);
-    unset($_SESSION['register']);
-    unset($_SESSION['register_silo_ajax']);
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session->remove('patient_portal_onsite_two');
+    $session->remove('authUser');
+    $session->remove('pid');
+    $session->remove('site_id');
+    $session->remove('register');
+    $session->remove('register_silo_ajax');
+    SessionUtil::portalSessionCookieDestroy();
 }

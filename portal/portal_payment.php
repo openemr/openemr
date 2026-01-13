@@ -16,17 +16,18 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $isPortal = false;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
@@ -34,7 +35,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
@@ -70,11 +71,11 @@ $portalPatient = '';
 $query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data " .
     "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
     "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
-$portalPatient = sqlQueryNoLog($query, $pid);
-if ($_SESSION['authUserID'] ?? '') {
+$portalPatient = sqlQueryNoLog($query, [$pid]);
+if ($session->get('authUserID', '')) {
     $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
         "FROM users WHERE id = ?";
-    $adminUser = sqlQueryNoLog($query, $_SESSION['authUserID']);
+    $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
 $edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
@@ -206,7 +207,7 @@ if ($_POST['form_save'] ?? '') {
             ", adjustment_code = 'pre_payment'" .
             ", post_to_date = now() " .
             ", payment_method = ?",
-            [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
+            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
         );
 
         frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
@@ -240,7 +241,7 @@ if ($_POST['form_save'] ?? '') {
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                         " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        [$_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method]
+                        [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
                     sqlBeginTrans();
@@ -248,7 +249,7 @@ if ($_POST['form_save'] ?? '') {
                     $insrt_id = sqlInsert(
                         "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount]
+                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $session->get('authUserID'), $session_id, $amount]
                     );
                     sqlCommitTrans();
 
@@ -282,7 +283,7 @@ if ($_POST['form_save'] ?? '') {
                         ", adjustment_code = ?" .
                         ", post_to_date = now() " .
                         ", payment_method = ?",
-                        [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
+                        [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
                     );
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -358,7 +359,7 @@ if ($_POST['form_save'] ?? '') {
                                 ", pay_amount = ?" .
                                 ", adj_amount = ?" .
                                 ", account_code = 'PP'",
-                                [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $insert_value, 0]
+                                [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
                             );
                             sqlCommitTrans();
                         }//if
@@ -381,7 +382,7 @@ if ($_POST['form_save'] ?? '') {
                             ", pay_amount = ?" .
                             ", adj_amount = ?" .
                             ", account_code = 'PP'",
-                            [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $amount, 0]
+                            [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
                         );
                         sqlCommitTrans();
                     }
@@ -443,7 +444,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
@@ -749,7 +750,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                         ?>
                     </select></td>
             </tr>
-            <?php if (isset($_SESSION['authUserID'])) { ?>
+            <?php if ($session->has('authUserID')) { ?>
                 <tr height="5">
                     <td colspan='3'></td>
                 </tr>
@@ -766,7 +767,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     </td>
                 </tr>
             <?php } ?>
-                <?php if (isset($_SESSION['authUserID'])) {
+                <?php if ($session->has('authUserID')) {
                         $hide = '';
                         echo '<tr height="5"><td colspan="3"></td></tr><tr">';
                 } else {
@@ -1007,7 +1008,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <?php
         if (isset($ccdata["cardHolderName"])) {
             echo '<div class="col-5"><div class="card panel-default height">';
-            if (!isset($_SESSION['authUserID'])) {
+            if (!$session->has('authUserID')) {
                 echo '<div class="card-heading">' . xlt("Payment Information") .
                     '<span style="color: #cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
             } else {
@@ -1026,7 +1027,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             <span class="font-weight-bold"><?php echo xlt('Card Holder Zip'); ?>: </span><span id="czip"><?php echo text($ccdata["zip"] ?? '') ?></span><br />
             <span class="font-weight-bold"><?php echo xlt('Card Number'); ?>: </span><span id="ccn">
         <?php
-        if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
+        if ($session->has('authUserID') || isset($ccdata["transId"])) {
             echo text($ccdata["cardNumber"]) . "</span><br />";
         } elseif (strlen($ccdata["cardNumber"] ?? '') > 4) {
             echo "**********  " . text(substr((string) $ccdata["cardNumber"], -4)) . "</span><br />";
@@ -1046,7 +1047,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </div>
         <div>
         <?php
-        if (!isset($_SESSION['authUserID'])) {
+        if (!$session->has('authUserID')) {
             if (!isset($ccdata["cardHolderName"])) {
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
@@ -1231,7 +1232,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
     </script>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $session->has('patient_portal_onsite_two')) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1239,12 +1240,12 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
         <script src="portal_payment.stripe.js?v=<?=$v_js_includes?>"></script>
     <?php } ?>
 
     <?php
-    if ($globalsBag->get('payment_gateway') === 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     }
     ?>
