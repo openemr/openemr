@@ -26,6 +26,9 @@ use const JSON_THROW_ON_ERROR;
  *
  * Future scope: source IP allowlist?
  * https://docs.rainforestpay.com/docs/webhooks-and-notifications#webhook-source-ip-addresses
+ *
+ * Future scope: make this less Rainforest-specific? The only thing specific to
+ * them is the webhook body format.
  */
 class WebhookVerifier
 {
@@ -103,6 +106,8 @@ class WebhookVerifier
             throw new \RuntimeException('Invalid signature');
         }
 
+        // Technically, this might benefit from switching on a content-type
+        // header if present... but that doesn't do much in practice.
         $parsedBody = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
         return new Webhook($parsedBody);
     }
