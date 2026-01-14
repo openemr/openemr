@@ -7,6 +7,12 @@
  *
  */
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+require_once(__DIR__ . "/../../vendor/autoload.php");
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */
@@ -27,18 +33,18 @@ $gc = GlobalConfig::GetInstance();
 $globalsBag = OEGlobalsBag::getInstance();
 
 try {
-    if (!empty($_SESSION['register'])) {
+    if (!empty($session->get('register', null))) {
         // Need to bootstrap for registration
         $globalsBag->set('bootstrap_register', true);
     } else {
         $globalsBag->set('bootstrap_register', false);
     }
-    if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']))) {
+    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
         //  and to only allow access to api calls applicable to that pid (or patientId).
         // Also need to collect the id of the patient to verify the correct id is used
         //  in the uri check in GenericRouter.php .
-        $globalsBag->set('bootstrap_pid', $_SESSION['pid']);
+        $globalsBag->set('bootstrap_pid', $session->get('pid'));
         $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$globalsBag->get('bootstrap_pid')]);
         $globalsBag->set('bootstrap_uri_id', $sqlCollectPatientId['id']);
         $bootstrap_pid = $globalsBag->get('bootstrap_pid');

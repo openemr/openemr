@@ -22,6 +22,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ContactRelationService extends BaseService
 {
@@ -415,6 +416,7 @@ class ContactRelationService extends BaseService
                 c.id as owner_contact_id,
                 c.foreign_table_name as owner_table,
                 c.foreign_id as owner_id,
+                cr.notes AS relation_notes,
                 target_contact.id AS target_contact_id
                 FROM contact_relation cr
                 JOIN contact c ON c.id = cr.contact_id
@@ -699,6 +701,7 @@ class ContactRelationService extends BaseService
     {
         $linkService = new PersonPatientLinkService();
         $personService = new PersonService();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         // Check if patient already has a linked person
         $existingPerson = $linkService->getPersonForPatient($patientId);
@@ -751,7 +754,7 @@ class ContactRelationService extends BaseService
         $linkResult = $linkService->linkPersonToPatient(
             $personId,
             $patientId,
-            $_SESSION['authUserID'] ?? null,
+            $session->get('authUserID'),
             'auto_created_for_relationship',
             'Auto-created when adding relationship to existing patient'
         );

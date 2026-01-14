@@ -640,13 +640,19 @@
                 const lastNameInput = relation_clone.querySelector('.form_relations_last_name');
                 const genderInput = relation_clone.querySelector('.form_relations_gender');
                 const birthDateInput = relation_clone.querySelector('.form_relations_birth_date');
+                const notesDisplay = relation_clone.querySelector(".form_relations_notes");
 
                 if (firstNameInput) firstNameInput.value = person.first_name || '';
                 if (middleNameInput) middleNameInput.value = person.middle_name || '';
                 if (lastNameInput) lastNameInput.value = person.last_name || '';
                 if (genderInput) genderInput.value = person.gender || '';
                 if (birthDateInput) birthDateInput.value = person.birth_date || '';
+                // we will use the initial person notes and add it as the relationship notes to start with.
+                // it does seem confusing to have both a person note and relationship note and this may need to be
+                // looked at later.
+                if (notesDisplay) notesDisplay.textContent = person.notes || '';
 
+                // TODO: @adunsulag review this heavily as recreating scripts can be very risky
                 // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
                 // Scripts inserted via innerHTML don't execute, so we need to replace them
                 var oldScripts = relation_clone.querySelectorAll('script');
