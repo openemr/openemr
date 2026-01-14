@@ -17,7 +17,11 @@ $sessionAllowWrite = true;
 
 // Set site from query parameter for multi-site support
 $_GET['auth'] = 'portal';  // Enable site selection
-$_GET['site'] ??= 'default';
+
+if (empty($_GET['site'])) {
+    error_log("Fax site ID missing");
+    die;
+}
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
