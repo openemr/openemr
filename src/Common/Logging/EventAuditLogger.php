@@ -17,6 +17,8 @@ namespace OpenEMR\Common\Logging;
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger
@@ -523,7 +525,8 @@ MSG;
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $user =  $_SESSION['authUser'] ?? "";
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $user =  $session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
         if (empty($GLOBALS['enable_auditlog'])) {
@@ -633,8 +636,9 @@ MSG;
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($event == "patient-record") {
-            if (array_key_exists('pid', $_SESSION) && $_SESSION['pid'] != '') {
-                $pid = $_SESSION['pid'];
+            $sessionPid = $session->get('pid');
+            if ($sessionPid !== null && $sessionPid != '') {
+                $pid = $sessionPid;
             }
         }
 
@@ -644,7 +648,7 @@ MSG;
 
         $event = $event . "-" . $querytype;
 
-        $group = $_SESSION['authProvider'] ?? "";
+        $group = $session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
@@ -657,8 +661,9 @@ MSG;
      */
     public function auditSQLAuditTamper($setting, $enable)
     {
-        $user =  $_SESSION['authUser'] ?? "";
-        $group = $_SESSION['authProvider'] ?? "";
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $user =  $session->get('authUser') ?? "";
+        $group = $session->get('authProvider') ?? "";
         $pid = 0;
         $success = 1;
         $event = "security-administration" . "-" . "insert";
@@ -691,13 +696,19 @@ MSG;
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
-            "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
-            "," . $adodb->qstr($recipient) . "," .
-            $adodb->qstr($pid) . "," .
-            $adodb->qstr($description) . ")";
-        sqlInsertClean_audit($sql);
+        $sql = <<<'SQL'
+        INSERT INTO extended_log (date, event, user, recipient, patient_id, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+        SQL;
+        $values = [
+            $dates,
+            $event,
+            $user,
+            $recipient,
+            $pid,
+            $description,
+        ];
+        sqlInsertClean_audit($sql, $values);
     }
 
     /**
@@ -714,14 +725,23 @@ MSG;
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
-        $adodb = $GLOBALS['adodb']['db'];
-        $sql = "update extended_log set
-                event=" . $adodb->qstr($event) . ",
-                date=" .  $adodb->qstr($dates) . ",
-                recipient=" . $adodb->qstr($recipient) . ",
-                description=" . $adodb->qstr($description) . "
-                where id=" . $adodb->qstr($disclosure_id) . "";
-        sqlInsertClean_audit($sql);
+        $sql = <<<'SQL'
+        UPDATE extended_log
+        SET
+            event = ?,
+            date = ?,
+            recipient = ?,
+            description = ?
+        WHERE id = ?
+        SQL;
+        $values = [
+            $event,
+            $dates,
+            $recipient,
+            $description,
+            $disclosure_id,
+        ];
+        sqlInsertClean_audit($sql, $values);
     }
 
     /**
@@ -790,7 +810,7 @@ MSG;
         ];
         sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
+        $last_log_id = QueryUtils::getLastInsertId();
         $checksumGenerate = hash('sha3-512', implode('', $logEntry));
         if (!empty($api)) {
             // api log
@@ -837,6 +857,7 @@ MSG;
      */
     public function logHttpRequest()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
         if (empty($GLOBALS['enable_auditlog']) || empty($GLOBALS['audit_events_http-request'])) {
             return;
@@ -863,11 +884,11 @@ MSG;
         // Record the log entry
         $this->newEvent(
             "http-request-$event",  // event
-            $_SESSION['authUser'] ?? null, // user
-            $_SESSION['authProvider'] ?? null, // groupname
+            $session->get('authUser') ?? null, // user
+            $session->get('authProvider') ?? null, // groupname
             1, // success
             $comment, // comments
-            $_SESSION['pid'] ?? null // patient_id
+            $session->get('pid') ?? null // patient_id
         );
     }
 

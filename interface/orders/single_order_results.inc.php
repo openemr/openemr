@@ -25,6 +25,7 @@
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function getListItem($listid, $value)
 {
@@ -317,6 +318,8 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 {
     global $aNotes;
 
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
@@ -362,13 +365,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     $patient_id = $orow['patient_id'];
     $language = $orow['language'];
-
+    $language_direction = $session->get('language_direction');
     ?>
 
     <?php if ($genstyles) { ?>
 <style>
 
-        <?php if (empty($_SESSION['language_direction']) || $_SESSION['language_direction'] == 'ltr') { ?>
+        <?php if (empty($language_direction) || $language_direction === 'ltr') { ?>
     .labres tr.head {
         font-size: 0.8125rem;
         background-color: var(--gray200);

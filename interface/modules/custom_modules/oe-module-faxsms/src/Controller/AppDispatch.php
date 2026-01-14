@@ -255,20 +255,20 @@ abstract class AppDispatch
 
         $factoryMap = [
             'sms' => [
-                1 => fn() => new RCFaxClient(),
-                2 => fn() => new TwilioSMSClient(),
-                5 => fn() => new ClickatellSMSClient(),
+                1 => fn(): RCFaxClient => new RCFaxClient(),
+                2 => fn(): TwilioSMSClient => new TwilioSMSClient(),
+                5 => fn(): ClickatellSMSClient => new ClickatellSMSClient(),
             ],
             'fax' => [
-                1 => fn() => new RCFaxClient(),
-                3 => fn() => new EtherFaxActions(),
-                6 => fn() => new SignalWireClient(),
+                1 => fn(): RCFaxClient => new RCFaxClient(),
+                3 => fn(): EtherFaxActions => new EtherFaxActions(),
+                6 => fn(): SignalWireClient => new SignalWireClient(),
             ],
             'email' => [
-                4 => fn() => new EmailClient(),
+                4 => fn(): EmailClient => new EmailClient(),
             ],
             'voice' => [
-                6 => fn() => new VoiceClient(),
+                6 => fn(): VoiceClient => new VoiceClient(),
             ],
         ];
 

@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FormService;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
@@ -135,9 +136,10 @@ function getFormNameByFormdir($formdir)
 
 function getDocumentsByEncounter($patientID = null, $encounterID = null)
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $allDocuments = null;
-    $currentEncounter = $encounterID ?: $_SESSION['encounter'];
-    $currentPatient = $patientID ?: $_SESSION['pid'];
+    $currentEncounter = $encounterID ?: $session->get('encounter');
+    $currentPatient = $patientID ?: $session->get('pid');
 
     if ($currentPatient != "" && $currentEncounter != "") {
         $sql = "SELECT d.id, d.type, d.url, d.name as document_name, d.docdate, d.list_id, c.name, d.encounter_id FROM documents AS d, categories_to_documents AS cd,

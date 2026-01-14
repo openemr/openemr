@@ -33,11 +33,14 @@ use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
-if (isset($_GET['pid']) && $_GET['pid'] != $_SESSION['pid']) {
+if (isset($_GET['pid']) && $_GET['pid'] != $session->get('pid')) {
     PatientSessionUtil::setPid($_GET['pid']);
 }
 // "issue" parameter exists if we are being invoked by clicking an issue title
@@ -69,7 +72,7 @@ if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad']))
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .
-  "where id = ?", [$_SESSION['authUserID']]);
+  "where id = ?", [$session->get('authUserID')]);
 $billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing'])) {
     $billing_view = empty($_GET['billing']) ? 0 : 1;
@@ -184,7 +187,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') == "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -429,7 +432,7 @@ window.onload = function() {
                 $sqlBindArray[] = $pid;
             } else {
                 $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
-                $sqlBindArray[] = $_SESSION['therapy_group'];
+                $sqlBindArray[] = $session->get('therapy_group');
             }
 
             $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
@@ -509,7 +512,7 @@ window.onload = function() {
                     $encounter_rows = 1;
                 if (
                     !$billing_view && $auth_sensitivity && $authPostCalendarCategory &&
-                        ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
+                        ($auth_notes_a || ($auth_notes && $result4['user'] == $session->get('authUser')))
                 ) {
                     $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
                     $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
@@ -587,7 +590,7 @@ window.onload = function() {
                         $formdir = $enc['formdir'];
                         if (
                             ($auth_notes_a) ||
-                            ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
+                            ($auth_notes && $enc['user'] == $session->get('authUser')) ||
                             ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))
                         ) {
                         } else {
@@ -658,7 +661,7 @@ window.onload = function() {
                     //this is where we print out the text of the billing that occurred on this encounter
                     $thisauth = $auth_coding_a;
                 if (!$thisauth && $auth_coding) {
-                    if ($result4['user'] == $_SESSION['authUser']) {
+                    if ($result4['user'] == $session->get('authUser')) {
                         $thisauth = $auth_coding;
                     }
                 }
@@ -908,7 +911,7 @@ $(function () {
                 return xl("Report Unavailable");
             }
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
                 encid: el.dataset.formenc,
                 formid: el.dataset.formid,
                 formname: el.dataset.formdir,

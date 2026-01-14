@@ -16,17 +16,18 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $isPortal = false;
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
@@ -34,7 +35,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
@@ -52,8 +53,11 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+
+$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 $cryptoGen = new CryptoGen();
 
@@ -67,11 +71,11 @@ $portalPatient = '';
 $query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data " .
     "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
     "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
-$portalPatient = sqlQueryNoLog($query, $pid);
-if ($_SESSION['authUserID'] ?? '') {
+$portalPatient = sqlQueryNoLog($query, [$pid]);
+if ($session->get('authUserID', '')) {
     $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
         "FROM users WHERE id = ?";
-    $adminUser = sqlQueryNoLog($query, $_SESSION['authUserID']);
+    $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
 $edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
@@ -203,7 +207,7 @@ if ($_POST['form_save'] ?? '') {
             ", adjustment_code = 'pre_payment'" .
             ", post_to_date = now() " .
             ", payment_method = ?",
-            [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
+            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
         );
 
         frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
@@ -237,7 +241,7 @@ if ($_POST['form_save'] ?? '') {
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                         " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        [$_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method]
+                        [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
                     sqlBeginTrans();
@@ -245,7 +249,7 @@ if ($_POST['form_save'] ?? '') {
                     $insrt_id = sqlInsert(
                         "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount]
+                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $session->get('authUserID'), $session_id, $amount]
                     );
                     sqlCommitTrans();
 
@@ -279,7 +283,7 @@ if ($_POST['form_save'] ?? '') {
                         ", adjustment_code = ?" .
                         ", post_to_date = now() " .
                         ", payment_method = ?",
-                        [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
+                        [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
                     );
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -355,7 +359,7 @@ if ($_POST['form_save'] ?? '') {
                                 ", pay_amount = ?" .
                                 ", adj_amount = ?" .
                                 ", account_code = 'PP'",
-                                [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $insert_value, 0]
+                                [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
                             );
                             sqlCommitTrans();
                         }//if
@@ -378,7 +382,7 @@ if ($_POST['form_save'] ?? '') {
                             ", pay_amount = ?" .
                             ", adj_amount = ?" .
                             ", account_code = 'PP'",
-                            [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $amount, 0]
+                            [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
                         );
                         sqlCommitTrans();
                     }
@@ -440,7 +444,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
@@ -528,6 +532,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     </style>
     <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="portal_payment.js"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -557,42 +562,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 alert(<?php echo xlj('Negative payments not accepted'); ?>)
             }
             return true;
-        }
-
-        function coloring() {
-            for (var i = 1; ; ++i) {
-                if (document.getElementById('paying_' + i)) {
-                    paying = document.getElementById('paying_' + i).value * 1;
-                    patient_balance = document.getElementById('duept_' + i).innerHTML * 1;
-                    if (patient_balance > 0 && paying > 0) {
-                        if (paying > patient_balance) {
-                            document.getElementById('paying_' + i).style.background = '#FF0000';
-                        }
-                        else if (paying < patient_balance) {
-                            document.getElementById('paying_' + i).style.background = '#99CC00';
-                        }
-                        else if (paying == patient_balance) {
-                            document.getElementById('paying_' + i).style.background = '#ffffff';
-                        }
-                    }
-                    else {
-                        document.getElementById('paying_' + i).style.background = '#ffffff';
-                    }
-                }
-                else {
-                    break;
-                }
-            }
-        }
-
-        function CheckVisible(MakeBlank) {//Displays and hides the check number text box.
-            if (document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'check_payment' ||
-                document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'bank_draft') {
-                document.getElementById('check_number').disabled = false;
-            }
-            else {
-                document.getElementById('check_number').disabled = true;
-            }
         }
 
         function validate() {
@@ -639,168 +608,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     return false;
                 }
             }
-        }
-
-        function cursor_pointer() {//Point the cursor to the latest encounter(Today)
-            var f = document.forms["invoiceForm"];
-            var total = 0;
-            for (var i = 0; i < f.elements.length; ++i) {
-                var elem = f.elements[i];
-                var ename = elem.name;
-                if (ename.indexOf('form_upay[') == 0) {
-                    elem.focus();
-                    break;
-                }
-            }
-        }
-
-        function make_it_hide_enc_pay() {
-            document.getElementById('td_head_insurance_payment').style.display = "none";
-            document.getElementById('td_head_patient_co_pay').style.display = "none";
-            document.getElementById('td_head_co_pay').style.display = "none";
-            document.getElementById('td_head_insurance_balance').style.display = "none";
-            for (var i = 1; ; ++i) {
-                var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
-                var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                var td_copay_elem = document.getElementById('td_copay_' + i)
-                var balance_elem = document.getElementById('balance_' + i)
-                if (td_inspaid_elem) {
-                    td_inspaid_elem.style.display = "none";
-                    td_patient_copay_elem.style.display = "none";
-                    td_copay_elem.style.display = "none";
-                    balance_elem.style.display = "none";
-                }
-                else {
-                    break;
-                }
-            }
-            document.getElementById('td_total_4').style.display = "none";
-            document.getElementById('td_total_7').style.display = "none";
-            document.getElementById('td_total_8').style.display = "none";
-            document.getElementById('td_total_6').style.display = "none";
-
-            document.getElementById('table_display').width = "420px";
-        }
-
-        function make_visible() {
-            document.getElementById('td_head_rep_doc').style.display = "";
-            document.getElementById('td_head_description').style.display = "";
-            document.getElementById('td_head_total_charge').style.display = "none";
-            document.getElementById('td_head_insurance_payment').style.display = "none";
-            document.getElementById('td_head_patient_payment').style.display = "none";
-            document.getElementById('td_head_patient_co_pay').style.display = "none";
-            document.getElementById('td_head_co_pay').style.display = "none";
-            document.getElementById('td_head_insurance_balance').style.display = "none";
-            document.getElementById('td_head_patient_balance').style.display = "none";
-            for (var i = 1; ; ++i) {
-                var td_charges_elem = document.getElementById('td_charges_' + i)
-                var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
-                var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
-                var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                var td_copay_elem = document.getElementById('td_copay_' + i)
-                var balance_elem = document.getElementById('balance_' + i)
-                var duept_elem = document.getElementById('duept_' + i)
-                if (td_charges_elem) {
-                    td_charges_elem.style.display = "none";
-                    td_inspaid_elem.style.display = "none";
-                    td_ptpaid_elem.style.display = "none";
-                    td_patient_copay_elem.style.display = "none";
-                    td_copay_elem.style.display = "none";
-                    balance_elem.style.display = "none";
-                    duept_elem.style.display = "none";
-                }
-                else {
-                    break;
-                }
-            }
-            document.getElementById('td_total_7').style.display = "";
-            document.getElementById('td_total_8').style.display = "";
-            document.getElementById('td_total_1').style.display = "none";
-            document.getElementById('td_total_2').style.display = "none";
-            document.getElementById('td_total_3').style.display = "none";
-            document.getElementById('td_total_4').style.display = "none";
-            document.getElementById('td_total_5').style.display = "none";
-            document.getElementById('td_total_6').style.display = "none";
-
-            document.getElementById('table_display').width = "505px";
-        }
-
-        function make_it_hide() {
-            document.getElementById('td_head_rep_doc').style.display = "none";
-            document.getElementById('td_head_description').style.display = "none";
-            document.getElementById('td_head_total_charge').style.display = "";
-            document.getElementById('td_head_insurance_payment').style.display = "";
-            document.getElementById('td_head_patient_payment').style.display = "";
-            document.getElementById('td_head_patient_co_pay').style.display = "";
-            document.getElementById('td_head_co_pay').style.display = "";
-            document.getElementById('td_head_insurance_balance').style.display = "";
-            document.getElementById('td_head_patient_balance').style.display = "";
-            for (var i = 1; ; ++i) {
-                var td_charges_elem = document.getElementById('td_charges_' + i)
-                var td_inspaid_elem = document.getElementById('td_inspaid_' + i)
-                var td_ptpaid_elem = document.getElementById('td_ptpaid_' + i)
-                var td_patient_copay_elem = document.getElementById('td_patient_copay_' + i)
-                var td_copay_elem = document.getElementById('td_copay_' + i)
-                var balance_elem = document.getElementById('balance_' + i)
-                var duept_elem = document.getElementById('duept_' + i)
-                if (td_charges_elem) {
-                    td_charges_elem.style.display = "";
-                    td_inspaid_elem.style.display = "";
-                    td_ptpaid_elem.style.display = "";
-                    td_patient_copay_elem.style.display = "";
-                    td_copay_elem.style.display = "";
-                    balance_elem.style.display = "";
-                    duept_elem.style.display = "";
-                }
-                else {
-                    break;
-                }
-            }
-            document.getElementById('td_total_1').style.display = "";
-            document.getElementById('td_total_2').style.display = "";
-            document.getElementById('td_total_3').style.display = "";
-            document.getElementById('td_total_4').style.display = "";
-            document.getElementById('td_total_5').style.display = "";
-            document.getElementById('td_total_6').style.display = "";
-            document.getElementById('td_total_7').style.display = "";
-            document.getElementById('td_total_8').style.display = "";
-
-            document.getElementById('table_display').width = "100%";
-        }
-
-        function make_visible_radio() {
-            document.getElementById('tr_radio1').style.display = "";
-            document.getElementById('tr_radio2').style.display = "none";
-        }
-
-        function make_hide_radio() {
-            document.getElementById('tr_radio1').style.display = "none";
-            document.getElementById('tr_radio2').style.display = "";
-        }
-
-        function make_visible_row() {
-            document.getElementById('table_display').style.display = "";
-            document.getElementById('table_display_prepayment').style.display = "none";
-        }
-
-        function make_hide_row() {
-            document.getElementById('table_display').style.display = "none";
-            document.getElementById('table_display_prepayment').style.display = "";
-        }
-
-        function make_self() {
-            make_visible_row();
-            make_it_hide();
-            make_it_hide_enc_pay();
-            document.getElementById('radio_type_of_payment_self1').checked = true;
-            cursor_pointer();
-        }
-
-        function make_insurance() {
-            make_visible_row();
-            make_it_hide();
-            cursor_pointer();
-            document.getElementById('radio_type_of_payment1').checked = true;
         }
 
         $('#paySubmit').click(function (e) {
@@ -893,33 +700,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             });
         });
 
-        function getFormObj(formId) {
-            let formObj = {};
-            let inputs = $('#' + formId).serializeArray();
-            $.each(inputs, function (i, input) {
-                formObj[input.name] = input.value;
-            });
-            return formObj;
-        }
-
-        function formRepopulate(jsondata) {
-            let data = $.parseJSON(jsondata);
-            $.each(data, function (name, val) {
-                let $el = $('[name="' + name + '"]'),
-                    type = $el.attr('type');
-                switch (type) {
-                    case 'checkbox':
-                        $el.prop('checked', true);
-                        break;
-                    case 'radio':
-                        $el.filter('[value="' + val + '"]').prop('checked', true);
-                        break;
-                    default:
-                        $el.val(val);
-                }
-            });
-        }
-
         function getAuth() {
             let authnum = document.getElementById("check_number").value;
             authnum = prompt(<?php echo xlj('Please enter card comfirmation authorization'); ?>, authnum);
@@ -970,7 +750,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                         ?>
                     </select></td>
             </tr>
-            <?php if (isset($_SESSION['authUserID'])) { ?>
+            <?php if ($session->has('authUserID')) { ?>
                 <tr height="5">
                     <td colspan='3'></td>
                 </tr>
@@ -987,7 +767,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     </td>
                 </tr>
             <?php } ?>
-                <?php if (isset($_SESSION['authUserID'])) {
+                <?php if ($session->has('authUserID')) {
                         $hide = '';
                         echo '<tr height="5"><td colspan="3"></td></tr><tr">';
                 } else {
@@ -1228,7 +1008,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <?php
         if (isset($ccdata["cardHolderName"])) {
             echo '<div class="col-5"><div class="card panel-default height">';
-            if (!isset($_SESSION['authUserID'])) {
+            if (!$session->has('authUserID')) {
                 echo '<div class="card-heading">' . xlt("Payment Information") .
                     '<span style="color: #cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
             } else {
@@ -1247,7 +1027,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             <span class="font-weight-bold"><?php echo xlt('Card Holder Zip'); ?>: </span><span id="czip"><?php echo text($ccdata["zip"] ?? '') ?></span><br />
             <span class="font-weight-bold"><?php echo xlt('Card Number'); ?>: </span><span id="ccn">
         <?php
-        if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
+        if ($session->has('authUserID') || isset($ccdata["transId"])) {
             echo text($ccdata["cardNumber"]) . "</span><br />";
         } elseif (strlen($ccdata["cardNumber"] ?? '') > 4) {
             echo "**********  " . text(substr((string) $ccdata["cardNumber"], -4)) . "</span><br />";
@@ -1267,7 +1047,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </div>
         <div>
         <?php
-        if (!isset($_SESSION['authUserID'])) {
+        if (!$session->has('authUserID')) {
             if (!isset($ccdata["cardHolderName"])) {
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
@@ -1329,33 +1109,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                         <div class="col-md-4">
                                             <select name="month" id="expMonth" class="form-control">
                                                 <option value=""><?php echo xlt('Select Month'); ?></option>
-                                                <option value="01"><?php echo xlt('January'); ?></option>
-                                                <option value="02"><?php echo xlt('February'); ?></option>
-                                                <option value="03"><?php echo xlt('March'); ?></option>
-                                                <option value="04"><?php echo xlt('April'); ?></option>
-                                                <option value="05"><?php echo xlt('May'); ?></option>
-                                                <option value="06"><?php echo xlt('June'); ?></option>
-                                                <option value="07"><?php echo xlt('July'); ?></option>
-                                                <option value="08"><?php echo xlt('August'); ?></option>
-                                                <option value="09"><?php echo xlt('September'); ?></option>
-                                                <option value="10"><?php echo xlt('October'); ?></option>
-                                                <option value="11"><?php echo xlt('November'); ?></option>
-                                                <option value="12"><?php echo xlt('December'); ?></option>
+                                                <?=$twig->render('forms/month_dropdown.html.twig')?>
                                             </select>
                                         </div>
                                         <div class="col-md-4">
                                             <select name="year" id="expYear" class="form-control">
                                                 <option value=""><?php echo xlt('Select Year'); ?></option>
-                                                <option value="2019">2019</option>
-                                                <option value="2020">2020</option>
-                                                <option value="2021">2021</option>
-                                                <option value="2022">2022</option>
-                                                <option value="2023">2023</option>
-                                                <option value="2024">2024</option>
-                                                <option value="2025">2025</option>
-                                                <option value="2026">2026</option>
-                                                <option value="2027">2027</option>
-                                                <option value="2028">2028</option>
+                                                <?=$twig->render('forms/exp_year_dropdown.html.twig')?>
                                             </select>
                                         </div>
                                         <div class="col-md-4">
@@ -1472,7 +1232,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
     </script>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && isset($_SESSION['patient_portal_onsite_two'])) {
+    <?php if ($globalsBag->get('payment_gateway') === 'AuthorizeNet' && $session->has('patient_portal_onsite_two')) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
@@ -1552,7 +1312,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </script>
     <?php }  // end authorize.net ?>
 
-    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && isset($_SESSION['patient_portal_onsite_two'])) { // Begin Include Stripe ?>
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
         <script>
             const stripe = Stripe(publicKey);
             const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
@@ -1639,7 +1399,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php } ?>
 
     <?php
-    if ($globalsBag->get('payment_gateway') === 'Sphere' && isset($_SESSION['patient_portal_onsite_two'])) {
+    if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     }
     ?>
