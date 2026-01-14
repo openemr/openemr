@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady@sparmy.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Tony McCormick <tony@mi-squared.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -65,9 +65,6 @@ use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Pdf\Config_Mpdf;
-
-$staged_docs = [];
-$archive_name = '';
 
 // For those who care that this is the patient report.
 $globalsBag->set('PATIENT_REPORT_ACTIVE', true);
@@ -752,129 +749,7 @@ foreach ($ar as $key => $val) {
     } else {
         // Documents is an array of checkboxes whose values are document IDs.
         //
-        if ($key == "documents") {
-            echo "<hr />";
-            echo "<div class='text documents'>";
-            foreach ($val as $valvalue) {
-                $document_id = $valvalue;
-                if (!is_numeric($document_id)) {
-                    continue;
-                }
-
-                $d = new Document($document_id);
-                $fname = basename((string) $d->get_name());
-                $extension = substr($fname, strrpos($fname, "."));
-                if (strtolower($extension) == '.zip' || strtolower($extension) == '.dcm') {
-                    continue;
-                }
-                echo "<h1>" . xlt('Document') . " '" . text($fname) . "-" . text($d->get_id()) . "'</h1>";
-
-                $notes = $d->get_notes();
-                if (!empty($notes)) {
-                    echo "<table>";
-                }
-
-                foreach ($notes as $note) {
-                    echo '<tr>';
-                    echo '<td>' . xlt('Note') . ' #' . text($note->get_id()) . '</td>';
-                    echo '</tr>';
-                    echo '<tr>';
-                    echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
-                    echo '</tr>';
-                    echo '<tr>';
-                    echo '<td>' . text($note->get_note()) . '<br /><br /></td>';
-                    echo '</tr>';
-                }
-
-                if (!empty($notes)) {
-                    echo "</table>";
-                }
-
-                if (in_array($extension, [".png", ".jpg", ".jpeg", ".gif"])) {
-                    if ($PDF_OUTPUT) {
-                        // OK to link to the image file because it will be accessed by the
-                        // mPDF parser and not the browser.
-                        $tempDocC = new C_Document();
-                        $tempDocC->onReturnRetrieveKey();
-                        $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                        // tmp file in ../documents/temp since need to be available via webroot
-                        $from_file_tmp_web_name = tempnam($globalsBag->getString('OE_SITE_DIR') . '/documents/temp', "oer");
-                        file_put_contents($from_file_tmp_web_name, $fileTemp);
-                        echo "<img src='$from_file_tmp_web_name'";
-                        // Flag images with excessive width for possible stylesheet action.
-                        $asize = getimagesize($from_file_tmp_web_name);
-                        if ($asize[0] > 750) {
-                            echo " class='bigimage'";
-                        }
-                        $tmp_files_remove[] = $from_file_tmp_web_name;
-                        echo " /><br /><br />";
-                    } else {
-                        echo "<img src='" . $globalsBag->getString('webroot') .
-                            "/controller.php?document&retrieve&patient_id=&document_id=" .
-                            attr_url($document_id) . "&as_file=false'><br /><br />";
-                    }
-                } else {
-                    // Most clinic documents are expected to be PDFs, and in that happy case
-                    // we can avoid the lengthy image conversion process.
-                    if ($PDF_OUTPUT && $extension == ".pdf") {
-                        echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
-                        $content = getContent();
-                        $pdf->writeHTML($content); // catch up with buffer.
-                        $err = '';
-                        try {
-                            $tempDocC = new C_Document();
-                            $tempDocC->onReturnRetrieveKey();
-                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                            // tmp file in temporary_files_dir
-                            $from_file_tmp_name = tempnam($globalsBag->getString('temporary_files_dir'), "oer");
-                            file_put_contents($from_file_tmp_name, $pdfTemp);
-
-                            $pagecount = $pdf->setSourceFile($from_file_tmp_name);
-                            for ($i = 0; $i < $pagecount; ++$i) {
-                                $pdf->AddPage();
-                                $itpl = $pdf->importPage($i + 1);
-                                $pdf->useTemplate($itpl);
-                            }
-                        } catch (Exception) {
-                            // chances are PDF is > v1.4 and compression level not supported.
-                            // regardless, we're here so lets dispose in different way.
-                            //
-                            unlink($from_file_tmp_name);
-                            $archive_name = ($globalsBag->getString('temporary_files_dir') . '/' . report_basename($pid)['base'] . ".zip");
-                            $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp);
-                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
-                            $pdf->writeHTML($err);
-                            $staged_docs[] = ['path' => $d->url, 'fname' => $fname];
-                        } finally {
-                            unlink($from_file_tmp_name);
-                            // Make sure whatever follows is on a new page. Maybe!
-                            // okay if not a series of pdfs so if so need @todo
-                            if (empty($err)) {
-                                $pdf->AddPage();
-                            }
-                            // Resume output buffering and the above-closed tags.
-                            ob_start();
-                            echo "<div><div class='text documents'>\n";
-                        }
-                    } else {
-                        if ($PDF_OUTPUT) {
-                            // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
-                            $tempDocC = new C_Document();
-                            $tempDocC->onReturnRetrieveKey();
-                            $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
-                            // tmp file in ../documents/temp since need to be available via webroot
-                            $from_file_tmp_web_name = tempnam($globalsBag->getString('OE_SITE_DIR') . '/documents/temp', "oer");
-                            file_put_contents($from_file_tmp_web_name, $fileTemp);
-                            echo "<img src='$from_file_tmp_web_name'><br /><br />";
-                            $tmp_files_remove[] = $from_file_tmp_web_name;
-                        } else {
-                            echo "<img src='" . $globalsBag->getString('webroot') . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
-                        }
-                    }
-                } // end if-else
-            } // end Documents loop
-            echo "</div>";
-        } elseif ($key == "procedures") { // Procedures is an array of checkboxes whose values are procedure order IDs.
+        if ($key == "procedures") { // Procedures is an array of checkboxes whose values are procedure order IDs.
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
@@ -1043,24 +918,7 @@ if ($PDF_OUTPUT) {
 
     if ($PDF_OUTPUT == 1) {
         try {
-            if (!empty($archive_name) && count($staged_docs) > 0) {
-                $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
-                header('Content-Description: File Transfer');
-                header('Content-Transfer-Encoding: binary');
-                header('Expires: 0');
-                header("Cache-control: private");
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header("Content-Type: application/zip; charset=utf-8");
-                header("Content-Length: " . filesize($archive_name));
-                header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
-
-                ob_end_clean();
-                @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
-
-                unlink($archive_name);
-            } else {
-                $pdf->Output($fn, $globalsBag->get('pdf_output')); // D = Download, I = Inline
-            }
+            $pdf->Output($fn, $globalsBag->get('pdf_output')); // D = Download, I = Inline
         } catch (Exception $exception) {
             die(text($exception));
         }
