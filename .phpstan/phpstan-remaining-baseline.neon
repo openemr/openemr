@@ -12580,6 +12580,10 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../interface/patient_file/report/custom_report.php
+    - message: '#^Variable \$from_file_tmp_name might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: ../interface/patient_file/report/custom_report.php
     - message: '#^Variable \$insurance_data_array might not be defined\.$#'
       identifier: variable.undefined
       count: 3
@@ -12597,6 +12601,10 @@ parameters:
       count: 7
       path: ../interface/patient_file/report/custom_report.php
     - message: '#^Variable \$tback might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: ../interface/patient_file/report/custom_report.php
+    - message: '#^Variable \$tmp_files_remove might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../interface/patient_file/report/custom_report.php
