@@ -17,7 +17,11 @@ $sessionAllowWrite = true;
 
 // Set site from query parameter for multi-site support
 $_GET['auth'] = 'portal';  // Enable site selection
-$_GET['site'] ??= 'default';
+
+if (empty($_GET['site'])) {
+    error_log('Fax site ID missing');
+    die;
+}
 
 require_once(__DIR__ . "/../../../../globals.php");
 
@@ -183,6 +187,11 @@ function downloadAndStoreFaxMedia(
     int $patientId = 0
 ): void {
     try {
+        // Validate mediaUrl to prevent SSRF attacks
+        if (!isValidSignalWireUrl($mediaUrl)) {
+            error_log("SignalWire Webhook: Invalid or unauthorized media URL: " . $mediaUrl);
+            return;
+        }
         // Get SignalWire credentials
         $vendor = '_signalwire';
         $credentials = QueryUtils::querySingleRow(
