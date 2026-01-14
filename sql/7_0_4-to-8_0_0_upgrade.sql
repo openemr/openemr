@@ -145,3 +145,7 @@ SET @seq = (SELECT `seq` FROM `layout_options` WHERE `form_id`='DEM' AND `field_
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `description`, `edit_options`)
 VALUES ('DEM', 'pronoun', @group_id, 'Pronouns', @seq, 1, 1, 0, 0, 'pronoun', 1, 1, 'Patient Pronouns', 'N');
 #EndIf
+
+#IfRow3D layout_options form_id DEM field_id sex_identified uor 2
+UPDATE `layout_options` SET `uor` = 1 WHERE `form_id` = 'DEM' AND `field_id` = 'sex_identified';
+#EndIf
