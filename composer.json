@@ -271,10 +271,10 @@
         "php-syntax-check": "git ls-files -z '*.inc' '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
         "phpcs": "php -d memory_limit=4g ./vendor/bin/phpcs --standard=ci/phpcs.xml .",
-        "phpstan": "php -d memory_limit=4g ./vendor/bin/phpstan analyze --configuration=phpstan.neon.dist",
+        "phpstan": "phpstan analyze --memory-limit=4G --configuration=phpstan.neon.dist",
         "phpstan-baseline": [
-            "phpstan --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline.php",
-            "split-phpstan-baseline .phpstan/baseline.php"
+            "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",
+            "split-phpstan-baseline .phpstan/baseline/loader.php"
         ],
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
