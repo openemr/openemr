@@ -2838,10 +2838,6 @@ parameters:
       path: ../src/Reminder/BirthdayReminder.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
       identifier: openemr.forbiddenGlobalsAccess
-      count: 13
-      path: ../src/RestControllers/Config/RestConfig.php
-    - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
-      identifier: openemr.forbiddenGlobalsAccess
       count: 1
       path: ../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php
     - message: '#^Direct access to \$GLOBALS is forbidden\. Use OEGlobalsBag\:\:getInstance\(\)\-\>get\(\) instead\.$#'
