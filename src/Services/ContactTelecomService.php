@@ -165,6 +165,7 @@ class ContactTelecomService extends BaseService
                 $contactTelecom->set_rank($telecom['rank'] ?? 1);
                 $contactTelecom->set_inactivated_reason($telecom['inactivated_reason'] ?? '');
                 $contactTelecom->set_contact_id($contactId);
+                $contactTelecom->set_is_primary($telecom['is_primary'] ?? '');
 
                 // Save the record
                 if ($contactTelecom->persist()) {
