@@ -36,4 +36,4 @@ jobs:
     - name: Run actionlint on all files
       run: |
         echo "Linting all Github Action workflow files in the repository..."
-        docker run --rm -v "$(pwd):/repo" --workdir /reop rhysd/actionlint -color
+        docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint -color
