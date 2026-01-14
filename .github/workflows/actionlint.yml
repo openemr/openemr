@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   actionlint:
-    name: Lint Github Action workflows
+    name: actionlint
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
