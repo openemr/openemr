@@ -1,0 +1,39 @@
+name: Github Actions Linting
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - '.github/workflows/*.yml'
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - '.github/workflows/*.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  actionlint:
+    name: Lint Github Action workflows
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Add problem matcher
+      run: |
+        echo "::add-matcher::.github/actionlint-matcher.json"
+
+    - name: Run actionlint on all files
+      run: |
+        echo "Linting all Github Action workflow files in the repository..."
+        docker run --rm -v "$(pwd):/repo" --workdir /reop rhysd/actionlint -color
