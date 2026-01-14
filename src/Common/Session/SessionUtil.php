@@ -313,13 +313,14 @@ class SessionUtil
 
     public static function setAppCookie(string $appType): void
     {
+        ['secure' => $secure] = session_get_cookie_params();
         setcookie(
             self::APP_COOKIE_NAME,
             $appType,
             [
                 'expires' => time() + 3600,
                 'path' => '/',
-                'secure' => true,
+                'secure' => $secure,
                 'httponly' => true,
                 'samesite' => Cookie::SAMESITE_STRICT
             ]
