@@ -7394,6 +7394,16 @@ VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248152002', ''),
        ('administrative_sex', 'asked-declined', 'Asked But Declined', 30, 'DataAbsentReason:asked-declined', ''),
        ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
 
+-- Insert pronoun list
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`) VALUES ('lists', 'pronoun', 'Pronouns', 0, 0, 0, '90778-2 (Personal pronouns - Reported): https://loinc.org/90778-2/', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'he_him', 'he/him/his/his/himself', 10, 0, 'LOINC:LA29518-0', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'she_her', 'she/her/her/hers/herself', 20, 0, 'LOINC:LA29519-8', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'they_them', 'they/them/their/theirs/themselves', 30, 0, 'LOINC:LA29520-6', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'ask_me', 'Ask me', 40, 0, 'LOINC:LA27285-7', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'decline', 'Decline to answer', 50, 0, 'LOINC:LA30265-7', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'other', 'Other', 60, 0, 'LOINC:LA46-8', 1);
+
+
 -- Add v3-ActPharmacySupplyType for tracking the supply type of drug dispensing
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity)
 VALUES ('lists','act_pharmacy_supply_type','Act Pharmacy Supply Type',0,0,0,'Codeset from valueset http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType (HL7 v3 ActCode)',1);
@@ -12388,16 +12398,6 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-20-29','Established Patient - 20-29 Minutes',140,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-30-39','Established Patient - 30-39 Minutes',140,0,1);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-40-54','Established Patient - 40-54 Minutes',150,0,1);
-
--- Insert pronoun list
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'pronoun', 'Pronouns', 1, 0, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'he_him', 'he/him/his/his/himself', 10, 0, 'LOINC:LA29518-0', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'she_her', 'she/her/her/hers/herself', 20, 0, 'LOINC:LA29519-8', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'they_them', 'they/them/their/theirs/themselves', 30, 0, 'LOINC:LA29520-6', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'ask_me', 'Ask me', 40, 0, 'LOINC:LA27285-7', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'decline', 'Decline to answer', 50, 0, 'LOINC:LA30265-7', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'other', 'Other', 60, 0, 'LOINC:LA46-8', 1);
-
 -- --------------------------------------------------------
 
 --

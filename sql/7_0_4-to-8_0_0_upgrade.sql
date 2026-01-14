@@ -122,7 +122,7 @@ ALTER TABLE `patient_data` ADD COLUMN `pronoun` VARCHAR(50) NOT NULL DEFAULT '';
 #EndIf
 
 #IfNotRow list_options list_id pronoun
-INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity) VALUES ('lists', 'pronoun', 'Pronouns', 1, 0, 1);
+INSERT INTO list_options (list_id, option_id, title, seq, is_default, option_value, notes, activity) VALUES ('lists', 'pronoun', 'Pronouns', 0, 0, 0, '90778-2 (Personal pronouns - Reported): https://loinc.org/90778-2/', 1);
 
 INSERT INTO list_options (list_id, option_id, title, seq, is_default, codes, activity) VALUES
    ('pronoun', 'he_him', 'he/him/his/his/himself', 10, 0, 'LOINC:LA29518-0', 1),
