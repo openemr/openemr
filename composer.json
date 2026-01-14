@@ -135,6 +135,7 @@
         "phpunit/phpunit": "^11.0",
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
+        "shipmonk/phpstan-baseline-per-identifier": "^2.3",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/panther": "^2.0"
     },
