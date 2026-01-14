@@ -133,6 +133,12 @@ INSERT INTO list_options (list_id, option_id, title, seq, is_default, codes, act
    ('pronoun', 'other', 'Other', 60, 0, 'LOINC:LA46-8', 1);
 #EndIf
 
+#IfRow3D layout_options form_id DEM field_id sex_identified conditions Sex
+SET @group_id =(SELECT `group_id` FROM layout_options WHERE field_id='sex_identified' AND form_id='DEM');
+SET @seq_sex_identified = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='sex_identified' AND form_id='DEM');
+UPDATE `layout_options` SET `seq` = @seq_sex_identified - 5, `titlecols` = 1, `datacols` = 3, edit_options` = '[\"N\"]', `fld_rows` = 0, `source` = 'F', `conditions` = '' WHERE `form_id` = 'DEM' AND `field_id` = 'sex_identified';
+#EndIf
+
 #IfNotRow2D layout_options form_id DEM field_id pronoun
 SET @group_id = (SELECT `group_id` FROM `layout_options` WHERE `form_id`='DEM' AND `field_id`='sex' LIMIT 1);
 SET @seq = (SELECT MAX(`seq`) FROM `layout_options` WHERE `form_id`='DEM' AND `group_id`=@group_id) + 10;
