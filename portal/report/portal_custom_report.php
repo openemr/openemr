@@ -571,9 +571,6 @@ if ($printable) {
 <?php } // end not printable ?>
 
 <?php
-if ($PDF_OUTPUT) {
-    $tmp_files_remove = [];
-}
 
 // For each form field from patient_report.php...
 //
@@ -922,10 +919,6 @@ if ($PDF_OUTPUT) {
         } catch (Exception $exception) {
             die(text($exception));
         }
-    }
-    foreach ($tmp_files_remove as $tmp_file) {
-        // Remove the tmp files that were created
-        unlink($tmp_file);
     }
 } else { ?>
 </body>
