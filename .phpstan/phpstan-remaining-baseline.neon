@@ -15936,19 +15936,11 @@ parameters:
       identifier: variable.undefined
       count: 1
       path: ../portal/report/portal_custom_report.php
-    - message: '#^Variable \$from_file_tmp_name might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/report/portal_custom_report.php
     - message: '#^Variable \$insurance_data_array might not be defined\.$#'
       identifier: variable.undefined
       count: 3
       path: ../portal/report/portal_custom_report.php
     - message: '#^Variable \$prevIssueType might not be defined\.$#'
-      identifier: variable.undefined
-      count: 1
-      path: ../portal/report/portal_custom_report.php
-    - message: '#^Variable \$tmp_files_remove might not be defined\.$#'
       identifier: variable.undefined
       count: 1
       path: ../portal/report/portal_custom_report.php

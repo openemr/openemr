@@ -8,7 +8,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady@sparmy.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -74,7 +74,6 @@ try {
     $data['issues'] = $portalPatientReportController->getIssues($ISSUE_TYPES, $pid);
     $data['encounters'] = $portalPatientReportController->getEncounters($pid);
     $data['procedureOrders'] = $portalPatientReportController->getProcedureOrders($pid);
-    $data['documents'] = $portalPatientReportController->getDocuments($pid);
     $data['phimail_enable'] = $globalsBag->get('phimail_enable') ?? false;
     $data['phimail_ccr_enable'] = $globalsBag->get('phimail_ccr_enable') ?? false;
     $data['phimail_ccd_enable'] = $globalsBag->get('phimail_ccd_enable') ?? false;
