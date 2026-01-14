@@ -135,7 +135,7 @@ INSERT INTO list_options (list_id, option_id, title, seq, is_default, codes, act
 
 #IfNotRow2D layout_options form_id DEM field_id pronoun
 SET @group_id = (SELECT `group_id` FROM `layout_options` WHERE `form_id`='DEM' AND `field_id`='sex' LIMIT 1);
-SET @seq = (SELECT MAX(`seq`) FROM `layout_options` WHERE `form_id`='DEM' AND `group_id`=@group_id) + 1;
+SET @seq = (SELECT MAX(`seq`) FROM `layout_options` WHERE `form_id`='DEM' AND `group_id`=@group_id) + 10;
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `description`, `edit_options`)
 VALUES ('DEM', 'pronoun', @group_id, 'Pronouns', @seq, 1, 1, 0, 0, 'pronoun', 1, 3, 'Patient Pronouns', '');
 #EndIf
