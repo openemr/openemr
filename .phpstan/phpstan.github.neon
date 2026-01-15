@@ -1,9 +1,6 @@
 includes:
   - extension.neon
-  - phpstan-database-baseline.neon
-  - phpstan-globals-baseline.neon
-  - phpstan-curl-baseline.neon
-  - phpstan-remaining-baseline.neon
+  - baseline/loader.php
 parameters:
   reportUnmatchedIgnoredErrors: true
   scanFiles:
