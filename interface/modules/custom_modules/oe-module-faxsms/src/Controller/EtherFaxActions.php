@@ -16,8 +16,11 @@ use Document;
 use Exception;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
 class EtherFaxActions extends AppDispatch
@@ -448,10 +451,11 @@ class EtherFaxActions extends AppDispatch
     {
         foreach ($recognized as $r) {
             $parse = $this->parseValidators($r->Fields) ?? [];
-            return sqlQuery(
+            $result = QueryUtils::querySingleRow(
                 "SELECT pid FROM patient_data WHERE fname = ? AND lname = ? AND DOB = ?",
                 [$parse['fname'] ?? '', $parse['lname'] ?? '', date("Y-m-d", strtotime($parse['DOB'] ?? ''))]
-            )['pid'] ?? 'No';
+            );
+            return $result['pid'] ?? 'No';
         }
         return 'No';
     }
@@ -744,8 +748,11 @@ class EtherFaxActions extends AppDispatch
     public function getUser(): string
     {
         $id = $this->getRequest('uid');
-        $result = sqlStatement("SELECT * FROM users WHERE id = ?", [$id]);
-        $user = sqlFetchArray($result);
+        $user = QueryUtils::querySingleRow("SELECT * FROM users WHERE id = ?", [$id]);
+
+        if (empty($user)) {
+            return json_encode([]);
+        }
 
         return json_encode([$user['fname'], $user['lname'], $user['fax'], $user['facility'], $user['email']]);
     }
@@ -760,8 +767,7 @@ class EtherFaxActions extends AppDispatch
 
         try {
             $query = "SELECT * FROM notification_log WHERE dSentDateTime > ? AND dSentDateTime < ?";
-            $result = sqlStatement($query, [$fromDate, $toDate]);
-            $rows = sqlFetchArray($result);
+            $rows = QueryUtils::fetchRecords($query, [$fromDate, $toDate]);
             $responseMsgs = '';
 
             foreach ($rows as $row) {
@@ -785,23 +791,108 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $faxDetails
-     * @return int
+     * Insert inbound fax into queue with document storage
+     *
+     * Uses FaxDocumentService for consistent document handling and patient matching.
+     *
+     * @param object $faxDetails EtherFax FaxResult object with fax details
+     * @return int Queue record ID
+     * @throws FaxDocumentException
      */
     public function insertFaxQueue($faxDetails): int
     {
-        $account = $this->credentials['account'];
-        $uid = $_SESSION['authUserID'];
-        $jobId = $faxDetails->JobId;
-        $to = $faxDetails->CalledNumber;
-        $from = $faxDetails->CallingNumber;
-        $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
-        $docType = $faxDetails->DocumentParams->Type;
-        $details_encoded = json_encode($faxDetails);
+        try {
+            $siteId = $_SESSION['site_id'] ?? 'default';
+            $jobId = $faxDetails->JobId ?? '';
+            $fromNumber = $faxDetails->CallingNumber ?? '';
+            $toNumber = $faxDetails->CalledNumber ?? '';
+            $docType = $faxDetails->DocumentParams->Type ?? 'application/pdf';
+            $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
+            $faxImage = $faxDetails->FaxImage ?? '';
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, ?)";
+            if (empty($jobId) || empty($fromNumber)) {
+                error_log("EtherFaxActions.insertFaxQueue(): Missing required fax data");
+                return 0;
+            }
 
-        return sqlInsert($sql, [$uid, $account, $jobId, $received, $from, $to, $docType, $details_encoded]);
+            // Decode binary fax content
+            $mediaContent = !empty($faxImage) ? base64_decode((string)$faxImage) : '';
+
+            // Initialize FaxDocumentService
+            $faxService = new FaxDocumentService($siteId);
+
+            // Attempt to match patient by phone number
+            $patientId = !empty($fromNumber) ? $faxService->findPatientByPhone($fromNumber) : 0;
+
+            // Store document via FaxDocumentService if we have content
+            $documentId = null;
+            $mediaPath = null;
+            if (!empty($mediaContent)) {
+                try {
+                    $result = $faxService->storeFaxDocument(
+                        $jobId,
+                        $mediaContent,
+                        $fromNumber,
+                        $patientId,
+                        $docType
+                    );
+                    $documentId = $result['document_id'];
+                    $mediaPath = $result['media_path'];
+                } catch (FaxDocumentException $e) {
+                    error_log("EtherFaxActions.insertFaxQueue(): Warning - Failed to store document: " . $e->getMessage());
+                    // Continue with queue insert even if document storage fails
+                }
+            }
+
+            // Build fax data
+            $uid = $_SESSION['authUserID'] ?? 0;
+            $account = $this->credentials['account'] ?? '';
+            $faxData = [
+                'JobId' => $jobId,
+                'from' => $fromNumber,
+                'to' => $toNumber,
+                'status' => 'received',
+                'direction' => 'inbound',
+                'type' => $docType,
+                'receivedOn' => $received
+            ];
+
+            // Insert into queue
+            $sql = "INSERT INTO oe_faxsms_queue 
+                    (uid, account, job_id, date, receive_date, calling_number, called_number, mime, details_json, status, direction, site_id, patient_id, document_id, media_path)
+                    VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            QueryUtils::sqlStatementThrowException($sql, [
+                $uid,
+                $account,
+                $jobId,
+                $received,
+                $fromNumber,
+                $toNumber,
+                $docType,
+                json_encode($faxData),
+                'received',
+                'inbound',
+                $siteId,
+                $patientId ?: null,
+                $documentId,
+                $mediaPath
+            ]);
+
+            // Get the inserted ID
+            $inserted = QueryUtils::querySingleRow(
+                "SELECT id FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ? ORDER BY date DESC LIMIT 1",
+                [$jobId, $siteId]
+            );
+
+            $recordId = $inserted['id'] ?? 0;
+            error_log("EtherFaxActions.insertFaxQueue(): Successfully stored fax {$jobId} (patient_id={$patientId}, document_id={$documentId})");
+
+            return (int)$recordId;
+        } catch (Exception $e) {
+            error_log("EtherFaxActions.insertFaxQueue(): ERROR - " . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -863,9 +954,13 @@ class EtherFaxActions extends AppDispatch
         }
 
         $rows = [];
-        $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
+        $siteId = $_SESSION['site_id'] ?? 'default';
+        $result = QueryUtils::fetchRecords(
+            "SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND site_id = ? AND (`receive_date` > ? AND `receive_date` < ?)",
+            [$siteId, $start, $end]
+        );
 
-        while ($row = sqlFetchArray($result)) {
+        foreach ($result as $row) {
             $detail = json_decode((string)$row['details_json']);
             if (json_last_error()) {
                 continue;
@@ -884,9 +979,16 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
-        $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$id]);
+        $siteId = $_SESSION['site_id'] ?? 'default';
+        $row = $jobId ? QueryUtils::querySingleRow(
+            "SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' AND site_id = ? ORDER BY `date` DESC LIMIT 1",
+            [$jobId, $siteId]
+        ) : QueryUtils::querySingleRow(
+            "SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' AND site_id = ? ORDER BY `date` DESC LIMIT 1",
+            [$id, $siteId]
+        );
         if (empty($row)) {
-            error_log("Fax not found or corrupt: " . text($jobId));
+            error_log("Fax not found or corrupt: " . text($jobId ?? $id));
             return [];
         }
         $detail = json_decode((string)$row['details_json']);
@@ -900,7 +1002,12 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchQueueCount(): int
     {
-        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
+        $siteId = $_SESSION['site_id'] ?? 'default';
+        $result = QueryUtils::querySingleRow(
+            "SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0 AND site_id = ?",
+            [$siteId]
+        );
+        return (int)($result['count'] ?? 0);
     }
 
     /**
@@ -909,7 +1016,12 @@ class EtherFaxActions extends AppDispatch
      */
     public function setFaxDeleted($jobId): bool
     {
-        return sqlQuery("UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ?", [$jobId]);
+        $siteId = $_SESSION['site_id'] ?? 'default';
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ? AND site_id = ?",
+            [$jobId, $siteId]
+        );
+        return true;
     }
 
     /**
