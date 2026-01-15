@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 /**
  * command-runner.php Handles the loading and running of OpenEMR commands that leverage the php namespaces.
