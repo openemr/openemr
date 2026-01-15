@@ -9,12 +9,26 @@ use OpenEMR\Common\Database\QueryUtils;
 class Recorder
 {
     /**
+     * Future scope:
+     * - Amounts to Money type
+     * - Codes to constants/enums
+     * - Improve timestamp handling (DB automatic or PSR Clock?)
+     *
      * @params array{
      *   patientId: string,
      *   encounterId: string,
+     *   codeType: string,
+     *   code: string,
+     *   modifier: string,
+     *   payerType: string,
+     *   postUser: string,
+     *   sessionId: string,
+     *   payAmount: string,
+     *   adjustmentAmount: string,
+     *   accountCode: string,
      * } $data
      */
-    private function recordActivity(array $data): void
+    public function recordActivity(array $data): void
     {
         $query = <<<'SQL'
             INSERT INTO `ar_activity`
@@ -37,6 +51,7 @@ class Recorder
             SQL;
         QueryUtils::inTransaction(function () use ($data) {
             ['patientId' => $patientId, 'encounterId' => $encounterId] = $data;
+            $now = date('Y-m-d H:i:s');
             $next = $this->getNextSequenceNumber(
                 patientId: $data['patientId'],
                 encounterId: $data['encounterId'],
@@ -46,6 +61,18 @@ class Recorder
                 $data['patientId'],
                 $data['encounterId'],
                 $next,
+                $data['codeType'],
+                $data['code'],
+                $data['modifier'],
+                $data['payerType'],
+                $now,
+                $data['postUser'],
+                $data['sessionId'],
+                $now,
+                $data['payAmount'],
+                $data['adjustmentAmount'],
+                $data['memo'],
+                $data['accountCode'],
             ];
             sqlStatement($query, $params);
         });
