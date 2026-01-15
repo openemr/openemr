@@ -317,7 +317,7 @@ class SessionUtil
             self::APP_COOKIE_NAME,
             $appType,
             [
-                'expires' => time() + 3600,
+                'expires' => time() + 31536000, // 1 year
                 'path' => '/',
                 'secure' => true,
                 'httponly' => true,
