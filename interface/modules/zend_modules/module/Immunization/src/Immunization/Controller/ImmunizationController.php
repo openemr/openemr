@@ -71,7 +71,7 @@ class ImmunizationController extends AbstractActionController
             $query_pids = '';
             $pid_bind_values = [];
             $pid_conditions = [];
-            
+
             foreach ($pid_arr as $pid_val) {
                 // Validate that pid_val is numeric or alphanumeric (no SQL special chars)
                 $pid_val = trim($pid_val);
@@ -84,7 +84,7 @@ class ImmunizationController extends AbstractActionController
                 $pid_bind_values[] = "%{$pid_val}%";
                 $pid_bind_values[] = "%{$pid_val}%";
             }
-            
+
             if (!empty($pid_conditions)) {
                 $query_pids = '(' . implode(' OR ', $pid_conditions) . ') AND ';
             }
@@ -97,7 +97,7 @@ class ImmunizationController extends AbstractActionController
             $query_codes = '';
             $code_bind_values = [];
             $valid_codes = [];
-            
+
             foreach ($form_code as $code) {
                 // Validate that code is an integer to prevent SQL injection
                 $code = trim((string) $code);
@@ -105,7 +105,7 @@ class ImmunizationController extends AbstractActionController
                     $valid_codes[] = (int)$code;
                 }
             }
-            
+
             if (!empty($valid_codes)) {
                 $placeholders = str_repeat('?,', count($valid_codes) - 1) . '?';
                 $query_codes = 'c.id IN (' . $placeholders . ') AND ';
@@ -217,7 +217,7 @@ class ImmunizationController extends AbstractActionController
                 $query_codes = '';
                 $code_bind_values = [];
                 $valid_codes = [];
-                
+
                 foreach ($form_code as $code) {
                     // Validate that code is an integer to prevent SQL injection
                     $code = trim((string) $code);
@@ -225,7 +225,7 @@ class ImmunizationController extends AbstractActionController
                         $valid_codes[] = (int)$code;
                     }
                 }
-                
+
                 if (!empty($valid_codes)) {
                     $placeholders = str_repeat('?,', count($valid_codes) - 1) . '?';
                     $query_codes = 'c.id IN (' . $placeholders . ') AND ';
@@ -241,7 +241,7 @@ class ImmunizationController extends AbstractActionController
                 $query_pids = '';
                 $pid_bind_values = [];
                 $pid_conditions = [];
-                
+
                 foreach ($pid_arr as $pid_val) {
                     // Validate that pid_val is numeric or alphanumeric (no SQL special chars)
                     $pid_val = trim($pid_val);
@@ -254,7 +254,7 @@ class ImmunizationController extends AbstractActionController
                     $pid_bind_values[] = "%{$pid_val}%";
                     $pid_bind_values[] = "%{$pid_val}%";
                 }
-                
+
                 if (!empty($pid_conditions)) {
                     $query_pids = '(' . implode(' OR ', $pid_conditions) . ') AND ';
                 }
