@@ -16,6 +16,7 @@
 
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\PaymentProcessing\Recorder;
 
 // Post a payment to the payments table.
 //
@@ -60,6 +61,7 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
 //Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
+    $r = new Recorder();
     $Affected = 'no';
     // watch for payments less than $1, thanks @snailwell
     if (!empty($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
