@@ -146,26 +146,22 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
     }
 
     if (!empty($_POST["Takeback$CountRow"]) && (floatval($_POST["Takeback$CountRow"] ?? null)) > 0) {
-         sqlBeginTrans();
-         $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-        sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '"     . $sequence_no['increment']  .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . trim(formData("Takeback$CountRow")) * -1  .
-        "', adj_amount = '"    . 0 .
-        "', account_code = '" . "Takeback"  .
-        "'");
-           sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => strval(floatval(trim(formData("Takeback$CountRow"))) * -1),
+            'adjustmentAmount' => '0',
+            'memo' => '',
+            'accountCode' => 'Takeback',
+        ]);
+
+        $Affected = 'yes';
     }
 
     if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"] == 'y') {
