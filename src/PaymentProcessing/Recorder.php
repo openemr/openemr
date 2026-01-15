@@ -14,7 +14,7 @@ class Recorder
      * - Codes to constants/enums
      * - Improve timestamp handling (DB automatic or PSR Clock?)
      *
-     * @params array{
+     * @param array{
      *   patientId: string,
      *   encounterId: string,
      *   codeType: string,
@@ -25,6 +25,7 @@ class Recorder
      *   sessionId: string,
      *   payAmount: string,
      *   adjustmentAmount: string,
+     *   memo: string,
      *   accountCode: string,
      * } $data
      */
@@ -50,7 +51,6 @@ class Recorder
                 `account_code` = ?
             SQL;
         QueryUtils::inTransaction(function () use ($data) {
-            ['patientId' => $patientId, 'encounterId' => $encounterId] = $data;
             $now = date('Y-m-d H:i:s');
             $next = $this->getNextSequenceNumber(
                 patientId: $data['patientId'],
