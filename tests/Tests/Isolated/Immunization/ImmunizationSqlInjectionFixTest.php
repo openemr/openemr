@@ -75,7 +75,7 @@ class ImmunizationSqlInjectionFixTest extends TestCase
         $patient_id = "123";
         
         // Simulate the fixed code logic
-        $pid_arr = explode(',', (string) $patient_id);
+        $pid_arr = explode(',', $patient_id);
         $query_pids = '';
         $pid_bind_values = [];
         $pid_conditions = [];
@@ -111,7 +111,7 @@ class ImmunizationSqlInjectionFixTest extends TestCase
         $maliciousPayload = "123') OR 1=1 --";
         
         // Simulate the fixed code logic
-        $pid_arr = explode(',', (string) $maliciousPayload);
+        $pid_arr = explode(',', $maliciousPayload);
         $query_pids = '';
         $pid_bind_values = [];
         $pid_conditions = [];
@@ -148,7 +148,7 @@ class ImmunizationSqlInjectionFixTest extends TestCase
         $mixedInput = "123,456') OR 1=1 --,789";
         
         // Simulate the fixed code logic
-        $pid_arr = explode(',', (string) $mixedInput);
+        $pid_arr = explode(',', $mixedInput);
         $query_pids = '';
         $pid_bind_values = [];
         $pid_conditions = [];
@@ -178,10 +178,8 @@ class ImmunizationSqlInjectionFixTest extends TestCase
     /**
      * Test empty patient_id handling
      */
-    public function testEmptyPatientId(): void
+    public function testEmptyPatientId($patient_id): void
     {
-        $patient_id = '';
-        
         // Simulate the fixed code logic
         if (empty($patient_id)) {
             $query_pids = '';
