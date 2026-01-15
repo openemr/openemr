@@ -1236,12 +1236,15 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Include Authorize.Net dependency to tokenize card.
         // Will return a token to use for payment request keeping
         // credit info off the server.
-        echo '<script src="portal_payment.authorizenet.js"></script>';
-    }
-    if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) {
-        // Begin Include Stripe
-        echo '<script src="portal_payment.stripe.js"></script>';
-    }
+        ?>
+        <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
+    <?php }  // end authorize.net ?>
+
+    <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
+        <script src="portal_payment.stripe.js?v=<?=$v_js_includes?>"></script>
+    <?php } ?>
+
+    <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     }
