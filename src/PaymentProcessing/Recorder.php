@@ -8,7 +8,13 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class Recorder
 {
-    private function recordActivity(string $patientId, string $encounterId): void
+    /**
+     * @params array{
+     *   patientId: string,
+     *   encounterId: string,
+     * } $data
+     */
+    private function recordActivity(array $data): void
     {
         $query = <<<'SQL'
             INSERT INTO `ar_activity`
@@ -29,8 +35,18 @@ class Recorder
                 `memo` = ?,
                 `account_code` = ?
             SQL;
-        QueryUtils::inTransaction(function () {
-            $next = $this->getNextSequenceNumber();
+        QueryUtils::inTransaction(function () use ($data) {
+            ['patientId' => $patientId, 'encounterId' => $encounterId] = $data;
+            $next = $this->getNextSequenceNumber(
+                patientId: $data['patientId'],
+                encounterId: $data['encounterId'],
+            );
+            // Sort into an order to match the query
+            $params = [
+                $data['patientId'],
+                $data['encounterId'],
+                $next,
+            ];
             sqlStatement($query, $params);
         });
     }
