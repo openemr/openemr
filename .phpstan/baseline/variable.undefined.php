@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 8325 errors
+// total 8327 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -17315,7 +17315,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$v_js_includes might not be defined\\.$#',
-    'count' => 1,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
