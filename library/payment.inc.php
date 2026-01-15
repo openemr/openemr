@@ -81,26 +81,21 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
             $AccountCode = "PP";
         }
 
-        sqlBeginTrans();
-        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-        sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '" . $sequence_no['increment'] .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . trim(formData("Payment$CountRow"))  .
-        "', adj_amount = '"    . 0 .
-        "', account_code = '" . "$AccountCode"  .
-        "'");
-          sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => trim(formData("Payment$CountRow")),
+            'adjustmentAmount' => '0',
+            'accountCode' => $AccountCode,
+        ]);
+
+        $Affected = 'yes';
     }
 
     if (!empty($_POST["AdjAmount$CountRow"]) && (floatval($_POST["AdjAmount$CountRow"] ?? null)) != 0) {
