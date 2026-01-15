@@ -92,6 +92,7 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
             'sessionId' => trim(formData('payment_id')),
             'payAmount' => trim(formData("Payment$CountRow")),
             'adjustmentAmount' => '0',
+            'memo' => '',
             'accountCode' => $AccountCode,
         ]);
 
