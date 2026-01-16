@@ -35,7 +35,7 @@ class FeeSheetHtml extends FeeSheet
   //
     public static function genProviderOptionList($toptext, $default = 0, $inactive = false)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $s = '';
         // Get user's default facility, or 0 if none.
         $drow = sqlQuery("SELECT facility_id FROM users where username = ?", [$session->get('authUser')]);

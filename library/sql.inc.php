@@ -20,7 +20,7 @@
 require_once(__DIR__ . "/sqlconf.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * Variables set by sqlconf.php or SqlConfigEvent
@@ -774,7 +774,7 @@ function sqlRollbackTrans(): void
  */
 function getPrivDB()
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (!isset($GLOBALS['PRIV_DB'])) {
         $secure_config = $GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php";
         if (file_exists($secure_config)) {

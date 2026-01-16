@@ -19,15 +19,15 @@ use OpenEMR\Core\OEGlobalsBag;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['cpid'])) {
         if ($_POST['cpid'] != $session->get('pid')) {
             echo "illegal Action";
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
@@ -37,13 +37,14 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
     // only support download handler from patient portal
     if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
         echo xlt("Not authorized");
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
+    SessionWrapperFactory::getInstance()->getActiveSession();
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -67,7 +68,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo $msg;
 }
 // confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

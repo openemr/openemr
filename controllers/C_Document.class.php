@@ -47,7 +47,7 @@ class C_Document extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
@@ -57,7 +57,7 @@ class C_Document extends Controller
 
         if (php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
-            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken('default', $session));
         }
 
         $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
@@ -159,7 +159,7 @@ class C_Document extends Controller
     //Upload multiple files on single click
     public function upload_action_process()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Collect a manually set owner if this has been set
         // Used when want to manually assign the owning user/service such as the Direct mechanism
         $non_HTTP_owner = false;
@@ -370,7 +370,7 @@ class C_Document extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $n = new Note();
         $n->set_owner($session->get('authUserID'));
         parent::populate_object($n);
@@ -444,11 +444,11 @@ class C_Document extends Controller
         global $ISSUE_TYPES;
 
         require_once(__DIR__ . "/../library/lists.inc.php");
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $d = new Document($doc_id);
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session));
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");
@@ -585,7 +585,7 @@ class C_Document extends Controller
      * */
     public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
@@ -1108,7 +1108,7 @@ class C_Document extends Controller
 
     public function list_action($patient_id = "")
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->_last_node = null;
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
@@ -1306,7 +1306,7 @@ class C_Document extends Controller
             die("process is '" . text($_POST['process']) . "', expected 'true'");
             return;
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Create Encounter and Tag it.
         $event_date = date('Y-m-d H:i:s');
         $encounter_id = $_POST['encounter_id'];
@@ -1415,7 +1415,7 @@ class C_Document extends Controller
 
     public function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", [$doc_id]);
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 
