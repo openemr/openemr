@@ -293,7 +293,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 {
     global $aNotes;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     // Check authorization.
     $thisauth = AclMain::aclCheckCore('patients', 'med');

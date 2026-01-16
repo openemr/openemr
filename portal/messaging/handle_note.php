@@ -20,14 +20,14 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['pid'])) {
         if ($_POST['pid'] != $session->get('pid')) {
             echo "illegal Action";
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
@@ -35,7 +35,7 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
     require_once(__DIR__ . "/../../interface/globals.php");
     if (empty($session->get('portal_username'))) {
         echo xlt("illegal Action");
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
     // owner is the patient portal_username
@@ -45,13 +45,13 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
     //   $_POST['sender_name'], if applicable
     if (empty($_POST['sender_id']) && !empty($_POST['sender_name'])) {
         echo xlt("illegal Action");
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
     if (!empty($_POST['sender_id'])) {
         if ($_POST['sender_id'] != $owner) {
             echo xlt("illegal Action");
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
@@ -59,12 +59,12 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
         $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$session->get('pid')]);
         if (empty($nameCheck) || ($_POST['sender_name'] != ($nameCheck['fname'] . " " . $nameCheck['lname']))) {
             echo xlt("illegal Action");
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!$session->has('authUserID') || empty($session->get('authUser'))) {
@@ -86,7 +86,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 // confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'messages-portal', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'messages-portal', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

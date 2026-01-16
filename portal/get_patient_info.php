@@ -26,7 +26,7 @@ if (empty(SessionUtil::getAppCookie())) {
     // Prevent error 500 in case of cleaning cookies and site data once when the login page is already loaded
     $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
 }
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 // regenerating the session id to avoid session fixation attacks
 $session->migrate(true);
@@ -279,7 +279,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
-        CsrfUtils::setupCsrfKey($session->getSymfonySession());
+        CsrfUtils::setupCsrfKey($session);
 
         $logit->portalLog('login', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
     } else {

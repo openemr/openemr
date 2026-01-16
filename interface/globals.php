@@ -234,11 +234,13 @@ $globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connect
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-if (session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
+if (!SessionWrapperFactory::getInstance()->isSessionActive()) {
     //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
-    SessionUtil::coreSessionStart($web_root, $read_only);
+//    SessionUtil::coreSessionStart($web_root, $read_only);
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
+} else {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 }
 
 // Set the site ID if required.  This must be done before any database
@@ -806,7 +808,7 @@ function strterm($string, $length)
 function UrlIfImageExists($filename, $append = true)
 {
     global $webserver_root, $web_root;
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $path = "sites/" . $session->get('site_id') . "/images/$filename";
     // @ in next line because a missing file is not an error.
     if ($stat = @stat("$webserver_root/$path")) {

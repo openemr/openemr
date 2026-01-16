@@ -19,12 +19,12 @@ require_once(__DIR__ . "/lib/appsql.class.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 $logit = new ApplicationTable();
 $logit->portalLog('logout', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
 
 //log out by killing the session
-SessionUtil::portalSessionCookieDestroy();
+SessionWrapperFactory::getInstance()->destroyPortalSession();
 
 //redirect to pretty login/logout page
 // $landingpage is defined in above verify_session.php script

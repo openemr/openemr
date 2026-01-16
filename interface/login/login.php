@@ -29,6 +29,7 @@
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -44,6 +45,8 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 
 SessionUtil::setAppCookie(SessionUtil::CORE_SESSION_ID);
+
+$session = SessionWrapperFactory::getInstance()->getCoreSession();
 
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
@@ -144,7 +147,9 @@ function getDefaultLanguage(): array
 function getLanguagesList(): array
 {
     global $globalsBag;
-    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $language_choice = $session->get('language_choice');
+    $mainLangID = empty($language_choice) ? '1' : $language_choice;
     $sql = "SELECT ll.lang_id, IF(LENGTH(ld.definition), ld.definition, ll.lang_description) AS trans_lang_description, ll.lang_description
         FROM lang_languages AS ll
         LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description
@@ -180,11 +185,11 @@ if ($globalsBag->get('login_into_facility')) {
 
 $defaultLanguage = getDefaultLanguage();
 $languageList = getLanguagesList();
-$_SESSION['language_choice'] = $defaultLanguage['id'];
+$session->set('language_choice', $defaultLanguage['id']);
 
-$relogin = (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) ? true : false;
+$relogin = $session->has('relogin') && $session->get('relogin') == 1;
 if ($relogin) {
-    unset($_SESSION["relogin"]);
+    $session->remove("relogin");
 }
 
 $t1 = $globalsBag->get('tiny_logo_1');
@@ -199,9 +204,9 @@ if ($t1 && !$t2) {
 }
 
 $cookie = '';
-if (session_name()) {
-    $sid = urlencode(session_id());
-    $sname = urlencode(session_name());
+if ($session) {
+    $sid = urlencode($session->getId());
+    $sname = urlencode($session->getName());
     $scparams = session_get_cookie_params();
     $domain = $scparams['domain'];
     $path = $scparams['path'];
@@ -218,7 +223,7 @@ if (session_name()) {
 }
 
 if ($_GET['testing_mode'] ?? 0 == 1) {
-    $_SESSION['testing_mode'] = 1;
+    $session->set('testing_mode', 1);
 }
 
 $viewArgs = [
@@ -228,7 +233,7 @@ $viewArgs = [
     'defaultLangName' => $defaultLanguage['language'],
     'languageList' => $languageList,
     'relogin' => $relogin,
-    'loginFail' => isset($_SESSION["loginfailure"]) && $_SESSION["loginfailure"] == 1,
+    'loginFail' => $session->has("loginfailure") && $session->get("loginfailure") == 1,
     'displayFacilities' => (bool)$globalsBag->get("login_into_facility"),
     'facilityList' => $facilities,
     'facilitySelected' => $facilitySelected,
@@ -241,10 +246,10 @@ $viewArgs = [
     'displayTagline' => $globalsBag->get('show_tagline_on_login'),
     'tagline' => $globalsBag->get('login_tagline_text'),
     'displayAck' => $globalsBag->get('display_acknowledgements_on_login'),
-    'hasSession' => (bool)session_name(),
+    'hasSession' => $session !== null,
     'cookieText' => $cookie,
     'regConstants' => json_encode(['webroot' => $globalsBag->get('webroot')]),
-    'siteID' => $_SESSION['site_id'],
+    'siteID' => $session->get('site_id'),
     'showLabels' => $globalsBag->get('show_labels_on_login_form'),
     'displayPrimaryLogo' => $globalsBag->get('show_primary_logo'),
     'primaryLogo'   => $primaryLogo,

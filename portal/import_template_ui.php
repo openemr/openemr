@@ -31,7 +31,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Service
 $eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();

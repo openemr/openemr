@@ -21,6 +21,7 @@ class HttpSessionFactory implements SessionFactoryInterface
     public const SESSION_TYPE_API = 'api';
 
     public const SESSION_TYPE_CORE = 'core';
+    public const SESSION_TYPE_PORTAL = 'portal';
     public const DEFAULT_SESSION_TYPE = self::SESSION_TYPE_OAUTH;
 
     /**
@@ -32,7 +33,7 @@ class HttpSessionFactory implements SessionFactoryInterface
 
     public function __construct(private HttpRestRequest $request, private string $web_root = "", $sessionType = self::DEFAULT_SESSION_TYPE, private bool $readOnly = false)
     {
-        if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE])) {
+        if (!in_array($sessionType, [self::SESSION_TYPE_OAUTH, self::SESSION_TYPE_API, self::SESSION_TYPE_CORE, self::SESSION_TYPE_PORTAL])) {
             throw new \InvalidArgumentException("Invalid session type: $sessionType");
         }
         $this->sessionType = $sessionType;
@@ -70,6 +71,7 @@ class HttpSessionFactory implements SessionFactoryInterface
             self::SESSION_TYPE_OAUTH => SessionConfigurationBuilder::forOAuth($this->web_root),
             self::SESSION_TYPE_API => SessionConfigurationBuilder::forApi($this->web_root),
             self::SESSION_TYPE_CORE => SessionConfigurationBuilder::forCore($this->web_root, $this->readOnly),
+            self::SESSION_TYPE_PORTAL => SessionConfigurationBuilder::forPortal(),
             default => throw new \InvalidArgumentException("Unknown session type: {$this->sessionType}"),
         };
     }
@@ -79,6 +81,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         return match ($this->sessionType) {
             self::SESSION_TYPE_OAUTH => SessionUtil::OAUTH_SESSION_ID,
             self::SESSION_TYPE_API => SessionUtil::API_SESSION_ID,
+            self::SESSION_TYPE_PORTAL => SessionUtil::PORTAL_SESSION_ID,
             default => SessionUtil::CORE_SESSION_ID,
         };
     }

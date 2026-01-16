@@ -20,16 +20,17 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Auth if core or portal.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 $isPortal = false;
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
 }
 
 require_once(__DIR__ . "/../../interface/globals.php");
@@ -38,7 +39,7 @@ require_once(__DIR__ . "/../documents.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\MessageService;
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'default', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

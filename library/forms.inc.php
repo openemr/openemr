@@ -136,7 +136,7 @@ function getFormNameByFormdir($formdir)
 
 function getDocumentsByEncounter($patientID = null, $encounterID = null)
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $allDocuments = null;
     $currentEncounter = $encounterID ?: $session->get('encounter');
     $currentPatient = $patientID ?: $session->get('pid');
