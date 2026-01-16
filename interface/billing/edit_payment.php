@@ -205,7 +205,7 @@ if (isset($_POST["mode"])) {
                         'postUser' => trim(add_escape_custom($user_id)),
                         'sessionId' => trim(formData('payment_id')),
                         'payAmount' => '0.0',
-                        'adjmentAmount' => trim(formData("AdjAmount$CountRow")),
+                        'adjustmentAmount' => trim(formData("AdjAmount$CountRow")),
                         'memo' => add_escape_custom($AdjustString),
                         'accountCode' => $AccountCode,
                     ]);
