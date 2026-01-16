@@ -339,7 +339,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         try {
             sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
             $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
@@ -578,7 +578,7 @@ class DocumentTemplateService extends QuestionnaireService
             throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $name = null;
         if (!empty($pid)) {
@@ -744,7 +744,7 @@ class DocumentTemplateService extends QuestionnaireService
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
         try {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             sqlQuery("DELETE FROM `document_template_profiles` WHERE `template_id` > 0");
             $rtn = false;
             foreach ($profiles_array as $profile_array) {
