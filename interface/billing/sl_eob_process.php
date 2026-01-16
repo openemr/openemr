@@ -621,8 +621,6 @@ function era_callback(array &$out): void
                             code: $codekey,
                             payer_type: substr($inslabel, 3),
                             reason: $reason,
-                            debug: $debug,
-                            time: '',
                             codetype: $codetype,
                         );
                     }
@@ -650,8 +648,6 @@ function era_callback(array &$out): void
                         code: $codekey,
                         payer_type: substr($inslabel, 3),
                         reason: "Adjust code " . $adj['reason_code'],
-                        debug: $debug,
-                        time: '',
                         codetype: $codetype,
                     );
                     $invoice_total -= $adj['amount'];
