@@ -29,6 +29,7 @@ require_once("$srcdir/payment.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\PaymentProcessing\Recorder;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Confirm Payment")]);
@@ -36,6 +37,8 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
 }
 
 $screen = 'edit_payment';
+
+$recorder = new Recorder();
 
 // Deletion of payment distribution code
 
@@ -158,28 +161,20 @@ if (isset($_POST["mode"])) {
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("UPDATE ar_activity SET deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment " .
-                        "FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', reason_code = '" . trim(formData("ReasonCode$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . trim(formData("Payment$CountRow")) .
-                        "', adj_amount = '" . 0 .
-                        "', account_code = '" . add_escape_custom($AccountCode) .
-                        "'");
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => trim(formData("HiddenPId$CountRow")),
+                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
+                        'code' => trim(formData("HiddenCode$CountRow")),
+                        'modifier' => trim(formData("HiddenModifier$CountRow")),
+                        'payerType' => trim(formData("HiddenIns$CountRow")),
+                        'reasonCode' => trim(formData("ReasonCode$CountRow")),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trim(formData('payment_id')),
+                        'payAmount' => trim(formData("Payment$CountRow")),
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => $AccountCode,
+                    ]);
                 } else {
                     sqlStatement("UPDATE ar_activity SET deleted = NOW() $where");
                 }

@@ -31,6 +31,7 @@ class Recorder
      *   accountCode: string,
      *   followUp?: true,
      *   followUpNote?: string,
+     *   reasonCode?: string,
      * } $data
      */
     public function recordActivity(array $data): void
@@ -53,8 +54,9 @@ class Recorder
                 `memo`,
                 `account_code`,
                 `follow_up`,
-                `follow_up_note`
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+                `follow_up_note`,
+                `reason_code`,
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
             SQL;
         QueryUtils::inTransaction(function () use ($query, $data) {
             $now = date('Y-m-d H:i:s');
@@ -81,6 +83,7 @@ class Recorder
                 $data['accountCode'],
                 $data['followUp'] ? 'y' : '',
                 $data['followUpNote'] ?? '',
+                $data['reasonCode'] ?? '',
             ];
             sqlStatement($query, $params);
         });
