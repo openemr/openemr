@@ -27,6 +27,8 @@ class Recorder
      *   adjustmentAmount: string,
      *   memo: string,
      *   accountCode: string,
+     *   followUp?: true,
+     *   FollowUpReason?: string,
      * } $data
      */
     public function recordActivity(array $data): void
@@ -48,7 +50,9 @@ class Recorder
                 `pay_amount` = ?,
                 `adj_amount` = ?,
                 `memo` = ?,
-                `account_code` = ?
+                `account_code` = ?,
+                `follow_up` = ?,
+                `follow_up_note` = ?,
             SQL;
         QueryUtils::inTransaction(function () use ($data) {
             $now = date('Y-m-d H:i:s');
@@ -73,6 +77,8 @@ class Recorder
                 $data['adjustmentAmount'],
                 $data['memo'],
                 $data['accountCode'],
+                $data['followUp'] ? 'y' : '',
+                $data['followUpNote'] ?? '',
             ];
             sqlStatement($query, $params);
         });
