@@ -54,7 +54,7 @@ class Recorder
                 `follow_up_note`
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
             SQL;
-        QueryUtils::inTransaction(function () use ($data) {
+        QueryUtils::inTransaction(function () use ($query, $data) {
             $now = date('Y-m-d H:i:s');
             $next = $this->getNextSequenceNumber(
                 patientId: $data['patientId'],
