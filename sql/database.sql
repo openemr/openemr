@@ -8457,7 +8457,7 @@ CREATE TABLE `patient_data` (
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `tribal_affiliations` TEXT,
   `sex_identified` TEXT COMMENT 'Patient reported current sex',
-  `pronoun` TEXT NOT NULL DEFAULT '',
+  `pronoun` TEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `idx_patient_name` (`lname`, `fname`),

@@ -118,7 +118,7 @@ CREATE INDEX `lang_cons` ON `lang_definitions` (`lang_id`, `cons_id`);
 #EndIf
 
 #IfMissingColumn patient_data pronoun
-ALTER TABLE `patient_data` ADD COLUMN `pronoun` TEXT NOT NULL DEFAULT '';
+ALTER TABLE `patient_data` ADD COLUMN `pronoun` TEXT;
 #EndIf
 
 #IfNotRow list_options list_id pronoun
