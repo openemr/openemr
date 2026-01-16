@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 24 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method pnHTML\\:\\:EndPage\\(\\) should return string but return statement is missing\\.$#',
@@ -62,6 +64,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_cache_file\\(\\) should return true\\|null but return statement is missing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_fetch\\(\\) should return string\\|null but return statement is missing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_checkboxes\\(\\) should return string but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
@@ -70,6 +82,11 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_radios\\(\\) should return string but return statement is missing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_math\\(\\) should return string\\|null but return statement is missing\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_function_popup_init\\(\\) should return string but return statement is missing\\.$#',

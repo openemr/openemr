@@ -1,0 +1,17 @@
+<?php declare(strict_types = 1);
+
+// total 2 errors
+
+$ignoreErrors = [];
+$ignoreErrors[] = [
+    'message' => '#^Comparison operation "\\>" between array and 0 results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/options.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Comparison operation "\\>" between OpenEMR\\\\Services\\\\Globals\\\\Effective and \\-1 results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
+];
+
+return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
