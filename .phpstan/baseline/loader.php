@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 19076 errors
+// total 19026 errors
 
 return ['includes' => [
     __DIR__ . '/arguments.count.php',
