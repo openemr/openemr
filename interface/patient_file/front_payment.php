@@ -355,49 +355,35 @@ if (!empty($_POST['form_save'])) {
                                 $amount = 0;
                             }
 
-                              sqlBeginTrans();
-                              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                              sqlStatement(
-                                  "insert into ar_activity set " .
-                                  "pid = ?" .
-                                  ", encounter = ?" .
-                                  ", sequence_no = ?" .
-                                  ", code_type = ?" .
-                                  ", code = ?" .
-                                  ", modifier = ?" .
-                                  ", payer_type = ?" .
-                                  ", post_time = now() " .
-                                  ", post_user = ?" .
-                                  ", session_id = ?" .
-                                  ", pay_amount = ?" .
-                                  ", adj_amount = ?" .
-                                  ", account_code = 'PP'",
-                                  [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
-                              );
-                              sqlCommitTrans();
+                            $recorder->recordActivity([
+                                'patientId' => $form_pid,
+                                'encounterId' => $enc,
+                                'codeType' => $Codetype,
+                                'code' => $Code,
+                                'modifier' => $Modifier,
+                                'payerType' => '0',
+                                'postUser' => $session->get('authUserID'),
+                                'sessionId' => $payment_id,
+                                'payAmount' => $insert_value,
+                                'adjustmentAmount' => '0.0',
+                                'accountCode' => 'PP',
+                            ]);
                         }//if
                     }//while
                     if ($amount != 0) {//if any excess is there.
-                              sqlBeginTrans();
-                                $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                                sqlStatement(
-                                    "insert into ar_activity set " .
-                                    "pid = ?" .
-                                    ", encounter = ?" .
-                                    ", sequence_no = ?" .
-                                    ", code_type = ?" .
-                                    ", code = ?" .
-                                    ", modifier = ?" .
-                                    ", payer_type = ?" .
-                                    ", post_time = now() " .
-                                    ", post_user = ?" .
-                                    ", session_id = ?" .
-                                    ", pay_amount = ?" .
-                                    ", adj_amount = ?" .
-                                    ", account_code = 'PP'",
-                                    [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
-                                );
-                                sqlCommitTrans();
+                        $recorder->recordActivity([
+                            'patientId' => $form_pid,
+                            'encounterId' => $enc,
+                            'codeType' => $Codetype,
+                            'code' => $Code,
+                            'modifier' => $Modifier,
+                            'payerType' => '0',
+                            'postUser' => $session->get('authUserID'),
+                            'sessionId' => $payment_id,
+                            'payAmount' => $amount,
+                            'adjustmentAmount' => '0.0',
+                            'accountCode' => 'PP',
+                        ]);
                     }
 
                     //--------------------------------------------------------------------------------------------------------------------
