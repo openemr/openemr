@@ -1659,29 +1659,20 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
         }
         $memo = formData('form_discount_type');
-        sqlBeginTrans();
-        $sequence_no = sqlQuery(
-            "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-            "pid = ? AND encounter = ?",
-            [$patient_id, $encounter_id]
-        );
-        $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
-            "post_date, session_id, memo, adj_amount " .
-            ") VALUES ( " .
-            "?, ?, ?, '', '', '0', ?, ?, ?, '0', ?, ? " .
-            ")";
-        sqlStatement($query, [
-            $patient_id,
-            $encounter_id,
-            $sequence_no['increment'],
-            $session->get('authUserID'),
-            $this_bill_date,
-            $postdate,
-            $memo,
-            $amount
+        $recorder = new Recorder();
+        $recorder->recordActivity([
+            'patientId' => $patient_id,
+            'encounterId' => $encounter_id,
+            'codeType' => '',
+            'code' => '',
+            'modifier' => '',
+            'payerType' => '0',
+            'postUser' => $session->get('authUserID'),
+            'sessionId' => '0',
+            'payAmount' => '0.0',
+            'adjustmentAmount' => $amount,
+            'memo' => $memo,
         ]);
-        sqlCommitTrans();
     }
 
     // Post the payments.
