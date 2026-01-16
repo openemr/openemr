@@ -59,13 +59,15 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -1613,31 +1615,19 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                 if ($memo === '') {
                     $memo = formData('form_discount_type');
                 }
-                sqlBeginTrans();
-                $sequence_no = sqlQuery(
-                    "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-                    "pid = ? AND encounter = ?",
-                    [$patient_id, $encounter_id]
-                );
-                $query = "INSERT INTO ar_activity ( " .
-                    "pid, encounter, sequence_no, code_type, code, modifier, payer_type, " .
-                    "post_user, post_time, post_date, session_id, memo, adj_amount " .
-                    ") VALUES ( " .
-                    "?, ?, ?, ?, ?, '', '0', ?, ?, ?, '0', ?, ? " .
-                    ")";
-                sqlStatement($query, [
-                    $patient_id,
-                    $encounter_id,
-                    $sequence_no['increment'],
-                    $code_type,
-                    $code,
-                    $session->get('authUserID'),
-                    $this_bill_date,
-                    $postdate,
-                    $memo,
-                    $adjust
+                $recorder = new Recorder();
+                $recorder->recordActivity([
+                    'patientId' => $patient_id,
+                    'encounterId' => $encounter_id,
+                    'codeType' => $code_type,
+                    'code' => $code,
+                    'modifier' => '',
+                    'payerType' => '0',
+                    'postUser' => $session->get('authUserID'),
+                    'sessionId' => '0',
+                    'memo' => $memo,
+                    'adjustmentAmount' => $adjust
                 ]);
-                sqlCommitTrans();
             }
         }
 
