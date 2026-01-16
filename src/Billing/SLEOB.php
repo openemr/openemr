@@ -111,8 +111,6 @@ class SLEOB
         $code,
         $payer_type,
         $memo,
-        $debug,
-        $time = '',
         $codetype = '',
         $date = null,
         $payer_claim_number = null

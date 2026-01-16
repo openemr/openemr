@@ -1696,8 +1696,6 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     '',
                     0,
                     $method,
-                    0,
-                    $this_bill_date,
                     '',
                     $postdate
                 );
