@@ -1627,7 +1627,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     'sessionId' => '0',
                     'memo' => $memo,
                     'payAmount' => '0.0',
-                    'adjustmentAmount' => $adjust
+                    'adjustmentAmount' => $adjust,
                     'postDate' => $postdate,
                 ]);
             }
