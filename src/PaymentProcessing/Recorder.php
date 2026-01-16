@@ -34,25 +34,25 @@ class Recorder
     public function recordActivity(array $data): void
     {
         $query = <<<'SQL'
-            INSERT INTO `ar_activity`
-            SET
-                `pid` = ?,
-                `encounter` = ?,
-                `sequence_no` = ?,
-                `code_type` = ?,
-                `code` = ?,
-                `modifier` = ?,
-                `payer_type` = ?,
-                `post_time` = ?,
-                `post_user` = ?,
-                `session_id` = ?,
-                `modified_time` = ?,
-                `pay_amount` = ?,
-                `adj_amount` = ?,
-                `memo` = ?,
-                `account_code` = ?,
-                `follow_up` = ?,
-                `follow_up_note` = ?,
+            INSERT INTO `ar_activity` (
+                `pid`,
+                `encounter`,
+                `sequence_no`,
+                `code_type`,
+                `code`,
+                `modifier`,
+                `payer_type`,
+                `post_time`,
+                `post_user`,
+                `session_id`,
+                `modified_time`,
+                `pay_amount`,
+                `adj_amount`,
+                `memo`,
+                `account_code`,
+                `follow_up`,
+                `follow_up_note`
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
             SQL;
         QueryUtils::inTransaction(function () use ($data) {
             $now = date('Y-m-d H:i:s');
