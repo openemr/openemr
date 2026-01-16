@@ -30,7 +30,7 @@ class Recorder
      *   memo: string,
      *   accountCode: string,
      *   followUp?: true,
-     *   FollowUpReason?: string,
+     *   followUpNote?: string,
      * } $data
      */
     public function recordActivity(array $data): void
