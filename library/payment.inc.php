@@ -62,7 +62,7 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $r = new Recorder();
-    $Affected = 'no';
+    $Affected = false;
     // watch for payments less than $1, thanks @snailwell
     if (!empty($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
         if (trim(formData('type_name')) == 'insurance') {
@@ -95,8 +95,7 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
             'memo' => '',
             'accountCode' => $AccountCode,
         ]);
-
-        $Affected = 'yes';
+        $Affected = true;
     }
 
     if (!empty($_POST["AdjAmount$CountRow"]) && (floatval($_POST["AdjAmount$CountRow"] ?? null)) != 0) {
@@ -122,8 +121,7 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
             'memo' => $AdjustString,
             'accountCode' => $AccountCode,
         ]);
-
-        $Affected = 'yes';
+        $Affected = true;
     }
 
     if (!empty($_POST["Deductible$CountRow"]) && (floatval($_POST["Deductible$CountRow"] ?? null)) > 0) {
@@ -141,8 +139,7 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
             'memo' => 'Deductible $' . trim(formData("Deductible$CountRow")),
             'accountCode' => 'Deduct',
         ]);
-
-        $Affected = 'yes';
+        $Affected = true;
     }
 
     if (!empty($_POST["Takeback$CountRow"]) && (floatval($_POST["Takeback$CountRow"] ?? null)) > 0) {
@@ -160,8 +157,7 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
             'memo' => '',
             'accountCode' => 'Takeback',
         ]);
-
-        $Affected = 'yes';
+        $Affected = true;
     }
 
     if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"] == 'y') {
@@ -181,11 +177,10 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
             'followUp' => true,
             'followUpNote' => trim(formData("FollowUpReason$CountRow")),
         ]);
-
-        $Affected = 'yes';
+        $Affected = true;
     }
 
-    if ($Affected == 'yes') {
+    if ($Affected) {
         if (trim(formData('type_name')) != 'patient') {
             $ferow = sqlQuery("select last_level_closed from form_encounter  where
 		pid ='" . trim(formData('hidden_patient_code')) . "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
