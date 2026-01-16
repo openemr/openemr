@@ -247,25 +247,19 @@ if (isset($_POST["mode"])) {
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = '" . trim(formData("HiddenPId$CountRow")) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
-                    sqlStatement("insert into ar_activity set " .
-                        "pid = '" . trim(formData("HiddenPId$CountRow")) .
-                        "', encounter = '" . trim(formData("HiddenEncounter$CountRow")) .
-                        "', sequence_no = '" . add_escape_custom($sequence_no['increment']) .
-                        "', code_type = '" . trim(formData("HiddenCodetype$CountRow")) .
-                        "', code = '" . trim(formData("HiddenCode$CountRow")) .
-                        "', modifier = '" . trim(formData("HiddenModifier$CountRow")) .
-                        "', payer_type = '" . trim(formData("HiddenIns$CountRow")) .
-                        "', post_time = '" . trim(add_escape_custom($created_time)) .
-                        "', post_user = '" . trim(add_escape_custom($user_id)) .
-                        "', session_id = '" . trim(formData('payment_id')) .
-                        "', modified_time = '" . trim(add_escape_custom($created_time)) .
-                        "', pay_amount = '" . trim(formData("Takeback$CountRow")) * -1 .
-                        "', adj_amount = '" . 0 .
-                        "', account_code = '" . "Takeback" .
-                        "'");
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => trim(formData("HiddenPId$CountRow")),
+                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
+                        'code' => trim(formData("HiddenCode$CountRow")),
+                        'modifier' => trim(formData("HiddenModifier$CountRow")),
+                        'payerType' => trim(formData("HiddenIns$CountRow")),
+                        'postUser' => trim(add_escape_custom($user_id)),
+                        'sessionId' => trim(formData('payment_id')),
+                        'payAmount' => strval(floatval(trim(formData("Takeback$CountRow"))) * -1),
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => "Takeback",
+                    ]);
                 } else {
                     sqlStatement("delete from ar_activity $where");
                 }
