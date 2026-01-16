@@ -40,7 +40,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 {
     global $attendant_type;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, [$tableName]) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
@@ -75,7 +75,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindingArray = [$session->get('pid'), $session->get('authProvider'), $session->get('authUser'), $authorized];
     $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
