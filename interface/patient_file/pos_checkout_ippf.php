@@ -1626,7 +1626,9 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
                     'postUser' => $session->get('authUserID'),
                     'sessionId' => '0',
                     'memo' => $memo,
+                    'payAmount' => '0.0',
                     'adjustmentAmount' => $adjust
+                    'postDate' => $postdate,
                 ]);
             }
         }
@@ -1672,6 +1674,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             'payAmount' => '0.0',
             'adjustmentAmount' => $amount,
             'memo' => $memo,
+            'postDate' => $postdate,
         ]);
     }
 
