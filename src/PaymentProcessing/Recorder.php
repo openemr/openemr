@@ -14,6 +14,8 @@ class Recorder
      * - Codes to constants/enums
      * - Improve timestamp handling (DB automatic or PSR Clock?)
      *
+     * payerType seems to be a number in [0-3]
+     *
      * @param array{
      *   patientId: string,
      *   encounterId: string,
