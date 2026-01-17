@@ -257,7 +257,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
-            die(var_export($session->all(), true));
+            die(var_export($session->getName(), true));
             die("Site ID is missing from session data!");
         }
 

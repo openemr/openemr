@@ -15,6 +15,7 @@ namespace OpenEMR\Services;
 
 use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -156,7 +157,8 @@ class PatientTransactionService extends BaseService
 
     public function insertTransaction($pid, $data)
     {
-        $user = $_SESSION['authUser'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUser');
         $sql =
         "
             INSERT INTO transactions SET

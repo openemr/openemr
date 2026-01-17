@@ -26,7 +26,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // make sure permissions are checked before we allow this page to be accessed.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {

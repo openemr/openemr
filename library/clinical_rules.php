@@ -63,7 +63,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
  */
 function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = ''): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -217,7 +217,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
  */
 function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '', $test = false)
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -302,7 +302,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
  */
 function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   // Collect allergies
     $sqlParam = [];
     $sqlParam[] = $patient_id;
