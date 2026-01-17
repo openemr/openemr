@@ -38,8 +38,6 @@ class RCFaxClient extends AppDispatch
     protected $rcsdk;
     protected CryptoGen $crypto;
 
-    private static $lastAuthAttempt = 0;
-    private static $authAttemptCount = 0;
     private const AUTH_RATE_LIMIT = 5; // Max attempts per minute
 
     public function __construct()
