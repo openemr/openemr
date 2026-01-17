@@ -25,7 +25,7 @@ class CoreFormToPortalUtility
     public static function isPatientPortalSession(?array $get): bool
     {
         if (isset($get['isPortal']) && (int)$get['isPortal'] !== 0) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $session = SessionWrapperFactory::getInstance()->getPortalSession();
             if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
                 // patient portal session is authenticated
                 return true;
