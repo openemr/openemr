@@ -22,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 
@@ -239,7 +239,7 @@ $patient_id = $_GET['patient_id'] ?: "";
         type: 'passive_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
       });
     });
 
@@ -250,7 +250,7 @@ $patient_id = $_GET['patient_id'] ?: "";
         type: 'active_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
       });
     });
 
@@ -261,7 +261,7 @@ $patient_id = $_GET['patient_id'] ?: "";
         type: 'normal',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
       });
     });
 

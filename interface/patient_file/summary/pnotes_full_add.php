@@ -23,7 +23,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc.php");
@@ -87,7 +87,7 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -207,7 +207,7 @@ function submitform(attr) {
             ?>
 
             <form class='border-0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
                 <div class="row">
                     <div class="col-12">
                         <h2 class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></h2>
@@ -312,7 +312,7 @@ function submitform(attr) {
 
             <form class='border-0' method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">

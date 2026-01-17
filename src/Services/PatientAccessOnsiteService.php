@@ -27,6 +27,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -59,8 +60,9 @@ class PatientAccessOnsiteService
 
     public function __construct()
     {
-        $this->authUser = $_SESSION['authUser'];
-        $this->authProvider = $_SESSION['authProvider'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->authUser = $session->get('authUser');
+        $this->authProvider = $session->get('authProvider');
         $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
         $this->logger = new SystemLogger();
@@ -76,8 +78,9 @@ class PatientAccessOnsiteService
      */
     public static function fetchUserSetting($label, $user = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sql = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ? ORDER BY setting_user LIMIT 1";
-        $user = (is_null($user) ? $_SESSION['authUserID'] ?? null : $user);
+        $user = (is_null($user) ? $session->get('authUserID') : $user);
         $rtn = sqlQueryNoLog($sql, [$user, $label]);
 
         return $rtn['setting_value'] ?? 0;
