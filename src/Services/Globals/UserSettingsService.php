@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services\Globals;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use function sqlStatement;
 use function sqlQuery;
 
@@ -22,7 +23,8 @@ class UserSettingsService
 // Set effective user - If no user id is provided, then use the currently logged in user
     public static function effectiveUser($user)
     {
-        return (is_null($user) ? $_SESSION['authUserID'] : $user);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return (is_null($user) ? $session->get('authUserID') : $user);
     }
 
     /**
