@@ -472,6 +472,6 @@ if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
 
 // Pass a unique token, so main.php script can not be run on its own
 $session->set('token_main_php', RandomGenUtils::createUniqueToken());
-header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($session->get('token_main_php')));
+header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode((string) $session->get('token_main_php')));
 exit();
 ?>
