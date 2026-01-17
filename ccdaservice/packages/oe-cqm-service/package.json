@@ -1,18 +1,22 @@
 {
   "dependencies": {
     "bluebird": "3.7.2",
+    "body-parser": "1.20.4",
     "compression": "1.8.1",
     "cqm-execution": "4.4.1",
     "cqm-models": "4.3.1",
     "express": "4.22.1",
     "logform": "1.10.0",
     "luxon": "1.28.1",
-    "mocha": "11.7.5",
     "oe-cqm-parsers": "openemr/oe-cqm-parsers#ecqm-v7.0.4",
     "regexp-clone": "1.2.0",
     "sliced": "1.0.1",
     "winston": "3.19.0"
   },
+  "devDependencies": {
+    "mocha": "^11.7.0"
+  },
+
   "deprecated": false,
   "license": "MIT",
   "main": "server.js",

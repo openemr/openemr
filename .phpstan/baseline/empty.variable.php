@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 101 errors
+// total 100 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -417,11 +417,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$subject in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$patient_id in empty\\(\\) always exists and is always falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Immunization/ImmunizationSqlInjectionFixTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -24,6 +24,7 @@ use OpenEMR\PaymentProcessing\Recorder;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
+$v_js_includes = $globalsBag->get('v_js_includes');
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $isPortal = false;
@@ -529,7 +530,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     </style>
     <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="portal_payment.js"></script>
+    <script src="portal_payment.js?v=<?=$v_js_includes?>"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
