@@ -19,7 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     AccessDeniedHelper::deny('Unauthorized access to onsite activity view');
@@ -31,7 +31,7 @@ $this->display('_FormsHeader.tpl.php');
 echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script>
-    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
+    let csrfToken = <?php echo js_url(CsrfUtils::collectCsrfToken('default', $session)); ?>;
     $LAB.script("<?php echo $globalsBag->getString('web_root'); ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $globalsBag->get('v_js_includes'); ?>").wait(function(){
         $(function () {
             actpage.init();

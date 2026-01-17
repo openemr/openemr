@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET['set_pid'])) {
     require_once($GLOBALS['srcdir'] . '/pid.inc.php');
@@ -107,7 +107,7 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -232,13 +232,13 @@ $(function () {
     // I can't find a reason to load this!
     /*$("#stats_div").load("stats.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
         }
     );*/
 
     $("#notes_div").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
         }
     );
 
@@ -286,7 +286,7 @@ function restoreSession() {
 <div class="container mt-3" id="pnotes"> <!-- large outer DIV -->
 
     <form method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
 
         <?php
         $title_docname = "";
@@ -404,7 +404,7 @@ function restoreSession() {
         <div id='inbox_div' class="table-responsive">
             <form method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session)); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">

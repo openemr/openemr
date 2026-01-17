@@ -21,7 +21,7 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 require_once("../globals.php");
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 # This is based on session array.
 $pid_list = [];

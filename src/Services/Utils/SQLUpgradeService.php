@@ -21,6 +21,7 @@ namespace OpenEMR\Services\Utils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
@@ -1094,9 +1095,11 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function clickOptionsMigrate()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id');
         // If the clickoptions.txt file exist, then import it.
-        if (file_exists(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
-            $file_handle = fopen(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
+        if (file_exists(__DIR__ . "/../sites/{$site_id}/clickoptions.txt")) {
+            $file_handle = fopen(__DIR__ . "/../sites/{$site_id}/clickoptions.txt", "rb");
             $seq = 10;
             $prev = '';
             $this->echo("Importing clickoption setting<br />");

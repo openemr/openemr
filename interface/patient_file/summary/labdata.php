@@ -43,7 +43,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Labs", xl("Labs"));
@@ -343,7 +343,7 @@ function checkAll(bx) {
                                                 track:  thetitle,
                                                 items:  theitem,
                                                 thecheckboxes: checkboxfake,
-                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
                                             },
                                         dataType: "json",
                                         success: function(returnData){

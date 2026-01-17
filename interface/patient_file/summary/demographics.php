@@ -70,7 +70,7 @@ use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
@@ -78,7 +78,7 @@ if (!isset($pid)) {
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
-OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
+$session->set('disablePreviousNameAdds', 0);
 
 $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
@@ -421,7 +421,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                 patient: <?php echo js_escape($pid); ?>
             });
             dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
@@ -457,7 +457,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 0,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
                 });
             } else {
                 $(target).find(".indicator").text(<?php echo xlj('collapse'); ?>);
@@ -465,7 +465,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 1,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
                 });
             }
         }
@@ -502,7 +502,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             let csrf = new FormData;
             // a security given.
-            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>);
             if (embedded === true) {
                 // special formatting in certain widgets.
                 csrf.append("embeddedScreen", true);
@@ -617,7 +617,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $(this).on("click", ".complete_btn", function () {
                     let btn = $(this);
                     let csrf = new FormData;
-                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>);
                     fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')), {
                         method: "POST",
                         credentials: 'same-origin',
@@ -657,7 +657,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 });
                 $(".cdr-rule-btn-info-launch").on("click", function (e) {
                     let pid = <?php echo js_escape($pid); ?>;
-                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
+                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>;
                     let ruleId = $(this).data("ruleId");
                     const params = new URLSearchParams({
                         action: 'review!view',
@@ -731,7 +731,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ORDER BY grp_seq, grp_title");
             while ($gfrow = sqlFetchArray($gfres)) { ?>
             $(<?php echo js_escape("#" . $gfrow['grp_form_id'] . "_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>, {
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>
             });
             <?php } ?>
             tabbify();
@@ -902,7 +902,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
             }
             let formData = new FormData();
-            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
             top.restoreSession();
@@ -2045,7 +2045,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
-                            'csrf' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),
+                            'csrf' => CsrfUtils::collectCsrfToken('default', $session),
                             'pid' => $pid
                         ]);
                     endif;
