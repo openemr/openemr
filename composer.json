@@ -175,7 +175,8 @@
     "autoload-dev": {
         "psr-4": {
             "OpenEMR\\PHPStan\\Rules\\": ".phpstan",
-            "OpenEMR\\Tests\\": "tests\\Tests"
+            "OpenEMR\\Tests\\": "tests\\Tests",
+            "OpenEMR\\Modules\\SSO\\": "interface/modules/custom_modules/oe-module-sso/src"
         }
     },
     "config": {
