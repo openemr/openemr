@@ -9,6 +9,7 @@
 namespace OpenEMR\Core;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\LogoService;
@@ -215,6 +216,9 @@ class Header
         $foundAssets = [];
         $excludedCount = 0;
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $language_direction = $session->get('language_direction');
+
         foreach ($map as $k => $opts) {
             $autoload = $opts['autoload'] ?? false;
             $alreadyBuilt = $opts['alreadyBuilt'] ?? false;
@@ -247,7 +251,7 @@ class Header
                     }
                 }
 
-                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($language_direction) && $language_direction == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;
