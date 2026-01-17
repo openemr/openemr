@@ -117,7 +117,7 @@ class SessionWrapperFactory
         $oeGlobals = OEGlobalsBag::getInstance();
         $request = HttpRestRequest::createFromGlobals();
         $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_CORE);
-        $sessionFactory->setUseExistingSessionBridge(true);
+//        $sessionFactory->setUseExistingSessionBridge(true);
         $this->activeSession = $sessionFactory->createSession();
         return $this->activeSession;
     }

@@ -22,7 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 $session->migrate(true);
 
 $session->remove('itsme');
@@ -41,7 +41,7 @@ if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->
 }
 
 // set up csrf
-CsrfUtils::setupCsrfKey($session->getSymfonySession());
+CsrfUtils::setupCsrfKey($session);
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [
     $globalsBag->get('language_default')
@@ -222,7 +222,7 @@ if ($globalsBag->get('language_menu_login')) {
         </div>
         <!-- // Start Forms // -->
         <form id="startForm" role="form" action="account.php?action=verify_email" method="post">
-            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf', $session->getSymfonySession())); ?>' />
+            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf', $session)); ?>' />
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="jumbotron">

@@ -36,7 +36,7 @@ use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
@@ -911,7 +911,7 @@ $(function () {
                 return xl("Report Unavailable");
             }
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                 encid: el.dataset.formenc,
                 formid: el.dataset.formid,
                 formname: el.dataset.formdir,

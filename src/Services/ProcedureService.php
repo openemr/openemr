@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -1203,9 +1204,10 @@ class ProcedureService extends BaseService
             return false;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Add updated_by and timestamp
         $updates[] = "updated_by = ?";
-        $params[] = $_SESSION['authUserID'] ?? null;
+        $params[] = $session->get('authUserID');
 
         $params[] = $specimenId;
 
