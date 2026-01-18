@@ -31,8 +31,6 @@
         <!-- Procedure Orders -->
         {% include "portal/partial/reports/patient_report/_procedure_orders.html.twig" with {procedureOrders: procedureOrders} %}
 
-        {% include "portal/partial/reports/patient_report/_documents.html.twig" with {documents: documents} %}
-
     </form>
     <input type="button" class="genreport" value="{{ 'Generate Report'|xla }}" />&nbsp;
     <input type="button" class="genpdfrep" value="{{ 'Download PDF'|xla }}" />&nbsp;
