@@ -29,7 +29,7 @@ class FaxDocumentService
     public function __construct(?string $siteId = null)
     {
         $globals = OEGlobalsBag::getInstance();
-        $this->siteId = $siteId ?? ($_SESSION['site_id'] ?? 'default');
+        $this->siteId = $siteId ?? $_SESSION['site_id'];
         $this->sitePath = $globals->get('OE_SITE_DIR') ?? ($globals->get('OE_SITES_BASE') . '/' . $this->siteId);
         $this->receivedFaxesPath = $this->sitePath . '/documents/received_faxes';
         
@@ -74,7 +74,7 @@ class FaxDocumentService
                 $categoryId = $categoryResult['id'] ?? 1;
                 
                 $formattedFrom = $this->formatPhoneDisplay($fromNumber);
-                $owner = $_SESSION['authUserID'] ?? 0;
+                $owner = $_SESSION['authUserID'];
                 
                 // Create and save document using OpenEMR's standard method
                 $document = new Document();
@@ -361,5 +361,106 @@ class FaxDocumentService
         }
         
         return 0;
+    }
+
+    /**
+     * Insert inbound fax into queue with document storage
+     *
+     * Uses FaxDocumentService for consistent document handling and patient matching.
+     *
+     * @param object $faxDetails EtherFax FaxResult object with fax details
+     * @param string $account Account identifier
+     * @param int $uid User ID
+     * @return int Queue record ID
+     * @throws FaxDocumentException
+     */
+    public function insertInboundFaxToQueue(object $faxDetails, string $account = '', int $uid = 0): int
+    {
+        try {
+            $jobId = $faxDetails->JobId ?? '';
+            $fromNumber = $faxDetails->CallingNumber ?? '';
+            $toNumber = $faxDetails->CalledNumber ?? '';
+            $docType = $faxDetails->DocumentParams->Type ?? 'application/pdf';
+            $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
+            $faxImage = $faxDetails->FaxImage ?? '';
+
+            if (empty($jobId) || empty($fromNumber)) {
+                error_log("FaxDocumentService.insertInboundFaxToQueue(): Missing required fax data");
+                return 0;
+            }
+
+            // Decode binary fax content
+            $mediaContent = !empty($faxImage) ? base64_decode((string)$faxImage) : '';
+
+            // Attempt to match patient by phone number
+            $patientId = !empty($fromNumber) ? $this->findPatientByPhone($fromNumber) : 0;
+
+            // Store document if we have content
+            $documentId = null;
+            $mediaPath = null;
+            if (!empty($mediaContent)) {
+                try {
+                    $result = $this->storeFaxDocument(
+                        $jobId,
+                        $mediaContent,
+                        $fromNumber,
+                        $patientId,
+                        $docType
+                    );
+                    $documentId = $result['document_id'];
+                    $mediaPath = $result['media_path'];
+                } catch (FaxDocumentException $e) {
+                    error_log("FaxDocumentService.insertInboundFaxToQueue(): Warning - Failed to store document: " . $e->getMessage());
+                    // Continue with queue insert even if document storage fails
+                }
+            }
+
+            // Build fax data
+            $faxData = [
+                'JobId' => $jobId,
+                'from' => $fromNumber,
+                'to' => $toNumber,
+                'status' => 'received',
+                'direction' => 'inbound',
+                'type' => $docType,
+                'receivedOn' => $received
+            ];
+
+            // Insert into queue
+            $sql = "INSERT INTO oe_faxsms_queue 
+                    (uid, account, job_id, date, receive_date, calling_number, called_number, mime, details_json, status, direction, site_id, patient_id, document_id, media_path)
+                    VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            QueryUtils::sqlStatementThrowException($sql, [
+                $uid,
+                $account,
+                $jobId,
+                $received,
+                $fromNumber,
+                $toNumber,
+                $docType,
+                json_encode($faxData),
+                'received',
+                'inbound',
+                $this->siteId,
+                $patientId ?: null,
+                $documentId,
+                $mediaPath
+            ]);
+
+            // Get the inserted ID
+            $inserted = QueryUtils::querySingleRow(
+                "SELECT id FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ? ORDER BY date DESC LIMIT 1",
+                [$jobId, $this->siteId]
+            );
+
+            $recordId = $inserted['id'] ?? 0;
+            error_log("FaxDocumentService.insertInboundFaxToQueue(): Successfully stored fax {$jobId} (patient_id={$patientId}, document_id={$documentId})");
+
+            return (int)$recordId;
+        } catch (\Exception $e) {
+            error_log("FaxDocumentService.insertInboundFaxToQueue(): ERROR - " . $e->getMessage());
+            throw new FaxDocumentException("Failed to insert inbound fax to queue: " . $e->getMessage(), 0, $e);
+        }
     }
 }

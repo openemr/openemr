@@ -793,7 +793,7 @@ class EtherFaxActions extends AppDispatch
     /**
      * Insert inbound fax into queue with document storage
      *
-     * Uses FaxDocumentService for consistent document handling and patient matching.
+     * Delegates to FaxDocumentService for consistent document handling and patient matching.
      *
      * @param object $faxDetails EtherFax FaxResult object with fax details
      * @return int Queue record ID
@@ -801,98 +801,12 @@ class EtherFaxActions extends AppDispatch
      */
     public function insertFaxQueue($faxDetails): int
     {
-        try {
-            $siteId = $_SESSION['site_id'] ?? 'default';
-            $jobId = $faxDetails->JobId ?? '';
-            $fromNumber = $faxDetails->CallingNumber ?? '';
-            $toNumber = $faxDetails->CalledNumber ?? '';
-            $docType = $faxDetails->DocumentParams->Type ?? 'application/pdf';
-            $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
-            $faxImage = $faxDetails->FaxImage ?? '';
+        $siteId = $_SESSION['site_id'];
+        $uid = $_SESSION['authUserID'];
+        $account = $this->credentials['account'] ?? '';
 
-            if (empty($jobId) || empty($fromNumber)) {
-                error_log("EtherFaxActions.insertFaxQueue(): Missing required fax data");
-                return 0;
-            }
-
-            // Decode binary fax content
-            $mediaContent = !empty($faxImage) ? base64_decode((string)$faxImage) : '';
-
-            // Initialize FaxDocumentService
-            $faxService = new FaxDocumentService($siteId);
-
-            // Attempt to match patient by phone number
-            $patientId = !empty($fromNumber) ? $faxService->findPatientByPhone($fromNumber) : 0;
-
-            // Store document via FaxDocumentService if we have content
-            $documentId = null;
-            $mediaPath = null;
-            if (!empty($mediaContent)) {
-                try {
-                    $result = $faxService->storeFaxDocument(
-                        $jobId,
-                        $mediaContent,
-                        $fromNumber,
-                        $patientId,
-                        $docType
-                    );
-                    $documentId = $result['document_id'];
-                    $mediaPath = $result['media_path'];
-                } catch (FaxDocumentException $e) {
-                    error_log("EtherFaxActions.insertFaxQueue(): Warning - Failed to store document: " . $e->getMessage());
-                    // Continue with queue insert even if document storage fails
-                }
-            }
-
-            // Build fax data
-            $uid = $_SESSION['authUserID'] ?? 0;
-            $account = $this->credentials['account'] ?? '';
-            $faxData = [
-                'JobId' => $jobId,
-                'from' => $fromNumber,
-                'to' => $toNumber,
-                'status' => 'received',
-                'direction' => 'inbound',
-                'type' => $docType,
-                'receivedOn' => $received
-            ];
-
-            // Insert into queue
-            $sql = "INSERT INTO oe_faxsms_queue 
-                    (uid, account, job_id, date, receive_date, calling_number, called_number, mime, details_json, status, direction, site_id, patient_id, document_id, media_path)
-                    VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            QueryUtils::sqlStatementThrowException($sql, [
-                $uid,
-                $account,
-                $jobId,
-                $received,
-                $fromNumber,
-                $toNumber,
-                $docType,
-                json_encode($faxData),
-                'received',
-                'inbound',
-                $siteId,
-                $patientId ?: null,
-                $documentId,
-                $mediaPath
-            ]);
-
-            // Get the inserted ID
-            $inserted = QueryUtils::querySingleRow(
-                "SELECT id FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ? ORDER BY date DESC LIMIT 1",
-                [$jobId, $siteId]
-            );
-
-            $recordId = $inserted['id'] ?? 0;
-            error_log("EtherFaxActions.insertFaxQueue(): Successfully stored fax {$jobId} (patient_id={$patientId}, document_id={$documentId})");
-
-            return (int)$recordId;
-        } catch (Exception $e) {
-            error_log("EtherFaxActions.insertFaxQueue(): ERROR - " . $e->getMessage());
-            throw $e;
-        }
+        $faxService = new FaxDocumentService($siteId);
+        return $faxService->insertInboundFaxToQueue($faxDetails, $account, $uid);
     }
 
     /**
@@ -954,7 +868,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         $rows = [];
-        $siteId = $_SESSION['site_id'] ?? 'default';
+        $siteId = $_SESSION['site_id'];
         $result = QueryUtils::fetchRecords(
             "SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND site_id = ? AND (`receive_date` > ? AND `receive_date` < ?)",
             [$siteId, $start, $end]
@@ -979,7 +893,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
-        $siteId = $_SESSION['site_id'] ?? 'default';
+        $siteId = $_SESSION['site_id'];
         $row = $jobId ? QueryUtils::querySingleRow(
             "SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' AND site_id = ? ORDER BY `date` DESC LIMIT 1",
             [$jobId, $siteId]
@@ -1002,7 +916,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchQueueCount(): int
     {
-        $siteId = $_SESSION['site_id'] ?? 'default';
+        $siteId = $_SESSION['site_id'];
         $result = QueryUtils::querySingleRow(
             "SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0 AND site_id = ?",
             [$siteId]
@@ -1016,7 +930,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function setFaxDeleted($jobId): bool
     {
-        $siteId = $_SESSION['site_id'] ?? 'default';
+        $siteId = $_SESSION['site_id'];
         QueryUtils::sqlStatementThrowException(
             "UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ? AND site_id = ?",
             [$jobId, $siteId]
