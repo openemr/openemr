@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 6138 errors
+// total 6136 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -9263,18 +9263,6 @@ $ignoreErrors[] = [
 Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function edi_generate_id\\(\\)\\:
-Use QueryUtils\\:\\:ediGenerateId\\(\\) instead$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function generate_id\\(\\)\\:
-Use QueryUtils\\:\\:generateId\\(\\) instead$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function sqlBeginTrans\\(\\)\\:
