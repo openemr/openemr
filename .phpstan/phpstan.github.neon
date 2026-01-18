@@ -1,5 +1,4 @@
 includes:
-  - extension.neon
   - baseline/loader.php
 parameters:
   reportUnmatchedIgnoredErrors: true

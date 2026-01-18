@@ -175,7 +175,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\PHPStan\\Rules\\": ".phpstan",
             "OpenEMR\\Tests\\": "tests\\Tests"
         }
     },
