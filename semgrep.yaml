@@ -1,0 +1,27 @@
+rules:
+  # OpenEMR-specific SQL functions with string concatenation
+  # These functions are unique to OpenEMR and not covered by p/php or p/security-audit
+  - id: openemr-sql-injection-sqlstatement
+    patterns:
+      - pattern: sqlStatement($QUERY, ...)
+      - pattern-not: sqlStatement("...", ...)
+      - metavariable-pattern:
+          metavariable: $QUERY
+          pattern-either:
+            - pattern: $X . $Y
+            - pattern: '"$X$Y"'
+    message: Potential SQL injection in sqlStatement() - use parameterized queries
+    languages: [php]
+    severity: ERROR
+  - id: openemr-sql-injection-sqlquery
+    patterns:
+      - pattern: sqlQuery($QUERY, ...)
+      - pattern-not: sqlQuery("...", ...)
+      - metavariable-pattern:
+          metavariable: $QUERY
+          pattern-either:
+            - pattern: $X . $Y
+            - pattern: '"$X$Y"'
+    message: Potential SQL injection in sqlQuery() - use parameterized queries
+    languages: [php]
+    severity: ERROR
