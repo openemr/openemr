@@ -16,11 +16,8 @@ use Document;
 use Exception;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
-use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
 class EtherFaxActions extends AppDispatch
@@ -451,11 +448,10 @@ class EtherFaxActions extends AppDispatch
     {
         foreach ($recognized as $r) {
             $parse = $this->parseValidators($r->Fields) ?? [];
-            $result = QueryUtils::querySingleRow(
+            return sqlQuery(
                 "SELECT pid FROM patient_data WHERE fname = ? AND lname = ? AND DOB = ?",
                 [$parse['fname'] ?? '', $parse['lname'] ?? '', date("Y-m-d", strtotime($parse['DOB'] ?? ''))]
-            );
-            return $result['pid'] ?? 'No';
+            )['pid'] ?? 'No';
         }
         return 'No';
     }
@@ -748,11 +744,8 @@ class EtherFaxActions extends AppDispatch
     public function getUser(): string
     {
         $id = $this->getRequest('uid');
-        $user = QueryUtils::querySingleRow("SELECT * FROM users WHERE id = ?", [$id]);
-
-        if (empty($user)) {
-            return json_encode([]);
-        }
+        $result = sqlStatement("SELECT * FROM users WHERE id = ?", [$id]);
+        $user = sqlFetchArray($result);
 
         return json_encode([$user['fname'], $user['lname'], $user['fax'], $user['facility'], $user['email']]);
     }
@@ -767,7 +760,8 @@ class EtherFaxActions extends AppDispatch
 
         try {
             $query = "SELECT * FROM notification_log WHERE dSentDateTime > ? AND dSentDateTime < ?";
-            $rows = QueryUtils::fetchRecords($query, [$fromDate, $toDate]);
+            $result = sqlStatement($query, [$fromDate, $toDate]);
+            $rows = sqlFetchArray($result);
             $responseMsgs = '';
 
             foreach ($rows as $row) {
@@ -791,22 +785,23 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * Insert inbound fax into queue with document storage
-     *
-     * Delegates to FaxDocumentService for consistent document handling and patient matching.
-     *
-     * @param object $faxDetails EtherFax FaxResult object with fax details
-     * @return int Queue record ID
-     * @throws FaxDocumentException
+     * @param $faxDetails
+     * @return int
      */
     public function insertFaxQueue($faxDetails): int
     {
-        $siteId = $_SESSION['site_id'];
+        $account = $this->credentials['account'];
         $uid = $_SESSION['authUserID'];
-        $account = $this->credentials['account'] ?? '';
+        $jobId = $faxDetails->JobId;
+        $to = $faxDetails->CalledNumber;
+        $from = $faxDetails->CallingNumber;
+        $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
+        $docType = $faxDetails->DocumentParams->Type;
+        $details_encoded = json_encode($faxDetails);
 
-        $faxService = new FaxDocumentService($siteId);
-        return $faxService->insertInboundFaxToQueue($faxDetails, $account, $uid);
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, ?)";
+
+        return sqlInsert($sql, [$uid, $account, $jobId, $received, $from, $to, $docType, $details_encoded]);
     }
 
     /**
@@ -868,13 +863,9 @@ class EtherFaxActions extends AppDispatch
         }
 
         $rows = [];
-        $siteId = $_SESSION['site_id'];
-        $result = QueryUtils::fetchRecords(
-            "SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND site_id = ? AND (`receive_date` > ? AND `receive_date` < ?)",
-            [$siteId, $start, $end]
-        );
+        $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
-        foreach ($result as $row) {
+        while ($row = sqlFetchArray($result)) {
             $detail = json_decode((string)$row['details_json']);
             if (json_last_error()) {
                 continue;
@@ -893,16 +884,9 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
-        $siteId = $_SESSION['site_id'];
-        $row = $jobId ? QueryUtils::querySingleRow(
-            "SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' AND site_id = ? ORDER BY `date` DESC LIMIT 1",
-            [$jobId, $siteId]
-        ) : QueryUtils::querySingleRow(
-            "SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' AND site_id = ? ORDER BY `date` DESC LIMIT 1",
-            [$id, $siteId]
-        );
+        $row = $jobId ? sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$jobId]) : sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `id` = ? AND `deleted` = '0' ORDER BY `date` DESC LIMIT 1", [$id]);
         if (empty($row)) {
-            error_log("Fax not found or corrupt: " . text($jobId ?? $id));
+            error_log("Fax not found or corrupt: " . text($jobId));
             return [];
         }
         $detail = json_decode((string)$row['details_json']);
@@ -916,12 +900,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchQueueCount(): int
     {
-        $siteId = $_SESSION['site_id'];
-        $result = QueryUtils::querySingleRow(
-            "SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0 AND site_id = ?",
-            [$siteId]
-        );
-        return (int)($result['count'] ?? 0);
+        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
     }
 
     /**
@@ -930,12 +909,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function setFaxDeleted($jobId): bool
     {
-        $siteId = $_SESSION['site_id'];
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ? AND site_id = ?",
-            [$jobId, $siteId]
-        );
-        return true;
+        return sqlQuery("UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ?", [$jobId]);
     }
 
     /**
