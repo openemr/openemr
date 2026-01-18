@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "115777c5b494aa28ef0863cc5d981e0f",
+    "content-hash": "5daaf536fdb381396b42eb72f142e834",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -13306,6 +13306,69 @@
             "time": "2026-01-04T08:39:50+00:00"
         },
         {
+            "name": "opencoreemr/openemr-phpstan-rules",
+            "version": "0.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/openCoreEMR/openemr-phpstan-rules.git",
+                "reference": "ba00b58ceb42e15633b61f32fb2158c7f4cbc0f3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/openCoreEMR/openemr-phpstan-rules/zipball/ba00b58ceb42e15633b61f32fb2158c7f4cbc0f3",
+                "reference": "ba00b58ceb42e15633b61f32fb2158c7f4cbc0f3",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^5.0",
+                "php": "^8.2",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "spaze/phpstan-disallowed-calls": "^4.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.42",
+                "phpunit/phpunit": "^11.0",
+                "rector/rector": "^2.0",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "OpenCoreEMR\\PHPStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Michael A. Smith",
+                    "email": "michael@opencoreemr.com"
+                }
+            ],
+            "description": "PHPStan rules for OpenEMR core and module development",
+            "keywords": [
+                "PHPStan",
+                "code-quality",
+                "openemr",
+                "static-analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/openCoreEMR/openemr-phpstan-rules/issues",
+                "source": "https://github.com/openCoreEMR/openemr-phpstan-rules/tree/0.9.0"
+            },
+            "time": "2026-01-18T00:07:58+00:00"
+        },
+        {
             "name": "opis/json-schema",
             "version": "2.6.0",
             "source": {
@@ -13779,6 +13842,53 @@
                 }
             ],
             "time": "2025-12-05T10:24:31+00:00"
+        },
+        {
+            "name": "phpstan/phpstan-deprecation-rules",
+            "version": "2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan-deprecation-rules.git",
+                "reference": "468e02c9176891cc901143da118f09dc9505fc2f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan-deprecation-rules/zipball/468e02c9176891cc901143da118f09dc9505fc2f",
+                "reference": "468e02c9176891cc901143da118f09dc9505fc2f",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0",
+                "phpstan/phpstan": "^2.1.15"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^9.6"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "rules.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan rules for detecting usage of deprecated classes, methods, properties, constants and traits.",
+            "support": {
+                "issues": "https://github.com/phpstan/phpstan-deprecation-rules/issues",
+                "source": "https://github.com/phpstan/phpstan-deprecation-rules/tree/2.0.3"
+            },
+            "time": "2025-05-14T10:56:57+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
@@ -15665,6 +15775,73 @@
             "time": "2025-12-08T10:45:21+00:00"
         },
         {
+            "name": "spaze/phpstan-disallowed-calls",
+            "version": "v4.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spaze/phpstan-disallowed-calls.git",
+                "reference": "0765102eeb154da8a3bcef3200375bb4297a2141"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spaze/phpstan-disallowed-calls/zipball/0765102eeb154da8a3bcef3200375bb4297a2141",
+                "reference": "0765102eeb154da8a3bcef3200375bb4297a2141",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0",
+                "phpstan/phpstan": "^1.12.6 || ^2.0"
+            },
+            "require-dev": {
+                "nette/neon": "^3.3.1",
+                "php-parallel-lint/php-console-highlighter": "^1.0",
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/phpstan-deprecation-rules": "^1.2 || ^2.0",
+                "phpunit/phpunit": "^8.5.14 || ^10.1 || ^11.0 || ^12.0",
+                "shipmonk/dead-code-detector": "^0.13.2",
+                "spaze/coding-standard": "^1.8"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spaze\\PHPStan\\Rules\\Disallowed\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michal Špaček",
+                    "email": "mail@michalspacek.cz",
+                    "homepage": "https://www.michalspacek.cz"
+                }
+            ],
+            "description": "PHPStan rules to detect disallowed method & function calls, constant, namespace, attribute & superglobal usages, with powerful rules to re-allow a call or a usage in places where it should be allowed.",
+            "keywords": [
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/spaze/phpstan-disallowed-calls/issues",
+                "source": "https://github.com/spaze/phpstan-disallowed-calls/tree/v4.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spaze",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-11-01T23:01:09+00:00"
+        },
+        {
             "name": "squizlabs/php_codesniffer",
             "version": "4.0.1",
             "source": {
@@ -16445,5 +16622,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
