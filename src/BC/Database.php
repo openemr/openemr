@@ -167,14 +167,6 @@ class Database
      */
     private function query(string $sql, array $bindings): Result
     {
-        // TODO: middleware for logging, performance metrics, etc.
-        // error_log($sql);
-
-        // $stmt = $this->connection->prepare($sql);
-        // foreach ($bindings as $i => $binding) {
-        //     // SQL bindings are 1-indexed, not 0-indexed like the input
-        //     $stmt->bindValue($i + 1, $binding);
-        // }
         return $this->conn->executeQuery($sql, $bindings);
     }
 
