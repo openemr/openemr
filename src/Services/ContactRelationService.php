@@ -728,7 +728,8 @@ class ContactRelationService extends BaseService
             'middle_name' => $patient['mname'] ?? '',
             'title' => $patient['title'] ?? '',
             'suffix' => $patient['suffix'] ?? '',
-            'birth_date' => $patient['DOB'] ?? '',
+            // birth date is expected to be in the format the frontend entered it so we have to convert it to an OpenEMR date
+            'birth_date' => DateFormatterUtils::oeFormatShortDate($patient['DOB'] ?? ''),
             'gender' => $patient['sex'] ?? '',
             'ssn' => $patient['ss'] ?? '',
             'email_direct' => $patient['email_direct'] ?? '',
