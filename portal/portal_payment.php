@@ -23,6 +23,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
+$v_js_includes = $globalsBag->get('v_js_includes');
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $isPortal = false;
@@ -532,7 +533,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     </style>
     <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="portal_payment.js"></script>
+    <script src="portal_payment.js?v=<?=$v_js_includes?>"></script>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
@@ -1237,165 +1238,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Will return a token to use for payment request keeping
         // credit info off the server.
         ?>
-        <script>
-            function sendPaymentDataToAnet(e) {
-                e.preventDefault();
-                const authData = {};
-                authData.clientKey = publicKey;
-                authData.apiLoginID = apiKey;
-
-                const cardData = {};
-                cardData.cardNumber = document.getElementById("cardNumber").value;
-                cardData.month = document.getElementById("expMonth").value;
-                cardData.year = document.getElementById("expYear").value;
-                cardData.cardCode = document.getElementById("cardCode").value;
-                cardData.fullName = document.getElementById("cardHolderName").value;
-                cardData.zip = document.getElementById("cczip").value;
-
-                const secureData = {};
-                secureData.authData = authData;
-                secureData.cardData = cardData;
-
-                Accept.dispatchData(secureData, acceptResponseHandler);
-
-                function acceptResponseHandler(response) {
-                    if (response.messages.resultCode === "Error") {
-                        let i = 0;
-                        let errorMsg = '';
-                        while (i < response.messages.message.length) {
-                            errorMsg = errorMsg + response.messages.message[i].code + ": " +response.messages.message[i].text;
-                            console.log(errorMsg);
-                            i = i + 1;
-                        }
-                        alert(errorMsg);
-                    } else {
-                        paymentFormUpdate(response.opaqueData);
-                    }
-                }
-            }
-
-            function paymentFormUpdate(opaqueData) {
-                // this is card tokenized
-                document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-                document.getElementById("dataValue").value = opaqueData.dataValue;
-                let oForm = document.forms['paymentForm'];
-                oForm.elements['mode'].value = "AuthorizeNet";
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-                document.getElementById("invValues").value = inv_values;
-
-                // empty out the fields before submitting to server.
-                document.getElementById("cardNumber").value = "";
-                document.getElementById("expMonth").value = "";
-                document.getElementById("expYear").value = "";
-                document.getElementById("cardCode").value = "";
-
-                // Submit payment to server
-                fetch('./lib/paylib.php', {
-                    method: 'POST',
-                    body: new FormData(oForm)
-                }).then(function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.text();
-                }).then(function(data) {
-                    if(data !== 'ok') {
-                        alert(data);
-                        return;
-                    }
-                    alert(chargeMsg);
-                    window.location.reload(false);
-                }).catch(function(error) {
-                    alert(error)
-                });
-            }
-        </script>
+        <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
 
     <?php if ($globalsBag->get('payment_gateway') === 'Stripe' && $session->has('patient_portal_onsite_two')) { // Begin Include Stripe ?>
-        <script>
-            const stripe = Stripe(publicKey);
-            const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
-            const style = {
-                base: {
-                    color: '#32325d',
-                    lineHeight: '1.2rem',
-                    fontSmoothing: 'antialiased',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: '#8e8e8e'
-                    }
-                },
-                invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a'
-                }
-
-            };
-            // Create an instance of the card Element.
-            const card = elements.create('card', {style: style});
-            // Add an instance of the card Element into the `card-element` <div>.
-            card.mount('#card-element');
-            // Handle real-time validation errors from the card Element.
-            card.addEventListener('change', function (event) {
-                let displayError = document.getElementById('card-errors');
-                if (event.error) {
-                    displayError.textContent = event.error.message;
-                } else {
-                    displayError.textContent = '';
-                }
-            });
-            // Handle form submission.
-            let form = document.getElementById('stripeSubmit');
-            form.addEventListener('click', function (event) {
-                event.preventDefault();
-                stripe.createToken(card).then(function (result) {
-                    if (result.error) {
-                        // Inform the user if there was an error.
-                        let errorElement = document.getElementById('card-errors');
-                        errorElement.textContent = result.error.message;
-                    } else {
-                        // Send the token to server.
-                        stripeTokenHandler(result.token);
-                    }
-                });
-            });
-            // Submit the form with the token ID.
-            function stripeTokenHandler(token) {
-                // Insert the token ID into the form so it gets submitted to the server
-                let oForm = document.forms['payment-form'];
-                oForm.elements['mode'].value = "Stripe";
-
-                let inv_values = JSON.stringify(getFormObj('invoiceForm'));
-                document.getElementById("invValues").value = inv_values;
-
-                let hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'stripeToken');
-                hiddenInput.setAttribute('value', token.id);
-                oForm.appendChild(hiddenInput);
-
-                // Submit payment to server
-                fetch('./lib/paylib.php', {
-                    method: 'POST',
-                    body: new FormData(oForm)
-                }).then(function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    return response.text();
-                }).then(function(data) {
-                    if(data !== 'ok') {
-                        alert(data);
-                        return;
-                    }
-                    alert(chargeMsg);
-                    window.location.reload(false);
-                }).catch(function(error) {
-                    alert(error)
-                });
-            }
-        </script>
+        <script src="portal_payment.stripe.js?v=<?=$v_js_includes?>"></script>
     <?php } ?>
 
     <?php

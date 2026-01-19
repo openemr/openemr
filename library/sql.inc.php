@@ -205,7 +205,7 @@ function sqlGetLastInsertId()
 {
     // Return the correct last id generated using function
     //   that is safe with the audit engine.
-    return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+    return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
 }
 
 /**
@@ -641,7 +641,7 @@ function HelpfulDie($statement, $sqlerr = ''): never
 
     echo "<h2><font color='red'>" . xlt('Query Error') . "</font></h2>";
 
-    if (!$GLOBALS['sql_string_no_show_screen'] ?? '') {
+    if (!($GLOBALS['sql_string_no_show_screen'] ?? '')) {
         echo "<p><font color='red'>ERROR:</font> " . text($statement) . "</p>";
     }
 
