@@ -124,4 +124,3 @@ $row = sqlQuery("select fname, lname " .
     </div>
 </body>
 </html>
-

@@ -666,6 +666,20 @@ $GLOBALS_METADATA = [
             xl('This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)')
         ],
 
+        'disable_translation' => [
+            xl('Disable Translation Engine'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Completely disable the translation engine. When enabled, xl() returns the input string unchanged. Use this for English-only deployments to eliminate translation overhead.')
+        ],
+
+        'translation_preload_cache' => [
+            xl('Preload Translation Cache'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Load all translations into memory at the start of each request. This uses more memory but eliminates database queries for translations, improving performance for sites with many translated strings.')
+        ],
+
         'translate_layout' => [
             xl('Translate Layouts'),
             'bool',                           // data type
@@ -2681,8 +2695,8 @@ $GLOBALS_METADATA = [
         'cqm_performance_period' => [
             xl('Eligible Clinician eCQM Performance Period'),
             'text',                           // data type
-            '2022', // default set
-            xl('Enter the eCQM Performance Period year. For example 2022')
+            '2025', // default set
+            xl('Enter the eCQM Performance Period year. For example 2025')
         ],
 
         'enable_amc' => [

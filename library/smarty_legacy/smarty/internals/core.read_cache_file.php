@@ -34,8 +34,8 @@ function smarty_core_read_cache_file(&$params, &$smarty)
 
     if (!empty($smarty->cache_handler_func)) {
         // use cache_handler function
-        call_user_func_array($smarty->cache_handler_func,
-                             ['read', &$smarty, &$params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], null]);
+        ($smarty->cache_handler_func)(
+                             'read', $smarty, $params['results'], $params['tpl_file'], $params['cache_id'], $params['compile_id'], null);
     } else {
         // use local cache file
         $_auto_id = $smarty->_get_auto_id($params['cache_id'], $params['compile_id']);

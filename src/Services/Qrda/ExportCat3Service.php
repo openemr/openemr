@@ -57,9 +57,13 @@ class ExportCat3Service
         $measureObjs = [];
         foreach ($measures as $measurePath) {
             $measure_arr = MeasureService::fetchMeasureJson($measurePath);
-            $measure = new Measure($measure_arr);
-            $measure->measure_path = $measurePath;
-            $measureObjs[] = $measure;
+            if (!empty($measure_arr)) {
+                $measure = new Measure($measure_arr);
+                $measure->measure_path = $measurePath;
+                $measureObjs[] = $measure;
+            } else {
+                (new SystemLogger())->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
+            }
         }
         // note that much of this function is following the logic in the cypress test suite
         // @see projectcypress/cypress.git lib/cypress/api_measure_evaluator.rb

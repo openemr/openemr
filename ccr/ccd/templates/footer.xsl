@@ -83,10 +83,10 @@ License :
 						</tr>
 					</tbody>
 				</table>
-			
+
 					</td>
 				</tr>
 			</tbody>
-		</table>		
+		</table>
 	</xsl:template>
 </xsl:stylesheet>

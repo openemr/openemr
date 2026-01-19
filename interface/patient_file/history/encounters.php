@@ -33,11 +33,14 @@ use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
-if (isset($_GET['pid']) && $_GET['pid'] != $_SESSION['pid']) {
+if (isset($_GET['pid']) && $_GET['pid'] != $session->get('pid')) {
     PatientSessionUtil::setPid($_GET['pid']);
 }
 // "issue" parameter exists if we are being invoked by clicking an issue title
@@ -69,7 +72,7 @@ if (($tmp['squad'] ?? null) && ! AclMain::aclCheckCore('squads', $tmp['squad']))
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .
-  "where id = ?", [$_SESSION['authUserID']]);
+  "where id = ?", [$session->get('authUserID')]);
 $billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing'])) {
     $billing_view = empty($_GET['billing']) ? 0 : 1;
@@ -184,7 +187,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
-<?php if ($_SESSION['language_direction'] == "rtl") { ?>
+<?php if ($session->get('language_direction') == "rtl") { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
 <?php } else { ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -222,7 +225,13 @@ function toencounter(rawdata) {
 }
 
 function todocument(docid) {
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?document&view&patient_id=<?php echo attr_url($pid); ?>&doc_id=' + encodeURIComponent(docid);
+  const params = new URLSearchParams({
+    doc_id: docid,
+    document: '',
+    patient_id: <?php echo js_escape($pid); ?>,
+    view: ''
+  });
+  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -238,7 +247,13 @@ function changePageSize() {
     issue = $(this).attr("issue");
     pagesize = $(this).val();
     top.restoreSession();
-    window.location.href = "encounters.php?billing=" + encodeURIComponent(billing) + "&issue=" + encodeURIComponent(issue) + "&pagestart=" + encodeURIComponent(pagestart) + "&pagesize=" + encodeURIComponent(pagesize);
+    const params = new URLSearchParams({
+        billing: billing,
+        issue: issue,
+        pagesize: pagesize,
+        pagestart: pagestart
+    });
+    window.location.href = "encounters.php?" + params;
 }
 
 window.onload = function() {
@@ -417,7 +432,7 @@ window.onload = function() {
                 $sqlBindArray[] = $pid;
             } else {
                 $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.group_id = ? ";
-                $sqlBindArray[] = $_SESSION['therapy_group'];
+                $sqlBindArray[] = $session->get('therapy_group');
             }
 
             $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
@@ -440,12 +455,12 @@ window.onload = function() {
 
 
             if (($pagesize > 0) && ($pagestart > 0)) {
-                generatePageElement($pagestart - $pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars((string) xl("Prev"), ENT_NOQUOTES) . " ");
+                generatePageElement($pagestart - $pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars(xl("Prev"), ENT_NOQUOTES) . " ");
             }
-            echo (($pagesize > 0) ? ($pagestart + 1) : "1") . "-" . $upper . " " . htmlspecialchars((string) xl('of'), ENT_NOQUOTES) . " " . $numRes;
+            echo (($pagesize > 0) ? ($pagestart + 1) : "1") . "-" . $upper . " " . htmlspecialchars(xl('of'), ENT_NOQUOTES) . " " . $numRes;
 
             if (($pagesize > 0) && ($pagestart + $pagesize <= $numRes)) {
-                generatePageElement($pagestart + $pagesize, $pagesize, $billing_view, $issue, " " . htmlspecialchars((string) xl("Next"), ENT_NOQUOTES) . "&rArr;");
+                generatePageElement($pagestart + $pagesize, $pagesize, $billing_view, $issue, " " . htmlspecialchars(xl("Next"), ENT_NOQUOTES) . "&rArr;");
             }
 
 
@@ -497,7 +512,7 @@ window.onload = function() {
                     $encounter_rows = 1;
                 if (
                     !$billing_view && $auth_sensitivity && $authPostCalendarCategory &&
-                        ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
+                        ($auth_notes_a || ($auth_notes && $result4['user'] == $session->get('authUser')))
                 ) {
                     $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
                     $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
@@ -575,7 +590,7 @@ window.onload = function() {
                         $formdir = $enc['formdir'];
                         if (
                             ($auth_notes_a) ||
-                            ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
+                            ($auth_notes && $enc['user'] == $session->get('authUser')) ||
                             ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))
                         ) {
                         } else {
@@ -646,7 +661,7 @@ window.onload = function() {
                     //this is where we print out the text of the billing that occurred on this encounter
                     $thisauth = $auth_coding_a;
                 if (!$thisauth && $auth_coding) {
-                    if ($result4['user'] == $_SESSION['authUser']) {
+                    if ($result4['user'] == $session->get('authUser')) {
                         $thisauth = $auth_coding;
                     }
                 }
@@ -895,11 +910,14 @@ $(function () {
             if (typeof el.dataset == 'undefined') {
                 return xl("Report Unavailable");
             }
-            let url = "encounters_ajax.php?ptid=" + encodeURIComponent(el.dataset.formpid) +
-                "&encid=" + encodeURIComponent(el.dataset.formenc) +
-                "&formname=" + encodeURIComponent(el.dataset.formdir) +
-                "&formid=" + encodeURIComponent(el.dataset.formid) +
-                "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const params = new URLSearchParams({
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                encid: el.dataset.formenc,
+                formid: el.dataset.formid,
+                formname: el.dataset.formdir,
+                ptid: el.dataset.formpid
+            });
+            let url = "encounters_ajax.php?" + params;
             let fetchedReport;
             $.ajax({
                 url: url,

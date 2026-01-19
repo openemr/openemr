@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
@@ -22,12 +23,11 @@ if (isset($_GET['portal_auth'])) {
 
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
-    $GLOBALS['already_autoloaded'] = true;
     require_once(__DIR__ . "/../vendor/autoload.php");
-    SessionUtil::portalSessionStart();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $pid = $_SESSION['pid'];
+    if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+        $pid = $session->get('pid');
         $ignoreAuth = true;
         global $ignoreAuth;
     } else {
@@ -391,7 +391,7 @@ if ($_POST['ccrAction']) {
     if (str_starts_with((string) $raw, "send")) {
         $send_to = trim(stripslashes(substr((string) $raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
-            echo(htmlspecialchars((string) xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
+            echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
 

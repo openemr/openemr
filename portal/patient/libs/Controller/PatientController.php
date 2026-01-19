@@ -10,6 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * import supporting libraries
  */
@@ -52,9 +56,11 @@ class PatientController extends AppBasePortalController
             $pid = (int) $_GET['pid'];
         }
 
+        $globalsBag = OEGlobalsBag::getInstance();
         // only allow patient to see themself
-        if (!empty($GLOBALS['bootstrap_pid'])) {
-            $pid = $GLOBALS['bootstrap_pid'];
+        $bootstrapPid = $globalsBag->get('bootstrap_pid');
+        if (!empty($bootstrapPid)) {
+            $pid = $bootstrapPid;
         }
 
         if (isset($_GET['user'])) {
@@ -70,7 +76,7 @@ class PatientController extends AppBasePortalController
         }
 
         // force register to pid of 0 and register of true
-        if (!empty($GLOBALS['bootstrap_register'])) {
+        if (!empty($globalsBag->get('bootstrap_register'))) {
             $pid = 0;
             $register = true;
         }
@@ -140,12 +146,14 @@ class PatientController extends AppBasePortalController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
+            $globalsBag = OEGlobalsBag::getInstance();
             // only allow patient to see themself
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                $pid = $GLOBALS['bootstrap_pid'];
+            $bootstrapPid = $globalsBag->get('bootstrap_pid');
+            if (!empty($bootstrapPid)) {
+                $pid = $bootstrapPid;
             }
             // force register to pid of 0
-            if (!empty($GLOBALS['bootstrap_register'])) {
+            if (!empty($globalsBag->get('bootstrap_register'))) {
                 $pid = 0;
             }
 
@@ -192,15 +200,16 @@ class PatientController extends AppBasePortalController
     public function Create()
     {
         try {
+            $session = SessionWrapperFactory::getInstance()->getWrapper();
             $json = json_decode(RequestUtil::GetBody());
             if (empty($json)) {
                 throw new Exception('The request body does not contain valid JSON');
             }
-            if ($_SESSION['pid'] !== true && $_SESSION['register'] !== true) {
+            if ($session->get('pid') !== true && $session->get('register') !== true) {
                 throw new Exception('Unauthorized');
             }
 
-            if (empty($_SESSION['fnameRegistration']) || empty($_SESSION['lnameRegistration']) || empty($_SESSION['dobRegistration']) || empty($_SESSION['emailRegistration']) || empty($_SESSION['token_id_holder'])) {
+            if (empty($session->get('fnameRegistration')) || empty($session->get('lnameRegistration')) || empty($session->get('dobRegistration')) || empty($session->get('emailRegistration')) || empty($session->get('token_id_holder'))) {
                 throw new Exception('Something went wrong');
             }
 
@@ -208,20 +217,20 @@ class PatientController extends AppBasePortalController
             $result = sqlQueryNoLog("select max(`pid`)+1 as `pid` from `patient_data`");
             $pidRegistration = empty($result['pid']) ? 1 : $result['pid'];
             // store the pid so can use for other registration elements inserted later (such as insurance)
-            sqlStatementNoLog("UPDATE `verify_email` SET `pid_holder` = ? WHERE `id` = ?", [$pidRegistration , $_SESSION['token_id_holder']]);
+            sqlStatementNoLog("UPDATE `verify_email` SET `pid_holder` = ? WHERE `id` = ?", [$pidRegistration , $session->get('token_id_holder')]);
 
             $patient = new Patient($this->Phreezer);
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
             $patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
             //$patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
-            $patient->Fname = $_SESSION['fnameRegistration'];
+            $patient->Fname = $session->get('fnameRegistration');
             //$patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
-            $patient->Lname = $_SESSION['lnameRegistration'];
+            $patient->Lname = $session->get('lnameRegistration');
             //$patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
-            $patient->Mname = $_SESSION['mnameRegistration'];
+            $patient->Mname = $session->get('mnameRegistration');
             //$patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
-            $patient->Dob = $_SESSION['dobRegistration'];
+            $patient->Dob = $session->get('dobRegistration');
             $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
             $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
             $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
@@ -244,7 +253,7 @@ class PatientController extends AppBasePortalController
             $patient->Providerid = $this->SafeGetVal($json, 'providerid', $patient->Providerid);
             $patient->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $patient->RefProviderid);
             //$patient->Email = $this->SafeGetVal($json, 'email', $patient->Email);
-            $patient->Email = $_SESSION['emailRegistration'];
+            $patient->Email = $session->get('emailRegistration');
             //$patient->EmailDirect = $this->SafeGetVal($json, 'emailDirect', $patient->EmailDirect);
             $patient->Ethnoracial = $this->SafeGetVal($json, 'ethnoracial', $patient->Ethnoracial);
             $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
@@ -391,6 +400,7 @@ class PatientController extends AppBasePortalController
     }
     public function CloseAudit($p)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {
@@ -404,7 +414,7 @@ class PatientController extends AppBasePortalController
             $audit['narrative'] = "Changes reviewed and commited to demographics.";
             $audit['table_action'] = "update";
             $audit['table_args'] = $ja;
-            $audit['action_user'] = $_SESSION['authUserID'] ?? "0";
+            $audit['action_user'] = $session->get('authUserID', "0");
             $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
             // returns false for new audit

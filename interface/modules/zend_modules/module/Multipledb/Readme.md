@@ -1,6 +1,6 @@
 #Multiple Databases Module
 
-This module allows you to have multiple databases that your zend modules can read / write to.  This can be used for clustering, single master, multi-read strategy, sharding, or aggregating multiple databases.  
+This module allows you to have multiple databases that your zend modules can read / write to.  This can be used for clustering, single master, multi-read strategy, sharding, or aggregating multiple databases.
 
 Each database
 that you want to read to / write from must be associated with a unique namespace name.  For example if you were clustering
@@ -29,8 +29,8 @@ Then you can access these named adapters in your code by injecting them in your 
         'factories' => array(
             SomeModuleClass::class =>  function(ContainerInterface $container, $requestedName) {
                 // note we don't use the ::class modifier here as the class may not actually exist but is a placeholder.
-                $dbReader = $container->get('OpenEMR\Modules\Db\ReadAdapter'); 
-                $dbWriter = $container->get('OpenEMR\Modules\Db\WriteAdapter'); 
+                $dbReader = $container->get('OpenEMR\Modules\Db\ReadAdapter');
+                $dbWriter = $container->get('OpenEMR\Modules\Db\WriteAdapter');
                 /**
                  * the constructor for SomeModuleClass would have the signature of
                  * public function __construct(Laminas\Db\Adapter\Adapter $dbReader, Laminas\Db\Adapter\Adapter $dbWriter) {}

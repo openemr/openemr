@@ -53,7 +53,7 @@ try {
         $relatedEntityRecords = $relationService->getRelationshipsWithDetails($ownerContactId, true);
 
         // Filter to only person targets
-        $relatedPersonRecords = array_filter($relatedEntityRecords, fn($rel) => isset($rel['target_table']) && $rel['target_table'] === 'person');
+        $relatedPersonRecords = array_filter($relatedEntityRecords, static fn($rel): bool => isset($rel['target_table']) && $rel['target_table'] === 'person');
 
         // Transfer records to an array
         foreach ($relatedPersonRecords as $record) {
@@ -77,7 +77,7 @@ try {
                 'target_id' => $targetId,
                 'target_contact_id' => $targetContactId,
                 'first_name' => $record['first_name'] ?? '',
-                'middle_name' => $record['middle_name'] ?? '',   
+                'middle_name' => $record['middle_name'] ?? '',
                 'last_name' => $record['last_name'] ?? '',
                 'gender' => $record['gender'] ?? '',
                 'birth_date' => $record['birth_date'] ?? '',
@@ -91,7 +91,8 @@ try {
                 'active' => $record['active'] ?? true,
                 'start_date' => $record['start_date'] ?? '',
                 'end_date' => $record['end_date'] ?? '',
-                'notes' => $record['notes'] ?? '',
+                // we don't want the person notes, but the notes on the relationship
+                'notes' => $record['relation_notes'] ?? '',
                 'addresses' => [],
                 'telecoms' => []
             ];
@@ -114,7 +115,10 @@ try {
                         'country' => $addr['country'] ?? '',
                         'district' => $addr['district'] ?? '',
                         'status' => $addr['status'] ?? 'A',
-                        'is_primary' => $addr['is_primary'] ?? 'N'
+                        'is_primary' => $addr['is_primary'] ?? 'N',
+                        'notes' => $addr['notes'] ?? '',
+                        'period_start' => $addr['period_start'] ?? date('Y-m-d H:i:s'),
+                        'period_end' => $addr['period_end'] ?? null, // null means no end date
                     ];
                 }
 
@@ -130,6 +134,8 @@ try {
                         'rank' => $telecom['rank'] ?? 1,
                         'status' => $telecom['status'] ?? 'A',
                         'is_primary' => $telecom['is_primary'] ?? 'N',
+                        'period_start' => $telecom['period_start'] ?? date('Y-m-d H:i:s'),
+                        'period_end' => $telecom['period_end'] ?? null, // null means no end date
                         'notes' => $telecom['notes'] ?? ''
                     ];
                 }
@@ -166,6 +172,7 @@ $smallform ??= false;
 // Prepare template variables
 $widgetConstants = [
     'listWithAddButton' => 26,
+    'list' => 1,
     'textDate' => 4,
     'textbox' => 2
 ];
@@ -196,6 +203,7 @@ $templateVars = [
     'csrfToken' => CsrfUtils::collectCsrfToken()
 ];
 
+// TODO: @adunsulag - Remove debug log after testing
 $logger->debug("Sending to TWIG", [
                     'relatedPersons' => $relatedPersons,
                     'name_field_id' => $name_field_id,

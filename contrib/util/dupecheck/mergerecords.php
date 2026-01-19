@@ -153,7 +153,7 @@ foreach ($parameters['otherid'] as $otherID) {
 
     // add a log entry regarding the merged data
     if ($commitchanges == true) {
-        EventAuditLogger::instance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
+        EventAuditLogger::getInstance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID " . $otherPID . " data into master PID " . $masterPID);
     }
 
     echo "<li>Added entry to log</li>";

@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Custom PHPStan Rule to Forbid Legacy SQL Functions in Modern Code
+ * Custom PHPStan Rule to Forbid Legacy Functions in Modern Code
  *
- * This rule prevents use of legacy sql.inc.php functions in the src/ directory.
- * Contributors should use QueryUtils or DatabaseQueryTrait instead.
+ * This rule prevents use of:
+ * - Legacy sql.inc.php functions (use QueryUtils or DatabaseQueryTrait instead)
+ * - Legacy call_user_func and call_user_func_array (use modern PHP syntax instead)
  *
  * @package   OpenEMR
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -36,12 +37,14 @@ class ForbiddenFunctionsRule implements Rule
         'sqlStatement' => 'Use QueryUtils::sqlStatementThrowException() or QueryUtils::fetchRecords() instead of sqlStatement().',
         'sqlInsert' => 'Use QueryUtils::sqlInsert() instead of sqlInsert().',
         'sqlFetchArray' => 'Use QueryUtils::fetchRecords() or QueryUtils::fetchArrayFromResultSet() instead of sqlFetchArray().',
-        'sqlBeginTrans' => 'Use QueryUtils::startTransaction() instead of sqlBeginTrans().',
-        'sqlCommitTrans' => 'Use QueryUtils::commitTransaction() instead of sqlCommitTrans().',
-        'sqlRollbackTrans' => 'Use QueryUtils::rollbackTransaction() instead of sqlRollbackTrans().',
+        'sqlBeginTrans' => 'Use QueryUtils::inTransaction() instead of sqlBeginTrans().',
+        'sqlCommitTrans' => 'Use QueryUtils::inTransaction() instead of sqlCommitTrans().',
+        'sqlRollbackTrans' => 'Use QueryUtils::inTransaction() instead of sqlRollbackTrans().',
         'sqlStatementNoLog' => 'Use QueryUtils::fetchRecordsNoLog() instead of sqlStatementNoLog().',
         'sqlStatementThrowException' => 'Use QueryUtils::sqlStatementThrowException() instead of global sqlStatementThrowException().',
         'sqlQueryNoLog' => 'Use QueryUtils::querySingleRow() instead of sqlQueryNoLog().',
+        'call_user_func' => 'Use uniform variable syntax $callable(...$args) or the argument unpacking operator instead of call_user_func().',
+        'call_user_func_array' => 'Use uniform variable syntax $callable(...$args) or the argument unpacking operator instead of call_user_func_array().',
     ];
 
     public function getNodeType(): string
@@ -68,6 +71,17 @@ class ForbiddenFunctionsRule implements Rule
 
         $message = self::FORBIDDEN_FUNCTIONS[$functionName];
 
+        // Determine error identifier and tip based on function type
+        if (in_array($functionName, ['call_user_func', 'call_user_func_array'])) {
+            return [
+                RuleErrorBuilder::message($message)
+                    ->identifier('openemr.legacyCallUserFunc')
+                    ->tip('Example: $myFunction(...$args) or [$object, \'method\'](...$args)')
+                    ->build()
+            ];
+        }
+
+        // Default for SQL functions
         return [
             RuleErrorBuilder::message($message)
                 ->identifier('openemr.deprecatedSqlFunction')

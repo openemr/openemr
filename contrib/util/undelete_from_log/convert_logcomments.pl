@@ -17,7 +17,7 @@
 
 # Converts openemr log ouput containing deleted records and
 # produces the necessary "insert into <table> values ... on duplicate key
-# update... " 
+# update... "
 
 # the log table's comments contains all of the deleted records in
 # "tablename: field1='value1' field2='value2'" form.
@@ -30,12 +30,12 @@
 # order to be accepted by mysql.
 
 # Use like this:
-# This procedure will restore all records deleted on a given date/time) that are in the log table  
+# This procedure will restore all records deleted on a given date/time) that are in the log table
 #
-# First, you must look into the admin/logs screen and determine the date that the delete occured on. 
-# 
-# Adjust the time accordingly 
-# 
+# First, you must look into the admin/logs screen and determine the date that the delete occured on.
+#
+# Adjust the time accordingly
+#
 # use the mysql command or similar tool to produce the restore file
 # ========================================
 # mysql <database>
@@ -44,20 +44,20 @@
 # select distinct comments from log where event like 'delete' and  date >='<date> 00:00:00' and date <= '<date> 23:59:59';
 # ========================================
 # exit mysql monitor
-# 
+#
 # Verify data is correct
-# 
+#
 # Run: perl convert_logcomments.pl < outfile  > restore.sql
-# 
+#
 # verify insert statements
-# 
+#
 # To import data:
 #
 # mysql <database> < restore.sql
-# 
+#
 
 use strict;
-	
+
 # %deleted is a hash that holds the read in values from the file on the
 # command line.
 my %deleted;
@@ -114,7 +114,7 @@ foreach (@records)
     next if ( m/^mysql/i );
     next if ( m/^\+/ );
     next if ( m/\|\s+comments\s+\|\s*$/ );
-    next if ( m/^\s*$/ ); 
+    next if ( m/^\s*$/ );
     next if ( m/^\d+\s+rows in/ );
     s/^\|\s*//;
     s/\s+\|\s*$//;
@@ -126,7 +126,7 @@ foreach (@records)
 
     # nuke extra white space between quotes
     $entry =~ s/'(\s+)'/''/g;
-    #debugging output	
+    #debugging output
     if ( 0 )
     {
 	print "tablename: $table\n";
@@ -140,13 +140,13 @@ foreach (@records)
 	local $/=q/'/;
 	chomp $entry;
     }
-    
+
     #split the line on single quotes followed by a space
     @temp = split /' /, $entry;
     foreach (@temp)
     {
 	# $field is the table's field name
-	# $value is the value.  
+	# $value is the value.
 	($field,$value) = split /=/;
 	$value .= "'";
 	#un-encode embedded newlines
@@ -158,10 +158,10 @@ foreach (@records)
 	}
 	$deleted{$table}[$i]{$field}=$value;
 	$tablefields{$table}{$field} = 1;
-    }	
+    }
 
 
-}    
+}
 
 #normalized data
 foreach $table (keys %deleted)
@@ -176,7 +176,7 @@ foreach $table (keys %deleted)
 	    {
 		$deleted{$table}[$i]{$entry} = "";
 	    }
-	}	    
+	}
     }
 
 }
@@ -195,7 +195,7 @@ foreach $table (keys %deleted)
 # and this is the middle
 
     for $i (0 .. $#{$deleted{$table}} )
-    {	
+    {
 	$values[$i]="(";
 	foreach (@fields)
 	{
@@ -207,20 +207,20 @@ foreach $table (keys %deleted)
 	    else
 	    {
 		$values[$i] .= $deleted{$table}[$i]{$_} . ",";
-	    }	
+	    }
 	}
 	chop $values[$i];
 	$values[$i] .= "),\n";
 
     }
-    
+
 #this is the end of the statement
     # don't forget the "on duplicate key replace" part
     $sqlpost ="on duplicate key update ";
     # this composes the rest of $sqlpost
     foreach (@fields)
     {
-		
+
 	$sqlpost .= "$_=values($_), ";
     }
     chop $sqlpost;

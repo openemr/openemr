@@ -61,4 +61,3 @@ class InterventionRecommended extends QDMBaseType
 
     public $_type = 'QDM::InterventionRecommended';
 }
-

@@ -58,11 +58,10 @@ class OnsiteDocumentController extends AppBasePortalController
         }
         // only allow patient to see themselves
 
-
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+        $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
         if (!empty($bootstrapPid)) {
-            $pid = (int)$GLOBALS['bootstrap_pid'];
+            $pid = (int)$bootstrapPid;
         }
 
         $user = $_GET['user'] ?? 0;
@@ -116,11 +115,10 @@ class OnsiteDocumentController extends AppBasePortalController
             $pid = RequestUtil::Get('patientId');
 
             // only allow patient to see themself
-
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
             if (!empty($bootstrapPid)) {
-                $pid = $GLOBALS['bootstrap_pid'];
+                $pid = $bootstrapPid;
             }
 
             $criteria->Pid_Equals = $pid;
@@ -212,10 +210,10 @@ class OnsiteDocumentController extends AppBasePortalController
 
         // only allow patient to see themself
 
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+        $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
         if (!empty($bootstrapPid)) {
-            $pid = $GLOBALS['bootstrap_pid'];
+            $pid = $bootstrapPid;
         }
 
         if (isset($_GET['user'])) {
@@ -246,11 +244,9 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
-                if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
-                    $error = 'Unauthorized';
-                    throw new Exception($error);
-                }
+            if (!empty($bootstrapPid) && $bootstrapPid != $onsitedocument->Pid) {
+                $error = 'Unauthorized';
+                throw new Exception($error);
             }
 
             $isLegacy = stripos((string) $onsitedocument->FullDocument, 'portal_version') === false;
@@ -286,7 +282,8 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument = new OnsiteDocument($this->Phreezer);
 
             // only allow patient to add to themselves
-            $onsitedocument->Pid = !empty($GLOBALS['bootstrap_pid']) ? $GLOBALS['bootstrap_pid'] : $this->SafeGetVal($json, 'pid');
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid');
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
@@ -343,6 +340,8 @@ class OnsiteDocumentController extends AppBasePortalController
         try {
             $json = json_decode(RequestUtil::GetBody());
 
+            $globalsBag = OEGlobalsBag::getInstance();
+
             if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
@@ -363,7 +362,7 @@ class OnsiteDocumentController extends AppBasePortalController
                     // Thus Enter Comment: <input name="element" value="This is my comment I don't like purifier" />
                     // renders to Enter Comment: 'This is my comment I don't like purifier in document.'
                     $config->set('URI.AllowedSchemes', ['data' => true]);
-                    $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+                    $purifyTempDir = $globalsBag->getString('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
                     if (
                         !is_dir($purifyTempDir)
                     ) {
@@ -388,23 +387,16 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // only allow patient to update themselves (part 1)
 
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            $bootstrapPid = $globalsBag->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
-                if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
-                    $error = 'Unauthorized';
-                    throw new Exception($error);
-                }
+            if (!empty($bootstrapPid) && $bootstrapPid != $onsitedocument->Pid) {
+                $error = 'Unauthorized';
+                throw new Exception($error);
             }
             // only allow patient to update themselves (part 2)
 
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
-                $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
-            } else {
-                $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
-            }
+            $onsitedocument->Pid = !empty($bootstrapPid) ? $bootstrapPid : $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
             // Set values from API interface.
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
@@ -451,11 +443,9 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
             // only allow patient to delete themselves
-            if (!empty($bootstrapPid)) {
-                if ((int)$bootstrapPid !== (int)$onsitedocument->Pid) {
-                    $error = 'Unauthorized';
-                    throw new Exception($error);
-                }
+            if (!empty($bootstrapPid) && (int)$bootstrapPid !== (int)$onsitedocument->Pid) {
+                $error = 'Unauthorized';
+                throw new Exception($error);
             }
 
             $onsitedocument->Delete();

@@ -5,7 +5,7 @@
 	overflow: auto;
 }
 .autocomplete-suggestion {
-	padding: 2px 5px; 
+	padding: 2px 5px;
 	white-space: nowrap;
 	overflow: hidden;
 }
@@ -13,7 +13,7 @@
 	background: #E8F1FF;
 }
 .autocomplete-suggestions strong {
-	font-weight: normal; 
+	font-weight: normal;
 	color: #3399FF;
 }
 ul.suggestion{

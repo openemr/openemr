@@ -27,6 +27,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
@@ -34,16 +36,20 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+$globalsBag = OEGlobalsBag::getInstance();
+$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
+        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
         exit;
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
         exit;
     }
 }
@@ -166,7 +172,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -197,7 +203,7 @@ if (!empty($_POST['form_save'])) {
                 ", adjustment_code = 'pre_payment'" .
                 ", post_to_date = now() " .
                 ", payment_method = ?",
-                [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
+                [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
             );
 
          frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
@@ -241,7 +247,7 @@ if (!empty($_POST['form_save'])) {
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                         " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        [$_SESSION['authUserID'], $form_source, $amount, $form_pid, $form_method]
+                        [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
                     sqlBeginTrans();
@@ -249,7 +255,7 @@ if (!empty($_POST['form_save'])) {
                     $insrt_id = sqlInsert(
                         "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount]
+                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $session->get('authUserID'), $session_id, $amount]
                     );
                     sqlCommitTrans();
 
@@ -283,7 +289,7 @@ if (!empty($_POST['form_save'])) {
                               ", adjustment_code = ?" .
                               ", post_to_date = now() " .
                               ", payment_method = ?",
-                              [0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
+                              [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
                           );
 
                     //--------------------------------------------------------------------------------------------------------------------
@@ -359,7 +365,7 @@ if (!empty($_POST['form_save'])) {
                                   ", pay_amount = ?" .
                                   ", adj_amount = ?" .
                                   ", account_code = 'PP'",
-                                  [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $insert_value, 0]
+                                  [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
                               );
                               sqlCommitTrans();
                         }//if
@@ -382,7 +388,7 @@ if (!empty($_POST['form_save'])) {
                                     ", pay_amount = ?" .
                                     ", adj_amount = ?" .
                                     ", account_code = 'PP'",
-                                    [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $_SESSION['authUserID'], $payment_id, $amount, 0]
+                                    [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
                                 );
                                 sqlCommitTrans();
                     }
@@ -471,7 +477,7 @@ function printlog_before_print() {
 function deleteme() {
     const params = new URLSearchParams({
         payment: <?php echo js_escape($payment_key); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
     });
     dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
     return false;
@@ -1138,7 +1144,7 @@ function make_insurance() {
         <div class="row">
             <div class="col-sm-12">
                 <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
@@ -1484,33 +1490,13 @@ function make_insurance() {
                                             <div class="col-md-4">
                                                 <select name="month" id="expMonth" class="form-control">
                                                     <option value=""><?php echo xlt('Select Month'); ?></option>
-                                                    <option value="01"><?php echo xlt('January'); ?></option>
-                                                    <option value="02"><?php echo xlt('February'); ?></option>
-                                                    <option value="03"><?php echo xlt('March'); ?></option>
-                                                    <option value="04"><?php echo xlt('April'); ?></option>
-                                                    <option value="05"><?php echo xlt('May'); ?></option>
-                                                    <option value="06"><?php echo xlt('June'); ?></option>
-                                                    <option value="07"><?php echo xlt('July'); ?></option>
-                                                    <option value="08"><?php echo xlt('August'); ?></option>
-                                                    <option value="09"><?php echo xlt('September'); ?></option>
-                                                    <option value="10"><?php echo xlt('October'); ?></option>
-                                                    <option value="11"><?php echo xlt('November'); ?></option>
-                                                    <option value="12"><?php echo xlt('December'); ?></option>
+                                                    <?=$twig->render('forms/month_dropdown.html.twig')?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
                                                 <select name="year" id="expYear" class="form-control">
                                                     <option value=""><?php echo xlt('Select Year'); ?></option>
-                                                    <option value="2021">2021</option>
-                                                    <option value="2022">2022</option>
-                                                    <option value="2023">2023</option>
-                                                    <option value="2024">2024</option>
-                                                    <option value="2025">2025</option>
-                                                    <option value="2026">2026</option>
-                                                    <option value="2027">2027</option>
-                                                    <option value="2028">2028</option>
-                                                    <option value="2028">2029</option>
-                                                    <option value="2028">2030</option>
+                                                    <?=$twig->render('forms/exp_year_dropdown.html.twig')?>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">

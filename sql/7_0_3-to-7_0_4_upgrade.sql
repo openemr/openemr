@@ -233,7 +233,7 @@ CREATE TABLE `care_teams` (
 #IfTable care_teams_v1
 INSERT INTO `care_teams` (`uuid`, `pid`, `status`, `team_name`, `date_created`, `date_updated`)
 SELECT
-    `uuid`,
+    MIN(`uuid`) AS `uuid`,
     `pid`,
     `status`,
     `team_name`,

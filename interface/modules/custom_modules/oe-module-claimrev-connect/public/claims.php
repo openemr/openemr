@@ -321,4 +321,3 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
     </body>
 </html>
-

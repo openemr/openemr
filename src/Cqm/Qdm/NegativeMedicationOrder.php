@@ -26,4 +26,3 @@ class NegativeMedicationOrder extends MedicationOrder
 
     public $_type = 'QDM::NegativeMedicationOrder';
 }
-

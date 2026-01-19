@@ -844,7 +844,7 @@ class EtherFaxActions extends AppDispatch
         $details_encoded = json_encode($details);
         $sentDate = date('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) 
+        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
         VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, 'application/pdf', ?)";
 
         return sqlInsert($sql, [$uid, $account, $jobId, $sentDate, $callerId, $dialNumber, $details_encoded]);

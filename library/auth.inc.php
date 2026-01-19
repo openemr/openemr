@@ -20,7 +20,10 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $incoming_site_id = '';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
@@ -37,10 +40,10 @@ if (
     // Attempt login
 
     // set the language
-    $_SESSION['language_choice'] = !empty($_POST['languageChoice']) ? $_POST['languageChoice'] : 1;
+    $session->set('language_choice', (!empty($_POST['languageChoice']) ? $_POST['languageChoice'] : 1));
 
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
-    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
+    $session->set('language_direction', getLanguageDir($session->get('language_choice')));
 
     // Note we are purposefully keeping $_POST['clearPass'], which is needed for MFA to work. It is cleared from memory after a
     //  unsuccessful or successful login
@@ -62,7 +65,7 @@ if (
 
     if ($login_success !== true) {
         // login attempt failed
-        $_SESSION['loginfailure'] = 1;
+        $session->set('loginfailure', 1);
         if (function_exists('sodium_memzero')) {
             sodium_memzero($_POST["clearPass"]);
         } else {
@@ -72,19 +75,20 @@ if (
     }
 
     // login attempt success
-    $_SESSION['loginfailure'] = null;
-    unset($_SESSION['loginfailure']);
+    $session->remove('loginfailure');
 
     // skip the session expiration check below since the entry in session_tracker is not ready yet
     $skipSessionExpirationCheck = true;
 } elseif ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
     // Logout
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
-    if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
+    $authUser = $session->get('authUser');
+    $authProvider = $session->get('authProvider');
+    if (!empty($authUser) && !empty($authProvider)) {
         if ((isset($_GET['timeout'])) && ($_GET['timeout'] == "1")) {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
+            EventAuditLogger::getInstance()->newEvent("logout", $authUser, $authProvider, 0, "timeout, so force logout");
         } else {
-            EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
+            EventAuditLogger::getInstance()->newEvent("logout", $authUser, $authProvider, 1, "success");
         }
     }
     authCloseSession();
@@ -93,7 +97,7 @@ if (
     // Check if session is valid (already logged in user)
     if (!AuthUtils::authCheckSession()) {
         // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'] ?? '', $_SESSION['authProvider'] ?? '', 0, "authCheckSession() check failed, so force logout");
+        EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser') ?? '', $session->get('authProvider') ?? '', 0, "authCheckSession() check failed, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }
@@ -109,7 +113,7 @@ if (empty($skipSessionExpirationCheck) && empty($_REQUEST['skip_timeout_reset'])
         SessionTracker::updateSessionExpiration();
     } else {
         // User has timed out.
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout, so force logout");
+        EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser'), $session->get('authProvider'), 0, "timeout, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }
@@ -128,7 +132,8 @@ function authCloseSession(): void
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
     global $incoming_site_id;
-    $incoming_site_id = $_SESSION['site_id'] ?? '';
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $incoming_site_id = $session->get('site_id') ?? '';
     SessionUtil::coreSessionDestroy();
 }
 

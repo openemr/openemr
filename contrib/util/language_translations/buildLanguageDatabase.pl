@@ -552,7 +552,8 @@ CREATE TABLE `lang_definitions` (
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
-  KEY `cons_id` (`cons_id`)
+  KEY `cons_id` (`cons_id`),
+  KEY `lang_cons` (`lang_id`, `cons_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=".$tempCounter." ;
 \n
 --

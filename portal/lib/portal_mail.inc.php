@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * @param $owner
@@ -45,12 +46,12 @@ function addPortalMailboxMail(
     $rn = '',
     $replyid = 0
 ): int {
-
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
     }
 
-    $user = $_SESSION['portal_username'] ?: $_SESSION['authUser'];
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $user = $session->get('portal_username') ?: $session->get('authUser');
     // make inactive if set as Done
     if ($message_status == "Done") {
         $activity = 0;
@@ -296,16 +297,17 @@ function updatePortalMailMessageStatus($id, $message_status, $owner): void
 
     if ($message_status == "Delete") {
         $stats = sqlQuery("Select * From onsite_mail Where id = ? AND `owner` = ?", [$id, $owner]);
-        $by = $_SESSION['authUser'] ?: $_SESSION['ptName'];
-        $loguser = $_SESSION['authUser'] ?: $_SESSION['portal_username'];
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $by = $session->get('authUser') ?: $session->get('ptName');
+        $loguser = $session->get('authUser') ?: $session->get('portal_username');
         $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
         $log_from = '';
         $puser = '';
-        if ($_SESSION['patient_portal_onsite_two']) {
+        if ($session->get('patient_portal_onsite_two')) {
             $log_from = 'patient-portal';
-            $puser = $_SESSION['pid'];
+            $puser = $session->get('pid');
         }
-        EventAuditLogger::instance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
+        EventAuditLogger::getInstance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }
 }
 

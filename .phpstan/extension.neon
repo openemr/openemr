@@ -5,6 +5,7 @@
 # 2. Forbid legacy sql.inc.php functions in src/ directory
 # 3. Forbid direct $GLOBALS access in favor of OEGlobalsBag
 # 4. Forbid @covers annotations on test classes and methods
+# 5. Forbid raw curl_* functions in favor of GuzzleHttp
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -24,6 +25,9 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenMethodsRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenStaticMethodsRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenGlobalsAccessRule
   tags:
   - phpstan.rules.rule
@@ -31,5 +35,8 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\NoCoversAnnotationOnClassRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenCurlFunctionsRule
   tags:
   - phpstan.rules.rule

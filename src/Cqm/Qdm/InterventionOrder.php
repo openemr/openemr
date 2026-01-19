@@ -61,4 +61,3 @@ class InterventionOrder extends QDMBaseType
 
     public $_type = 'QDM::InterventionOrder';
 }
-

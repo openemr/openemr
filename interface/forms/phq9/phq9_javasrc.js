@@ -137,4 +137,3 @@ function record_score_q10(score)
 {
     all_scores[9] = Number(score); // record the scores for a review/edit of the form
 }
-

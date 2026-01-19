@@ -16,6 +16,8 @@
 require_once(__DIR__ . "/FeeSheet.class.php");
 require_once(__DIR__ . "/api.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class FeeSheetHtml extends FeeSheet
 {
   // Dynamically generated JavaScript to maintain justification codes.
@@ -33,9 +35,10 @@ class FeeSheetHtml extends FeeSheet
   //
     public static function genProviderOptionList($toptext, $default = 0, $inactive = false)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $s = '';
         // Get user's default facility, or 0 if none.
-        $drow = sqlQuery("SELECT facility_id FROM users where username = ?", [$_SESSION['authUser']]);
+        $drow = sqlQuery("SELECT facility_id FROM users where username = ?", [$session->get('authUser')]);
         $def_facility = 0 + $drow['facility_id'];
         //
         $sqlarr = [$def_facility];
@@ -333,16 +336,16 @@ function jsLineItemValidation(f) {
     }
    }
    if (!ndcok) {
-    alert('" . xls('Format incorrect for NDC') . "\"' + ndc +
-     '\", " . xls('should be like nnnnn-nnnn-nn') . "');
+    alert(" . xlj('Format incorrect for NDC') . " + '\"' + ndc +
+     '\", ' + " . xlj('should be like nnnnn-nnnn-nn') . ");
     if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
     return false;
    }
    // Check for valid quantity.
    var qty = f[pfx+'[ndcqty]'].value - 0;
    if (isNaN(qty) || qty <= 0) {
-    alert('" . xls('Quantity for NDC') . " \"' + ndc +
-     '\" " . xls('is not valid (decimal fractions are OK).') . "');
+    alert(" . xlj('Quantity for NDC') . " + ' \"' + ndc +
+     '\" ' + " . xlj('is not valid (decimal fractions are OK).') . ");
     if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
     return false;
    }
@@ -365,14 +368,14 @@ function jsLineItemValidation(f) {
     tmp_meth == '4450' || // male condoms
     tmp_meth == '4570');  // male vasectomy
    if (!male_compatible_method) {
-    if (!confirm('" . xls('Warning: Contraceptive method is not compatible with a male patient.') . "'))
+    if (!confirm(" . xlj('Warning: Contraceptive method is not compatible with a male patient.') . "))
      return false;
    }
 ";
         } // end if male patient
         if ($this->patient_age < 10 || $this->patient_age > 65) {
             $s .= "
-   if (!confirm(" . xlj('Warning: Contraception for a patient under 10 or over 65.') . "))
+    if (!confirm(" . xlj('Warning: Contraception for a patient under 10 or over 65.') . "))
     return false;
 ";
         } // end if improper age
@@ -422,7 +425,7 @@ function jsLineItemValidation(f) {
     }
    }
    if (!got_svc) {
-    if (!confirm('" . xls('Warning: There is no service matching the contraceptive product.') . "'))
+    if (!confirm(" . xlj('Warning: There is no service matching the contraceptive product.') . "))
      return false;
    }
   }
@@ -433,7 +436,7 @@ function jsLineItemValidation(f) {
         if (isset($GLOBALS['code_types']['MA'])) {
             $s .= "
  if (required_code_count == 0) {
-  if (!confirm('" . xls('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . "')) {
+  if (!confirm(" . xlj('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . ")) {
    return false;
   }
  }

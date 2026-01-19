@@ -22,6 +22,7 @@ require_once(__DIR__ . "/report_database.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 
 /**
@@ -62,7 +63,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
  */
 function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = ''): void
 {
-
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -183,12 +184,12 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
     if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authUserID']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $session->get('authUserID'));
         if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
             //  is being passed via an ajax call by using a dummy image.
-            echo '<img src="../../pic/empty.gif" onload="alert(\'' . xls('New Due Clinical Reminders') . '\n\n';
+            echo '<img src="../../pic/empty.gif" onload="alert(' . xlj('New Due Clinical Reminders') . ' + \'\n\n';
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", (string) $key);
                 $category = $category_item[0];
@@ -197,7 +198,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                    ': ' . generate_display_field(['data_type' => '1','list_id' => 'rule_action'], $item) . '\n';
             }
 
-            echo '\n' . '(' . xls('See the Clinical Reminders widget for more details') . ')';
+            echo '\n\' + ' . xlj('See the Clinical Reminders widget for more details') . ' + \'';
             echo '\');this.parentNode.removeChild(this);" />';
         }
     }
@@ -216,7 +217,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
  */
 function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '', $test = false)
 {
-
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
   // Set date to current if not set
     $dateTarget = $dateTarget ?: date('Y-m-d H:i:s');
 
@@ -274,7 +275,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
     if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $session->get('authUserID'));
         if (!empty($new_targets)) {
             $returnOutput .= "<br />" . xlt('New Items (see above for details)') . ":<br />";
             foreach ($new_targets as $key => $value) {
@@ -301,7 +302,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
  */
 function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
-
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
   // Collect allergies
     $sqlParam = [];
     $sqlParam[] = $patient_id;
@@ -359,7 +360,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = [];
     if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test === false)) {
-        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authUserID'], $mode);
+        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $session->get('authUserID'), $mode);
     }
 
     if ($mode == 'all') {
