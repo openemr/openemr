@@ -339,7 +339,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
-    // prepare newcrop globals that are used in creating the menu
+    // prepare Ensora eRx globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
         $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];

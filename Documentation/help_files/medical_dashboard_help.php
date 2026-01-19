@@ -47,18 +47,18 @@ require_once("../../interface/globals.php");
 
                     <p><strong><?php echo xlt("E-PRESCRIBING"); ?> :</strong></p>
 
-                    <p><?php echo xlt("If NewCrop eRx - the electronic prescription module, is enabled the NewCrop MedEntry and NewCrop Account Status buttons will be appear here");?>.
-                        <button type="button" class="btn btn-secondary btn-add btn-sm oe-no-float"><?php echo xlt("NewCrop MedEntry"); ?></button>
-                        <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("NewCrop Account Status"); ?></button>
+                    <p><?php echo xlt("If Ensora eRx - the electronic prescription module, is enabled the Ensora MedEntry and Ensora Account Status buttons will be appear here");?>.
+                        <button type="button" class="btn btn-secondary btn-add btn-sm oe-no-float"><?php echo xlt("Ensora MedEntry"); ?></button>
+                        <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Ensora Account Status"); ?></button>
                     </p>
 
-                    <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to setup the NewCrop service and has to be setup in conjunction with technical support from the NewCrop eRx service");?>.</strong></p>
+                    <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to setup the Ensora service and has to be setup in conjunction with technical support from the Ensora eRx service");?>.</strong></p>
 
-                    <p><?php echo xlt("This module is subscription based and needs to be enabled from Administration > Globals > Connectors > Enable NewCrop eRx Service");?>.</p>
+                    <p><?php echo xlt("This module is subscription based and needs to be enabled from Administration > Globals > Connectors > Enable Ensora eRx Service");?>.</p>
 
-                    <p><?php echo xlt("The NewCrop eRx Partner Name, NewCrop eRx Name and NewCrop eRx Password will be provided by the vendor");?>.</p>
+                    <p><?php echo xlt("The Ensora eRx Partner Name, Ensora eRx Name and Ensora eRx Password will be provided by the vendor");?>.</p>
 
-                    <p><?php echo xlt("The rest of the boxes related to the NewCrop eRx service can be left at default values");?>.</p>
+                    <p><?php echo xlt("The rest of the boxes related to the Ensora eRx service can be left at default values");?>.</p>
 
                     <p><?php echo xlt("This module is well integrated with openEMR, there are however two non-subscription based alternatives, Weno and Allscripts that can be used instead");?>.</p>
 

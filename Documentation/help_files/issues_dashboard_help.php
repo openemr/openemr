@@ -155,7 +155,7 @@ require_once("../../interface/globals.php");
             <div class= "row" id="section2">
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Allergies"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
-                    <p><?php echo xlt("Depending on whether or not NewCrop eRx module is enabled the method of entry will vary");?>.</p>
+                    <p><?php echo xlt("Depending on whether or not Ensora eRx module is enabled the method of entry will vary");?>.</p>
 
                     <p><?php echo xlt("In the default installation click on Add to bring up the Add/Edit Issue pop-up page");?>.
                         <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
@@ -187,7 +187,7 @@ require_once("../../interface/globals.php");
                         <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     </p>
 
-                    <p><?php echo xlt("If you have NewCrop eRx module enabled then the allergies have to be entered on the NewCrop MedEntry page");?>.</p>
+                    <p><?php echo xlt("If you have Ensora eRx module enabled then the allergies have to be entered on the Ensora MedEntry page");?>.</p>
 
                     <p><?php echo xlt("Click on the Allergy/Intolerance button");?>.</p>
 
@@ -207,7 +207,7 @@ require_once("../../interface/globals.php");
             <div class= "row" id="section3">
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Medications"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
-                    <p><?php echo xlt("Depending on whether or not NewCrop eRx module is enabled the method of entry will vary");?>.</p>
+                    <p><?php echo xlt("Depending on whether or not Ensora eRx module is enabled the method of entry will vary");?>.</p>
 
                     <p><?php echo xlt("In the default installation click on Add to bring up the Add/Edit Issue pop-up page");?>.
                         <button type="button" class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add"); ?></button>
@@ -221,7 +221,7 @@ require_once("../../interface/globals.php");
                         <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     </p>
 
-                    <p><?php echo xlt("If you have NewCrop eRx module enabled then the allergies have to be entered on the NewCrop MedEntry page");?>.</p>
+                    <p><?php echo xlt("If you have Ensora eRx module enabled then the allergies have to be entered on the Ensora MedEntry page");?>.</p>
 
                     <p><?php echo xlt("Type the name of the drug in the Drug Search text-box");?>.</p>
 
