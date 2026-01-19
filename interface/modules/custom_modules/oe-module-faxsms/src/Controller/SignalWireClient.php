@@ -332,94 +332,25 @@ class SignalWireClient extends AppDispatch
      */
     private function storeInboundFax(array $faxData): void
     {
-        try {
-            $siteId = $_SESSION['site_id'] ?? 'default';
-            $faxSid = $faxData['sid'] ?? '';
-            $fromNumber = $faxData['from'] ?? '';
-            $mediaUrl = $faxData['mediaUrl'] ?? '';
+        $uid = $_SESSION['authUserID'] ?? 0;
+        $site_id = $_SESSION['site_id'] ?? 'default';
+        $direction = $faxData['direction'] ?? 'outbound';
+        $status = $faxData['status'] ?? 'queued';
 
-            if (empty($faxSid) || empty($fromNumber)) {
-                error_log("SignalWireClient.storeInboundFax(): Missing required fax data");
-                return;
-            }
+        $sql = "INSERT INTO oe_faxsms_queue
+                (uid, job_id, calling_number, called_number, details_json, date, direction, status, site_id)
+                VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
 
-            // Download media content
-            $mediaContent = $this->downloadFaxMediaContent($mediaUrl);
-            if (empty($mediaContent)) {
-                error_log("SignalWireClient.storeInboundFax(): Failed to download media for fax {$faxSid}");
-                return;
-            }
-
-            // Initialize FaxDocumentService
-            $faxService = new FaxDocumentService($siteId);
-
-            // Attempt to match patient by phone number
-            $patientId = $faxService->findPatientByPhone($fromNumber);
-
-            // Store document via FaxDocumentService
-            $mimeType = $faxData['mimeType'] ?? 'application/pdf';
-            $result = $faxService->storeFaxDocument(
-                $faxSid,
-                $mediaContent,
-                $fromNumber,
-                $patientId,
-                $mimeType
-            );
-
-            // Insert/update in queue
-            $uid = $_SESSION['authUserID'] ?? 0;
-            $status = $faxData['status'] ?? 'received';
-            $direction = 'inbound';
-            $to = $faxData['to'] ?? '';
-
-            $existing = QueryUtils::querySingleRow(
-                "SELECT id FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ?",
-                [$faxSid, $siteId]
-            );
-
-            if (!empty($existing)) {
-                // Update existing record with document info
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE oe_faxsms_queue 
-                     SET patient_id = ?, document_id = ?, media_path = ?, status = ?, details_json = ?, date = NOW()
-                     WHERE job_id = ? AND site_id = ?",
-                    [
-                        $result['patient_id'],
-                        $result['document_id'],
-                        $result['media_path'],
-                        $status,
-                        json_encode($faxData),
-                        $faxSid,
-                        $siteId
-                    ]
-                );
-            } else {
-                // Insert new record
-                QueryUtils::sqlStatementThrowException(
-                    "INSERT INTO oe_faxsms_queue 
-                     (uid, job_id, calling_number, called_number, status, direction, details_json, patient_id, document_id, media_path, site_id, date)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
-                    [
-                        $uid,
-                        $faxSid,
-                        $fromNumber,
-                        $to,
-                        $status,
-                        $direction,
-                        json_encode($faxData),
-                        $result['patient_id'],
-                        $result['document_id'],
-                        $result['media_path'],
-                        $siteId
-                    ]
-                );
-            }
-
-            error_log("SignalWireClient.storeInboundFax(): Successfully stored fax {$faxSid} (patient_id={$result['patient_id']}, document_id={$result['document_id']})");
-        } catch (Exception $e) {
-            error_log("SignalWireClient.storeInboundFax(): ERROR - " . $e->getMessage());
-            throw $e;
-        }
+        QueryUtils::sqlStatementThrowException($sql, [
+            $uid,
+            $faxData['job_id'] ?? '',
+            $faxData['calling_number'] ?? '',
+            $faxData['called_number'] ?? '',
+            json_encode($faxData),
+            $direction,
+            $status,
+            $site_id
+        ]);
     }
 
     /**
@@ -434,11 +365,11 @@ class SignalWireClient extends AppDispatch
     {
         $uid = $_SESSION['authUserID'] ?? 0;
         $site_id = $_SESSION['site_id'] ?? 'default';
-        
+
         // For inbound faxes, show to all users in the site
         // For outbound faxes, show only to the user who sent them
         $sql = "SELECT * FROM oe_faxsms_queue
-                WHERE site_id = ? 
+                WHERE site_id = ?
                   AND date BETWEEN ? AND ?
                   AND (direction = 'inbound' OR uid = ?)
                 ORDER BY date DESC";
@@ -672,24 +603,24 @@ class SignalWireClient extends AppDispatch
                 "SELECT job_id, patient_id FROM oe_faxsms_queue WHERE id = ? AND site_id = ?",
                 [$queueId, $site_id]
             );
-            
+
             if (empty($fax)) {
                 return json_encode(['error' => xlt('Fax not found')]);
             }
-            
+
             if (!empty($fax['patient_id'])) {
                 return json_encode(['error' => xlt('Fax already assigned to patient ') . $fax['patient_id']]);
             }
-            
+
             $jobId = $fax['job_id'];  // This is the SignalWire SID
-            
+
             // Load the FaxDocumentService
             require_once(__DIR__ . '/FaxDocumentService.php');
             $faxService = new \OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService();
-            
+
             // Use the service to assign the fax (pass job_id, not queue id)
             $result = $faxService->assignFaxToPatient($jobId, $patientId);
-            
+
             if ($result['success']) {
                 return json_encode(['success' => true, 'document_id' => $result['document_id']]);
             } else {
@@ -763,19 +694,19 @@ class SignalWireClient extends AppDispatch
             $documentId = $faxDetails->document_id ?? 0;
             $mediaPath = $faxDetails->media_path ?? '';
             $queueId = $faxDetails->id ?? 0;
-            
+
             // Build message column with view, download links and patient info
             $messageCol = '';
-            
+
             // Only show View/Download for inbound (received) faxes
             if ($direction === 'inbound') {
                 // If assigned to patient, link to patient document
                 if ($patientId > 0 && $documentId > 0) {
                     $globals = OEGlobalsBag::getInstance();
-                    $viewLink = $globals->get('webroot') . "/controller.php?document&retrieve&patient_id=" . 
-                                urlencode((string) $patientId) . "&document_id=" . urlencode((string) $documentId) . 
+                    $viewLink = $globals->get('webroot') . "/controller.php?document&retrieve&patient_id=" .
+                                urlencode((string) $patientId) . "&document_id=" . urlencode((string) $documentId) .
                                 "&as_file=false&original_file=true";
-                    $messageCol .= "<a href='" . attr($viewLink) . "' target='_blank' class='btn btn-sm btn-success'>" . 
+                    $messageCol .= "<a href='" . attr($viewLink) . "' target='_blank' class='btn btn-sm btn-success'>" .
                                    "<i class='fa fa-eye'></i> " . xlt('View') . "</a> ";
                     if ($numPages > 0) {
                         $messageCol .= "(" . text($numPages) . " " . xlt('pages') . ") ";
@@ -785,10 +716,10 @@ class SignalWireClient extends AppDispatch
                     $filename = basename((string) $mediaPath);
                     $viewLink = "./viewFaxPdf?type=fax&site=" . urlencode($_SESSION['site_id'] ?? 'default') . "&id=" . urlencode($queueId);
                     $downloadLink = "./download?type=fax&site=" . urlencode($_SESSION['site_id'] ?? 'default') . "&id=" . urlencode($queueId);
-                    
-                    $messageCol .= "<a href='" . attr($viewLink) . "' target='_blank' class='btn btn-sm btn-success'>" . 
+
+                    $messageCol .= "<a href='" . attr($viewLink) . "' target='_blank' class='btn btn-sm btn-success'>" .
                                    "<i class='fa fa-eye'></i> " . xlt('View') . "</a> ";
-                    $messageCol .= "<a href='" . attr($downloadLink) . "' target='_blank' class='btn btn-sm btn-primary'>" . 
+                    $messageCol .= "<a href='" . attr($downloadLink) . "' target='_blank' class='btn btn-sm btn-primary'>" .
                                    "<i class='fa fa-download'></i> " . xlt('Download') . "</a> ";
                     if ($numPages > 0) {
                         $messageCol .= "(" . text($numPages) . " " . xlt('pages') . ") ";
@@ -800,7 +731,7 @@ class SignalWireClient extends AppDispatch
                     $messageCol .= "(" . text($numPages) . " " . xlt('pages') . ")";
                 }
             }
-            
+
             if ($direction === 'inbound') {
                 // Show patient assignment status
                 if ($patientId > 0) {
@@ -813,7 +744,7 @@ class SignalWireClient extends AppDispatch
                 } else {
                     $messageCol .= "<span class='badge badge-warning'>" . xlt('Unassigned') . "</span> ";
                     // Add assign button
-                    $messageCol .= "<button class='btn btn-sm btn-info' onclick='assignFaxToPatient(" . attr($queueId) . ")'>" . 
+                    $messageCol .= "<button class='btn btn-sm btn-info' onclick='assignFaxToPatient(" . attr($queueId) . ")'>" .
                                    "<i class='fa fa-user-plus'></i> " . xlt('Assign') . "</button>";
                 }
             }
@@ -899,13 +830,41 @@ class SignalWireClient extends AppDispatch
                 'mimeType' => 'application/pdf'
             ];
 
-            // Store inbound fax with document and patient handling
-            $this->storeInboundFax($faxData);
+            error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Upserting fax sid={$jobId}, from={$from}, to={$to}, status={$status}, direction={$direction}");
+
+            // Download fax media if available
+            $mediaPath = $this->downloadFaxMedia($fax);
+            if ($mediaPath) {
+                $faxData['media_path'] = $mediaPath;
+            }
+
+            // Check if fax already exists in queue
+            $existing = QueryUtils::querySingleRow("SELECT id, called_number, media_path FROM oe_faxsms_queue WHERE job_id = ?", [$jobId]);
+
+            if (!empty($existing)) {
+                // Update existing fax with fresh status and media path
+                $sql = "UPDATE oe_faxsms_queue
+                        SET details_json = ?,
+                            direction = ?,
+                            status = ?,
+                            media_path = ?
+                        WHERE job_id = ?";
+                QueryUtils::sqlStatementThrowException($sql, [json_encode($faxData), $direction, $status, $mediaPath ?? null, $jobId]);
+                error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Updated fax {$jobId} with fresh status");
+            } else {
+                // Insert new fax from API fetch (these are received/already-sent faxes)
+                $sql = "INSERT INTO oe_faxsms_queue
+                        (uid, job_id, calling_number, called_number, details_json, date, direction, status, site_id, media_path)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $site_id = $_SESSION['site_id'] ?? 'default';
+                QueryUtils::sqlStatementThrowException($sql, [$uid, $jobId, $from, $to, json_encode($faxData), $dateCreated, $direction, $status, $site_id, $mediaPath ?? null]);
+                error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Inserted fax {$jobId}");
+            }
         } catch (Exception $e) {
             error_log("SignalWireClient.upsertFaxFromSignalWire(): ERROR - " . $e->getMessage());
         }
     }
-    
+
     /**
      * Download fax media content from SignalWire
      *
@@ -922,54 +881,37 @@ class SignalWireClient extends AppDispatch
                 return null;
             }
 
-            // Validate URL to prevent SSRF attacks
-            if (!$this->isValidSignalWireUrl($mediaUrl)) {
-                error_log("SignalWireClient.downloadFaxMediaContent(): Invalid or unauthorized media URL: " . $mediaUrl);
+            // Create directory for fax media if it doesn't exist
+            $faxDir = $this->baseDir . '/received_faxes';
+            if (!file_exists($faxDir)) {
+                mkdir($faxDir, 0777, true);
+            }
+
+            // Generate filename
+            $filename = $fax->sid . '.pdf';
+            $filepath = $faxDir . '/' . $filename;
+
+            // Skip if file already exists
+            if (file_exists($filepath)) {
+                error_log("SignalWireClient.downloadFaxMedia(): File already exists: {$filepath}");
+                return $filepath;
+            }
+
+            // Download the file from SignalWire
+            $fileContent = file_get_contents($mediaUrl);
+            if ($fileContent === false) {
+                error_log("SignalWireClient.downloadFaxMedia(): Failed to download media from {$mediaUrl}");
                 return null;
             }
 
-            // Get SignalWire credentials for authentication
-            $credentials = QueryUtils::querySingleRow(
-                "SELECT credentials FROM module_faxsms_credentials WHERE vendor = ? AND auth_user = 0",
-                ['_signalwire']
-            );
-
-            if (empty($credentials)) {
-                error_log("SignalWireClient.downloadFaxMediaContent(): No SignalWire credentials found");
+            // Save the file
+            if (file_put_contents($filepath, $fileContent) === false) {
+                error_log("SignalWireClient.downloadFaxMedia(): Failed to save file to {$filepath}");
                 return null;
             }
 
-            $crypto = new CryptoGen();
-            $decrypted = $crypto->decryptStandard($credentials['credentials']);
-            $creds = json_decode($decrypted, true);
-
-            $apiToken = $creds['api_token'] ?? '';
-            if (empty($apiToken)) {
-                error_log("SignalWireClient.downloadFaxMediaContent(): Missing API token");
-                return null;
-            }
-
-            // Download media using oeHttp client with Bearer token
-            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
-            $httpRequest->usingHeaders([
-                'Authorization' => 'Bearer ' . $apiToken
-            ]);
-
-            $response = $httpRequest->get($mediaUrl);
-
-            if ($response->status() !== 200) {
-                error_log("SignalWireClient.downloadFaxMediaContent(): HTTP error " . $response->status() . " downloading from {$mediaUrl}");
-                return null;
-            }
-
-            $content = $response->body();
-            if (empty($content)) {
-                error_log("SignalWireClient.downloadFaxMediaContent(): Empty response from {$mediaUrl}");
-                return null;
-            }
-
-            error_log("SignalWireClient.downloadFaxMediaContent(): Successfully downloaded " . strlen((string)$content) . " bytes");
-            return $content;
+            error_log("SignalWireClient.downloadFaxMedia(): Successfully downloaded fax to {$filepath}");
+            return $filepath;
         } catch (Exception $e) {
             error_log("SignalWireClient.downloadFaxMediaContent(): ERROR - " . $e->getMessage());
             return null;

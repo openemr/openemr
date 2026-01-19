@@ -107,7 +107,7 @@ class ORDataObject
         if ($this->_throwExceptionOnError) {
             QueryUtils::sqlStatementThrowException($sql, []);
         } else {
-            sqlQuery($sql);
+            sqlStatement($sql);
         }
         return true;
     }

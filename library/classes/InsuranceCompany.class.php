@@ -74,7 +74,7 @@ class InsuranceCompany extends ORDataObject
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    public function __construct(public $id = "", $prefix = "", ?InsuranceCompanyService $insuranceCompanyService = null)
+    public function __construct(public $id = "", ?InsuranceCompanyService $insuranceCompanyService = null)
     {
         $this->name = "";
         $this->_table = "insurance_companies";
@@ -340,7 +340,7 @@ class InsuranceCompany extends ORDataObject
             $data = $listAll->getData();
             foreach ($data as $record) {
                 // we pass in the service array so we don't recreate it each time
-                $company = new InsuranceCompany("", "", $insuranceCompanyService);
+                $company = new InsuranceCompany("", $insuranceCompanyService);
                 $company->populate_array($record);
                 if (!empty($record['work_id'])) {
                     $company->set_phone($record['work_number']);

@@ -17,34 +17,34 @@
 namespace PatientPortal;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
-    define('IS_PORTAL', $_SESSION['pid']);
+    define('IS_PORTAL', $session->get('pid'));
 } else {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit;
     }
     $admin = sqlQueryNoLog(
         "SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
-        [$_SESSION['authUserID']]
+        [$session->get('authUserID')]
     );
     define('ADMIN_USERNAME', $admin['user_name']);
-    define('IS_DASHBOARD', $_SESSION['authUser']);
+    define('IS_DASHBOARD', $session->get('authUser'));
     define('IS_PORTAL', false);
     $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
@@ -57,7 +57,7 @@ if (!empty($_GET['username']) && ($_GET['username'] != 'currentol')) {
             $usernameManipulatedFlag = true;
         }
     } else {
-        if ($_GET['username'] != $_SESSION['ptName']) {
+        if ($_GET['username'] != $session->get('ptName')) {
             $usernameManipulatedFlag = true;
         }
     }
@@ -68,7 +68,7 @@ if (!empty($_POST['username'])) {
             $usernameManipulatedFlag = true;
         }
     } else {
-        if ($_POST['username'] != $_SESSION['ptName']) {
+        if ($_POST['username'] != $session->get('ptName')) {
             $usernameManipulatedFlag = true;
         }
     }
@@ -165,8 +165,8 @@ $msgApp = new ChatController();
             $scope.lastMessageId = null;
             $scope.historyFromId = null;
             $scope.onlines = []; // all online users id and ip's
-            $scope.user = <?php echo !empty($_SESSION['ptName']) ? js_escape($_SESSION['ptName']) : js_escape(ADMIN_USERNAME); ?>;// current user - dashboard user is from session authUserID
-            $scope.userid = <?php echo IS_PORTAL ? js_escape($_SESSION['pid']) : js_escape($_SESSION['authUser']); ?>;
+            $scope.user = <?php echo !empty($session->get('ptName')) ? js_escape($session->get('ptName')) : js_escape(ADMIN_USERNAME); ?>;// current user - dashboard user is from session authUserID
+            $scope.userid = <?php echo IS_PORTAL ? js_escape($session->get('pid')) : js_escape($session->get('authUser')); ?>;
             $scope.isPortal = "<?php echo IS_PORTAL;?>";
             $scope.pusers = []; // selected recipients for chat
             $scope.chatusers = []; // authorize chat recipients for dashboard user

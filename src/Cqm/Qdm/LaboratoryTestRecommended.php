@@ -61,4 +61,3 @@ class LaboratoryTestRecommended extends QDMBaseType
 
     public $_type = 'QDM::LaboratoryTestRecommended';
 }
-

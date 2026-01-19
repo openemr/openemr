@@ -26,12 +26,13 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2013 OEMR
  * @copyright Copyright (c) 2018-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -46,6 +47,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
 use SodiumException;
 
@@ -512,12 +514,13 @@ class AuthUtils
     {
         // Collect ip address for log
         $ip = collectIpAddresses();
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         if (empty($activeUser) || empty($currentPwd)) {
             $this->errorMessage = xl("Password update error! Empty username or password.");
             $this->clearFromMemory($currentPwd);
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::getInstance()->newEvent('password', $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Password change Failure: " . $ip['ip_string'] . ' empty username or password');
+            EventAuditLogger::getInstance()->newEvent('password', $session->get('authUser'), $session->get('authProvider'), 0, "Password change Failure: " . $ip['ip_string'] . ' empty username or password');
             return false;
         }
 
@@ -552,14 +555,14 @@ class AuthUtils
                 $this->errorMessage = xl("Trying to create user with existing username!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Trying to create new user with existing username");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Trying to create new user with existing username");
                 return false;
             }
             if (empty($userInfo['password'])) {
                 $this->errorMessage = xl("Password update error!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Current user password not found");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Current user password not found");
                 return false;
             }
             // If this user is changing his own password, then confirm that they have the current password correct
@@ -567,7 +570,7 @@ class AuthUtils
                 $this->errorMessage = xl("Incorrect password!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Incorrect password");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Incorrect password");
                 return false;
             }
         } else {
@@ -576,24 +579,24 @@ class AuthUtils
                 $this->errorMessage = xl("Not authorized to manage users!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " User not authorized to manage other user's passwords");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " User not authorized to manage other user's passwords");
                 return false;
             }
 
             // If this is an administrator changing someone else's password, then authenticate the administrator
             if (self::useActiveDirectory()) {
-                if (empty($_SESSION['authUser'])) {
+                if (empty($session->get('authUser'))) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " authUser session is empty");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " authUser session is empty");
                     return false;
                 }
-                if (!$this->activeDirectoryValidation($_SESSION['authUser'], $currentPwd)) {
+                if (!$this->activeDirectoryValidation($session->get('authUser'), $currentPwd)) {
                     $this->errorMessage = xl("Incorrect password!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Incorrect password");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Incorrect password");
                     return false;
                 }
             } else {
@@ -605,14 +608,14 @@ class AuthUtils
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Unable to find user credentials");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Unable to find user credentials");
                     return false;
                 }
                 if (!AuthHash::passwordVerify($currentPwd, $adminInfo['password'])) {
                     $this->errorMessage = xl("Incorrect password!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Incorrect password");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Incorrect password");
                     return false;
                 }
             }
@@ -633,7 +636,7 @@ class AuthUtils
                 // Something is seriously wrong with the random generator
                 $this->clearFromMemory($newPwd);
                 error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
                 die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
             }
         }
@@ -642,7 +645,7 @@ class AuthUtils
         if (empty($newPwd)) {
             $this->errorMessage = xl("Empty Password Not Allowed");
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Empty password");
+            EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Empty password");
             return false;
         }
 
@@ -650,7 +653,7 @@ class AuthUtils
         if ((!$ldapDummyPassword) && (!$this->testMinimumPasswordLength($newPwd))) {
             $this->errorMessage = xl("Password not long enough");
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Password not long enough");
+            EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Password not long enough");
             return false;
         }
 
@@ -658,7 +661,7 @@ class AuthUtils
         if ((!$ldapDummyPassword) && (!$this->testMaximumPasswordLength($newPwd))) {
             $this->errorMessage = xl("Password too long");
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Password too long");
+            EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Password too long");
             return false;
         }
 
@@ -666,7 +669,7 @@ class AuthUtils
         if ((!$ldapDummyPassword) && (!$this->testPasswordStrength($newPwd))) {
             $this->errorMessage = xl("Password not strong enough");
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Password not strong enough");
+            EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Password not strong enough");
             return false;
         }
 
@@ -677,7 +680,7 @@ class AuthUtils
                 if (empty($new_username)) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " New user username is empty");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " New user username is empty");
                     return false;
                 }
                 // Collect the new user id from the users table
@@ -689,7 +692,7 @@ class AuthUtils
                 if (empty($user_id) || empty($user_id['id'])) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " New user id not found");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " New user id not found");
                     return false;
                 }
                 // Create the new user password hash
@@ -697,7 +700,7 @@ class AuthUtils
                 if (empty($hash)) {
                     // Something is seriously wrong
                     error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a hash.");
                     die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
                 }
                 // Store the new user credentials
@@ -708,21 +711,21 @@ class AuthUtils
             } else {
                 $this->errorMessage = xl("Missing user credentials") . ":" . $targetUser;
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Missing user credentials");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Missing user credentials");
                 return false;
             }
         } else { // We are trying to update the password of an existing user
             if ($create) {
                 $this->errorMessage = xl("Trying to create user with existing username!");
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Trying to create new user with existing username");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Trying to create new user with existing username");
                 return false;
             }
 
             if (empty($targetUser)) {
                 $this->errorMessage = xl("Password update error!");
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " targetuser is empty");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " targetuser is empty");
                 return false;
             }
 
@@ -747,7 +750,7 @@ class AuthUtils
                 if ($pass_reuse_fail) {
                     $this->errorMessage = xl("Reuse of previous passwords not allowed!");
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " Reuse of previous passwords not allowed");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " Reuse of previous passwords not allowed");
                     return false;
                 }
             }
@@ -758,7 +761,7 @@ class AuthUtils
                 // Something is seriously wrong
                 $this->clearFromMemory($newPwd);
                 error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-                EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a hash.");
                 die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
             }
 
@@ -787,13 +790,13 @@ class AuthUtils
 
             // If the user is changing their own password, we need to update the session
             if ($changingOwnPassword) {
-                $_SESSION['authPass'] = $newHash;
+                $session->set('authPass', $newHash);
             }
         }
 
         // Done with $newPwd, so can clear it now
         $this->clearFromMemory($newPwd);
-        EventAuditLogger::getInstance()->newEvent($event, $_SESSION['authUser'], $_SESSION['authProvider'], 1, $beginLogSuccess);
+        EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 1, $beginLogSuccess);
         return true;
     }
 
@@ -837,19 +840,20 @@ class AuthUtils
      */
     public static function authCheckSession()
     {
-        if ((!empty($_SESSION['authUserID'])) && (!empty($_SESSION['authUser'])) && (!empty($_SESSION['authPass']))) {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        if ((!empty($session->get('authUserID'))) && (!empty($session->get('authUser'))) && (!empty($session->get('authPass')))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
                 " WHERE `users`.`id` = ? " .
                 " AND `users`.`id` = `users_secure`.`id` " .
                 " AND BINARY `users`.`username` = `users_secure`.`username`" .
-                " AND `users`.`active` = 1", [$_SESSION['authUserID']]);
+                " AND `users`.`active` = 1", [$session->get('authUserID')]);
             if (
                 (!empty($authDB)) &&
                 (!empty($authDB['username'])) &&
                 (!empty($authDB['password'])) &&
-                ($_SESSION['authUser'] == $authDB['username']) &&
-                (hash_equals($_SESSION['authPass'], $authDB['password']))
+                ($session->get('authUser') == $authDB['username']) &&
+                (hash_equals($session->get('authPass'), $authDB['password']))
             ) {
                 return true;
             } else {
@@ -868,11 +872,12 @@ class AuthUtils
      */
     public static function useActiveDirectory($user = '')
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (empty($GLOBALS['gbl_ldap_enabled'])) {
             return false;
         }
         if ($user == '') {
-            $user = $_SESSION['authUser'];
+            $user = $session->get('authUser');
         }
         $exarr = explode(',', (string) $GLOBALS['gbl_ldap_exclusions']);
         foreach ($exarr as $ex) {
@@ -1520,15 +1525,16 @@ class AuthUtils
      */
     public static function setUserSessionVariables($username, $hash, $userInfo, $authGroup)
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Set up session environment
-        $_SESSION['authUser'] = $username; // username
-        $_SESSION['authPass'] = $hash; // user hash used to confirm session in authCheckSession()
-        $_SESSION['authUserID'] = $userInfo['id']; // user id
-        $_SESSION['authProvider'] = $authGroup; // user group
-        $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
+        $session->set('authUser', $username); // username
+        $session->set('authPass', $hash); // user hash used to confirm session in authCheckSession()
+        $session->set('authUserID', $userInfo['id']); // user id
+        $session->set('authProvider', $authGroup); // user group
+        $session->set('userauthorized', $userInfo['authorized']); // user authorized setting
         // Some users may be able to authorize without being providers:
         if ($userInfo['see_auth'] > '2') {
-            $_SESSION['userauthorized'] = '1';
+            $session->set('userauthorized', '1');
         }
     }
 }

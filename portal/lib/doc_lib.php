@@ -13,23 +13,25 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$globalsBag = OEGlobalsBag::getInstance();
 
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['cpid'])) {
-        if ($_POST['cpid'] != $_SESSION['pid']) {
+        if ($_POST['cpid'] != $session->get('pid')) {
             echo "illegal Action";
             SessionUtil::portalSessionCookieDestroy();
             exit;
         }
     }
-    $pid = $_SESSION['pid'];
+    $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     // only support download handler from patient portal
@@ -42,13 +44,13 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");
-    if (!isset($_SESSION['authUserID'])) {
+    if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit;
     }
 }
-
+$srcdir = $globalsBag->getString('srcdir');
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/appsql.class.php");
@@ -59,20 +61,20 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 
 // portal doesn't need to be enabled to chart from documents
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     $msg = xlt('Patient Portal is turned off');
     error_log($msg);
     echo $msg;
 }
 // confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib')) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }
 
 $logit = new ApplicationTable();
 $htmlin = $_POST['content'] ?? null;
 $dispose = $_POST['handler'] ?? null;
-$cpid = $_POST['cpid'] ?: $GLOBALS['pid'];
+$cpid = $_POST['cpid'] ?: $globalsBag->get('pid');
 $category = $_POST['catid'] ?? 0;
 
 

@@ -58,4 +58,3 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
         </div>
     </body>
 </html>
-

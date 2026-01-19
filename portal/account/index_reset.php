@@ -12,20 +12,29 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+
+use OpenEMR\Core\Header;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
-$GLOBALS['already_autoloaded'] = true;
 require_once(__DIR__ . "/../../vendor/autoload.php");
-SessionUtil::portalSessionStart();
+$globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-$landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id'] ?? '');
+
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $ignoreAuth_onsite_portal = true;
 } else {
+    $landingpage = "./../index.php?site=" . urlencode((string) $session->get('site_id', ''));
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
@@ -33,25 +42,19 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 require_once(__DIR__ . '/../../interface/globals.php');
 require_once(__DIR__ . "/../lib/appsql.class.php");
 
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
-
 
 $logit = new ApplicationTable();
 //exit if portal is turned off
-if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
+if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset")) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "portal_index_reset", $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 }
-$_SESSION['credentials_update'] = 1;
+$session->set('credentials_update', 1);
 
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
 DEFINE("COL_ID", "id");
@@ -63,7 +66,7 @@ DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
 $sql = "SELECT " . implode(",", [COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) .
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
-$auth = privQuery($sql, [$_SESSION['pid']]);
+$auth = privQuery($sql, [$session->get('pid')]);
 $password = trim($_POST['pass_current'] ?? '');
 unset($_POST['pass_current']);
 
@@ -112,12 +115,12 @@ if (isset($_POST['submit'])) {
 $vars = [
     'isSubmit' => !empty($_POST['submit'])
     ,'auth' => $auth
-    ,'pid' => $_SESSION['pid']
+    ,'pid' => $session->get('pid')
     ,'errMsg' => $errmsg
     ,'isSaved' => $isSaved
 ];
 try {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Exception $exception) {
     (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     die(xlt("Failed to render twig file"));

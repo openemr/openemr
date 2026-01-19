@@ -66,4 +66,3 @@ class AllergyIntolerance extends QDMBaseType
 
     public $_type = 'QDM::AllergyIntolerance';
 }
-

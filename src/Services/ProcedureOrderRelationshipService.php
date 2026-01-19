@@ -46,7 +46,7 @@ class ProcedureOrderRelationshipService
             return false;
         }
 
-        $sql = "INSERT INTO procedure_order_relationships 
+        $sql = "INSERT INTO procedure_order_relationships
                 (procedure_order_id, resource_type, resource_uuid, relationship, created_by)
                 VALUES (?, ?, ?, ?, ?)";
 
@@ -69,7 +69,7 @@ class ProcedureOrderRelationshipService
      */
     public function getRelationshipsByOrderId($procedureOrderId)
     {
-        $sql = "SELECT id, procedure_order_id, resource_type, resource_uuid, 
+        $sql = "SELECT id, procedure_order_id, resource_type, resource_uuid,
                        relationship, created_at, created_by
                 FROM procedure_order_relationships
                 WHERE procedure_order_id = ?
@@ -96,7 +96,7 @@ class ProcedureOrderRelationshipService
      */
     public function getRelationshipsByType($procedureOrderId, $resourceType)
     {
-        $sql = "SELECT id, procedure_order_id, resource_type, resource_uuid, 
+        $sql = "SELECT id, procedure_order_id, resource_type, resource_uuid,
                        relationship, created_at, created_by
                 FROM procedure_order_relationships
                 WHERE procedure_order_id = ? AND resource_type = ?
@@ -147,7 +147,7 @@ class ProcedureOrderRelationshipService
      */
     public function deleteRelationshipsByType($procedureOrderId, $resourceType)
     {
-        $sql = "DELETE FROM procedure_order_relationships 
+        $sql = "DELETE FROM procedure_order_relationships
                 WHERE procedure_order_id = ? AND resource_type = ?";
         return sqlStatement($sql, [$procedureOrderId, $resourceType]) !== false;
     }
@@ -167,10 +167,10 @@ class ProcedureOrderRelationshipService
             return false;
         }
 
-        $sql = "SELECT COUNT(*) as count 
+        $sql = "SELECT COUNT(*) as count
                 FROM procedure_order_relationships
-                WHERE procedure_order_id = ? 
-                  AND resource_type = ? 
+                WHERE procedure_order_id = ?
+                  AND resource_type = ?
                   AND resource_uuid = ?";
 
         $result = sqlQuery($sql, [$procedureOrderId, $resourceType, $uuidBinary]);
@@ -186,8 +186,8 @@ class ProcedureOrderRelationshipService
      */
     private function procedureOrderExists($procedureOrderId)
     {
-        $sql = "SELECT COUNT(*) as count 
-                FROM procedure_order 
+        $sql = "SELECT COUNT(*) as count
+                FROM procedure_order
                 WHERE procedure_order_id = ? AND activity = 1";
 
         $result = sqlQuery($sql, [$procedureOrderId]);
@@ -290,7 +290,7 @@ class ProcedureOrderRelationshipService
         $stats['total_relationships'] = $result['total'] ?? 0;
 
         // By resource type
-        $sql = "SELECT resource_type, COUNT(*) as count 
+        $sql = "SELECT resource_type, COUNT(*) as count
                 FROM procedure_order_relationships
                 GROUP BY resource_type
                 ORDER BY count DESC";
@@ -301,13 +301,13 @@ class ProcedureOrderRelationshipService
         }
 
         // Orders with relationships
-        $sql = "SELECT COUNT(DISTINCT procedure_order_id) as count 
+        $sql = "SELECT COUNT(DISTINCT procedure_order_id) as count
                 FROM procedure_order_relationships";
         $result = sqlQuery($sql);
         $stats['orders_with_relationships'] = $result['count'] ?? 0;
 
         // By relationship type
-        $sql = "SELECT relationship, COUNT(*) as count 
+        $sql = "SELECT relationship, COUNT(*) as count
                 FROM procedure_order_relationships
                 WHERE relationship IS NOT NULL
                 GROUP BY relationship
@@ -319,7 +319,7 @@ class ProcedureOrderRelationshipService
         }
 
         // Orphaned records
-        $sql = "SELECT COUNT(*) as count 
+        $sql = "SELECT COUNT(*) as count
                 FROM procedure_order_relationships por
                 LEFT JOIN procedure_order po ON por.procedure_order_id = po.procedure_order_id
                 WHERE po.procedure_order_id IS NULL OR po.activity = 0";

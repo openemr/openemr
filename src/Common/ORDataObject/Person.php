@@ -16,6 +16,7 @@ namespace OpenEMR\Common\ORDataObject;
 
 use DateTime;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class Person extends ORDataObject implements \JsonSerializable, \Stringable
 {
@@ -54,6 +55,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     public function __construct(private $id = "")
     {
         parent::__construct("person");
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->setThrowExceptionOnError(true);
         $this->uuid = null;
         $this->title = "";
@@ -75,7 +77,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         $this->inactive_date = null;
         $this->notes = "";
         $this->created_date = new DateTime();
-        $this->created_by = $_SESSION['authUserID'] ?? null;
+        $this->created_by = $session->get('authUserID');
         $this->updated_date = null;
         $this->updated_by = null;
 
@@ -130,6 +132,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
      */
     public function persist()
     {
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Generate UUID if creating new record
         if (empty($this->id) && empty($this->uuid)) {
             try {
@@ -143,7 +146,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
         // Set updated timestamp and user
         $this->updated_date = new DateTime();
-        $this->updated_by = $_SESSION['authUserID'] ?? $this->created_by;
+        $this->updated_by = $session->get('authUserID') ?? $this->created_by;
 
         return parent::persist();
     }
@@ -164,11 +167,11 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
     /**
      * Get UUID - returns BINARY for database operations, STRING for API/display
-     * 
+     *
      * CRITICAL FIX: This method must return the raw binary value so that
      * ORDataObject::persist() can save it correctly to the BINARY(16) column.
      * The conversion to string happens in get_uuid_string() or toArray().
-     * 
+     *
      * @return string|null Binary UUID (16 bytes) or null
      */
     public function get_uuid(): ?string
@@ -181,7 +184,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     /**
      * Get UUID as human-readable string (36 characters with hyphens)
      * Use this for API responses, logging, and display purposes
-     * 
+     *
      * @return string|null UUID string like "550e8400-e29b-41d4-a716-446655440000"
      */
     public function get_uuid_string(): ?string
@@ -191,7 +194,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
     /**
      * Set UUID - accepts either binary (16 bytes) or string (36 chars)
-     * 
+     *
      * @param string|null $uuid Either binary (16 bytes) or string format
      * @return self
      */
@@ -210,7 +213,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
             error_log("Person::set_uuid() - Invalid UUID format: length=" . strlen($uuid));
             $this->uuid = null;
         }
-        
+
         $this->setIsObjectModified(true);
         return $this;
     }

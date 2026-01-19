@@ -24,7 +24,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
-    
+
     - name: Get changed docker compose files
       id: changed-files
       continue-on-error: true
@@ -35,12 +35,12 @@ jobs:
           **/*compose*.yaml
         files_ignore: |
           .github/**
-    
+
     - name: Determine files to check
       id: files-to-check
       run: |
         set -x
-        
+
         # If the changed-files step failed or returned empty,
         # use find to locate all docker compose files in the repo.
         if [[ "${{ steps.changed-files.outcome }}" = success && "${{ steps.changed-files.outputs.any_changed }}" = true ]]; then
@@ -53,7 +53,7 @@ jobs:
           # Use recursive mode in dclint to find all compose files
           echo "mode=recursive" >> "$GITHUB_OUTPUT"
         fi
-    
+
     - name: Run dclint on changed files
       if: steps.files-to-check.outputs.mode == 'files'
       run: |

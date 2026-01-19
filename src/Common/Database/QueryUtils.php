@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Common\Database;
 
+use Throwable;
+
 class QueryUtils
 {
     /**
@@ -291,6 +293,29 @@ class QueryUtils
     public static function rollbackTransaction()
     {
         \sqlRollbackTrans();
+    }
+
+    /**
+     * Runs the $action within a database transaction, automatically committing
+     * it on success and rolling back if there's an exception.
+     *
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function inTransaction(callable $action): mixed
+    {
+        self::startTransaction();
+
+        try {
+            $return = $action();
+
+            self::commitTransaction();
+            return $action;
+        } catch (Throwable $e) {
+            self::rollbackTransaction();
+            throw $e;
+        }
     }
 
     public static function getLastInsertId()
