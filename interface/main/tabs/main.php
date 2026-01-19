@@ -410,6 +410,10 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         min-height: 100% !important;
         height: 100% !important;
       }
+      #userdropdown.dropdown-menu {
+        white-space: nowrap;        /* prevents multi-line wrapping */
+        min-width: max-content;     /* expands to fit the widest item */
+      }
     </style>
 </head>
 
