@@ -62,7 +62,7 @@ class Recorder
                 `payer_claim_number`
             ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
             SQL;
-        QueryUtils::inTransaction(function () use ($query, $data) {
+        QueryUtils::inTransaction(function () use ($query, $data): void {
             $now = date('Y-m-d H:i:s');
             $next = $this->getNextSequenceNumber(
                 patientId: $data['patientId'],
