@@ -28,6 +28,8 @@ use PDO;
  * container, and/or something like `doctrine/orm` for most interactions.
  *
  * @internal
+ *
+ * @phpstan-type Bindings array<string|int|float>
  */
 class Database
 {
@@ -123,8 +125,13 @@ class Database
     /**
      * Returns the single row as an associative array, or null if there was no
      * result.
+     *
+     * This will NOT trigger a runtime error if the query has multiple rows.
+     *
+     * @param Bindings $bindings
+     * @return array<string, mixed>
      */
-    public function fetchOneRow(string $sql, array $bindings = []): ?array
+    public function fetchOneRow(string $sql, array $bindings): ?array
     {
         $row = $this->query($sql, $bindings)->fetchAssociative();
         if ($row === false) {
@@ -134,19 +141,58 @@ class Database
     }
 
     /**
-     * Performs a SELECT statement and returns the result
+     * Returns the entire dataset from the query, as a a list of associative
+     * arrays.
+     *
+     * e.g. SELECT a, b FROM foos would return something like this:
+     * [
+     *   ['a' => 'a1', 'b' => 'b1'],
+     *   ['a' => 'a2', 'b' => 'b2'],
+     * ]
+     *
+     * @param Bindings $bindings
+     * @return array<string, mixed>[]
      */
-    private function query(string $sql, array $bindings = []): Result
+    public function fetchAll(string $sql, array $bindings): array
+    {
+        return $this->query($sql, $bindings)->fetchAllAssociative();
+    }
+
+    /**
+     * Performs a SELECT statement and returns the result.
+     *
+     * Running any other type of query through this path is a logical error.
+     *
+     * @param Bindings $bindings
+     */
+    private function query(string $sql, array $bindings): Result
     {
         // TODO: middleware for logging, performance metrics, etc.
         // error_log($sql);
 
-        $stmt = $this->connection->prepare($sql);
-        foreach ($bindings as $i => $binding) {
-            // SQL bindings are 1-indexed, not 0-indexed like the input
-            $stmt->bindValue($i + 1, $binding);
-        }
-        return $stmt->executeQuery();
+        // $stmt = $this->connection->prepare($sql);
+        // foreach ($bindings as $i => $binding) {
+        //     // SQL bindings are 1-indexed, not 0-indexed like the input
+        //     $stmt->bindValue($i + 1, $binding);
+        // }
+        return $this->conn->executeQuery($sql, $bindings);
+    }
+
+    /**
+     * Performs a INSERT/UPDATE/DELETE statement and returns the number of rows
+     * affected.
+     *
+     * Running a SELECT statement through this path is a logical error.
+     *
+     * @param Bindings $bindings
+     *
+     * @return int The number of rows changed
+     */
+    public function execute(string $sql, array $bindings): int
+    {
+        // In practice, a SELECT here will return effectively the COUNT(), but
+        // don't do that.
+        return $this->conn->executeStatement($sql, $bindings);
     }
 
     /**
