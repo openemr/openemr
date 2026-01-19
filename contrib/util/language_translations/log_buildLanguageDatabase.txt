@@ -124,8 +124,8 @@ Following constant not same:
 	original- val:Couldn't remove old backup file:
 	spreadsheet- ID:2378 val:Couldn\'t remove old backup file:
 Following constant not same:
-	original- val:Couldn't remove old export file:
-	spreadsheet- ID:2379 val:Couldn\'t remove old export file:
+	original- val:Couldn't remove old export file: 
+	spreadsheet- ID:2379 val:Couldn\'t remove old export file: 
 Following constant not same:
 	original- val:Creates a report that contains various sections of the patient's medical record
 	spreadsheet- ID:2463 val:Creates a report that contains various sections of the patient\'s medical record
@@ -241,11 +241,11 @@ Following constant not same:
 	original- val:Fill in any missing details or edit existing information. This will be saved in the patient's demographics page in openEMR
 	spreadsheet- ID:4306 val:Fill in any missing details or edit existing information. This will be saved in the patient\'s demographics page in openEMR
 Following constant not same:
-	original- val:For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form.
-	spreadsheet- ID:4442 val:For detailed instructions close the \'Enter Details\' pop-up and click on the Help icon on the main form.
+	original- val:For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. 
+	spreadsheet- ID:4442 val:For detailed instructions close the \'Enter Details\' pop-up and click on the Help icon on the main form. 
 Following constant not same:
-	original- val:For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form.
-	spreadsheet- ID:4443 val:For detailed instructions close the \'Enter Provider Details\' popup and click on the Help icon on the main form.
+	original- val:For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. 
+	spreadsheet- ID:4443 val:For detailed instructions close the \'Enter Provider Details\' popup and click on the Help icon on the main form. 
 Following constant not same:
 	original- val:For each issue type there is a list of commonly selected titles which are customizable for your clinic's specific needs
 	spreadsheet- ID:4444 val:For each issue type there is a list of commonly selected titles which are customizable for your clinic\'s specific needs
@@ -301,8 +301,8 @@ Following constant not same:
 	original- val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the 'Process ERA File' button at the bottom of the page. This will produce a new window with a detailed report.
 	spreadsheet- ID:5183 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the \'Process ERA File\' button at the bottom of the page. This will produce a new window with a detailed report.
 Following constant not same:
-	original- val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc.
-	spreadsheet- ID:5294 val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel\'s constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc.
+	original- val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+	spreadsheet- ID:5294 val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel\'s constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
 Following constant not same:
 	original- val:In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
 	spreadsheet- ID:5304 val:In the \'Post Item\' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
@@ -322,8 +322,8 @@ Following constant not same:
 	original- val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in 'Select Codes'
 	spreadsheet- ID:5787 val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in \'Select Codes\'
 Following constant not same:
-	original- val:k, here's the rest
-	spreadsheet- ID:5791 val:k, here\'s the rest
+	original- val:k, here's the rest 
+	spreadsheet- ID:5791 val:k, here\'s the rest 
 Following constant not same:
 	original- val:Lets you delete a line or row. Hit 'Refresh' and the line will have a strikethrough across it
 	spreadsheet- ID:6016 val:Lets you delete a line or row. Hit \'Refresh\' and the line will have a strikethrough across it
@@ -346,8 +346,8 @@ Following constant not same:
 	original- val:Note there is no 'Save' button.
 	spreadsheet- ID:7245 val:Note there is no \'Save\' button.
 Following constant not same:
-	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category.
-	spreadsheet- ID:7260 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category.
+	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:7260 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
 Following constant not same:
 	original- val:NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number
 	spreadsheet- ID:7312 val:NPI - Enter the Provider\'s unique 10-digit National Provider Identifier or NPI identification number
@@ -478,8 +478,8 @@ Following constant not same:
 	original- val:The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
 	spreadsheet- ID:11294 val:The user\'s actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
 Following constant not same:
-	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
-	spreadsheet- ID:11304 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
+	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:11304 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the 'era' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
 	spreadsheet- ID:11305 val:The X12 files as well as the resulting HTML output reports are archived in the \'era\' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
@@ -520,8 +520,8 @@ Following constant not same:
 	original- val:To fully delete hit 'Save'
 	spreadsheet- ID:11718 val:To fully delete hit \'Save\'
 Following constant not same:
-	original- val:To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload'
-	spreadsheet- ID:11719 val:To get started you choose one of the two radio buttons. \'Invoice Search\' or \'ERA Upload\'
+	original- val:To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' 
+	spreadsheet- ID:11719 val:To get started you choose one of the two radio buttons. \'Invoice Search\' or \'ERA Upload\' 
 Following constant not same:
 	original- val:To include the scanned documents that are a part of the patient's record select the desired records by check the relevant check-boxes
 	spreadsheet- ID:11724 val:To include the scanned documents that are a part of the patient\'s record select the desired records by check the relevant check-boxes
@@ -559,8 +559,8 @@ Following constant not same:
 	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
 	spreadsheet- ID:12902 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
 Following constant not same:
-	original- val:" for code
-	spreadsheet- ID:13072 val:\" for code
+	original- val:" for code 
+	spreadsheet- ID:13072 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
 	spreadsheet- ID:13073 val:\" is CHECKED in PostCalendar Settings!
@@ -701,8 +701,8 @@ Following constant not same:
 	original- val:Couldn't remove old backup file:
 	spreadsheet- ID:2378 val:Couldn\'t remove old backup file:
 Following constant not same:
-	original- val:Couldn't remove old export file:
-	spreadsheet- ID:2379 val:Couldn\'t remove old export file:
+	original- val:Couldn't remove old export file: 
+	spreadsheet- ID:2379 val:Couldn\'t remove old export file: 
 Following constant not same:
 	original- val:Creates a report that contains various sections of the patient's medical record
 	spreadsheet- ID:2463 val:Creates a report that contains various sections of the patient\'s medical record
@@ -818,11 +818,11 @@ Following constant not same:
 	original- val:Fill in any missing details or edit existing information. This will be saved in the patient's demographics page in openEMR
 	spreadsheet- ID:4306 val:Fill in any missing details or edit existing information. This will be saved in the patient\'s demographics page in openEMR
 Following constant not same:
-	original- val:For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form.
-	spreadsheet- ID:4442 val:For detailed instructions close the \'Enter Details\' pop-up and click on the Help icon on the main form.
+	original- val:For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. 
+	spreadsheet- ID:4442 val:For detailed instructions close the \'Enter Details\' pop-up and click on the Help icon on the main form. 
 Following constant not same:
-	original- val:For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form.
-	spreadsheet- ID:4443 val:For detailed instructions close the \'Enter Provider Details\' popup and click on the Help icon on the main form.
+	original- val:For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. 
+	spreadsheet- ID:4443 val:For detailed instructions close the \'Enter Provider Details\' popup and click on the Help icon on the main form. 
 Following constant not same:
 	original- val:For each issue type there is a list of commonly selected titles which are customizable for your clinic's specific needs
 	spreadsheet- ID:4444 val:For each issue type there is a list of commonly selected titles which are customizable for your clinic\'s specific needs
@@ -878,8 +878,8 @@ Following constant not same:
 	original- val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the 'Process ERA File' button at the bottom of the page. This will produce a new window with a detailed report.
 	spreadsheet- ID:5183 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the \'Process ERA File\' button at the bottom of the page. This will produce a new window with a detailed report.
 Following constant not same:
-	original- val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc.
-	spreadsheet- ID:5294 val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel\'s constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc.
+	original- val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+	spreadsheet- ID:5294 val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel\'s constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
 Following constant not same:
 	original- val:In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
 	spreadsheet- ID:5304 val:In the \'Post Item\' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
@@ -899,8 +899,8 @@ Following constant not same:
 	original- val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in 'Select Codes'
 	spreadsheet- ID:5787 val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in \'Select Codes\'
 Following constant not same:
-	original- val:k, here's the rest
-	spreadsheet- ID:5791 val:k, here\'s the rest
+	original- val:k, here's the rest 
+	spreadsheet- ID:5791 val:k, here\'s the rest 
 Following constant not same:
 	original- val:Lets you delete a line or row. Hit 'Refresh' and the line will have a strikethrough across it
 	spreadsheet- ID:6016 val:Lets you delete a line or row. Hit \'Refresh\' and the line will have a strikethrough across it
@@ -923,8 +923,8 @@ Following constant not same:
 	original- val:Note there is no 'Save' button.
 	spreadsheet- ID:7245 val:Note there is no \'Save\' button.
 Following constant not same:
-	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category.
-	spreadsheet- ID:7260 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category.
+	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:7260 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
 Following constant not same:
 	original- val:NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number
 	spreadsheet- ID:7312 val:NPI - Enter the Provider\'s unique 10-digit National Provider Identifier or NPI identification number
@@ -1055,8 +1055,8 @@ Following constant not same:
 	original- val:The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
 	spreadsheet- ID:11294 val:The user\'s actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
 Following constant not same:
-	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
-	spreadsheet- ID:11304 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is
+	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:11304 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the 'era' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
 	spreadsheet- ID:11305 val:The X12 files as well as the resulting HTML output reports are archived in the \'era\' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
@@ -1097,8 +1097,8 @@ Following constant not same:
 	original- val:To fully delete hit 'Save'
 	spreadsheet- ID:11718 val:To fully delete hit \'Save\'
 Following constant not same:
-	original- val:To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload'
-	spreadsheet- ID:11719 val:To get started you choose one of the two radio buttons. \'Invoice Search\' or \'ERA Upload\'
+	original- val:To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' 
+	spreadsheet- ID:11719 val:To get started you choose one of the two radio buttons. \'Invoice Search\' or \'ERA Upload\' 
 Following constant not same:
 	original- val:To include the scanned documents that are a part of the patient's record select the desired records by check the relevant check-boxes
 	spreadsheet- ID:11724 val:To include the scanned documents that are a part of the patient\'s record select the desired records by check the relevant check-boxes
@@ -1136,8 +1136,8 @@ Following constant not same:
 	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
 	spreadsheet- ID:12902 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
 Following constant not same:
-	original- val:" for code
-	spreadsheet- ID:13072 val:\" for code
+	original- val:" for code 
+	spreadsheet- ID:13072 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
 	spreadsheet- ID:13073 val:\" is CHECKED in PostCalendar Settings!
