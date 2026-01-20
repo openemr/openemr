@@ -114,7 +114,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             selectDropdown.select2({
                 multiple: true,
                 placeholder: 'Type to search.',
-                theme: 'bootstrap4',
+                theme: 'bootstrap-5',
                 dropdownAutoWidth: true,
                 width: '100%',
                 closeOnSelect: false
@@ -193,7 +193,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             ourSelect.select2({
                 multiple: false,
                 placeholder: xl('Type to search Questionnaire Repository.'),
-                theme: 'bootstrap4',
+                theme: 'bootstrap-5',
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
@@ -285,8 +285,18 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             });
 
             $('#assigned_collapse').on('show.bs.collapse', function () {
-                $('#repository-collapse').collapse('hide');
-                $('#template-collapse').collapse('hide');
+                if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                    var repositoryEl = document.getElementById('repository-collapse');
+                    var templateEl = document.getElementById('template-collapse');
+                    if (repositoryEl) {
+                        var repositoryCollapse = bootstrap.Collapse.getOrCreateInstance(repositoryEl, {toggle: false});
+                        repositoryCollapse.hide();
+                    }
+                    if (templateEl) {
+                        var templateCollapse = bootstrap.Collapse.getOrCreateInstance(templateEl, {toggle: false});
+                        templateCollapse.hide();
+                    }
+                }
                 $('#edit_form #assigned_state').val('show');
             });
             $('#assigned_collapse').on('hidden.bs.collapse', function () {
