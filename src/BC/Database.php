@@ -16,6 +16,7 @@ use Doctrine\DBAL\{
     Connection,
     DriverManager,
     Exception as DBALException,
+    Exception\DriverException,
     Result,
 };
 use LogicException;
@@ -235,7 +236,11 @@ class Database
     // Down-convert an exception into a crash for extra backwards compat
     private static function helpfulDieDbal(DBALException $e): never
     {
-        $sql = $e->getQuery()->getSQL();
+        if ($e instanceof DriverException) {
+            $sql = $e->getQuery()?->getSQL() ?? '(SQL not detected)';
+        } else {
+            $sql = '(SQL not detected)';
+        }
         $sqlInfo = $e->getMessage();
         if ($info = self::extractSqlErrorFromDBAL($e)) {
             $sqlInfo = $info[2];
