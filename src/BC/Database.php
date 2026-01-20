@@ -204,8 +204,28 @@ class Database
         return (int) $this->connection->lastInsertId();
     }
 
+    /**
+     * Runs the DB code in a way that downsamples catchable DBALExceptions into
+     * the legacy `HelpfulDie` crash path.
+     *
+     * More than any other methods, don't build any NEW code on top of this.
+     * It's just to bridge sql.inc.php.
+     *
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function helpfulDieOnFailure(callable $action): mixed
+    {
+        try {
+            return $action();
+        } catch (DBALException $e) {
+            self::helpfulDieDbal($e);
+        }
+    }
+
     // Down-convert an exception into a crash for extra backwards compat
-    public static function helpfulDieDbal(DBALException $e): never
+    private static function helpfulDieDbal(DBALException $e): never
     {
         $sql = $e->getQuery()->getSQL();
         $sqlInfo = $e->getMessage();
@@ -230,7 +250,6 @@ class Database
      *   2: string,
      * }
      */
-
     private static function extractSqlErrorFromDBAL(DBALException $e): ?array
     {
         while ($inner = $e->getPrevious()) {
