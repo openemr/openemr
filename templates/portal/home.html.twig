@@ -317,7 +317,13 @@
 
             // Persist last card used for returns for actions.
             let gowhere = {{ whereto | js_escape }};
-            $(gowhere).collapse('show');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                var collapseEl = document.querySelector(gowhere);
+                if (collapseEl) {
+                    var collapseInstance = bootstrap.Collapse.getOrCreateInstance(collapseEl, {toggle: false});
+                    collapseInstance.show();
+                }
+            }
             // grab the navigation element that we persisted, if there is no element we default to our page title
             updateWindowTitle(document.querySelector("a[href='" + gowhere + "']"));
             // update home button in case our last location is the quickstart
