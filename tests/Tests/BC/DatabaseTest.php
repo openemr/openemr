@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
-use Doctrine\DBAL\{Connection, Result, Statement};
+use Doctrine\DBAL\{Connection, Result};
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -24,20 +24,12 @@ class DatabaseTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn($output);
 
-        $statement = self::createMock(Statement::class);
-        $statement->method('bindValue')
-            ->with(1, 'foo');
-
-        $statement->expects(self::once())
-            ->method('executeQuery')
-            ->willReturn($result);
-
         $c = self::createMock(Connection::class);
 
         $c->expects(self::once())
-            ->method('prepare')
-            ->with($sql)
-            ->willReturn($statement);
+            ->method('executeQuery')
+            ->with($sql, ['foo'])
+            ->willReturn($result);
 
         $db = new Database($c);
         self::assertSame($output, $db->fetchOneRow($sql, ['foo']));
@@ -52,19 +44,11 @@ class DatabaseTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(false);
 
-        $statement = self::createMock(Statement::class);
-        $statement->method('bindValue')
-            ->with(1, 'foo');
-
-        $statement->expects(self::once())
-            ->method('executeQuery')
-            ->willReturn($result);
-
         $c = self::createMock(Connection::class);
         $c->expects(self::once())
-            ->method('prepare')
-            ->with($sql)
-            ->willReturn($statement);
+            ->method('executeQuery')
+            ->with($sql, ['foo'])
+            ->willReturn($result);
 
         $db = new Database($c);
         self::assertNull($db->fetchOneRow($sql, ['foo']));
