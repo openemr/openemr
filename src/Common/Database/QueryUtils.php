@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Common\Database;
 
-use OpenEMR\BC\Database;
 use Throwable;
 
 class QueryUtils
@@ -269,9 +268,10 @@ class QueryUtils
         return $results;
     }
 
-    public static function generateId(): int
+    public static function generateId()
     {
-        return Database::instance()->generateSequentialId('sequences');
+        // @phpstan-ignore openemr.deprecatedSqlFunction
+        return \generate_id();
     }
 
     public static function ediGenerateId()
