@@ -853,6 +853,7 @@ class SignalWireClient extends AppDispatch
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Updated fax {$jobId} with fresh status");
             } else {
                 // Insert new fax from API fetch (these are received/already-sent faxes)
+                $uid = $_SESSION['authUserID'] ?? 0;
                 $sql = "INSERT INTO oe_faxsms_queue
                         (uid, job_id, calling_number, called_number, details_json, date, direction, status, site_id, media_path)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -866,18 +867,18 @@ class SignalWireClient extends AppDispatch
     }
 
     /**
-     * Download fax media content from SignalWire
+     * Download fax media file from SignalWire
      *
-     * Uses oeHttp client for secure HTTP requests. Validates URL to prevent SSRF attacks.
+     * Downloads fax media PDF from SignalWire API and stores locally.
      *
-     * @param string $mediaUrl URL to download fax media from
-     * @return string|null Binary content if successful, null otherwise
+     * @param mixed $fax Fax object from SignalWire API
+     * @return string|null File path if successful, null otherwise
      */
-    private function downloadFaxMediaContent(string $mediaUrl): ?string
+    private function downloadFaxMedia($fax): ?string
     {
         try {
-            if (empty($mediaUrl)) {
-                error_log("SignalWireClient.downloadFaxMediaContent(): Empty media URL");
+            if (empty($fax->mediaUrl)) {
+                error_log("SignalWireClient.downloadFaxMedia(): No media URL available");
                 return null;
             }
 
@@ -898,9 +899,9 @@ class SignalWireClient extends AppDispatch
             }
 
             // Download the file from SignalWire
-            $fileContent = file_get_contents($mediaUrl);
+            $fileContent = file_get_contents($fax->mediaUrl);
             if ($fileContent === false) {
-                error_log("SignalWireClient.downloadFaxMedia(): Failed to download media from {$mediaUrl}");
+                error_log("SignalWireClient.downloadFaxMedia(): Failed to download media from {$fax->mediaUrl}");
                 return null;
             }
 
@@ -912,6 +913,42 @@ class SignalWireClient extends AppDispatch
 
             error_log("SignalWireClient.downloadFaxMedia(): Successfully downloaded fax to {$filepath}");
             return $filepath;
+        } catch (Exception $e) {
+            error_log("SignalWireClient.downloadFaxMedia(): ERROR - " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Download fax media content from SignalWire
+     *
+     * Uses file_get_contents for HTTP requests. Validates URL to prevent SSRF attacks.
+     *
+     * @param string $mediaUrl URL to download fax media from
+     * @return string|null Binary content if successful, null otherwise
+     */
+    private function downloadFaxMediaContent(string $mediaUrl): ?string
+    {
+        try {
+            if (empty($mediaUrl)) {
+                error_log("SignalWireClient.downloadFaxMediaContent(): Empty media URL");
+                return null;
+            }
+
+            // Validate URL for security
+            if (!$this->isValidSignalWireUrl($mediaUrl)) {
+                error_log("SignalWireClient.downloadFaxMediaContent(): Invalid SignalWire URL: {$mediaUrl}");
+                return null;
+            }
+
+            // Download the file from SignalWire
+            $fileContent = file_get_contents($mediaUrl);
+            if ($fileContent === false) {
+                error_log("SignalWireClient.downloadFaxMediaContent(): Failed to download media from {$mediaUrl}");
+                return null;
+            }
+
+            return $fileContent;
         } catch (Exception $e) {
             error_log("SignalWireClient.downloadFaxMediaContent(): ERROR - " . $e->getMessage());
             return null;
