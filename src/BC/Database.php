@@ -60,7 +60,7 @@ class Database
      * access should run through `Database::instance()`.
      */
     public function __construct(
-        private readonly Connection $connection,
+        private readonly Connection $conn,
     ) {
     }
 
@@ -200,8 +200,8 @@ class Database
     {
         // Warning: table names cannot be parameterized.
         $query = sprintf('UPDATE %s SET id=LAST_INSERT_ID(id+1)', $table);
-        $_ = $this->connection->executeStatement($query);
-        return (int) $this->connection->lastInsertId();
+        $_ = $this->conn->executeStatement($query);
+        return (int) $this->conn->lastInsertId();
     }
 
     /**
