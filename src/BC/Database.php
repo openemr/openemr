@@ -35,7 +35,7 @@ use PDOException;
  * `ADOdb` and `laminas-db`. For now, continue to use the existing wrappers
  * (e.g. QueryUtils) for database interactions.
  *
- * In the future, the DBAL `Connection` may be made avaible through a DI
+ * In the future, the DBAL `Connection` may be made available through a DI
  * container, and/or something like `doctrine/orm` for most interactions.
  *
  * @internal
