@@ -881,7 +881,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
          * @var e element The Button that was clicked to collapse/expand the card
          */
         async function updateUserVisibilitySetting(e) {
-            const targetID = e.target.getAttribute("data-target");
+            const targetID = e.target.getAttribute("data-bs-target");
             const target = document.querySelector(targetID);
             const targetStr = targetID.substring(1);
             // test ensure at least an element we want.
