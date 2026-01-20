@@ -1,25 +1,36 @@
 <?php declare(strict_types = 1);
 
-// total 19073 errors
+// total 19531 errors
 
 return ['includes' => [
     __DIR__ . '/arguments.count.php',
+    __DIR__ . '/class.extendsDeprecatedClass.php',
     __DIR__ . '/class.notFound.php',
+    __DIR__ . '/classConstant.deprecated.php',
     __DIR__ . '/classConstant.notFound.php',
+    __DIR__ . '/constant.deprecated.php',
     __DIR__ . '/constant.notFound.php',
     __DIR__ . '/empty.variable.php',
+    __DIR__ . '/function.deprecated.php',
     __DIR__ . '/function.notFound.php',
     __DIR__ . '/include.fileNotFound.php',
     __DIR__ . '/includeOnce.fileNotFound.php',
     __DIR__ . '/isset.variable.php',
+    __DIR__ . '/method.deprecated.php',
+    __DIR__ . '/method.deprecatedClass.php',
     __DIR__ . '/method.notFound.php',
+    __DIR__ . '/new.deprecatedClass.php',
     __DIR__ . '/nullCoalesce.variable.php',
     __DIR__ . '/openemr.deprecatedLaminasDb.php',
     __DIR__ . '/openemr.deprecatedSqlFunction.php',
     __DIR__ . '/openemr.forbiddenCurlFunction.php',
     __DIR__ . '/openemr.forbiddenGlobalsAccess.php',
+    __DIR__ . '/property.deprecated.php',
     __DIR__ . '/property.notFound.php',
     __DIR__ . '/requireOnce.fileNotFound.php',
     __DIR__ . '/return.missing.php',
+    __DIR__ . '/staticMethod.deprecated.php',
+    __DIR__ . '/staticMethod.deprecatedClass.php',
+    __DIR__ . '/staticProperty.deprecated.php',
     __DIR__ . '/variable.undefined.php',
 ]];
