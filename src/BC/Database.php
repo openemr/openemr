@@ -39,7 +39,7 @@ use PDOException;
  *
  * @internal
  *
- * @phpstan-type Bindings array<string|int|float>
+ * @phpstan-type Bindings array<string|int|float|bool|null>
  */
 class Database
 {
