@@ -40,7 +40,7 @@ use PDOException;
  *
  * @internal
  *
- * @phpstan-type Bindings array<string|int|float|bool|null>
+ * @phpstan-type Bindings array<positive-int, string|int|float|bool|null>
  */
 class Database
 {
