@@ -10,9 +10,10 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\BC;
+namespace OpenEMR\Tests\BC;
 
 use Doctrine\DBAL\{Connection, Result};
+use OpenEMR\BC\Database;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;

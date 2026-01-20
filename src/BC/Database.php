@@ -284,7 +284,9 @@ class Database
             $e = $inner;
         }
         if ($e instanceof PDOException) {
-            // @phpstan-ignore-next-line (missing type info on errorInfo)
+            // When we bump PHPStan to a higher level, this will cause an
+            // error. Change to @phpst... to fix.
+            // phpstan-ignore-next-line (missing type info on errorInfo)
             return $e->errorInfo;
         }
         // This shouldn't be reachable without very weird driver settings
