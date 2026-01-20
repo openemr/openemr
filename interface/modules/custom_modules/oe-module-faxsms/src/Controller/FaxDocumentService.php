@@ -75,7 +75,7 @@ class FaxDocumentService
 
                 $formattedFrom = $this->formatPhoneDisplay($fromNumber);
                 $owner = $_SESSION['authUserID'];
-                
+
                 // Create and save document using OpenEMR's standard method
                 $document = new Document();
                 $error = $document->createDocument(
@@ -427,7 +427,7 @@ class FaxDocumentService
             ];
 
             // Insert into queue
-            $sql = "INSERT INTO oe_faxsms_queue 
+            $sql = "INSERT INTO oe_faxsms_queue
                     (uid, account, job_id, date, receive_date, calling_number, called_number, mime, details_json, status, direction, site_id, patient_id, document_id, media_path)
                     VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 

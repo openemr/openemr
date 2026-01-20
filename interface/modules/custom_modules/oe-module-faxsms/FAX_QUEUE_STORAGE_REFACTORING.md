@@ -104,13 +104,13 @@ private function storeInboundFax(array $faxData): void
 {
     // 1. Download media using oeHttp with Bearer token
     $mediaContent = $this->downloadFaxMediaContent($mediaUrl);
-    
+
     // 2. Initialize FaxDocumentService
     $faxService = new FaxDocumentService($siteId);
-    
+
     // 3. Attempt patient matching by phone
     $patientId = $faxService->findPatientByPhone($fromNumber);
-    
+
     // 4. Store document
     $result = $faxService->storeFaxDocument(
         $faxSid,
@@ -119,7 +119,7 @@ private function storeInboundFax(array $faxData): void
         $patientId,
         $mimeType
     );
-    
+
     // 5. Insert/update queue record
     QueryUtils::sqlStatementThrowException($sql, [
         // ... parameters with document_id and media_path
@@ -138,17 +138,17 @@ private function downloadFaxMediaContent(string $mediaUrl): ?string
     if (!$this->isValidSignalWireUrl($mediaUrl)) {
         return null;
     }
-    
+
     // 2. Get and decrypt credentials
     $apiToken = $this->getDecryptedApiToken();
-    
+
     // 3. Download using oeHttp with Bearer token
     $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
     $httpRequest->usingHeaders([
         'Authorization' => 'Bearer ' . $apiToken
     ]);
     $response = $httpRequest->get($mediaUrl);
-    
+
     return $response->body();
 }
 ```
@@ -161,18 +161,18 @@ Prevents SSRF attacks by whitelisting SignalWire domains:
 private function isValidSignalWireUrl(string $url): bool
 {
     $parsedUrl = parse_url($url);
-    
+
     // Only HTTPS
     if ($parsedUrl['scheme'] !== 'https') {
         return false;
     }
-    
+
     // Whitelist SignalWire domains
     $allowedDomains = [
         'files.signalwire.com',
         'api.signalwire.com'
     ];
-    
+
     // Check host
     $host = strtolower($parsedUrl['host']);
     foreach ($allowedDomains as $domain) {
@@ -180,7 +180,7 @@ private function isValidSignalWireUrl(string $url): bool
             return true;
         }
     }
-    
+
     return false;
 }
 ```
@@ -226,10 +226,10 @@ private function upsertFaxFromSignalWire($fax): void
     if ($fax->direction !== 'inbound') {
         return;
     }
-    
+
     // Fetch fresh status from API
     $freshFax = $this->client->fax->v1->faxes->getContext($jobId)->fetch();
-    
+
     // Build standardized fax data
     $faxData = [
         'sid' => $jobId,
@@ -241,7 +241,7 @@ private function upsertFaxFromSignalWire($fax): void
         'mediaUrl' => $mediaUrl,
         'mimeType' => 'application/pdf'
     ];
-    
+
     // Use standardized storage method
     $this->storeInboundFax($faxData);
 }
@@ -259,13 +259,13 @@ public function insertFaxQueue($faxDetails): int
     try {
         // 1. Decode fax content
         $mediaContent = base64_decode((string)$faxDetails->FaxImage);
-        
+
         // 2. Initialize FaxDocumentService
         $faxService = new FaxDocumentService($siteId);
-        
+
         // 3. Auto-match patient
         $patientId = $faxService->findPatientByPhone($fromNumber);
-        
+
         // 4. Store document
         $result = $faxService->storeFaxDocument(
             $jobId,
@@ -274,7 +274,7 @@ public function insertFaxQueue($faxDetails): int
             $patientId,
             $docType
         );
-        
+
         // 5. Insert queue record with document references
         QueryUtils::sqlStatementThrowException($sql, [
             $uid, $account, $jobId, $received,
@@ -283,7 +283,7 @@ public function insertFaxQueue($faxDetails): int
             'received', 'inbound',
             $siteId, $patientId, $documentId, $mediaPath
         ]);
-        
+
         return (int)$recordId;
     } catch (Exception $e) {
         error_log("EtherFaxActions.insertFaxQueue(): ERROR - " . $e->getMessage());

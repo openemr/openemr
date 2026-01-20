@@ -223,7 +223,7 @@ class SignalWireClient extends AppDispatch
             ];
 
             // Store in queue for tracking
-            $sql = "INSERT INTO oe_faxsms_queue 
+            $sql = "INSERT INTO oe_faxsms_queue
                     (uid, job_id, calling_number, called_number, details_json, date, direction, status, site_id)
                     VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
             QueryUtils::sqlStatementThrowException($sql, [
