@@ -7,11 +7,13 @@ namespace OpenEMR\BC;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
+    Exception as DBALException,
     Result,
 };
 use LogicException;
 use OpenEMR\Core\OEGlobalsBag;
 use PDO;
+use PDOException;
 
 /**
  * Backwards-compatible wrapper for database operations. See
@@ -200,5 +202,44 @@ class Database
         $query = sprintf('UPDATE %s SET id=LAST_INSERT_ID(id+1)', $table);
         $_ = $this->connection->executeStatement($query);
         return (int) $this->connection->lastInsertId();
+    }
+
+    // Down-convert an exception into a crash for extra backwards compat
+    public static function helpfulDieDbal(DBALException $e): never
+    {
+        $sql = $e->getQuery()->getSQL();
+        $sqlInfo = $e->getMessage();
+        if ($info = self::extractSqlErrorFromDBAL($e)) {
+            $sqlInfo = $info[2];
+        }
+        \HelpfulDie("query failed: $sql", $sqlInfo);
+    }
+
+    /**
+     * Extracts SQL error info from the dbal exception stack without direct access
+     * to the connection. For backwards-compatibility only, do not use outside of
+     * this file.
+     *
+     * Returns a tuple of [sqlstate code, driver error code, driver error message]
+     *
+     * @link https://www.php.net/manual/en/pdostatement.errorinfo.php
+     *
+     * @return array{
+     *   0: string,
+     *   1: string,
+     *   2: string,
+     * }
+     */
+
+    private static function extractSqlErrorFromDBAL(DBALException $e): ?array
+    {
+        while ($inner = $e->getPrevious()) {
+            $e = $inner;
+        }
+        if ($e instanceof PDOException) {
+            return $e->errorInfo;
+        }
+        // This shouldn't be reachable without very weird driver settings
+        return null;
     }
 }

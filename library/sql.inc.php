@@ -389,46 +389,6 @@ function sqlQuery($statement, $binds = false)
     return $rez;
 }
 
-/**
- * Extracts SQL error info from the dbal exception stack without direct access
- * to the connection. For backwards-compatibility only, do not use outside of
- * this file.
- *
- * Returns a tuple of [sqlstate code, driver error code, driver error message]
- *
- * @link https://www.php.net/manual/en/pdostatement.errorinfo.php
- *
- * @return array{
- *   0: string,
- *   1: string,
- *   2: string,
- * }
- */
-function extractSqlErrorFromDBAL(DBALException $e): ?array
-{
-    while ($inner = $e->getPrevious()) {
-        $e = $inner;
-    }
-    if ($e instanceof PDOException) {
-        return $e->errorInfo;
-    }
-    // This shouldn't be reachable without very weird driver settings
-    return null;
-}
-
-/**
- * Mimics the behavior from ADOdb connections when errors occur on the
- * doctrine/dbal path through the BC wrapper.
- */
-function HelpfulDieDbal(DBALException $e): never
-{
-    $sql = $e->getQuery()->getSQL();
-    $sqlInfo = $e->getMessage();
-    if ($info = extractSqlErrorFromDBAL($e)) {
-        $sqlInfo = $info[2];
-    }
-    HelpfulDie("query failed: $sql", $sqlInfo);
-}
 
 /**
  * BC hook that allows getSqlLastError() and getSqlLastErrorNo() to continue to
