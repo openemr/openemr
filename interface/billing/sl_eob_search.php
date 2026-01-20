@@ -1,4 +1,4 @@
-<?php
+<?php global $STMT_PRINT_CMD;
 
 /**
  * This the first of two pages to support posting of EOBs.
@@ -559,6 +559,10 @@ if (
                     unset($stmt);
                 } else {
                     $tmp = make_statement($stmt);
+                    //email the statement from this point is where the individual statements exit
+                    if (!empty($_REQUEST['form_email'])) {
+                        emailLogin($inv_pid[$inv_count], $tmp);
+                    }
                     if (empty($tmp)) {
                         $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt['encounter']) . "\n";
                         $tmp .= "<br />\n\014<br /><br />";
@@ -609,8 +613,6 @@ if (
         upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_pdf']) {
         upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
-    } elseif ($_REQUEST['form_email']) {
-        upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_portalnotify']) {
         if ($alertmsg == "") {
             $alertmsg = xl('Sending Invoice to Patient Portal Completed');
