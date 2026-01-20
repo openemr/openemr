@@ -66,24 +66,24 @@ $patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $pid);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
 if ($eid !== 0 && $checkEidInAppt === false) {
-    echo js_escape("error");
+    echo xlt("Error: Invalid Event ID");
     exit();
 }
 
 if (!empty($_POST['form_pid'])) {
     if ($_POST['form_pid'] != $pid) {
-        echo js_escape("error");
+        echo xlt("Error: Invalid Patient ID");
         exit();
     }
-
-    if (! getAvailableSlots($_POST['form_date'], date('Y-m-d', strtotime("+1 year " . $_POST['form_date'])), $_POST['form_provider_ae'])) {
-        echo js_escape("error");
+    $event_date = fixDate($_POST['form_date']);
+    if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $_POST['form_provider_ae'])) {
+        echo xlt("Error: No available slots for selected provider(s)");
         exit();
     }
 
     $appointment_service = (new AppointmentService())->getOneCalendarCategory($_POST['form_category']);
     if (($_POST['form_duration'] * 60) != ($appointment_service[0]['pc_duration'])) {
-        echo js_escape("error");
+        echo xlt("Error: Invalid appointment duration for selected category");
         exit();
     }
 }

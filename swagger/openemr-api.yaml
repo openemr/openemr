@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 8.0.0
+  version: 8.0.1
 servers:
   -
     url: /apis/default/

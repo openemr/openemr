@@ -22,7 +22,7 @@
 use OpenEMR\RestControllers\Config\RestConfig;
 
 /**
- *  @OA\Info(title="OpenEMR API", version="8.0.0")
+ *  @OA\Info(title="OpenEMR API", version="8.0.1")
  *  @OA\Server(url="/apis/default/")
  *  @OA\SecurityScheme(
  *      securityScheme="openemr_auth",
