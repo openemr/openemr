@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <estern@opencoreemr.com>
+ * @copyright 2026 OpenCoreEMR
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules;
@@ -13,6 +21,10 @@ use PhpParser\Node\Expr\StaticCall;
 use OpenEMR\Common\Database\QueryUtils;
 
 /**
+ * Require arguments in static analysis that are defined as optional in
+ * execution. This allows progress on making parameters required without
+ * actually breaking existing code.
+ *
  * @implements Rule<Node\Expr>
  */
 final class SoftRequiredArgumentsRule implements Rule
