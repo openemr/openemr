@@ -1,0 +1,11 @@
+<tr class="grand-total">
+    <td colspan="{% if filters.proc_codefull %}4{% else %}2{% endif %}{% if filters.procedures %}+2{% endif %}">
+        {{ 'Grand Totals' | xlt }}
+    </td>
+    {% if filters.procedures %}
+    <td class="text-right">{{ grand_totals.professional | text }}</td>
+    <td class="text-right">{{ grand_totals.clinic | text }}</td>
+    {% else %}
+    <td class="text-right">{{ grand_totals.grand | text }}</td>
+    {% endif %}
+</tr>

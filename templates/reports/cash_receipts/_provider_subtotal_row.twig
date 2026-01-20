@@ -1,0 +1,11 @@
+<tr class="provider-subtotal">
+    <td colspan="{% if filters.proc_codefull %}4{% else %}2{% endif %}{% if filters.procedures %}+2{% endif %}">
+        {{ 'Totals for' | xlt }} {{ provider.provider_name | text }}
+    </td>
+    {% if filters.procedures %}
+    <td class="text-right">{{ provider.professional_total | text }}</td>
+    <td class="text-right">{{ provider.clinic_total | text }}</td>
+    {% else %}
+    <td class="text-right">{{ provider.grand_total | text }}</td>
+    {% endif %}
+</tr>

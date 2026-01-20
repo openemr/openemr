@@ -1,0 +1,157 @@
+<form method="post" action="sl_receipts_report.php" id="theform" onsubmit="return top.restoreSession()" class="mb-4">
+    <input type="hidden" name="csrf_token_form" value="{{ csrf_token }}">
+    <input type="hidden" name="form_refresh" id="form_refresh" value="">
+
+    <div id="report_parameters" class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fa fa-filter" aria-hidden="true"></i>
+                {{ 'Search Criteria' | xlt }}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_facility">
+                            {{ 'Facility' | xlt }}
+                            <i class="fa fa-info-circle info-icon" 
+                               data-toggle="tooltip" 
+                               title="{{ 'Filter results by facility location' | xla }}"></i>
+                        </label>
+                        {{ facility_dropdown | raw }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_doctor">
+                            {{ 'Provider' | xlt }}
+                            <i class="fa fa-info-circle info-icon" 
+                               data-toggle="tooltip" 
+                               title="{{ 'Select provider or leave blank for all providers' | xla }}"></i>
+                        </label>
+                        {{ provider_dropdown | raw }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_use_edate">
+                            {{ 'Date Type' | xlt }}
+                            <i class="fa fa-info-circle info-icon" 
+                               data-toggle="tooltip" 
+                               title="{{ 'Choose which date to filter by: when payment received, service provided, or entry created' | xla }}"></i>
+                        </label>
+                        <select name="form_use_edate" id="form_use_edate" class="form-control">
+                            <option value="0" {% if filters.use_edate == 0 %}selected{% endif %}>
+                                {{ 'Payment Date' | xlt }}
+                            </option>
+                            <option value="1" {% if filters.use_edate == 1 %}selected{% endif %}>
+                                {{ 'Service Date' | xlt }}
+                            </option>
+                            <option value="2" {% if filters.use_edate == 2 %}selected{% endif %}>
+                                {{ 'Entry Date' | xlt }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>{{ 'Display Options' | xlt }}</label>
+                        <div class="form-check">
+                            <input type="checkbox" name="form_details" id="form_details" value="1" 
+                                class="form-check-input" {% if filters.details %}checked{% endif %}>
+                            <label class="form-check-label" for="form_details">
+                                {{ 'Details' | xlt }}
+                                <i class="fa fa-info-circle info-icon" 
+                                   data-toggle="tooltip" 
+                                   title="{{ 'Show individual transaction details instead of summary only' | xla }}"></i>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="form_procedures" id="form_procedures" value="1" 
+                                class="form-check-input" {% if filters.procedures %}checked{% endif %}>
+                            <label class="form-check-label" for="form_procedures">
+                                {{ 'Procedures' | xlt }}
+                                <i class="fa fa-info-circle info-icon" 
+                                   data-toggle="tooltip" 
+                                   title="{{ 'Include procedure/service codes in detail rows' | xla }}"></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_from_date">{{ 'From' | xlt }}:</label>
+                        <input type="text" name="form_from_date" id="form_from_date" 
+                            class="datepicker form-control" 
+                            value="{{ filters.from_date | attr }}"
+                            title="{{ 'Date of appointments' | xla }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_to_date">{{ 'To{{Range}}' | xlt }}:</label>
+                        <input type="text" name="form_to_date" id="form_to_date" 
+                            class="datepicker form-control" 
+                            value="{{ filters.to_date | attr }}"
+                            title="{{ 'Optional end date' | xla }}">
+                    </div>
+                </div>
+
+                {% if not simplified_demographics %}
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_proc_codefull">{{ 'Procedure/Service' | xlt }}:</label>
+                        <input type="text" name="form_proc_codefull" id="form_proc_codefull" 
+                            class="form-control" 
+                            value="{{ filters.proc_codefull | attr }}" 
+                            onclick="sel_procedure()"
+                            title="{{ 'Optional procedure/service code' | xla }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_dx_codefull">{{ 'Diagnosis' | xlt }}:</label>
+                        <input type="text" name="form_dx_codefull" id="form_dx_codefull" 
+                            class="form-control" 
+                            value="{{ filters.dx_codefull | attr }}" 
+                            onclick="sel_diagnosis()"
+                            title="{{ 'Enter a diagnosis code to exclude all invoices not containing it' | xla }}">
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <hr>
+                    <div class="d-flex justify-content-center">
+                        <div class="btn-group btn-group-lg" role="group" aria-label="{{ 'Report actions' | xla }}">
+                            <button type="submit" class="btn btn-primary" 
+                                onclick="$('#form_refresh').val('true');">
+                                <i class="fa fa-search"></i> {{ 'Submit' | xlt }}
+                            </button>
+                            {% if show_results %}
+                            <button type="button" class="btn btn-secondary no-print" id="printbutton">
+                                <i class="fa fa-print"></i> {{ 'Print' | xlt }}
+                            </button>
+                            <button type="button" class="btn btn-success" 
+                                onclick="window.location='?export=csv&' + $('#theform').serialize();">
+                                <i class="fa fa-download"></i> {{ 'Export CSV' | xlt }}
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
