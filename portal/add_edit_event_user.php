@@ -381,25 +381,44 @@ if (($_POST['form_action'] ?? null) == "save") {
             $insert = false;
             // simple provider case
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-                "pc_aid = '" . add_escape_custom($prov) . "', " .
-                "pc_pid = '" . add_escape_custom($pid) . "', " .
-                "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
+                "pc_catid = ?, " .
+                "pc_aid = ?, " .
+                "pc_pid = ?, " .
+                "pc_title = ?, " .
                 "pc_time = NOW(), " .
-                "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                "pc_informant = '" . add_escape_custom($session->get('providerId')) . "', " .
-                "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'] ?? '')) . "', " .
-                "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                "pc_recurrtype = '" . (($_POST['form_repeat'] ?? null) ? '1' : '0') . "', " .
-                "pc_recurrspec = '" . add_escape_custom($recurrspec) . "', " .
-                "pc_startTime = '" . add_escape_custom($starttime) . "', " .
-                "pc_endTime = '" . add_escape_custom($endtime) . "', " .
-                "pc_alldayevent = '" . add_escape_custom(($_POST['form_allday'] ?? '')) . "', " .
-                "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-                "pc_prefcatid = '" . add_escape_custom(($_POST['form_prefcat'] ?? '')) . "', " .
-                "pc_facility = '" . (int)($_POST['facility'] ?? null) . "' " . // FF stuff
-                "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
+                "pc_hometext = ?, " .
+                "pc_informant = ?, " .
+                "pc_eventDate = ?, " .
+                "pc_endDate = ?, " .
+                "pc_duration = ?, " .
+                "pc_recurrtype = ?, " .
+                "pc_recurrspec = ?, " .
+                "pc_startTime = ?, " .
+                "pc_endTime = ?, " .
+                "pc_alldayevent = ?, " .
+                "pc_apptstatus = ?, " .
+                "pc_prefcatid = ?, " .
+                "pc_facility = ? " .
+                "WHERE pc_eid = ?", [
+                    $_POST['form_category'],
+                    $prov,
+                    $pid,
+                    $_POST['form_title'],
+                    $_POST['form_comments'],
+                    $session->get('providerId'),
+                    $event_date,
+                    fixDate($_POST['form_enddate'] ?? ''),
+                    ($duration * 60),
+                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
+                    $recurrspec,
+                    $starttime,
+                    $endtime,
+                    ($_POST['form_allday'] ?? ''),
+                    $_POST['form_apptstatus'],
+                    ($_POST['form_prefcat'] ?? ''),
+                    (int)($_POST['facility'] ?? null),
+                    $eid
+                ]);
         }
 
         // =======================================
