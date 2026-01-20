@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 343 errors
+// total 342 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -200,7 +200,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [

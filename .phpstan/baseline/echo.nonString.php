@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 3351 errors
+// total 3309 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -1060,7 +1060,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/orders/list_reports.php',
 ];
 $ignoreErrors[] = [
@@ -1070,7 +1070,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 24,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
@@ -1105,7 +1105,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 37,
+    'count' => 16,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [

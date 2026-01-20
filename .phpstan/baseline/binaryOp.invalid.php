@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 12242 errors
+// total 12237 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -8884,11 +8884,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  \\<td\\>\' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \', \' results in an error\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
@@ -9211,16 +9206,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<a href\\=\\\\\'javascript…\' and mixed results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<td\\>\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<tr\\>\\<td\\>\' and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [

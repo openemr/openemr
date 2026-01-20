@@ -22,8 +22,10 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
+        # Use minimum supported PHP version (from composer.json) to catch
+        # issues affecting all supported versions.
+        # Must match phpVersion in phpstan.neon.dist for consistent results.
+        php-version: ['8.2']
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6

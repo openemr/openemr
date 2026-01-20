@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 2823 errors
+// total 2820 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -3166,11 +3166,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$procedure_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$tmp \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
