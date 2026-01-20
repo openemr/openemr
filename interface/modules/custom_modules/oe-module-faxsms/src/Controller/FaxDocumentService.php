@@ -393,7 +393,7 @@ class FaxDocumentService
             $mediaContent = !empty($faxImage) ? base64_decode((string)$faxImage) : '';
 
             // Attempt to match patient by phone number
-            $patientId = !empty($fromNumber) ? $this->findPatientByPhone($fromNumber) : 0;
+            $patientId = $this->findPatientByPhone($fromNumber);
 
             // Store document if we have content
             $documentId = null;
