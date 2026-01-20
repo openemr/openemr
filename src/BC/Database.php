@@ -73,6 +73,21 @@ class Database
     ) {
     }
 
+    /**
+     * Parses the <=8.0.0 (and probably later) db config files into a format
+     * usable by `doctrine/dbal`.
+     *
+     * @return array{
+     *   driver: 'pdo_mysql',
+     *   dbname: string,
+     *   host: string,
+     *   port: int,
+     *   user: string,
+     *   password: string,
+     *   charset: string,
+     *   driverOptions: array<PDO::MYSQL_*, string>,
+     * }
+     */
     private static function readLegacyConfig(): array
     {
         $bag = OEGlobalsBag::getInstance();
@@ -269,6 +284,7 @@ class Database
             $e = $inner;
         }
         if ($e instanceof PDOException) {
+            // @phpstan-ignore-next-line (missing type info on errorInfo)
             return $e->errorInfo;
         }
         // This shouldn't be reachable without very weird driver settings
