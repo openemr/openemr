@@ -102,7 +102,7 @@ if ($isNN) {
             $('#contextSearch').select2({
                 placeholder: <?php echo xlj('Select Template Context'); ?>,
                 width: 'resolve',
-                theme: 'bootstrap4',
+                theme: 'bootstrap-5',
                 ajax: {
                     url: top.webroot_url + '/library/ajax/template_context_search.php',
                     data: function (params) {
