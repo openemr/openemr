@@ -26,7 +26,7 @@ function smarty_modifier_escape($string, $esc_type = 'html', $char_set = 'ISO-88
             return htmlspecialchars((string) $string, ENT_QUOTES, $char_set);
 
         case 'htmlall':
-            return htmlentities((string) $string, ENT_QUOTES, $char_set);
+            return htmlspecialchars((string) $string, ENT_QUOTES, $char_set);
 
         case 'url':
             return rawurlencode((string) $string);

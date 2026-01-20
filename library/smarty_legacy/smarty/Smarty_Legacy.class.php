@@ -1099,7 +1099,7 @@ class Smarty_Legacy
      */
     function trigger_error($error_msg, $error_type = E_USER_WARNING)
     {
-        $msg = htmlentities($error_msg);
+        $msg = htmlspecialchars((string) $error_msg, ENT_QUOTES);
         trigger_error("Smarty error: $msg", $error_type);
     }
 

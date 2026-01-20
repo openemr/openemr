@@ -404,11 +404,11 @@ class RequestUtil
         $fupload->Extension = strtolower($info ['extension']);
 
         if ($ok_types && ! in_array($fupload->Extension, $ok_types)) {
-            throw new Exception("The file '" . htmlentities($fupload->Name) . "' is not a type that is allowed.  Allowed file types are: " . (implode(", ", $ok_types)) . ".");
+            throw new Exception("The file '" . htmlspecialchars((string) $fupload->Name, ENT_QUOTES) . "' is not a type that is allowed.  Allowed file types are: " . (implode(", ", $ok_types)) . ".");
         }
 
         if ($max_kb && ($fupload->Size / 1024) > $max_kb) {
-            throw new Exception("The file '" . htmlentities($fupload->Name) . "' is to large.  Maximum allowed size is " . number_format($max_kb / 1024, 2) . "Mb");
+            throw new Exception("The file '" . htmlspecialchars((string) $fupload->Name, ENT_QUOTES) . "' is to large.  Maximum allowed size is " . number_format($max_kb / 1024, 2) . "Mb");
         }
 
         // open the file and read the entire contents

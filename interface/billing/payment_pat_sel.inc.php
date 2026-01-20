@@ -23,6 +23,9 @@ use OpenEMR\Billing\SLEOB;
 //===============================================================================
 //Patient ajax section and listing of charges..Used in New Payment and Edit Payment screen.
 //===============================================================================
+// Initialize and sanitize CountIndexAbove from request if present
+$CountIndexAbove = isset($_REQUEST['CountIndexAbove']) ? (int)$_REQUEST['CountIndexAbove'] : 0;
+
 if (isset($_POST["mode"])) {
     if (
            ($_POST["mode"] == "search") || (($_POST["default_search_patient"] ?? null) == "default_search_patient") &&

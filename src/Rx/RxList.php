@@ -161,7 +161,6 @@ class RxList
                 $my_pos = stripos((string) $tokens[$pos], "<");
                 $hash[$type] = $my_pos !== false ? substr((string) $tokens[$pos], 0, $my_pos) : $tokens[$pos];
                 $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
-                //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
                 $type = "";
                 $ending = "";
             }
