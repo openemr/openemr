@@ -22,8 +22,8 @@ use OpenEMR\Reports\RealWorldTesting;
 
 $globalsBag = OEGlobalsBag::getInstance();
 
-if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $globalsBag->get($GLOBALS['kernel'])))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('2026 Real World Testing Report')]);
+if (AclMain::aclCheckCore('admin', 'super')) {
+    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('2026 Real World Testing Report')]);
     exit;
 }
 
