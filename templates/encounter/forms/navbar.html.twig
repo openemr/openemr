@@ -40,8 +40,8 @@
             {% if enableFollowUpEncounters %}
             <li class="nav-item"><a href="#" class="nav-link" onclick="return createFollowUpEncounter()">{{ "Create follow-up encounter"|xlt }}</a></li>
             {% endif %}
-            <li class="nav-item"><a href="#" onClick="$('.formrow .collapse').collapse('hide');" class="nav-link"><i class="fa fa-compress-alt"></i>&nbsp;{{ "Collapse All"|xlt }}</a></li>
-            <li class="nav-item"><a href="#" onClick="$('.formrow .collapse').collapse('show');" class="nav-link"><i class="fa fa-expand-alt"></i>&nbsp;{{ "Expand All"|xlt }}</a></li>
+            <li class="nav-item"><a href="#" onClick="if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) { document.querySelectorAll('.formrow .collapse').forEach(function(el) { var collapseInstance = bootstrap.Collapse.getOrCreateInstance(el, {toggle: false}); collapseInstance.hide(); }); }" class="nav-link"><i class="fa fa-compress-alt"></i>&nbsp;{{ "Collapse All"|xlt }}</a></li>
+            <li class="nav-item"><a href="#" onClick="if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) { document.querySelectorAll('.formrow .collapse').forEach(function(el) { var collapseInstance = bootstrap.Collapse.getOrCreateInstance(el, {toggle: false}); collapseInstance.show(); }); }" class="nav-link"><i class="fa fa-expand-alt"></i>&nbsp;{{ "Expand All"|xlt }}</a></li>
             {% if isAdminSuper %}
             <li class="nav-item"><a href="#" class="nav-link text-danger btn-delete" onclick="return deleteme()">{{ "Delete"|xlt }}</a></li>
             {% endif %}
