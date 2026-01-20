@@ -42,9 +42,6 @@ require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(__DIR__ . "/ADODB_mysqli_log.php");
 
-use Doctrine\DBAL\Exception as DBALException;
-use OpenEMR\Common\Database\QueryUtils;
-
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
 }
@@ -389,24 +386,6 @@ function sqlQuery($statement, $binds = false)
     return $rez;
 }
 
-
-/**
- * BC hook that allows getSqlLastError() and getSqlLastErrorNo() to continue to
- * work on the doctrine/dbal path.
- */
-function populateLegacyGlobalsWithSqlErrorInfo(DBALException $e): void
-{
-    $info = extractSqlErrorFromDBAL($e);
-    if ($info === null) {
-        return;
-    }
-    [$sqlstate, $driverCode, $driverMessage] = $info;
-
-    // See getSqlLastError() and ADODB_mysqli_log class
-    $GLOBALS['last_mysql_error'] = $driverMessage;
-    $GLOBALS['last_mysql_error_no'] = $sqlstate;
-}
-
 /**
 * Specialized sql query in OpenEMR that bypasses the auditing engine
 * and only returns the first row of query results as an associative array.
@@ -425,31 +404,31 @@ function populateLegacyGlobalsWithSqlErrorInfo(DBALException $e): void
 */
 function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = false)
 {
-    if ($binds === false) {
-        $binds = [];
+    // Below line is to avoid a nasty bug in windows.
+    if (empty($binds)) {
+        $binds = false;
     }
 
-    try {
-        $row = \OpenEMR\BC\Database::instance()
-            ->fetchOneRow($statement, $binds);
-    } catch (DBALException $e) {
-        populateLegacyGlobalsWithSqlErrorInfo($e);
+    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
+
+    if ($recordset === false) {
         if ($throw_exception_on_error) {
-            throw new \OpenEMR\Common\Database\SqlQueryException(
-                $statement,
-                "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement
-            );
+            throw new \OpenEMR\Common\Database\SqlQueryException($statement, "Failed to execute statement. Error: " . getSqlLastError() . " Statement: " . $statement);
         } else {
-            HelpfulDieDbal($e);
+            HelpfulDie("query failed: $statement", getSqlLastError());
         }
     }
 
-    if ($row === null) {
-        // Match existing API
+    if ($recordset->EOF) {
         return false;
     }
 
-    return $row;
+    $rez = $recordset->FetchRow();
+    if ($rez == false) {
+        return false;
+    }
+
+    return $rez;
 }
 
 /**
@@ -641,9 +620,11 @@ function HelpfulDie($statement, $sqlerr = ''): never
 *
 * @return integer
 */
-function generate_id(): int
+function generate_id()
 {
-    return QueryUtils::generateId();
+    $database = $GLOBALS['adodb']['db'];
+    // @phpstan-ignore openemr.deprecatedSqlFunction
+    return $database->GenID("sequences");
 }
 
 /**
