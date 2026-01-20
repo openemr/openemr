@@ -66,13 +66,13 @@ trait PatientOpenTrait
         $searchForm = $this->crawler->filterXPath(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_FORM_PATIENTOPEN_TRAIT)->form();
         $searchForm['anySearchBox'] = $lastname;
         $this->client->waitFor(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_CLICK_PATIENTOPEN_TRAIT);
-        
+
         // Wait for Knockout.js to be initialized and bindings to be applied
         // The search_globals button uses Knockout.js data-bind="event: {mousedown: viewPtFinder...}"
         $this->client->wait(10)->until(function ($driver) {
             return $driver->executeScript("return typeof ko !== 'undefined' && ko.dataFor(document.getElementById('search_globals')) !== undefined;");
         });
-        
+
         // Trigger mousedown event via JavaScript (which Knockout.js is listening for)
         // This is more reliable than click() since the button is bound to mousedown event
         $this->crawler = $this->client->refreshCrawler();
