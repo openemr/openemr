@@ -140,6 +140,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 * The sqlFetchArray() function should be used to
 * utilize the return object.
 *
+* @deprecated Use QueryUtils::sqlStatementThrowException() or QueryUtils::fetchRecords() instead
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
@@ -173,6 +174,7 @@ function sqlStatement($statement, $binds = false)
  * The sqlFetchArray() function should be used to
  * utilize the return object.
  *
+ * @deprecated Use QueryUtils::sqlStatementThrowException() instead
  * @param  string  $statement  query
  * @param  array   $binds      binded variables array (optional)
  * @return recordset
@@ -219,6 +221,7 @@ function sqlGetLastInsertId()
 * The sqlFetchArray() function should be used to
 * utilize the return object.
 *
+* @deprecated Use QueryUtils::fetchRecordsNoLog() instead
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
@@ -274,6 +277,7 @@ function sqlStatementCdrEngine($statement, $binds = false)
 * It will act upon the object returned from the
 * sqlStatement() function (and sqlQ() function).
 *
+* @deprecated Use QueryUtils::fetchRecords() or QueryUtils::fetchArrayFromResultSet() instead
 * @param recordset $r
 * @return array
 */
@@ -326,6 +330,7 @@ function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols =
 * is specialized for insert function and will return
 * the last id generated from the insert.
 *
+* @deprecated Use QueryUtils::sqlInsert() instead
 * @param  string   $statement  query
 * @param  array    $binds      binded variables array (optional)
 * @return integer  Last id generated from the sql insert command
@@ -357,6 +362,7 @@ function sqlInsert($statement, $binds = false)
 * Function that will allow use of the adodb binding
 * feature to prevent sql-injection.
 *
+* @deprecated Use QueryUtils::querySingleRow() or QueryUtils::fetchRecords() instead
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
 * @return array
@@ -398,6 +404,7 @@ function sqlQuery($statement, $binds = false)
 *
 * Note: If you do an INSERT or UPDATE statement you will get an empty string ("") as a response
 *
+* @deprecated Use QueryUtils::querySingleRow() instead
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
 * @return array|false|""
@@ -618,12 +625,13 @@ function HelpfulDie($statement, $sqlerr = ''): never
 * Increments the number in the sequences table.
 * One example of use is the counter for form_id in the forms table.
 *
+* @deprecated Use QueryUtils::generateId() instead
 * @return integer
 */
 function generate_id()
 {
     $database = $GLOBALS['adodb']['db'];
-    // @phpstan-ignore openemr.deprecatedSqlFunction
+    // @phpstan-ignore openemr.deprecatedMethod
     return $database->GenID("sequences");
 }
 
@@ -722,6 +730,8 @@ function generic_sql_insert_id()
 
 /**
  * Begin a Transaction.
+ *
+ * @deprecated Use QueryUtils::inTransaction() instead
  */
 function sqlBeginTrans(): void
 {
@@ -731,6 +741,8 @@ function sqlBeginTrans(): void
 
 /**
  * Commit a transaction
+ *
+ * @deprecated Use QueryUtils::inTransaction() instead
  */
 function sqlCommitTrans($ok = true): void
 {
@@ -740,6 +752,8 @@ function sqlCommitTrans($ok = true): void
 
 /**
  * Rollback a transaction
+ *
+ * @deprecated Use QueryUtils::inTransaction() instead
  */
 function sqlRollbackTrans(): void
 {
@@ -889,11 +903,12 @@ function privQuery($sql, $params = null)
 * Increments the number in the edi_sequences table.
 * One example of use is the counter for batches in the 837 claims creation.
 *
+* @deprecated Use QueryUtils::ediGenerateId() instead
 * @return integer
 */
 function edi_generate_id()
 {
     $database = $GLOBALS['adodb']['db'];
-    // @phpstan-ignore openemr.deprecatedSqlFunction
+    // @phpstan-ignore openemr.deprecatedMethod
     return $database->GenID("edi_sequences");
 }

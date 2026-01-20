@@ -128,6 +128,7 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
         "maglnet/composer-require-checker": "^4.0",
+        "opencoreemr/openemr-phpstan-rules": "^0.9.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
@@ -174,7 +175,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\PHPStan\\Rules\\": ".phpstan",
             "OpenEMR\\Tests\\": "tests\\Tests"
         }
     },
