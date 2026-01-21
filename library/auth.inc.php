@@ -133,8 +133,6 @@ function authCloseSession(): void
     global $incoming_site_id;
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $incoming_site_id = $session->get('site_id') ?? '';
-//    SessionUtil::coreSessionDestroy();
-    die('Session Is Destroyed'); // TODO Remove this after testing
     SessionWrapperFactory::getInstance()->destroyCoreSession();
 }
 

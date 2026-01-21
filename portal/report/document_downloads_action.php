@@ -21,7 +21,7 @@ require_once("../verify_session.php");
 require_once("{$globalsBag->getString('srcdir')}/documents.php");
 require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
