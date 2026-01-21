@@ -31,8 +31,10 @@ use OpenEMR\Common\Database\QueryUtils;
 final class SoftRequiredArgumentsRule implements Rule
 {
     private const REQUIRED_ARGS = [
-        'sqlStatement' => ['statement', 'binds'],
-        QueryUtils::class . '::fetchRecordsNoLog' => ['sqlStatement', 'binds'],
+        // 'sqlStatement' => ['statement', 'binds'],
+        // 'sqlStatementNoLog' => ['statement', 'binds'],
+        // 'sqlQuery' => ['statement', 'binds'],
+        // QueryUtils::class . '::fetchRecordsNoLog' => ['sqlStatement', 'binds'],
     ];
 
     public function getNodeType(): string
