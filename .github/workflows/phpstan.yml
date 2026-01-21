@@ -20,6 +20,7 @@ concurrency:
 jobs:
   phpstan:
     strategy:
+      fail-fast: false  # Let both jobs complete for comparison
       matrix:
         # Use minimum supported PHP version (from composer.json) to catch
         # issues affecting all supported versions.
