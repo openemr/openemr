@@ -26,8 +26,23 @@ class ForbiddenGlobalNamespaceRule implements Rule
             return [];
         }
 
-        // todo: allowlist for autoload_files?
-        $definingFile = $scope->getFile();
+        // This is a bit fragile - trim the leading app root plus trailing
+        // slash from the file being examined, then check if it's in the
+        // autoload.files path in composer.json.
+        $composer = file_get_contents('composer.json');
+        $parsed = json_decode($composer, true);
+        $allowed = $parsed['autoload']['files'];
+
+        $appRoot = getcwd();
+        $definingFileAbs = $scope->getFile();
+        $definingFile = substr($definingFileAbs, strlen($appRoot) + 1);
+
+        if (in_array($definingFile, $allowed, true)) {
+            return [];
+        }
+
+        // Everything else past this point is forbidden: globally-namespaced
+        // function outside of the autoload path.
 
         $functionName = $node->name->toString();
 
