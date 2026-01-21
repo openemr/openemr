@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules;
 
+use OpenEMR\Common\Database\QueryUtils;
 use PhpParser\Node;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\StaticCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Expr\StaticCall;
-use OpenEMR\Common\Database\QueryUtils;
 
 /**
  * Require arguments in static analysis that are defined as optional in
@@ -35,6 +35,7 @@ final class SoftRequiredArgumentsRule implements Rule
         // 'sqlStatementNoLog' => ['statement', 'binds'],
         // 'sqlQuery' => ['statement', 'binds'],
         // QueryUtils::class . '::fetchRecordsNoLog' => ['sqlStatement', 'binds'],
+        // ... more to come
     ];
 
     public function getNodeType(): string
