@@ -38,11 +38,16 @@ jobs:
       run: |
         mkdir -p .phpstan
         php -i > .phpstan/php-config.txt
+        php -m > .phpstan/php-modules.txt
+        ldd --version 2>&1 | head -1 > .phpstan/glibc-version.txt || true
     - name: Upload PHP Configuration
       uses: actions/upload-artifact@v6
       with:
         name: php-config-${{ matrix.php-version }}
-        path: .phpstan/php-config.txt
+        path: |
+          .phpstan/php-config.txt
+          .phpstan/php-modules.txt
+          .phpstan/glibc-version.txt
     - name: Get composer cache directory
       id: composer-cache
       run: |
