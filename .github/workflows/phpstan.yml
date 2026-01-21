@@ -19,13 +19,16 @@ concurrency:
 
 jobs:
   phpstan:
-    runs-on: ubuntu-24.04
     strategy:
       matrix:
         # Use minimum supported PHP version (from composer.json) to catch
         # issues affecting all supported versions.
         # Must match phpVersion in phpstan.neon.dist for consistent results.
         php-version: ['8.2']
+        # Test both architectures to investigate baseline discrepancies
+        # Hypothesis: ARM should match local Apple Silicon results
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
@@ -40,14 +43,16 @@ jobs:
         php -i > .phpstan/php-config.txt
         php -m > .phpstan/php-modules.txt
         ldd --version 2>&1 | head -1 > .phpstan/glibc-version.txt || true
+        uname -m > .phpstan/arch.txt
     - name: Upload PHP Configuration
       uses: actions/upload-artifact@v6
       with:
-        name: php-config-${{ matrix.php-version }}
+        name: php-config-${{ matrix.php-version }}-${{ matrix.runner }}
         path: |
           .phpstan/php-config.txt
           .phpstan/php-modules.txt
           .phpstan/glibc-version.txt
+          .phpstan/arch.txt
     - name: Get composer cache directory
       id: composer-cache
       run: |
@@ -59,10 +64,10 @@ jobs:
       uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        key: ${{ matrix.runner }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-composer-${{ matrix.php-version }}-
-          ${{ runner.os }}-composer-
+          ${{ matrix.runner }}-composer-${{ matrix.php-version }}-
+          ${{ matrix.runner }}-composer-
     - name: Composer Install
       run: |
         composer install --prefer-dist --no-progress
@@ -73,9 +78,9 @@ jobs:
       uses: actions/cache@v5
       with:
         path: tmp-phpstan # same as in phpstan.neon
-        key: phpstan-result-cache-${{ github.run_id }}
+        key: phpstan-result-cache-${{ matrix.runner }}-${{ github.run_id }}
         restore-keys: |
-          phpstan-result-cache-
+          phpstan-result-cache-${{ matrix.runner }}-
     - name: PHPStan Diagnose
       run: vendor/bin/phpstan --memory-limit=8G diagnose
     - name: PHPStan Analyze
@@ -93,7 +98,7 @@ jobs:
       if: steps.phpstan-analyze.outcome == 'failure'
       uses: actions/upload-artifact@v6
       with:
-        name: phpstan-baseline-php${{ matrix.php-version }}
+        name: phpstan-baseline-php${{ matrix.php-version }}-${{ matrix.runner }}
         path: .phpstan/baseline/*.php
       continue-on-error: true
     - name: Check PHPStan Results
