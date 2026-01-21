@@ -1827,7 +1827,9 @@ class AuthorizationController
             return null; // no uuid so we will go through login steps
         }
         $userUuid = $user['uuid'];
-        $this->session->start();
+        if (!$this->session->isStarted() && session_status() !== PHP_SESSION_ACTIVE) {
+            $this->session->start();
+        }
         return $userUuid;
     }
 

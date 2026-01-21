@@ -53,6 +53,7 @@ class PatientSessionUtil
         // Set pid to the escaped pid and update the session variables
         $sessionSetArray['pid'] = $new_pid_int;
         SessionUtil::setUnsetSession($sessionSetArray, $sessionUnsetArray);
+
         $pid = $new_pid_int;
         EventAuditLogger::getInstance()->newEvent("view", $session->get("authUser"), $session->get("authProvider"), 1, '', $pid);
     }

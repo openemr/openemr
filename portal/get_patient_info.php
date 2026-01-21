@@ -43,20 +43,20 @@ if (!empty($_REQUEST['redirect'])) {
 
 // checking whether the request comes from index.php
 if (!$session->get('itsme', false)) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
 
 // some validation
 if (!isset($_POST['uname']) || empty($_POST['uname'])) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
 
 if (!isset($_POST['pass']) || empty($_POST['pass'])) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
@@ -82,7 +82,7 @@ if (
     $globalsBag->get('enforce_signin_email')
     && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
 ) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
@@ -147,7 +147,7 @@ if ($password_update === 2 && !empty($session->get('pin', null))) {
 }
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&u');
     exit();
 }
@@ -155,7 +155,7 @@ if ($auth === false) {
 if ($password_update === 2) {
     if ($_POST['pass'] != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
@@ -180,7 +180,7 @@ if ($password_update === 2) {
         }
     } else {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
@@ -196,14 +196,14 @@ $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
 
     if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->get('enforce_signin_email')) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
@@ -211,14 +211,14 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
     if ($userData['allow_patient_portal'] != "YES") {
         // Patient has not authorized portal, so escape
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':allow portal turned off'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
 
     if ($auth['pid'] != $userData['pid']) {
         // Not sure if this is even possible, but should escape if this happens
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
@@ -284,12 +284,12 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         $logit->portalLog('login', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
     } else {
         $logit->portalLog('login', '', ($_POST['uname'] . ':not authorized'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
 } else { // problem with query
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
