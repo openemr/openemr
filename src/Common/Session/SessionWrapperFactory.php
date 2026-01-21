@@ -39,15 +39,15 @@ class SessionWrapperFactory
     public function getActiveSession(): SessionInterface
     {
         // TODO this is just for testing, see how to approach it differently
-        if ($this->isSessionActive()) {
-            return $this->activeSession;
-        }
-//        TODO Let's hope that we do not need this
-//        $app = SessionUtil::getAppCookie();
-//        if ($app === SessionUtil::PORTAL_SESSION_ID) {
-//            return $this->createPortalSession();
+//        if ($this->isSessionActive()) {
+//            return $this->activeSession;
 //        }
-        return $this->createCoreSession();
+//        TODO Let's hope that we do not need this
+        $app = SessionUtil::getAppCookie();
+        if ($app === SessionUtil::PORTAL_SESSION_ID) {
+            return $this->getPortalSession();
+        }
+        return $this->getCoreSession();
     }
 
 //    private function findSessionWrapper(array $initData = []): SessionWrapperInterface
@@ -81,6 +81,9 @@ class SessionWrapperFactory
     {
         if ($this->portalSession !== null) {
             $this->portalSession->invalidate();
+            if (session_status() === PHP_SESSION_ACTIVE && session_name() === SessionUtil::PORTAL_SESSION_ID) {
+                session_write_close();
+            }
             $this->portalSession = null;
         }
     }
@@ -89,6 +92,9 @@ class SessionWrapperFactory
     {
         if ($this->coreSession !== null) {
             $this->coreSession->invalidate();
+            if (session_status() === PHP_SESSION_ACTIVE && session_name() === SessionUtil::CORE_SESSION_ID) {
+                session_write_close();
+            }
             $this->coreSession = null;
         }
     }
@@ -104,21 +110,34 @@ class SessionWrapperFactory
 
     private function createPortalSession(): SessionInterface
     {
-        $oeGlobals = OEGlobalsBag::getInstance();
+        $web_root = OEGlobalsBag::getInstance()->getString('web_root');
         $request = HttpRestRequest::createFromGlobals();
-        $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_PORTAL);
-//        $sessionFactory->setUseExistingSessionBridge(true);
-        $this->activeSession = $sessionFactory->createSession();
+        if (!$request->hasSession()) {
+            $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_PORTAL);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $sessionFactory->setUseExistingSessionBridge(true);
+            }
+            $this->activeSession = $sessionFactory->createSession();
+        } else {
+            $this->activeSession = $request->getSession();
+        }
         return $this->activeSession;
     }
 
     private function createCoreSession(): SessionInterface
     {
-        $oeGlobals = OEGlobalsBag::getInstance();
+        $web_root = OEGlobalsBag::getInstance()->getString('web_root');
         $request = HttpRestRequest::createFromGlobals();
-        $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_CORE);
-//        $sessionFactory->setUseExistingSessionBridge(true);
-        $this->activeSession = $sessionFactory->createSession();
+        if (!$request->hasSession()) {
+            $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_CORE);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $sessionFactory->setUseExistingSessionBridge(true);
+            }
+            $this->activeSession = $sessionFactory->createSession();
+        } else {
+            $this->activeSession = $request->getSession();
+        }
+
         return $this->activeSession;
     }
 }

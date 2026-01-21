@@ -20,7 +20,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Auth if core or portal.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getPortalSession();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {

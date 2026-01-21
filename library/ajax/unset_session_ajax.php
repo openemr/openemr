@@ -17,8 +17,11 @@ require_once("../pid.inc.php");
 require_once("../group.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getCoreSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

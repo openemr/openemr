@@ -775,9 +775,9 @@ if (!empty($checkModulesTableExists)) {
 $encounter = empty($session->get('encounter')) ? 0 : $session->get('encounter');
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_GET['pid']);
+    $session->set('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_POST['pid']);
+    $session->set('pid', $_POST['pid']);
 }
 
 $pid = empty($session->get('pid')) ? 0 : $session->get('pid');

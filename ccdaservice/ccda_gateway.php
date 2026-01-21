@@ -22,7 +22,7 @@ use OpenEMR\Services\CDADocumentService;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once __DIR__ . "/../vendor/autoload.php";
-$session = SessionWrapperFactory::getInstance()->getPortalSession();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $sessionAllowWrite = true;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
@@ -32,15 +32,16 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $session->get('pid'));
 } else {
-    $authUserID = $session->get('authUserID');
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
+    $authUserID = $session->get('authUserID');
     require_once __DIR__ . "/../interface/globals.php";
     if (empty($authUserID)) {
         header('Location: index.php');
         exit;
     }
-    $session = SessionWrapperFactory::getInstance()->getCoreSession();
+
     define('IS_DASHBOARD', $authUserID);
     define('IS_PORTAL', false);
 }

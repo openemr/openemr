@@ -17,7 +17,9 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $scparams = session_get_cookie_params();
 ?>
 // login.php makes sure the session ID captured here is different for each
@@ -26,8 +28,8 @@ $scparams = session_get_cookie_params();
 // called just prior to invoking any server script that requires correct
 // session data.  onclick="top.restoreSession()" usually does the job.
 //
-var oemr_session_name = <?php echo json_encode(urlencode(session_name())); ?>;
-var oemr_session_id   = <?php echo json_encode(urlencode(session_id())); ?>;
+var oemr_session_name = <?php echo json_encode(urlencode($session->getName())); ?>;
+var oemr_session_id   = <?php echo json_encode(urlencode($session->getId())); ?>;
 var oemr_dialog_close_msg = <?php echo (function_exists('xlj')) ? xlj("OK to close this other popup window?") : json_encode("OK to close this other popup window?"); ?>;
 
 var oemr_scp_lifetime = <?php echo js_escape($scparams['lifetime']); ?>;
@@ -130,7 +132,7 @@ function printLogPrint(elem) {
  $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
   {
     comments: comments,
-    csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>
+    csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken('default', $session)); ?>
   }
  );
 <?php } ?>

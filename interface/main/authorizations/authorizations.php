@@ -19,26 +19,29 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
 // increase to a high number to make the mini frame more useful.
 $N = 50;
 
-$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", [$_SESSION['authUser']]);
+$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", [$session->get('authUser')]);
 $see_auth = $atemp['see_auth'];
 
-$imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
+$imauthorized = $session->get('userauthorized') || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $retVal = getProviderId($_SESSION['authUser']);
-    EventAuditLogger::getInstance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
+    $retVal = getProviderId($session->get('authUser'));
+    EventAuditLogger::getInstance()->newEvent("authorize", $session->get("authUser"), $session->get("authProvider"), 1, $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);
     sqlStatement("update forms set authorized=1 where pid=?", [$_GET["pid"]]);
     sqlStatement("update pnotes set authorized=1 where pid=?", [$_GET["pid"]]);
@@ -182,7 +185,7 @@ if ($imauthorized && $see_auth > 1) {
             $name = getPatientData($ppid);
 
             // If I want to see mine only and this patient is not mine, skip it.
-            if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id']) {
+            if ($see_auth == 2 && $session->get('authUserID') != $name['id']) {
                 continue;
             }
 
@@ -203,7 +206,7 @@ if ($imauthorized && $see_auth > 1) {
             echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
             text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
-            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
+            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" .
             xlt('Authorize') . "</a></td>\n";
 
             /****
