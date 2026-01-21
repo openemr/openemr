@@ -15,6 +15,7 @@ namespace OpenEMR\PHPStan\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -58,13 +59,7 @@ final class SoftRequiredArgumentsRule implements Rule
             return [];
         }
 
-        $name = $call->name->toString();
-
-        return $this->check(
-            $name,
-            count($call->args),
-            $call
-        );
+        return $this->check($call->name->toString(), $call->args);
     }
 
     private function checkStaticCall(StaticCall $call): array
@@ -76,40 +71,59 @@ final class SoftRequiredArgumentsRule implements Rule
             return [];
         }
 
-        $name = $call->class->toString() . '::' . $call->name->toString();
-
-        return $this->check(
-            $name,
-            count($call->args),
-            $call
-        );
+        return $this->check($call->name->toString(), $call->args);
     }
 
     /**
-     * @return list<string>
+     * @param Node\Arg[] $args
+     * @return RuleError[]
      */
-    private function check(string $symbol, int $argCount, Node $node): array
+    private function check(string $symbol, array $args): array
     {
         if (!isset(self::REQUIRED_ARGS[$symbol])) {
             return [];
         }
 
         $required = self::REQUIRED_ARGS[$symbol];
-        $requiredCount = count($required);
 
-        if ($argCount >= $requiredCount) {
+        // Map the calls (by index or name) to the required args
+        $named = [];
+        $positionalCount = 0;
+
+        foreach ($args as $arg) {
+            if ($arg->name !== null) {
+                $named[$arg->name->toString()] = true;
+            } else {
+                $positionalCount++;
+            }
+        }
+
+        $missing = [];
+
+        foreach ($required as $index => $name) {
+            if (isset($named[$name])) {
+                continue;
+            }
+
+            if ($positionalCount > $index) {
+                continue;
+            }
+
+            $missing[] = $name;
+        }
+
+        if ($missing === []) {
             return [];
         }
 
         return [
             RuleErrorBuilder::message(sprintf(
-                '%s requires %d arguments (%s), %d provided.',
+                '%s is missing required arguments: $%s',
                 $symbol,
-                $requiredCount,
-                implode(', ', $required),
-                $argCount,
+                implode(', $', $missing),
             ))
-            ->identifier('blah')
+            // argument.missing (existing)?
+            ->identifier('openemr.futureRequiredArgument')
             ->build(),
         ];
     }
