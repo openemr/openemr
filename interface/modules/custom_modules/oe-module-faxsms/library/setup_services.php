@@ -193,8 +193,8 @@ $vendors = $boot->getVendorGlobals();
     $isRCSMS = $vendors['oefax_enable_sms'] == 1 ? '1' : '0';
     $isEMAIL = $vendors['oe_enable_email'] == 4 ? '1' : '0';
     $isRCFax = $vendors['oefax_enable_fax'] == 1 ? '1' : '0';
-    $isVOICE = $vendors['oe_enable_voice'] == 6 ? '1' : '0';
-    $isSWFax = $vendors['oefax_enable_fax'] == 9 ? '1' : '0';
+    $isVOICE = $vendors['oe_enable_voice'] == 9 ? '1' : '0';
+    $isSWFax = $vendors['oefax_enable_fax'] == 6 ? '1' : '0';
 
     $setupUrl = './../setup.php';
     if ($isRCFax || $isRCSMS) {
@@ -252,7 +252,7 @@ $vendors = $boot->getVendorGlobals();
             if (ServiceFax === '1') {
                 url = '../setup_rc.php';
             }
-            if (ServiceVoice === '6') {
+            if (ServiceVoice === '9') {
                 url = '../setup_voice.php';
             }
             let dialog = $("#dialog").is(':checked');
@@ -434,7 +434,7 @@ $vendors = $boot->getVendorGlobals();
                                 <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <option value="1" <?php echo $vendors['oefax_enable_fax'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral Fax"); ?></option>
                                 <option value="3" <?php echo $vendors['oefax_enable_fax'] == '3' ? 'selected' : ''; ?>><?php echo xlt("etherFAX"); ?></option>
-                                <option value="9" <?php echo $vendors['oefax_enable_fax'] == '9' ? 'selected' : ''; ?>><?php echo xlt("SignalWire Fax"); ?></option>
+                                <option value="6" <?php echo $vendors['oefax_enable_fax'] == '6' ? 'selected' : ''; ?>><?php echo xlt("SignalWire Fax"); ?></option>
                             </select>
                         </div>
                     </div>
@@ -452,7 +452,7 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-sm-6" title="Enable Voice Widgets Support.">
                             <select class="form-control persist" name="voice_vendor" id="voice_vendor">
                                 <option value="0" <?php echo $vendors['oe_enable_voice'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="6" <?php echo $vendors['oe_enable_voice'] == '6' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                                <option value="9" <?php echo $vendors['oe_enable_voice'] == '9' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
                             </select>
                         </div>
                     </div>
