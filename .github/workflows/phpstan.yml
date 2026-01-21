@@ -27,11 +27,14 @@ jobs:
         # issues affecting all supported versions.
         # Must match phpVersion in phpstan.neon.dist for consistent results.
         php-version: ['8.2']
-        # Test both architectures to investigate baseline discrepancies
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        # Test architectures to investigate baseline discrepancies
+        # - ubuntu-24.04: x64 Linux
+        # - ubuntu-24.04-arm: ARM Linux (Ampere Altra server chips)
+        # - macos-14: Apple Silicon M1 (matches local Mac dev environment)
+        runner: [ubuntu-24.04, ubuntu-24.04-arm, macos-14]
         # Test with and without parallelism to check if it affects results
         parallel: [true, false]
-    name: PHP ${{ matrix.php-version }} (${{ matrix.runner == 'ubuntu-24.04-arm' && 'ARM' || 'x64' }}, ${{ matrix.parallel && 'parallel' || 'single-threaded' }})
+    name: PHP ${{ matrix.php-version }} (${{ matrix.runner == 'macos-14' && 'macOS M1' || (matrix.runner == 'ubuntu-24.04-arm' && 'Linux ARM' || 'Linux x64') }}, ${{ matrix.parallel && 'parallel' || 'single-threaded' }})
     runs-on: ${{ matrix.runner }}
     steps:
     - name: Checkout Code
@@ -46,8 +49,12 @@ jobs:
         mkdir -p .phpstan
         php -i > .phpstan/php-config.txt
         php -m > .phpstan/php-modules.txt
-        ldd --version 2>&1 | head -1 > .phpstan/glibc-version.txt || true
-        uname -m > .phpstan/arch.txt
+        if command -v ldd &> /dev/null; then
+          ldd --version 2>&1 | head -1 > .phpstan/glibc-version.txt
+        else
+          echo "N/A (macOS)" > .phpstan/glibc-version.txt
+        fi
+        uname -a > .phpstan/arch.txt
     - name: Upload PHP Configuration
       uses: actions/upload-artifact@v6
       with:
