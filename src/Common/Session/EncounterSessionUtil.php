@@ -40,7 +40,7 @@ class EncounterSessionUtil
                 : 0;
         }
 
-        SessionUtil::setSession('encounter', $enc);
+        $session->set('encounter', $enc);
         $encounter = $enc;
 
         // returns 1 on successful global set, or 0 if there was no

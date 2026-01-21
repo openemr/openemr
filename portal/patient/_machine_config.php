@@ -25,7 +25,7 @@ use OpenEMR\Core\OEGlobalsBag;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getPortalSession();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
 if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
@@ -40,8 +40,8 @@ if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $sess
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);

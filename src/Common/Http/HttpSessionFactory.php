@@ -53,7 +53,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         $settings = $this->getSessionSettings();
         $sessionKey = $this->getSessionKey();
         $sessionHandler = $this->getSessionHandlerInterface($settings);
-        if ($this->useBridge) {
+        if ($this->useBridge || session_status() === PHP_SESSION_ACTIVE) {
             // Use the existing session bridge if it exists
             $sessionStorageFactory = new PhpBridgeSessionStorageFactory($sessionHandler);
         } else {
@@ -61,7 +61,9 @@ class HttpSessionFactory implements SessionFactoryInterface
         }
         $storage = $sessionStorageFactory->createStorage($this->request);
         $session = new Session($storage, new AttributeBag($sessionKey));
-        $session->start();
+        if (!$session->isStarted() && session_status() !== PHP_SESSION_ACTIVE) {
+            $session->start();
+        }
         $this->populateSessionFromGlobals($session);
         return $session;
     }
