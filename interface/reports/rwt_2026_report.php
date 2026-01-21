@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Real world testing report for 2025.
- *  Dates are hard-coded from 2025-04-01 to 2025-09-30
+ * Real world testing report for 2026.
+ *  Dates are hard-coded from 2026-04-01 to 2026-09-30
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -17,32 +17,35 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\RealWorldTesting;
 
+$globalsBag = OEGlobalsBag::getInstance();
+
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('2025 Real World Testing Report')]);
+    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('2026 Real World Testing Report')]);
     exit;
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], 'rwt_2025_report')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], 'rwt_2026_report')) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
 // dates for this report are hard-coded (see header for details)
-$begin_date = '2025-04-01';
-$end_date = '2025-09-30';
+$begin_date = '2026-04-01';
+$end_date = '2026-09-30';
 
 // can override dates below for development/testing purposes
-// $begin_date = '2025-01-01';
-// $end_date = '2025-12-31';
+// $begin_date = '2026-01-01';
+// $end_date = '2026-12-31';
 ?>
 
 <html>
 
 <head>
-    <title><?php echo xlt('2025 Real World Testing Report'); ?></title>
+    <title><?php echo xlt('2026 Real World Testing Report'); ?></title>
     <?php Header::setupHeader(); ?>
     <style>
         @media print {
@@ -55,14 +58,14 @@ $end_date = '2025-09-30';
 
 <body class='body_top'>
 
-<span class='title'><?php echo xlt('2025 Real World Testing Report'); ?></span>
+<span class='title'><?php echo xlt('2026 Real World Testing Report'); ?></span>
 
 <?php if (empty($_POST['start_button'])) { ?>
     <div class='mt-2 alert alert-primary' role='alert'>
-        <?php echo xlt("This report is required for OpenEMR instances in the United States that utilize ONC certification. This reports collects metrics that are used in Real World Testing that are required for the OpenEMR Foundation to maintain the ONC certification. This report calculates metrics from April 1, 2025 to September 30, 2025. Please run this report sometime in October or November of 2025 and then print it to a pdf and email the pdf to the OpenEMR Foundation at hello@open-emr.org. In the email, please confirm your practice is in the United States and state the clinical setting of your practice (this can be 'Primary/Specialty Care' setting, 'Behavioral Health Care' setting, or any other setting).") ?>
+        <?php echo xlt("This report is required for OpenEMR instances in the United States that utilize ONC certification. This reports collects metrics that are used in Real World Testing that are required for the OpenEMR Foundation to maintain the ONC certification. This report calculates metrics from April 1, 2026 to September 30, 2026. Please run this report sometime in October or November of 2026 and then print it to a pdf and email the pdf to the OpenEMR Foundation at hello@open-emr.org. In the email, please confirm your practice is in the United States and state the clinical setting of your practice (this can be 'Primary/Specialty Care' setting, 'Behavioral Health Care' setting, or any other setting).") ?>
     </div>
-    <form method='post' name='theform' id='theform' action='rwt_2025_report.php' onsubmit='return top.restoreSession()'>
-        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('rwt_2025_report')); ?>' />
+    <form method='post' name='theform' id='theform' action='rwt_2026_report.php' onsubmit='return top.restoreSession()'>
+        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('rwt_2026_report')); ?>' />
         <div class='mt-4'>
             <button type='submit' class='btn btn-primary' name='start_button' value='start_button' onclick='document.getElementById("start_button_spinner").style.display = "inline-block"'>
                 <span id='start_button_spinner' style='display: none;' class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> <?php echo xlt('Start Report'); ?>

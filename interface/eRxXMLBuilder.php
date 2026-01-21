@@ -1,7 +1,7 @@
 <?php
 
 /**
- * interface/eRxXMLBuilder.php Functions for building NewCrop XML.
+ * interface/eRxXMLBuilder.php Functions for building Ensora eRx XML.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -268,9 +268,9 @@ class eRxXMLBuilder
             ->getCredentials();
 
         $element = $this->getDocument()->createElement('Credentials');
-        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('NewCrop eRx Partner Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('NewCrop eRx Account Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('NewCrop eRx Password')));
+        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('Ensora eRx Partner Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('Ensora eRx Account Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('Ensora eRx Password')));
         $element->appendChild($this->createElementText('productName', 'OpenEMR'));
         $element->appendChild($this->createElementText('productVersion', $this->getGlobals()->getOpenEMRVersion()));
 
@@ -284,7 +284,7 @@ class eRxXMLBuilder
 
         $eRxUserRole = $eRxUserRole['newcrop_user_role'];
 
-        $this->fieldEmpty($eRxUserRole, xl('NewCrop eRx User Role'));
+        $this->fieldEmpty($eRxUserRole, xl('Ensora eRx User Role'));
         if (!$eRxUserRole) {
             echo xlt('Unauthorized access to ePrescription');
             die;
@@ -301,7 +301,7 @@ class eRxXMLBuilder
         };
 
         $element = $this->getDocument()->createElement('UserRole');
-        $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('NewCrop eRx User Role * invalid selection *')));
+        $element->appendChild($this->createElementTextFieldEmpty('user', $newCropUser, xl('Ensora eRx User Role * invalid selection *')));
         $element->appendChild($this->createElementText('role', $eRxUserRole));
 
         return $element;

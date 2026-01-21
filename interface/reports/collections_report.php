@@ -1320,7 +1320,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
             if ($balance > 0 && $_POST['form_clear_ins_debt']) {
                 foreach ($invlines as $key => $value) {
                     $ar_session_id = SLEOB::arGetSession($ins_id, 'Adj from collt report', date('YmdHis'), '', $balance);
-                    SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', 0, date('YmdHis'), $value['code_type']);
+                    SLEOB::arPostAdjustment($pid, $encounter, $ar_session_id, $value['bal'], $key, $insposition, 'Adj from collt report', $value['code_type']);
                     sqlStatement("UPDATE form_encounter SET last_level_closed = ? WHERE pid = ? AND encounter = ?", [$insposition, $pid, $encounter]);
                 }
             }
