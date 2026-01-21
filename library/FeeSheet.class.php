@@ -35,6 +35,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\PaymentProcessing\Recorder;
 
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
@@ -1010,17 +1011,20 @@ class FeeSheet
                         );
                     }
                     // adding new or changed copay from fee sheet into ar_activity
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
-                      "pid = ? AND encounter = ?", [$this->pid, $this->encounter]);
-                    sqlStatement(
-                        "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, " .
-                        "payer_type, post_time, post_user, session_id, pay_amount, account_code) " .
-                        "VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$this->pid, $this->encounter, $sequence_no['increment'], $ct0, $cod0, $mod0,
-                            $session->get('authUserID'), $session_id, $fee]
-                    );
-                    sqlCommitTrans();
+                    $recorder = new Recorder();
+                    $recorder->recordActivity([
+                        'patientId' => $this->pid,
+                        'encounterId' => $this->encounter,
+                        'codeType' => $ct0,
+                        'code' => $cod0,
+                        'modifier' => $mod0,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $fee,
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     if (!$cod0) {
                         $copay_update = true;

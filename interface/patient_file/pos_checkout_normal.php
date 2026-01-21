@@ -55,10 +55,11 @@ require_once("../../custom/code_types.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -69,6 +70,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 }
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
 $currdecimals = $GLOBALS['currency_decimals'];
 
@@ -374,7 +376,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                 $svcdate,
                                 $inrow['code_text'],
                                 $inrow['fee'],
-                                $inrow['units']
+                                (int) $inrow['units']
                             );
                         }
 
@@ -692,29 +694,19 @@ function generate_receipt($patient_id, $encounter = 0): void
                 }
             }
             $memo = xl('Discount');
-            sqlBeginTrans();
-            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $form_encounter]);
-            $query = "INSERT INTO ar_activity ( " .
-            "pid, encounter, sequence_no, code, modifier, payer_type, post_user, post_time, " .
-            "session_id, memo, adj_amount " .
-            ") VALUES ( " .
-            "?, " .
-            "?, " .
-            "?, " .
-            "'', " .
-            "'', " .
-            "'0', " .
-            "?, " .
-            "?, " .
-            "'0', " .
-            "?, " .
-            "? " .
-            ")";
-            sqlStatement(
-                $query,
-                [$form_pid, $form_encounter, $sequence_no['increment'], $session->get('authUserID'), $this_bill_date, $memo, $amount]
-            );
-            sqlCommitTrans();
+            $recorder->recordActivity([
+                'patientId' => $form_pid,
+                'encounterId' => $form_encounter,
+                'codeType' => '',
+                'code' => '',
+                'modifier' => '',
+                'payerType' => '0',
+                'postUser' => $session->get('authUserID'),
+                'sessionId' => '0',
+                'memo' => $memo,
+                'payAmount' => '0.0',
+                'adjustmentAmount' => $amount,
+            ]);
         }
 
       // Post payment.
@@ -744,14 +736,19 @@ function generate_receipt($patient_id, $encounter = 0): void
                   [$session->get('authUserID'),$form_source,$dosdate,$amount,$form_pid,$paydesc]
               );
 
-              sqlBeginTrans();
-              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $form_encounter]);
-              $insrt_id = sqlInsert(
-                  "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                  " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
-                  [$form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$this_bill_date,$session->get('authUserID'),$session_id,$amount]
-              );
-              sqlCommitTrans();
+            $recorder->recordActivity([
+                'patientId' => $form_pid,
+                'encounterId' => $form_encounter,
+                'codeType' => $Codetype,
+                'code' => $Code,
+                'modifier' => $Modifier,
+                'payerType' => '0',
+                'postUser' => $session->get('authUserID'),
+                'sessionId' => $session_id,
+                'payAmount' => $amount,
+                'adjustmentAmount' => '0.0',
+                'accountCode' => 'PCP',
+            ]);
         }
 
       // If applicable, set the invoice reference number.

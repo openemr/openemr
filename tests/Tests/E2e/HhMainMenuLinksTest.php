@@ -135,7 +135,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Clinic -> Report Results menu link' => ['Reports||Clinic||Report Results', 'Report Results/History'],
             'Reports -> Clinic -> Standard Measures menu link' => ['Reports||Clinic||Standard Measures', 'Standard Measures'],
             'Reports -> Clinic -> Automated Measures (AMC) menu link' => ['Reports||Clinic||Automated Measures (AMC)', 'Automated Measure Calculations (AMC)'],
-            'Reports -> Clinic -> 2025 Real World Testing Report menu link' => ['Reports||Clinic||2025 Real World Testing Report', '2025 Real World Testing Report'],
+            'Reports -> Clinic -> 2026 Real World Testing Report menu link' => ['Reports||Clinic||2026 Real World Testing Report', '2026 Real World Testing Report'],
             'Reports -> Clinic -> Alerts Log menu link' => ['Reports||Clinic||Alerts Log', 'Alerts Log'],
             'Reports -> Visits -> Daily Report menu link' => ['Reports||Visits||Daily Report', 'Daily Summary Report'],
             'Reports -> Visits -> Patient Flow Board menu link' => ['Reports||Visits||Patient Flow Board', 'Patient Flow Board Report'],
