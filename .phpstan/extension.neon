@@ -40,3 +40,6 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenCurlFunctionsRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenGlobalNamespaceRule
+  tags:
+  - phpstan.rules.rule
