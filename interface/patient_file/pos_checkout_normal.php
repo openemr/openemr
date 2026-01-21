@@ -374,7 +374,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                                 $svcdate,
                                 $inrow['code_text'],
                                 $inrow['fee'],
-                                $inrow['units']
+                                (int) $inrow['units']
                             );
                         }
 
