@@ -157,6 +157,7 @@
             "library/classes"
         ],
         "files": [
+            "library/global_functions.inc.php",
             "library/htmlspecialchars.inc.php",
             "library/formdata.inc.php",
             "library/sanitize.inc.php",
