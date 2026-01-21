@@ -9,6 +9,7 @@
     "Carecoordination\\Model\\EncounterccdadispatchTable",
     "FPDF_FONTPATH",
     "GenericProductRegistrationException",
+    "HelpfulDie",
     "IS_WINDOWS",
     "Installer\\Controller\\InstallerController",
     "Installer\\Model\\InstModuleTable",
