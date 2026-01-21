@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Custom PHPStan Rule to forbid defining new functions in the global namespace
+ *
+ * @package   OpenEMR
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules;
