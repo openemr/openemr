@@ -992,7 +992,17 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     $duept = $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
                 }
 
-                echoLine("form_upay[$enc]", $dispdate, $value['charges'], $dpayment_pat, ($dpayment + $dadjustment), $duept, ($enc . ': ' . $reason), $inscopay, $patcopay);
+                echoLine(
+                    iname: "form_upay[$enc]",
+                    date: $dispdate,
+                    charges: $value['charges'],
+                    ptpaid: $dpayment_pat,
+                    inspaid: ($dpayment + $dadjustment),
+                    duept: $duept,
+                    encounterId: ($enc . ': ' . $reason),
+                    copay: $inscopay,
+                    patcopay: $patcopay,
+                );
             }
 
             // Continue with display of the data entry form.
