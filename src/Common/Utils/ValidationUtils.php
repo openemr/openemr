@@ -5,7 +5,6 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com
  * @author    Cassian LUP <cassi.lup@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -17,6 +16,8 @@
 
 namespace OpenEMR\Common\Utils;
 
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 class ValidationUtils
@@ -214,5 +215,37 @@ class ValidationUtils
     public static function isValidUuid(string $uuid): bool
     {
         return UuidRegistry::isValidStringUUID($uuid);
+    }
+
+    /**
+     * Validates a phone number using libphonenumber.
+     *
+     * Accepts phone numbers in various formats including:
+     * - National format: (555) 123-4567, 555-123-4567
+     * - E.164 format: +15551234567
+     * - With country code: 1-555-123-4567
+     *
+     * @param string $phone The phone number to validate
+     * @param string $defaultRegion Default region code (e.g., 'US') for parsing numbers without country code
+     * @param bool $strict If true, validates against real area codes. If false, only checks format/length.
+     *                     Use strict=false for test/demo data with fake numbers like 555-xxx-xxxx.
+     * @return bool True if valid phone number, false otherwise
+     */
+    public static function isValidPhoneNumber(string $phone, string $defaultRegion = 'US', bool $strict = true): bool
+    {
+        if (empty($phone)) {
+            return false;
+        }
+
+        $phoneUtil = PhoneNumberUtil::getInstance();
+        try {
+            $parsedNumber = $phoneUtil->parse($phone, $defaultRegion);
+        } catch (NumberParseException) {
+            return false;
+        }
+
+        return $strict
+            ? $phoneUtil->isValidNumber($parsedNumber)
+            : $phoneUtil->isPossibleNumber($parsedNumber);
     }
 }

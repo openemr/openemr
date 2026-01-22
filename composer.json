@@ -52,6 +52,7 @@
         "doctrine/dbal": "^4.4",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
+        "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",
         "guzzlehttp/psr7": "^2.8",
