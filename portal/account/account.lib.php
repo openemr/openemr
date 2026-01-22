@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,8 +23,11 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function notifyAdmin($pid, $provider): void
 {
@@ -94,15 +99,15 @@ function processRecaptcha($gRecaptchaResponse): bool
 //  (this is done so a bad actor can not see if certain patients exist in the instance)
 function verifyEmail(string $languageChoice, string $fname, string $mname, string $lname, string $dob, string $email): bool
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $globalsBag = OEGlobalsBag::getInstance();
-
     if (empty($languageChoice) || empty($fname) || empty($lname) || empty($dob) || empty($email)) {
         // only optional setting is the mname
         (new SystemLogger())->error("a required verifyEmail function parameter is empty");
         return false;
     }
 
-    if (!validEmail($email)) {
+    if (!ValidationUtils::isValidEmail($email)) {
         (new SystemLogger())->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
         return true;
     }
@@ -187,11 +192,11 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
 
         // create $encoded_link
         $site_addr = $globalsBag->get('portal_onsite_two_address');
-        $site_id = $_SESSION['site_id'];
+        $site_id = $session->get('site_id');
         if (stripos((string) $site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
-                'site' => $_SESSION['site_id']
+                'site' => $site_id
             ]));
         } else {
             $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
@@ -335,21 +340,12 @@ function saveInsurance($pid): void
     newInsuranceData($pid, "tertiary");
 }
 
-function validEmail($email)
-{
-    if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", (string) $email)) {
-        return true;
-    }
-
-    return false;
-}
-
 // $resetPass mode return false when something breaks (although returns true if related to a patient existing or not to prevent fishing for patients)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
     $globalsBag = OEGlobalsBag::getInstance();
-
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct, providerID FROM `patient_data` WHERE `pid` = ?", [$pid]);
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$newpd['providerID']]);
 
@@ -371,14 +367,14 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
             (new SystemLogger())->error("doCredentials function with empty email or unable to find correct email " . $resetPassEmail . " in patient from patient_data for pid " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
             return true;
         }
-        if (!validEmail($resetPassEmail)) {
+        if (!ValidationUtils::isValidEmail($resetPassEmail)) {
             EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Email " . $resetPassEmail . " was not considered valid for pid: " . $pid);
             (new SystemLogger())->error("doCredentials function with email " . $resetPassEmail . " for pid " . $pid . " that was not valid per validEmail function, so was unable to reset the password");
             return false;
         }
         $newpd['email'] = $resetPassEmail;
     } else { // !$resetPass
-        if (!validEmail($newpd['email'])) {
+        if (!ValidationUtils::isValidEmail($newpd['email'])) {
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient password reset failure: Email " . $newpd['email'] . " was not considered valid for pid: " . $pid);
             (new SystemLogger())->error("doCredentials function with email " . $newpd['email'] . " for pid " . $pid . " was not valid per validEmail function, so was unable to complete the registration");
             return false;
@@ -411,11 +407,11 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
     $site_addr = $globalsBag->get('portal_onsite_two_address');
-    $site_id = $_SESSION['site_id'];
+    $site_id = $session->get('site_id');
     if (stripos((string) $site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
-            'site' => $_SESSION['site_id']
+            'site' => $site_id
         ]));
     } else {
         $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
@@ -517,14 +513,16 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
 //  just not store the insurance info in worst case scenario).
 function getPidHolder($preventRaceCondition = false): int
 {
-    if (empty($_SESSION['token_id_holder'])) {
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $tokenIdHolder = $session->get('token_id_holder');
+    if (empty($tokenIdHolder)) {
         (new SystemLogger())->debug("getPidHolder function failed because token_id_holder session variable was not set");
         return 0;
     }
     if ($preventRaceCondition) {
         sleep(1);
     }
-    $sql = sqlQueryNoLog("SELECT `pid_holder` FROM `verify_email` WHERE `id` = ?", [$_SESSION['token_id_holder']]);
+    $sql = sqlQueryNoLog("SELECT `pid_holder` FROM `verify_email` WHERE `id` = ?", [$tokenIdHolder]);
     if (!empty($sql['pid_holder'])) {
         return $sql['pid_holder'];
     } else {
@@ -540,11 +538,12 @@ function getPidHolder($preventRaceCondition = false): int
 
 function cleanupRegistrationSession(): void
 {
-    unset($_SESSION['patient_portal_onsite_two']);
-    unset($_SESSION['authUser']);
-    unset($_SESSION['pid']);
-    unset($_SESSION['site_id']);
-    unset($_SESSION['register']);
-    unset($_SESSION['register_silo_ajax']);
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session->remove('patient_portal_onsite_two');
+    $session->remove('authUser');
+    $session->remove('pid');
+    $session->remove('site_id');
+    $session->remove('register');
+    $session->remove('register_silo_ajax');
+    SessionUtil::portalSessionCookieDestroy();
 }

@@ -339,7 +339,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
-    // prepare newcrop globals that are used in creating the menu
+    // prepare Ensora eRx globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
         $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
@@ -409,6 +409,10 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         width: max-content;
         min-height: 100% !important;
         height: 100% !important;
+      }
+      #userdropdown.dropdown-menu {
+        white-space: nowrap;        /* prevents multi-line wrapping */
+        min-width: max-content;     /* expands to fit the widest item */
       }
     </style>
 </head>

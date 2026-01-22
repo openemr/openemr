@@ -16,6 +16,7 @@
 
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\PaymentProcessing\Recorder;
 
 // Post a payment to the payments table.
 //
@@ -55,12 +56,13 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 //===============================================================================
 //This section handles the common functins of payment screens.
 //===============================================================================
-function DistributionInsert($CountRow, $created_time, $user_id): void
+function DistributionInsert(int $CountRow, $created_time, $user_id): void
 {
 //Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
-    $Affected = 'no';
+    $r = new Recorder();
+    $Affected = false;
     // watch for payments less than $1, thanks @snailwell
     if (!empty($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
         if (trim(formData('type_name')) == 'insurance') {
@@ -79,26 +81,21 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
             $AccountCode = "PP";
         }
 
-        sqlBeginTrans();
-        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-        sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '" . $sequence_no['increment'] .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . trim(formData("Payment$CountRow"))  .
-        "', adj_amount = '"    . 0 .
-        "', account_code = '" . "$AccountCode"  .
-        "'");
-          sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => trim(formData("Payment$CountRow")),
+            'adjustmentAmount' => '0',
+            'memo' => '',
+            'accountCode' => $AccountCode,
+        ]);
+        $Affected = true;
     }
 
     if (!empty($_POST["AdjAmount$CountRow"]) && (floatval($_POST["AdjAmount$CountRow"] ?? null)) != 0) {
@@ -110,101 +107,80 @@ function DistributionInsert($CountRow, $created_time, $user_id): void
             $AccountCode = "PA";
         }
 
-        sqlBeginTrans();
-        $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-        sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '"     . $sequence_no['increment']  .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . 0  .
-        "', adj_amount = '"    . trim(formData("AdjAmount$CountRow")) .
-        "', memo = '" . "$AdjustString"  .
-        "', account_code = '" . "$AccountCode"  .
-        "'");
-           sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => '0',
+            'adjustmentAmount' => trim(formData("AdjAmount$CountRow")),
+            'memo' => $AdjustString,
+            'accountCode' => $AccountCode,
+        ]);
+        $Affected = true;
     }
 
     if (!empty($_POST["Deductible$CountRow"]) && (floatval($_POST["Deductible$CountRow"] ?? null)) > 0) {
-         sqlBeginTrans();
-         $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-        sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '"     . $sequence_no['increment']  .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . 0  .
-        "', adj_amount = '"    . 0 .
-        "', memo = '"    . "Deductible $" . trim(formData("Deductible$CountRow")) .
-        "', account_code = '" . "Deduct"  .
-        "'");
-           sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => '0',
+            'adjustmentAmount' => '0',
+            'memo' => 'Deductible $' . trim(formData("Deductible$CountRow")),
+            'accountCode' => 'Deduct',
+        ]);
+        $Affected = true;
     }
 
     if (!empty($_POST["Takeback$CountRow"]) && (floatval($_POST["Takeback$CountRow"] ?? null)) > 0) {
-         sqlBeginTrans();
-         $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-        sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '"     . $sequence_no['increment']  .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . trim(formData("Takeback$CountRow")) * -1  .
-        "', adj_amount = '"    . 0 .
-        "', account_code = '" . "Takeback"  .
-        "'");
-           sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => strval(floatval(trim(formData("Takeback$CountRow"))) * -1),
+            'adjustmentAmount' => '0',
+            'memo' => '',
+            'accountCode' => 'Takeback',
+        ]);
+        $Affected = true;
     }
 
     if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"] == 'y') {
-         sqlBeginTrans();
-         $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))]);
-         sqlStatement("insert into ar_activity set "    .
-        "pid = '"       . trim(formData('hidden_patient_code')) .
-        "', encounter = '"     . trim(formData("HiddenEncounter$CountRow"))  .
-        "', sequence_no = '"     . $sequence_no['increment']  .
-                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"))  .
-        "', code = '"      . trim(formData("HiddenCode$CountRow"))  .
-        "', modifier = '"      . trim(formData("HiddenModifier$CountRow"))  .
-        "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-        "', post_time = '"  . trim((string) $created_time) .
-        "', post_user = '" . trim((string) $user_id)  .
-        "', session_id = '"    . trim(formData('payment_id')) .
-        "', modified_time = '"  . trim((string) $created_time) .
-        "', pay_amount = '" . 0  .
-        "', adj_amount = '"    . 0 .
-        "', follow_up = '"    . "y" .
-        "', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow")) .
-        "'");
-           sqlCommitTrans();
-          $Affected = 'yes';
+        $r->recordActivity([
+            'patientId' => trim(formData('hidden_patient_code')),
+            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
+            'codeType' => trim(formData("HiddenCodetype$CountRow")),
+            'code' => trim(formData("HiddenCode$CountRow")),
+            'modifier' => trim(formData("HiddenModifier$CountRow")),
+            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'postUser' => trim((string) $user_id),
+            'sessionId' => trim(formData('payment_id')),
+            'payAmount' => '0',
+            'adjustmentAmount' => '0',
+            'memo' => '',
+            'accountCode' => '',
+            'followUp' => true,
+            'followUpNote' => trim(formData("FollowUpReason$CountRow")),
+        ]);
+        $Affected = true;
     }
 
-    if ($Affected == 'yes') {
+    if ($Affected) {
         if (trim(formData('type_name')) != 'patient') {
             $ferow = sqlQuery("select last_level_closed from form_encounter  where
 		pid ='" . trim(formData('hidden_patient_code')) . "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");

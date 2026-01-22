@@ -17,23 +17,24 @@
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
 
 require_once("./../library/pnotes.inc.php");
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode((string) $_SESSION['site_id']);
+$landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 //
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
 } else {
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
@@ -65,24 +66,24 @@ $patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $pid);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
 if ($eid !== 0 && $checkEidInAppt === false) {
-    echo js_escape("error");
+    echo xlt("Error: Invalid Event ID");
     exit();
 }
 
 if (!empty($_POST['form_pid'])) {
     if ($_POST['form_pid'] != $pid) {
-        echo js_escape("error");
+        echo xlt("Error: Invalid Patient ID");
         exit();
     }
-
-    if (! getAvailableSlots($_POST['form_date'], date('Y-m-d', strtotime("+1 year " . $_POST['form_date'])), $_POST['form_provider_ae'])) {
-        echo js_escape("error");
+    $event_date = fixDate($_POST['form_date']);
+    if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $_POST['form_provider_ae'])) {
+        echo xlt("Error: No available slots for selected provider(s)");
         exit();
     }
 
     $appointment_service = (new AppointmentService())->getOneCalendarCategory($_POST['form_category']);
     if (($_POST['form_duration'] * 60) != ($appointment_service[0]['pc_duration'])) {
-        echo js_escape("error");
+        echo xlt("Error: Invalid appointment duration for selected category");
         exit();
     }
 }
@@ -330,7 +331,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                         "'" . add_escape_custom($_POST['form_title']) . "', " .
                         "NOW(), " .
                         "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                        "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                        "'" . add_escape_custom($session->get('providerId')) . "', " .
                         "'" . add_escape_custom($event_date) . "', " .
                         "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                         "'" . add_escape_custom(($duration * 60)) . "', " .
@@ -357,7 +358,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                    "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
+                    "pc_informant = '" . add_escape_custom($session->get('providerId')) . "', " .
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                     "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                     "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
@@ -386,7 +387,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                 "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                 "pc_time = NOW(), " .
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
+                "pc_informant = '" . add_escape_custom($session->get('providerId')) . "', " .
                 "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                 "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'] ?? '')) . "', " .
                 "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
@@ -437,7 +438,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     "'" . add_escape_custom($_POST['form_title']) . "', " .
                     "NOW(), " .
                     "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                    "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                    "'" . add_escape_custom($session->get('providerId')) . "', " .
                     "'" . add_escape_custom($event_date) . "', " .
                     "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                     "'" . add_escape_custom(($duration * 60)) . "', " .
@@ -467,7 +468,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                 "'" . add_escape_custom($_POST['form_title']) . "', " .
                 "NOW(), " .
                 "'" . add_escape_custom($_POST['form_comments']) . "', " .
-                "'" . add_escape_custom($_SESSION['providerId']) . "', " .
+                "'" . add_escape_custom($session->get('providerId')) . "', " .
                 "'" . add_escape_custom($event_date) . "', " .
                 "'" . add_escape_custom(fixDate(($_POST['form_enddate'] ?? ''))) . "', " .
                 "'" . add_escape_custom(($duration * 60)) . "', " .
@@ -508,14 +509,14 @@ if (!empty($_POST['form_action'])) {
     // Leave
     $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
     $note = $type . " " . xl("request was received from portal patient") . " ";
-    $note .= $_SESSION['ptName'] . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
+    $note .= $session->get('ptName') . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
     $note .= !empty($_POST['form_comments']) ? (xl("Reason") . " " . $_POST['form_comments']) : "";
     $note .= ". " . xl("Use Portal Dashboard to confirm with patient.");
     $title = xl("Patient Reminders");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$_POST['form_provider_ae']]);
     $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
 
-    $_SESSION['whereto'] = '#appointmentcard';
+    $session->set('whereto', '#appointmentcard');
     header('Location:./home.php');
     exit();
 }

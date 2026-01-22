@@ -8,30 +8,30 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady@sparmy.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-SessionUtil::portalSessionStart();
-
-//landing page definition -- where to go if something goes wrong
-$landingpage = "../index.php?site=" . urlencode((string) $_SESSION['site_id']);
-//
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // kick out if patient not authenticated
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-    $pid = $_SESSION['pid'];
-    $user = $_SESSION['sessionUser'];
+if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $pid = $session->get('pid');
+    $user = $session->get('sessionUser');
 } else {
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
+
     SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit;
@@ -74,7 +74,6 @@ try {
     $data['issues'] = $portalPatientReportController->getIssues($ISSUE_TYPES, $pid);
     $data['encounters'] = $portalPatientReportController->getEncounters($pid);
     $data['procedureOrders'] = $portalPatientReportController->getProcedureOrders($pid);
-    $data['documents'] = $portalPatientReportController->getDocuments($pid);
     $data['phimail_enable'] = $globalsBag->get('phimail_enable') ?? false;
     $data['phimail_ccr_enable'] = $globalsBag->get('phimail_ccr_enable') ?? false;
     $data['phimail_ccd_enable'] = $globalsBag->get('phimail_ccd_enable') ?? false;

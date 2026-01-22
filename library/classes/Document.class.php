@@ -23,6 +23,8 @@ require_once(__DIR__ . "/../gprelations.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -906,6 +908,7 @@ class Document extends ORDataObject
         ) {
             return xl('Reference table and reference id must both be set');
         }
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->set_foreign_reference_id($foreign_reference_id);
         $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.
@@ -996,7 +999,8 @@ class Document extends ORDataObject
             // Storing document files locally.
             $repository = $GLOBALS['oer_config']['documents']['repository'];
             $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
-            if ((!empty($higher_level_path)) && (is_numeric($patient_id) && $patient_id > 0)) {
+            $validPatientId = ValidationUtils::validateInt($patient_id, min: 1);
+            if ((!empty($higher_level_path)) && $validPatientId !== false) {
                 // Allow higher level directory structure in documents directory and a patient is mapped.
                 $filepath = $repository . $higher_level_path . "/";
             } elseif (!empty($higher_level_path)) {
@@ -1004,7 +1008,7 @@ class Document extends ORDataObject
                 // (will create up to 10000 random directories and increment the path_depth by 1).
                 $filepath = $repository . $higher_level_path . '/' . random_int(1, 10000)  . '/';
                 ++$path_depth;
-            } elseif (!(is_numeric($patient_id)) || !($patient_id > 0)) {
+            } elseif ($validPatientId === false) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
                 $filepath = $repository . $patient_id . '/' . random_int(1, 10000)  . '/';
@@ -1081,7 +1085,7 @@ class Document extends ORDataObject
         $this->size  = strlen($data);
         $this->hash  = hash('sha3-512', $data);
         $this->type  = $this->type_array['file_url'];
-        $this->owner = $owner ?: $_SESSION['authUserID'] ?? null;
+        $this->owner = $owner ?: $session->get('authUserID');
         $this->date_expires = $date_expires;
         $this->encounter_id = $encounter_id;
         $this->set_foreign_id($patient_id);

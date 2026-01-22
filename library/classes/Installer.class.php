@@ -139,8 +139,9 @@ class Installer
      * @param string $input_text Text to validate
      * @return bool True if text is safe, false otherwise
      */
-    public function char_is_valid(string $input_text): bool
+    public function char_is_valid(?string $input_text): bool
     {
+        $input_text ??= '';
         // to prevent php injection
         $input_text = trim($input_text);
         if ($input_text == '') {
@@ -160,8 +161,11 @@ class Installer
      * @param string $name Database name to validate
      * @return bool True if name is valid, false otherwise
      */
-    public function databaseNameIsValid(string $name): bool
+    public function databaseNameIsValid(?string $name): bool
     {
+        if (empty($name)) {
+            return false;
+        }
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
         }
@@ -174,8 +178,12 @@ class Installer
      * @param string $name Collation name to validate
      * @return bool True if name is valid, false otherwise
      */
-    public function collateNameIsValid(string $name): bool
+    public function collateNameIsValid(?string $name): bool
     {
+
+        if (empty($name)) {
+            return false;
+        }
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
         }

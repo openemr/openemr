@@ -15,7 +15,10 @@ require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 //the number of rows to display before resetting and starting a new column:
 $N = 10;
@@ -29,17 +32,17 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
 
     if ($mode == "add") {
         if (strtolower((string) $type) == "copay") {
-            BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
+            BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $session->get('authUserID'), $modifier, $units, sprintf("%01.2f", 0 - $code));
         } elseif (strtolower((string) $type) == "other") {
-            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
+            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $session->get('authUserID'), $modifier, $units, sprintf("%01.2f", $fee));
         } else {
-            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
+            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $session->get('authUserID'), $modifier, $units, $fee);
         }
     }
 }
@@ -111,7 +114,7 @@ while ($index < $numlines) {
                 "&fee="      . attr_url($code["fee"]) .
                 "&code="     . attr_url($code["code"]) .
                 "&text="     . attr_url($code["code_text"]) .
-                "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) .
             "' onclick='top.restoreSession()'>";
             echo "<b>" . text($code['code']) . "</b>" . "&nbsp;" . text($code['modifier']) . "&nbsp;" . text($code['code_text']);
             echo "</a></dd>\n";
