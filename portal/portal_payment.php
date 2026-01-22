@@ -95,17 +95,17 @@ if ($edata) {
 //
 $var_index = 0;
 $sum_charges = $sum_ptpaid = $sum_inspaid = $sum_duept = $sum_copay = $sum_patcopay = $sum_balance = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounterId = 0, $copay = 0, $patcopay = 0): void
+function echoLine($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounterDesc = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
 {
     global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
     global $var_index;
     $var_index++;
     $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
-    $encounter = $encounterId ?: '';
+    $encounter = $encounterDesc ?: '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
+    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounterDesc) . "</td>\n";
     echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
     echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
     echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
@@ -115,7 +115,9 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='detail' align='center'>";
     echo "    <input class='form-control amount_field'"
-        // . 'data-foo="' . attr($iname) . '"'
+        . 'data-encounter-id="' . attr($encounterId) . '"'
+        . 'data-code="' . attr($code) . '"'
+        . 'data-code-type="' . attr($codeType) . '"'
         . "name='" . attr($iname) . "'"
         . "id='paying_" . attr($var_index) . "'"
         . "value=''"
@@ -886,7 +888,15 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             while ($brow = sqlFetchArray($bres)) {
                 $key = (int)$brow['encounter'];
                 if (empty($encs[$key])) {
-                    $encs[$key] = ['encounter' => $brow['encounter'], 'date' => $brow['encdate'], 'last_level_closed' => $brow['last_level_closed'], 'charges' => 0, 'payments' => 0, 'reason' => $brow['reason']
+                    $encs[$key] = [
+                        'encounter' => $brow['encounter'],
+                        'date' => $brow['encdate'],
+                        'last_level_closed' => $brow['last_level_closed'],
+                        'charges' => 0,
+                        'payments' => 0,
+                        'reason' => $brow['reason'],
+                        'code_type' => $brow['code_type'],
+                        'code' => $brow['code'],
                     ];
                 }
 
@@ -943,6 +953,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             ksort($encs, SORT_NUMERIC);
 
             foreach ($encs as $value) {
+error_log(print_r($value, true));
                 $enc = $value['encounter'];
                 $reason = $value['reason'];
                 $dispdate = $value['date'];
@@ -993,15 +1004,18 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
 
                 echoLine(
+                    encounterId: $enc,
                     iname: "form_upay[$enc]",
                     date: $dispdate,
                     charges: $value['charges'],
                     ptpaid: $dpayment_pat,
                     inspaid: ($dpayment + $dadjustment),
                     duept: $duept,
-                    encounterId: ($enc . ': ' . $reason),
+                    encounterDesc: ($enc . ': ' . $reason),
                     copay: $inscopay,
                     patcopay: $patcopay,
+                    code: $value['code'],
+                    codeType: $value['code_type'],
                 );
             }
 
