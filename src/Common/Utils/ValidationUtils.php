@@ -140,4 +140,46 @@ class ValidationUtils
 
         return ($sum % 10) === 0;
     }
+
+    /**
+     * Validates a postal code based on country.
+     *
+     * @param string $postalCode The postal code to validate
+     * @param string $country The country code (US, CA, etc.)
+     * @return bool True if valid postal code for the country, false otherwise
+     */
+    public static function isValidPostalCode(string $postalCode, string $country = 'US'): bool
+    {
+        return match (strtoupper($country)) {
+            'US' => self::isValidUSPostalCode($postalCode),
+            'CA' => self::isValidCAPostalCode($postalCode),
+            default => !empty($postalCode), // For other countries, just check non-empty
+        };
+    }
+
+    /**
+     * Validates a US postal code (ZIP code).
+     *
+     * Accepts 5-digit ZIP (12345) or ZIP+4 format (12345-6789).
+     *
+     * @param string $postalCode The postal code to validate
+     * @return bool True if valid US postal code
+     */
+    public static function isValidUSPostalCode(string $postalCode): bool
+    {
+        return (bool) preg_match('/^\d{5}(-\d{4})?$/', $postalCode);
+    }
+
+    /**
+     * Validates a Canadian postal code.
+     *
+     * Format: A1A 1A1 or A1A1A1 (letter-digit-letter space digit-letter-digit)
+     *
+     * @param string $postalCode The postal code to validate
+     * @return bool True if valid Canadian postal code
+     */
+    public static function isValidCAPostalCode(string $postalCode): bool
+    {
+        return (bool) preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', $postalCode);
+    }
 }

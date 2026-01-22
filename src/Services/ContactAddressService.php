@@ -10,12 +10,13 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactAddress;
-use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -570,23 +571,18 @@ class ContactAddressService extends BaseService
             $errors['state'] = "State is required";
         }
 
-        $postalCode = $addressData['postalcode'] ?? $addressData['postal_code'] ?? $addressData['zip'] ?? '';
-        if (empty($postalCode)) {
-            $errors['postalcode'] = "Postal code is required";
-        }
-
-        // Country-specific validation
+        $postalCode = trim((string) ($addressData['postalcode'] ?? $addressData['postal_code'] ?? $addressData['zip'] ?? ''));
+        // Postal code validation by country
         $country = $addressData['country'] ?? 'US';
 
-        // US ZIP code validation
-        if ($country == 'US' && !empty($postalCode) && !preg_match('/^\d{5}(-\d{4})?$/', (string) $postalCode)) {
+        if ($postalCode === '') {
+            $errors['postalcode'] = "Postal code is required";
+        } elseif ($country === 'US' && !ValidationUtils::isValidUSPostalCode($postalCode)) {
             $errors['postalcode'] = "Invalid US postal code format (must be XXXXX or XXXXX-XXXX)";
-        }
-
-        // Canadian postal code validation
-        if ($country == 'CA' && !empty($postalCode) && !preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', (string) $postalCode)) {
+        } elseif ($country === 'CA' && !ValidationUtils::isValidCAPostalCode($postalCode)) {
             $errors['postalcode'] = "Invalid Canadian postal code format";
         }
+        // For other countries, any non-empty postal code is accepted
 
         // Type validation
         if (!empty($addressData['type'])) {
