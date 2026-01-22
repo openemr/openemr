@@ -85,7 +85,7 @@ class Recorder
                 $data['adjustmentAmount'],
                 $data['memo'] ?? '',
                 $data['accountCode'] ?? '',
-                $data['followUp'] ? 'y' : '',
+                ($data['followUp'] ?? false) ? 'y' : '',
                 $data['followUpNote'] ?? null,
                 $data['reasonCode'] ?? null,
                 $data['postDate'] ?? null,
