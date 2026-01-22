@@ -41,6 +41,18 @@ $product_row = $productRegistration->getProductDialogStatus();
 $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
+
+// Check if telemetry is disabled via environment variable
+$env_name = 'OPENEMR_DISABLE_TELEMETRY';
+$val = getenv($env_name);
+if ($val === false || $val === '') {
+    $val = $_ENV[$env_name] ?? $_SERVER[$env_name] ?? null;
+}
+$disableTelemetry = $val !== null && in_array(strtolower(trim((string)$val)), ['1', 'true', 'yes', 'on', 'y'], true);
+if ($disableTelemetry) {
+    $allowRegisterDialog = false;
+    $allowTelemetry = false;
+}
 // If running unit tests, then disable the registration dialog
 if ($_SESSION['testing_mode'] ?? false) {
     $allowRegisterDialog = false;
