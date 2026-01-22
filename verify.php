@@ -4,6 +4,9 @@ chdir(__DIR__);
 require 'vendor/autoload.php';
 header('Content-type: text/plain');
 
+$ignoreAuth_onsite_portal = true;
+require_once __DIR__ . '/interface/globals.php';
+
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{Dispatcher, Verifier, RecordPayment};
 use Monolog\Logger;
 use Http\Discovery\Psr17Factory;
