@@ -1,9 +1,4 @@
 document.getElementById('paynowbutton').onclick = function (e) {
-    // e.preventDefault();
-    // e.stopPropagation();
-    // alert('button click');
-    //
-
     const amountFields = document.querySelectorAll('input.amount_field');
     const encounters = [...amountFields].map((field) => {
         const data = field.dataset
@@ -16,9 +11,8 @@ document.getElementById('paynowbutton').onclick = function (e) {
         }
     })
     .filter((enc) => !!enc.value);
+
     const patientId = document.getElementById('hidden_patient_code').value
-    // alert(amountFields)
-    // console.debug(amountFields);
     const amountField = document.getElementById('form_paytotal')
     // This assumes USD for the forseeable future.
     const dollars = amountField.value
@@ -29,9 +23,6 @@ document.getElementById('paynowbutton').onclick = function (e) {
         encounters,
         patientId,
     }
-    alert(JSON.stringify(data));
-    // return;
-
 
     /**
      * @param { session_key: string, payin_config_id: string } responseData
@@ -42,6 +33,8 @@ document.getElementById('paynowbutton').onclick = function (e) {
         component.setAttribute('payin-config-id', responseData.payin_config_id);
         console.log(component)
         // document.getElementById('card-element').innerHTML = component
+        // FIXME: delete on unload or replace - can show up >1x if user closes
+        // box
         document.getElementById('card-element').appendChild(component)
 
         component.addEventListener('approved', function (data) {
