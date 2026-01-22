@@ -1280,7 +1280,7 @@ error_log(print_r($value, true));
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
     }
     if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
-        if (!!$GLOBALS['gateway_mode_production']) {
+        if ($globalsBag->getBoolean('gateway_mode_production')) {
             echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
         } else {
             echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
