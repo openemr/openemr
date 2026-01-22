@@ -33,6 +33,8 @@ use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Telemetry\TelemetryService;
 use Symfony\Component\Filesystem\Path;
 
+const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
+
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
 // Registration status and options.
@@ -43,16 +45,17 @@ $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
 
 // Check if telemetry is disabled via environment variable
-$env_name = 'OPENEMR_DISABLE_TELEMETRY';
-$val = getenv($env_name);
+// Telemetry disable flag (set env var to: 1/true)
+$val = getenv(ENV_DISABLE_TELEMETRY);
 if ($val === false || $val === '') {
-    $val = $_ENV[$env_name] ?? $_SERVER[$env_name] ?? null;
+    $val = $_ENV[ENV_DISABLE_TELEMETRY] ?? $_SERVER[ENV_DISABLE_TELEMETRY] ?? null;
 }
-$disableTelemetry = $val !== null && in_array(strtolower(trim((string)$val)), ['1', 'true', 'yes', 'on', 'y'], true);
+$disableTelemetry = ($val !== null) && filter_var($val, FILTER_VALIDATE_BOOLEAN);
 if ($disableTelemetry) {
     $allowRegisterDialog = false;
     $allowTelemetry = false;
 }
+
 // If running unit tests, then disable the registration dialog
 if ($_SESSION['testing_mode'] ?? false) {
     $allowRegisterDialog = false;
