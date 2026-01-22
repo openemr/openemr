@@ -9,7 +9,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
         const data = field.dataset
         const value = field.value
         return {
-            encId: data.encounterId,
+            encounterId: data.encounterId,
             code: data.code,
             codeType: data.codeType,
             value,
@@ -29,7 +29,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
         patientId,
     }
     alert(JSON.stringify(data));
-    return;
+    // return;
 
 
     /**
@@ -55,10 +55,11 @@ document.getElementById('paynowbutton').onclick = function (e) {
     }
 
     $.ajax({
-        type: 'POST',
-        url: 'portal_payment.rainforest.php',
-        data,
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(data),
         dataType: 'json',
         success: createRainforstComponent,
+        type: 'POST',
+        url: 'portal_payment.rainforest.php',
     })
 };
