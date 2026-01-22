@@ -17,6 +17,9 @@ class RecordPayment implements ProcessorInterface
     {
         return [
             'payin.authorized',
+            // payin.completed
+            // 'payin.processing',
+            // 'payin.created',
         ];
     }
 
@@ -26,10 +29,8 @@ class RecordPayment implements ProcessorInterface
         assert($webhook->eventType === 'payment.something');
 
         $data = $webhook->data;
+
         $metadata = Metadata::fromParsedJson($data['metadata']);
-
-        // error_log(print_r($metadata, true));
-
         $patientId = $metadata->patientId;
 
         $memo = sprintf('Rainforest transaction id %s', $data['payin_id']);
@@ -44,7 +45,7 @@ class RecordPayment implements ProcessorInterface
                 'code' => $enc->code,
                 'modifier' => '',
                 'payerType' => '0',
-                'postUser' => '????',
+                'postUser' => '', // does this need to be filled?
                 'sessionId' => '????', // ar_sessions
                 'payAmount' => $dmf->format($enc->amount),
                 'adjustmentAmount' => '0.00',
@@ -52,10 +53,6 @@ class RecordPayment implements ProcessorInterface
             ];
         }, $metadata->encounters);
 
-        // insert into ar_session
-        // insert into ar_activity
-        // update onsite_portal_activity
-        // more?
         //
         // FROM WHAT I CAN TELL recording the payment is enough but ar_session
         // seems relevant
@@ -65,5 +62,8 @@ class RecordPayment implements ProcessorInterface
             $r->recordActivity($activity);
         }
         // insert into payments ?
+        // insert into ar_session
+        // update onsite_portal_activity
+        // more?
     }
 }
