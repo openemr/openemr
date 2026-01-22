@@ -264,4 +264,51 @@ class ValidationUtilsIsolatedTest extends TestCase
             );
         }
     }
+
+    public function testUSPostalCodeValidation(): void
+    {
+        // Valid US ZIP codes
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('12345'));
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('12345-6789'));
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('00000'));
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('99999-9999'));
+
+        // Invalid US ZIP codes
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('1234'));      // Too short
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('123456'));    // Too long
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('12345-678')); // ZIP+4 too short
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('ABCDE'));     // Letters
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode(''));          // Empty
+    }
+
+    public function testCAPostalCodeValidation(): void
+    {
+        // Valid Canadian postal codes
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('A1A 1A1'));
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('A1A1A1'));
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('K1A 0B1'));
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('k1a0b1'));  // Lowercase
+
+        // Invalid Canadian postal codes
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode('12345'));     // US format
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode('AAA 111'));   // Wrong pattern
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode('A1A'));       // Too short
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode(''));          // Empty
+    }
+
+    public function testPostalCodeValidationByCountry(): void
+    {
+        // US validation
+        $this->assertTrue(ValidationUtils::isValidPostalCode('12345', 'US'));
+        $this->assertFalse(ValidationUtils::isValidPostalCode('A1A 1A1', 'US'));
+
+        // CA validation
+        $this->assertTrue(ValidationUtils::isValidPostalCode('A1A 1A1', 'CA'));
+        $this->assertFalse(ValidationUtils::isValidPostalCode('12345', 'CA'));
+
+        // Default (other countries) - just checks non-empty
+        $this->assertTrue(ValidationUtils::isValidPostalCode('12345', 'UK'));
+        $this->assertTrue(ValidationUtils::isValidPostalCode('anything', 'DE'));
+        $this->assertFalse(ValidationUtils::isValidPostalCode('', 'UK'));
+    }
 }
