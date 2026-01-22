@@ -113,8 +113,17 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
     echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
     echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
-        "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
+    echo "  <td class='detail' align='center'>";
+    echo "    <input class='form-control amount_field'"
+        // . 'data-foo="' . attr($iname) . '"'
+        . "name='" . attr($iname) . "'"
+        . "id='paying_" . attr($var_index) . "'"
+        . "value=''"
+        . "onchange='coloring();calctotal()'"
+        . "autocomplete='off' "
+        . "onkeyup='calctotal()'"
+        . "/>";
+    echo "</td>\n";
     echo " </tr>\n";
 
     $sum_charges += (float)$charges * 1;
