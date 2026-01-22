@@ -33,7 +33,7 @@ readonly class Metadata implements JsonSerializable
         }
         return new Metadata(
             patientId: $data['patientId'],
-            encounters: EncounterData::fromParsedJson($data['encounters']),
+            encounters: array_map(EncounterData::fromParsedJson(...), $data['encounters']),
         );
     }
 }
