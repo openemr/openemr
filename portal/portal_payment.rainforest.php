@@ -44,12 +44,12 @@ if (!$money->isPositive()) {
 }
 
 $encounters = array_map(function ($row) use ($parser, $usd) {
-    return [
-        'id' => $row['id'],
-        'code' => $row['code'],
-        'codeType' => $row['codeType'],
-        'amount' => $parser->parse($row['value'], $usd),
-    ];
+    return new Rainforest\EncounterData(
+        id: $row['id'],
+        code: $row['code'],
+        codeType: $row['codeType'],
+        amount: $parser->parse($row['value'], $usd),
+    );
 }, $postBody['encounters']);
 
 $gb = OEGlobalsBag::getInstance();
