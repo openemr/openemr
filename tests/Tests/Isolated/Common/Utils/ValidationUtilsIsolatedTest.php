@@ -227,4 +227,41 @@ class ValidationUtilsIsolatedTest extends TestCase
         $this->assertFalse(ValidationUtils::validateFloat(0.5, min: 1.0, max: 10.0));
         $this->assertFalse(ValidationUtils::validateFloat(10.5, min: 1.0, max: 10.0));
     }
+
+    public function testNpiValidationWithValidNpis(): void
+    {
+        // These NPIs pass the Luhn check with 80840 prefix
+        $validNpis = [
+            '1234567893',
+            '1245319599',
+            '1003000126',
+        ];
+
+        foreach ($validNpis as $npi) {
+            $this->assertTrue(
+                ValidationUtils::isValidNPI($npi),
+                "NPI should be valid: {$npi}"
+            );
+        }
+    }
+
+    public function testNpiValidationWithInvalidNpis(): void
+    {
+        $invalidNpis = [
+            '1234567890',  // Invalid check digit
+            '123456789',   // Too short (9 digits)
+            '12345678901', // Too long (11 digits)
+            'abcdefghij',  // Non-numeric
+            '123456789a',  // Contains letter
+            '',            // Empty string
+            '0000000000',  // All zeros (invalid check)
+        ];
+
+        foreach ($invalidNpis as $npi) {
+            $this->assertFalse(
+                ValidationUtils::isValidNPI($npi),
+                "NPI should be invalid: {$npi}"
+            );
+        }
+    }
 }
