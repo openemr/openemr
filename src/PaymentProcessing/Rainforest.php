@@ -64,6 +64,9 @@ class Rainforest
             'idempotency_key' => Uuid::uuid4()->toString(),
             'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
+            // metadata: pt.id
+            // metadata: enc.id
+            // splits - money by encounter; add encounter data to thing
         ];
         $payinResponse = $this->post('/v1/payin_configs', $payinPayload);
         $payinConfigId = $payinResponse['data']['payin_config_id'];

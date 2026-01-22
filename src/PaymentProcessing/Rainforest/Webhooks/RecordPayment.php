@@ -17,6 +17,10 @@ class RecordPayment implements ProcessorInterface
 
     public function handle(Webhook $webhook): void
     {
+        assert($webhook->eventType === 'payment.something');
+
+        $data = $webhook->data;
+
         // This SHOULD delegate to a payment service, but creating that too is
         // probably excessive scope creep.
         // TODO:
@@ -36,9 +40,9 @@ class RecordPayment implements ProcessorInterface
             'payerType' => '0',
             'postUser' => '????',
             'sessionId' => '????',
-            'payAmount' => 'dollar-format-from-wh',
+            'payAmount' => 'dollar-format-from-wh', // data.amount
             'adjustmentAmount' => '0.00',
-            'memo' => 'Rainforest transaction id XXXX',
+            'memo' => 'Rainforest transaction id XXXX', // data.payin_id
         ]);
     }
 }
