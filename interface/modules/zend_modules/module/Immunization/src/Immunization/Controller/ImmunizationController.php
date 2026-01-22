@@ -12,12 +12,13 @@
 
 namespace Immunization\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
+use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Immunization\Form\ImmunizationForm;
-use Application\Listener\Listener;
+use OpenEMR\Common\Utils\ValidationUtils;
 
 class ImmunizationController extends AbstractActionController
 {
@@ -100,9 +101,9 @@ class ImmunizationController extends AbstractActionController
 
             foreach ($form_code as $code) {
                 // Validate that code is an integer to prevent SQL injection
-                $code = trim((string) $code);
-                if (!empty($code) && is_numeric($code) && $code > 0) {
-                    $valid_codes[] = (int)$code;
+                $validCode = ValidationUtils::validateInt(trim((string) $code), min: 1);
+                if ($validCode !== false) {
+                    $valid_codes[] = $validCode;
                 }
             }
 
