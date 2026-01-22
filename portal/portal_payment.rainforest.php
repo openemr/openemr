@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('HTTP/1.1 405 Method Not Allowed');
     exit(1);
 }
-error_log(print_r($_SERVER, true));
+
 if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
     header('HTTP/1.1 406 Not Acceptable');
     header('Accept: application/json');
