@@ -67,4 +67,25 @@ class ValidationUtils
 
         return filter_var($value, FILTER_VALIDATE_INT, empty($options) ? 0 : ['options' => $options]);
     }
+
+    /**
+     * Validates a float, optionally within a range.
+     *
+     * @param mixed $value The value to validate
+     * @param ?float $min Minimum allowed value (inclusive)
+     * @param ?float $max Maximum allowed value (inclusive)
+     * @return float|false The validated float, or false if invalid
+     */
+    public static function validateFloat(mixed $value, ?float $min = null, ?float $max = null): float|false
+    {
+        $options = [];
+        if ($min !== null) {
+            $options['min_range'] = $min;
+        }
+        if ($max !== null) {
+            $options['max_range'] = $max;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_FLOAT, empty($options) ? 0 : ['options' => $options]);
+    }
 }

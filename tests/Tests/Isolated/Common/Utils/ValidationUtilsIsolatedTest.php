@@ -182,4 +182,49 @@ class ValidationUtilsIsolatedTest extends TestCase
         $this->assertFalse(ValidationUtils::validateInt(0, min: 1, max: 10));
         $this->assertFalse(ValidationUtils::validateInt(11, min: 1, max: 10));
     }
+
+    public function testValidateFloatWithValidFloats(): void
+    {
+        $this->assertSame(42.5, ValidationUtils::validateFloat(42.5));
+        $this->assertSame(42.5, ValidationUtils::validateFloat('42.5'));
+        $this->assertSame(0.0, ValidationUtils::validateFloat(0));
+        $this->assertSame(0.0, ValidationUtils::validateFloat('0'));
+        $this->assertSame(-10.5, ValidationUtils::validateFloat(-10.5));
+        $this->assertSame(-10.5, ValidationUtils::validateFloat('-10.5'));
+        $this->assertSame(42.0, ValidationUtils::validateFloat(42));
+        $this->assertSame(1000.0, ValidationUtils::validateFloat('1e3'));
+    }
+
+    public function testValidateFloatWithInvalidValues(): void
+    {
+        $this->assertFalse(ValidationUtils::validateFloat('not a number'));
+        $this->assertFalse(ValidationUtils::validateFloat(''));
+        $this->assertFalse(ValidationUtils::validateFloat(null));
+        $this->assertFalse(ValidationUtils::validateFloat([]));
+    }
+
+    public function testValidateFloatWithMinRange(): void
+    {
+        $this->assertSame(5.5, ValidationUtils::validateFloat(5.5, min: 1.0));
+        $this->assertSame(1.0, ValidationUtils::validateFloat(1.0, min: 1.0));
+        $this->assertFalse(ValidationUtils::validateFloat(0.5, min: 1.0));
+        $this->assertFalse(ValidationUtils::validateFloat(-5.0, min: 1.0));
+    }
+
+    public function testValidateFloatWithMaxRange(): void
+    {
+        $this->assertSame(5.5, ValidationUtils::validateFloat(5.5, max: 10.0));
+        $this->assertSame(10.0, ValidationUtils::validateFloat(10.0, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(10.5, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(100.0, max: 10.0));
+    }
+
+    public function testValidateFloatWithMinAndMaxRange(): void
+    {
+        $this->assertSame(5.5, ValidationUtils::validateFloat(5.5, min: 1.0, max: 10.0));
+        $this->assertSame(1.0, ValidationUtils::validateFloat(1.0, min: 1.0, max: 10.0));
+        $this->assertSame(10.0, ValidationUtils::validateFloat(10.0, min: 1.0, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(0.5, min: 1.0, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(10.5, min: 1.0, max: 10.0));
+    }
 }
