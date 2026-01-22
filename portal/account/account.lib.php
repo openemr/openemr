@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +23,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Common\Session\SessionUtil;
@@ -104,7 +107,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         return false;
     }
 
-    if (!validEmail($email)) {
+    if (!ValidationUtils::isValidEmail($email)) {
         (new SystemLogger())->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
         return true;
     }
@@ -337,15 +340,6 @@ function saveInsurance($pid): void
     newInsuranceData($pid, "tertiary");
 }
 
-function validEmail($email)
-{
-    if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", (string) $email)) {
-        return true;
-    }
-
-    return false;
-}
-
 // $resetPass mode return false when something breaks (although returns true if related to a patient existing or not to prevent fishing for patients)
 // !$resetPass mode return false when something breaks (no need to protect against from fishing since can't do from registration workflow)
 function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
@@ -373,14 +367,14 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
             (new SystemLogger())->error("doCredentials function with empty email or unable to find correct email " . $resetPassEmail . " in patient from patient_data for pid " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
             return true;
         }
-        if (!validEmail($resetPassEmail)) {
+        if (!ValidationUtils::isValidEmail($resetPassEmail)) {
             EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Email " . $resetPassEmail . " was not considered valid for pid: " . $pid);
             (new SystemLogger())->error("doCredentials function with email " . $resetPassEmail . " for pid " . $pid . " that was not valid per validEmail function, so was unable to reset the password");
             return false;
         }
         $newpd['email'] = $resetPassEmail;
     } else { // !$resetPass
-        if (!validEmail($newpd['email'])) {
+        if (!ValidationUtils::isValidEmail($newpd['email'])) {
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient password reset failure: Email " . $newpd['email'] . " was not considered valid for pid: " . $pid);
             (new SystemLogger())->error("doCredentials function with email " . $newpd['email'] . " for pid " . $pid . " was not valid per validEmail function, so was unable to complete the registration");
             return false;
