@@ -16,7 +16,7 @@ if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
     exit(1);
 }
 
-use Money\Money;
+use Money\{Currency, Currencies\ISOCurrencies, Parser\DecimalMoneyParser};
 use OpenEMR\PaymentProcessing\Rainforest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
@@ -29,21 +29,32 @@ require_once __DIR__ . '/../interface/globals.php';
 
 $rawJson = file_get_contents('php://input');
 $postBody = json_decode($rawJson, true, flags: JSON_THROW_ON_ERROR);
-error_log(print_r($postBody, true));
 
 // Future scope: proper JSON API (e.g. PSR-7 resources)
-$dollars = $_POST['dollars'] ?? '0.00';
-assert(is_string($dollars));
-// TODO: validate this properly
-$cents = intval(100 * floatval($dollars));
-if ($cents <= 0) {
+
+$currencies = new ISOCurrencies();
+$parser = new DecimalMoneyParser($currencies);
+
+$usd = new Currency('USD');
+
+$money = $parser->parse($postBody['dollars'], $usd);
+
+if (!$money->isPositive()) {
     throw new UnexpectedValueException('Payment amount must be positive');
 }
-$money = Money::USD($cents);
+
+$encounters = array_map(function ($row) use ($parser, $usd) {
+    return [
+        'id' => $row['id'],
+        'code' => $row['code'],
+        'codeType' => $row['codeType'],
+        'amount' => $parser->parse($row['value'], $usd),
+    ];
+}, $postBody['encounters']);
 
 $gb = OEGlobalsBag::getInstance();
 
 $rf = Rainforest::makeFromGlobals($gb);
-$params = $rf->getPaymentComponentParameters($money);
+$params = $rf->getPaymentComponentParameters($money, patientId: $postBody['patientId'], encounters: $encounters);
 header('Content-type: application/json');
 echo json_encode($params);

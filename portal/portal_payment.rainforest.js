@@ -5,16 +5,17 @@ document.getElementById('paynowbutton').onclick = function (e) {
     //
 
     const amountFields = document.querySelectorAll('input.amount_field');
-    const breakdown = [...amountFields].map((field) => {
+    const encounters = [...amountFields].map((field) => {
         const data = field.dataset
         const value = field.value
         return {
-            encounterId: data.encounterId,
+            id: data.encounterId,
             code: data.code,
             codeType: data.codeType,
             value,
         }
-    });
+    })
+    .filter((enc) => !!enc.value);
     const patientId = document.getElementById('hidden_patient_code').value
     // alert(amountFields)
     // console.debug(amountFields);
@@ -25,7 +26,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
     let data = {
         dollars,
         currency,
-        breakdown,
+        encounters,
         patientId,
     }
     alert(JSON.stringify(data));

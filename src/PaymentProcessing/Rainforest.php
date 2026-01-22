@@ -33,12 +33,19 @@ class Rainforest
      *
      * TODO: tie this to a specific payment rather than yolo generating a uuid
      *
+     * @param array{
+     *   id: string,
+     *   amount: Money,
+     *   code: string,
+     *   codeType: string,
+     * } $encounters
+     *
      * @return array{
      *   payin_config_id: string,
      *   session_key: string,
      * }
      */
-    public function getPaymentComponentParameters(Money $amount): array
+    public function getPaymentComponentParameters(Money $amount, string $patientId, array $encounters): array
     {
         // TODO: This should leverage Guzzle's abilities to make parallel
         // requests.
@@ -64,9 +71,10 @@ class Rainforest
             'idempotency_key' => Uuid::uuid4()->toString(),
             'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
-            // metadata: pt.id
-            // metadata: enc.id
-            // splits - money by encounter; add encounter data to thing
+            'metadata' => [
+                'patientId' => $patientId,
+                'encounters' => $encounters,
+            ],
         ];
         $payinResponse = $this->post('/v1/payin_configs', $payinPayload);
         $payinConfigId = $payinResponse['data']['payin_config_id'];
