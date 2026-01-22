@@ -4,7 +4,7 @@ chdir(__DIR__);
 require 'vendor/autoload.php';
 header('Content-type: text/plain');
 
-use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{Dispatcher, Verifier};
+use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{Dispatcher, Verifier, RecordPayment};
 use Monolog\Logger;
 use Http\Discovery\Psr17Factory;
 
@@ -26,7 +26,9 @@ try {
     // the Webhook structure is serializable, the processors should work just
     // fine asynchronously.
     $disp = new Dispatcher(
-        processors: [],
+        processors: [
+            new RecordPayment(),
+        ],
         merchantId: $mid,
         logger: new Logger('OpenEMR'),
     );
