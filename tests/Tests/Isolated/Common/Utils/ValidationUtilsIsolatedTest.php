@@ -311,4 +311,55 @@ class ValidationUtilsIsolatedTest extends TestCase
         $this->assertTrue(ValidationUtils::isValidPostalCode('anything', 'DE'));
         $this->assertFalse(ValidationUtils::isValidPostalCode('', 'UK'));
     }
+
+    public function testUrlValidationWithValidUrls(): void
+    {
+        $validUrls = [
+            'http://example.com',
+            'https://example.com',
+            'http://www.example.com/path',
+            'https://example.com/path?query=value',
+            'ftp://ftp.example.com',
+        ];
+
+        foreach ($validUrls as $url) {
+            $this->assertTrue(
+                ValidationUtils::isValidUrl($url),
+                "URL should be valid: {$url}"
+            );
+        }
+    }
+
+    public function testUrlValidationWithInvalidUrls(): void
+    {
+        $invalidUrls = [
+            'not-a-url',
+            'example.com',       // Missing scheme
+            '://missing-scheme',
+            '',
+            'http://',           // Missing host
+        ];
+
+        foreach ($invalidUrls as $url) {
+            $this->assertFalse(
+                ValidationUtils::isValidUrl($url),
+                "URL should be invalid: {$url}"
+            );
+        }
+    }
+
+    public function testUrlValidationWithHttpsRequirement(): void
+    {
+        // HTTPS URLs should pass when requireHttps is true
+        $this->assertTrue(ValidationUtils::isValidUrl('https://example.com', requireHttps: true));
+        $this->assertTrue(ValidationUtils::isValidUrl('HTTPS://EXAMPLE.COM', requireHttps: true));
+
+        // HTTP URLs should fail when requireHttps is true
+        $this->assertFalse(ValidationUtils::isValidUrl('http://example.com', requireHttps: true));
+        $this->assertFalse(ValidationUtils::isValidUrl('ftp://example.com', requireHttps: true));
+
+        // All valid URLs should pass when requireHttps is false
+        $this->assertTrue(ValidationUtils::isValidUrl('http://example.com', requireHttps: false));
+        $this->assertTrue(ValidationUtils::isValidUrl('https://example.com', requireHttps: false));
+    }
 }
