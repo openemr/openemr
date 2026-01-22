@@ -25,4 +25,15 @@ readonly class Metadata implements JsonSerializable
             'formatVersion' => 1,
         ];
     }
+
+    public static function fromParsedJson(array $data): Metadata
+    {
+        if ($data['formatVersion'] !== 1) {
+            throw new UnexpectedValueException('Unknown format version');
+        }
+        return new Metadata(
+            patientId: $data['patientId'],
+            encounters: EncounterData::fromParsedJson($data['encounters']),
+        );
+    }
 }

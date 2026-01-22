@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace OpenEMR\PaymentProcessing\Rainforest;
 
 use JsonSerializable;
-use Money\Money;
+use Money\{
+    Currency,
+    Money,
+};
 
 /**
  * Data exchange class for dealing with Rainforest metadata payloads and
@@ -29,5 +32,18 @@ readonly class EncounterData implements JsonSerializable
             'codeType' => $this->codeType,
             'amount' => $this->amount,
         ];
+    }
+
+    public static function fromParsedJson(array $data): EncounterData
+    {
+        return new EncounterData(
+            id: $data['id'],
+            code: $data['code'],
+            codeType: $data['codeType'],
+            amount: new Money(
+                amount: $data['amount']['amount'],
+                currency: new Currency($data['amount']['currency']),
+            ),
+        );
     }
 }
