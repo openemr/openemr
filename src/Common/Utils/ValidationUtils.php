@@ -182,4 +182,24 @@ class ValidationUtils
     {
         return (bool) preg_match('/^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i', $postalCode);
     }
+
+    /**
+     * Validates a URL using filter_var.
+     *
+     * @param string $url The URL to validate
+     * @param bool $requireHttps If true, only accept HTTPS URLs
+     * @return bool True if valid URL, false otherwise
+     */
+    public static function isValidUrl(string $url, bool $requireHttps = false): bool
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        if ($requireHttps) {
+            return strtolower(parse_url($url, PHP_URL_SCHEME) ?? '') === 'https';
+        }
+
+        return true;
+    }
 }
