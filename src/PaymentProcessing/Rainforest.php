@@ -72,6 +72,7 @@ class Rainforest
             'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
             'metadata' => [
+                'payloadVersion' => 1, // In case we make a change in future
                 'patientId' => $patientId,
                 'encounters' => $encounters,
             ],
