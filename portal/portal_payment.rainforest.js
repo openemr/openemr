@@ -45,6 +45,8 @@ document.getElementById('paynowbutton').onclick = function (e) {
             // data should contain `payin_id`, use that on the backend to capture?
             // in theory we can just close the window now and let webhooks deal
             // with everything else??
+            alert('Payment complete! It may take a few minutes to be reflected in the dashboard.');
+            window.location.reload();
         })
     }
 
