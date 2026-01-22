@@ -30,16 +30,13 @@ try {
     // fine asynchronously.
     $disp = new Dispatcher(
         processors: [
+            // Future: this should all get wired through DI, etc.
             new RecordPayment(),
         ],
         merchantId: $mid,
         logger: new Logger('OpenEMR'),
     );
-    print_r($wh);
     $disp->dispatch($wh);
-    // TODO: figure out the processing rules here.
-    // More or less, when payin.authorized (or .succeeded?), look up the ar_ data
-    // and update it so it shows the payment has cleared.
 } catch (Throwable $e) {
     error_log((string)$e);
     header('HTTP/1.1 400 Bad Request');
