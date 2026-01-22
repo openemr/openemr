@@ -272,7 +272,49 @@ Never use fallback values for `$_SESSION` variables; always ensure the session v
 Site ID is important if the table will be accessed by multiple different sites. In the case of most modules, the site_id is only important to inbound requests from the outside of the OpenEMR ecosystem. If the workflow is only being accessed by the internal functions and no outside data is being introduced, any table data being saved does not have to be correlated to a site id. Ask if unsure when to include site id in table data.
 
 ## Globals Access
-In OpenEMR code, avoid direct access to the $GLOBALS array. Instead, use `OEGlobalsBag::getInstance()->get('key')` to retrieve global variables such as 'kernel' and 'webroot'. This prevents errors and aligns with best practices for accessing global state.
+**IMPORTANT:** In OpenEMR code, NEVER use direct access to the `$GLOBALS` array when building new code or refactoring existing code. Always use the `OEGlobalsBag` singleton instead.
+
+### Using OEGlobalsBag
+The `OEGlobalsBag` class (located at `src/Core/OEGlobalsBag.php`) provides a modern, type-safe wrapper around the global state. It extends Symfony's `ParameterBag` and maintains backwards compatibility while providing a cleaner API.
+
+**Reading values:**
+```php
+use OpenEMR\Core\OEGlobalsBag;
+
+// Get a value
+$webroot = OEGlobalsBag::getInstance()->get('webroot');
+$kernel = OEGlobalsBag::getInstance()->get('kernel');
+
+// Get with default fallback
+$value = OEGlobalsBag::getInstance()->get('some_key', 'default_value');
+
+// Check if key exists
+if (OEGlobalsBag::getInstance()->has('webroot')) {
+    // ...
+}
+```
+
+**Setting values:**
+```php
+use OpenEMR\Core\OEGlobalsBag;
+
+// Set a value (automatically syncs to $GLOBALS for backwards compatibility)
+OEGlobalsBag::getInstance()->set('my_key', 'my_value');
+```
+
+**Migration Rules:**
+- When writing new code, ALWAYS use `OEGlobalsBag::getInstance()` instead of `$GLOBALS`
+- When refactoring existing code, replace direct `$GLOBALS` access with `OEGlobalsBag`
+- This applies to all commonly accessed globals like: `webroot`, `kernel`, `OE_SITE_DIR`, `OE_SITES_DIR`, etc.
+- Exception: Very low-level bootstrap code that runs before `OEGlobalsBag` is initialized may still use `$GLOBALS` directly
+
+**Benefits:**
+- Type-safe access to global state
+- Better IDE support and autocomplete
+- Prevents undefined index errors
+- Maintains backwards compatibility during migration
+- Aligns with modern PHP and Symfony best practices
+- Facilitates future refactoring away from global state
 
 ## Fax/SMS Preferences
 User prefers to use the SignalWire SDK for sending faxes and explicitly does not want to use Twilio for any part of the fax sending process.

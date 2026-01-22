@@ -24,6 +24,7 @@ use OpenEMR\Admin\Services\SiteVersionReader;
 use OpenEMR\Admin\ValueObjects\ConnectionConfig;
 use OpenEMR\Admin\Exceptions\SiteAdminException;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check PHP compatibility
 require_once(dirname(__FILE__) . "/../src/Common/Compatibility/Checker.php");
@@ -68,12 +69,12 @@ if (stripos(PHP_OS, 'WIN') === 0) {
 }
 
 // Initialize the OpenEMR kernel to enable Twig
-$kernel = $GLOBALS['kernel'] ?? null;
+$kernel = OEGlobalsBag::getInstance()->get('kernel');
 
 if ($kernel === null && file_exists("$webserver_root/src/Core/Kernel.php")) {
     require_once "$webserver_root/src/Core/Kernel.php";
     $kernel = new \OpenEMR\Core\Kernel();
-    $GLOBALS['kernel'] = $kernel;
+    OEGlobalsBag::getInstance()->set('kernel', $kernel);
 }
 
 $OE_SITES_BASE = "$webserver_root/sites";
@@ -103,7 +104,7 @@ $showAddSiteButton = $authService->isAuthenticated();
 $templateVars = [
     'sites' => $sitesInfo,
     'show_add_site_button' => $showAddSiteButton,
-    'webroot' => $GLOBALS['webroot'] ?? $webserver_root,
+    'webroot' => OEGlobalsBag::getInstance()->get('webroot', $webserver_root),
     'authenticated' => true,
     'username' => $_SESSION['authUser'] ?? 'Admin',
 ];
@@ -246,5 +247,5 @@ if ($kernel !== null) {
 </html>
 <?php
 // Ensure connections are closed
-$service->closeAllConnections();
+$connectionManager->closeAllConnections();
 ?>

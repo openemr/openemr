@@ -17,6 +17,7 @@ header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\Admin\AdminAuthService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Set session to allow write for authentication
 $ignoreAuth = true;
@@ -92,7 +93,7 @@ $viewArgs = [
 
 // Render login page with Twig
 try {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel'));
     echo $twig->getTwig()->render('admin/login.html.twig', $viewArgs);
 } catch (\Exception $e) {
     error_log("Admin login Twig rendering failed: " . $e->getMessage());
