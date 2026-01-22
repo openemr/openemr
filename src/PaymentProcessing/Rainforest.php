@@ -33,12 +33,7 @@ class Rainforest
      *
      * TODO: tie this to a specific payment rather than yolo generating a uuid
      *
-     * @param array{
-     *   id: string,
-     *   amount: Money,
-     *   code: string,
-     *   codeType: string,
-     * } $encounters
+     * @param Rainforest\EncounterData[] $encounters
      *
      * @return array{
      *   payin_config_id: string,
@@ -71,11 +66,10 @@ class Rainforest
             'idempotency_key' => Uuid::uuid4()->toString(),
             'amount' => (int) $amount->getAmount(),
             'currency_code' => $amount->getCurrency()->getCode(),
-            'metadata' => [
-                'payloadVersion' => 1, // In case we make a change in future
-                'patientId' => $patientId,
-                'encounters' => $encounters,
-            ],
+            'metadata' => new Rainforest\Metadata(
+                patientId: $patientId,
+                encounters: $encounters,
+            ),
         ];
         $payinResponse = $this->post('/v1/payin_configs', $payinPayload);
         $payinConfigId = $payinResponse['data']['payin_config_id'];
