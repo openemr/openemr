@@ -16,6 +16,7 @@ namespace OpenEMR\Billing;
 
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -1619,20 +1620,7 @@ class Claim
 
     public function NPIValid($npi)
     {
-        // A NPI MUST be a 10 digit number
-        if ($npi === '') {
-            return false;
-        }
-
-        if (strlen((string) $npi) != 10) {
-            return false;
-        }
-
-        if (!preg_match("/[0-9]*/", (string) $npi)) {
-            return false;
-        }
-
-        return true;
+        return ValidationUtils::isValidNPI((string) $npi);
     }
     public function providerNPIValid($prockey = -1)
     {
