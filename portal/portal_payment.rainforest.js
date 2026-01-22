@@ -2,11 +2,35 @@ document.getElementById('paynowbutton').onclick = function (e) {
     // e.preventDefault();
     // e.stopPropagation();
     // alert('button click');
+    //
 
+    const amountFields = document.querySelectorAll('input.amount_field');
+    const breakdown = [...amountFields].map((field) => {
+        const data = field.dataset
+        const value = field.value
+        return {
+            encId: data.encounterId,
+            code: data.code,
+            codeType: data.codeType,
+            value,
+        }
+    });
+    const patientId = document.getElementById('hidden_patient_code').value
+    // alert(amountFields)
+    // console.debug(amountFields);
     const amountField = document.getElementById('form_paytotal')
     // This assumes USD for the forseeable future.
     const dollars = amountField.value
     const currency = 'USD'
+    let data = {
+        dollars,
+        currency,
+        breakdown,
+        patientId,
+    }
+    alert(JSON.stringify(data));
+    return;
+
 
     /**
      * @param { session_key: string, payin_config_id: string } responseData
@@ -33,7 +57,7 @@ document.getElementById('paynowbutton').onclick = function (e) {
     $.ajax({
         type: 'POST',
         url: 'portal_payment.rainforest.php',
-        data: { dollars, currency },
+        data,
         dataType: 'json',
         success: createRainforstComponent,
     })
