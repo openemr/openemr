@@ -1285,7 +1285,7 @@ error_log(print_r($value, true));
         } else {
             echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
         }
-        echo '<script src="portal_payment.rainforest.js"></script>';
+        echo '<script src="portal_payment.rainforest.js?v=<?=$v_js_includes?>"></script>';
     }
     ?>
 
