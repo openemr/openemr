@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 20673 errors
-
 return ['includes' => [
     __DIR__ . '/arguments.count.php',
     __DIR__ . '/class.notFound.php',

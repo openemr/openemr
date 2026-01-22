@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 100 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$code_list in empty\\(\\) always exists and is not falsy\\.$#',
