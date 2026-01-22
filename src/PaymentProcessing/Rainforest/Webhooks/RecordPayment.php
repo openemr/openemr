@@ -81,7 +81,7 @@ class RecordPayment implements ProcessorInterface
                     'payAmount' => $dmf->format($enc->amount),
                     'adjustmentAmount' => '0.00',
                     'memo' => $memo,
-                    // need account code?
+                    'accountCode' => 'PP', // this and paymentType above different for copay?
                 ];
             }, $metadata->encounters);
 
