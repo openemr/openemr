@@ -46,4 +46,25 @@ class ValidationUtils
     {
         return filter_var($ip, FILTER_VALIDATE_IP, $flags) !== false;
     }
+
+    /**
+     * Validates an integer, optionally within a range.
+     *
+     * @param mixed $value The value to validate
+     * @param ?int $min Minimum allowed value (inclusive)
+     * @param ?int $max Maximum allowed value (inclusive)
+     * @return int|false The validated integer, or false if invalid
+     */
+    public static function validateInt(mixed $value, ?int $min = null, ?int $max = null): int|false
+    {
+        $options = [];
+        if ($min !== null) {
+            $options['min_range'] = $min;
+        }
+        if ($max !== null) {
+            $options['max_range'] = $max;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_INT, empty($options) ? 0 : ['options' => $options]);
+    }
 }

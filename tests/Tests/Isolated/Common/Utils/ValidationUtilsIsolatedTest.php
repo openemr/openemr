@@ -137,4 +137,49 @@ class ValidationUtilsIsolatedTest extends TestCase
         // Public IPs should pass
         $this->assertTrue(ValidationUtils::isValidIpAddress('8.8.8.8', FILTER_FLAG_NO_PRIV_RANGE));
     }
+
+    public function testValidateIntWithValidIntegers(): void
+    {
+        $this->assertSame(42, ValidationUtils::validateInt(42));
+        $this->assertSame(42, ValidationUtils::validateInt('42'));
+        $this->assertSame(0, ValidationUtils::validateInt(0));
+        $this->assertSame(0, ValidationUtils::validateInt('0'));
+        $this->assertSame(-10, ValidationUtils::validateInt(-10));
+        $this->assertSame(-10, ValidationUtils::validateInt('-10'));
+    }
+
+    public function testValidateIntWithInvalidValues(): void
+    {
+        $this->assertFalse(ValidationUtils::validateInt('not a number'));
+        $this->assertFalse(ValidationUtils::validateInt(''));
+        $this->assertFalse(ValidationUtils::validateInt('1.5'));
+        $this->assertFalse(ValidationUtils::validateInt('1e5'));
+        $this->assertFalse(ValidationUtils::validateInt(null));
+        $this->assertFalse(ValidationUtils::validateInt([]));
+    }
+
+    public function testValidateIntWithMinRange(): void
+    {
+        $this->assertSame(5, ValidationUtils::validateInt(5, min: 1));
+        $this->assertSame(1, ValidationUtils::validateInt(1, min: 1));
+        $this->assertFalse(ValidationUtils::validateInt(0, min: 1));
+        $this->assertFalse(ValidationUtils::validateInt(-5, min: 1));
+    }
+
+    public function testValidateIntWithMaxRange(): void
+    {
+        $this->assertSame(5, ValidationUtils::validateInt(5, max: 10));
+        $this->assertSame(10, ValidationUtils::validateInt(10, max: 10));
+        $this->assertFalse(ValidationUtils::validateInt(11, max: 10));
+        $this->assertFalse(ValidationUtils::validateInt(100, max: 10));
+    }
+
+    public function testValidateIntWithMinAndMaxRange(): void
+    {
+        $this->assertSame(5, ValidationUtils::validateInt(5, min: 1, max: 10));
+        $this->assertSame(1, ValidationUtils::validateInt(1, min: 1, max: 10));
+        $this->assertSame(10, ValidationUtils::validateInt(10, min: 1, max: 10));
+        $this->assertFalse(ValidationUtils::validateInt(0, min: 1, max: 10));
+        $this->assertFalse(ValidationUtils::validateInt(11, min: 1, max: 10));
+    }
 }
