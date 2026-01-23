@@ -107,17 +107,17 @@ if (isset($_POST["mode"])) {
             $updatedValues['global_amount'] = $globalReset;
         }
 
-        $updatedValues['user_id'] = trim($user_id);
+        $updatedValues['user_id'] = trim((string) $user_id);
         $updatedValues['closed'] = trim($closed);
         $updatedValues['reference'] = trimPost('check_number');
-        $updatedValues['check_date'] = trim($check_date);
-        $updatedValues['deposit_date'] = trim($deposit_date);
+        $updatedValues['check_date'] = trim((string) $check_date);
+        $updatedValues['deposit_date'] = trim((string) $deposit_date);
         $updatedValues['pay_total'] = trimPost('payment_amount');
         $updatedValues['modified_time'] = trim($modified_time);
         $updatedValues['payment_type'] = trimPost('type_name');
         $updatedValues['description'] = trimPost('description');
         $updatedValues['adjustment_code'] = trimPost('adjustment_code');
-        $updatedValues['post_to_date'] = trim($post_to_date);
+        $updatedValues['post_to_date'] = trim((string) $post_to_date);
         $updatedValues['payment_method'] = trimPost('payment_method');
 
         // This becomes MUCH more straightforward with actual dbal, but this is
