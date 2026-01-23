@@ -40,7 +40,7 @@ use const JSON_THROW_ON_ERROR;
  */
 class Verifier
 {
-    private string $secretBytes;
+    private readonly string $secretBytes;
 
     public function __construct(
         #[SensitiveParameter] string $webhookSecret,

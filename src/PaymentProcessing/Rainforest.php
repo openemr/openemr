@@ -20,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
 use SensitiveParameter;
 
-class Rainforest
+readonly class Rainforest
 {
     private const SANDBOX_HOST = 'https://api.sandbox.rainforestpay.com';
     private const PRODUCTION_HOST = 'https://api.rainforestpay.com';

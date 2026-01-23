@@ -43,7 +43,7 @@ class RecordPayment implements ProcessorInterface
         //
         // Also, most of the data munging should be done prior to DB
         // interactions, but the use() would be bonkers.
-        QueryUtils::inTransaction(function () use ($webhook) {
+        QueryUtils::inTransaction(function () use ($webhook): void {
 
             /**
              * @var array{
