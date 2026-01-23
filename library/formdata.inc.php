@@ -274,7 +274,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
  */
-function ___formData($name, $type = 'P', $isTrim = false)
+function formData($name, $type = 'P', $isTrim = false)
 {
     if ($type == 'P') {
         $s = $_POST[$name] ?? '';
@@ -284,7 +284,7 @@ function ___formData($name, $type = 'P', $isTrim = false)
         $s = $_REQUEST[$name] ?? '';
     }
 
-    return ___formDataCore($s, $isTrim);
+    return formDataCore($s, $isTrim);
 }
 
 /**
@@ -298,7 +298,7 @@ function ___formData($name, $type = 'P', $isTrim = false)
  * @param bool $istrim whether to use trim() on the data.
  * @return string
  */
-function ___formDataCore($s, $isTrim = false)
+function formDataCore($s, $isTrim = false)
 {
     //trim if selected
     if ($isTrim) {
