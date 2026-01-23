@@ -19,7 +19,7 @@ class NQF_0421_Numerator2 implements CqmFilterIF
         // Flow of control loop
         $return = false;
         do {
-            // See if BMI has been recorded between >=18.5kg/m2 and <25kg/m2 6 months before, or simultanious to the encounter
+            // See if BMI has been recorded between >=18.5kg/m2 and <25kg/m2 6 months before, or simultaneous to the encounter
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .
                      "LEFT JOIN `form_encounter` " .
@@ -39,7 +39,7 @@ class NQF_0421_Numerator2 implements CqmFilterIF
                 break;
             }
 
-            // See if BMI has been recorded >=25kg/m2 6 months before, or simultanious to the encounter
+            // See if BMI has been recorded >=25kg/m2 6 months before, or simultaneous to the encounter
             // AND 'Care goal: follow-up plan BMI management' OR 'Communication provider to provider: dietary consultation order'
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .

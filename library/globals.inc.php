@@ -434,7 +434,7 @@ $GLOBALS_METADATA = [
             xl('Form ActionBar (save, cancel, etc) position')
             ,FormActionBarSettings::getGlobalSettingsList()
             ,FormActionBarSettings::getDefaultSetting() // default = top of the form
-            ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
+            ,xl('Placement of the save/cancel, and other buttons where supported (Demographics, Encounter Forms, etc).')
         ],
     ],
 
@@ -3349,7 +3349,7 @@ $GLOBALS_METADATA = [
                 '8.0.0' => 'US Core 8.0.0',
             ],
             '8.0.0',
-            xl('Set the maximum compatability version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
+            xl('Set the maximum compatibility version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
         ],
         'cc_front_payments' => [
             xl('Accept Credit Card transactions from Front Payments'),
@@ -3623,7 +3623,7 @@ $GLOBALS_METADATA = [
             xl("phiMail default force message receipt confirmation to on"),
             'bool',
             '0',
-            xl("Marks a message as succesful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
+            xl("Marks a message as successful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
         ],
 
         'phimail_server_address' => [
@@ -3906,7 +3906,7 @@ $GLOBALS_METADATA = [
                 'P' => xl('Portrait'),
                 'L' => xl('Landscape')
             ],
-            'P', //defaut
+            'P', //default
             xl("Choose Layout Direction"),
         ],
         'pdf_language' => [
@@ -4097,7 +4097,7 @@ $GLOBALS_METADATA = [
                 'zu' => xl('Zulu'),
             ],
             'en', // default English
-            xl('Choose PDF languange Preference'),
+            xl('Choose PDF language Preference'),
         ],
         'pdf_size' => [
             xl('Paper Size'),               // Descriptive Name
@@ -4193,7 +4193,7 @@ $GLOBALS_METADATA = [
                 'D' => xl('Download'),
                 'I' => xl('Inline')
             ],
-            'D', //defaut
+            'D', //default
             xl("Choose Download or Display Inline"),
         ],
 
@@ -4355,7 +4355,7 @@ $GLOBALS_METADATA = [
             xl('Show In Collection on Encounter Form'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl("How to display the 'In Collection' option. May be overriden by Hide Billing Widget setting"),
+            xl("How to display the 'In Collection' option. May be overridden by Hide Billing Widget setting"),
         ],
 
         'enc_enable_issues' => [

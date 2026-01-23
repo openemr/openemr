@@ -439,7 +439,7 @@ function sqlQueryNoLog($statement, $binds = false, $throw_exception_on_error = f
 * Function that will allow use of the adodb binding
 * feature to prevent sql-injection. It is equivalent to the
 * sqlQuery() function, EXCEPT it skips the
-* audit engine and ignores erros. This function should only be used
+* audit engine and ignores errors. This function should only be used
 * in very special situations.
 *
 * @param  string  $statement  query
@@ -763,7 +763,7 @@ function sqlRollbackTrans(): void
  *
  * By configuring a server in this way, the default MySQL user can be denied access
  * to sensitive tables (currently only "users_secure" would qualify).  Thus
- * the likelyhood of unintended modification can be reduced (e.g. through SQL Injection).
+ * the likelihood of unintended modification can be reduced (e.g. through SQL Injection).
  *
  * Details on how to set this up are included in Documentation/privileged_db/priv_db_HOWTO
  *
@@ -847,7 +847,7 @@ function privStatement($sql, $params = null)
     $recordset = is_array($params) ? getPrivDB()->ExecuteNoLog($sql, $params) : getPrivDB()->ExecuteNoLog($sql);
 
     if ($recordset === false) {
-        // These error messages are explictly NOT run through xl() because we still
+        // These error messages are explicitly NOT run through xl() because we still
         // need them if there is a database problem.
         echo "Failure during database access! Check server error log.";
         $backtrace = debug_backtrace();

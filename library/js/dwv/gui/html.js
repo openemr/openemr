@@ -561,7 +561,7 @@ dwvOemr.html.appendElement = function (parent, element)
 
 /**
  * Create an element.
- * @param {String} type The type of the elemnt.
+ * @param {String} type The type of the element.
  * @param {String} className The className of the element.
  */
 dwvOemr.html.createHiddenElement = function (type, className)

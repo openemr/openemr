@@ -550,12 +550,12 @@ function edih_278_transaction_html($obj278, $bht03)
                 $sar = explode($de, (string) $seg);
                 //
                 $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('CRC01', $sar[1]) : '';    // certification type code
-                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('HCR04', $sar[2]) : '';    // condition indicater
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CRC03', $sar[3]) : '';    // condition descripter
-                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CRC03', $sar[4]) : '';    // condition descripter
-                $elem05 = (isset($sar[5]) && $sar[5]) ? $cd27x->get_271_code('CRC03', $sar[5]) : '';    // condition descripter
-                $elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('CRC03', $sar[6]) : '';    // condition descripter
-                $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('CRC03', $sar[7]) : '';    // condition descripter
+                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('HCR04', $sar[2]) : '';    // condition indicator
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CRC03', $sar[3]) : '';    // condition descriptor
+                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CRC03', $sar[4]) : '';    // condition descriptor
+                $elem05 = (isset($sar[5]) && $sar[5]) ? $cd27x->get_271_code('CRC03', $sar[5]) : '';    // condition descriptor
+                $elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('CRC03', $sar[6]) : '';    // condition descriptor
+                $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('CRC03', $sar[7]) : '';    // condition descriptor
                 //
                 $evt_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>" . text($elem01) . "</em></td><td colspan=3><em>Conditions Apply:</em> " . text($elem02) . "</td></tr>" . PHP_EOL : "";
                 $evt_html .= ($elem03) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03) . "</td></tr>" . PHP_EOL : "";
@@ -899,7 +899,7 @@ function edih_278_html($filename, $bht03 = '')
                 }
             }
         } else {
-            csv_edihist_log("edih_278_html: error in retreiving file object");
+            csv_edihist_log("edih_278_html: error in retrieving file object");
             $html_str .= "<p>x12 278 file parse error</p>" . PHP_EOL;
         }
     }

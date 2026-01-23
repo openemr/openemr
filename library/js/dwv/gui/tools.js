@@ -312,7 +312,7 @@ dwvOemr.gui.Draw = function (app)
 
         // node
         var node = app.getElement("toolList").getElementsByTagName("ul")[0];
-        // apend shape
+        // append shape
         node.appendChild(shapeLi);
         // append colour
         node.appendChild(colourLi);
@@ -421,7 +421,7 @@ dwvOemr.gui.ColourTool = function (app, prefix)
 
         // node
         var node = app.getElement("toolList").getElementsByTagName("ul")[0];
-        // apend colour
+        // append colour
         node.appendChild(colourLi);
         // refresh
         dwvOemr.gui.refreshElement(node);

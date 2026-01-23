@@ -433,7 +433,7 @@ function edih_835_accounting($segments, $delimiters)
         }
 
              $plbar .= (isset($sar[3]) && $sar[3]) ? trim($sar[3]) : '0';
-        // I am not sure that the assignment is corrent here, but based on the flow, I frame it.
+        // I am not sure that the assignment is correct here, but based on the flow, I frame it.
     }
 }
 if (strncmp('SVC' . $de, (string) $seg, 4) === 0) {

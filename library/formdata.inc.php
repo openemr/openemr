@@ -61,12 +61,12 @@ function escape_sort_order($s)
 }
 
 /**
- * If parameter string contains comma(,) delimeter
- * Splits parameter string into an array, using comma(,) as delimeter
+ * If parameter string contains comma(,) delimiter
+ * Splits parameter string into an array, using comma(,) as delimiter
  * else it returns original string
  *
  * @param   string       $s  string to be processed
- * @return  array        $columns   an array formed by spliting $s with comma(,) delimeter
+ * @return  array        $columns   an array formed by splitting $s with comma(,) delimiter
  */
 
 function process_cols_escape($s)
@@ -92,7 +92,7 @@ function process_cols_escape($s)
  * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
  * @param   array         $tables  The table(s) that the sql columns is from (in an array).
  * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
- * @param   boolean       $throwException Whether to throw a SQL exception instead of dieing
+ * @param   boolean       $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
 function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
