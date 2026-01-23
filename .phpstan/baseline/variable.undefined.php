@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 8324 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$web_root might not be defined\\.$#',
