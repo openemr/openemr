@@ -79,7 +79,6 @@ jobs:
                            --coverage-filter=sites \
                            --coverage-filter=src \
                            --coverage-filter=tests \
-                           --coverage-html=htmlcov \
                            --log-junit=junit.xml \
                            --testdox
 
@@ -112,23 +111,6 @@ jobs:
       id: check-files
       run: |
         echo "clover_exists=$(test -f clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
-        echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
-
-    - name: Upload clover coverage report to GitHub
-      if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
-      uses: actions/upload-artifact@v6
-      with:
-        name: coverage-clover-isolated-tests-php-${{ matrix.php-version }}
-        path: |
-          clover.xml
-
-    - name: Upload html coverage report to GitHub
-      if: ${{ steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
-      uses: actions/upload-artifact@v6
-      with:
-        name: coverage-html-isolated-tests-php-${{ matrix.php-version }}
-        path: |
-          htmlcov
 
     - name: Upload coverage reports to Codecov
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}

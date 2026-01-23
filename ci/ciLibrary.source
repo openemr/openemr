@@ -108,15 +108,7 @@ ccda_build() (
 )
 
 configure_coverage() {
-    _exec sh -c '
-      XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh
-      mkdir -p ./coverage
-      curl -sSLO https://phar.phpunit.de/phpcov-11.0.0.phar
-    '
-}
-
-phpcov() {
-    _exec php -d memory_limit=8G phpcov-11.0.0.phar "$@"
+    _exec sh -c 'XDEBUG_IDE_KEY=unimportant XDEBUG_ON=yes ../xdebug.sh'
 }
 
 install_configure() {
@@ -349,15 +341,8 @@ build_test() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
             --coverage-clover "coverage.${testsuite}.clover.xml"
-            --coverage-php "./coverage/coverage.${testsuite}.cov"
             "${coverage_args[@]}"
         )
     fi
     phpunit "${args[@]}" "$@"
-}
-
-merge_coverage() {
-    phpcov merge coverage --clover coverage.clover.xml \
-                          --html htmlcov coverage \
-                          --text /dev/stdout
 }

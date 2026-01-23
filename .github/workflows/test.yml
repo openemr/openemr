@@ -12,31 +12,31 @@ on:
       docker_dir:
         required: true
         type: string
-        description: 'Docker directory name (e.g., apache_84_114)'
+        description: Docker directory name (e.g., apache_84_114)
       display_name:
         required: false
         type: string
-        description: 'Display name for the workflow run (defaults to docker_dir)'
+        description: Display name for the workflow run (defaults to docker_dir)
         default: ''
       enable_coverage:
         required: false
         type: boolean
-        description: 'Toggle coverage collection and reporting'
+        description: Toggle coverage collection and reporting
         default: false
       save_composer_cache:
         required: false
         type: boolean
-        description: 'Save composer cache (only first job per PHP version should)'
+        description: Save composer cache (only first job per PHP version should)
         default: false
       save_node_cache:
         required: false
         type: boolean
-        description: 'Save node cache (only first job per Node version should)'
+        description: Save node cache (only first job per Node version should)
         default: false
   workflow_dispatch:
     inputs:
       docker_dir:
-        description: 'Docker directory name'
+        description: Docker directory name
         required: true
         type: choice
         options:
@@ -56,9 +56,9 @@ on:
         - nginx_84
         - nginx_85
         - nginx_86
-        default: 'apache_84_114'
+        default: apache_84_114
       enable_coverage:
-        description: 'Enable coverage collection and reporting'
+        description: Enable coverage collection and reporting
         required: false
         type: boolean
         default: false
@@ -433,10 +433,7 @@ jobs:
     # We rename to .saved-cov-data to fully obscure from codecov's file detection.
     - name: Hide unit coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
-      run: |
-        mv coverage.unit.clover.xml unit.saved-cov-data
-        sudo chmod -R 777 coverage
-        mv coverage/coverage.unit.cov coverage/unit.saved-cov-data
+      run: mv coverage.unit.clover.xml unit.saved-cov-data
 
     - name: Api testing
       if: ${{ success() || failure() }}
@@ -499,9 +496,7 @@ jobs:
 
     - name: Hide api coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
-      run: |
-        mv coverage.api.clover.xml api.saved-cov-data
-        mv coverage/coverage.api.cov coverage/api.saved-cov-data
+      run: mv coverage.api.clover.xml api.saved-cov-data
 
     - name: Fixtures testing
       if: ${{ success() || failure() }}
@@ -532,9 +527,7 @@ jobs:
 
     - name: Hide fixtures coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
-      run: |
-        mv coverage.fixtures.clover.xml fixtures.saved-cov-data
-        mv coverage/coverage.fixtures.cov coverage/fixtures.saved-cov-data
+      run: mv coverage.fixtures.clover.xml fixtures.saved-cov-data
 
     - name: Services testing
       if: ${{ success() || failure() }}
@@ -565,9 +558,7 @@ jobs:
 
     - name: Hide services coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
-      run: |
-        mv coverage.services.clover.xml services.saved-cov-data
-        mv coverage/coverage.services.cov coverage/services.saved-cov-data
+      run: mv coverage.services.clover.xml services.saved-cov-data
 
     - name: Validators testing
       if: ${{ success() || failure() }}
@@ -598,9 +589,7 @@ jobs:
 
     - name: Hide validators coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
-      run: |
-        mv coverage.validators.clover.xml validators.saved-cov-data
-        mv coverage/coverage.validators.cov coverage/validators.saved-cov-data
+      run: mv coverage.validators.clover.xml validators.saved-cov-data
 
     - name: Controllers testing
       if: ${{ success() || failure() }}
@@ -631,9 +620,7 @@ jobs:
 
     - name: Hide controllers coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
-      run: |
-        mv coverage.controllers.clover.xml controllers.saved-cov-data
-        mv coverage/coverage.controllers.cov coverage/controllers.saved-cov-data
+      run: mv coverage.controllers.clover.xml controllers.saved-cov-data
 
     - name: Common testing
       if: ${{ success() || failure() }}
@@ -664,9 +651,7 @@ jobs:
 
     - name: Hide common coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
-      run: |
-        mv coverage.common.clover.xml common.saved-cov-data
-        mv coverage/coverage.common.cov coverage/common.saved-cov-data
+      run: mv coverage.common.clover.xml common.saved-cov-data
 
     - name: Email testing
       if: ${{ success() || failure() }}
@@ -697,9 +682,7 @@ jobs:
 
     - name: Hide email coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
-      run: |
-        mv coverage.email.clover.xml email.saved-cov-data
-        mv coverage/coverage.email.cov coverage/email.saved-cov-data
+      run: mv coverage.email.clover.xml email.saved-cov-data
 
     ##
     # To skip E2E tests for specific docker directories,
@@ -783,9 +766,7 @@ jobs:
 
     - name: Hide e2e coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
-      run: |
-        mv coverage.e2e.clover.xml e2e.saved-cov-data
-        mv coverage/coverage.e2e.cov coverage/e2e.saved-cov-data
+      run: mv coverage.e2e.clover.xml e2e.saved-cov-data
 
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
@@ -812,60 +793,6 @@ jobs:
       with:
         name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml
-
-    # Unhide coverage files before combining them
-    - name: Unhide coverage files for merging
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
-      run: |
-        shopt -s nullglob
-        # Unhide .clover.xml files
-        for hidden in *.saved-cov-data; do
-          # Convert unit.saved-cov-data back to coverage.unit.clover.xml
-          base="${hidden%.saved-cov-data}"
-          file="coverage.${base}.clover.xml"
-          echo "Unhiding: $hidden -> $file"
-          mv "$hidden" "$file"
-        done
-        # Unhide .cov files in coverage/ directory
-        for hidden in coverage/*.saved-cov-data; do
-          # Convert coverage/unit.saved-cov-data back to coverage/coverage.unit.cov
-          base="${hidden%.saved-cov-data}"
-          base="${base#coverage/}"
-          file="coverage/coverage.${base}.cov"
-          echo "Unhiding: $hidden -> $file"
-          mv "$hidden" "$file"
-        done
-
-    - name: Combine coverage
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
-      run: |
-        . ci/ciLibrary.source
-        merge_coverage
-
-    - name: Check if combined coverage files exist
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() }}
-      id: check-files
-      run: |
-        {
-          printf clover_exists=
-          [[ -f coverage.clover.xml ]] && echo true || echo false
-          printf htmlcov_exists=
-          [[ -d ./htmlcov ]] && echo true || echo false
-        } >> $GITHUB_OUTPUT
-
-    - name: Upload clover coverage to GitHub
-      uses: actions/upload-artifact@v6
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
-      with:
-        name: coverage.clover.xml
-        path: coverage.clover.xml
-
-    - name: Upload html coverage to GitHub
-      uses: actions/upload-artifact@v6
-      if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && !cancelled() }}
-      with:
-        name: htmlcov
-        path: ./htmlcov/
 
     - name: Test Summary
       if: ${{ always() }}
