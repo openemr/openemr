@@ -31,7 +31,7 @@ return [
             'documents' => [
                 'type'    => Segment::class,
                 'options' => [
-                        // zend framework 3 get's rid of the old /:controller terminology however to be backwards compatible
+                        // zend framework 3 gets rid of the old /:controller terminology however to be backwards compatible
                         // with the links here... we are going to reference the documents controller.
                         'route'    => '/documents/documents[/:action][/:id][/:download][/:doencryption][/:key]',
                         'constraints' => [

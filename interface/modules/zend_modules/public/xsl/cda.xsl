@@ -17,7 +17,7 @@
                                                Fixed up the assigned entity formatting
                                                Fixed up the informant
   Revision History: 2015-10-22 Eric Parapini - Fixed a few more things, disabled table of content generation for now
-                                               Removed the timezone offset in date renderings, deemed unecessary.
+                                               Removed the timezone offset in date renderings, deemed unnecessary.
   Revision History: 2015-12-10 Eric Parapini - Removed some of the additional time errors
   Revision History: 2016-02-22 Eric Parapini - Added Logo space, added in some javascript background support for interactive navigation bars
   Revision History: 2016-02-23 Eric Parapini - Added smooth scrolling, making the document easier to navigate
@@ -2330,7 +2330,7 @@ limitations under the License.
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  <!-- paticipant facility and date -->
+  <!-- participant facility and date -->
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" name="facilityAndDates">
     <table class="header_table">
       <tbody>
@@ -3230,7 +3230,7 @@ limitations under the License.
        border-left-style: solid;
        border-left-color: #478B95;
      }
-      /* Re-usable - Section-Title */
+      /* Reusable - Section-Title */
       .cda-render .section-title {
         color:#336b7a;
         font-size:1.09em;
@@ -3238,7 +3238,7 @@ limitations under the License.
         text-transform: uppercase;
       }
 
-      /* Re-usable - Attribute title */
+      /* Reusable - Attribute title */
       .cda-render .attribute-title {
         color:#000000;
         font-weight:bold;

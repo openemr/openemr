@@ -218,7 +218,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         $r['patientid'] . "^^^^MR" . "|" . // 3. (R) Patient identifier list
         "|" . // 4. (B) Alternate PID
         "^^^^^^~^^^^^^S" . "|" . // 5.R. Name
-        "|" . // 6. Mather Maiden Name
+        "|" . // 6. Mother's Maiden Name
         $r['DOB'] . "|" . // 7. Date, time of birth
         $r['sex'] . // 8. Sex
         "|||^^^||||||||||||||||||||||||||||" .
