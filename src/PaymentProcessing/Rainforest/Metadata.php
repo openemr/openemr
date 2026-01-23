@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\PaymentProcessing\Rainforest;
 
 use JsonSerializable;
+use UnexpectedValueException;
 
 readonly class Metadata implements JsonSerializable
 {
