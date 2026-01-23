@@ -24,6 +24,9 @@ document.getElementById('paynowbutton').onclick = function (e) {
         patientId,
     }
 
+    const container = document.getElementById('payment-form');
+    container.innerHTML = '<p>Loading...</p>';
+
     /**
      * @param { session_key: string, payin_config_id: string } responseData
      */
@@ -31,11 +34,9 @@ document.getElementById('paynowbutton').onclick = function (e) {
         const component = document.createElement('rainforest-payment');
         component.setAttribute('session-key', responseData.session_key)
         component.setAttribute('payin-config-id', responseData.payin_config_id);
-        console.log(component)
-        // document.getElementById('card-element').innerHTML = component
-        // FIXME: delete on unload or replace - can show up >1x if user closes
-        // box
-        document.getElementById('card-element').appendChild(component)
+
+        container.innerHTML = '';
+        container.replaceChildren(component);
 
         component.addEventListener('approved', function (data) {
             console.debug(data)
