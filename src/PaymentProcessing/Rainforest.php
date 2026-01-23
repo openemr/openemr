@@ -125,11 +125,13 @@ readonly class Rainforest
      */
     public static function makeFromGlobals(OEGlobalsBag $bag): Rainforest
     {
-        $apiKey = $_ENV['RAINFOREST_API_KEY'];
-        $mid = $_ENV['RAINFOREST_MERCHANT_ID'];
-        $pid = $_ENV['RAINFOREST_PLATFORM_ID'];
+        $crypto = new CryptoGen();
+        $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
+        $mid = $bag->getString('rainforest_merchant_id');
+        $pid = $bag->getString('rainforest_platform_id');
 
-        $prod = $bag->get('gateway_mode_production') === '1';
+        $prod = $bag->getBoolean('gateway_mode_production');
+
         $client = self::makeClient($prod);
         return new Rainforest(
             client: $client,

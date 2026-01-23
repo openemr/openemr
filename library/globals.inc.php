@@ -3404,6 +3404,25 @@ $GLOBALS_METADATA = [
             xl('Mainly Authorize.Net uses two keys')
         ],
 
+        'rainforest_api_key' => [
+            xl('Rainforest API Key'),
+            'encrypted',
+            '',
+            xl('Used when payment_gateway is Rainforest. Stored encrypted'),
+        ],
+        'rainforest_merchant_id' => [
+            xl('Rainforest Merchant ID'),
+            'text',
+            '',
+            xl('Used when payment_gateawy is Rainforest.'),
+        ],
+        'rainforest_platform_id' => [
+            xl('Rainforest Platform ID'),
+            'text',
+            '',
+            xl('Used when payment_gateawy is Rainforest.'),
+        ],
+
         'sphere_clinicfront_trxcustid' => [
             xl('Sphere Clinicfront over phone (MOTO) Transaction CustID'),
             'encrypted',
