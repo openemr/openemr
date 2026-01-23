@@ -162,16 +162,16 @@ if (isset($_POST["mode"])) {
                         sqlStatement("UPDATE ar_activity SET deleted = NOW() $where");
                     }
                     $recorder->recordActivity([
-                        'patientId' => trim(formData("HiddenPId$CountRow")),
-                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
-                        'code' => trim(formData("HiddenCode$CountRow")),
-                        'modifier' => trim(formData("HiddenModifier$CountRow")),
-                        'payerType' => trim(formData("HiddenIns$CountRow")),
-                        'reasonCode' => trim(formData("ReasonCode$CountRow")),
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
+                        'reasonCode' => trimPost("ReasonCode$CountRow"),
                         'postUser' => trim(add_escape_custom($user_id)),
-                        'sessionId' => trim(formData('payment_id')),
-                        'payAmount' => trim(formData("Payment$CountRow")),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => trimPost("Payment$CountRow"),
                         'adjustmentAmount' => '0.0',
                         'accountCode' => $AccountCode,
                     ]);
@@ -196,16 +196,16 @@ if (isset($_POST["mode"])) {
                     }
 
                     $recorder->recordActivity([
-                        'patientId' => trim(formData("HiddenPId$CountRow")),
-                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
-                        'code' => trim(formData("HiddenCode$CountRow")),
-                        'modifier' => trim(formData("HiddenModifier$CountRow")),
-                        'payerType' => trim(formData("HiddenIns$CountRow")),
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
                         'postUser' => trim(add_escape_custom($user_id)),
-                        'sessionId' => trim(formData('payment_id')),
+                        'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
-                        'adjustmentAmount' => trim(formData("AdjAmount$CountRow")),
+                        'adjustmentAmount' => trimPost("AdjAmount$CountRow"),
                         'memo' => add_escape_custom($AdjustString),
                         'accountCode' => $AccountCode,
                     ]);
@@ -222,17 +222,17 @@ if (isset($_POST["mode"])) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
                     $recorder->recordActivity([
-                        'patientId' => trim(formData("HiddenPId$CountRow")),
-                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
-                        'code' => trim(formData("HiddenCode$CountRow")),
-                        'modifier' => trim(formData("HiddenModifier$CountRow")),
-                        'payerType' => trim(formData("HiddenIns$CountRow")),
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
                         'postUser' => trim(add_escape_custom($user_id)),
-                        'sessionId' => trim(formData('payment_id')),
+                        'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => '0.0',
-                        'memo' => "Deductible $" . trim(formData("Deductible$CountRow")),
+                        'memo' => "Deductible $" . trimPost("Deductible$CountRow"),
                         'accountCode' => "Deduct",
                     ]);
                 } else {
@@ -248,15 +248,15 @@ if (isset($_POST["mode"])) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
                     $recorder->recordActivity([
-                        'patientId' => trim(formData("HiddenPId$CountRow")),
-                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
-                        'code' => trim(formData("HiddenCode$CountRow")),
-                        'modifier' => trim(formData("HiddenModifier$CountRow")),
-                        'payerType' => trim(formData("HiddenIns$CountRow")),
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
                         'postUser' => trim(add_escape_custom($user_id)),
-                        'sessionId' => trim(formData('payment_id')),
-                        'payAmount' => strval(floatval(trim(formData("Takeback$CountRow"))) * -1),
+                        'sessionId' => trimPost('payment_id'),
+                        'payAmount' => strval(floatval(trimPost("Takeback$CountRow")) * -1),
                         'adjustmentAmount' => '0.0',
                         'accountCode' => "Takeback",
                     ]);
@@ -273,18 +273,18 @@ if (isset($_POST["mode"])) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
                     }
                     $recorder->recordActivity([
-                        'patientId' => trim(formData("HiddenPId$CountRow")),
-                        'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-                        'codeType' => trim(formData("HiddenCodetype$CountRow")),
-                        'code' => trim(formData("HiddenCode$CountRow")),
-                        'modifier' => trim(formData("HiddenModifier$CountRow")),
-                        'payerType' => trim(formData("HiddenIns$CountRow")),
+                        'patientId' => trimPost("HiddenPId$CountRow"),
+                        'encounterId' => trimPost("HiddenEncounter$CountRow"),
+                        'codeType' => trimPost("HiddenCodetype$CountRow"),
+                        'code' => trimPost("HiddenCode$CountRow"),
+                        'modifier' => trimPost("HiddenModifier$CountRow"),
+                        'payerType' => trimPost("HiddenIns$CountRow"),
                         'postUser' => trim(add_escape_custom($user_id)),
-                        'sessionId' => trim(formData('payment_id')),
+                        'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => '0.0',
                         'followUp' => true,
-                        'followUpNote' => trim(formData("FollowUpReason$CountRow")),
+                        'followUpNote' => trimPost("FollowUpReason$CountRow"),
                     ]);
                 } else {
                     sqlStatement("delete from ar_activity $where");
