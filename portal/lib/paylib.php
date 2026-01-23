@@ -7,6 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Firehed
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -39,6 +40,8 @@ require_once("./appsql.class.php");
 
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\RainforestPayment\Rainforest\Rainforest;
 
 if ($session->get('portal_init') !== true) {
     $session->set('whereto', '#paymentcard');
@@ -143,6 +146,36 @@ if ($_POST['mode'] == 'Stripe') {
     }
     $s = SaveAudit($form_pid, $invoice, $ccaudit);
 
+    echo 'ok';
+}
+
+if ($_POST['mode'] == 'Rainforest') {
+    $globalsBag = OEGlobalsBag::getInstance();
+    $form_pid = $_POST['form_pid'] ?? $_POST['patientId'] ?? '';
+    $payin_id = $_POST['payin_id'] ?? '';
+    
+    if (empty($payin_id)) {
+        echo 'Missing payin_id';
+        exit();
+    }
+    
+    // For Rainforest, the payment is processed via webhooks
+    // This endpoint just saves the audit record with the payin_id
+    // The actual payment recording happens via webhook processing
+    $cc = [];
+    $cc["cardHolderName"] = "Rainforest Payment";
+    $cc['status'] = "Payment Pending Webhook";
+    $cc['authCode'] = '';
+    $cc['transId'] = $payin_id;
+    $cc['cardNumber'] = "Rainforest Payment";
+    $cc['cc_type'] = 'Rainforest';
+    $cc['zip'] = '';
+    $ccaudit = json_encode($cc);
+    $invoice = $_POST['invValues'] ?? '';
+    
+    $session->set('whereto', '#paymentcard');
+    $s = SaveAudit($form_pid, $invoice, $ccaudit);
+    
     echo 'ok';
 }
 

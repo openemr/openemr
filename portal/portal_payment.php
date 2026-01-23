@@ -9,6 +9,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Firehed
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -58,6 +59,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+use OpenEMR\Modules\RainforestPayment\RainforestPayment;
 
 $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
@@ -1047,8 +1049,20 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         <?php
         if (!$session->has('authUserID')) {
             if (!isset($ccdata["cardHolderName"])) {
+                // Check if Rainforest is enabled and configured
+                $rainforestEnabled = $globalsBag->get('rainforest_payment_enabled') === '1';
+                $rainforestConfigured = false;
+                if ($rainforestEnabled) {
+                    $apiKey = $globalsBag->get('rainforest_api_key', '');
+                    $merchantId = $globalsBag->get('rainforest_merchant_id', '');
+                    $platformId = $globalsBag->get('rainforest_platform_id', '');
+                    $rainforestConfigured = !empty($apiKey) && !empty($merchantId) && !empty($platformId);
+                }
+                
                 if ($globalsBag->get('payment_gateway') === 'Sphere') {
                     echo SpherePayment::renderSphereHtml('patient');
+                } elseif ($rainforestEnabled && $rainforestConfigured && $globalsBag->get('payment_gateway') === 'Rainforest') {
+                    echo RainforestPayment::renderRainforestHtml('patient');
                 } else {
                     echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
                 }
@@ -1079,7 +1093,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
                         <fieldset>
                             <div class="form-group">
@@ -1148,6 +1162,26 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
+                    <?php } elseif ($globalsBag->get('payment_gateway') === 'Rainforest') { ?>
+                        <form method="post" name="payment-form" id="payment-form">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
+                                    <div class="form-group" id="card-element"></div>
+                                    <div id="card-errors" role="alert"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4 style="display: inline-block;"><?php echo xlt('Payment Amount'); ?>:&nbsp;
+                                        <strong><span id="payTotal"></span></strong></h4>
+                                </div>
+                                <input type='hidden' name='mode' id='mode' value=''/>
+                                <input type='hidden' name='cc_type' id='cc_type' value=''/>
+                                <input type='hidden' name='payment' id='paymentAmount' value=''/>
+                                <input type='hidden' name='invValues' id='invValues' value=''/>
+                                <input type='hidden' name='form_pid' id='form_pid' value='<?php echo attr($pid) ?>'/>
+                            </fieldset>
+                        </form>
+                        <script src="https://cdn.rainforestpay.com/v1/rainforest-payment.js"></script>
                     <?php } else { ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
@@ -1184,10 +1218,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                         <?php } elseif ($globalsBag->get('payment_gateway') === 'AuthorizeNet') { ?>
                             <button id="payAurhorizeNet" class="btn btn-primary"
                                     onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
-                        <?php }
-                        if ($globalsBag->get('payment_gateway') === 'Stripe') { ?>
+                        <?php } elseif ($globalsBag->get('payment_gateway') === 'Stripe') { ?>
                             <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
-                                                <?php } ?>
+                        <?php } elseif ($globalsBag->get('payment_gateway') === 'Rainforest') { ?>
+                            <button id="rainforestSubmit" class="btn btn-primary" onclick="payRainforest('patient'); return false;"><?php echo xlt('Pay Now'); ?></button>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -1245,6 +1280,18 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    // Check if Rainforest is enabled and configured
+    $rainforestEnabled = $globalsBag->get('rainforest_payment_enabled') === '1';
+    $rainforestConfigured = false;
+    if ($rainforestEnabled) {
+        $apiKey = $globalsBag->get('rainforest_api_key', '');
+        $merchantId = $globalsBag->get('rainforest_merchant_id', '');
+        $platformId = $globalsBag->get('rainforest_platform_id', '');
+        $rainforestConfigured = !empty($apiKey) && !empty($merchantId) && !empty($platformId);
+    }
+    if ($rainforestEnabled && $rainforestConfigured && $globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
+        echo (new RainforestPayment('patient', $pid))->renderRainforestJs();
     }
     ?>
 
