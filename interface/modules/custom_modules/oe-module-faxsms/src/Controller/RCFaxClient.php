@@ -261,7 +261,6 @@ class RCFaxClient extends AppDispatch
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
         $fileName ??= pathinfo((string)$file, PATHINFO_BASENAME);
-        $content = '';
 
         $allowedTempDir = realpath($this->baseDir . '/send/');
         // Validate file path to prevent path traversal
