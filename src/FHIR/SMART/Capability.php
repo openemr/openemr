@@ -2,7 +2,7 @@
 
 /**
  * Capability holds the enumerated capabilities for SMART
- * The SMART extension capabilites that our system supports
+ * The SMART extension capabilities that our system supports
  * @see http://hl7.org/fhir/smart-app-launch/conformance/index.html
  *
  * @package openemr
@@ -17,7 +17,7 @@ namespace OpenEMR\FHIR\SMART;
 class Capability
 {
     /**
-     * The SMART extension capabilites that our system supports
+     * The SMART extension capabilities that our system supports
      * @see https://hl7.org/fhir/smart-app-launch/STU2/conformance.html for v2
      *
      * All of these capabilities for MU3 are required to be implemented before HIT certification

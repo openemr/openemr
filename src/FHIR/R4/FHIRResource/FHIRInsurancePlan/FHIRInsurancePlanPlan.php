@@ -76,7 +76,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     public $identifier = [];
 
     /**
-     * Type of plan. For example, "Platinum" or "High Deductable".
+     * Type of plan. For example, "Platinum" or "High Deductible".
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $type = null;
@@ -131,7 +131,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * Type of plan. For example, "Platinum" or "High Deductable".
+     * Type of plan. For example, "Platinum" or "High Deductible".
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getType()
@@ -140,7 +140,7 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
     }
 
     /**
-     * Type of plan. For example, "Platinum" or "High Deductable".
+     * Type of plan. For example, "Platinum" or "High Deductible".
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $type
      * @return $this
      */
