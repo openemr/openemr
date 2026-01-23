@@ -24,7 +24,7 @@ $boot = new BootstrapService();
 $taskManager = new NotificationTaskManager();
 $services = ['sms', 'email'];
 $actions = ['create', 'enable', 'disable', 'delete'];
-$selectedService = null;
+
 if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -196,7 +196,7 @@ $vendors = $boot->getVendorGlobals();
     <title><?php echo xlt("Enable Services") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
-    if (count($vendors) === 0) {
+    if (count($vendors ?? []) === 0) {
         $boot->createVendorGlobals();
         $vendors = $boot->getVendorGlobals();
     }
