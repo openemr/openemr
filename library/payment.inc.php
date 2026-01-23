@@ -182,8 +182,10 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
 
     if ($Affected) {
         if (trimPost('type_name') != 'patient') {
-            $ferow = sqlQuery("select last_level_closed from form_encounter  where
-		pid ='" . trim(formData('hidden_patient_code')) . "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
+            $ferow = sqlQuery('SELECT last_level_closed FROM form_encounter WHERE pid=? AND encounter=?', [
+                trimPost('hidden_patient_code'),
+                trimPost("HiddenEncounter$CountRow"),
+            ]);
               //multiple charges can come.
             if ($ferow['last_level_closed'] < trimPost("HiddenIns$CountRow")) {
                 //last_level_closed gets increased. unless a follow up is required.
@@ -191,16 +193,18 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
                 // just not advancing last closed.
                 $tmp = ((!empty($_POST["Payment$CountRow"]) ? floatval($_POST["Payment$CountRow"]) : null) + (!empty($_POST["AdjAmount$CountRow"]) ? floatval($_POST["AdjAmount$CountRow"]) : null));
                 if ((empty($_POST["FollowUp$CountRow"]) || ($_POST["FollowUp$CountRow"] != 'y')) && $tmp !== 0) {
-                    sqlStatement("update form_encounter set last_level_closed='" .
-                        trim(formData("HiddenIns$CountRow")) .
-                        "' where pid ='" . trim(formData('hidden_patient_code')) .
-                        "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
+                    sqlStatement('UPDATE form_encounter SET last_level_closed=? WHERE pid = ? AND encounter = ?', [
+                        trimPost("HiddenIns$CountRow"),
+                        trimPost('hidden_patient_code'),
+                        trimPost("HiddenEncounter$CountRow"),
+                    ]);
                 }
                   //-----------------------------------
                   // Determine the next insurance level to be billed.
-                  $ferow = sqlQuery("SELECT date, last_level_closed " .
-                    "FROM form_encounter WHERE " .
-                    "pid = '" . trim(formData('hidden_patient_code')) . "' AND encounter = '" . trim(formData("HiddenEncounter$CountRow")) . "'");
+                $ferow = sqlQuery('SELECT date, last_level_closed FROM form_encounter WHERE pid=? AND encounter=?', [
+                    trimPost('hidden_patient_code'),
+                    trimPost("HiddenEncounter$CountRow"),
+                ]);
                   $date_of_service = substr((string) $ferow['date'], 0, 10);
                   $new_payer_type = 0 + $ferow['last_level_closed'];
                 if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0) {
