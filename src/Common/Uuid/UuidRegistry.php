@@ -292,7 +292,7 @@ class UuidRegistry
      */
     public static function isValidStringUUID($uuidString)
     {
-        return (Uuid::isValid($uuidString));
+        return Uuid::isValid($uuidString);
     }
 
     /**

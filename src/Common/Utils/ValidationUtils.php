@@ -17,6 +17,8 @@
 
 namespace OpenEMR\Common\Utils;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+
 class ValidationUtils
 {
     public static function isValidEmail($email)
@@ -201,5 +203,16 @@ class ValidationUtils
         }
 
         return true;
+    }
+
+    /**
+     * Validates a UUID string.
+     *
+     * @param string $uuid The UUID to validate
+     * @return bool True if valid UUID, false otherwise
+     */
+    public static function isValidUuid(string $uuid): bool
+    {
+        return UuidRegistry::isValidStringUUID($uuid);
     }
 }

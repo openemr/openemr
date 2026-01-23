@@ -362,4 +362,40 @@ class ValidationUtilsIsolatedTest extends TestCase
         $this->assertTrue(ValidationUtils::isValidUrl('http://example.com', requireHttps: false));
         $this->assertTrue(ValidationUtils::isValidUrl('https://example.com', requireHttps: false));
     }
+
+    public function testUuidValidationWithValidUuids(): void
+    {
+        $validUuids = [
+            '550e8400-e29b-41d4-a716-446655440000', // Version 4
+            '6ba7b810-9dad-11d1-80b4-00c04fd430c8', // Version 1
+            '6ba7b811-9dad-11d1-80b4-00c04fd430c8',
+            '00000000-0000-0000-0000-000000000000', // Nil UUID
+        ];
+
+        foreach ($validUuids as $uuid) {
+            $this->assertTrue(
+                ValidationUtils::isValidUuid($uuid),
+                "UUID should be valid: {$uuid}"
+            );
+        }
+    }
+
+    public function testUuidValidationWithInvalidUuids(): void
+    {
+        $invalidUuids = [
+            'not-a-uuid',
+            '550e8400-e29b-41d4-a716-44665544000', // Too short
+            '550e8400-e29b-41d4-a716-4466554400000', // Too long
+            '550e8400-e29b-41d4-a716', // Incomplete
+            '',
+            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', // Invalid characters
+        ];
+
+        foreach ($invalidUuids as $uuid) {
+            $this->assertFalse(
+                ValidationUtils::isValidUuid($uuid),
+                "UUID should be invalid: {$uuid}"
+            );
+        }
+    }
 }
