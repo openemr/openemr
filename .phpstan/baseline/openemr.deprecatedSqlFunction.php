@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 5712 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',

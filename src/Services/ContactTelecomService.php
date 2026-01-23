@@ -14,8 +14,9 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -412,13 +413,13 @@ class ContactTelecomService extends BaseService
                 break;
 
             case 'email':
-                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                if (!ValidationUtils::isValidEmail($value)) {
                     $errors['value'] = "Invalid email address format";
                 }
                 break;
 
             case 'url':
-                if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                if (!ValidationUtils::isValidUrl($value)) {
                     $errors['value'] = "Invalid URL format";
                 }
                 break;

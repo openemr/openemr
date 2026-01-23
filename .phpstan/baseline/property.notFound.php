@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 91 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property Cache_Lite\\:\\:\\$_memoryCachingState\\.$#',
