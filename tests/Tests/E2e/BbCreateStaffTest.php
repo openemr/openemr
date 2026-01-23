@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    Bartosz Spyrko-Smietanko
+ * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>

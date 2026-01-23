@@ -186,7 +186,7 @@
         <postalCode></postalCode>
         <phonew1></phonew1>
         <address_use>WP</address_use>
-        <type>CALLBCK</type>
+        <type>CALLBACK</type>
     </participant></document_participants><authenticator>
         <streetAddressLine></streetAddressLine>
         <city></city>

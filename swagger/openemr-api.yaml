@@ -9885,6 +9885,11 @@ components:
         head_circ: '22.2'
         oxygen_saturation: '96'
   securitySchemes:
+    bearer:
+      type: http
+      description: 'Enter a previously generated Bearer token here to authenticate'
+      bearerFormat: JWT
+      scheme: bearer
     openemr_auth:
       type: oauth2
       flows:

@@ -182,4 +182,220 @@ class ValidationUtilsIsolatedTest extends TestCase
         $this->assertFalse(ValidationUtils::validateInt(0, min: 1, max: 10));
         $this->assertFalse(ValidationUtils::validateInt(11, min: 1, max: 10));
     }
+
+    public function testValidateFloatWithValidFloats(): void
+    {
+        $this->assertSame(42.5, ValidationUtils::validateFloat(42.5));
+        $this->assertSame(42.5, ValidationUtils::validateFloat('42.5'));
+        $this->assertSame(0.0, ValidationUtils::validateFloat(0));
+        $this->assertSame(0.0, ValidationUtils::validateFloat('0'));
+        $this->assertSame(-10.5, ValidationUtils::validateFloat(-10.5));
+        $this->assertSame(-10.5, ValidationUtils::validateFloat('-10.5'));
+        $this->assertSame(42.0, ValidationUtils::validateFloat(42));
+        $this->assertSame(1000.0, ValidationUtils::validateFloat('1e3'));
+    }
+
+    public function testValidateFloatWithInvalidValues(): void
+    {
+        $this->assertFalse(ValidationUtils::validateFloat('not a number'));
+        $this->assertFalse(ValidationUtils::validateFloat(''));
+        $this->assertFalse(ValidationUtils::validateFloat(null));
+        $this->assertFalse(ValidationUtils::validateFloat([]));
+    }
+
+    public function testValidateFloatWithMinRange(): void
+    {
+        $this->assertSame(5.5, ValidationUtils::validateFloat(5.5, min: 1.0));
+        $this->assertSame(1.0, ValidationUtils::validateFloat(1.0, min: 1.0));
+        $this->assertFalse(ValidationUtils::validateFloat(0.5, min: 1.0));
+        $this->assertFalse(ValidationUtils::validateFloat(-5.0, min: 1.0));
+    }
+
+    public function testValidateFloatWithMaxRange(): void
+    {
+        $this->assertSame(5.5, ValidationUtils::validateFloat(5.5, max: 10.0));
+        $this->assertSame(10.0, ValidationUtils::validateFloat(10.0, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(10.5, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(100.0, max: 10.0));
+    }
+
+    public function testValidateFloatWithMinAndMaxRange(): void
+    {
+        $this->assertSame(5.5, ValidationUtils::validateFloat(5.5, min: 1.0, max: 10.0));
+        $this->assertSame(1.0, ValidationUtils::validateFloat(1.0, min: 1.0, max: 10.0));
+        $this->assertSame(10.0, ValidationUtils::validateFloat(10.0, min: 1.0, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(0.5, min: 1.0, max: 10.0));
+        $this->assertFalse(ValidationUtils::validateFloat(10.5, min: 1.0, max: 10.0));
+    }
+
+    public function testNpiValidationWithValidNpis(): void
+    {
+        // These NPIs pass the Luhn check with 80840 prefix
+        $validNpis = [
+            '1234567893',
+            '1245319599',
+            '1003000126',
+        ];
+
+        foreach ($validNpis as $npi) {
+            $this->assertTrue(
+                ValidationUtils::isValidNPI($npi),
+                "NPI should be valid: {$npi}"
+            );
+        }
+    }
+
+    public function testNpiValidationWithInvalidNpis(): void
+    {
+        $invalidNpis = [
+            '1234567890',  // Invalid check digit
+            '123456789',   // Too short (9 digits)
+            '12345678901', // Too long (11 digits)
+            'abcdefghij',  // Non-numeric
+            '123456789a',  // Contains letter
+            '',            // Empty string
+            '0000000000',  // All zeros (invalid check)
+        ];
+
+        foreach ($invalidNpis as $npi) {
+            $this->assertFalse(
+                ValidationUtils::isValidNPI($npi),
+                "NPI should be invalid: {$npi}"
+            );
+        }
+    }
+
+    public function testUSPostalCodeValidation(): void
+    {
+        // Valid US ZIP codes
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('12345'));
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('12345-6789'));
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('00000'));
+        $this->assertTrue(ValidationUtils::isValidUSPostalCode('99999-9999'));
+
+        // Invalid US ZIP codes
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('1234'));      // Too short
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('123456'));    // Too long
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('12345-678')); // ZIP+4 too short
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode('ABCDE'));     // Letters
+        $this->assertFalse(ValidationUtils::isValidUSPostalCode(''));          // Empty
+    }
+
+    public function testCAPostalCodeValidation(): void
+    {
+        // Valid Canadian postal codes
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('A1A 1A1'));
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('A1A1A1'));
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('K1A 0B1'));
+        $this->assertTrue(ValidationUtils::isValidCAPostalCode('k1a0b1'));  // Lowercase
+
+        // Invalid Canadian postal codes
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode('12345'));     // US format
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode('AAA 111'));   // Wrong pattern
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode('A1A'));       // Too short
+        $this->assertFalse(ValidationUtils::isValidCAPostalCode(''));          // Empty
+    }
+
+    public function testPostalCodeValidationByCountry(): void
+    {
+        // US validation
+        $this->assertTrue(ValidationUtils::isValidPostalCode('12345', 'US'));
+        $this->assertFalse(ValidationUtils::isValidPostalCode('A1A 1A1', 'US'));
+
+        // CA validation
+        $this->assertTrue(ValidationUtils::isValidPostalCode('A1A 1A1', 'CA'));
+        $this->assertFalse(ValidationUtils::isValidPostalCode('12345', 'CA'));
+
+        // Default (other countries) - just checks non-empty
+        $this->assertTrue(ValidationUtils::isValidPostalCode('12345', 'UK'));
+        $this->assertTrue(ValidationUtils::isValidPostalCode('anything', 'DE'));
+        $this->assertFalse(ValidationUtils::isValidPostalCode('', 'UK'));
+    }
+
+    public function testUrlValidationWithValidUrls(): void
+    {
+        $validUrls = [
+            'http://example.com',
+            'https://example.com',
+            'http://www.example.com/path',
+            'https://example.com/path?query=value',
+            'ftp://ftp.example.com',
+        ];
+
+        foreach ($validUrls as $url) {
+            $this->assertTrue(
+                ValidationUtils::isValidUrl($url),
+                "URL should be valid: {$url}"
+            );
+        }
+    }
+
+    public function testUrlValidationWithInvalidUrls(): void
+    {
+        $invalidUrls = [
+            'not-a-url',
+            'example.com',       // Missing scheme
+            '://missing-scheme',
+            '',
+            'http://',           // Missing host
+        ];
+
+        foreach ($invalidUrls as $url) {
+            $this->assertFalse(
+                ValidationUtils::isValidUrl($url),
+                "URL should be invalid: {$url}"
+            );
+        }
+    }
+
+    public function testUrlValidationWithHttpsRequirement(): void
+    {
+        // HTTPS URLs should pass when requireHttps is true
+        $this->assertTrue(ValidationUtils::isValidUrl('https://example.com', requireHttps: true));
+        $this->assertTrue(ValidationUtils::isValidUrl('HTTPS://EXAMPLE.COM', requireHttps: true));
+
+        // HTTP URLs should fail when requireHttps is true
+        $this->assertFalse(ValidationUtils::isValidUrl('http://example.com', requireHttps: true));
+        $this->assertFalse(ValidationUtils::isValidUrl('ftp://example.com', requireHttps: true));
+
+        // All valid URLs should pass when requireHttps is false
+        $this->assertTrue(ValidationUtils::isValidUrl('http://example.com', requireHttps: false));
+        $this->assertTrue(ValidationUtils::isValidUrl('https://example.com', requireHttps: false));
+    }
+
+    public function testUuidValidationWithValidUuids(): void
+    {
+        $validUuids = [
+            '550e8400-e29b-41d4-a716-446655440000', // Version 4
+            '6ba7b810-9dad-11d1-80b4-00c04fd430c8', // Version 1
+            '6ba7b811-9dad-11d1-80b4-00c04fd430c8',
+            '00000000-0000-0000-0000-000000000000', // Nil UUID
+        ];
+
+        foreach ($validUuids as $uuid) {
+            $this->assertTrue(
+                ValidationUtils::isValidUuid($uuid),
+                "UUID should be valid: {$uuid}"
+            );
+        }
+    }
+
+    public function testUuidValidationWithInvalidUuids(): void
+    {
+        $invalidUuids = [
+            'not-a-uuid',
+            '550e8400-e29b-41d4-a716-44665544000', // Too short
+            '550e8400-e29b-41d4-a716-4466554400000', // Too long
+            '550e8400-e29b-41d4-a716', // Incomplete
+            '',
+            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', // Invalid characters
+        ];
+
+        foreach ($invalidUuids as $uuid) {
+            $this->assertFalse(
+                ValidationUtils::isValidUuid($uuid),
+                "UUID should be invalid: {$uuid}"
+            );
+        }
+    }
 }

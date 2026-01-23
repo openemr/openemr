@@ -33,6 +33,7 @@ use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -194,7 +195,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
                         if (!empty($report['specimens'])) {
                             $result['specimens'] = $report['specimens'];
                         }
-                        $ranges = array_filter(array_map(static fn($item): float|false => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $record['range'] ?? '')));
+                        $ranges = array_filter(array_map(ValidationUtils::validateFloat(...), explode('-', $record['range'] ?? '')));
                         $result['range_low'] = $ranges[0] ?? null;
                         $result['range_high'] = $ranges[0] ?? null;
                         $result['result_abnormal'] = $result['abnormal'] ?? null;
@@ -268,7 +269,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $status = $this->getValidStatus($dataRecord['status'] ?? 'unknown');
         $observation->setStatus($status);
 
-        $ranges = array_filter(array_map(static fn($item): float|false => filter_var($item, FILTER_VALIDATE_FLOAT), explode('-', $dataRecord['range'] ?? '')));
+        $ranges = array_filter(array_map(ValidationUtils::validateFloat(...), explode('-', $dataRecord['range'] ?? '')));
         $low = $ranges[0] ?? null;
         $high = $ranges[1] ?? null;
         if (isset($low) && isset($high)) {
