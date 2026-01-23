@@ -11,7 +11,7 @@ use OpenEMR\PaymentProcessing\Rainforest\Apis\GetPayinComponentParameters;
 
 SessionUtil::portalSessionStart();
 $ignoreAuth_onsite_portal = true;
-require_once __DIR__ . '/../interface/globals.php';
+require_once  'interface/globals.php';
 
 $gb = OEGlobalsBag::getInstance();
 

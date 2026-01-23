@@ -1856,7 +1856,7 @@ function make_insurance() {
                 echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
             }
             echo '<script type="text/javascript">';
-            echo $twig->render('payments/rainforest.js');
+            echo $twig->render('payments/rainforest.js', ['endpoint' => 'front_payment.rainforest.php']);
             echo '</script>';
         }
         ?>

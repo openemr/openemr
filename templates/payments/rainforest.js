@@ -57,6 +57,6 @@ document.getElementById('paynowbutton').onclick = function (e) {
         dataType: 'json',
         success: createRainforstComponent,
         type: 'POST',
-        url: 'portal_payment.rainforest.php',
+        url: '{{ endpoint }}',
     })
 };
