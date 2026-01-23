@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 22 errors
+// total 33 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -102,6 +102,56 @@ $ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\Tests\\\\E2e\\\\User\\\\Exception not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getConnection\\(\\) on an unknown class Doctrine\\\\DBAL\\\\DriverManager\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$conn of method OpenEMR\\\\BC\\\\Database\\:\\:__construct\\(\\) has invalid type Doctrine\\\\DBAL\\\\Connection\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\BC\\\\Database\\:\\:\\$conn has unknown class Doctrine\\\\DBAL\\\\Connection as its type\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\BC\\\\Database\\:\\:query\\(\\) has invalid return type Doctrine\\\\DBAL\\\\Result\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Caught class Doctrine\\\\DBAL\\\\Exception not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$e of method OpenEMR\\\\BC\\\\Database\\:\\:helpfulDieDbal\\(\\) has invalid type Doctrine\\\\DBAL\\\\Exception\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Class Doctrine\\\\DBAL\\\\Exception\\\\DriverException not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$e of method OpenEMR\\\\BC\\\\Database\\:\\:extractSqlErrorFromDBAL\\(\\) has invalid type Doctrine\\\\DBAL\\\\Exception\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/BC/Database.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Class Doctrine\\\\DBAL\\\\Result not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/BC/DatabaseTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Class Doctrine\\\\DBAL\\\\Connection not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/BC/DatabaseTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

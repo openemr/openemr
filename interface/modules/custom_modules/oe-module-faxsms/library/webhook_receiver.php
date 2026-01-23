@@ -170,6 +170,41 @@ try {
 }
 
 /**
+ * Validate that URL is from SignalWire to prevent SSRF attacks
+ *
+ * @param string $url URL to validate
+ * @return bool True if URL is valid SignalWire URL
+ */
+function isValidSignalWireUrl(string $url): bool
+{
+    if (empty($url)) {
+        return false;
+    }
+
+    $parsedUrl = parse_url($url);
+    if ($parsedUrl === false || !isset($parsedUrl['host'])) {
+        return false;
+    }
+
+    $host = strtolower($parsedUrl['host']);
+
+    // Allow SignalWire domains
+    $allowedDomains = [
+        'signalwire.com',
+        'files.signalwire.com',
+        'api.signalwire.com'
+    ];
+
+    foreach ($allowedDomains as $domain) {
+        if ($host === $domain || str_ends_with($host, '.' . $domain)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Download fax media from SignalWire and store using FaxDocumentService
  *
  * @param string $faxSid

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 24 errors
+// total 32 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -92,6 +92,31 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ActionRouter constructor invoked with 3 parameters, 2 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ctype_alpha invoked with 1 parameter, 0 required\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function mb_convert_encoding invoked with 3 parameters, 0 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ajax/sql_server_status.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function mb_convert_encoding invoked with 3 parameters, 0 required\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function mb_convert_encoding invoked with 2 parameters, 0 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ctype_alnum invoked with 1 parameter, 0 required\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

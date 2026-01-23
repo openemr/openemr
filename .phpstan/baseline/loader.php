@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 18982 errors
+// total 19002 errors
 
 return ['includes' => [
     __DIR__ . '/arguments.count.php',
@@ -18,6 +18,7 @@ return ['includes' => [
     __DIR__ . '/openemr.deprecatedSqlFunction.php',
     __DIR__ . '/openemr.forbiddenCurlFunction.php',
     __DIR__ . '/openemr.forbiddenGlobalsAccess.php',
+    __DIR__ . '/phpunit.mockMethod.php',
     __DIR__ . '/property.notFound.php',
     __DIR__ . '/requireOnce.fileNotFound.php',
     __DIR__ . '/return.missing.php',
