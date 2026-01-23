@@ -80,6 +80,7 @@
         "league/csv": "^9.28.0",
         "league/oauth2-server": "^8.4",
         "league/omnipay": "^3.2.1",
+        "moneyphp/money": "^4.8",
         "monolog/monolog": "^3.9.0",
         "mpdf/mpdf": "^8.2.7",
         "nyholm/psr7": "^1.8.2",
