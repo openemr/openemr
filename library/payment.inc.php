@@ -181,11 +181,11 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
     }
 
     if ($Affected) {
-        if (trim(formData('type_name')) != 'patient') {
+        if (trimPost('type_name') != 'patient') {
             $ferow = sqlQuery("select last_level_closed from form_encounter  where
 		pid ='" . trim(formData('hidden_patient_code')) . "' and encounter='" . trim(formData("HiddenEncounter$CountRow")) . "'");
               //multiple charges can come.
-            if ($ferow['last_level_closed'] < trim(formData("HiddenIns$CountRow"))) {
+            if ($ferow['last_level_closed'] < trimPost("HiddenIns$CountRow")) {
                 //last_level_closed gets increased. unless a follow up is required.
                 // in which case we'll allow secondary to be re setup to current setup.
                 // just not advancing last closed.
@@ -207,9 +207,9 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
                     ++$new_payer_type;
                 }
 
-                  $new_payer_id = SLEOB::arGetPayerID(trim(formData('hidden_patient_code')), $date_of_service, $new_payer_type);
+                  $new_payer_id = SLEOB::arGetPayerID(trimPost('hidden_patient_code'), $date_of_service, $new_payer_type);
                 if ($new_payer_id > 0) {
-                        SLEOB::arSetupSecondary(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow")), 0);
+                        SLEOB::arSetupSecondary(trimPost('hidden_patient_code'), trimPost("HiddenEncounter$CountRow"), 0);
                 }
 
                     //-----------------------------------
