@@ -14,7 +14,7 @@ require_once("DataPage.php");
  * results all at once.
  *
  * The DataSet executes queries lazily, only when the first result is retrieved.
- * Using GetDataPage will allow retreival of sub-sets of large amounts of data without
+ * Using GetDataPage will allow retrieval of sub-sets of large amounts of data without
  * querying the entire database
  *
  * @package verysimple::Phreeze
@@ -47,7 +47,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     public $CountSQL = "";
 
     /**
-     * Contructor initializes the object
+     * Constructor initializes the object
      *
      * @access public
      * @param Phreezer $preezer
@@ -364,7 +364,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * If $countrecords is true then the total number of records will be eagerly fetched
      * using a count query. This is necessary in order to calculate the total number of
      * results and total number of pages. If you do not care about pagination and simply
-     * want to limit the results, then this can be set to false to supress the count
+     * want to limit the results, then this can be set to false to suppress the count
      * query. However, the pagination settings will not be correct and the total number
      * of rows will be -1
      *

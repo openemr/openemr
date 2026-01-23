@@ -68,7 +68,7 @@ class Phreezer extends Observable
 /**
 *
 * @var set to true to save each individual query object in the level-2 cache
-*      this can lead to a lot of save operations on the level-2 cahce that don't
+*      this can lead to a lot of save operations on the level-2 cache that don't
 *      ever get read, so enable only if you know it will improve performance
 */
     public $CacheQueryObjectLevel2 = false;
@@ -105,7 +105,7 @@ class Phreezer extends Observable
     }
 
 /**
-* Contructor initializes the object.
+* Constructor initializes the object.
 * The database connection is opened only when
 * a DB call is made.
 *
@@ -201,13 +201,10 @@ class Phreezer extends Observable
 /**
 * ValueCache is a utility method allowing any object or value to
 * be stored in the cache.
-* The timout is specified by
-* ValueCacheTimeout. This
 *
-* @param string $sql
-* @param variant $val
-* @param
-*          int cache timeout (in seconds) default = Phreezer->ValueCacheTimeout. set to zero for no cache
+* @param string $key cache key
+* @param variant $val value to cache
+* @param ?int $timeout cache timeout in seconds (default: Phreezer->ValueCacheTimeout, 0 to disable)
 * @return bool true if cache was set, false if not
 */
     public function SetValueCache($key, $val, $timeout = null)
@@ -229,7 +226,7 @@ class Phreezer extends Observable
     }
 
 /**
-* Retreives an object or value that was persisted using SetValueCache
+* Retrieves an object or value that was persisted using SetValueCache
 *
 * @param string $key
 * @return variant
@@ -283,10 +280,10 @@ class Phreezer extends Observable
             return false;
         }
 
-    // if the object hasn't changed at level 1, then supress the cache update
+    // if the object hasn't changed at level 1, then suppress the cache update
         $obj = $this->_level1Cache->Get($objectclass . "_" . $id);
         if ($obj && serialize($obj) == serialize($val)) {
-            $this->Observe("TYPE='$objectclass' ID='$id' level 1 cache has not changed.  SetCache was supressed", OBSERVE_DEBUG);
+            $this->Observe("TYPE='$objectclass' ID='$id' level 1 cache has not changed.  SetCache was suppressed", OBSERVE_DEBUG);
             return false;
         }
 
@@ -325,7 +322,7 @@ class Phreezer extends Observable
             return $obj;
         }
 
-    // try the level 2 cahce
+    // try the level 2 cache
         $obj = $this->_level2Cache->Get($cachekey);
         if ($obj) {
             $this->Observe("Retrieved TYPE='$objectclass' ID='$id' from 2nd Level Cache", OBSERVE_DEBUG);
@@ -820,7 +817,7 @@ class Phreezer extends Observable
     }
 
 /**
-* Returns the name of the DB column associted with the given property
+* Returns the name of the DB column associated with the given property
 *
 * @access public
 * @param string $objectclass
@@ -836,7 +833,7 @@ class Phreezer extends Observable
     }
 
 /**
-* Returns the name of the DB Table associted with the given property
+* Returns the name of the DB Table associated with the given property
 *
 * @access public
 * @param string $objectclass

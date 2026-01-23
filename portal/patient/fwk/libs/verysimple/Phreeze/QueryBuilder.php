@@ -167,7 +167,7 @@ class QueryBuilder
      * Removes the "where" from the beginning of a statement
      *
      * @param string $sql partial query to parse
-     * @return string query without the preceeding "where"
+     * @return string query without the preceding "where"
      */
     private function RemoveWherePrefix(string $sql): string
     {
