@@ -81,7 +81,7 @@ $recorder = new Recorder();
 // Display a row of data for an encounter.
 //
 $var_index = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
+function echoLine($encounterId, $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0, $code = '', $codeType = ''): void
 {
     global $var_index;
     $var_index++;
@@ -98,9 +98,19 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='text-center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
     echo "  <td class='text-center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
     echo "  <td class='text-center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
-    echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
-        " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
-        "onkeyup='calctotal()'/></td>\n";
+    echo "  <td class='text-right'>";
+    echo "    <input type='text' class='form-control amount_field' "
+        . 'data-encounter-id="' . attr($encounterId) . '"'
+        . 'data-code="' . attr($code) . '"'
+        . 'data-code-type="' . attr($codeType) . '"'
+        . "name='" . attr($iname) . "'"
+        . "id='paying_" . attr($var_index) . "' "
+        . "value=''"
+        . "onchange='coloring();calctotal()'"
+        . "autocomplete='off' "
+        . "onkeyup='calctotal()'"
+        . "/>";
+    echo "</td>\n";
     echo " </tr>\n";
 }
 
@@ -1253,6 +1263,8 @@ function make_insurance() {
                                         'encounter' => $brow['encounter'],
                                         'date' => $brow['encdate'],
                                         'last_level_closed' => $brow['last_level_closed'],
+                                        'code' => $brow['code'],
+                                        'code_type' => $brow['code_type'],
                                         'charges' => 0,
                                         'payments' => 0];
                                     }
@@ -1325,7 +1337,7 @@ function make_insurance() {
                                 // entering today's co-pay.
                                 //
                                 if (!$gottoday) {
-                                    echoLine("form_upay[0]", date("Y-m-d"), 0, 0, 0, 0 /*$duept*/);//No encounter yet defined.
+                                    echoLine('0', "form_upay[0]", date("Y-m-d"), 0, 0, 0, 0 /*$duept*/);//No encounter yet defined.
                                 }
 
                                 $gottoday = false;
@@ -1381,6 +1393,7 @@ function make_insurance() {
                                     }
 
                                     echoLine(
+                                        encounterId: $enc,
                                         iname: "form_upay[$enc]",
                                         date: $dispdate,
                                         charges: $value['charges'],
@@ -1389,7 +1402,9 @@ function make_insurance() {
                                         duept: $duept,
                                         encounter: $enc,
                                         copay: $inscopay,
-                                        patcopay: $patcopay
+                                        patcopay: $patcopay,
+                                        code: $value['code'],
+                                        codeType: $value['code_type'],
                                     );
                                 }
                                 // Continue with display of the data entry form.
