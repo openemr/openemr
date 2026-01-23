@@ -3422,6 +3422,12 @@ $GLOBALS_METADATA = [
             '',
             xl('Used when payment_gateawy is Rainforest.'),
         ],
+        'rainforest_webhook_secret' => [
+            xl('Rainforest Webhook Secret'),
+            'encrypted',
+            '',
+            xl('Used when payment_gateway is Rainforest. Stored encrypted'),
+        ],
 
         'sphere_clinicfront_trxcustid' => [
             xl('Sphere Clinicfront over phone (MOTO) Transaction CustID'),

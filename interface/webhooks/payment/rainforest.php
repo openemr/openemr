@@ -25,13 +25,19 @@ use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{
     RecordPayment,
     Verifier,
 };
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Core\OEGlobalsBag;
 
-$mid = $_ENV['RAINFOREST_MERCHANT_ID'] ?? null;
-if ($mid === null) {
-    throw new InvalidArgumentException('RAINFOREST_MERCHANT_ID envvar is missing.');
+$gb = OEGlobalsBag::getInstance();
+
+$mid = $gb->getString('rainforest_merchant_id');
+if ($mid === '') {
+    throw new InvalidArgumentException('rainforest_merchant_id config is missing.');
 }
 
-$whv = new Verifier($_ENV['RAINFOREST_WEBHOOK_SECRET']);
+$crypto = new CryptoGen();
+$sec = $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'));
+$whv = new Verifier($crypto->decryptStandard($gb->getString('rainforest_webhook_secret')));
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();
 
