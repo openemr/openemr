@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @package   OpenEMR
+ * @license   https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright (c) 2026 OpenCoreEMR, Inc
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\PaymentProcessing;
