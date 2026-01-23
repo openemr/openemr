@@ -57,8 +57,6 @@ readonly class Dispatcher
      */
     private function getProcessorsFor(string $eventType): array
     {
-        return array_filter($this->processors, function (ProcessorInterface $processor) use ($eventType): bool {
-            return in_array($eventType, $processor->getEventTypes(), true);
-        });
+        return array_filter($this->processors, fn(ProcessorInterface $processor): bool => in_array($eventType, $processor->getEventTypes(), true));
     }
 }

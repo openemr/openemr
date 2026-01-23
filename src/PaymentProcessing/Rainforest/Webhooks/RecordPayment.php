@@ -76,22 +76,20 @@ class RecordPayment implements ProcessorInterface
             ]);
 
             // See format $payinPayload in PaymentProcessing/Rainforest
-            $activities = array_map(function ($enc) use ($dmf, $patientId, $memo, $sessionId): array {
-                return [
-                    'patientId' => $patientId,
-                    'encounterId' => $enc->id,
-                    'codeType' => $enc->codeType,
-                    'code' => $enc->code,
-                    'modifier' => '',
-                    'payerType' => '0',
-                    'postUser' => '', // does this need to be filled?
-                    'sessionId' => $sessionId,
-                    'payAmount' => $dmf->format($enc->amount),
-                    'adjustmentAmount' => '0.00',
-                    'memo' => $memo,
-                    'accountCode' => 'PP', // this and paymentType above different for copay?
-                ];
-            }, $metadata->encounters);
+            $activities = array_map(fn($enc): array => [
+                'patientId' => $patientId,
+                'encounterId' => $enc->id,
+                'codeType' => $enc->codeType,
+                'code' => $enc->code,
+                'modifier' => '',
+                'payerType' => '0',
+                'postUser' => '', // does this need to be filled?
+                'sessionId' => $sessionId,
+                'payAmount' => $dmf->format($enc->amount),
+                'adjustmentAmount' => '0.00',
+                'memo' => $memo,
+                'accountCode' => 'PP', // this and paymentType above different for copay?
+            ], $metadata->encounters);
 
             //
             // FROM WHAT I CAN TELL recording the payment is enough but ar_session

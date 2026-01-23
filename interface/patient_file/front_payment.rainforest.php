@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-chdir(dirname(dirname(__DIR__)));
+chdir(dirname(__DIR__, 2));
 require 'vendor/autoload.php';
 
 use OpenEMR\Core\OEGlobalsBag;

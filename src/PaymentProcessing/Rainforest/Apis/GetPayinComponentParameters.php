@@ -82,14 +82,12 @@ class GetPayinComponentParameters
             throw new UnexpectedValueException('Payment amount must be positive');
         }
 
-        $encounters = array_map(function ($row) use ($parser, $usd) {
-            return new Rainforest\EncounterData(
-                id: $row['id'],
-                code: $row['code'],
-                codeType: $row['codeType'],
-                amount: $parser->parse($row['value'], $usd),
-            );
-        }, $postBody['encounters']);
+        $encounters = array_map(fn($row) => new Rainforest\EncounterData(
+            id: $row['id'],
+            code: $row['code'],
+            codeType: $row['codeType'],
+            amount: $parser->parse($row['value'], $usd),
+        ), $postBody['encounters']);
 
         $rf = Rainforest::makeFromGlobals($bag);
         return $rf->getPaymentComponentParameters(
