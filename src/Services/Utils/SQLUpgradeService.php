@@ -1495,8 +1495,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                 um.uuid AS care_team_uuid, pd.last_updated, pd.created_by, pd.updated_by " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
-            $uuidRecords = QueryUtils::fetchRecords("Select * from uuid_mapping WHERE resource='CareTeam'", [], true);
+            $this->cleanupCareTeamUUIDMappingsForPatientData();
+
             // now do patient history
             $fromClause = "FROM patient_history ph
                 LEFT JOIN uuid_mapping um ON um.target_uuid = ph.uuid AND um.resource='CareTeam' AND um.`table` = 'patient_data'
@@ -1507,7 +1507,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             " . $fromClause;
             $records = QueryUtils::fetchRecords($sql, [], true);
             $this->createCareTeamRecordsList($records);
-            $this->cleanupCareTeamUUidMappings($fromClause);
+            $this->cleanupCareTeamUUIDMappingsForPatientHistory();
             QueryUtils::commitTransaction();
             $commited = true;
         } catch (\Throwable $exception) {
@@ -1547,7 +1547,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
             $userRoleFacilities = QueryUtils::fetchRecords("SELECT fui.facility_id AS role_facility_id, "
-                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE fui.field_id='provider_id' AND u.id = ? ", [$providerId]);
+                . " u.facility_id FROM users u LEFT JOIN facility_user_ids fui ON fui.uid = u.id WHERE (fui.id IS NULL OR fui.field_id='provider_id') AND u.id = ? ", [$providerId]);
             $userRoleFacilityIds = array_map(static fn($item): int => intval($item['role_facility_id'] ?? $item['facility_id']), $userRoleFacilities);
             if (!empty($facilitiesIds)) {
                 // intersect user role facilities with care team facilities
@@ -1616,14 +1616,31 @@ class SQLUpgradeService implements ISQLUpgradeService
         }
     }
 
-    protected function cleanupCareTeamUUidMappings(string $fromClause)
-    {
-        $uuidUpdates = "UPDATE uuid_registry SET mapped=0 WHERE uuid IN (select um.uuid " . $fromClause . ")";
-        QueryUtils::sqlStatementThrowException($uuidUpdates, [], true);
-        // we're going to keep the uuid mappings for care teams for historical reference
-        // or if we ever need to recover the data.  Fortunately with uuid_registry.mapped = 0 there won't be
-        // any impact on normal operations.
-//        $uuidDeletes = "DELETE FROM uuid_mapping WHERE uuid IN (select um.uuid " . $fromClause . ")";
-//        QueryUtils::sqlStatementThrowException($uuidDeletes, [], true);
+    private function cleanupCareTeamUUIDMappingsForPatientData() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_data pd ON um.target_uuid = pd.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (pd.care_team_provider != '' AND pd.care_team_provider IS NOT NULL)
+            OR (pd.care_team_facility != '' AND pd.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
+    }
+
+    private function cleanupCareTeamUUIDMappingsForPatientHistory() {
+        // note these tables can have large amounts of data so we do this with a join to be efficient
+        // query before used an IN clause and was timing out on slower machines
+        $sql = <<<SQL
+            UPDATE uuid_registry ur
+            JOIN uuid_mapping um ON ur.uuid = um.uuid
+            JOIN patient_history ph ON um.target_uuid = ph.uuid AND um.resource='CareTeam'
+            SET ur.mapped=0
+            WHERE (ph.care_team_provider != '' AND ph.care_team_provider IS NOT NULL)
+            OR (ph.care_team_facility != '' AND ph.care_team_facility IS NOT NULL)
+SQL;
+        QueryUtils::sqlStatementThrowException($sql, [], true);
     }
 }
