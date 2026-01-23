@@ -22,6 +22,22 @@ class BootstrapService
     }
 
     /**
+     * Get a single vendor global value
+     *
+     * @param string $globalName The name of the global setting to retrieve
+     * @return string|null The value of the global setting, or null if not found
+     */
+    public static function getVendorGlobal(string $globalName): ?string
+    {
+        $result = sqlQueryNoLog(
+            "SELECT gl_value FROM `globals` WHERE `gl_name` = ?",
+            [$globalName]
+        );
+
+        return $result['gl_value'] ?? null;
+    }
+
+    /**
      * @return array
      */
     public function getVendorGlobals(): array
@@ -32,10 +48,11 @@ class BootstrapService
         $vendors['oerestrict_users'] = '';
         $vendors['oe_enable_email'] = '';
         $vendors['oe_enable_voice'] = '';
+        $vendors['oeenable_users_permissions'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?)",
-            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice']
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?, ?)",
+            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice', 'oeenable_users_permissions']
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -56,7 +73,8 @@ class BootstrapService
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
                        ('oe_enable_email', '0'),
-                       ('oe_enable_voice', '0')"
+                       ('oe_enable_voice', '0'),
+                       ('oeenable_users_permissions', '0')"
         );
     }
 
@@ -74,6 +92,7 @@ class BootstrapService
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
         $items['oe_enable_voice'] = $vendors['voice_vendor'] ?? '';
+        $items['oeenable_users_permissions'] = $vendors['oeenable_users_permissions'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
@@ -95,7 +114,7 @@ class BootstrapService
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
         $results = sqlQuery($sql, [$modId]);
         foreach ($results as $k => $v) {
-            $registry[$k] = trim(((string) preg_replace('/\R/', '', (string) $v)));
+            $registry[$k] = trim(((string)preg_replace('/\R/', '', (string)$v)));
         }
 
         return $registry;
@@ -158,6 +177,9 @@ class BootstrapService
 
     public static function usePrimaryAccount($user_id)
     {
+        if (!self::getVendorGlobal('oeenable_users_permissions') ?? null) {
+            return '0';
+        }
         if (empty($user_id)) {
             $user_id = $_SESSION['authUserID'] ?? 0;
         }

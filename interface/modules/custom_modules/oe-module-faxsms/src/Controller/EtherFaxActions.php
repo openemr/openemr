@@ -194,17 +194,21 @@ class EtherFaxActions extends AppDispatch
         $tag = $user['username'];
         $fileName = '';
 
+        $allowedTempDir = realpath($this->baseDir . '/send/');
         if (empty($isContent)) {
-            if (str_starts_with((string)$file, 'file://')) {
-                // Remove the "file://" prefix
-                $file = substr((string)$file, 7);
+            if (str_starts_with((string) $file, 'file://')) {
+                $file = substr((string) $file, 7);
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
+                if (!str_starts_with($realPath, $allowedTempDir)) {
+                    error_log("Path traversal blocked: " . $realPath);
+                    return xlt('Error: Invalid file location');
+                }
                 $file = str_replace("\\", "/", $realPath);
                 $fileName = pathinfo((string)$file, PATHINFO_BASENAME);
             } else {
-                return xlt('Error: No content');
+                return xlt('Error: No Fax content');
             }
         }
 
@@ -863,13 +867,28 @@ class EtherFaxActions extends AppDispatch
         }
 
         $rows = [];
-        $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
+        $sql = <<< 'QUERY'
+            SELECT
+                `id`,
+                CASE
+                    WHEN JSON_VALID(`details_json`)
+                        THEN JSON_REMOVE(`details_json`, '$.FaxImage')
+                    ELSE `details_json`
+                END AS `details_json`,
+                `receive_date`
+            FROM `oe_faxsms_queue`
+            WHERE `deleted` = '0'
+              AND (`receive_date` > ? AND `receive_date` < ?)
+            QUERY;
+
+        $result = sqlStatement($sql, [$start, $end]);
         while ($row = sqlFetchArray($result)) {
             $detail = json_decode((string)$row['details_json']);
             if (json_last_error()) {
                 continue;
             }
+
             $detail->RecordId = $row['id'];
             $rows[] = $detail;
         }

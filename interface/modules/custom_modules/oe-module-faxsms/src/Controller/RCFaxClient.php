@@ -261,16 +261,23 @@ class RCFaxClient extends AppDispatch
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
         $fileName ??= pathinfo((string) $file, PATHINFO_BASENAME);
-        // validate/format file path
+        $content = '';
+        
+        $allowedTempDir = realpath($this->baseDir . '/send/');
+        // Validate file path to prevent path traversal
         if (is_file($file)) {
             if (str_starts_with((string) $file, 'file://')) {
                 $file = substr((string) $file, 7);
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
+                if (!str_starts_with($realPath, $allowedTempDir)) {
+                    error_log("Path traversal blocked: " . $realPath);
+                    return xlt('Error: Invalid file location');
+                }
                 $file = str_replace("\\", "/", $realPath);
             } else {
-                return xlt('Error: No content');
+                return xlt('Error: No Fax content');
             }
         }
         // Check if the content is from patient report
@@ -1002,6 +1009,7 @@ class RCFaxClient extends AppDispatch
                             $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($from) . "</td><td>" . text($pname . $to) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
                         }
                         $toName = $to;
+                        $pname ??= '';
                         $fromName = $pname . $from;
                         if ($direction === "outbound") {
                             $toName = $pname . $to;
