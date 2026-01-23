@@ -15,6 +15,10 @@ namespace OpenEMR\PaymentProcessing\Rainforest;
 use JsonSerializable;
 use UnexpectedValueException;
 
+/**
+ * Data exchange class for dealing with Rainforest metadata payloads and
+ * translating back into OpenEMR payment info
+ */
 readonly class Metadata implements JsonSerializable
 {
     /**
