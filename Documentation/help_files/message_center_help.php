@@ -355,7 +355,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("A new tab sub menu will be visible at the top of the Message center page"); ?>.</p>
 
-                <p><?php echo xlt("Click on the File menu item on the top left of the Message center page ansd select Setup MedEx"); ?>.</p>
+                <p><?php echo xlt("Click on the File menu item on the top left of the Message center page and select Setup MedEx"); ?>.</p>
 
                 <p><?php echo xlt("It will take you to the MedEx sign-up page"); ?>.</p>
 

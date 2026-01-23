@@ -631,7 +631,7 @@
 
                     <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo ("In order to successfully copy these directories and files the 'sites' directory in the initial installation must have the user:group set to that of the webserver"); ?>.</p>
 
-                    <p><strong><?php echo ("PRE INSTALLTION"); ?> :</strong></p>
+                    <p><strong><?php echo ("PRE INSTALLATION"); ?> :</strong></p>
 
                     <p><?php echo ("To initiate the multisite process you need to install a single site or 'default' site"); ?>.</p>
 
@@ -647,7 +647,7 @@
 
                     <p><code>sudo chown -R www-data:www-data sites</code></p>
 
-                    <p><strong><?php echo ("INSTALLTION"); ?> :</strong></p>
+                    <p><strong><?php echo ("INSTALLATION"); ?> :</strong></p>
 
                     <p><?php echo ("If you are accessing the OpenEMR application from the computer/server  that it has been installed in type <code>http://localhost/openemr/admin.php</code> in the address bar of a browser. NOTE: This assumes that the OpenEMR files are in a directory called 'openemr', if not change the name to reflect the OpenEMR root directory. If you are accessing it from another computer substitute the localhost name with the IP address or domain name of the OpenEMR installation ");?>.</p>
 
@@ -716,7 +716,7 @@
 
                     <p><?php echo ("The setup script will automatically generate a code block"); ?>.</p>
 
-                    <p><?php echo ("It needs to be cut and pasted into the Apache configuration file for the webserver being used if you did not do it during the intial 'defalt' site installation"); ?>.</p>
+                    <p><?php echo ("It needs to be cut and pasted into the Apache configuration file for the webserver being used if you did not do it during the initial 'default' site installation"); ?>.</p>
 
                     <p><?php echo ("Click on 'Proceed to Select a Theme' to go to 'Step 7 Select a Theme' page"); ?>.</p>
 
