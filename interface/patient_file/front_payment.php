@@ -1543,7 +1543,7 @@ function make_insurance() {
                                     <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                                 </fieldset>
                             </form>
-                        <?php } elseif ($GLOBALS['payment_gateway'] === 'Rainforest') { ?>
+                        <?php } elseif ($globalsBag->getString('payment_gateway') === 'Rainforest') { ?>
                             <div id="payment-form"><!-- will be filled in by rainforest.js --></div>
                         <?php }
                         if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
