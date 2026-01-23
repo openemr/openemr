@@ -11,8 +11,6 @@ use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{Dispatcher, Verifier, RecordP
 use Monolog\Logger;
 use Http\Discovery\Psr17Factory;
 
-\Dotenv\Dotenv::createImmutable('.')->load();
-
 $mid = $_ENV['RAINFOREST_MERCHANT_ID'] ?? null;
 if ($mid === null) {
     throw new InvalidArgumentException('RAINFOREST_MERCHANT_ID envvar is missing.');
