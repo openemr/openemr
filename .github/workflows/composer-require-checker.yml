@@ -58,7 +58,7 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     ##
     # These are reused a bunch so it's neater to collect them here
@@ -85,7 +85,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.vendor }}'
         matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false

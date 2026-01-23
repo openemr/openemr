@@ -102,7 +102,7 @@ jobs:
         {
           printf 'dir='
           composer config cache-files-dir
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     - name: Install npm package
       uses: actions/setup-node@v6
@@ -152,7 +152,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.vendor }}'
         matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -181,7 +181,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.composer }}'
         matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -219,7 +219,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.npm-build }}'
         matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -249,7 +249,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.ccda-build }}'
         matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -278,7 +278,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.npm }}'
         matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -851,7 +851,7 @@ jobs:
           [[ -f coverage.clover.xml ]] && echo true || echo false
           printf htmlcov_exists=
           [[ -d ./htmlcov ]] && echo true || echo false
-        } >> $GITHUB_OUTPUT
+        } >> "$GITHUB_OUTPUT"
 
     - name: Upload clover coverage to GitHub
       uses: actions/upload-artifact@v6
@@ -890,4 +890,4 @@ jobs:
           echo "| Status | PHP | Webserver | Database | E2E | Coverage | Docker Dir |"
           echo "| --- | --- | --- | --- | --- | --- | --- |"
           echo "| ${status_emoji} ${{ job.status }} | ${{ steps.parse.outputs.php }} | ${{ steps.parse.outputs.webserver }} | ${{ steps.parse.outputs.database }} ${{ steps.parse.outputs.db }} | ${{ steps.parse.outputs.e2e_enabled }} | ${{ env.ENABLE_COVERAGE }} | ${{ steps.parse.outputs.docker_dir }} |"
-        } >> $GITHUB_STEP_SUMMARY
+        } >> "$GITHUB_STEP_SUMMARY"

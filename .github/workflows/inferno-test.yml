@@ -112,7 +112,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.vendor }}'
         matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -136,7 +136,7 @@ jobs:
       run: |
         key='${{ steps.cache-keys.outputs.composer }}'
         matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -206,7 +206,7 @@ jobs:
       run: |
         key='${{ steps.npm-cache-keys.outputs.npm-build }}'
         matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -231,7 +231,7 @@ jobs:
       run: |
         key='${{ steps.npm-cache-keys.outputs.ccda-build }}'
         matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
@@ -255,7 +255,7 @@ jobs:
       run: |
         key='${{ steps.npm-cache-keys.outputs.npm }}'
         matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
-        if [[ $key = $matched ]]; then
+        if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false

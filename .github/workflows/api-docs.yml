@@ -38,7 +38,7 @@ jobs:
 
     - name: "Get composer cache directory"
       id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
     - name: "Composer Cache"
       uses: actions/cache@v5
@@ -59,15 +59,17 @@ jobs:
     - name: "Check Docs Freshness"
       run: |
         if git diff --quiet; then
-          echo '✅ The API documentation is in sync with the code'
-          echo '# ✅ The API documentation is in sync with the code' >> $GITHUB_STEP_SUMMARY
-          echo '`openemr-api.yaml` is in sync with your changes' >> $GITHUB_STEP_SUMMARY
+          echo "✅ The API documentation is in sync with the code"
+          echo "# ✅ The API documentation is in sync with the code" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`openemr-api.yaml\` is in sync with your changes" >> "$GITHUB_STEP_SUMMARY"
           exit 0
         fi
-        echo '⚠️ The API documentation is not in sync with the code — see the Job Summary for next steps.'
-        echo '# ⚠️ The API documentation is not in sync with the code' >> $GITHUB_STEP_SUMMARY
-        echo 'Looks like `openemr-api.yaml` is not in sync with your changes.' >> $GITHUB_STEP_SUMMARY
-        echo 'Please, run:' >> $GITHUB_STEP_SUMMARY
-        echo '`php bin/console openemr:create-api-documentation --skip-globals`' >> $GITHUB_STEP_SUMMARY
-        echo 'and push updated `openemr-api.yaml` file into your PR' >> $GITHUB_STEP_SUMMARY
+        echo "⚠️ The API documentation is not in sync with the code — see the Job Summary for next steps."
+        {
+          echo "# ⚠️ The API documentation is not in sync with the code"
+          echo "Looks like \`openemr-api.yaml\` is not in sync with your changes."
+          echo "Please, run:"
+          echo "\`php bin/console openemr:create-api-documentation --skip-globals\`"
+          echo "and push updated \`openemr-api.yaml\` file into your PR"
+        } >> "$GITHUB_STEP_SUMMARY"
         exit 1
