@@ -65,32 +65,32 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
     $Affected = false;
     // watch for payments less than $1, thanks @snailwell
     if (!empty($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
-        if (trim(formData('type_name')) == 'insurance') {
-            if (trim(formData("HiddenIns$CountRow")) == 1) {
+        if (trimPost('type_name') == 'insurance') {
+            if (trimPost("HiddenIns$CountRow") == 1) {
                 $AccountCode = "IPP";
             }
 
-            if (trim(formData("HiddenIns$CountRow")) == 2) {
+            if (trimPost("HiddenIns$CountRow") == 2) {
                 $AccountCode = "ISP";
             }
 
-            if (trim(formData("HiddenIns$CountRow")) == 3) {
+            if (trimPost("HiddenIns$CountRow") == 3) {
                 $AccountCode = "ITP";
             }
-        } elseif (trim(formData('type_name')) == 'patient') {
+        } elseif (trimPost('type_name') == 'patient') {
             $AccountCode = "PP";
         }
 
         $r->recordActivity([
-            'patientId' => trim(formData('hidden_patient_code')),
-            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-            'codeType' => trim(formData("HiddenCodetype$CountRow")),
-            'code' => trim(formData("HiddenCode$CountRow")),
-            'modifier' => trim(formData("HiddenModifier$CountRow")),
-            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'patientId' => trimPost('hidden_patient_code'),
+            'encounterId' => trimPost("HiddenEncounter$CountRow"),
+            'codeType' => trimPost("HiddenCodetype$CountRow"),
+            'code' => trimPost("HiddenCode$CountRow"),
+            'modifier' => trimPost("HiddenModifier$CountRow"),
+            'payerType' => trimPost("HiddenIns$CountRow"),
             'postUser' => trim((string) $user_id),
-            'sessionId' => trim(formData('payment_id')),
-            'payAmount' => trim(formData("Payment$CountRow")),
+            'sessionId' => trimPost('payment_id'),
+            'payAmount' => trimPost("Payment$CountRow"),
             'adjustmentAmount' => '0',
             'memo' => '',
             'accountCode' => $AccountCode,
@@ -99,25 +99,25 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
     }
 
     if (!empty($_POST["AdjAmount$CountRow"]) && (floatval($_POST["AdjAmount$CountRow"] ?? null)) != 0) {
-        if (trim(formData('type_name')) == 'insurance') {
-            $AdjustString = "Ins adjust Ins" . trim(formData("HiddenIns$CountRow"));
+        if (trimPost('type_name') == 'insurance') {
+            $AdjustString = "Ins adjust Ins" . trimPost("HiddenIns$CountRow");
             $AccountCode = "IA";
-        } elseif (trim(formData('type_name')) == 'patient') {
+        } elseif (trimPost('type_name') == 'patient') {
             $AdjustString = "Pt adjust";
             $AccountCode = "PA";
         }
 
         $r->recordActivity([
-            'patientId' => trim(formData('hidden_patient_code')),
-            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-            'codeType' => trim(formData("HiddenCodetype$CountRow")),
-            'code' => trim(formData("HiddenCode$CountRow")),
-            'modifier' => trim(formData("HiddenModifier$CountRow")),
-            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'patientId' => trimPost('hidden_patient_code'),
+            'encounterId' => trimPost("HiddenEncounter$CountRow"),
+            'codeType' => trimPost("HiddenCodetype$CountRow"),
+            'code' => trimPost("HiddenCode$CountRow"),
+            'modifier' => trimPost("HiddenModifier$CountRow"),
+            'payerType' => trimPost("HiddenIns$CountRow"),
             'postUser' => trim((string) $user_id),
-            'sessionId' => trim(formData('payment_id')),
+            'sessionId' => trimPost('payment_id'),
             'payAmount' => '0',
-            'adjustmentAmount' => trim(formData("AdjAmount$CountRow")),
+            'adjustmentAmount' => trimPost("AdjAmount$CountRow"),
             'memo' => $AdjustString,
             'accountCode' => $AccountCode,
         ]);
@@ -126,17 +126,17 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
 
     if (!empty($_POST["Deductible$CountRow"]) && (floatval($_POST["Deductible$CountRow"] ?? null)) > 0) {
         $r->recordActivity([
-            'patientId' => trim(formData('hidden_patient_code')),
-            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-            'codeType' => trim(formData("HiddenCodetype$CountRow")),
-            'code' => trim(formData("HiddenCode$CountRow")),
-            'modifier' => trim(formData("HiddenModifier$CountRow")),
-            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'patientId' => trimPost('hidden_patient_code'),
+            'encounterId' => trimPost("HiddenEncounter$CountRow"),
+            'codeType' => trimPost("HiddenCodetype$CountRow"),
+            'code' => trimPost("HiddenCode$CountRow"),
+            'modifier' => trimPost("HiddenModifier$CountRow"),
+            'payerType' => trimPost("HiddenIns$CountRow"),
             'postUser' => trim((string) $user_id),
-            'sessionId' => trim(formData('payment_id')),
+            'sessionId' => trimPost('payment_id'),
             'payAmount' => '0',
             'adjustmentAmount' => '0',
-            'memo' => 'Deductible $' . trim(formData("Deductible$CountRow")),
+            'memo' => 'Deductible $' . trimPost("Deductible$CountRow"),
             'accountCode' => 'Deduct',
         ]);
         $Affected = true;
@@ -144,15 +144,15 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
 
     if (!empty($_POST["Takeback$CountRow"]) && (floatval($_POST["Takeback$CountRow"] ?? null)) > 0) {
         $r->recordActivity([
-            'patientId' => trim(formData('hidden_patient_code')),
-            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-            'codeType' => trim(formData("HiddenCodetype$CountRow")),
-            'code' => trim(formData("HiddenCode$CountRow")),
-            'modifier' => trim(formData("HiddenModifier$CountRow")),
-            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'patientId' => trimPost('hidden_patient_code'),
+            'encounterId' => trimPost("HiddenEncounter$CountRow"),
+            'codeType' => trimPost("HiddenCodetype$CountRow"),
+            'code' => trimPost("HiddenCode$CountRow"),
+            'modifier' => trimPost("HiddenModifier$CountRow"),
+            'payerType' => trimPost("HiddenIns$CountRow"),
             'postUser' => trim((string) $user_id),
-            'sessionId' => trim(formData('payment_id')),
-            'payAmount' => strval(floatval(trim(formData("Takeback$CountRow"))) * -1),
+            'sessionId' => trimPost('payment_id'),
+            'payAmount' => strval(floatval(trimPost("Takeback$CountRow")) * -1),
             'adjustmentAmount' => '0',
             'memo' => '',
             'accountCode' => 'Takeback',
@@ -162,20 +162,20 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
 
     if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"] == 'y') {
         $r->recordActivity([
-            'patientId' => trim(formData('hidden_patient_code')),
-            'encounterId' => trim(formData("HiddenEncounter$CountRow")),
-            'codeType' => trim(formData("HiddenCodetype$CountRow")),
-            'code' => trim(formData("HiddenCode$CountRow")),
-            'modifier' => trim(formData("HiddenModifier$CountRow")),
-            'payerType' => trim(formData("HiddenIns$CountRow")),
+            'patientId' => trimPost('hidden_patient_code'),
+            'encounterId' => trimPost("HiddenEncounter$CountRow"),
+            'codeType' => trimPost("HiddenCodetype$CountRow"),
+            'code' => trimPost("HiddenCode$CountRow"),
+            'modifier' => trimPost("HiddenModifier$CountRow"),
+            'payerType' => trimPost("HiddenIns$CountRow"),
             'postUser' => trim((string) $user_id),
-            'sessionId' => trim(formData('payment_id')),
+            'sessionId' => trimPost('payment_id'),
             'payAmount' => '0',
             'adjustmentAmount' => '0',
             'memo' => '',
             'accountCode' => '',
             'followUp' => true,
-            'followUpNote' => trim(formData("FollowUpReason$CountRow")),
+            'followUpNote' => trimPost("FollowUpReason$CountRow"),
         ]);
         $Affected = true;
     }
