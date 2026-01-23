@@ -78,6 +78,11 @@ class UuidRegistry
     // Maximum tries to create a unique uuid before failing (this should never happen)
     const MAX_TRIES = 100;
 
+    /**
+     * Maximum number of records to process in a single transaction when populating missing UUIDs
+     */
+    const UUID_TRANSACTION_MAX_RECORDS = 10000;
+
     private $table_name;      // table to check if uuid has already been used in
     private $table_id;        // the label of the column in above table that is used for id (defaults to 'id')
     private $table_vertical;  // false or array. if table is vertical, will store the critical columns (uuid set for matching columns)
@@ -241,7 +246,7 @@ class UuidRegistry
     private function createMissingUuids()
     {
         try {
-            sqlBeginTrans();
+            QueryUtils::startTransaction();
             $counter = 0;
 
             // we split the loop so we aren't doing a condition inside each one.
@@ -258,12 +263,17 @@ class UuidRegistry
                 do {
                     $count = $this->createMissingUuidsForTableWithId();
                     $counter += $count;
+                    if ($counter % self::UUID_TRANSACTION_MAX_RECORDS == 0 && $counter > 0) {
+                        // commit every 10k to not have a massive transaction
+                        QueryUtils::commitTransaction();
+                        QueryUtils::startTransaction();
+                    }
                 } while ($count > 0);
             }
-            sqlCommitTrans();
+            QueryUtils::commitTransaction();
             return $counter;
         } catch (Exception $exception) {
-            sqlRollbackTrans();
+            QueryUtils::rollbackTransaction();
             throw $exception;
         }
     }
