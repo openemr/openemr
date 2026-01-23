@@ -1544,7 +1544,6 @@ function make_insurance() {
                                 </fieldset>
                             </form>
                         <?php } elseif ($GLOBALS['payment_gateway'] === 'Rainforest') { ?>
-                            <div>RAINFOREST</div>
                             <div id="payment-form"><!-- will be filled in by rainforest.js --></div>
                         <?php }
                         if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
