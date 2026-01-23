@@ -31,7 +31,7 @@ assets:
         script: js/bootstrap.bundle.min.js
         # Bootstrap is included in main themes via SASS
         #  So will only use below css link if no_main-theme token is provided.
-        #  TODO - incorporate this mechanism for rtl when rtl bootrap SASS mechanism is up and running
+        #  TODO - incorporate this mechanism for rtl when rtl bootstrap SASS mechanism is up and running
         link: css/bootstrap.min.css
         autoload: true
         # RTL only for no_main-theme which is rare
