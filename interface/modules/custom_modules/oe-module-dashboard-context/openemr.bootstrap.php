@@ -14,7 +14,7 @@ use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\DashboardContext\Bootstrap;
 
-$file = OEGlobalsBag::getInstance()->get('fileroot');
+$file = OEGlobalsBag::getInstance(true)->get('fileroot');
 $classLoader = new ModulesClassLoader($file);
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\DashboardContext\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
