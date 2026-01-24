@@ -5837,6 +5837,15 @@ return [
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="eid",
+     *          in="query",
+     *          description="The Encounter ID (optional) the document is assigned to",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
