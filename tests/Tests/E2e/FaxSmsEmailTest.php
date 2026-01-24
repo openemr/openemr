@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
@@ -132,13 +133,16 @@ class FaxSmsEmailTest extends TestCase
     #[Test]
     public function testFaxSmsModuleEmailWithoutSmtpConfigured(): void
     {
-        // Save original SMTP settings
-        $originalSmtpPass = $GLOBALS['SMTP_PASS'];
-        $originalSmtpUser = $GLOBALS['SMTP_USER'];
+        $globals = OEGlobalsBag::getInstance();
 
-        // Temporarily disable SMTP by clearing credentials
-        $GLOBALS['SMTP_PASS'] = '';
-        $GLOBALS['SMTP_USER'] = '';
+        // Save original SMTP_HOST setting
+        $originalSmtpHost = $globals->get('SMTP_HOST');
+
+        // Temporarily disable SMTP by clearing SMTP_HOST
+        // Note: SMTP is considered configured when SMTP_HOST is set,
+        // regardless of whether SMTP_USER/SMTP_PASS are set (to support
+        // development tools like mailpit or IP-based authentication relays)
+        $globals->set('SMTP_HOST', '');
 
         $emailClient = new EmailClient();
 
@@ -152,9 +156,8 @@ class FaxSmsEmailTest extends TestCase
         try {
             $emailClient->emailReminder($testEmail, $testBody);
         } finally {
-            // Restore original SMTP settings
-            $GLOBALS['SMTP_PASS'] = $originalSmtpPass;
-            $GLOBALS['SMTP_USER'] = $originalSmtpUser;
+            // Restore original SMTP_HOST setting
+            $globals->set('SMTP_HOST', $originalSmtpHost);
         }
     }
 

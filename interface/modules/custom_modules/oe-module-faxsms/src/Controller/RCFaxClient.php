@@ -176,7 +176,7 @@ class RCFaxClient extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
         $user = $this::getLoggedInUser();
         $facility = substr((string) $user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
@@ -257,7 +257,7 @@ class RCFaxClient extends AppDispatch
         $comments = trim((string) $this->getRequest('comments', $comments));
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
         $fileName ??= pathinfo((string) $file, PATHINFO_BASENAME);
