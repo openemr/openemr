@@ -42,7 +42,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
-<span class=text><?php echo xlt('Onset of Ilness: '); ?></span><input type="text" name="bronchitis_date_of_illness" value="<?php echo attr($obj["bronchitis_date_of_illness"]);?>" ><br /><br />
+<span class=text><?php echo xlt('Onset of Illness: '); ?></span><input type="text" name="bronchitis_date_of_illness" value="<?php echo attr($obj["bronchitis_date_of_illness"]);?>" ><br /><br />
 
 <span class=text><?php echo xlt('HPI:'); ?> </span><br /><textarea cols=67 rows=8 wrap=virtual name="bronchitis_hpi" ><?php echo text($obj["bronchitis_hpi"]);?></textarea><br /><br />
 
