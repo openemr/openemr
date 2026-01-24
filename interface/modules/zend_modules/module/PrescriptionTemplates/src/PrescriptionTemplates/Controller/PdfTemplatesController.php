@@ -30,7 +30,7 @@ use Laminas\View\Renderer\PhpRenderer;
  * Class PdfTemplatesController
  * Here you can add custom pdf template for prescription.
  * How to -
- * 1. create new action function (syntax <VIEW_NAME>Action) in ths controller that load custom view
+ * 1. create new action function (syntax <VIEW_NAME>Action) in this controller that load custom view
  * 2. in the 'globals settings' screen go to 'Rx' tab and save your action in the 'Name of zend template for pdf export' label
  * @package PrescriptionTemplates\Controller
  */

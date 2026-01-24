@@ -1057,7 +1057,7 @@
     </xs:complexContent>
   </xs:complexType>
   <!--
-   jaxb implementors note: the jaxb code generator (v1.0.?) will
+   jaxb implementers note: the jaxb code generator (v1.0.?) will
    fail to append "Type" to streetNameType so that there will be
    duplicate definitions in the java source for streetNameType.
    You will have to fix this manually.
@@ -1338,7 +1338,7 @@
               <xs:documentation>
                         An interval of time specifying the time during which
                         the name is or was used for the entity. This
-                        accomodates the fact that people change names for
+                        accommodates the fact that people change names for
                         people, places and things.
                      </xs:documentation>
             </xs:annotation>
@@ -1390,7 +1390,7 @@
               <xs:documentation>
                         An interval of time specifying the time during which
                         the name is or was used for the entity. This
-                        accomodates the fact that people change names for
+                        accommodates the fact that people change names for
                         people, places and things.
                      </xs:documentation>
             </xs:annotation>
@@ -1425,7 +1425,7 @@
               <xs:documentation>
                         An interval of time specifying the time during which
                         the name is or was used for the entity. This
-                        accomodates the fact that people change names for
+                        accommodates the fact that people change names for
                         people, places and things.
                      </xs:documentation>
             </xs:annotation>

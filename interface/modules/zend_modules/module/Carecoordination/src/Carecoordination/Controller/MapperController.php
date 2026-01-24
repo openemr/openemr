@@ -17,7 +17,7 @@ use Laminas\View\Model\ViewModel;
 use Carecoordination\Model\MapperTable;
 
 // TODO: this class appears to be deprecated as nothing else refers to it.  It looks like it does the same thing as the SetupController does...
-// Recomend removing this if it's not used.
+// Recommend removing this if it's not used.
 class MapperController extends AbstractActionController
 {
     protected $mapperTable;
