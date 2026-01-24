@@ -934,7 +934,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             var EncounterIdArray = [];
             var Count = 0;
                 <?php
-            //Encounter details are stored to javacript as array.
+            //Encounter details are stored to javascript as array.
                 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                 " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", [$pid]);
                 if (sqlNumRows($result4) > 0) {
@@ -978,7 +978,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         border-radius: 0;
       }
 
-      /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
+      /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interrupting
          the UI. This should be configurable and should go in a more appropriate place
       .pami-list {
           max-height: 200px;
@@ -1852,7 +1852,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            // Note the translaution occurs here instead of in teh Twig file for some specific concatenation needs
+                            // Note the translaution occurs here instead of in the Twig file for some specific concatenation needs
                             $etitle = xl('(Click to edit)');
                             if ($row['pc_hometext'] != "") {
                                 $etitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $etitle;

@@ -184,7 +184,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     <?php Header::setupHeader(['esign-theme-only', 'search-highlight']); ?>
     <?php } ?>
 
-    <?php // do not show stuff from report.php in forms that is encaspulated
+    <?php // do not show stuff from report.php in forms that is encapsulated
     // by div of navigateLink class. Specifically used for CAMOS, but
     // can also be used by other forms that require output in the
     // encounter listings output, but not in the custom report. ?>

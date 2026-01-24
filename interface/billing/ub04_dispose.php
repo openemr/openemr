@@ -42,7 +42,7 @@ function ub04_dispose(): void
         } elseif ($dispose == "reset_claim") {
             $pid = $_POST['pid'] ?? $_GET['pid'];
             $encounter = $_POST['encounter'] ?? $_GET['encounter'];
-            // clear claim first otherwise get ub04 returns cuurent version.
+            // clear claim first otherwise get ub04 returns current version.
             //
             $flg = exist_ub04_claim($pid, $encounter, true);
             if ($flg === true) {

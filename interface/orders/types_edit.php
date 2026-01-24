@@ -756,7 +756,7 @@ function recursiveDelete($typeid): void
                 </form>
             </div>
         </div>
-    </div><!--end of conatainer div-->
+    </div><!--end of container div-->
     <script>
         //jqury-ui tooltip
         $(function () {

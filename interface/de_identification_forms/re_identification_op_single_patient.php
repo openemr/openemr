@@ -150,9 +150,9 @@ system($sh_cmd);
     <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3"><br />
-        <?php echo xlt('No match Patient record found for the given Re Idenitification code');
+        <?php echo xlt('No matching patient record found for the given re-identification code');
         echo "<br /><br />";
-        echo xlt('Please enter correct Re Identification code');
+        echo xlt('Please enter correct re-identification code');
         echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>

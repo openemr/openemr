@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Payments can be edited here whch includes deletion of an allocation, modifying the
+ * Payments can be edited here, which includes deletion of an allocation, modifying the
  * same or adding a new allocation. Log is kept for the deleted ones.
  * The functions of this class support the billing process like the script billing_process.php.
  *
@@ -367,7 +367,7 @@ $ResultSearchSub = sqlStatement(
             }
             if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
             {
-                alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
+                alert(<?php echo xlj('None of the Top Distribution Row Can be Completely Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
                 return false;
             }
     if (!CheckPayingEntityAndDistributionPostFor()) {
@@ -403,7 +403,7 @@ $ResultSearchSub = sqlStatement(
             }
             if (CompletlyBlankAbove())//The distribution rows already in the database are checked.
             {
-                alert(<?php echo xlj('None of the Top Distribution Row Can be Completly Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
+                alert(<?php echo xlj('None of the Top Distribution Row Can be Completely Blank.'); ?> +"\n" + <?php echo xlj('Use Delete Option to Remove.'); ?>);
                 return false;
             }
             if (!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
@@ -447,7 +447,7 @@ $ResultSearchSub = sqlStatement(
         }
 
         function CompletlyBlankAbove() {//The distribution rows already in the database are checked.
-            //It is not allowed to be made completly empty.If needed delete option need to be used.
+            //It is not allowed to be made completely empty.If needed delete option need to be used.
     let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
             for (RowCount = 1; RowCount <= CountIndexAbove; RowCount++) {
                 if (document.getElementById('Allowed' + RowCount).value == '' && document.getElementById('Payment' + RowCount).value == '' && document.getElementById('AdjAmount' + RowCount).value == '' && document.getElementById('Deductible' + RowCount).value == '' && document.getElementById('Takeback' + RowCount).value == '' && document.getElementById('FollowUp' + RowCount).checked == false) {
@@ -458,7 +458,7 @@ $ResultSearchSub = sqlStatement(
         }
 
         function CompletlyBlankBelow() {//The newly added distribution rows are checked.
-            //It is not allowed to be made completly empty.
+            //It is not allowed to be made completely empty.
     let CountIndexAbove = document.getElementById('CountIndexAbove').value * 1;
     let CountIndexBelow = document.getElementById('CountIndexBelow').value * 1;
             if (CountIndexBelow == 0)
@@ -767,9 +767,8 @@ $ResultSearchSub = sqlStatement(
                                         $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
                                     } else {
-                                        //Fetch till that much got
-                                        //Fetch the HIGHEST sequence_no till this session.
-                                        //Used maily in  the case if primary/others pays once more.
+                                        // Get the highest sequence_no for this session to calculate running totals.
+                                        // Handles cases where primary or other payers submit additional payments.
                                         $resSequence = sqlStatement("SELECT sequence_no from ar_activity where session_id=? and
                                     pid=? and encounter=? order by sequence_no desc ", [$payment_id, $PId, $Encounter]);
                                         $rowSequence = sqlFetchArray($resSequence);
@@ -816,9 +815,8 @@ $ResultSearchSub = sqlStatement(
                                         $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
                                         $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
                                     } else {
-                                        //Got just before the previous
-                                        //Fetch the LOWEST sequence_no till this session.
-                                        //Used maily in  the case if primary/others pays once more.
+                                        // Get the lowest sequence_no for this session to calculate totals from the start.
+                                        // Handles cases where primary or other payers submit additional payments.
                                         $resSequence = sqlStatement(
                                             "SELECT sequence_no FROM ar_activity WHERE " .
                                             "session_id = ? AND deleted IS NULL AND pid = ? AND encounter = ? " .
