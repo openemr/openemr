@@ -16,6 +16,7 @@ use Document;
 use Exception;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -793,6 +794,13 @@ class EtherFaxActions extends AppDispatch
         $account = $this->credentials['account'];
         $uid = $_SESSION['authUserID'];
         $jobId = $faxDetails->JobId;
+
+        // avoid duplicates, Claude helped craft the query
+        $existing = QueryUtils::querySingleRow("SELECT `id` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]);
+        if ($existing !== false && !empty($existing['id'])) {
+            return (int)$existing['id'];  // Return existing ID instead of inserting
+        }
+
         $to = $faxDetails->CalledNumber;
         $from = $faxDetails->CallingNumber;
         $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
