@@ -13,16 +13,13 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use Monolog\Utils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContext;
-use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\FHIR\a;
 use OpenEMR\Services\FHIR\DocumentReference\Trait\FhirDocumentReferenceTrait;
@@ -41,11 +38,9 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
-use Twig\Token;
 
 class FhirClinicalNotesService extends FhirServiceBase
 {
@@ -189,6 +184,8 @@ class FhirClinicalNotesService extends FhirServiceBase
         } else {
             $docReference->setType(UtilsService::createNullFlavorUnknownCodeableConcept());
         }
+
+        $this->populateAuthor($docReference, $dataRecord);
 
         return $docReference;
     }
