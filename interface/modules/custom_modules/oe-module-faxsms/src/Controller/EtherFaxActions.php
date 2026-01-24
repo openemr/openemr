@@ -354,7 +354,7 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
         $user = $this::getLoggedInUser();
         $facility = substr((string)$user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);

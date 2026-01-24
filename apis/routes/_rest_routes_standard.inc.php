@@ -5809,7 +5809,7 @@ return [
     "POST /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
         $controller = new DocumentRestController();
         $controller->setSession($request->getSession());
-        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document']);
+        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document'], $_GET['eid']);
 
         return $return;
     },
@@ -5833,6 +5833,15 @@ return [
      *          in="query",
      *          description="The category of the documents.",
      *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="eid",
+     *          in="query",
+     *          description="The Encounter ID (optional) the document is assigned to",
+     *          required=false,
      *          @OA\Schema(
      *              type="string"
      *          )

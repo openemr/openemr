@@ -88,7 +88,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     public $effectiveDate = null;
 
     /**
-     * To indicate if this proces is commercially confidential.
+     * To indicate if this process is commercially confidential.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public $confidentialityIndicator = null;
@@ -171,7 +171,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     }
 
     /**
-     * To indicate if this proces is commercially confidential.
+     * To indicate if this process is commercially confidential.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
      */
     public function getConfidentialityIndicator()
@@ -180,7 +180,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     }
 
     /**
-     * To indicate if this proces is commercially confidential.
+     * To indicate if this process is commercially confidential.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $confidentialityIndicator
      * @return $this
      */

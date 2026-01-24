@@ -25,7 +25,7 @@
 class BrowserDevice
 {
     /**
-     * patters to search for devices
+     * patterns to search for devices
      *
      * @var Array
      */
@@ -38,7 +38,7 @@ class BrowserDevice
     ];
 
     /**
-     * patters to search for devices
+     * patterns to search for devices
      *
      * @var Array
      */

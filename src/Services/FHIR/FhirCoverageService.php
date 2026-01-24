@@ -24,6 +24,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
@@ -277,7 +278,8 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         // CostToBeneficiary - copay information
-        if (!empty($dataRecord['copay']) && is_numeric($dataRecord['copay']) && $dataRecord['copay'] > 0) {
+        $copay = ValidationUtils::validateFloat($dataRecord['copay'] ?? null, min: 0.01);
+        if ($copay !== false) {
             $costToBeneficiary = new FHIRCoverageCostToBeneficiary();
 
             $costType = new FHIRCodeableConcept();
@@ -289,7 +291,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             $costToBeneficiary->setType($costType);
 
             $valueMoney = new FHIRMoney();
-            $valueMoney->setValue($dataRecord['copay']);
+            $valueMoney->setValue($copay);
             $valueMoney->setCurrency('USD');
 
             $costToBeneficiary->setValueMoney($valueMoney);

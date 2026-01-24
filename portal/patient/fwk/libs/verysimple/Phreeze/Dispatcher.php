@@ -28,7 +28,7 @@ class Dispatcher
 
     /**
      * FAST_LOOKUP mode instructs the dispatcher to assume that the controller and method
-     * supplied by the router are valid and not do any checking for the existance of
+     * supplied by the router are valid and not do any checking for the existence of
      * the controller file or the method before trying to call it
      *
      * @var boolean use fast lookup mode if true
@@ -181,7 +181,7 @@ class Dispatcher
      * Fired by the PHP error handler function.
      * Calling this function will
      * always throw an exception unless error_reporting == 0. If the
-     * PHP command is called with @ preceeding it, then it will be ignored
+     * PHP command is called with @ preceding it, then it will be ignored
      * here as well.
      *
      * @deprecated use ExceptionThrower::HandleError instead

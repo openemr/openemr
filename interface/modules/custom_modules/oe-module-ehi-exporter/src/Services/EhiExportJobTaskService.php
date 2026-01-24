@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Handles the saving, retriving, and updating of ehi_export_job_tasks records.
+ * Handles the saving, retrieving, and updating of ehi_export_job_tasks records.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

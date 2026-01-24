@@ -33,7 +33,7 @@ class Viewer extends Abstract_Model
     {
         parent::__construct($args);
 
-        // Force the args key => value pairs to be set as properties on the viewer objet
+        // Force the args key => value pairs to be set as properties on the viewer object
         $this->pushArgs(true);
     }
 

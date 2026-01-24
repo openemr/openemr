@@ -148,7 +148,7 @@ class SignalWireClient extends AppDispatch
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $globals = OEGlobalsBag::getInstance();
-        $smtpEnabled = !empty($globals->get('SMTP_PASS') ?? null) && !empty($globals->get('SMTP_USER') ?? null);
+        $smtpEnabled = !empty($globals->get('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
 
         // DEBUG: Log parameters received in sendFax

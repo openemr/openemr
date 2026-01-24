@@ -20,6 +20,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
@@ -44,7 +45,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     public function setFhirBaseUrl(string $fhirBaseUrl): void
     {
-        if (filter_var($fhirBaseUrl, FILTER_VALIDATE_URL)) {
+        if (ValidationUtils::isValidUrl($fhirBaseUrl)) {
             $this->fhirBaseUrl = $fhirBaseUrl;
         } else {
             throw OAuthServerException::invalidRequest('fhirBaseUrl', 'Invalid FHIR base URL provided.');

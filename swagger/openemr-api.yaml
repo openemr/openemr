@@ -1502,6 +1502,13 @@ paths:
           required: true
           schema:
             type: string
+        -
+          name: eid
+          in: query
+          description: 'The Encounter ID (optional) the document is assigned to'
+          required: false
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -9885,6 +9892,11 @@ components:
         head_circ: '22.2'
         oxygen_saturation: '96'
   securitySchemes:
+    bearer:
+      type: http
+      description: 'Enter a previously generated Bearer token here to authenticate'
+      bearerFormat: JWT
+      scheme: bearer
     openemr_auth:
       type: oauth2
       flows:

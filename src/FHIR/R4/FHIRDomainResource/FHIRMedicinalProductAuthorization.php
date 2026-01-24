@@ -119,7 +119,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     public $validityPeriod = null;
 
     /**
-     * A period of time after authorization before generic product applicatiosn can be submitted.
+     * A period of time after authorization before generic product applications can be submitted.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
     public $dataExclusivityPeriod = null;
@@ -332,7 +332,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     }
 
     /**
-     * A period of time after authorization before generic product applicatiosn can be submitted.
+     * A period of time after authorization before generic product applications can be submitted.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
      */
     public function getDataExclusivityPeriod()
@@ -341,7 +341,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
     }
 
     /**
-     * A period of time after authorization before generic product applicatiosn can be submitted.
+     * A period of time after authorization before generic product applications can be submitted.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $dataExclusivityPeriod
      * @return $this
      */

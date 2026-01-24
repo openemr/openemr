@@ -29,7 +29,7 @@ class ApplicationTable
      * All DB Transactions take place
      *
      * @param String $sql
-     *            SQL Query Statment
+     *            SQL Query Statement
      * @param array $params
      *            SQL Parameters
      * @param boolean $log
@@ -115,7 +115,7 @@ class ApplicationTable
      * Hoping to work both ends, patient and user, from one or most two tables
      *
      * @param String $sql
-     *            SQL Query Statment for actions will execute sql as normal for cases
+     *            SQL Query Statement for actions will execute sql as normal for cases
      *            user auth is not required.
      * @param array $params
      *            Parameters for actions
@@ -237,7 +237,7 @@ class ApplicationTable
      * Function errorHandler
      * All error display and log
      * Display the Error, Line and File
-     * Same behavior of HelpfulDie fuction in OpenEMR
+     * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
      * @param type $e

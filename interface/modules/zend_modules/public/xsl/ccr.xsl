@@ -1404,7 +1404,7 @@ this XSLT back to the community.
                               <table class="list" id="planofcareorders">
                                 <tbody>
                                   <tr>
-                                    <th>Descripion</th>
+                                    <th>Description</th>
                                     <th>Plan Status</th>
                                     <th>Type</th>
                                     <th>Date</th>

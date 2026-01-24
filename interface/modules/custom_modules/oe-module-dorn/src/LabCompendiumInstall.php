@@ -192,7 +192,7 @@ class LabCompendiumInstall
         /*
         text field = T
         numeric field = N
-        Date feild = D
+        Date field = D
         Gestational age in weeks and days. = G
         List of Check boxes = M
         Radio buttons or drop-list, depending on the number of choices. = anything else (maybe S) for a single select

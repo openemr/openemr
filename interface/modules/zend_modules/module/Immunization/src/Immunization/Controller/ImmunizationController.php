@@ -12,12 +12,13 @@
 
 namespace Immunization\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
+use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Immunization\Form\ImmunizationForm;
-use Application\Listener\Listener;
+use OpenEMR\Common\Utils\ValidationUtils;
 
 class ImmunizationController extends AbstractActionController
 {
@@ -100,9 +101,9 @@ class ImmunizationController extends AbstractActionController
 
             foreach ($form_code as $code) {
                 // Validate that code is an integer to prevent SQL injection
-                $code = trim((string) $code);
-                if (!empty($code) && is_numeric($code) && $code > 0) {
-                    $valid_codes[] = (int)$code;
+                $validCode = ValidationUtils::validateInt(trim((string) $code), min: 1);
+                if ($validCode !== false) {
+                    $valid_codes[] = $validCode;
                 }
             }
 
@@ -372,7 +373,7 @@ class ImmunizationController extends AbstractActionController
                             $r['pubpid'] . "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss'] . "|" . // 3. (R) Patient identifier list. TODO: Hard-coded the OID from NIST test.
                             "|" . // 4. (B) Alternate PID
                             $r['patientname'] . "^^^^L|" . // 5.R. Name
-                            $guardianname . "|" . // 6. Mather Maiden Name
+                            $guardianname . "|" . // 6. Mother's Maiden Name
                             $r['DOB'] . "|" . // 7. Date, time of birth
                             $r['sex'] . "|" . // 8. Sex
                             "|" . // 9.B Patient Alias
@@ -387,9 +388,9 @@ class ImmunizationController extends AbstractActionController
                             "|" . // 18. patient Account Number
                             "|" . // 19.B SSN Number
                             "|" . // 20.B Driver license number
-                            "|" . // 21. Mathers Identifier
+                            "|" . // 21. Mother's Identifier
                             $ethnicity . "|" . // 22. Ethnic Group
-                            "|" . // 23. Birth Plase
+                            "|" . // 23. Birthplace
                             "|" . // 24. Multiple birth indicator
                             "|" . // 25. Birth order
                             "|" . // 26. Citizenship
@@ -417,7 +418,7 @@ class ImmunizationController extends AbstractActionController
                         $protection_indicator = $this->getImmunizationTable()->getNotes($r['protect_indicator'], 'yesno');
                         if ($publicity_code || $protection_indicator || $imm_registry_status_code) {
                             $content .= "PD1|" . // Patient Additional Demographic Segment
-                                "|" . // 1. Living Dependancy
+                                "|" . // 1. Living Dependency
                                 "|" . // 2. Living Arrangement
                                 $r['fac_name'] . "|" . // 3. Patient Primary Facility
                                 $r['primary_care_provider_details'] . "|" . // 4. Patient Primary Care Provider NPI and Provider name
@@ -468,7 +469,7 @@ class ImmunizationController extends AbstractActionController
                                 "|" . //14. Marital status
                                 $r['guardiansex'] . "|" . //  15. Administrative Sex of next of kin
                                 "|" . // 16. Date, time of birth of next of kin
-                                "|" . //17. Living Dependancy
+                                "|" . //17. Living Dependency
                                 "|" . //18. Ambulatory Status
                                 "|" . //19. Citizenship
                                 "|" . // 20. Primary Language

@@ -434,7 +434,7 @@ $GLOBALS_METADATA = [
             xl('Form ActionBar (save, cancel, etc) position')
             ,FormActionBarSettings::getGlobalSettingsList()
             ,FormActionBarSettings::getDefaultSetting() // default = top of the form
-            ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
+            ,xl('Placement of the save/cancel, and other buttons where supported (Demographics, Encounter Forms, etc).')
         ],
     ],
 
@@ -3349,7 +3349,7 @@ $GLOBALS_METADATA = [
                 '8.0.0' => 'US Core 8.0.0',
             ],
             '8.0.0',
-            xl('Set the maximum compatability version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
+            xl('Set the maximum compatibility version of US Core IG to support.  If a resource profile has breaking changes it will not exceed the given profile. If a profile has backwards breaking changes it will skip that profile version if a later version is supported.')
         ],
         'cc_front_payments' => [
             xl('Accept Credit Card transactions from Front Payments'),
@@ -3481,98 +3481,98 @@ $GLOBALS_METADATA = [
         ],
 
         'erx_enable' => [
-            xl('Enable NewCrop eRx Service'),
+            xl('Enable Ensora eRx Service'),
             'bool',
             '0',
-            xl('Enable NewCrop eRx Service.')
+            xl('Enable Ensora eRx Service.')
         ],
 
         'erx_newcrop_path' => [
-            xl('NewCrop eRx Site Address'),
+            xl('Ensora eRx Site Address'),
             'text',
             'https://secure.newcropaccounts.com/ux2/InterfaceV7/RxEntry.aspx',
-            xl('URL for NewCrop eRx Site Address.')
+            xl('URL for Ensora eRx Site Address.')
         ],
 
         'erx_newcrop_path_soap' => [
-            xl('NewCrop eRx Web Service Address'),
+            xl('Ensora eRx Web Service Address'),
             'text',
             'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-            xl('URLs for NewCrop eRx Service Address, separated by a semi-colon.')
+            xl('URLs for Ensora eRx Service Address, separated by a semi-colon.')
         ],
 
         'erx_soap_ttl_allergies' => [
-            xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
+            xl('Ensora eRx SOAP Request Time-To-Live for Allergies'),
             'num',
             '21600',
-            xl('Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.')
+            xl('Time-To-Live for Ensora eRx Allergies SOAP Request in seconds.')
         ],
 
         'erx_soap_ttl_medications' => [
-            xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
+            xl('Ensora eRx SOAP Request Time-To-Live for Medications'),
             'num',
             '21600',
-            xl('Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.')
+            xl('Time-To-Live for Ensora eRx Medications SOAP Request in seconds.')
         ],
 
         'erx_account_partner_name' => [
-            xl('NewCrop eRx Partner Name'),
+            xl('Ensora eRx Partner Name'),
             'text',
             '',
-            xl('Partner Name issued for NewCrop eRx service.')
+            xl('Partner Name issued for Ensora eRx service.')
         ],
 
         'erx_account_name' => [
-            xl('NewCrop eRx Name'),
+            xl('Ensora eRx Name'),
             'text',
             '',
-            xl('Account Name issued for NewCrop eRx service.')
+            xl('Account Name issued for Ensora eRx service.')
         ],
 
         'erx_account_password' => [
-            xl('NewCrop eRx Password'),
+            xl('Ensora eRx Password'),
             'encrypted',
             '',
-            xl('Account Password issued for NewCrop eRx service.')
+            xl('Account Password issued for Ensora eRx service.')
         ],
 
         'erx_account_id' => [
-            xl('NewCrop eRx Account Id'),
+            xl('Ensora eRx Account Id'),
             'text',
             '1',
-            xl('Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.')
+            xl('Account Id issued for Ensora eRx service, used to separate multi-facility accounts.')
         ],
 
         'erx_upload_active' => [
             xl('Only upload active prescriptions'),
             'bool',
             '0',
-            xl('Only upload active prescriptions to NewCrop eRx.')
+            xl('Only upload active prescriptions to Ensora eRx.')
         ],
 
         'erx_import_status_message' => [
-            xl('Enable NewCrop eRx import status message'),
+            xl('Enable Ensora eRx import status message'),
             'bool',
             '0',
-            xl('Enable import status message after visiting NewCrop eRx.')
+            xl('Enable import status message after visiting Ensora eRx.')
         ],
 
         'erx_medication_display' => [
-            xl('Do not display NewCrop eRx Medications uploaded'),
+            xl('Do not display Ensora eRx Medications uploaded'),
             'bool',
             '0',
-            xl('Do not display Medications uploaded after visiting NewCrop eRx.')
+            xl('Do not display Medications uploaded after visiting Ensora eRx.')
         ],
 
         'erx_allergy_display' => [
-            xl('Do not display NewCrop eRx Allergy uploaded'),
+            xl('Do not display Ensora eRx Allergy uploaded'),
             'bool',
             '0',
-            xl('Do not display Allergies uploaded after visiting NewCrop eRx.')
+            xl('Do not display Allergies uploaded after visiting Ensora eRx.')
         ],
 
         'erx_default_patient_country' => [
-            xl('NewCrop eRx Default Patient Country'),
+            xl('Ensora eRx Default Patient Country'),
             [
                 '' => '',
                 'US' => xl('USA'),
@@ -3580,11 +3580,11 @@ $GLOBALS_METADATA = [
                 'MX' => xl('Mexico'),
             ],
             '',
-            xl('Default Patient Country sent to NewCrop eRx, only if patient country is not set.'),
+            xl('Default Patient Country sent to Ensora eRx, only if patient country is not set.'),
         ],
 
         'erx_debug_setting' => [
-            xl('NewCrop eRx Debug Setting'),
+            xl('Ensora eRx Debug Setting'),
             [
                 0 => xl('None'),
                 1 => xl('Request Only'),
@@ -3592,7 +3592,7 @@ $GLOBALS_METADATA = [
                 3 => xl('Request & Response'),
             ],
             '0',
-            xl('Log all NewCrop eRx Requests and / or Responses.'),
+            xl('Log all Ensora eRx Requests and / or Responses.'),
         ],
 
         'ccda_alt_service_enable' => [
@@ -3623,7 +3623,7 @@ $GLOBALS_METADATA = [
             xl("phiMail default force message receipt confirmation to on"),
             'bool',
             '0',
-            xl("Marks a message as succesful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
+            xl("Marks a message as successful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
         ],
 
         'phimail_server_address' => [
@@ -3906,7 +3906,7 @@ $GLOBALS_METADATA = [
                 'P' => xl('Portrait'),
                 'L' => xl('Landscape')
             ],
-            'P', //defaut
+            'P', //default
             xl("Choose Layout Direction"),
         ],
         'pdf_language' => [
@@ -4097,7 +4097,7 @@ $GLOBALS_METADATA = [
                 'zu' => xl('Zulu'),
             ],
             'en', // default English
-            xl('Choose PDF languange Preference'),
+            xl('Choose PDF language Preference'),
         ],
         'pdf_size' => [
             xl('Paper Size'),               // Descriptive Name
@@ -4193,7 +4193,7 @@ $GLOBALS_METADATA = [
                 'D' => xl('Download'),
                 'I' => xl('Inline')
             ],
-            'D', //defaut
+            'D', //default
             xl("Choose Download or Display Inline"),
         ],
 
@@ -4355,7 +4355,7 @@ $GLOBALS_METADATA = [
             xl('Show In Collection on Encounter Form'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl("How to display the 'In Collection' option. May be overriden by Hide Billing Widget setting"),
+            xl("How to display the 'In Collection' option. May be overridden by Hide Billing Widget setting"),
         ],
 
         'enc_enable_issues' => [

@@ -32,6 +32,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -57,6 +58,7 @@ if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
 $pid = (!empty($_REQUEST['hidden_patient_code']) && ($_REQUEST['hidden_patient_code'] > 0)) ? $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
+$recorder = new Recorder();
 
 ?>
 <!DOCTYPE html>
@@ -234,7 +236,7 @@ if (!empty($_POST['form_save'])) {
                 if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
-                    $Modifier = $RowSearch['modifier'];
+                    $Modifier = $RowSearch['modifier'] ?? '';
                 } else {
                     $Codetype = '';
                     $Code = '';
@@ -250,14 +252,19 @@ if (!empty($_POST['form_save'])) {
                         [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
                     );
 
-                    sqlBeginTrans();
-                    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                    $insrt_id = sqlInsert(
-                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
-                        " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                        [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $session->get('authUserID'), $session_id, $amount]
-                    );
-                    sqlCommitTrans();
+                    $recorder->recordActivity([
+                        'patientId' => $form_pid,
+                        'encounterId' => $enc,
+                        'codeType' => $Codetype,
+                        'code' => $Code,
+                        'modifier' => $Modifier,
+                        'payerType' => '0',
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $session_id,
+                        'payAmount' => $amount,
+                        'adjustmentAmount' => '0.0',
+                        'accountCode' => 'PCP',
+                    ]);
 
                     frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
                 }
@@ -317,7 +324,7 @@ if (!empty($_POST['form_save'])) {
                     while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                         $Codetype = $RowSearch['code_type'];
                         $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
+                        $Modifier = $RowSearch['modifier'] ?? '';
                         $Fee = $RowSearch['fee'];
 
                         $resMoneyGot = sqlStatement(
@@ -348,49 +355,35 @@ if (!empty($_POST['form_save'])) {
                                 $amount = 0;
                             }
 
-                              sqlBeginTrans();
-                              $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                              sqlStatement(
-                                  "insert into ar_activity set " .
-                                  "pid = ?" .
-                                  ", encounter = ?" .
-                                  ", sequence_no = ?" .
-                                  ", code_type = ?" .
-                                  ", code = ?" .
-                                  ", modifier = ?" .
-                                  ", payer_type = ?" .
-                                  ", post_time = now() " .
-                                  ", post_user = ?" .
-                                  ", session_id = ?" .
-                                  ", pay_amount = ?" .
-                                  ", adj_amount = ?" .
-                                  ", account_code = 'PP'",
-                                  [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $insert_value, 0]
-                              );
-                              sqlCommitTrans();
+                            $recorder->recordActivity([
+                                'patientId' => $form_pid,
+                                'encounterId' => $enc,
+                                'codeType' => $Codetype,
+                                'code' => $Code,
+                                'modifier' => $Modifier,
+                                'payerType' => '0',
+                                'postUser' => $session->get('authUserID'),
+                                'sessionId' => $payment_id,
+                                'payAmount' => $insert_value,
+                                'adjustmentAmount' => '0.0',
+                                'accountCode' => 'PP',
+                            ]);
                         }//if
                     }//while
                     if ($amount != 0) {//if any excess is there.
-                              sqlBeginTrans();
-                                $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", [$form_pid, $enc]);
-                                sqlStatement(
-                                    "insert into ar_activity set " .
-                                    "pid = ?" .
-                                    ", encounter = ?" .
-                                    ", sequence_no = ?" .
-                                    ", code_type = ?" .
-                                    ", code = ?" .
-                                    ", modifier = ?" .
-                                    ", payer_type = ?" .
-                                    ", post_time = now() " .
-                                    ", post_user = ?" .
-                                    ", session_id = ?" .
-                                    ", pay_amount = ?" .
-                                    ", adj_amount = ?" .
-                                    ", account_code = 'PP'",
-                                    [$form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, 0, $session->get('authUserID'), $payment_id, $amount, 0]
-                                );
-                                sqlCommitTrans();
+                        $recorder->recordActivity([
+                            'patientId' => $form_pid,
+                            'encounterId' => $enc,
+                            'codeType' => $Codetype,
+                            'code' => $Code,
+                            'modifier' => $Modifier,
+                            'payerType' => '0',
+                            'postUser' => $session->get('authUserID'),
+                            'sessionId' => $payment_id,
+                            'payAmount' => $amount,
+                            'adjustmentAmount' => '0.0',
+                            'accountCode' => 'PP',
+                        ]);
                     }
 
                     //--------------------------------------------------------------------------------------------------------------------

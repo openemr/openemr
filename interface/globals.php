@@ -850,7 +850,10 @@ $globalsBag->set('web_root', $web_root);
 $globalsBag->set('restRequest', $restRequest);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 
-EventAuditLogger::getInstance()->logHttpRequest();
+// Skip HTTP request logging if $skipAuditLog is set (e.g., health checks)
+if (empty($skipAuditLog)) {
+    EventAuditLogger::getInstance()->logHttpRequest();
+}
 
 // Warm translation cache if configured
 if (!empty($GLOBALS['translation_preload_cache'])) {

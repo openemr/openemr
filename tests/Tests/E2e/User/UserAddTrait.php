@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @auther    Bartosz Spyrko-Smietanko
+ * @author    Bartosz Spyrko-Smietanko
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Bartosz Spyrko-Smietanko
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
@@ -92,16 +92,30 @@ trait UserAddTrait
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
 
-        sleep(2); // wait for the form submission to be complete
+        // Switch to default content to properly detect modal state changes
+        $this->client->switchTo()->defaultContent();
+
+        // Wait for the modal iframe to disappear (dialog closes on successful user creation)
+        // The dialog calls dlgclose('reload', false) on success, which closes the modal
+        // and triggers a reload of the admin iframe
+        $this->client->wait(30)->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT)
+            )
+        );
 
         // assert the new user is in the database
         $this->assertUserInDatabase($username);
 
-        // assert the new user can be seen in the gui
-        $this->client->switchTo()->defaultContent();
+        // Wait for the admin iframe to be ready (it reloads after dialog closes)
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        // below line will throw a timeout exception and fail if the new user is not listed
+
+        // Wait for the Add User button to be visible again (indicates the iframe has fully reloaded)
+        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
+
+        // Now wait for the new user to appear in the table
+        // This will throw a timeout exception and fail if the new user is not listed
         $this->client->waitFor("//table//a[text()='$username']");
     }
 

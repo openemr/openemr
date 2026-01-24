@@ -117,7 +117,7 @@ run_testsuite() {
     # Run PHPUnit tests with coverage if enabled
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         phpunit --testsuite certification \
-                --coverage-php coverage/coverage.inferno-phpunit.cov \
+                --coverage-clover coverage.inferno-phpunit.clover.xml \
                 --log-junit junit-inferno.xml \
                 -c "${OPENEMR_DIR}/phpunit.xml"
     else
@@ -159,22 +159,19 @@ collect_inferno_coverage() {
     # Count raw coverage files
     find "${coverage_raw_tmpdir}" -type f -name '*.php' | wc -l | xargs echo 'Found raw Inferno coverage files:'
 
-    # Convert HTTP request coverage to .cov format
+    # Convert HTTP request coverage to clover.xml format
     if [[ -d "${coverage_raw_tmpdir}/inferno" ]]; then
-        mkdir -p coverage
-        sudo chmod -R 777 coverage
         ./ci/convert-coverage "${coverage_raw_tmpdir}/inferno" \
-                              coverage/coverage.inferno-http.cov \
+                              /dev/null \
                               --clover=coverage.inferno-http.clover.xml
-        ls -lah coverage.inferno-http.clover.xml coverage/coverage.inferno-http.cov || true
+        ls -lah coverage.inferno-http.clover.xml || true
     else
         echo "Warning: No Inferno HTTP coverage files found"
     fi
 
-    # Merge all Inferno coverage (PHPUnit + HTTP requests)
-    cd -P "${repo_root}"
-    . ci/ciLibrary.source
-    merge_coverage
+    # Note: Individual coverage files (coverage.inferno-phpunit.clover.xml and
+    # coverage.inferno-http.clover.xml) are uploaded separately to Codecov,
+    # which handles server-side merging. No local merge needed.
 
     echo 'Inferno coverage collection completed'
 }
