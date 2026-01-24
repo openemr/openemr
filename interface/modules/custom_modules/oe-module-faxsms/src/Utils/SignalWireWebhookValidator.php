@@ -7,75 +7,139 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    SignalWire Integration
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2026
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Utils;
 
+/**
+ * SignalWire webhook input validator helpers
+ *
+ */
 final class SignalWireWebhookValidator
 {
-    public static function validateFaxId(?string $value): ?string
+    /**
+     * @param string $faxId
+     * @return string
+     */
+    public static function validateFaxId(string $faxId): string
     {
-        return self::validateString($value, 1, 64);
+        // Remove any characters that aren't alphanumeric, hyphens, or underscores
+        $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $faxId);
+        // Limit length to prevent DoS
+        return substr($sanitized ?? '', 0, 255);
     }
 
-    public static function validateFaxStatus(?string $value): ?string
+    /**
+     * @param string $status
+     * @return string
+     */
+    public static function validateFaxStatus(string $status): string
     {
-        $allowed = ['queued', 'sending', 'sent', 'failed', 'received'];
-        return in_array($value, $allowed, true) ? $value : null;
+        $allowedStatuses = [
+            'queued', 'processing', 'sending', 'sent', 'delivered',
+            'receiving', 'received', 'failed', 'no-answer', 'busy',
+            'canceled', 'unknown'
+        ];
+        $status = strtolower(trim($status));
+        return in_array($status, $allowedStatuses, true) ? $status : 'unknown';
     }
 
-    public static function validatePhoneNumber(?string $value): ?string
+    /**
+     * @param string $phone
+     * @return string
+     */
+    public static function validatePhoneNumber(string $phone): string
     {
-        if (!$value) {
-            return null;
+        // Remove all characters except digits and + for international format
+        $sanitized = preg_replace('/[^0-9+]/', '', $phone);
+        // Limit length (E.164 max is 15 digits + country code)
+        return substr($sanitized ?? '', 0, 20);
+    }
+
+    /**
+     * @param mixed $value
+     * @param int   $min
+     * @param int   $max
+     * @return int
+     */
+    public static function validateInteger(mixed $value, int $min, int $max): int
+    {
+        $intValue = filter_var($value, FILTER_VALIDATE_INT);
+        if ($intValue === false) {
+            return $min;
         }
-
-        $normalized = preg_replace('/[^\d+]/', '', $value);
-        return preg_match('/^\+?\d{7,15}$/', $normalized) ? $normalized : null;
+        return max($min, min($max, $intValue));
     }
 
-    public static function validateInteger(mixed $value): ?int
+    /**
+     * @param string $direction
+     * @return string
+     */
+    public static function validateDirection(string $direction): string
     {
-        return filter_var($value, FILTER_VALIDATE_INT) !== false
-            ? (int)$value
-            : null;
+        $allowedDirections = ['inbound', 'outbound', 'outbound-api', 'outbound-call'];
+        $direction = strtolower(trim($direction));
+        return in_array($direction, $allowedDirections, true) ? $direction : 'inbound';
     }
 
-    public static function validateDirection(?string $value): ?string
+    /**
+     * @param string $input
+     * @param int    $maxLength
+     * @return string
+     */
+    public static function validateString(string $input, int $maxLength): string
     {
-        return in_array($value, ['inbound', 'outbound'], true) ? $value : null;
+        // Remove control characters but preserve newlines for error messages
+        $sanitized = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $input);
+        return substr($sanitized ?? '', 0, $maxLength);
     }
 
-    public static function validateString(?string $value, int $min = 1, int $max = 255): ?string
+    /**
+     * @param string $siteId
+     * @return string
+     */
+    public static function validateSiteId(string $siteId): string
     {
-        if ($value === null) {
-            return null;
-        }
-
-        $value = trim($value);
-        $len = strlen($value);
-
-        return ($len >= $min && $len <= $max) ? $value : null;
+        // Sanitize to prevent path traversal and injection attacks
+        $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $siteId);
+        return !empty($sanitized) ? $sanitized : 'default';
     }
 
-    public static function validateSiteId(?string $value): ?string
+    /**
+     * @param string $url
+     * @return bool
+     */
+    public static function isValidSignalWireUrl(string $url): bool
     {
-        return self::validateString($value, 1, 32);
-    }
+        // Parse and validate URL structure
+        $parsedUrl = parse_url($url);
 
-    public static function isValidSignalWireUrl(?string $value): bool
-    {
-        if (!$value) {
+        if ($parsedUrl === false || !isset($parsedUrl['scheme']) || !isset($parsedUrl['host'])) {
             return false;
         }
 
-        if (!filter_var($value, FILTER_VALIDATE_URL)) {
+        // Only allow HTTPS protocol to prevent file:// and other protocol attacks
+        if ($parsedUrl['scheme'] !== 'https') {
             return false;
         }
 
-        $host = parse_url($value, PHP_URL_HOST);
-        return is_string($host) && str_ends_with($host, '.signalwire.com');
+        // Whitelist of allowed SignalWire domains to prevent SSRF
+        $allowedDomains = [
+            'files.signalwire.com',
+            'api.signalwire.com'
+        ];
+
+        $host = strtolower($parsedUrl['host']);
+
+        // Check if host matches allowed domains exactly or is a subdomain
+        foreach ($allowedDomains as $allowedDomain) {
+            if ($host === $allowedDomain || str_ends_with($host, '.' . $allowedDomain)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
