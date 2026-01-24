@@ -373,6 +373,11 @@ if (isset($_POST['new_login_session_management'])) {
     } else {
         $_POST["clearPass"] = '';
     }
+} elseif (isset($_SESSION["auth_method"]) && $_SESSION["auth_method"] !== "local") {
+    // SSO login - session already authenticated via external provider (e.g., SAML, OIDC, OAuth2)
+    // These flows arrive via GET redirect with an already-authenticated session, so no CSRF token is present.
+    // Modules can set auth_method to their provider name (e.g., 'entra', 'saml', 'oidc').
+    session_regenerate_id(false);
 } else {
     // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
