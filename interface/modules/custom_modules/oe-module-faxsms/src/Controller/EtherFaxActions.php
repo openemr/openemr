@@ -238,7 +238,7 @@ class EtherFaxActions extends AppDispatch
                 $fileName
             );
             // FaxResult::Success = 0, FaxResult::InProgress = 2
-            if (!isset($fax) || !isset($fax->FaxResult)) {
+            if (!is_object($fax) || !property_exists($fax, 'FaxResult')) {
                 return 'Error: ' . json_encode(xlt('Unable to send fax (no response)'));
             }
             $status = $fax;
