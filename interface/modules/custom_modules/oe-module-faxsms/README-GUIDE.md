@@ -4,7 +4,7 @@
 
 ---
 ## **EtherFax Send / Test Warning**
-> When sending a fax to a number within the *same etherFax account* (common for testing/loopback), EtherFax may reuse the **same JobId** for the outbound (Sent) job and the inbound (Received) record.  
+> When sending a fax to a number within the *same etherFax account* (common for testing/loopback), EtherFax may reuse the **same JobId** for the outbound (Sent) job and the inbound (Received) record.
 > Since OpenEMR enforces **unique (account + job_id)** and does not allow duplicates, the inbound “Received” update can overwrite the existing Sent queue entry — meaning you may not see a full Sent-history for that test fax once it is received.
 
 ## 📘 Overview
