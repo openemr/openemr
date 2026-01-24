@@ -292,7 +292,7 @@ class PatientTrackerService extends BaseService
         }
 
         [$color_settings['color'], $color_settings['time_alert']] = explode("|", (string) $row['notes']);
-        $color_setting['color'] = ltrim($color_settings['color'],'#');
+        $color_settings['color'] = ltrim($color_settings['color'],'#');
         return $color_settings;
     }
 
