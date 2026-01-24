@@ -1008,7 +1008,6 @@ class RCFaxClient extends AppDispatch
                             $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($from) . "</td><td>" . text($pname . $to) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
                         }
                         $toName = $to;
-                        $pname ??= '';
                         $fromName = $pname . $from;
                         if ($direction === "outbound") {
                             $toName = $pname . $to;
