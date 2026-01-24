@@ -1,0 +1,130 @@
+Note: Using configuration file /home/sherwin/PhpStorm/PhpstormProjects/openemr/phpstan.neon.dist.
+    0/4022 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%[1G[2K 4022/4022 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  Line   admin.php                                                                                                                                                             
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+         Ignored error pattern #^Variable \$config might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported      
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$database_acl might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in         
+         reported errors.                                                                                                                                                      
+         Ignored error pattern #^Variable \$database_patch might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in       
+         reported errors.                                                                                                                                                      
+         Ignored error pattern #^Variable \$dbase might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported       
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$dbh might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported         
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$host might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported        
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$login might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported       
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$pass might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported        
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$port might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported        
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$v_acl might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported       
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$v_database might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in reported  
+         errors.                                                                                                                                                               
+         Ignored error pattern #^Variable \$v_realpatch might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/admin.php was not matched in          
+         reported errors.                                                                                                                                                      
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  Line   gacl/admin/acl_admin.php                                                                                                                                           
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+         Ignored error pattern #^Variable \$options_acl_sections might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/gacl/admin/acl_admin.php  
+         was not matched in reported errors.                                                                                                                                
+         Ignored error pattern #^Variable \$options_aco_sections might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/gacl/admin/acl_admin.php  
+         was not matched in reported errors.                                                                                                                                
+         Ignored error pattern #^Variable \$options_aro_sections might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/gacl/admin/acl_admin.php  
+         was not matched in reported errors.                                                                                                                                
+         Ignored error pattern #^Variable \$options_axo_sections might not be defined\.$# in path /home/sherwin/PhpStorm/PhpstormProjects/openemr/gacl/admin/acl_admin.php  
+         was not matched in reported errors.                                                                                                                                
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+ ------ -------------------------------------------------------------------------------- 
+  Line   interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php  
+ ------ -------------------------------------------------------------------------------- 
+  191    Function isValidSignalWireUrl not found.                                        
+         🪪  function.notFound                                                           
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols            
+ ------ -------------------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------ 
+  Line   library/ajax/adminacl_ajax.php                              
+ ------ ------------------------------------------------------------ 
+  126    Function ctype_alpha invoked with 1 parameter, 0 required.  
+         🪪  arguments.count                                         
+  137    Function ctype_alpha invoked with 1 parameter, 0 required.  
+         🪪  arguments.count                                         
+  153    Function ctype_alpha invoked with 1 parameter, 0 required.  
+         🪪  arguments.count                                         
+ ------ ------------------------------------------------------------ 
+
+ ------ --------------------------------------------------------------------- 
+  Line   library/ajax/sql_server_status.php                                   
+ ------ --------------------------------------------------------------------- 
+  45     Function mb_convert_encoding invoked with 3 parameters, 0 required.  
+         🪪  arguments.count                                                  
+ ------ --------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------------------------------------------------- 
+  Line   src/BC/Database.php                                                                                              
+ ------ ----------------------------------------------------------------------------------------------------------------- 
+  61     Call to static method getConnection() on an unknown class Doctrine\DBAL\DriverManager.                           
+         🪪  class.notFound                                                                                               
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                                             
+  72     Parameter $conn of method OpenEMR\BC\Database::__construct() has invalid type Doctrine\DBAL\Connection.          
+         🪪  class.notFound                                                                                               
+  72     Property OpenEMR\BC\Database::$conn has unknown class Doctrine\DBAL\Connection as its type.                      
+         🪪  class.notFound                                                                                               
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                                             
+  194    Method OpenEMR\BC\Database::query() has invalid return type Doctrine\DBAL\Result.                                
+         🪪  class.notFound                                                                                               
+  246    Caught class Doctrine\DBAL\Exception not found.                                                                  
+         🪪  class.notFound                                                                                               
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                                             
+  252    Parameter $e of method OpenEMR\BC\Database::helpfulDieDbal() has invalid type Doctrine\DBAL\Exception.           
+         🪪  class.notFound                                                                                               
+  254    Class Doctrine\DBAL\Exception\DriverException not found.                                                         
+         🪪  class.notFound                                                                                               
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                                             
+  281    Parameter $e of method OpenEMR\BC\Database::extractSqlErrorFromDBAL() has invalid type Doctrine\DBAL\Exception.  
+         🪪  class.notFound                                                                                               
+ ------ ----------------------------------------------------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------------------------------ 
+  Line   tests/Tests/BC/DatabaseTest.php                                                           
+ ------ ------------------------------------------------------------------------------------------ 
+  31     Class Doctrine\DBAL\Result not found.                                                     
+         🪪  class.notFound                                                                        
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                      
+  32     Trying to mock an undefined method fetchAssociative() on class Doctrine\DBAL\Result.      
+         🪪  phpunit.mockMethod                                                                    
+  36     Class Doctrine\DBAL\Connection not found.                                                 
+         🪪  class.notFound                                                                        
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                      
+  38     Trying to mock an undefined method executeQuery() on class Doctrine\DBAL\Connection.      
+         🪪  phpunit.mockMethod                                                                    
+  51     Class Doctrine\DBAL\Result not found.                                                     
+         🪪  class.notFound                                                                        
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                      
+  52     Trying to mock an undefined method fetchAssociative() on class Doctrine\DBAL\Result.      
+         🪪  phpunit.mockMethod                                                                    
+  56     Class Doctrine\DBAL\Connection not found.                                                 
+         🪪  class.notFound                                                                        
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                      
+  57     Trying to mock an undefined method executeQuery() on class Doctrine\DBAL\Connection.      
+         🪪  phpunit.mockMethod                                                                    
+  70     Class Doctrine\DBAL\Connection not found.                                                 
+         🪪  class.notFound                                                                        
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols                      
+  71     Trying to mock an undefined method executeStatement() on class Doctrine\DBAL\Connection.  
+         🪪  phpunit.mockMethod                                                                    
+  75     Trying to mock an undefined method lastInsertId() on class Doctrine\DBAL\Connection.      
+         🪪  phpunit.mockMethod                                                                    
+ ------ ------------------------------------------------------------------------------------------ 
+
+ [ERROR] Found 40 errors                                                                                                
+

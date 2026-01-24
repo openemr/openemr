@@ -7,66 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../Documentation/help_files/sl_eob_help.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$config might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$database_acl might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$database_patch might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$dbase might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$dbh might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$host might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$login might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pass might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$port might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$v_acl might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$v_database might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$v_realpatch might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$authorID might not be defined\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../ccr/createCCRActor.php',
@@ -479,26 +419,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$i might not be defined\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$options_acl_sections might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$options_aco_sections might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$options_aro_sections might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$options_axo_sections might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
