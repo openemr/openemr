@@ -197,7 +197,7 @@ class FHIREncounter extends FHIRDomainResource implements \JsonSerializable
     public $location = [];
 
     /**
-     * The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed seperately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy.
+     * The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed separately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy.
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
     public $serviceProvider = null;
@@ -634,7 +634,7 @@ class FHIREncounter extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed seperately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy.
+     * The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed separately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy.
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRReference
      */
     public function getServiceProvider()
@@ -643,7 +643,7 @@ class FHIREncounter extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed seperately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy.
+     * The organization that is primarily responsible for this Encounter's services. This MAY be the same as the organization on the Patient record, however it could be different, such as if the actor performing the services was from an external organization (which may be billed separately) for an external consultation.  Refer to the example bundle showing an abbreviated set of Encounters for a colonoscopy.
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRReference $serviceProvider
      * @return $this
      */

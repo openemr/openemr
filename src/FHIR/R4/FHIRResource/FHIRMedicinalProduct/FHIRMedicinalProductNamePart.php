@@ -76,7 +76,7 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
     public $part = null;
 
     /**
-     * Idenifying type for this part of the name (e.g. strength part).
+     * Identifying type for this part of the name (e.g. strength part).
      * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
     public $type = null;
@@ -107,7 +107,7 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * Idenifying type for this part of the name (e.g. strength part).
+     * Identifying type for this part of the name (e.g. strength part).
      * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding
      */
     public function getType()
@@ -116,7 +116,7 @@ class FHIRMedicinalProductNamePart extends FHIRBackboneElement implements \JsonS
     }
 
     /**
-     * Idenifying type for this part of the name (e.g. strength part).
+     * Identifying type for this part of the name (e.g. strength part).
      * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCoding $type
      * @return $this
      */
