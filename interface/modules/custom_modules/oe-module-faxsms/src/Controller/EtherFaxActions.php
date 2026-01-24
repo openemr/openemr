@@ -123,8 +123,9 @@ class EtherFaxActions extends AppDispatch
                 break;
             }
             if (!empty($fax->JobId)) {
-                $this->insertFaxQueue($fax);
-                $this->client->setFaxReceived($fax->JobId);
+                if ($this->client->setFaxReceived($fax->JobId)) {
+                    $this->insertFaxQueue($fax);
+                }
             }
         }
         // return the count of faxes processed
@@ -179,7 +180,6 @@ class EtherFaxActions extends AppDispatch
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         }
-        // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docid');
@@ -187,21 +187,23 @@ class EtherFaxActions extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS['SMTP_USER'] ?? null);
+
         $user = $this::getLoggedInUser();
-        $facility = substr((string)$user['facility'], 0, 20);
-        $csid = $this->formatPhone($this->credentials['phone']);
-        $tag = $user['username'];
+        $facility = substr((string)($user['facility'] ?? ''), 0, 20);
+        $csid = $this->formatPhone($this->credentials['phone'] ?? '');
+        $tag = $user['username'] ?? '';
         $fileName = '';
 
+        // Validate file path if not content
         $allowedTempDir = realpath($this->baseDir . '/send/');
         if (empty($isContent)) {
-            if (str_starts_with((string) $file, 'file://')) {
-                $file = substr((string) $file, 7);
+            if (str_starts_with((string)$file, 'file://')) {
+                $file = substr((string)$file, 7);
             }
-            $realPath = realpath($file);
+            $realPath = realpath((string)$file);
             if ($realPath !== false) {
-                if (!str_starts_with($realPath, $allowedTempDir)) {
+                if ($allowedTempDir === false || !str_starts_with($realPath, $allowedTempDir)) {
                     error_log("Path traversal blocked: " . $realPath);
                     return xlt('Error: Invalid file location');
                 }
@@ -212,40 +214,90 @@ class EtherFaxActions extends AppDispatch
             }
         }
 
+        // If document mode, load from Document table instead
         if ($isDocuments) {
-            $file = (new Document($docId))->get_data();
-            $fileName = (new Document($docId))->get_name() ?? 'document';
+            $doc = new Document($docId);
+            $file = $doc->get_data();
+            $fileName = $doc->get_name() ?? 'document';
         }
 
+        // Optional email copy
         if ($hasEmail && $smtpEnabled) {
             self::emailDocument($email, '', $file, $user);
         }
 
         try {
-            $fax = $this->client->sendFax($phone, $file, null, $facility, $csid, $tag, $isDocuments, $fileName);
-            if (!$fax->FaxResult) {
-                return 'Error: ' . json_encode($fax->Message);
+            $fax = $this->client->etherFaxSend(
+                $phone,
+                $file,
+                null,
+                $facility,
+                $csid,
+                $tag,
+                $isDocuments,
+                $fileName
+            );
+            // FaxResult::Success = 0, FaxResult::InProgress = 2
+            if (!isset($fax) || !isset($fax->FaxResult)) {
+                return 'Error: ' . json_encode(xlt('Unable to send fax (no response)'));
             }
-            $status = null;
-            if ($fax->FaxResult == FaxResult::InProgress) {
-                while (true) {
-                    $status = $this->client->getFaxStatus($fax->JobId);
-                    if (!$status || $status->FaxResult != FaxResult::InProgress) {
-                        break;
+            $status = $fax;
+            // If InProgress, poll for a short time to catch early failure/success,
+            // but do NOT block indefinitely.
+            if (!empty($fax->JobId) && ($fax->FaxResult == FaxResult::InProgress)) {
+                $jobId = $fax->JobId;
+                $maxSeconds = 15; // keep short to avoid blocking request
+                $deadline = time() + $maxSeconds;
+                $sleep = 2;
+                $maxSleep = 8;
+                $nullCount = 0;
+                while (time() < $deadline) {
+                    $polled = $this->client->getFaxStatus($jobId);
+                    $http = (int)($this->client->getHttpCode() ?? 0);
+                    if (!empty($polled) && isset($polled->FaxResult)) {
+                        $status = $polled;
+                        $nullCount = 0;
+                        if ($status->FaxResult != FaxResult::InProgress) {
+                            break;
+                        }
+                    } else {
+                        // If HTTP was a hard failure (4xx/5xx), stop
+                        $nullCount++;
+                        if ($http >= 400) {
+                            break;
+                        }
+                        if ($nullCount >= 3) {
+                            break;
+                        }
                     }
-                    sleep(5);
+                    sleep($sleep);
+                    $sleep = min($sleep + 2, $maxSleep);
                 }
             }
-            // Store sent fax in queue for tracking (don't block waiting for completion)
-            if (!empty($status->JobId)) {
-                $status->FaxImage = $fax->FaxImage;
+            // Always store sent fax in queue for tracking (even if still InProgress)
+            // Use JobId from initial response if polling didn't return a JobId
+            if (!empty($fax->JobId)) {
+                $status->JobId ??= $fax->JobId;
+                // Preserve the FaxImage from initial response (status response may not include it)
+                if (!empty($fax->FaxImage)) {
+                    $status->FaxImage = $fax->FaxImage;
+                }
                 $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return 'Error: ' . json_encode($e->getMessage());
         }
-
-        return $status->FaxResult ? 'Error: ' . json_encode(FaxResult::getFaxResult($status->FaxResult)) : json_encode(FaxResult::getFaxResult($status->FaxResult));
+        $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
+        // Treat InProgress as non-error (queued for tracking)
+        if (($status->FaxResult ?? null) === FaxResult::InProgress) {
+            return json_encode($resultName);
+        }
+        // Success => OK
+        if (($status->FaxResult ?? null) === FaxResult::Success) {
+            return json_encode($resultName);
+        }
+        // Everything else => Error (include mapped name)
+        return 'Error: ' . json_encode($resultName);
     }
 
     /**
@@ -335,7 +387,7 @@ class EtherFaxActions extends AppDispatch
 
         if ($faxNumber) {
             try {
-                $fax = $this->client->sendFax($faxNumber, $filepath, null, $facility, $csid, $tag, false);
+                $fax = $this->client->etherFaxSend($faxNumber, $filepath, null, $facility, $csid, $tag, false);
                 if (!$fax->FaxResult) {
                     return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
                 }
@@ -795,17 +847,42 @@ class EtherFaxActions extends AppDispatch
     public function insertFaxQueue($faxDetails): int
     {
         $account = $this->credentials['account'];
-        $uid = $_SESSION['authUserID'];
-        $jobId = $faxDetails->JobId;
-        $to = $faxDetails->CalledNumber;
-        $from = $faxDetails->CallingNumber;
-        $received = date('Y-m-d H:i:s', strtotime($faxDetails->ReceivedOn . ' UTC'));
-        $docType = $faxDetails->DocumentParams->Type;
+        $uid = (int)($_SESSION['authUserID'] ?? 0);
+        $jobId = (string)($faxDetails->JobId ?? '');
+        $to = (string)($faxDetails->CalledNumber ?? '');
+        $from = (string)($faxDetails->CallingNumber ?? '');
+        $received = date('Y-m-d H:i:s', strtotime(($faxDetails->ReceivedOn ?? '') . ' UTC'));
+        $docType = (string)($faxDetails->DocumentParams->Type ?? '');
         $details_encoded = json_encode($faxDetails);
+        if ($details_encoded === false) {
+            $details_encoded = '{}';
+        }
 
-        $sql = "INSERT INTO `oe_faxsms_queue` (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`) VALUES (NULL, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, ?)";
+        $sql = <<<SQL
+INSERT INTO `oe_faxsms_queue`
+    (`id`, `uid`, `account`, `job_id`, `date`, `receive_date`, `calling_number`, `called_number`, `mime`, `details_json`)
+VALUES
+    (NULL, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE
+    `id` = LAST_INSERT_ID(`id`),
+    `uid` = VALUES(`uid`),
+    `receive_date` = VALUES(`receive_date`),
+    `calling_number` = VALUES(`calling_number`),
+    `called_number` = VALUES(`called_number`),
+    `mime` = VALUES(`mime`),
+    `details_json` = VALUES(`details_json`)
+SQL;
 
-        return sqlInsert($sql, [$uid, $account, $jobId, $received, $from, $to, $docType, $details_encoded]);
+        return (int)sqlInsert($sql, [
+            $uid,
+            $account,
+            $jobId,
+            $received,
+            $from,
+            $to,
+            $docType,
+            $details_encoded
+        ]);
     }
 
     /**
