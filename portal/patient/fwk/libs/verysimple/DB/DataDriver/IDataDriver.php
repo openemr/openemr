@@ -19,7 +19,7 @@ interface IDataDriver
 {
     /**
      * returns a string to identify the type of server
-     * supported in the implemenation
+     * supported in the implementation
      *
      * @return string
      */
@@ -82,7 +82,7 @@ interface IDataDriver
     function Execute($connection, $sql);
 
     /**
-     * Moves the database curser forward and returns the current row as an associative array
+     * Moves the database cursor forward and returns the current row as an associative array
      * When no more data is available, null is returned
      *
      * @param
@@ -122,7 +122,7 @@ interface IDataDriver
     function Release($connection, $rs);
 
     /**
-     * Remove or escape any characters that will cause a SQL statment
+     * Remove or escape any characters that will cause a SQL statement
      * to crash or cause an injection exploit
      *
      * @param
@@ -149,7 +149,7 @@ interface IDataDriver
      * @param
      *          string name of the database
      * @param $ommitEmptyTables (default
-     *          false) set to true and tables with no data will be ommitted
+     *          false) set to true and tables with no data will be omitted
      */
     function GetTableNames($connection, $dbname, $ommitEmptyTables = false);
 

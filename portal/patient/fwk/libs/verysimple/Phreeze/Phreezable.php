@@ -208,7 +208,7 @@ abstract class Phreezable
     }
 
     /**
-     * Init is called after contruction.
+     * Init is called after construction.
      * When loading, Init is called prior to Load().
      * When creating a blank object, Init is called immediately after LoadDefaults()
      *

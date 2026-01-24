@@ -20,7 +20,7 @@ class VerySimpleStringUtil
     /** @var list of xml reserved characters */
     static $XML_SPECIAL_CHARS;
 
-    /** @var associative array containing the html translation for special characters with their numeric equivilant */
+    /** @var associative array containing the html translation for special characters with their numeric equivalent */
     static $HTML_ENTITIES_TABLE;
 
     /** @var common characters, especially on windows systems, that are technical not valid */
@@ -309,7 +309,7 @@ class VerySimpleStringUtil
     }
 
     /**
-     * This replaces all non-numeric html entities with the numeric equivilant
+     * This replaces all non-numeric html entities with the numeric equivalent
      *
      * @param string $string
      * @return string
@@ -333,7 +333,7 @@ class VerySimpleStringUtil
     /**
      * This is The same as UTFToHTML except it utilizes htmlentities, which will return the Named
      * HTML code when possible (ie &pound; &sect;, etc).
-     * It is preferrable in all cases to use
+     * It is preferable in all cases to use
      * UTFToHTML instead unless you absolutely have to have named entities
      *
      * @param string $string
