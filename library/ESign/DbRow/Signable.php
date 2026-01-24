@@ -135,7 +135,7 @@ abstract class DbRow_Signable implements SignableIF
         $id = sqlInsert($statement, $signature);
 
         if ($id === false) {
-            throw new \Exception("Error occured while attempting to insert a signature into the database.");
+            throw new \Exception("Error occurred while attempting to insert a signature into the database.");
         }
 
         return $id;

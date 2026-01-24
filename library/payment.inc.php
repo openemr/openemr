@@ -54,11 +54,11 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 }
 
 //===============================================================================
-//This section handles the common functins of payment screens.
+//This section handles the common functions of payment screens.
 //===============================================================================
 function DistributionInsert(int $CountRow, $created_time, $user_id): void
 {
-//Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
+//Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as separate rows.
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $r = new Recorder();

@@ -38,6 +38,6 @@ if ((isset($_POST['target'])) && (isset($_POST['setting']))) {
     setUserSetting($_POST['target'], $_POST['setting']);
 }
 
-// @todo This is crude, but if we make it here thre should be a proper response, so for now send a 200 but really we need better Response handling
+// @todo This is crude, but if we make it here there should be a proper response, so for now send a 200 but really we need better Response handling
 $res = new Response();
 $res->send();

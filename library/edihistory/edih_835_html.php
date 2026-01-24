@@ -483,9 +483,9 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 //
                 $clp01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';                                        // Pt ID CLM01
                 $clp02 = (isset($sar[2]) && $sar[2]) ? $cd835->get_835_code('CLAIM_STATUS', $sar[2]) : '';  // status code
-                $clp03 = (isset($sar[3]) && $sar[3]) ? edih_format_money($sar[3]) : '0';                    // fee amont
+                $clp03 = (isset($sar[3]) && $sar[3]) ? edih_format_money($sar[3]) : '0';                    // fee amount
                 $clp04 = (isset($sar[4]) && $sar[4]) ? edih_format_money($sar[4]) : '0';                    // paid amount
-                $clp05 = (isset($sar[5]) && $sar[5]) ? edih_format_money($sar[5]) : '0';                    // pt responsibility amont
+                $clp05 = (isset($sar[5]) && $sar[5]) ? edih_format_money($sar[5]) : '0';                    // pt responsibility amount
                 $clp06 = (isset($sar[6]) && $sar[6]) ? $cd835->get_835_code('CLP06', $sar[6]) : '';         // filing indicator code
                 $clp07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';                                        // Payer reference ID
                 $clp08 = (isset($sar[8]) && $sar[8]) ? "<em>Location</em> " . text($cd27x->get_271_code('POS', $sar[8])) : ''; // Faciliy code place of service
@@ -972,7 +972,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $bpr09 = (isset($sar[9]) && $sar[9]) ? $sar[9] : '';                                // sender account number
                 $bpr10 = (isset($sar[10]) && $sar[10]) ? $sar[10] : '';                             // originating company ID
                 $bpr11 = (isset($sar[11]) && $sar[11]) ? $sar[11] : '';                             // originating company supplemental ID
-                $bpr12 = (isset($sar[12]) && $sar[12]) ? $sar[12] : '';                             // deposit acount ID
+                $bpr12 = (isset($sar[12]) && $sar[12]) ? $sar[12] : '';                             // deposit account ID
                 $bpr13 = (isset($sar[13]) && $sar[13]) ? $sar[13] : '';                             // deposit bank ID
                 $bpr14 = (isset($sar[14]) && $sar[14]) ? $sar[14] : '';                             // account type DA deposit SG savings
                 $bpr15 = (isset($sar[15]) && $sar[15]) ? $sar[15] : '';                             // account number

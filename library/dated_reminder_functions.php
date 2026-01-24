@@ -103,7 +103,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
-// --------- need to run patient query seperately to allow for reminders not linked to a patient
+// --------- need to run patient query separately to allow for reminders not linked to a patient
         $pRow = [];
         if ($drRow['pid'] > 0) {
             $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
@@ -242,7 +242,7 @@ function getRemindersHTML($today, $reminders = []): string
         }
 
         // end check if reminder is due or overdue
-        // apend to html string
+        // append to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
             <a onclick="openAddScreen(' . attr(addslashes((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
             <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes((string) $r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
@@ -289,7 +289,7 @@ function setReminderAsProcessed($rID, $userID = false): void
 
         // --- if this user can delete this message (ie if it was sent to this user)
         if ($rdrRow['c'] == 1) {
-            // ----- update the data, set the message to proccesses
+            // ----- update the data, set the message to processes
             sqlStatement("UPDATE `dated_reminders` SET  `message_processed` = 1, `processed_date` = NOW(), `dr_processed_by` = ? WHERE `dr_id` = ? ", [intval($userID), intval($rID)]);
         }
     }
@@ -449,7 +449,7 @@ function logRemindersArray(): array
     }
 
 //------------------------------------------
-// ----- HANDLE PROCCESSED/PENDING FILTER ONLY RUN THIS IF BOTH ARE NOT SET
+// ----- HANDLE PROCESSED/PENDING FILTER ONLY RUN THIS IF BOTH ARE NOT SET
     if (isset($_GET['processed']) and !isset($_GET['pending'])) {
         $where = ($where == '' ? 'dr.message_processed = 1' : $where . ' AND dr.message_processed = 1');
     } elseif (!isset($_GET['processed']) and isset($_GET['pending'])) {
@@ -492,7 +492,7 @@ function logRemindersArray(): array
     );
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {
-// --------- need to run patient query seperately to allow for messages not linked to a patient
+// --------- need to run patient query separately to allow for messages not linked to a patient
         $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", [$drRow['pid']]);
         $pRow = sqlFetchArray($pSQL);
 

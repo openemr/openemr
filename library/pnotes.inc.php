@@ -389,7 +389,7 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
 
 /** Add a note to a patient's medical record.
  *
- * @param int $pid the ID of the patient whos medical record this note is going to be attached to.
+ * @param int $pid the ID of the patient whose medical record this note is going to be attached to.
  * @param string $newtext the note contents.
  * @param int $authorized
  * @param int $activity

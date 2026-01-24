@@ -70,7 +70,7 @@ class Document extends ORDataObject
 
     /*
     *  DB unique identifier reference to A PATIENT RECORD, this is not unique in the document table. For actual foreign
-    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatability we ONLY use this for patient
+    *  keys to a NON-Patient record use foreign_reference_id.  For backwards compatibility we ONLY use this for patient
     *  documents.
     *   @public int
     */
@@ -146,7 +146,7 @@ class Document extends ORDataObject
     public $pages;
 
     /*
-    *   Foreign key identifier of who initially persisited the document,
+    *   Foreign key identifier of who initially persisted the document,
     *   potentially ownership could be changed but that would be up to an external non-document object process
     *   @public int
     */
@@ -795,7 +795,7 @@ class Document extends ORDataObject
     }
     /*
     *   Overridden function to stor current object state in the db.
-    *   current overide is to allow for a just in time foreign id, often this is needed
+    *   current override is to allow for a just in time foreign id, often this is needed
     *   when the object is never directly exposed and is handled as part of a larger
     *   object hierarchy.
     *   @param int $fid foreign id that should be used so that this document can be related (joined) on it later
@@ -1056,7 +1056,7 @@ class Document extends ORDataObject
                     $storedThumbnailData = $thumbnail_data;
                 }
                 if (file_exists($filepath . $this->get_thumb_name($filenameUuid))) {
-                    // this should never happend with current uuid mechanism
+                    // this should never happen with current uuid mechanism
                     return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
                 if (

@@ -100,7 +100,7 @@ class smtp_class
         {
             if(feof($this->connection))
             {
-                $this->error="reached the end of data while reading from the SMTP server conection";
+                $this->error="reached the end of data while reading from the SMTP server connection";
                 return("");
             }
             if(GetType($data=@fgets($this->connection,100))!="string"
