@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 177 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$duplicates on left side of \\?\\? always exists and is not nullable\\.$#',

@@ -2,9 +2,9 @@
 <!--
 Conversion of CCR to Level 3 CCD
 
-Orginal Author:   	Ken Miller
+Original Author:   	Ken Miller
 Solventus LLC
-ken.miller@solventus.coms
+ken.miller@solventus.com
 
 Contributors:
 Richard Braman, EHR Doctors, Inc rbraman@ehrdoctors.com
@@ -1686,7 +1686,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
                                         <table>
                                             <tbody>
                                                 <tr>
-                                                    <th>Descripion</th>
+                                                    <th>Description</th>
                                                     <th>Plan Status</th>
                                                     <th>Type</th>
                                                     <th>Date</th>

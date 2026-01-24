@@ -699,7 +699,7 @@ class C_Document extends Controller
                 header("Content-Length: " . strlen($filetext));
                 echo $filetext;
             }
-            exit;//exits only if file download from CouchDB is successfull.
+            exit; // exits only if file download from CouchDB is successful.
         }
         if ($couch_docid && $couch_revid) {
             //special case when retrieving a document from couchdb that has been converted to a jpg and not directly referenced in openemr documents table

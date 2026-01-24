@@ -1804,7 +1804,7 @@ FRM;
                         $csrf_id_esc = attr(CsrfUtils::collectCsrfToken('state1'));
                         $form = <<<FRM
                                     <br />
-                                    <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
+                                    <p class='p-1 bg-warning'>$caution: Permissions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
                                     <p class='mark'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                     <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
                                     <br />

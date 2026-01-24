@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 33 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\CustomSkeletonFHIRResourceService not found\\.$#',

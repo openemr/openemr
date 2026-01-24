@@ -80,10 +80,10 @@ class C_X12Partner extends Controller
         }
 
         $this->x12_partners[0]->persist();
-        //insurance numbers need to be repopulated so that insurance_company_name recieves a value
+        //insurance numbers need to be repopulated so that insurance_company_name receives a value
         $this->x12_partners[0]->populate();
 
-        //echo "action processeed";
+        //echo "action processed";
         $_POST['process'] = "";
         $this->_state = false;
         header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H

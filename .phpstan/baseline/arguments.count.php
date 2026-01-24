@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 32 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function build_PMSFH invoked with 0 parameters, 1 required\\.$#',

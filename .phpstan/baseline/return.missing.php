@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 20 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method pnHTML\\:\\:EndPage\\(\\) should return string but return statement is missing\\.$#',

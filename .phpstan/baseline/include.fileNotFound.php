@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 5 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Path in include\\(\\) "footer\\.php" is not a file or it does not exist\\.$#',
